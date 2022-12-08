@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 )
 
-// Structure for env vars passed to provider
+// ENVVars is a structure for env vars passed to provider
 type ENVVars struct {
 	Host     string
 	Username string
@@ -15,7 +15,7 @@ type ENVVars struct {
 	Version  string
 }
 
-// Variable for env vars
+// ENV Variable for env vars
 var ENV *ENVVars = &ENVVars{
 	Host:     "",
 	Username: "",
@@ -25,7 +25,7 @@ var ENV *ENVVars = &ENVVars{
 	Version:  "",
 }
 
-// Print json pretty format
+// PrettyJSON functio for Print json pretty format
 func PrettyJSON(data interface{}) string {
 	buffer := new(bytes.Buffer)
 	encoder := json.NewEncoder(buffer)

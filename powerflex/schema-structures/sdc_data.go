@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+// SDCDataresourceSchema schema for SDC Data resource
 var SDCDataresourceSchema map[string]*schema.Schema = map[string]*schema.Schema{
 	"id": {
 		Type:        schema.TypeString,
@@ -76,7 +77,7 @@ var SDCDataresourceSchema map[string]*schema.Schema = map[string]*schema.Schema{
 	},
 }
 
-// Convert returned sdc object(from goscaleio) to terraform output schema
+// SdcToMap function for Convert returned sdc object(from goscaleio) to terraform output schema
 func SdcToMap(s goscaleiotypes.Sdc) map[string]interface{} {
 	resultSDC := make(map[string]interface{})
 	resultSDC["id"] = s.ID
@@ -90,7 +91,7 @@ func SdcToMap(s goscaleiotypes.Sdc) map[string]interface{} {
 	return resultSDC
 }
 
-// Convert returned sdc object(from goscaleio) [after name changes] to terraform output schema
+// NameChangedSdcToMap function to convert returned sdc object(from goscaleio) [after name changes] to terraform output schema
 func NameChangedSdcToMap(s goscaleiotypes.Sdc) map[string]interface{} {
 	resultSDC := make(map[string]interface{})
 	resultSDC["id"] = s.ID

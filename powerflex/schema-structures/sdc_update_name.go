@@ -4,7 +4,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// SDC CRUD operation Schema
+// SDCCRUDSchema is schema for SDC CRUD operation
 var SDCCRUDSchema map[string]*schema.Schema = map[string]*schema.Schema{
 	"id": {
 		Type:        schema.TypeString,
