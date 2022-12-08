@@ -1,11 +1,11 @@
-package schemastructures
+package models
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// SDCCRUDSchema is schema for SDC CRUD operation
-var SDCCRUDSchema map[string]*schema.Schema = map[string]*schema.Schema{
+// SDCCRUDModel is schema for SDC CRUD operation
+var SDCCRUDModel map[string]*schema.Schema = map[string]*schema.Schema{
 	"id": {
 		Type:        schema.TypeString,
 		Description: "Enter ID of Powerflex SDC of which name will be changed.",

@@ -1,9 +1,10 @@
-package datasources
+package sdc
 
 import (
 	"context"
-	"terraform-provider-powerflex/client/helper"
-	schemastructures "terraform-provider-powerflex/powerflex/schema-structures"
+	"terraform-provider-powerflex/client"
+	sdchelper "terraform-provider-powerflex/helper/sdc"
+	sdcmodels "terraform-provider-powerflex/models/sdc"
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -14,13 +15,13 @@ import (
 func ResourceSdcs() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceSdcsUpdate,
-		Schema:      schemastructures.SDCCRUDSchema,
+		Schema:      sdcmodels.SDCCRUDModel,
 	}
 }
 
 func resourceSdcsUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
-	goscaleioClient := helper.GoscaleioClient
+	goscaleioClient := client.GoscaleioClient
 
 	systemID := d.Get("systemid").(string)
 	sdcID := d.Get("id").(string)
@@ -51,9 +52,9 @@ func resourceSdcsUpdate(ctx context.Context, d *schema.ResourceData, m interface
 	}
 
 	resultMap := make([]map[string]interface{}, 0)
-	resultSdcMap := schemastructures.NameChangedSdcToMap(*nameChngedSdc.Sdc)
+	resultSdcMap := sdchelper.NameChangedSdcToMap(*nameChngedSdc.Sdc)
 
-	tflog.Debug(ctx, "[PowerFlex][NameChangedSdcToMap] sdc - "+helper.PrettyJSON(resultSdcMap))
+	tflog.Debug(ctx, "[PowerFlex][NameChangedSdcToMap] sdc - "+client.PrettyJSON(resultSdcMap))
 	resultMap = append(resultMap, resultSdcMap)
 
 	if err := d.Set("sdcs", resultMap); err != nil {
@@ -75,12 +76,12 @@ func resourceSdcsUpdate(ctx context.Context, d *schema.ResourceData, m interface
 // 		tflog.Error(ctx, err.Error())
 // 		return diags
 // 	}
-// 	tflog.Debug(ctx, "[PowerFlex][getSingleSdc] sdc - "+helper.PrettyJSON(singleSdc))
+// 	tflog.Debug(ctx, "[PowerFlex][getSingleSdc] sdc - "+client.PrettyJSON(singleSdc))
 
 // 	resultMap := make([]map[string]interface{}, 0)
-// 	resultSdcMap := schemastructures.NameChangedSdcToMap(*singleSdc.Sdc)
+// 	resultSdcMap := sdchelper.NameChangedSdcToMap(*singleSdc.Sdc)
 
-// 	tflog.Debug(ctx, "[PowerFlex][Anshuman] sdc - "+helper.PrettyJSON(resultSdcMap))
+// 	tflog.Debug(ctx, "[PowerFlex][Anshuman] sdc - "+client.PrettyJSON(resultSdcMap))
 // 	resultMap = append(resultMap, resultSdcMap)
 
 // 	if err := d.Set("sdcs", resultMap); err != nil {

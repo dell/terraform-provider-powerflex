@@ -1,9 +1,14 @@
-package helper
+package client
 
 import (
 	"bytes"
 	"encoding/json"
+
+	"github.com/AnshumanPradipPatil1506/goscaleio"
 )
+
+// GoscaleioClient object for client to carry goscaleio object sigular
+var GoscaleioClient *goscaleio.Client
 
 // ENVVars is a structure for env vars passed to provider
 type ENVVars struct {

@@ -1,9 +1,9 @@
-package schemastructures
+package auth
 
 import (
 	"context"
 	"os"
-	"terraform-provider-powerflex/client/helper"
+	"terraform-provider-powerflex/client"
 
 	"github.com/AnshumanPradipPatil1506/goscaleio"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -11,52 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// AuthSchema schema for authentication inputs for goscaleio
-var AuthSchema map[string]*schema.Schema = map[string]*schema.Schema{
-	"host": {
-		Type:        schema.TypeString,
-		Required:    true,
-		DefaultFunc: schema.EnvDefaultFunc("PFxM_HOST", nil),
-	},
-	"username": {
-		Type:        schema.TypeString,
-		Description: "Add Powerflex Manager Username",
-		Required:    true,
-		Sensitive:   true,
-		DefaultFunc: schema.EnvDefaultFunc("PFxM_USERNAME", nil),
-	},
-	"password": {
-		Type:        schema.TypeString,
-		Description: "Add Powerflex Manager Password",
-		Required:    true,
-		Sensitive:   true,
-		DefaultFunc: schema.EnvDefaultFunc("PFxM_PASSWORD", nil),
-	},
-	"insecure": {
-		Type:        schema.TypeString,
-		Description: "Add Insecure Value[true/false]",
-		Required:    true,
-		Sensitive:   true,
-		DefaultFunc: schema.EnvDefaultFunc("PFxM_INSECURE", "true"), // anshuman check default to set
-	},
-	"usecerts": {
-		Type:        schema.TypeString,
-		Description: "Add Use Certificates Value[true/false]",
-		Required:    true,
-		Sensitive:   true,
-		DefaultFunc: schema.EnvDefaultFunc("PFxM_USECERTS", "true"), // anshuman check default to set
-	},
-	"pfxm_version": {
-		Type:        schema.TypeString,
-		Description: "Add Powerflex Manager Verion",
-		Required:    true,
-		Sensitive:   true,
-		DefaultFunc: schema.EnvDefaultFunc("PFxM_VERSION", ""), // anshuman check default to set
-	},
-}
-
-// AuthConfigure function for authenticating goscaleio
-func AuthConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+// AuthHandler function for authenticating goscaleio
+func AuthHandler(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	host := d.Get("host").(string)
 	username := d.Get("username").(string)
@@ -70,14 +26,14 @@ func AuthConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, di
 	os.Setenv("GOSCALEIO_INSECURE", insecure)
 	os.Setenv("GOSCALEIO_USECERTS", useCerts)
 
-	helper.ENV.Username = username
-	helper.ENV.Password = password
-	helper.ENV.Host = host
-	helper.ENV.Insecure = insecure
-	helper.ENV.UseCerts = useCerts
-	helper.ENV.Version = version
+	client.ENV.Username = username
+	client.ENV.Password = password
+	client.ENV.Host = host
+	client.ENV.Insecure = insecure
+	client.ENV.UseCerts = useCerts
+	client.ENV.Version = version
 
-	client, err := goscaleio.NewClient()
+	goscaleioclient, err := goscaleio.NewClient()
 
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
@@ -90,7 +46,7 @@ func AuthConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, di
 		return nil, diags
 	}
 	tflog.Info(ctx, "[PowerFlex][AuthConfigure] Successfuly Created ScaleIO Client")
-	helper.GoscaleioClient = client
+	client.GoscaleioClient = goscaleioclient
 	tflog.Debug(ctx, "[PowerFlex][AuthConfigure] username "+username)
 	tflog.Debug(ctx, "[PowerFlex][AuthConfigure] password "+password)
 	tflog.Debug(ctx, "[PowerFlex][AuthConfigure] host here"+host)
@@ -103,7 +59,7 @@ func AuthConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, di
 	goscaleioConf.Version = version
 	goscaleioConf.Password = password
 
-	_, err = helper.GoscaleioClient.Authenticate(&goscaleioConf)
+	_, err = client.GoscaleioClient.Authenticate(&goscaleioConf)
 
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{

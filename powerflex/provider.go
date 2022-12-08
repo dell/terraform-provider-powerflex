@@ -1,8 +1,9 @@
 package powerflex
 
 import (
-	datasources "terraform-provider-powerflex/powerflex/data-sources"
-	schemastructures "terraform-provider-powerflex/powerflex/schema-structures"
+	authmodel "terraform-provider-powerflex/models/auth"
+	"terraform-provider-powerflex/powerflex/auth"
+	"terraform-provider-powerflex/powerflex/sdc"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -10,14 +11,14 @@ import (
 // Provider -
 func Provider() *schema.Provider {
 	return &schema.Provider{
-		Schema:       schemastructures.AuthSchema,
+		Schema:       authmodel.AuthSchemaModel,
 		ResourcesMap: map[string]*schema.Resource{
 			// "powerflex_sdcs": datasources.ResourceSdcs(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"powerflex_sdcs":            datasources.DataSourceSdcs(),
-			"powerflex_sdc_name_change": datasources.ResourceSdcs(),
+			"powerflex_sdcs":            sdc.DataSourceSdcs(),
+			"powerflex_sdc_name_change": sdc.ResourceSdcs(),
 		},
-		ConfigureContextFunc: schemastructures.AuthConfigure,
+		ConfigureContextFunc: auth.AuthHandler,
 	}
 }

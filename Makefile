@@ -27,20 +27,20 @@ release:
 
 install: build
 	rm -rfv /root/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
-	rm -rfv example/.terraform
-	rm -rfv example/.terraform.lock.hcl
-	rm -rfv example/terraform.tfstate
-	rm -rfv example/trace.txt
+	rm -rfv examples/.terraform
+	rm -rfv examples/.terraform.lock.hcl
+	rm -rfv examples/terraform.tfstate
+	rm -rfv examples/trace.txt
 	
 	mkdir -p /root/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 	mv ${BINARY} /root/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 
 uninstall:
 	rm -rfv /root/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
-	rm -rfv example/.terraform
-	rm -rfv example/.terraform.lock.hcl
-	rm -rfv example/terraform.tfstate
-	rm -rfv example/trace.txt
+	rm -rfv examples/.terraform
+	rm -rfv examples/.terraform.lock.hcl
+	rm -rfv examples/terraform.tfstate
+	rm -rfv examples/trace.txt
 
 test: 
 	go test -i $(TEST) || exit 1                                                   

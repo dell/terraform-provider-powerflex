@@ -1,11 +1,12 @@
-package datasources
+package sdc
 
 import (
 	"context"
 	"strconv"
 
-	"terraform-provider-powerflex/client/helper"
-	schemastructures "terraform-provider-powerflex/powerflex/schema-structures"
+	"terraform-provider-powerflex/client"
+	sdchelper "terraform-provider-powerflex/helper/sdc"
+	sdcmodels "terraform-provider-powerflex/models/sdc"
 	"time"
 
 	"github.com/AnshumanPradipPatil1506/goscaleio"
@@ -18,7 +19,7 @@ import (
 func DataSourceSdcs() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceSdcsRead,
-		Schema:      schemastructures.SDCDataresourceSchema,
+		Schema:      sdcmodels.SDCReadOnlyModel,
 	}
 }
 
@@ -28,7 +29,7 @@ func dataSourceSdcsRead(ctx context.Context, d *schema.ResourceData, m interface
 	systemID := d.Get("systemid").(string)
 	sdcID := d.Get("id").(string)
 
-	goscaleioClient := helper.GoscaleioClient
+	goscaleioClient := client.GoscaleioClient
 
 	if systemID == "" {
 		tflog.Debug(ctx, "[PowerFlex][dataSourceSdcsRead] Empty value passed for systemid so getting first system available.")
@@ -82,11 +83,11 @@ func getAllSdcs(ctx context.Context, system *goscaleio.System, sdcID string, d *
 		tflog.Error(ctx, err.Error())
 		return diags
 	}
-	tflog.Debug(ctx, "[PowerFlex][getAllSdcs] sdc - "+helper.PrettyJSON(sdcs))
+	tflog.Debug(ctx, "[PowerFlex][getAllSdcs] sdc - "+client.PrettyJSON(sdcs))
 
 	resultMap := make([]map[string]interface{}, 0)
 	for _, v := range sdcs {
-		resultSdcMap := schemastructures.SdcToMap(v)
+		resultSdcMap := sdchelper.SdcToMap(v)
 		resultMap = append(resultMap, resultSdcMap)
 	}
 
@@ -110,12 +111,12 @@ func getSingleSdc(ctx context.Context, system *goscaleio.System, sdcID string, d
 		tflog.Error(ctx, err.Error())
 		return diags
 	}
-	tflog.Debug(ctx, "[PowerFlex][getSingleSdc] sdc - "+helper.PrettyJSON(singleSdc))
+	tflog.Debug(ctx, "[PowerFlex][getSingleSdc] sdc - "+client.PrettyJSON(singleSdc))
 
 	resultMap := make([]map[string]interface{}, 0)
-	resultSdcMap := schemastructures.SdcToMap(*singleSdc.Sdc)
+	resultSdcMap := sdchelper.SdcToMap(*singleSdc.Sdc)
 
-	tflog.Debug(ctx, "[PowerFlex][Anshuman] sdc - "+helper.PrettyJSON(resultSdcMap))
+	tflog.Debug(ctx, "[PowerFlex][Anshuman] sdc - "+client.PrettyJSON(resultSdcMap))
 	resultMap = append(resultMap, resultSdcMap)
 
 	if err := d.Set("sdcs", resultMap); err != nil {
