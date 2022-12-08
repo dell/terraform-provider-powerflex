@@ -1,0 +1,820 @@
+2022-12-08T03:27:26.909-0500 [INFO]  Terraform version: 1.3.6
+2022-12-08T03:27:26.909-0500 [DEBUG] using github.com/hashicorp/go-tfe v1.9.0
+2022-12-08T03:27:26.909-0500 [DEBUG] using github.com/hashicorp/hcl/v2 v2.15.0
+2022-12-08T03:27:26.909-0500 [DEBUG] using github.com/hashicorp/terraform-config-inspect v0.0.0-20210209133302-4fd17a0faac2
+2022-12-08T03:27:26.910-0500 [DEBUG] using github.com/hashicorp/terraform-svchost v0.0.0-20200729002733-f050f53b9734
+2022-12-08T03:27:26.910-0500 [DEBUG] using github.com/zclconf/go-cty v1.12.1
+2022-12-08T03:27:26.910-0500 [INFO]  Go runtime version: go1.19.3
+2022-12-08T03:27:26.910-0500 [INFO]  CLI args: []string{"terraform", "init"}
+2022-12-08T03:27:26.910-0500 [TRACE] Stdout is a terminal of width 87
+2022-12-08T03:27:26.910-0500 [TRACE] Stderr is a terminal of width 87
+2022-12-08T03:27:26.910-0500 [TRACE] Stdin is a terminal
+2022-12-08T03:27:26.910-0500 [DEBUG] Attempting to open CLI config file: /root/.terraformrc
+2022-12-08T03:27:26.910-0500 [DEBUG] File doesn't exist, but doesn't need to. Ignoring.
+2022-12-08T03:27:26.910-0500 [DEBUG] checking for credentials in "/root/.terraform.d/plugins"
+2022-12-08T03:27:26.910-0500 [DEBUG] ignoring non-existing provider search directory terraform.d/plugins
+2022-12-08T03:27:26.910-0500 [DEBUG] will search for provider plugins in /root/.terraform.d/plugins
+2022-12-08T03:27:26.910-0500 [TRACE] getproviders.SearchLocalDirectory: found dell.com/dev/powerflex v0.1.0 for linux_amd64 at /root/.terraform.d/plugins/dell.com/dev/powerflex/0.1/linux_amd64
+2022-12-08T03:27:26.910-0500 [DEBUG] ignoring non-existing provider search directory /root/.local/share/terraform/plugins
+2022-12-08T03:27:26.910-0500 [DEBUG] ignoring non-existing provider search directory /usr/local/share/terraform/plugins
+2022-12-08T03:27:26.910-0500 [DEBUG] ignoring non-existing provider search directory /usr/share/terraform/plugins
+2022-12-08T03:27:26.910-0500 [INFO]  CLI command args: []string{"init"}
+2022-12-08T03:27:26.911-0500 [TRACE] Meta.Backend: no config given or present on disk, so returning nil config
+2022-12-08T03:27:26.911-0500 [TRACE] Meta.Backend: backend has not previously been initialized in this working directory
+2022-12-08T03:27:26.911-0500 [DEBUG] New state was assigned lineage "d919376f-9fa1-ee58-c434-9e4b5f37fc5d"
+2022-12-08T03:27:26.911-0500 [TRACE] Meta.Backend: using default local state only (no backend configuration, and no existing initialized backend)
+2022-12-08T03:27:26.911-0500 [TRACE] Meta.Backend: instantiated backend of type <nil>
+2022-12-08T03:27:26.912-0500 [DEBUG] checking for provisioner in "."
+2022-12-08T03:27:26.914-0500 [DEBUG] checking for provisioner in "/usr/bin"
+2022-12-08T03:27:26.914-0500 [DEBUG] checking for provisioner in "/root/.terraform.d/plugins"
+2022-12-08T03:27:26.914-0500 [TRACE] Meta.Backend: backend <nil> does not support operations, so wrapping it in a local backend
+2022-12-08T03:27:26.914-0500 [TRACE] backend/local: state manager for workspace "default" will:
+ - read initial snapshot from terraform.tfstate
+ - write new snapshots to terraform.tfstate
+ - create any backup at terraform.tfstate.backup
+2022-12-08T03:27:26.914-0500 [TRACE] statemgr.Filesystem: reading initial snapshot from terraform.tfstate
+2022-12-08T03:27:26.914-0500 [TRACE] statemgr.Filesystem: snapshot file has nil snapshot, but that's okay
+2022-12-08T03:27:26.914-0500 [TRACE] statemgr.Filesystem: read nil snapshot
+2022-12-08T03:27:26.914-0500 [TRACE] providercache.fillMetaCache: scanning directory .terraform/providers
+2022-12-08T03:27:26.914-0500 [TRACE] getproviders.SearchLocalDirectory: failed to resolve symlinks for .terraform/providers: lstat .terraform: no such file or directory
+2022-12-08T03:27:26.914-0500 [TRACE] providercache.fillMetaCache: error while scanning directory .terraform/providers: cannot search .terraform/providers: lstat .terraform/providers: no such file or directory
+2022-12-08T03:27:26.914-0500 [TRACE] providercache.Dir.InstallPackage: installing dell.com/dev/powerflex v0.1.0 from /root/.terraform.d/plugins/dell.com/dev/powerflex/0.1/linux_amd64
+2022-12-08T03:27:26.915-0500 [TRACE] providercache.fillMetaCache: scanning directory .terraform/providers
+2022-12-08T03:27:26.915-0500 [TRACE] getproviders.SearchLocalDirectory: found dell.com/dev/powerflex v0.1.0 for linux_amd64 at .terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64
+2022-12-08T03:27:26.915-0500 [TRACE] providercache.fillMetaCache: including .terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64 as a candidate package for dell.com/dev/powerflex 0.1.0
+2022-12-08T03:27:27.016-0500 [INFO]  Terraform version: 1.3.6
+2022-12-08T03:27:27.017-0500 [DEBUG] using github.com/hashicorp/go-tfe v1.9.0
+2022-12-08T03:27:27.017-0500 [DEBUG] using github.com/hashicorp/hcl/v2 v2.15.0
+2022-12-08T03:27:27.017-0500 [DEBUG] using github.com/hashicorp/terraform-config-inspect v0.0.0-20210209133302-4fd17a0faac2
+2022-12-08T03:27:27.017-0500 [DEBUG] using github.com/hashicorp/terraform-svchost v0.0.0-20200729002733-f050f53b9734
+2022-12-08T03:27:27.017-0500 [DEBUG] using github.com/zclconf/go-cty v1.12.1
+2022-12-08T03:27:27.017-0500 [INFO]  Go runtime version: go1.19.3
+2022-12-08T03:27:27.017-0500 [INFO]  CLI args: []string{"terraform", "apply", "--auto-approve"}
+2022-12-08T03:27:27.017-0500 [TRACE] Stdout is a terminal of width 87
+2022-12-08T03:27:27.017-0500 [TRACE] Stderr is a terminal of width 87
+2022-12-08T03:27:27.017-0500 [TRACE] Stdin is a terminal
+2022-12-08T03:27:27.017-0500 [DEBUG] Attempting to open CLI config file: /root/.terraformrc
+2022-12-08T03:27:27.017-0500 [DEBUG] File doesn't exist, but doesn't need to. Ignoring.
+2022-12-08T03:27:27.017-0500 [DEBUG] checking for credentials in "/root/.terraform.d/plugins"
+2022-12-08T03:27:27.017-0500 [DEBUG] ignoring non-existing provider search directory terraform.d/plugins
+2022-12-08T03:27:27.017-0500 [DEBUG] will search for provider plugins in /root/.terraform.d/plugins
+2022-12-08T03:27:27.017-0500 [TRACE] getproviders.SearchLocalDirectory: found dell.com/dev/powerflex v0.1.0 for linux_amd64 at /root/.terraform.d/plugins/dell.com/dev/powerflex/0.1/linux_amd64
+2022-12-08T03:27:27.017-0500 [DEBUG] ignoring non-existing provider search directory /root/.local/share/terraform/plugins
+2022-12-08T03:27:27.017-0500 [DEBUG] ignoring non-existing provider search directory /usr/local/share/terraform/plugins
+2022-12-08T03:27:27.017-0500 [DEBUG] ignoring non-existing provider search directory /usr/share/terraform/plugins
+2022-12-08T03:27:27.018-0500 [INFO]  CLI command args: []string{"apply", "--auto-approve"}
+2022-12-08T03:27:27.018-0500 [TRACE] Meta.Backend: no config given or present on disk, so returning nil config
+2022-12-08T03:27:27.018-0500 [TRACE] Meta.Backend: backend has not previously been initialized in this working directory
+2022-12-08T03:27:27.019-0500 [DEBUG] New state was assigned lineage "3906cf10-a48e-9eb0-29b1-afa53fae00fd"
+2022-12-08T03:27:27.019-0500 [TRACE] Meta.Backend: using default local state only (no backend configuration, and no existing initialized backend)
+2022-12-08T03:27:27.019-0500 [TRACE] Meta.Backend: instantiated backend of type <nil>
+2022-12-08T03:27:27.019-0500 [TRACE] providercache.fillMetaCache: scanning directory .terraform/providers
+2022-12-08T03:27:27.019-0500 [TRACE] getproviders.SearchLocalDirectory: found dell.com/dev/powerflex v0.1.0 for linux_amd64 at .terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64
+2022-12-08T03:27:27.019-0500 [TRACE] providercache.fillMetaCache: including .terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64 as a candidate package for dell.com/dev/powerflex 0.1.0
+2022-12-08T03:27:27.093-0500 [DEBUG] checking for provisioner in "."
+2022-12-08T03:27:27.095-0500 [DEBUG] checking for provisioner in "/usr/bin"
+2022-12-08T03:27:27.096-0500 [DEBUG] checking for provisioner in "/root/.terraform.d/plugins"
+2022-12-08T03:27:27.096-0500 [TRACE] Meta.Backend: backend <nil> does not support operations, so wrapping it in a local backend
+2022-12-08T03:27:27.096-0500 [INFO]  backend/local: starting Apply operation
+2022-12-08T03:27:27.096-0500 [TRACE] backend/local: requesting state manager for workspace "default"
+2022-12-08T03:27:27.096-0500 [TRACE] backend/local: state manager for workspace "default" will:
+ - read initial snapshot from terraform.tfstate
+ - write new snapshots to terraform.tfstate
+ - create any backup at terraform.tfstate.backup
+2022-12-08T03:27:27.096-0500 [TRACE] backend/local: requesting state lock for workspace "default"
+2022-12-08T03:27:27.096-0500 [TRACE] statemgr.Filesystem: preparing to manage state snapshots at terraform.tfstate
+2022-12-08T03:27:27.096-0500 [TRACE] statemgr.Filesystem: no previously-stored snapshot exists
+2022-12-08T03:27:27.096-0500 [TRACE] statemgr.Filesystem: locking terraform.tfstate using fcntl flock
+2022-12-08T03:27:27.096-0500 [TRACE] statemgr.Filesystem: writing lock metadata to .terraform.tfstate.lock.info
+2022-12-08T03:27:27.096-0500 [TRACE] backend/local: reading remote state for workspace "default"
+2022-12-08T03:27:27.096-0500 [TRACE] statemgr.Filesystem: reading latest snapshot from terraform.tfstate
+2022-12-08T03:27:27.096-0500 [TRACE] statemgr.Filesystem: snapshot file has nil snapshot, but that's okay
+2022-12-08T03:27:27.096-0500 [TRACE] statemgr.Filesystem: read nil snapshot
+2022-12-08T03:27:27.096-0500 [TRACE] backend/local: populating backend.LocalRun for current working directory
+2022-12-08T03:27:27.097-0500 [TRACE] Config.VerifyDependencySelections: provider dell.com/dev/powerflex has 0.1.0 to satisfy "0.1.0"
+2022-12-08T03:27:27.097-0500 [TRACE] terraform.NewContext: starting
+2022-12-08T03:27:27.097-0500 [TRACE] terraform.NewContext: complete
+2022-12-08T03:27:27.097-0500 [TRACE] backend/local: requesting interactive input, if necessary
+2022-12-08T03:27:27.097-0500 [TRACE] LoadSchemas: retrieving schema for provider type "dell.com/dev/powerflex"
+2022-12-08T03:27:27.097-0500 [TRACE] terraform.contextPlugins: Initializing provider "dell.com/dev/powerflex" to read its schema
+2022-12-08T03:27:27.097-0500 [DEBUG] created provider logger: level=trace
+2022-12-08T03:27:27.097-0500 [INFO]  provider: configuring client automatic mTLS
+2022-12-08T03:27:27.122-0500 [DEBUG] provider: starting plugin: path=.terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64/terraform-provider-powerflex args=[.terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64/terraform-provider-powerflex]
+2022-12-08T03:27:27.122-0500 [DEBUG] provider: plugin started: path=.terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64/terraform-provider-powerflex pid=32395
+2022-12-08T03:27:27.122-0500 [DEBUG] provider: waiting for RPC address: path=.terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64/terraform-provider-powerflex
+2022-12-08T03:27:27.128-0500 [INFO]  provider.terraform-provider-powerflex: configuring server automatic mTLS: timestamp=2022-12-08T03:27:27.128-0500
+2022-12-08T03:27:27.154-0500 [DEBUG] provider.terraform-provider-powerflex: plugin address: address=/tmp/plugin2147605342 network=unix timestamp=2022-12-08T03:27:27.154-0500
+2022-12-08T03:27:27.154-0500 [DEBUG] provider: using plugin: version=5
+2022-12-08T03:27:27.171-0500 [TRACE] GRPCProvider: GetProviderSchema
+2022-12-08T03:27:27.171-0500 [TRACE] provider.stdio: waiting for stdio data
+2022-12-08T03:27:27.174-0500 [TRACE] provider.terraform-provider-powerflex: Received request: tf_rpc=GetProviderSchema tf_provider_addr=provider tf_req_id=dec5e1e7-151b-3a0d-f331-5cb718178789 @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/tf5server/server.go:491 @module=sdk.proto tf_proto_version=5.3 timestamp=2022-12-08T03:27:27.173-0500
+2022-12-08T03:27:27.174-0500 [TRACE] provider.terraform-provider-powerflex: Sending request downstream: @module=sdk.proto tf_proto_version=5.3 tf_req_id=dec5e1e7-151b-3a0d-f331-5cb718178789 @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/internal/tf5serverlogging/downstream_request.go:17 tf_provider_addr=provider tf_rpc=GetProviderSchema timestamp=2022-12-08T03:27:27.173-0500
+2022-12-08T03:27:27.174-0500 [TRACE] provider.terraform-provider-powerflex: Getting provider schema: @module=sdk.helper_schema tf_provider_addr=provider tf_req_id=dec5e1e7-151b-3a0d-f331-5cb718178789 tf_rpc=GetProviderSchema @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:70 timestamp=2022-12-08T03:27:27.173-0500
+2022-12-08T03:27:27.174-0500 [TRACE] provider.terraform-provider-powerflex: Found data source type: tf_provider_addr=provider tf_req_id=dec5e1e7-151b-3a0d-f331-5cb718178789 tf_rpc=GetProviderSchema @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:95 @module=sdk.helper_schema tf_data_source_type=powerflex_sdcs timestamp=2022-12-08T03:27:27.173-0500
+2022-12-08T03:27:27.174-0500 [TRACE] provider.terraform-provider-powerflex: Found data source type: tf_data_source_type=powerflex_sdc_name_change tf_req_id=dec5e1e7-151b-3a0d-f331-5cb718178789 tf_rpc=GetProviderSchema @module=sdk.helper_schema tf_provider_addr=provider @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:95 timestamp=2022-12-08T03:27:27.173-0500
+2022-12-08T03:27:27.174-0500 [TRACE] provider.terraform-provider-powerflex: Received downstream response: @module=sdk.proto diagnostic_error_count=0 tf_proto_version=5.3 tf_rpc=GetProviderSchema @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/internal/tf5serverlogging/downstream_request.go:37 diagnostic_warning_count=0 tf_provider_addr=provider tf_req_duration_ms=0 tf_req_id=dec5e1e7-151b-3a0d-f331-5cb718178789 timestamp=2022-12-08T03:27:27.173-0500
+2022-12-08T03:27:27.174-0500 [TRACE] provider.terraform-provider-powerflex: Served request: @module=sdk.proto tf_proto_version=5.3 tf_req_id=dec5e1e7-151b-3a0d-f331-5cb718178789 tf_rpc=GetProviderSchema tf_provider_addr=provider @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/tf5server/server.go:510 timestamp=2022-12-08T03:27:27.174-0500
+2022-12-08T03:27:27.174-0500 [TRACE] GRPCProvider: Close
+2022-12-08T03:27:27.175-0500 [DEBUG] provider.stdio: received EOF, stopping recv loop: err="rpc error: code = Unavailable desc = error reading from server: EOF"
+2022-12-08T03:27:27.176-0500 [DEBUG] provider: plugin process exited: path=.terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64/terraform-provider-powerflex pid=32395
+2022-12-08T03:27:27.176-0500 [DEBUG] provider: plugin exited
+2022-12-08T03:27:27.176-0500 [TRACE] Context.Input: Prompting for provider arguments
+2022-12-08T03:27:27.176-0500 [TRACE] Context.Input: Provider provider.powerflex declared at main.tf:18,1-21
+2022-12-08T03:27:27.176-0500 [TRACE] Context.Input: Input for provider.powerflex: map[string]cty.Value{}
+2022-12-08T03:27:27.176-0500 [TRACE] backend/local: running validation operation
+2022-12-08T03:27:27.176-0500 [DEBUG] Building and walking validate graph
+2022-12-08T03:27:27.176-0500 [TRACE] building graph for walkValidate
+2022-12-08T03:27:27.176-0500 [TRACE] Executing graph transform *terraform.ConfigTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] ConfigTransformer: Starting for path:
+2022-12-08T03:27:27.176-0500 [TRACE] Completed graph transform *terraform.ConfigTransformer with new graph:
+  data.powerflex_sdcs.selected - *terraform.NodeValidatableResource
+  ------
+2022-12-08T03:27:27.176-0500 [TRACE] Executing graph transform *terraform.RootVariableTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] Completed graph transform *terraform.RootVariableTransformer (no changes)
+2022-12-08T03:27:27.176-0500 [TRACE] Executing graph transform *terraform.ModuleVariableTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] Completed graph transform *terraform.ModuleVariableTransformer (no changes)
+2022-12-08T03:27:27.176-0500 [TRACE] Executing graph transform *terraform.LocalTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] Completed graph transform *terraform.LocalTransformer (no changes)
+2022-12-08T03:27:27.176-0500 [TRACE] Executing graph transform *terraform.OutputTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] OutputTransformer: adding allsdcresult as *terraform.nodeExpandOutput
+2022-12-08T03:27:27.176-0500 [TRACE] Completed graph transform *terraform.OutputTransformer with new graph:
+  data.powerflex_sdcs.selected - *terraform.NodeValidatableResource
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  ------
+2022-12-08T03:27:27.176-0500 [TRACE] Executing graph transform *terraform.OrphanResourceInstanceTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] Completed graph transform *terraform.OrphanResourceInstanceTransformer (no changes)
+2022-12-08T03:27:27.176-0500 [TRACE] Executing graph transform *terraform.StateTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] StateTransformer: pointless no-op call, creating no nodes at all
+2022-12-08T03:27:27.176-0500 [TRACE] Completed graph transform *terraform.StateTransformer (no changes)
+2022-12-08T03:27:27.176-0500 [TRACE] Executing graph transform *terraform.AttachStateTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] Completed graph transform *terraform.AttachStateTransformer (no changes)
+2022-12-08T03:27:27.176-0500 [TRACE] Executing graph transform *terraform.OrphanOutputTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] Completed graph transform *terraform.OrphanOutputTransformer (no changes)
+2022-12-08T03:27:27.176-0500 [TRACE] Executing graph transform *terraform.AttachResourceConfigTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] AttachResourceConfigTransformer: attaching to "data.powerflex_sdcs.selected" (*terraform.NodeValidatableResource) config from hcl.Range{Filename:"main.tf", Start:hcl.Pos{Line:30, Column:1, Byte:1038}, End:hcl.Pos{Line:30, Column:33, Byte:1070}}
+2022-12-08T03:27:27.176-0500 [TRACE] AttachResourceConfigTransformer: attaching provider meta configs to data.powerflex_sdcs.selected
+2022-12-08T03:27:27.176-0500 [TRACE] Completed graph transform *terraform.AttachResourceConfigTransformer (no changes)
+2022-12-08T03:27:27.176-0500 [TRACE] Executing graph transform *terraform.graphTransformerMulti
+2022-12-08T03:27:27.176-0500 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.ProviderConfigTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] ProviderConfigTransformer: attaching to "provider[\"dell.com/dev/powerflex\"]" provider configuration from main.tf:18,1-21
+2022-12-08T03:27:27.176-0500 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.ProviderConfigTransformer with new graph:
+  data.powerflex_sdcs.selected - *terraform.NodeValidatableResource
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  ------
+2022-12-08T03:27:27.176-0500 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.MissingProviderTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.MissingProviderTransformer (no changes)
+2022-12-08T03:27:27.176-0500 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.ProviderTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] ProviderTransformer: exact match for provider["dell.com/dev/powerflex"] serving data.powerflex_sdcs.selected
+2022-12-08T03:27:27.176-0500 [DEBUG] ProviderTransformer: "data.powerflex_sdcs.selected" (*terraform.NodeValidatableResource) needs provider["dell.com/dev/powerflex"]
+2022-12-08T03:27:27.176-0500 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.ProviderTransformer with new graph:
+  data.powerflex_sdcs.selected - *terraform.NodeValidatableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  ------
+2022-12-08T03:27:27.176-0500 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.PruneProviderTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.PruneProviderTransformer (no changes)
+2022-12-08T03:27:27.176-0500 [TRACE] Completed graph transform *terraform.graphTransformerMulti with new graph:
+  data.powerflex_sdcs.selected - *terraform.NodeValidatableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  ------
+2022-12-08T03:27:27.176-0500 [TRACE] Executing graph transform *terraform.RemovedModuleTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] Completed graph transform *terraform.RemovedModuleTransformer (no changes)
+2022-12-08T03:27:27.176-0500 [TRACE] Executing graph transform *terraform.AttachSchemaTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] AttachSchemaTransformer: attaching resource schema to data.powerflex_sdcs.selected
+2022-12-08T03:27:27.176-0500 [TRACE] AttachSchemaTransformer: attaching provider config schema to provider["dell.com/dev/powerflex"]
+2022-12-08T03:27:27.176-0500 [TRACE] Completed graph transform *terraform.AttachSchemaTransformer (no changes)
+2022-12-08T03:27:27.176-0500 [TRACE] Executing graph transform *terraform.ModuleExpansionTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] Completed graph transform *terraform.ModuleExpansionTransformer (no changes)
+2022-12-08T03:27:27.176-0500 [TRACE] Executing graph transform *terraform.ReferenceTransformer
+2022-12-08T03:27:27.176-0500 [DEBUG] ReferenceTransformer: "data.powerflex_sdcs.selected" references: []
+2022-12-08T03:27:27.176-0500 [DEBUG] ReferenceTransformer: "output.allsdcresult (expand)" references: [data.powerflex_sdcs.selected]
+2022-12-08T03:27:27.176-0500 [DEBUG] ReferenceTransformer: "provider[\"dell.com/dev/powerflex\"]" references: []
+2022-12-08T03:27:27.176-0500 [TRACE] Completed graph transform *terraform.ReferenceTransformer with new graph:
+  data.powerflex_sdcs.selected - *terraform.NodeValidatableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+    data.powerflex_sdcs.selected - *terraform.NodeValidatableResource
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  ------
+2022-12-08T03:27:27.176-0500 [TRACE] Executing graph transform *terraform.AttachDependenciesTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] Completed graph transform *terraform.AttachDependenciesTransformer (no changes)
+2022-12-08T03:27:27.176-0500 [TRACE] Executing graph transform *terraform.attachDataResourceDependsOnTransformer
+2022-12-08T03:27:27.176-0500 [TRACE] attachDataDependenciesTransformer: data.powerflex_sdcs.selected depends on []
+2022-12-08T03:27:27.177-0500 [TRACE] Completed graph transform *terraform.attachDataResourceDependsOnTransformer (no changes)
+2022-12-08T03:27:27.177-0500 [TRACE] Executing graph transform *terraform.DestroyEdgeTransformer
+2022-12-08T03:27:27.177-0500 [TRACE] Completed graph transform *terraform.DestroyEdgeTransformer (no changes)
+2022-12-08T03:27:27.177-0500 [TRACE] Executing graph transform *terraform.pruneUnusedNodesTransformer
+2022-12-08T03:27:27.177-0500 [TRACE] Completed graph transform *terraform.pruneUnusedNodesTransformer (no changes)
+2022-12-08T03:27:27.177-0500 [TRACE] Executing graph transform *terraform.TargetsTransformer
+2022-12-08T03:27:27.177-0500 [TRACE] Completed graph transform *terraform.TargetsTransformer (no changes)
+2022-12-08T03:27:27.177-0500 [TRACE] Executing graph transform *terraform.ForcedCBDTransformer
+2022-12-08T03:27:27.177-0500 [TRACE] Completed graph transform *terraform.ForcedCBDTransformer (no changes)
+2022-12-08T03:27:27.177-0500 [TRACE] Executing graph transform *terraform.CloseProviderTransformer
+2022-12-08T03:27:27.177-0500 [TRACE] Completed graph transform *terraform.CloseProviderTransformer with new graph:
+  data.powerflex_sdcs.selected - *terraform.NodeValidatableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+    data.powerflex_sdcs.selected - *terraform.NodeValidatableResource
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  provider["dell.com/dev/powerflex"] (close) - *terraform.graphNodeCloseProvider
+    data.powerflex_sdcs.selected - *terraform.NodeValidatableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  ------
+2022-12-08T03:27:27.177-0500 [TRACE] Executing graph transform *terraform.CloseRootModuleTransformer
+2022-12-08T03:27:27.177-0500 [TRACE] Completed graph transform *terraform.CloseRootModuleTransformer with new graph:
+  data.powerflex_sdcs.selected - *terraform.NodeValidatableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+    data.powerflex_sdcs.selected - *terraform.NodeValidatableResource
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  provider["dell.com/dev/powerflex"] (close) - *terraform.graphNodeCloseProvider
+    data.powerflex_sdcs.selected - *terraform.NodeValidatableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  root - *terraform.nodeCloseModule
+    output.allsdcresult (expand) - *terraform.nodeExpandOutput
+    provider["dell.com/dev/powerflex"] (close) - *terraform.graphNodeCloseProvider
+  ------
+2022-12-08T03:27:27.177-0500 [TRACE] Executing graph transform *terraform.TransitiveReductionTransformer
+2022-12-08T03:27:27.177-0500 [TRACE] Completed graph transform *terraform.TransitiveReductionTransformer with new graph:
+  data.powerflex_sdcs.selected - *terraform.NodeValidatableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+    data.powerflex_sdcs.selected - *terraform.NodeValidatableResource
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  provider["dell.com/dev/powerflex"] (close) - *terraform.graphNodeCloseProvider
+    data.powerflex_sdcs.selected - *terraform.NodeValidatableResource
+  root - *terraform.nodeCloseModule
+    output.allsdcresult (expand) - *terraform.nodeExpandOutput
+    provider["dell.com/dev/powerflex"] (close) - *terraform.graphNodeCloseProvider
+  ------
+2022-12-08T03:27:27.177-0500 [DEBUG] Starting graph walk: walkValidate
+2022-12-08T03:27:27.177-0500 [TRACE] vertex "provider[\"dell.com/dev/powerflex\"]": starting visit (*terraform.NodeApplyableProvider)
+2022-12-08T03:27:27.177-0500 [DEBUG] created provider logger: level=trace
+2022-12-08T03:27:27.177-0500 [INFO]  provider: configuring client automatic mTLS
+2022-12-08T03:27:27.187-0500 [DEBUG] provider: starting plugin: path=.terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64/terraform-provider-powerflex args=[.terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64/terraform-provider-powerflex]
+2022-12-08T03:27:27.187-0500 [DEBUG] provider: plugin started: path=.terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64/terraform-provider-powerflex pid=32404
+2022-12-08T03:27:27.187-0500 [DEBUG] provider: waiting for RPC address: path=.terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64/terraform-provider-powerflex
+2022-12-08T03:27:27.192-0500 [INFO]  provider.terraform-provider-powerflex: configuring server automatic mTLS: timestamp=2022-12-08T03:27:27.192-0500
+2022-12-08T03:27:27.219-0500 [DEBUG] provider.terraform-provider-powerflex: plugin address: address=/tmp/plugin2834037763 network=unix timestamp=2022-12-08T03:27:27.218-0500
+2022-12-08T03:27:27.219-0500 [DEBUG] provider: using plugin: version=5
+2022-12-08T03:27:27.234-0500 [TRACE] BuiltinEvalContext: Initialized "provider[\"dell.com/dev/powerflex\"]" provider for provider["dell.com/dev/powerflex"]
+2022-12-08T03:27:27.234-0500 [TRACE] NodeApplyableProvider: validating configuration for provider["dell.com/dev/powerflex"]
+2022-12-08T03:27:27.234-0500 [TRACE] buildProviderConfig for provider["dell.com/dev/powerflex"]: using explicit config only
+2022-12-08T03:27:27.234-0500 [TRACE] GRPCProvider: GetProviderSchema
+2022-12-08T03:27:27.234-0500 [TRACE] provider.stdio: waiting for stdio data
+2022-12-08T03:27:27.235-0500 [TRACE] provider.terraform-provider-powerflex: Received request: tf_provider_addr=provider tf_req_id=9f5a76eb-c505-e8df-6ca7-299ee03ebd3a @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/tf5server/server.go:491 tf_proto_version=5.3 tf_rpc=GetProviderSchema @module=sdk.proto timestamp=2022-12-08T03:27:27.235-0500
+2022-12-08T03:27:27.235-0500 [TRACE] provider.terraform-provider-powerflex: Sending request downstream: tf_proto_version=5.3 tf_req_id=9f5a76eb-c505-e8df-6ca7-299ee03ebd3a tf_rpc=GetProviderSchema @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/internal/tf5serverlogging/downstream_request.go:17 @module=sdk.proto tf_provider_addr=provider timestamp=2022-12-08T03:27:27.235-0500
+2022-12-08T03:27:27.235-0500 [TRACE] provider.terraform-provider-powerflex: Getting provider schema: tf_provider_addr=provider tf_req_id=9f5a76eb-c505-e8df-6ca7-299ee03ebd3a tf_rpc=GetProviderSchema @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:70 @module=sdk.helper_schema timestamp=2022-12-08T03:27:27.235-0500
+2022-12-08T03:27:27.235-0500 [TRACE] provider.terraform-provider-powerflex: Found data source type: @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:95 tf_provider_addr=provider tf_rpc=GetProviderSchema @module=sdk.helper_schema tf_data_source_type=powerflex_sdcs tf_req_id=9f5a76eb-c505-e8df-6ca7-299ee03ebd3a timestamp=2022-12-08T03:27:27.235-0500
+2022-12-08T03:27:27.235-0500 [TRACE] provider.terraform-provider-powerflex: Found data source type: tf_data_source_type=powerflex_sdc_name_change tf_provider_addr=provider tf_req_id=9f5a76eb-c505-e8df-6ca7-299ee03ebd3a tf_rpc=GetProviderSchema @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:95 @module=sdk.helper_schema timestamp=2022-12-08T03:27:27.235-0500
+2022-12-08T03:27:27.236-0500 [TRACE] provider.terraform-provider-powerflex: Received downstream response: @module=sdk.proto diagnostic_warning_count=0 tf_provider_addr=provider tf_rpc=GetProviderSchema @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/internal/tf5serverlogging/downstream_request.go:37 tf_proto_version=5.3 tf_req_duration_ms=0 tf_req_id=9f5a76eb-c505-e8df-6ca7-299ee03ebd3a diagnostic_error_count=0 timestamp=2022-12-08T03:27:27.235-0500
+2022-12-08T03:27:27.237-0500 [TRACE] provider.terraform-provider-powerflex: Served request: tf_proto_version=5.3 tf_req_id=9f5a76eb-c505-e8df-6ca7-299ee03ebd3a tf_rpc=GetProviderSchema @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/tf5server/server.go:510 @module=sdk.proto tf_provider_addr=provider timestamp=2022-12-08T03:27:27.236-0500
+2022-12-08T03:27:27.238-0500 [TRACE] GRPCProvider: ValidateProviderConfig
+2022-12-08T03:27:27.238-0500 [TRACE] provider.terraform-provider-powerflex: Received request: @module=sdk.proto tf_req_id=bdeafd96-cce7-8915-01d1-6977ef21c71b @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/tf5server/server.go:518 tf_proto_version=5.3 tf_provider_addr=provider tf_rpc=PrepareProviderConfig timestamp=2022-12-08T03:27:27.238-0500
+2022-12-08T03:27:27.239-0500 [TRACE] provider.terraform-provider-powerflex: Skipping protocol data file writing because no data directory is set. Use the TF_LOG_SDK_PROTO_DATA_DIR environment variable to enable this functionality.: tf_proto_version=5.3 tf_provider_addr=provider tf_rpc=PrepareProviderConfig @module=sdk.proto tf_req_id=bdeafd96-cce7-8915-01d1-6977ef21c71b @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/internal/logging/protocol_data.go:38 timestamp=2022-12-08T03:27:27.238-0500
+2022-12-08T03:27:27.239-0500 [TRACE] provider.terraform-provider-powerflex: Sending request downstream: @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/internal/tf5serverlogging/downstream_request.go:17 tf_proto_version=5.3 tf_req_id=bdeafd96-cce7-8915-01d1-6977ef21c71b @module=sdk.proto tf_provider_addr=provider tf_rpc=PrepareProviderConfig timestamp=2022-12-08T03:27:27.238-0500
+2022-12-08T03:27:27.239-0500 [TRACE] vertex "provider[\"dell.com/dev/powerflex\"]": visit complete
+2022-12-08T03:27:27.239-0500 [TRACE] provider.terraform-provider-powerflex: Preparing provider configuration: tf_provider_addr=provider tf_req_id=bdeafd96-cce7-8915-01d1-6977ef21c71b tf_rpc=PrepareProviderConfig @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:128 @module=sdk.helper_schema timestamp=2022-12-08T03:27:27.238-0500
+2022-12-08T03:27:27.239-0500 [TRACE] vertex "data.powerflex_sdcs.selected": starting visit (*terraform.NodeValidatableResource)
+2022-12-08T03:27:27.239-0500 [TRACE] provider.terraform-provider-powerflex: Calling downstream: tf_provider_addr=provider tf_req_id=bdeafd96-cce7-8915-01d1-6977ef21c71b tf_rpc=PrepareProviderConfig @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:216 @module=sdk.helper_schema timestamp=2022-12-08T03:27:27.238-0500
+2022-12-08T03:27:27.239-0500 [TRACE] provider.terraform-provider-powerflex: Called downstream: tf_req_id=bdeafd96-cce7-8915-01d1-6977ef21c71b tf_rpc=PrepareProviderConfig @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:218 @module=sdk.helper_schema tf_provider_addr=provider timestamp=2022-12-08T03:27:27.238-0500
+2022-12-08T03:27:27.239-0500 [TRACE] GRPCProvider: ValidateDataResourceConfig
+2022-12-08T03:27:27.239-0500 [TRACE] provider.terraform-provider-powerflex: Received downstream response: diagnostic_error_count=0 diagnostic_warning_count=0 tf_provider_addr=provider tf_req_duration_ms=0 tf_req_id=bdeafd96-cce7-8915-01d1-6977ef21c71b tf_rpc=PrepareProviderConfig @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/internal/tf5serverlogging/downstream_request.go:37 @module=sdk.proto tf_proto_version=5.3 timestamp=2022-12-08T03:27:27.238-0500
+2022-12-08T03:27:27.239-0500 [TRACE] provider.terraform-provider-powerflex: Served request: tf_provider_addr=provider tf_req_id=bdeafd96-cce7-8915-01d1-6977ef21c71b tf_rpc=PrepareProviderConfig tf_proto_version=5.3 @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/tf5server/server.go:539 @module=sdk.proto timestamp=2022-12-08T03:27:27.238-0500
+2022-12-08T03:27:27.239-0500 [TRACE] provider.terraform-provider-powerflex: Received request: tf_data_source_type=powerflex_sdcs tf_proto_version=5.3 tf_provider_addr=provider tf_req_id=6714343f-441f-11a4-33ca-5ee7056b40b0 @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/tf5server/server.go:619 @module=sdk.proto tf_rpc=ValidateDataSourceConfig timestamp=2022-12-08T03:27:27.239-0500
+2022-12-08T03:27:27.239-0500 [TRACE] provider.terraform-provider-powerflex: Sending request downstream: tf_req_id=6714343f-441f-11a4-33ca-5ee7056b40b0 tf_rpc=ValidateDataSourceConfig @module=sdk.proto tf_data_source_type=powerflex_sdcs tf_proto_version=5.3 tf_provider_addr=provider @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/internal/tf5serverlogging/downstream_request.go:17 timestamp=2022-12-08T03:27:27.239-0500
+2022-12-08T03:27:27.239-0500 [TRACE] provider.terraform-provider-powerflex: Calling downstream: tf_rpc=ValidateDataSourceConfig @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:272 @module=sdk.helper_schema tf_data_source_type=powerflex_sdcs tf_provider_addr=provider tf_req_id=6714343f-441f-11a4-33ca-5ee7056b40b0 timestamp=2022-12-08T03:27:27.239-0500
+2022-12-08T03:27:27.239-0500 [TRACE] provider.terraform-provider-powerflex: Called downstream: tf_req_id=6714343f-441f-11a4-33ca-5ee7056b40b0 tf_rpc=ValidateDataSourceConfig @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:274 @module=sdk.helper_schema tf_data_source_type=powerflex_sdcs tf_provider_addr=provider timestamp=2022-12-08T03:27:27.239-0500
+2022-12-08T03:27:27.239-0500 [TRACE] provider.terraform-provider-powerflex: Received downstream response: tf_req_duration_ms=0 @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/internal/tf5serverlogging/downstream_request.go:37 @module=sdk.proto diagnostic_error_count=0 tf_proto_version=5.3 tf_provider_addr=provider tf_req_id=6714343f-441f-11a4-33ca-5ee7056b40b0 tf_rpc=ValidateDataSourceConfig diagnostic_warning_count=0 tf_data_source_type=powerflex_sdcs timestamp=2022-12-08T03:27:27.239-0500
+2022-12-08T03:27:27.239-0500 [TRACE] provider.terraform-provider-powerflex: Served request: @module=sdk.proto tf_proto_version=5.3 tf_provider_addr=provider tf_req_id=6714343f-441f-11a4-33ca-5ee7056b40b0 tf_rpc=ValidateDataSourceConfig @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/tf5server/server.go:639 tf_data_source_type=powerflex_sdcs timestamp=2022-12-08T03:27:27.239-0500
+2022-12-08T03:27:27.239-0500 [TRACE] vertex "data.powerflex_sdcs.selected": visit complete
+2022-12-08T03:27:27.239-0500 [TRACE] vertex "output.allsdcresult (expand)": starting visit (*terraform.nodeExpandOutput)
+2022-12-08T03:27:27.239-0500 [TRACE] vertex "output.allsdcresult (expand)": expanding dynamic subgraph
+2022-12-08T03:27:27.239-0500 [TRACE] Expanding output: adding output.allsdcresult as *terraform.NodeApplyableOutput
+2022-12-08T03:27:27.239-0500 [TRACE] vertex "output.allsdcresult (expand)": entering dynamic subgraph
+2022-12-08T03:27:27.239-0500 [TRACE] vertex "output.allsdcresult": starting visit (*terraform.NodeApplyableOutput)
+2022-12-08T03:27:27.240-0500 [TRACE] setValue: Saving Create change for output.allsdcresult in changeset
+2022-12-08T03:27:27.240-0500 [TRACE] setValue: Removing output.allsdcresult from state (it is now null)
+2022-12-08T03:27:27.240-0500 [TRACE] vertex "output.allsdcresult": visit complete
+2022-12-08T03:27:27.240-0500 [TRACE] vertex "output.allsdcresult (expand)": dynamic subgraph completed successfully
+2022-12-08T03:27:27.240-0500 [TRACE] vertex "output.allsdcresult (expand)": visit complete
+2022-12-08T03:27:27.240-0500 [TRACE] vertex "provider[\"dell.com/dev/powerflex\"] (close)": starting visit (*terraform.graphNodeCloseProvider)
+2022-12-08T03:27:27.240-0500 [TRACE] GRPCProvider: Close
+2022-12-08T03:27:27.240-0500 [DEBUG] provider.stdio: received EOF, stopping recv loop: err="rpc error: code = Unavailable desc = error reading from server: EOF"
+2022-12-08T03:27:27.241-0500 [DEBUG] provider: plugin process exited: path=.terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64/terraform-provider-powerflex pid=32404
+2022-12-08T03:27:27.241-0500 [DEBUG] provider: plugin exited
+2022-12-08T03:27:27.241-0500 [TRACE] vertex "provider[\"dell.com/dev/powerflex\"] (close)": visit complete
+2022-12-08T03:27:27.241-0500 [TRACE] vertex "root": starting visit (*terraform.nodeCloseModule)
+2022-12-08T03:27:27.241-0500 [TRACE] vertex "root": visit complete
+2022-12-08T03:27:27.241-0500 [TRACE] LoadSchemas: retrieving schema for provider type "dell.com/dev/powerflex"
+2022-12-08T03:27:27.241-0500 [INFO]  backend/local: apply calling Plan
+2022-12-08T03:27:27.241-0500 [DEBUG] Building and walking plan graph for NormalMode
+2022-12-08T03:27:27.241-0500 [TRACE] building graph for walkPlan
+2022-12-08T03:27:27.241-0500 [TRACE] Executing graph transform *terraform.ConfigTransformer
+2022-12-08T03:27:27.241-0500 [TRACE] ConfigTransformer: Starting for path:
+2022-12-08T03:27:27.241-0500 [TRACE] Completed graph transform *terraform.ConfigTransformer with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandPlannableResource
+  ------
+2022-12-08T03:27:27.241-0500 [TRACE] Executing graph transform *terraform.RootVariableTransformer
+2022-12-08T03:27:27.241-0500 [TRACE] Completed graph transform *terraform.RootVariableTransformer (no changes)
+2022-12-08T03:27:27.241-0500 [TRACE] Executing graph transform *terraform.ModuleVariableTransformer
+2022-12-08T03:27:27.241-0500 [TRACE] Completed graph transform *terraform.ModuleVariableTransformer (no changes)
+2022-12-08T03:27:27.241-0500 [TRACE] Executing graph transform *terraform.LocalTransformer
+2022-12-08T03:27:27.241-0500 [TRACE] Completed graph transform *terraform.LocalTransformer (no changes)
+2022-12-08T03:27:27.241-0500 [TRACE] Executing graph transform *terraform.OutputTransformer
+2022-12-08T03:27:27.241-0500 [TRACE] OutputTransformer: adding allsdcresult as *terraform.nodeExpandOutput
+2022-12-08T03:27:27.241-0500 [TRACE] Completed graph transform *terraform.OutputTransformer with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandPlannableResource
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  ------
+2022-12-08T03:27:27.241-0500 [TRACE] Executing graph transform *terraform.OrphanResourceInstanceTransformer
+2022-12-08T03:27:27.241-0500 [TRACE] Completed graph transform *terraform.OrphanResourceInstanceTransformer (no changes)
+2022-12-08T03:27:27.241-0500 [TRACE] Executing graph transform *terraform.StateTransformer
+2022-12-08T03:27:27.241-0500 [TRACE] StateTransformer: creating nodes for deposed instance objects only
+2022-12-08T03:27:27.241-0500 [TRACE] Completed graph transform *terraform.StateTransformer (no changes)
+2022-12-08T03:27:27.241-0500 [TRACE] Executing graph transform *terraform.AttachStateTransformer
+2022-12-08T03:27:27.241-0500 [TRACE] Completed graph transform *terraform.AttachStateTransformer (no changes)
+2022-12-08T03:27:27.241-0500 [TRACE] Executing graph transform *terraform.OrphanOutputTransformer
+2022-12-08T03:27:27.241-0500 [TRACE] Completed graph transform *terraform.OrphanOutputTransformer (no changes)
+2022-12-08T03:27:27.241-0500 [TRACE] Executing graph transform *terraform.AttachResourceConfigTransformer
+2022-12-08T03:27:27.241-0500 [TRACE] AttachResourceConfigTransformer: attaching to "data.powerflex_sdcs.selected (expand)" (*terraform.nodeExpandPlannableResource) config from hcl.Range{Filename:"main.tf", Start:hcl.Pos{Line:30, Column:1, Byte:1038}, End:hcl.Pos{Line:30, Column:33, Byte:1070}}
+2022-12-08T03:27:27.241-0500 [TRACE] AttachResourceConfigTransformer: attaching provider meta configs to data.powerflex_sdcs.selected (expand)
+2022-12-08T03:27:27.241-0500 [TRACE] Completed graph transform *terraform.AttachResourceConfigTransformer (no changes)
+2022-12-08T03:27:27.241-0500 [TRACE] Executing graph transform *terraform.graphTransformerMulti
+2022-12-08T03:27:27.241-0500 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.ProviderConfigTransformer
+2022-12-08T03:27:27.241-0500 [TRACE] ProviderConfigTransformer: attaching to "provider[\"dell.com/dev/powerflex\"]" provider configuration from main.tf:18,1-21
+2022-12-08T03:27:27.241-0500 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.ProviderConfigTransformer with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandPlannableResource
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  ------
+2022-12-08T03:27:27.241-0500 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.MissingProviderTransformer
+2022-12-08T03:27:27.241-0500 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.MissingProviderTransformer (no changes)
+2022-12-08T03:27:27.241-0500 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.ProviderTransformer
+2022-12-08T03:27:27.241-0500 [TRACE] ProviderTransformer: exact match for provider["dell.com/dev/powerflex"] serving data.powerflex_sdcs.selected (expand)
+2022-12-08T03:27:27.241-0500 [DEBUG] ProviderTransformer: "data.powerflex_sdcs.selected (expand)" (*terraform.nodeExpandPlannableResource) needs provider["dell.com/dev/powerflex"]
+2022-12-08T03:27:27.241-0500 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.ProviderTransformer with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandPlannableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  ------
+2022-12-08T03:27:27.241-0500 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.PruneProviderTransformer
+2022-12-08T03:27:27.241-0500 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.PruneProviderTransformer (no changes)
+2022-12-08T03:27:27.241-0500 [TRACE] Completed graph transform *terraform.graphTransformerMulti with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandPlannableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  ------
+2022-12-08T03:27:27.241-0500 [TRACE] Executing graph transform *terraform.RemovedModuleTransformer
+2022-12-08T03:27:27.241-0500 [TRACE] Completed graph transform *terraform.RemovedModuleTransformer (no changes)
+2022-12-08T03:27:27.241-0500 [TRACE] Executing graph transform *terraform.AttachSchemaTransformer
+2022-12-08T03:27:27.241-0500 [TRACE] AttachSchemaTransformer: attaching provider config schema to provider["dell.com/dev/powerflex"]
+2022-12-08T03:27:27.241-0500 [TRACE] AttachSchemaTransformer: attaching resource schema to data.powerflex_sdcs.selected (expand)
+2022-12-08T03:27:27.241-0500 [TRACE] Completed graph transform *terraform.AttachSchemaTransformer (no changes)
+2022-12-08T03:27:27.241-0500 [TRACE] Executing graph transform *terraform.ModuleExpansionTransformer
+2022-12-08T03:27:27.241-0500 [TRACE] Completed graph transform *terraform.ModuleExpansionTransformer (no changes)
+2022-12-08T03:27:27.241-0500 [TRACE] Executing graph transform *terraform.ReferenceTransformer
+2022-12-08T03:27:27.241-0500 [DEBUG] ReferenceTransformer: "data.powerflex_sdcs.selected (expand)" references: []
+2022-12-08T03:27:27.241-0500 [DEBUG] ReferenceTransformer: "output.allsdcresult (expand)" references: [data.powerflex_sdcs.selected (expand)]
+2022-12-08T03:27:27.241-0500 [DEBUG] ReferenceTransformer: "provider[\"dell.com/dev/powerflex\"]" references: []
+2022-12-08T03:27:27.241-0500 [TRACE] Completed graph transform *terraform.ReferenceTransformer with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandPlannableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+    data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandPlannableResource
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  ------
+2022-12-08T03:27:27.242-0500 [TRACE] Executing graph transform *terraform.AttachDependenciesTransformer
+2022-12-08T03:27:27.242-0500 [TRACE] AttachDependenciesTransformer: data.powerflex_sdcs.selected depends on []
+2022-12-08T03:27:27.242-0500 [TRACE] Completed graph transform *terraform.AttachDependenciesTransformer (no changes)
+2022-12-08T03:27:27.242-0500 [TRACE] Executing graph transform *terraform.attachDataResourceDependsOnTransformer
+2022-12-08T03:27:27.242-0500 [TRACE] attachDataDependenciesTransformer: data.powerflex_sdcs.selected depends on []
+2022-12-08T03:27:27.242-0500 [TRACE] Completed graph transform *terraform.attachDataResourceDependsOnTransformer (no changes)
+2022-12-08T03:27:27.242-0500 [TRACE] Executing graph transform *terraform.DestroyEdgeTransformer
+2022-12-08T03:27:27.242-0500 [TRACE] Completed graph transform *terraform.DestroyEdgeTransformer (no changes)
+2022-12-08T03:27:27.242-0500 [TRACE] Executing graph transform *terraform.pruneUnusedNodesTransformer
+2022-12-08T03:27:27.242-0500 [TRACE] Completed graph transform *terraform.pruneUnusedNodesTransformer (no changes)
+2022-12-08T03:27:27.242-0500 [TRACE] Executing graph transform *terraform.TargetsTransformer
+2022-12-08T03:27:27.242-0500 [TRACE] Completed graph transform *terraform.TargetsTransformer (no changes)
+2022-12-08T03:27:27.242-0500 [TRACE] Executing graph transform *terraform.ForcedCBDTransformer
+2022-12-08T03:27:27.242-0500 [TRACE] ForcedCBDTransformer: "data.powerflex_sdcs.selected (expand)" (*terraform.nodeExpandPlannableResource) has no CBD descendent, so skipping
+2022-12-08T03:27:27.242-0500 [TRACE] Completed graph transform *terraform.ForcedCBDTransformer (no changes)
+2022-12-08T03:27:27.242-0500 [TRACE] Executing graph transform *terraform.CloseProviderTransformer
+2022-12-08T03:27:27.242-0500 [TRACE] Completed graph transform *terraform.CloseProviderTransformer with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandPlannableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+    data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandPlannableResource
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  provider["dell.com/dev/powerflex"] (close) - *terraform.graphNodeCloseProvider
+    data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandPlannableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  ------
+2022-12-08T03:27:27.242-0500 [TRACE] Executing graph transform *terraform.CloseRootModuleTransformer
+2022-12-08T03:27:27.242-0500 [TRACE] Completed graph transform *terraform.CloseRootModuleTransformer with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandPlannableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+    data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandPlannableResource
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  provider["dell.com/dev/powerflex"] (close) - *terraform.graphNodeCloseProvider
+    data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandPlannableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  root - *terraform.nodeCloseModule
+    output.allsdcresult (expand) - *terraform.nodeExpandOutput
+    provider["dell.com/dev/powerflex"] (close) - *terraform.graphNodeCloseProvider
+  ------
+2022-12-08T03:27:27.242-0500 [TRACE] Executing graph transform *terraform.TransitiveReductionTransformer
+2022-12-08T03:27:27.242-0500 [TRACE] Completed graph transform *terraform.TransitiveReductionTransformer with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandPlannableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+    data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandPlannableResource
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  provider["dell.com/dev/powerflex"] (close) - *terraform.graphNodeCloseProvider
+    data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandPlannableResource
+  root - *terraform.nodeCloseModule
+    output.allsdcresult (expand) - *terraform.nodeExpandOutput
+    provider["dell.com/dev/powerflex"] (close) - *terraform.graphNodeCloseProvider
+  ------
+2022-12-08T03:27:27.242-0500 [DEBUG] Starting graph walk: walkPlan
+2022-12-08T03:27:27.242-0500 [TRACE] vertex "provider[\"dell.com/dev/powerflex\"]": starting visit (*terraform.NodeApplyableProvider)
+2022-12-08T03:27:27.242-0500 [DEBUG] created provider logger: level=trace
+2022-12-08T03:27:27.242-0500 [INFO]  provider: configuring client automatic mTLS
+2022-12-08T03:27:27.252-0500 [DEBUG] provider: starting plugin: path=.terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64/terraform-provider-powerflex args=[.terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64/terraform-provider-powerflex]
+2022-12-08T03:27:27.252-0500 [DEBUG] provider: plugin started: path=.terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64/terraform-provider-powerflex pid=32414
+2022-12-08T03:27:27.252-0500 [DEBUG] provider: waiting for RPC address: path=.terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64/terraform-provider-powerflex
+2022-12-08T03:27:27.258-0500 [INFO]  provider.terraform-provider-powerflex: configuring server automatic mTLS: timestamp=2022-12-08T03:27:27.258-0500
+2022-12-08T03:27:27.284-0500 [DEBUG] provider.terraform-provider-powerflex: plugin address: address=/tmp/plugin2777733602 network=unix timestamp=2022-12-08T03:27:27.284-0500
+2022-12-08T03:27:27.284-0500 [DEBUG] provider: using plugin: version=5
+2022-12-08T03:27:27.302-0500 [TRACE] BuiltinEvalContext: Initialized "provider[\"dell.com/dev/powerflex\"]" provider for provider["dell.com/dev/powerflex"]
+2022-12-08T03:27:27.302-0500 [TRACE] NodeApplyableProvider: configuring provider["dell.com/dev/powerflex"]
+2022-12-08T03:27:27.302-0500 [TRACE] buildProviderConfig for provider["dell.com/dev/powerflex"]: using explicit config only
+2022-12-08T03:27:27.302-0500 [TRACE] GRPCProvider: GetProviderSchema
+2022-12-08T03:27:27.302-0500 [TRACE] provider.stdio: waiting for stdio data
+2022-12-08T03:27:27.304-0500 [TRACE] provider.terraform-provider-powerflex: Received request: tf_provider_addr=provider @module=sdk.proto tf_proto_version=5.3 tf_req_id=fc0a535d-4567-c1f4-c2d6-6f3cb836f420 tf_rpc=GetProviderSchema @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/tf5server/server.go:491 timestamp=2022-12-08T03:27:27.304-0500
+2022-12-08T03:27:27.304-0500 [TRACE] provider.terraform-provider-powerflex: Sending request downstream: @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/internal/tf5serverlogging/downstream_request.go:17 tf_proto_version=5.3 tf_provider_addr=provider tf_req_id=fc0a535d-4567-c1f4-c2d6-6f3cb836f420 @module=sdk.proto tf_rpc=GetProviderSchema timestamp=2022-12-08T03:27:27.304-0500
+2022-12-08T03:27:27.304-0500 [TRACE] provider.terraform-provider-powerflex: Getting provider schema: @module=sdk.helper_schema tf_provider_addr=provider tf_req_id=fc0a535d-4567-c1f4-c2d6-6f3cb836f420 tf_rpc=GetProviderSchema @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:70 timestamp=2022-12-08T03:27:27.304-0500
+2022-12-08T03:27:27.305-0500 [TRACE] provider.terraform-provider-powerflex: Found data source type: @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:95 tf_rpc=GetProviderSchema @module=sdk.helper_schema tf_data_source_type=powerflex_sdcs tf_provider_addr=provider tf_req_id=fc0a535d-4567-c1f4-c2d6-6f3cb836f420 timestamp=2022-12-08T03:27:27.304-0500
+2022-12-08T03:27:27.305-0500 [TRACE] provider.terraform-provider-powerflex: Found data source type: @module=sdk.helper_schema tf_rpc=GetProviderSchema @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:95 tf_data_source_type=powerflex_sdc_name_change tf_provider_addr=provider tf_req_id=fc0a535d-4567-c1f4-c2d6-6f3cb836f420 timestamp=2022-12-08T03:27:27.304-0500
+2022-12-08T03:27:27.305-0500 [TRACE] provider.terraform-provider-powerflex: Received downstream response: tf_provider_addr=provider @module=sdk.proto diagnostic_warning_count=0 tf_rpc=GetProviderSchema @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/internal/tf5serverlogging/downstream_request.go:37 diagnostic_error_count=0 tf_proto_version=5.3 tf_req_duration_ms=0 tf_req_id=fc0a535d-4567-c1f4-c2d6-6f3cb836f420 timestamp=2022-12-08T03:27:27.305-0500
+2022-12-08T03:27:27.305-0500 [TRACE] provider.terraform-provider-powerflex: Served request: @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/tf5server/server.go:510 tf_proto_version=5.3 tf_provider_addr=provider tf_req_id=fc0a535d-4567-c1f4-c2d6-6f3cb836f420 @module=sdk.proto tf_rpc=GetProviderSchema timestamp=2022-12-08T03:27:27.305-0500
+2022-12-08T03:27:27.305-0500 [TRACE] GRPCProvider: ValidateProviderConfig
+2022-12-08T03:27:27.306-0500 [TRACE] provider.terraform-provider-powerflex: Received request: @module=sdk.proto tf_proto_version=5.3 tf_provider_addr=provider tf_req_id=3adb2ada-c890-ac50-7d6d-1af9820e41fe tf_rpc=PrepareProviderConfig @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/tf5server/server.go:518 timestamp=2022-12-08T03:27:27.306-0500
+2022-12-08T03:27:27.306-0500 [TRACE] provider.terraform-provider-powerflex: Skipping protocol data file writing because no data directory is set. Use the TF_LOG_SDK_PROTO_DATA_DIR environment variable to enable this functionality.: @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/internal/logging/protocol_data.go:38 tf_provider_addr=provider tf_req_id=3adb2ada-c890-ac50-7d6d-1af9820e41fe @module=sdk.proto tf_proto_version=5.3 tf_rpc=PrepareProviderConfig timestamp=2022-12-08T03:27:27.306-0500
+2022-12-08T03:27:27.306-0500 [TRACE] provider.terraform-provider-powerflex: Sending request downstream: @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/internal/tf5serverlogging/downstream_request.go:17 tf_req_id=3adb2ada-c890-ac50-7d6d-1af9820e41fe tf_rpc=PrepareProviderConfig @module=sdk.proto tf_proto_version=5.3 tf_provider_addr=provider timestamp=2022-12-08T03:27:27.306-0500
+2022-12-08T03:27:27.306-0500 [TRACE] provider.terraform-provider-powerflex: Preparing provider configuration: @module=sdk.helper_schema tf_provider_addr=provider tf_req_id=3adb2ada-c890-ac50-7d6d-1af9820e41fe tf_rpc=PrepareProviderConfig @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:128 timestamp=2022-12-08T03:27:27.306-0500
+2022-12-08T03:27:27.306-0500 [TRACE] provider.terraform-provider-powerflex: Calling downstream: tf_provider_addr=provider tf_req_id=3adb2ada-c890-ac50-7d6d-1af9820e41fe tf_rpc=PrepareProviderConfig @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:216 @module=sdk.helper_schema timestamp=2022-12-08T03:27:27.306-0500
+2022-12-08T03:27:27.306-0500 [TRACE] provider.terraform-provider-powerflex: Called downstream: @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:218 @module=sdk.helper_schema tf_provider_addr=provider tf_req_id=3adb2ada-c890-ac50-7d6d-1af9820e41fe tf_rpc=PrepareProviderConfig timestamp=2022-12-08T03:27:27.306-0500
+2022-12-08T03:27:27.306-0500 [TRACE] provider.terraform-provider-powerflex: Received downstream response: tf_proto_version=5.3 tf_provider_addr=provider tf_req_id=3adb2ada-c890-ac50-7d6d-1af9820e41fe @module=sdk.proto diagnostic_error_count=0 diagnostic_warning_count=0 tf_req_duration_ms=0 @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/internal/tf5serverlogging/downstream_request.go:37 tf_rpc=PrepareProviderConfig timestamp=2022-12-08T03:27:27.306-0500
+2022-12-08T03:27:27.306-0500 [TRACE] provider.terraform-provider-powerflex: Served request: @module=sdk.proto tf_proto_version=5.3 tf_rpc=PrepareProviderConfig @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/tf5server/server.go:539 tf_provider_addr=provider tf_req_id=3adb2ada-c890-ac50-7d6d-1af9820e41fe timestamp=2022-12-08T03:27:27.306-0500
+2022-12-08T03:27:27.306-0500 [TRACE] GRPCProvider: ConfigureProvider
+2022-12-08T03:27:27.306-0500 [TRACE] provider.terraform-provider-powerflex: Received request: tf_provider_addr=provider @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/tf5server/server.go:547 @module=sdk.proto tf_proto_version=5.3 tf_req_id=e6a0e252-9177-7581-8080-73aa2e9a68ef tf_rpc=Configure timestamp=2022-12-08T03:27:27.306-0500
+2022-12-08T03:27:27.306-0500 [TRACE] provider.terraform-provider-powerflex: Sending request downstream: tf_proto_version=5.3 tf_provider_addr=provider @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/internal/tf5serverlogging/downstream_request.go:17 tf_req_id=e6a0e252-9177-7581-8080-73aa2e9a68ef tf_rpc=Configure @module=sdk.proto timestamp=2022-12-08T03:27:27.306-0500
+2022-12-08T03:27:27.306-0500 [TRACE] provider.terraform-provider-powerflex: Calling downstream: @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:556 @module=sdk.helper_schema tf_provider_addr=provider tf_req_id=e6a0e252-9177-7581-8080-73aa2e9a68ef tf_rpc=Configure timestamp=2022-12-08T03:27:27.306-0500
+2022-12-08T03:27:27.320-0500 [INFO]  provider.terraform-provider-powerflex: [PowerFlex][AuthConfigure] Successfuly Created ScaleIO Client: tf_provider_addr=provider tf_req_id=e6a0e252-9177-7581-8080-73aa2e9a68ef tf_rpc=Configure @caller=/opt/code/projects/terraform-provider-powerflex/powerflex/schema-structures/auth.go:90 @module=provider timestamp=2022-12-08T03:27:27.320-0500
+2022-12-08T03:27:27.320-0500 [DEBUG] provider.terraform-provider-powerflex: [PowerFlex][AuthConfigure] username admin: tf_rpc=Configure @caller=/opt/code/projects/terraform-provider-powerflex/powerflex/schema-structures/auth.go:92 @module=provider tf_provider_addr=provider tf_req_id=e6a0e252-9177-7581-8080-73aa2e9a68ef timestamp=2022-12-08T03:27:27.320-0500
+2022-12-08T03:27:27.321-0500 [DEBUG] provider.terraform-provider-powerflex: [PowerFlex][AuthConfigure] password Scaleio123!: tf_req_id=e6a0e252-9177-7581-8080-73aa2e9a68ef tf_rpc=Configure @caller=/opt/code/projects/terraform-provider-powerflex/powerflex/schema-structures/auth.go:93 @module=provider tf_provider_addr=provider timestamp=2022-12-08T03:27:27.320-0500
+2022-12-08T03:27:27.321-0500 [DEBUG] provider.terraform-provider-powerflex: [PowerFlex][AuthConfigure] host herehttps://10.234.221.217: tf_rpc=Configure @caller=/opt/code/projects/terraform-provider-powerflex/powerflex/schema-structures/auth.go:94 @module=provider tf_provider_addr=provider tf_req_id=e6a0e252-9177-7581-8080-73aa2e9a68ef timestamp=2022-12-08T03:27:27.321-0500
+2022-12-08T03:27:27.321-0500 [DEBUG] provider.terraform-provider-powerflex: [PowerFlex][AuthConfigure] insecure true: @caller=/opt/code/projects/terraform-provider-powerflex/powerflex/schema-structures/auth.go:95 @module=provider tf_provider_addr=provider tf_req_id=e6a0e252-9177-7581-8080-73aa2e9a68ef tf_rpc=Configure timestamp=2022-12-08T03:27:27.321-0500
+2022-12-08T03:27:27.321-0500 [DEBUG] provider.terraform-provider-powerflex: [PowerFlex][AuthConfigure] useCerts true: @module=provider tf_provider_addr=provider tf_req_id=e6a0e252-9177-7581-8080-73aa2e9a68ef tf_rpc=Configure @caller=/opt/code/projects/terraform-provider-powerflex/powerflex/schema-structures/auth.go:96 timestamp=2022-12-08T03:27:27.321-0500
+2022-12-08T03:27:27.527-0500 [INFO]  provider.terraform-provider-powerflex: [PowerFlex][AuthConfigure] Successfuly logged in to ScaleIO Gateway: @module=provider tf_provider_addr=provider tf_req_id=e6a0e252-9177-7581-8080-73aa2e9a68ef tf_rpc=Configure @caller=/opt/code/projects/terraform-provider-powerflex/powerflex/schema-structures/auth.go:116 timestamp=2022-12-08T03:27:27.526-0500
+2022-12-08T03:27:27.527-0500 [TRACE] provider.terraform-provider-powerflex: Called downstream: @module=sdk.helper_schema tf_provider_addr=provider tf_req_id=e6a0e252-9177-7581-8080-73aa2e9a68ef tf_rpc=Configure @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:558 timestamp=2022-12-08T03:27:27.527-0500
+2022-12-08T03:27:27.527-0500 [TRACE] provider.terraform-provider-powerflex: Received downstream response: diagnostic_error_count=0 tf_rpc=Configure @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/internal/tf5serverlogging/downstream_request.go:37 @module=sdk.proto diagnostic_warning_count=0 tf_proto_version=5.3 tf_provider_addr=provider tf_req_duration_ms=220 tf_req_id=e6a0e252-9177-7581-8080-73aa2e9a68ef timestamp=2022-12-08T03:27:27.527-0500
+2022-12-08T03:27:27.527-0500 [TRACE] provider.terraform-provider-powerflex: Served request: @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/tf5server/server.go:567 @module=sdk.proto tf_proto_version=5.3 tf_provider_addr=provider tf_req_id=e6a0e252-9177-7581-8080-73aa2e9a68ef tf_rpc=Configure timestamp=2022-12-08T03:27:27.527-0500
+2022-12-08T03:27:27.527-0500 [TRACE] vertex "provider[\"dell.com/dev/powerflex\"]": visit complete
+2022-12-08T03:27:27.527-0500 [TRACE] vertex "data.powerflex_sdcs.selected (expand)": starting visit (*terraform.nodeExpandPlannableResource)
+2022-12-08T03:27:27.527-0500 [TRACE] vertex "data.powerflex_sdcs.selected (expand)": expanding dynamic subgraph
+2022-12-08T03:27:27.527-0500 [TRACE] Executing graph transform *terraform.ResourceCountTransformer
+2022-12-08T03:27:27.527-0500 [TRACE] ResourceCountTransformer: adding data.powerflex_sdcs.selected as *terraform.NodePlannableResourceInstance
+2022-12-08T03:27:27.527-0500 [TRACE] Completed graph transform *terraform.ResourceCountTransformer with new graph:
+  data.powerflex_sdcs.selected - *terraform.NodePlannableResourceInstance
+  ------
+2022-12-08T03:27:27.527-0500 [TRACE] Executing graph transform *terraform.OrphanResourceInstanceCountTransformer
+2022-12-08T03:27:27.527-0500 [TRACE] Completed graph transform *terraform.OrphanResourceInstanceCountTransformer (no changes)
+2022-12-08T03:27:27.527-0500 [TRACE] Executing graph transform *terraform.AttachStateTransformer
+2022-12-08T03:27:27.527-0500 [DEBUG] Resource instance state not found for node "data.powerflex_sdcs.selected", instance data.powerflex_sdcs.selected
+2022-12-08T03:27:27.527-0500 [TRACE] Completed graph transform *terraform.AttachStateTransformer (no changes)
+2022-12-08T03:27:27.527-0500 [TRACE] Executing graph transform *terraform.TargetsTransformer
+2022-12-08T03:27:27.527-0500 [TRACE] Completed graph transform *terraform.TargetsTransformer (no changes)
+2022-12-08T03:27:27.527-0500 [TRACE] Executing graph transform *terraform.ReferenceTransformer
+2022-12-08T03:27:27.527-0500 [DEBUG] ReferenceTransformer: "data.powerflex_sdcs.selected" references: []
+2022-12-08T03:27:27.527-0500 [TRACE] Completed graph transform *terraform.ReferenceTransformer (no changes)
+2022-12-08T03:27:27.527-0500 [TRACE] Executing graph transform *terraform.RootTransformer
+2022-12-08T03:27:27.527-0500 [TRACE] Completed graph transform *terraform.RootTransformer (no changes)
+2022-12-08T03:27:27.527-0500 [TRACE] vertex "data.powerflex_sdcs.selected (expand)": entering dynamic subgraph
+2022-12-08T03:27:27.527-0500 [TRACE] vertex "data.powerflex_sdcs.selected": starting visit (*terraform.NodePlannableResourceInstance)
+2022-12-08T03:27:27.528-0500 [TRACE] readDataSource: Re-validating config for data.powerflex_sdcs.selected
+2022-12-08T03:27:27.528-0500 [TRACE] GRPCProvider: ValidateDataResourceConfig
+2022-12-08T03:27:27.528-0500 [TRACE] provider.terraform-provider-powerflex: Received request: @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/tf5server/server.go:619 @module=sdk.proto tf_proto_version=5.3 tf_rpc=ValidateDataSourceConfig tf_data_source_type=powerflex_sdcs tf_provider_addr=provider tf_req_id=bd4e6ccc-a413-8ad1-e727-615b8068a5bb timestamp=2022-12-08T03:27:27.528-0500
+2022-12-08T03:27:27.528-0500 [TRACE] provider.terraform-provider-powerflex: Sending request downstream: tf_rpc=ValidateDataSourceConfig @module=sdk.proto tf_provider_addr=provider @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/internal/tf5serverlogging/downstream_request.go:17 tf_data_source_type=powerflex_sdcs tf_proto_version=5.3 tf_req_id=bd4e6ccc-a413-8ad1-e727-615b8068a5bb timestamp=2022-12-08T03:27:27.528-0500
+2022-12-08T03:27:27.528-0500 [TRACE] provider.terraform-provider-powerflex: Calling downstream: tf_data_source_type=powerflex_sdcs tf_provider_addr=provider tf_req_id=bd4e6ccc-a413-8ad1-e727-615b8068a5bb @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:272 @module=sdk.helper_schema tf_rpc=ValidateDataSourceConfig timestamp=2022-12-08T03:27:27.528-0500
+2022-12-08T03:27:27.528-0500 [TRACE] provider.terraform-provider-powerflex: Called downstream: @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/grpc_provider.go:274 tf_data_source_type=powerflex_sdcs tf_rpc=ValidateDataSourceConfig @module=sdk.helper_schema tf_provider_addr=provider tf_req_id=bd4e6ccc-a413-8ad1-e727-615b8068a5bb timestamp=2022-12-08T03:27:27.528-0500
+2022-12-08T03:27:27.528-0500 [TRACE] provider.terraform-provider-powerflex: Received downstream response: tf_req_duration_ms=0 tf_req_id=bd4e6ccc-a413-8ad1-e727-615b8068a5bb @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/internal/tf5serverlogging/downstream_request.go:37 @module=sdk.proto diagnostic_error_count=0 diagnostic_warning_count=0 tf_data_source_type=powerflex_sdcs tf_rpc=ValidateDataSourceConfig tf_proto_version=5.3 tf_provider_addr=provider timestamp=2022-12-08T03:27:27.528-0500
+2022-12-08T03:27:27.529-0500 [TRACE] provider.terraform-provider-powerflex: Served request: @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/tf5server/server.go:639 tf_proto_version=5.3 tf_rpc=ValidateDataSourceConfig @module=sdk.proto tf_data_source_type=powerflex_sdcs tf_provider_addr=provider tf_req_id=bd4e6ccc-a413-8ad1-e727-615b8068a5bb timestamp=2022-12-08T03:27:27.528-0500
+2022-12-08T03:27:27.529-0500 [TRACE] readDataSource: data.powerflex_sdcs.selected configuration is complete, so reading from provider
+2022-12-08T03:27:27.529-0500 [TRACE] GRPCProvider: ReadDataSource
+2022-12-08T03:27:27.529-0500 [TRACE] provider.terraform-provider-powerflex: Received request: tf_proto_version=5.3 tf_provider_addr=provider tf_req_id=84eb21e5-70ec-9149-84fb-68a9f6115cd3 tf_rpc=ReadDataSource @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/tf5server/server.go:648 @module=sdk.proto tf_data_source_type=powerflex_sdcs timestamp=2022-12-08T03:27:27.529-0500
+2022-12-08T03:27:27.529-0500 [TRACE] provider.terraform-provider-powerflex: Sending request downstream: tf_provider_addr=provider @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/internal/tf5serverlogging/downstream_request.go:17 @module=sdk.proto tf_rpc=ReadDataSource tf_data_source_type=powerflex_sdcs tf_proto_version=5.3 tf_req_id=84eb21e5-70ec-9149-84fb-68a9f6115cd3 timestamp=2022-12-08T03:27:27.529-0500
+2022-12-08T03:27:27.529-0500 [TRACE] provider.terraform-provider-powerflex: Calling downstream: tf_provider_addr=provider tf_req_id=84eb21e5-70ec-9149-84fb-68a9f6115cd3 tf_rpc=ReadDataSource @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/resource.go:942 @module=sdk.helper_schema tf_data_source_type=powerflex_sdcs timestamp=2022-12-08T03:27:27.529-0500
+2022-12-08T03:27:27.529-0500 [DEBUG] provider.terraform-provider-powerflex: [PowerFlex][dataSourceSdcsRead] Empty value passed for systemid so getting first system available.: @module=provider tf_provider_addr=provider @caller=/opt/code/projects/terraform-provider-powerflex/powerflex/data-sources/sdc.go:33 tf_data_source_type=powerflex_sdcs tf_req_id=84eb21e5-70ec-9149-84fb-68a9f6115cd3 tf_rpc=ReadDataSource timestamp=2022-12-08T03:27:27.529-0500
+2022-12-08T03:27:27.761-0500 [DEBUG] provider.terraform-provider-powerflex: [PowerFlex][getSingleSdc] sdc - {
+	"Sdc": {
+		"systemId": "bae9b21d5a53850f",
+		"sdcApproved": true,
+		"SdcIp": "172.17.221.227",
+		"onVmWare": false,
+		"sdcGuid": "DCC9B67C-2269-4B46-84FD-915886C292B2",
+		"mdmConnectionState": "Connected",
+		"name": "boomboomshakalaka",
+		"id": "595a0bb600000006",
+		"links": [
+			{
+				"rel": "self",
+				"href": "/api/instances/Sdc::595a0bb600000006"
+			},
+			{
+				"rel": "/api/Sdc/relationship/Statistics",
+				"href": "/api/instances/Sdc::595a0bb600000006/relationships/Statistics"
+			},
+			{
+				"rel": "/api/Sdc/relationship/Volume",
+				"href": "/api/instances/Sdc::595a0bb600000006/relationships/Volume"
+			},
+			{
+				"rel": "/api/parent/relationship/systemId",
+				"href": "/api/instances/System::bae9b21d5a53850f"
+			}
+		]
+	}
+}
+: tf_data_source_type=powerflex_sdcs tf_provider_addr=provider tf_rpc=ReadDataSource @caller=/opt/code/projects/terraform-provider-powerflex/powerflex/data-sources/sdc.go:112 @module=provider tf_req_id=84eb21e5-70ec-9149-84fb-68a9f6115cd3 timestamp=2022-12-08T03:27:27.761-0500
+2022-12-08T03:27:27.761-0500 [DEBUG] provider.terraform-provider-powerflex: [PowerFlex][Anshuman] sdc - {
+	"id": "595a0bb600000006",
+	"mdmconnectionstate": "Connected",
+	"name": "boomboomshakalaka",
+	"onvmware": false,
+	"sdcapproved": true,
+	"sdcguid": "DCC9B67C-2269-4B46-84FD-915886C292B2",
+	"sdcip": "172.17.221.227",
+	"systemid": "bae9b21d5a53850f"
+}
+: @module=provider @caller=/opt/code/projects/terraform-provider-powerflex/powerflex/data-sources/sdc.go:117 tf_data_source_type=powerflex_sdcs tf_provider_addr=provider tf_req_id=84eb21e5-70ec-9149-84fb-68a9f6115cd3 tf_rpc=ReadDataSource timestamp=2022-12-08T03:27:27.761-0500
+2022-12-08T03:27:27.761-0500 [TRACE] provider.terraform-provider-powerflex: Called downstream: @module=sdk.helper_schema tf_provider_addr=provider tf_req_id=84eb21e5-70ec-9149-84fb-68a9f6115cd3 @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-sdk/v2@v2.24.1/helper/schema/resource.go:944 tf_data_source_type=powerflex_sdcs tf_rpc=ReadDataSource timestamp=2022-12-08T03:27:27.761-0500
+2022-12-08T03:27:27.761-0500 [TRACE] provider.terraform-provider-powerflex: Received downstream response: @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/internal/tf5serverlogging/downstream_request.go:37 @module=sdk.proto tf_data_source_type=powerflex_sdcs tf_req_id=84eb21e5-70ec-9149-84fb-68a9f6115cd3 tf_rpc=ReadDataSource diagnostic_error_count=0 diagnostic_warning_count=0 tf_proto_version=5.3 tf_provider_addr=provider tf_req_duration_ms=231 timestamp=2022-12-08T03:27:27.761-0500
+2022-12-08T03:27:27.761-0500 [TRACE] provider.terraform-provider-powerflex: Served request: tf_data_source_type=powerflex_sdcs tf_proto_version=5.3 tf_provider_addr=provider tf_req_id=84eb21e5-70ec-9149-84fb-68a9f6115cd3 tf_rpc=ReadDataSource @caller=/opt/code/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.14.2/tfprotov5/tf5server/server.go:670 @module=sdk.proto timestamp=2022-12-08T03:27:27.761-0500
+2022-12-08T03:27:27.761-0500 [TRACE] NodeAbstractResouceInstance.writeResourceInstanceState to refreshState for data.powerflex_sdcs.selected
+2022-12-08T03:27:27.761-0500 [TRACE] NodeAbstractResouceInstance.writeResourceInstanceState: writing state object for data.powerflex_sdcs.selected
+2022-12-08T03:27:27.761-0500 [TRACE] NodeAbstractResouceInstance.writeResourceInstanceState to workingState for data.powerflex_sdcs.selected
+2022-12-08T03:27:27.761-0500 [TRACE] NodeAbstractResouceInstance.writeResourceInstanceState: writing state object for data.powerflex_sdcs.selected
+2022-12-08T03:27:27.761-0500 [TRACE] vertex "data.powerflex_sdcs.selected": visit complete
+2022-12-08T03:27:27.761-0500 [TRACE] vertex "data.powerflex_sdcs.selected (expand)": dynamic subgraph completed successfully
+2022-12-08T03:27:27.761-0500 [TRACE] vertex "data.powerflex_sdcs.selected (expand)": visit complete
+2022-12-08T03:27:27.761-0500 [TRACE] vertex "output.allsdcresult (expand)": starting visit (*terraform.nodeExpandOutput)
+2022-12-08T03:27:27.761-0500 [TRACE] vertex "output.allsdcresult (expand)": expanding dynamic subgraph
+2022-12-08T03:27:27.761-0500 [TRACE] Expanding output: adding output.allsdcresult as *terraform.NodeApplyableOutput
+2022-12-08T03:27:27.761-0500 [TRACE] vertex "output.allsdcresult (expand)": entering dynamic subgraph
+2022-12-08T03:27:27.761-0500 [TRACE] vertex "output.allsdcresult": starting visit (*terraform.NodeApplyableOutput)
+2022-12-08T03:27:27.762-0500 [TRACE] setValue: Saving Create change for output.allsdcresult in changeset
+2022-12-08T03:27:27.762-0500 [TRACE] setValue: Saving value for output.allsdcresult in state
+2022-12-08T03:27:27.762-0500 [TRACE] setValue: Saving value for output.allsdcresult in state
+2022-12-08T03:27:27.762-0500 [TRACE] vertex "output.allsdcresult": visit complete
+2022-12-08T03:27:27.762-0500 [TRACE] vertex "output.allsdcresult (expand)": dynamic subgraph completed successfully
+2022-12-08T03:27:27.762-0500 [TRACE] vertex "output.allsdcresult (expand)": visit complete
+2022-12-08T03:27:27.762-0500 [TRACE] vertex "provider[\"dell.com/dev/powerflex\"] (close)": starting visit (*terraform.graphNodeCloseProvider)
+2022-12-08T03:27:27.762-0500 [TRACE] GRPCProvider: Close
+2022-12-08T03:27:27.762-0500 [DEBUG] provider.stdio: received EOF, stopping recv loop: err="rpc error: code = Unavailable desc = error reading from server: EOF"
+2022-12-08T03:27:27.763-0500 [DEBUG] provider: plugin process exited: path=.terraform/providers/dell.com/dev/powerflex/0.1.0/linux_amd64/terraform-provider-powerflex pid=32414
+2022-12-08T03:27:27.763-0500 [DEBUG] provider: plugin exited
+2022-12-08T03:27:27.763-0500 [TRACE] vertex "provider[\"dell.com/dev/powerflex\"] (close)": visit complete
+2022-12-08T03:27:27.763-0500 [TRACE] vertex "root": starting visit (*terraform.nodeCloseModule)
+2022-12-08T03:27:27.763-0500 [TRACE] vertex "root": visit complete
+2022-12-08T03:27:27.763-0500 [TRACE] LoadSchemas: retrieving schema for provider type "dell.com/dev/powerflex"
+2022-12-08T03:27:27.763-0500 [DEBUG] building apply graph to check for errors
+2022-12-08T03:27:27.763-0500 [TRACE] Executing graph transform *terraform.ConfigTransformer
+2022-12-08T03:27:27.763-0500 [TRACE] ConfigTransformer: Starting for path:
+2022-12-08T03:27:27.763-0500 [TRACE] Completed graph transform *terraform.ConfigTransformer with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandApplyableResource
+  ------
+2022-12-08T03:27:27.763-0500 [TRACE] Executing graph transform *terraform.RootVariableTransformer
+2022-12-08T03:27:27.763-0500 [TRACE] Completed graph transform *terraform.RootVariableTransformer (no changes)
+2022-12-08T03:27:27.763-0500 [TRACE] Executing graph transform *terraform.ModuleVariableTransformer
+2022-12-08T03:27:27.763-0500 [TRACE] Completed graph transform *terraform.ModuleVariableTransformer (no changes)
+2022-12-08T03:27:27.763-0500 [TRACE] Executing graph transform *terraform.LocalTransformer
+2022-12-08T03:27:27.763-0500 [TRACE] Completed graph transform *terraform.LocalTransformer (no changes)
+2022-12-08T03:27:27.763-0500 [TRACE] Executing graph transform *terraform.OutputTransformer
+2022-12-08T03:27:27.763-0500 [TRACE] OutputTransformer: adding allsdcresult as *terraform.nodeExpandOutput
+2022-12-08T03:27:27.763-0500 [TRACE] Completed graph transform *terraform.OutputTransformer with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandApplyableResource
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  ------
+2022-12-08T03:27:27.763-0500 [TRACE] Executing graph transform *terraform.DiffTransformer
+2022-12-08T03:27:27.763-0500 [TRACE] Completed graph transform *terraform.DiffTransformer (no changes)
+2022-12-08T03:27:27.763-0500 [TRACE] Executing graph transform *terraform.AttachStateTransformer
+2022-12-08T03:27:27.763-0500 [TRACE] Completed graph transform *terraform.AttachStateTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.OrphanOutputTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.OrphanOutputTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.AttachResourceConfigTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] AttachResourceConfigTransformer: attaching to "data.powerflex_sdcs.selected (expand)" (*terraform.nodeExpandApplyableResource) config from hcl.Range{Filename:"main.tf", Start:hcl.Pos{Line:30, Column:1, Byte:1038}, End:hcl.Pos{Line:30, Column:33, Byte:1070}}
+2022-12-08T03:27:27.764-0500 [TRACE] AttachResourceConfigTransformer: attaching provider meta configs to data.powerflex_sdcs.selected (expand)
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.AttachResourceConfigTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.graphTransformerMulti
+2022-12-08T03:27:27.764-0500 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.ProviderConfigTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] ProviderConfigTransformer: attaching to "provider[\"dell.com/dev/powerflex\"]" provider configuration from main.tf:18,1-21
+2022-12-08T03:27:27.764-0500 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.ProviderConfigTransformer with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandApplyableResource
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  ------
+2022-12-08T03:27:27.764-0500 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.MissingProviderTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.MissingProviderTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.ProviderTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] ProviderTransformer: exact match for provider["dell.com/dev/powerflex"] serving data.powerflex_sdcs.selected (expand)
+2022-12-08T03:27:27.764-0500 [DEBUG] ProviderTransformer: "data.powerflex_sdcs.selected (expand)" (*terraform.nodeExpandApplyableResource) needs provider["dell.com/dev/powerflex"]
+2022-12-08T03:27:27.764-0500 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.ProviderTransformer with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandApplyableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  ------
+2022-12-08T03:27:27.764-0500 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.PruneProviderTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.PruneProviderTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.graphTransformerMulti with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandApplyableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  ------
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.RemovedModuleTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.RemovedModuleTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.AttachSchemaTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] AttachSchemaTransformer: attaching resource schema to data.powerflex_sdcs.selected (expand)
+2022-12-08T03:27:27.764-0500 [TRACE] AttachSchemaTransformer: attaching provider config schema to provider["dell.com/dev/powerflex"]
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.AttachSchemaTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.ModuleExpansionTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.ModuleExpansionTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.ReferenceTransformer
+2022-12-08T03:27:27.764-0500 [DEBUG] ReferenceTransformer: "data.powerflex_sdcs.selected (expand)" references: []
+2022-12-08T03:27:27.764-0500 [DEBUG] ReferenceTransformer: "output.allsdcresult (expand)" references: [data.powerflex_sdcs.selected (expand)]
+2022-12-08T03:27:27.764-0500 [DEBUG] ReferenceTransformer: "provider[\"dell.com/dev/powerflex\"]" references: []
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.ReferenceTransformer with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandApplyableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+    data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandApplyableResource
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  ------
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.AttachDependenciesTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.AttachDependenciesTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.ForcedCBDTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.ForcedCBDTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.DestroyEdgeTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.DestroyEdgeTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.CBDEdgeTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.CBDEdgeTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.pruneUnusedNodesTransformer
+2022-12-08T03:27:27.764-0500 [DEBUG] pruneUnusedNodes: data.powerflex_sdcs.selected (expand) is no longer needed, removing
+2022-12-08T03:27:27.764-0500 [DEBUG] pruneUnusedNodes: provider["dell.com/dev/powerflex"] is no longer needed, removing
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.pruneUnusedNodesTransformer with new graph:
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  ------
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.TargetsTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.TargetsTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.CloseProviderTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.CloseProviderTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.CloseRootModuleTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.CloseRootModuleTransformer with new graph:
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  root - *terraform.nodeCloseModule
+    output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  ------
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.TransitiveReductionTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.TransitiveReductionTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [INFO]  backend/local: apply calling Apply
+2022-12-08T03:27:27.764-0500 [DEBUG] Building and walking apply graph for NormalMode plan
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.ConfigTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] ConfigTransformer: Starting for path:
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.ConfigTransformer with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandApplyableResource
+  ------
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.RootVariableTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.RootVariableTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.ModuleVariableTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.ModuleVariableTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.LocalTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.LocalTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.OutputTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] OutputTransformer: adding allsdcresult as *terraform.nodeExpandOutput
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.OutputTransformer with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandApplyableResource
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  ------
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.DiffTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.DiffTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.AttachStateTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.AttachStateTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.OrphanOutputTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.OrphanOutputTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.AttachResourceConfigTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] AttachResourceConfigTransformer: attaching to "data.powerflex_sdcs.selected (expand)" (*terraform.nodeExpandApplyableResource) config from hcl.Range{Filename:"main.tf", Start:hcl.Pos{Line:30, Column:1, Byte:1038}, End:hcl.Pos{Line:30, Column:33, Byte:1070}}
+2022-12-08T03:27:27.764-0500 [TRACE] AttachResourceConfigTransformer: attaching provider meta configs to data.powerflex_sdcs.selected (expand)
+2022-12-08T03:27:27.764-0500 [TRACE] Completed graph transform *terraform.AttachResourceConfigTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] Executing graph transform *terraform.graphTransformerMulti
+2022-12-08T03:27:27.764-0500 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.ProviderConfigTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] ProviderConfigTransformer: attaching to "provider[\"dell.com/dev/powerflex\"]" provider configuration from main.tf:18,1-21
+2022-12-08T03:27:27.764-0500 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.ProviderConfigTransformer with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandApplyableResource
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  ------
+2022-12-08T03:27:27.764-0500 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.MissingProviderTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.MissingProviderTransformer (no changes)
+2022-12-08T03:27:27.764-0500 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.ProviderTransformer
+2022-12-08T03:27:27.764-0500 [TRACE] ProviderTransformer: exact match for provider["dell.com/dev/powerflex"] serving data.powerflex_sdcs.selected (expand)
+2022-12-08T03:27:27.764-0500 [DEBUG] ProviderTransformer: "data.powerflex_sdcs.selected (expand)" (*terraform.nodeExpandApplyableResource) needs provider["dell.com/dev/powerflex"]
+2022-12-08T03:27:27.764-0500 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.ProviderTransformer with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandApplyableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  ------
+2022-12-08T03:27:27.764-0500 [TRACE] (graphTransformerMulti) Executing graph transform *terraform.PruneProviderTransformer
+2022-12-08T03:27:27.765-0500 [TRACE] (graphTransformerMulti) Completed graph transform *terraform.PruneProviderTransformer (no changes)
+2022-12-08T03:27:27.765-0500 [TRACE] Completed graph transform *terraform.graphTransformerMulti with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandApplyableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  ------
+2022-12-08T03:27:27.765-0500 [TRACE] Executing graph transform *terraform.RemovedModuleTransformer
+2022-12-08T03:27:27.765-0500 [TRACE] Completed graph transform *terraform.RemovedModuleTransformer (no changes)
+2022-12-08T03:27:27.765-0500 [TRACE] Executing graph transform *terraform.AttachSchemaTransformer
+2022-12-08T03:27:27.765-0500 [TRACE] AttachSchemaTransformer: attaching provider config schema to provider["dell.com/dev/powerflex"]
+2022-12-08T03:27:27.765-0500 [TRACE] AttachSchemaTransformer: attaching resource schema to data.powerflex_sdcs.selected (expand)
+2022-12-08T03:27:27.765-0500 [TRACE] Completed graph transform *terraform.AttachSchemaTransformer (no changes)
+2022-12-08T03:27:27.765-0500 [TRACE] Executing graph transform *terraform.ModuleExpansionTransformer
+2022-12-08T03:27:27.765-0500 [TRACE] Completed graph transform *terraform.ModuleExpansionTransformer (no changes)
+2022-12-08T03:27:27.765-0500 [TRACE] Executing graph transform *terraform.ReferenceTransformer
+2022-12-08T03:27:27.765-0500 [DEBUG] ReferenceTransformer: "data.powerflex_sdcs.selected (expand)" references: []
+2022-12-08T03:27:27.765-0500 [DEBUG] ReferenceTransformer: "output.allsdcresult (expand)" references: [data.powerflex_sdcs.selected (expand)]
+2022-12-08T03:27:27.765-0500 [DEBUG] ReferenceTransformer: "provider[\"dell.com/dev/powerflex\"]" references: []
+2022-12-08T03:27:27.765-0500 [TRACE] Completed graph transform *terraform.ReferenceTransformer with new graph:
+  data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandApplyableResource
+    provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+    data.powerflex_sdcs.selected (expand) - *terraform.nodeExpandApplyableResource
+  provider["dell.com/dev/powerflex"] - *terraform.NodeApplyableProvider
+  ------
+2022-12-08T03:27:27.765-0500 [TRACE] Executing graph transform *terraform.AttachDependenciesTransformer
+2022-12-08T03:27:27.765-0500 [TRACE] Completed graph transform *terraform.AttachDependenciesTransformer (no changes)
+2022-12-08T03:27:27.765-0500 [TRACE] Executing graph transform *terraform.ForcedCBDTransformer
+2022-12-08T03:27:27.765-0500 [TRACE] Completed graph transform *terraform.ForcedCBDTransformer (no changes)
+2022-12-08T03:27:27.765-0500 [TRACE] Executing graph transform *terraform.DestroyEdgeTransformer
+2022-12-08T03:27:27.765-0500 [TRACE] Completed graph transform *terraform.DestroyEdgeTransformer (no changes)
+2022-12-08T03:27:27.765-0500 [TRACE] Executing graph transform *terraform.CBDEdgeTransformer
+2022-12-08T03:27:27.765-0500 [TRACE] Completed graph transform *terraform.CBDEdgeTransformer (no changes)
+2022-12-08T03:27:27.765-0500 [TRACE] Executing graph transform *terraform.pruneUnusedNodesTransformer
+2022-12-08T03:27:27.765-0500 [DEBUG] pruneUnusedNodes: data.powerflex_sdcs.selected (expand) is no longer needed, removing
+2022-12-08T03:27:27.765-0500 [DEBUG] pruneUnusedNodes: provider["dell.com/dev/powerflex"] is no longer needed, removing
+2022-12-08T03:27:27.765-0500 [TRACE] Completed graph transform *terraform.pruneUnusedNodesTransformer with new graph:
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  ------
+2022-12-08T03:27:27.765-0500 [TRACE] Executing graph transform *terraform.TargetsTransformer
+2022-12-08T03:27:27.765-0500 [TRACE] Completed graph transform *terraform.TargetsTransformer (no changes)
+2022-12-08T03:27:27.765-0500 [TRACE] Executing graph transform *terraform.CloseProviderTransformer
+2022-12-08T03:27:27.765-0500 [TRACE] Completed graph transform *terraform.CloseProviderTransformer (no changes)
+2022-12-08T03:27:27.765-0500 [TRACE] Executing graph transform *terraform.CloseRootModuleTransformer
+2022-12-08T03:27:27.765-0500 [TRACE] Completed graph transform *terraform.CloseRootModuleTransformer with new graph:
+  output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  root - *terraform.nodeCloseModule
+    output.allsdcresult (expand) - *terraform.nodeExpandOutput
+  ------
+2022-12-08T03:27:27.765-0500 [TRACE] Executing graph transform *terraform.TransitiveReductionTransformer
+2022-12-08T03:27:27.765-0500 [TRACE] Completed graph transform *terraform.TransitiveReductionTransformer (no changes)
+2022-12-08T03:27:27.765-0500 [DEBUG] Starting graph walk: walkApply
+2022-12-08T03:27:27.765-0500 [TRACE] vertex "output.allsdcresult (expand)": starting visit (*terraform.nodeExpandOutput)
+2022-12-08T03:27:27.765-0500 [TRACE] vertex "output.allsdcresult (expand)": expanding dynamic subgraph
+2022-12-08T03:27:27.765-0500 [TRACE] Expanding output: adding output.allsdcresult as *terraform.NodeApplyableOutput
+2022-12-08T03:27:27.765-0500 [TRACE] vertex "output.allsdcresult (expand)": entering dynamic subgraph
+2022-12-08T03:27:27.765-0500 [TRACE] vertex "output.allsdcresult": starting visit (*terraform.NodeApplyableOutput)
+2022-12-08T03:27:27.765-0500 [TRACE] setValue: Saving NoOp change for output.allsdcresult in changeset
+2022-12-08T03:27:27.765-0500 [TRACE] setValue: Saving value for output.allsdcresult in state
+2022-12-08T03:27:27.765-0500 [TRACE] vertex "output.allsdcresult": visit complete
+2022-12-08T03:27:27.765-0500 [TRACE] vertex "output.allsdcresult (expand)": dynamic subgraph completed successfully
+2022-12-08T03:27:27.765-0500 [TRACE] vertex "output.allsdcresult (expand)": visit complete
+2022-12-08T03:27:27.765-0500 [TRACE] vertex "root": starting visit (*terraform.nodeCloseModule)
+2022-12-08T03:27:27.765-0500 [TRACE] vertex "root": visit complete
+2022-12-08T03:27:27.765-0500 [TRACE] statemgr.Filesystem: reading latest snapshot from terraform.tfstate
+2022-12-08T03:27:27.765-0500 [TRACE] statemgr.Filesystem: snapshot file has nil snapshot, but that's okay
+2022-12-08T03:27:27.765-0500 [TRACE] statemgr.Filesystem: read nil snapshot
+2022-12-08T03:27:27.765-0500 [TRACE] statemgr.Filesystem: no original state snapshot to back up
+2022-12-08T03:27:27.765-0500 [TRACE] statemgr.Filesystem: state has changed since last snapshot, so incrementing serial to 1
+2022-12-08T03:27:27.765-0500 [TRACE] statemgr.Filesystem: writing snapshot at terraform.tfstate
+2022-12-08T03:27:27.777-0500 [TRACE] statemgr.Filesystem: removing lock metadata file .terraform.tfstate.lock.info
+2022-12-08T03:27:27.777-0500 [TRACE] statemgr.Filesystem: unlocking terraform.tfstate using fcntl flock
