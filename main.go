@@ -5,11 +5,9 @@ import (
 	"flag"
 	"log"
 	"terraform-provider-powerflex/powerflex"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 )
 
-//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
 var (
 	version string = "dev"
 )
