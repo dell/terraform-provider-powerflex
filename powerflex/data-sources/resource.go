@@ -10,10 +10,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+// ResourceSdcs function to carry sdc CRUD opration schema
 func ResourceSdcs() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceSdcsUpdate,
-		Schema:      schemastructures.SDC_UPDATE_RESOURCE_NANE_SCHEMA,
+		Schema:      schemastructures.SDCCRUDSchema,
 	}
 }
 
@@ -52,7 +53,7 @@ func resourceSdcsUpdate(ctx context.Context, d *schema.ResourceData, m interface
 	resultMap := make([]map[string]interface{}, 0)
 	resultSdcMap := schemastructures.NameChangedSdcToMap(*nameChngedSdc.Sdc)
 
-	tflog.Debug(ctx, "[PowerFlex][NameChangedSdcToMap] sdc - "+helper.PrettyJson(resultSdcMap))
+	tflog.Debug(ctx, "[PowerFlex][NameChangedSdcToMap] sdc - "+helper.PrettyJSON(resultSdcMap))
 	resultMap = append(resultMap, resultSdcMap)
 
 	if err := d.Set("sdcs", resultMap); err != nil {
@@ -74,12 +75,12 @@ func resourceSdcsUpdate(ctx context.Context, d *schema.ResourceData, m interface
 // 		tflog.Error(ctx, err.Error())
 // 		return diags
 // 	}
-// 	tflog.Debug(ctx, "[PowerFlex][getSingleSdc] sdc - "+helper.PrettyJson(singleSdc))
+// 	tflog.Debug(ctx, "[PowerFlex][getSingleSdc] sdc - "+helper.PrettyJSON(singleSdc))
 
 // 	resultMap := make([]map[string]interface{}, 0)
 // 	resultSdcMap := schemastructures.NameChangedSdcToMap(*singleSdc.Sdc)
 
-// 	tflog.Debug(ctx, "[PowerFlex][Anshuman] sdc - "+helper.PrettyJson(resultSdcMap))
+// 	tflog.Debug(ctx, "[PowerFlex][Anshuman] sdc - "+helper.PrettyJSON(resultSdcMap))
 // 	resultMap = append(resultMap, resultSdcMap)
 
 // 	if err := d.Set("sdcs", resultMap); err != nil {

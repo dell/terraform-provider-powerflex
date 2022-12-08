@@ -11,7 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-var AUTH_SCHEMA map[string]*schema.Schema = map[string]*schema.Schema{
+// AuthSchema schema for authentication inputs for goscaleio
+var AuthSchema map[string]*schema.Schema = map[string]*schema.Schema{
 	"host": {
 		Type:        schema.TypeString,
 		Required:    true,
@@ -54,6 +55,7 @@ var AUTH_SCHEMA map[string]*schema.Schema = map[string]*schema.Schema{
 	},
 }
 
+// AuthConfigure function for authenticating goscaleio
 func AuthConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	host := d.Get("host").(string)

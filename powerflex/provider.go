@@ -10,7 +10,7 @@ import (
 // Provider -
 func Provider() *schema.Provider {
 	return &schema.Provider{
-		Schema:       schemastructures.AUTH_SCHEMA,
+		Schema:       schemastructures.AuthSchema,
 		ResourcesMap: map[string]*schema.Resource{
 			// "powerflex_sdcs": datasources.ResourceSdcs(),
 		},

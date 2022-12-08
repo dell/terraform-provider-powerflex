@@ -4,7 +4,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-var SDC_UPDATE_RESOURCE_NANE_SCHEMA map[string]*schema.Schema = map[string]*schema.Schema{
+// SDC CRUD operation Schema
+var SDCCRUDSchema map[string]*schema.Schema = map[string]*schema.Schema{
 	"id": {
 		Type:        schema.TypeString,
 		Description: "Enter ID of Powerflex SDC of which name will be changed.",

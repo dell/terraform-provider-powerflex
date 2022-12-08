@@ -5,7 +5,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-var SDC_DATA_RESOURCE_SCHEMA map[string]*schema.Schema = map[string]*schema.Schema{
+var SDCDataresourceSchema map[string]*schema.Schema = map[string]*schema.Schema{
 	"id": {
 		Type:        schema.TypeString,
 		Description: "Enter ID of Powerflex SDC. [Default/empty will all sdc present in given system]",
@@ -76,6 +76,7 @@ var SDC_DATA_RESOURCE_SCHEMA map[string]*schema.Schema = map[string]*schema.Sche
 	},
 }
 
+// Convert returned sdc object(from goscaleio) to terraform output schema
 func SdcToMap(s goscaleiotypes.Sdc) map[string]interface{} {
 	resultSDC := make(map[string]interface{})
 	resultSDC["id"] = s.ID
@@ -89,6 +90,7 @@ func SdcToMap(s goscaleiotypes.Sdc) map[string]interface{} {
 	return resultSDC
 }
 
+// Convert returned sdc object(from goscaleio) [after name changes] to terraform output schema
 func NameChangedSdcToMap(s goscaleiotypes.Sdc) map[string]interface{} {
 	resultSDC := make(map[string]interface{})
 	resultSDC["id"] = s.ID
