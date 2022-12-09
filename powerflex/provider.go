@@ -11,13 +11,13 @@ import (
 // Provider -
 func Provider() *schema.Provider {
 	return &schema.Provider{
-		Schema:       authmodel.AuthSchemaModel,
+		Schema: authmodel.AuthSchemaModel,
 		ResourcesMap: map[string]*schema.Resource{
-			// "powerflex_sdcs": datasources.ResourceSdcs(),
+			"powerflex_sdc": sdc.ResourceSdcs(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"powerflex_sdcs":            sdc.DataSourceSdcs(),
-			"powerflex_sdc_name_change": sdc.ResourceSdcs(),
+			"powerflex_sdc": sdc.DataSourceSdcs(),
+			// "powerflex_sdc_name_change": sdc.ResourceSdcs(),
 		},
 		ConfigureContextFunc: auth.AuthHandler,
 	}

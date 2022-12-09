@@ -4,7 +4,7 @@ import "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 // SDCReadOnlyModel schema for SDC Data resource
 var SDCReadOnlyModel map[string]*schema.Schema = map[string]*schema.Schema{
-	"id": {
+	"sdcid": {
 		Type:        schema.TypeString,
 		Description: "Enter ID of Powerflex SDC. [Default/empty will all sdc present in given system]",
 		Required:    true,
