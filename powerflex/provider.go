@@ -19,6 +19,6 @@ func Provider() *schema.Provider {
 			"powerflex_sdc": sdc.DataSourceSdcs(),
 			// "powerflex_sdc_name_change": sdc.ResourceSdcs(),
 		},
-		ConfigureContextFunc: auth.AuthHandler,
+		ConfigureContextFunc: auth.GoscaleioAuth,
 	}
 }

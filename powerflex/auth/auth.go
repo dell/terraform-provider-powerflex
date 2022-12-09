@@ -11,8 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// AuthHandler function for authenticating goscaleio
-func AuthHandler(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+// GoscaleioAuth function for authenticating goscaleio
+func GoscaleioAuth(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	host := d.Get("host").(string)
 	username := d.Get("username").(string)
