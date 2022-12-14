@@ -11,8 +11,8 @@ terraform {
 
 provider "powerflex" {
     username = "admin"
-    password = "Password123"
-    host = "https://10.247.101.69:443"
+    password = ""
+    host = ""
     insecure = ""
     usecerts = ""
     powerflex_version = ""

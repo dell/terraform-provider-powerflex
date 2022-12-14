@@ -1,11 +1,12 @@
 package sdcprovider
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
+
+	"terraform-provider-powerflex/helper"
 
 	"github.com/dell/goscaleio"
+	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
@@ -49,102 +50,12 @@ type sdcLinkModel struct {
 	HREF types.String `tfsdk:"href"`
 }
 
-func PrettyJSON(data interface{}) string {
-	buffer := new(bytes.Buffer)
-	encoder := json.NewEncoder(buffer)
-	encoder.SetIndent("", "\t")
-
-	err := encoder.Encode(data)
-	if err != nil {
-		return ""
-	}
-	return buffer.String()
-}
-
 func (d *sdcDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_sdc"
 }
 
 func (d *sdcDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
-		Description: "Fetches the list of coffees.",
-		Attributes: map[string]tfsdk.Attribute{
-			"sdcid": {
-				Type:        types.StringType,
-				Description: "Enter ID of Powerflex SDC. [Default/empty will all sdc present in given system]",
-				Required:    true,
-				Sensitive:   true,
-			},
-			"systemid": {
-				Type:        types.StringType,
-				Description: "Enter System ID of Powerflex System. [Default/empty will be any first system in list]",
-				Required:    true,
-				Sensitive:   true,
-			},
-			"sdcs": {
-				Description: "List of coffees.",
-				Computed:    true,
-				Attributes: tfsdk.ListNestedAttributes(map[string]tfsdk.Attribute{
-					"id": {
-						Description: "Numeric identifier of the coffee.",
-						Type:        types.StringType,
-						Computed:    true,
-					},
-					"name": {
-						Description: "Product name of the coffee.",
-						Type:        types.StringType,
-						Computed:    true,
-					},
-					"sdcguid": {
-						Description: "Fun tagline for the coffee.",
-						Type:        types.StringType,
-						Computed:    true,
-					},
-					"onvmware": {
-						Description: "Product description of the coffee.",
-						Type:        types.BoolType,
-						Computed:    true,
-					},
-					"sdcapproved": {
-						Description: "Product description of the coffee.",
-						Type:        types.BoolType,
-						Computed:    true,
-					},
-					"systemid": {
-						Description: "Suggested cost of the coffee.",
-						Type:        types.StringType,
-						Computed:    true,
-					},
-					"sdcip": {
-						Description: "URI for an image of the coffee.",
-						Type:        types.StringType,
-						Computed:    true,
-					},
-					"mdmconnectionstate": {
-						Description: "URI for an image of the coffee.",
-						Type:        types.StringType,
-						Computed:    true,
-					},
-					"links": {
-						Description: "List of ingredients in the coffee.",
-						Computed:    true,
-						Attributes: tfsdk.ListNestedAttributes(map[string]tfsdk.Attribute{
-							"rel": {
-								Description: "Numeric identifier of the coffee ingredient.",
-								Type:        types.StringType,
-								Computed:    true,
-							},
-							"href": {
-								Description: "Numeric identifier of the coffee ingredient.",
-								Type:        types.StringType,
-								Computed:    true,
-							},
-						}),
-					},
-				}),
-			},
-		},
-	}, nil
+	return SDCDataSourceScheme, nil
 }
 
 func (d *sdcDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
@@ -156,16 +67,14 @@ func (d *sdcDataSource) Configure(_ context.Context, req datasource.ConfigureReq
 }
 
 func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	tflog.Debug(ctx, "(d *sdcDataSource) Read")
 	var state sdcDataSourceModel
 	diags := req.Config.Get(ctx, &state)
-	// resp.Diagnostics.Append(diags...)
-	tflog.Info(ctx, "[POWERFLEX] sdcDataSourceModel"+PrettyJSON((state)))
+	tflog.Info(ctx, "[POWERFLEX] sdcDataSourceModel"+helper.PrettyJSON((state)))
 	system, err := d.client.FindSystem(state.SystemID.ValueString(), "", "")
-	// tflog.Debug(ctx, "system"+PrettyJSON(system))
+	// tflog.Debug(ctx, "system"+helper.PrettyJSON(system))
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex systems Coffees",
+			"Unable to Read Powerflex systems sdcs",
 			err.Error(),
 		)
 		return
@@ -180,7 +89,17 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		return
 	}
 
-	// Map response body to model
+	// Set state
+	state.Sdcs = getAllSdcState(sdcs)
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func getAllSdcState(sdcs []scaleiotypes.Sdc) (response []sdcModel) {
 	for _, sdcValue := range sdcs {
 		sdcState := sdcModel{
 			ID:                 types.StringValue(sdcValue.ID),
@@ -200,14 +119,8 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 			})
 		}
 
-		state.Sdcs = append(state.Sdcs, sdcState)
+		response = append(response, sdcState)
 	}
 
-	// Set state
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	return
 }
