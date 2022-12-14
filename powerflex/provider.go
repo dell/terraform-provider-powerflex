@@ -1,24 +1,246 @@
 package powerflex
 
 import (
-	authmodel "terraform-provider-powerflex/models/auth"
-	"terraform-provider-powerflex/powerflex/auth"
-	"terraform-provider-powerflex/powerflex/sdc"
+	"context"
+	"os"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	sdcprovider "terraform-provider-powerflex/powerflex/sdc"
+
+	"github.com/dell/goscaleio"
+	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-// Provider -
-func Provider() *schema.Provider {
-	return &schema.Provider{
-		Schema: authmodel.AuthSchemaModel,
-		ResourcesMap: map[string]*schema.Resource{
-			"powerflex_sdc": sdc.ResourceSdcs(),
+var (
+	_ provider.Provider = &powerflexProvider{}
+)
+
+func New() provider.Provider {
+	return &powerflexProvider{}
+}
+
+type powerflexProvider struct{}
+
+type powerflexProviderModel struct {
+	Host             types.String `tfsdk:"host"`
+	Username         types.String `tfsdk:"username"`
+	Password         types.String `tfsdk:"password"`
+	Insecure         types.String `tfsdk:"insecure"`
+	UseCerts         types.String `tfsdk:"usecerts"`
+	PowerflexVersion types.String `tfsdk:"powerflex_version"`
+}
+
+func (p *powerflexProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
+	resp.TypeName = "powerflex"
+}
+
+func (p *powerflexProvider) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
+	return tfsdk.Schema{
+		Description: "Interact with powerflex.",
+		Attributes: map[string]tfsdk.Attribute{
+			"host": {
+				Description: "URI for powerflex API. May also be provided via powerflex_HOST environment variable.",
+				Type:        types.StringType,
+				Optional:    true,
+			},
+			"username": {
+				Description: "Username for powerflex API. May also be provided via powerflex_USERNAME environment variable.",
+				Type:        types.StringType,
+				Optional:    true,
+			},
+			"password": {
+				Description: "Password for powerflex API. May also be provided via powerflex_PASSWORD environment variable.",
+				Type:        types.StringType,
+				Optional:    true,
+				Sensitive:   true,
+			},
+			"insecure": {
+				Description: "URI for powerflex API. May also be provided via powerflex_HOST environment variable.",
+				Type:        types.StringType,
+				Optional:    true,
+			},
+			"usecerts": {
+				Description: "Username for powerflex API. May also be provided via powerflex_USERNAME environment variable.",
+				Type:        types.StringType,
+				Optional:    true,
+			},
+			"powerflex_version": {
+				Description: "Password for powerflex API. May also be provided via powerflex_PASSWORD environment variable.",
+				Type:        types.StringType,
+				Optional:    true,
+				Sensitive:   true,
+			},
 		},
-		DataSourcesMap: map[string]*schema.Resource{
-			"powerflex_sdc": sdc.DataSourceSdcs(),
-			// "powerflex_sdc_name_change": sdc.ResourceSdcs(),
-		},
-		ConfigureContextFunc: auth.GoscaleioAuth,
+	}, nil
+}
+
+func (p *powerflexProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+	tflog.Info(ctx, "Configuring powerflex client")
+
+	var config powerflexProviderModel
+	diags := req.Config.Get(ctx, &config)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if config.Host.IsUnknown() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("host"),
+			"Unknown powerflex API Host",
+			"The provider cannot create the powerflex API client as there is an unknown configuration value for the powerflex API host. "+
+				"Either target apply the source of the value first, set the value statically in the configuration, or use the powerflex_HOST environment variable.",
+		)
+	}
+
+	if config.Username.IsUnknown() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("username"),
+			"Unknown powerflex API Username",
+			"The provider cannot create the powerflex API client as there is an unknown configuration value for the powerflex API username. "+
+				"Either target apply the source of the value first, set the value statically in the configuration, or use the powerflex_USERNAME environment variable.",
+		)
+	}
+
+	if config.Password.IsUnknown() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("password"),
+			"Unknown powerflex API Password",
+			"The provider cannot create the powerflex API client as there is an unknown configuration value for the powerflex API password. "+
+				"Either target apply the source of the value first, set the value statically in the configuration, or use the powerflex_PASSWORD environment variable.",
+		)
+	}
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	host := os.Getenv("POWERFLEX_HOST")
+	username := os.Getenv("POWERFLEX_USERNAME")
+	password := os.Getenv("POWERFLEX_PASSWORD")
+
+	insecure := os.Getenv("POWERFLEX_HOST")
+	usecerts := os.Getenv("POWERFLEX_USERNAME")
+	powerflex_version := os.Getenv("POWERFLEX_PASSWORD")
+
+	if !config.Host.IsNull() {
+		host = config.Host.ValueString()
+	}
+
+	if !config.Username.IsNull() {
+		username = config.Username.ValueString()
+	}
+
+	if !config.Password.IsNull() {
+		password = config.Password.ValueString()
+	}
+
+	if !config.Insecure.IsNull() {
+		insecure = config.Insecure.ValueString()
+	}
+
+	if !config.UseCerts.IsNull() {
+		usecerts = config.UseCerts.ValueString()
+	}
+
+	if !config.PowerflexVersion.IsNull() {
+		powerflex_version = config.PowerflexVersion.ValueString()
+	}
+
+	if host == "" {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("host"),
+			"Missing powerflex API Host",
+			"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API host. "+
+				"Set the host value in the configuration or use the powerflex_HOST environment variable. "+
+				"If either is already set, ensure the value is not empty.",
+		)
+	}
+
+	if username == "" {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("username"),
+			"Missing powerflex API Username",
+			"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API username. "+
+				"Set the username value in the configuration or use the powerflex_USERNAME environment variable. "+
+				"If either is already set, ensure the value is not empty.",
+		)
+	}
+
+	if password == "" {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("password"),
+			"Missing powerflex API Password",
+			"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API password. "+
+				"Set the password value in the configuration or use the powerflex_PASSWORD environment variable. "+
+				"If either is already set, ensure the value is not empty.",
+		)
+	}
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	ctx = tflog.SetField(ctx, "powerflex_host", host)
+	ctx = tflog.SetField(ctx, "powerflex_username", username)
+	ctx = tflog.SetField(ctx, "powerflex_password", password)
+
+	ctx = tflog.SetField(ctx, "insecure", insecure)
+	ctx = tflog.SetField(ctx, "usecerts", usecerts)
+	ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "powerflex_password")
+
+	tflog.Debug(ctx, "Creating powerflex client")
+
+	// Create a new powerflex client using the configuration values
+	client, err := goscaleio.NewClientWithArgs(host, powerflex_version, true, true)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Create powerflex API Client",
+			"An unexpected error occurred when creating the powerflex API client. "+
+				"If the error is not clear, please contact the provider developers.\n\n"+
+				"powerflex Client Error: "+err.Error(),
+		)
+		return
+	}
+
+	var goscaleioConf goscaleio.ConfigConnect = goscaleio.ConfigConnect{}
+	goscaleioConf.Endpoint = host
+	goscaleioConf.Username = username
+	goscaleioConf.Version = powerflex_version
+	goscaleioConf.Password = password
+
+	_, err = client.Authenticate(&goscaleioConf)
+
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Auth Goscaleio API Client",
+			"An unexpected error occurred when creating the Unable to Auth Goscaleio API Client. "+
+				"Unable to Auth Goscaleio API Client.\n\n"+
+				"powerflex Client Error: "+err.Error(),
+		)
+		return
+	}
+
+	resp.DataSourceData = client
+	resp.ResourceData = client
+
+	tflog.Info(ctx, "Configured powerflex client", map[string]any{"success": true})
+}
+
+func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.DataSource {
+	return []func() datasource.DataSource{
+		sdcprovider.SDCDataSource,
+	}
+}
+
+func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resource {
+	return []func() resource.Resource{
+		// NewOrderResource,
 	}
 }
