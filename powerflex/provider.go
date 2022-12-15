@@ -133,7 +133,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 
 	insecure := os.Getenv("POWERFLEX_HOST")
 	usecerts := os.Getenv("POWERFLEX_USERNAME")
-	powerflex_version := os.Getenv("POWERFLEX_PASSWORD")
+	powerflexVersion := os.Getenv("POWERFLEX_PASSWORD")
 
 	if !config.Host.IsNull() {
 		host = config.Host.ValueString()
@@ -156,7 +156,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	}
 
 	if !config.PowerflexVersion.IsNull() {
-		powerflex_version = config.PowerflexVersion.ValueString()
+		powerflexVersion = config.PowerflexVersion.ValueString()
 	}
 
 	if host == "" {
@@ -204,7 +204,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	tflog.Debug(ctx, "Creating powerflex client")
 
 	// Create a new powerflex client using the configuration values
-	client, err := goscaleio.NewClientWithArgs(host, powerflex_version, true, true)
+	client, err := goscaleio.NewClientWithArgs(host, powerflexVersion, true, true)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Create powerflex API Client",
@@ -218,7 +218,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	var goscaleioConf goscaleio.ConfigConnect = goscaleio.ConfigConnect{}
 	goscaleioConf.Endpoint = host
 	goscaleioConf.Username = username
-	goscaleioConf.Version = powerflex_version
+	goscaleioConf.Version = powerflexVersion
 	goscaleioConf.Password = password
 
 	_, err = client.Authenticate(&goscaleioConf)

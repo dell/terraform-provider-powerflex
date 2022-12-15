@@ -26,13 +26,13 @@ func SDCDataSource() datasource.DataSource {
 
 // sdcFilterType - Enum structure for filter types.
 var sdcFilterType = struct {
-	ALL     string
-	BY_NAME string
-	BY_ID   string
+	All    string
+	ByName string
+	ByID   string
 }{
-	ALL:     "ALL",
-	BY_NAME: "BY_NAME",
-	BY_ID:   "BY_ID",
+	All:    "All",
+	ByName: "ByName",
+	ByID:   "ByID",
 }
 
 // sdcDataSource - for returning singleton holder with goscaleio client.
@@ -110,18 +110,18 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		return
 	}
 	// Set state
-	searchFilter := sdcFilterType.ALL
+	searchFilter := sdcFilterType.All
 	if state.Name.ValueString() != "" {
-		searchFilter = sdcFilterType.BY_NAME
+		searchFilter = sdcFilterType.ByName
 	}
 	if state.ID.ValueString() != "" {
-		searchFilter = sdcFilterType.BY_ID
+		searchFilter = sdcFilterType.ByID
 	}
 	if state.Name.ValueString() != "" && state.ID.ValueString() != "" {
-		searchFilter = sdcFilterType.ALL
+		searchFilter = sdcFilterType.All
 	}
 
-	if searchFilter == sdcFilterType.ALL {
+	if searchFilter == sdcFilterType.All {
 		state.Sdcs = getAllSdcState(sdcs)
 	} else {
 		state.Sdcs = getFilteredSdcState(ctx, sdcs, searchFilter, state.Name.ValueString(), state.ID.ValueString())
@@ -157,10 +157,10 @@ func getFilteredSdcState(ctx context.Context, sdcs []scaleiotypes.Sdc, method st
 		}
 		// tflog.Debug(ctx, "[POWERFLEX] searchFilter getFilteredSdcState sdcValue.Name "+sdcValue.Name)
 		// tflog.Debug(ctx, "[POWERFLEX] searchFilter getFilteredSdcState sdcValue.ID "+sdcValue.ID+" -- need "+id)
-		if method == sdcFilterType.BY_NAME && name == sdcValue.Name {
+		if method == sdcFilterType.ByName && name == sdcValue.Name {
 			response = append(response, sdcState)
 		}
-		if method == sdcFilterType.BY_ID && id == sdcValue.ID {
+		if method == sdcFilterType.ByID && id == sdcValue.ID {
 			response = append(response, sdcState)
 		}
 

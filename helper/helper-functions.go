@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 )
 
+// PrettyJSON - function for logging json readable output.
 func PrettyJSON(data interface{}) string {
 	buffer := new(bytes.Buffer)
 	encoder := json.NewEncoder(buffer)
