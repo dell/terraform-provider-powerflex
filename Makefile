@@ -27,7 +27,7 @@ release:
 
 install: build
 	rm -rfv /root/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
-	find examples -type d -name ".terraform*.*" -exec rm -rfv "{}" \;
+	find examples -type d -name ".terraform" -exec rm -rfv "{}" +;
 	find examples -type f -name "trace.*" -delete
 	find examples -type f -name "*.tfstate" -delete
 	find examples -type f -name "*.hcl" -delete
@@ -39,12 +39,13 @@ install: build
 
 uninstall:
 	rm -rfv /root/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
-	find examples -type d -name ".terraform*.*" -exec rm -rfv "{}" \;
+	find examples -type d -name ".terraform" -exec rm -rfv "{}" +;
 	find examples -type f -name "trace.*" -delete
 	find examples -type f -name "*.tfstate" -delete
 	find examples -type f -name "*.hcl" -delete
 	find examples -type f -name "*.backup" -delete
 	rm -rf trace.*
+
 
 test: 
 	go test -i $(TEST) || exit 1                                                   
@@ -52,3 +53,6 @@ test:
 
 testacc: 
 	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m   
+
+generate:
+	go generate ./...

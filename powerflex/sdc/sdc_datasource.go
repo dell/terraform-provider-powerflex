@@ -19,10 +19,12 @@ var (
 	_ datasource.DataSourceWithConfigure = &sdcDataSource{}
 )
 
+// SDCDataSource - function used to return SDC DataSource provider with singleton values.
 func SDCDataSource() datasource.DataSource {
 	return &sdcDataSource{}
 }
 
+// sdcFilterType - Enum structure for filter types.
 var sdcFilterType = struct {
 	ALL     string
 	BY_NAME string
@@ -33,10 +35,12 @@ var sdcFilterType = struct {
 	BY_ID:   "BY_ID",
 }
 
+// sdcDataSource - for returning singleton holder with goscaleio client.
 type sdcDataSource struct {
 	client *goscaleio.Client
 }
 
+// sdcDataSourceModel - for returning result to terraform.
 type sdcDataSourceModel struct {
 	Sdcs     []sdcModel   `tfsdk:"sdcs"`
 	ID       types.String `tfsdk:"sdcid"`
@@ -44,6 +48,7 @@ type sdcDataSourceModel struct {
 	Name     types.String `tfsdk:"name"`
 }
 
+// sdcModel - MODEL for SDC data returned by goscaleio.
 type sdcModel struct {
 	ID                 types.String   `tfsdk:"id"`
 	SystemID           types.String   `tfsdk:"systemid"`
@@ -56,19 +61,23 @@ type sdcModel struct {
 	Links              []sdcLinkModel `tfsdk:"links"`
 }
 
+// sdcLinkModel - MODEL for SDC Links data returned by goscaleio.
 type sdcLinkModel struct {
 	Rel  types.String `tfsdk:"rel"`
 	HREF types.String `tfsdk:"href"`
 }
 
+// Metadata - function used to define datasource metadata[referance in tf file].
 func (d *sdcDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_sdc"
 }
 
+// GetSchema - function used to return SDC datasource schema.
 func (d *sdcDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return SDCDataSourceScheme, nil
 }
 
+// Configure - function to call initial configurations before resource execution.
 func (d *sdcDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
@@ -77,6 +86,7 @@ func (d *sdcDataSource) Configure(_ context.Context, req datasource.ConfigureReq
 	d.client = req.ProviderData.(*goscaleio.Client)
 }
 
+// Read - function to read sdc values from goscaleio.
 func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state sdcDataSourceModel
 	diags := req.Config.Get(ctx, &state)
@@ -124,6 +134,7 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	}
 }
 
+// getFilteredSdcState - function to filter sdc result from goscaleio.
 func getFilteredSdcState(ctx context.Context, sdcs []scaleiotypes.Sdc, method string, name string, id string) (response []sdcModel) {
 	tflog.Debug(ctx, "[POWERFLEX] searchFilter getFilteredSdcState method "+method+" name "+name+" id "+id)
 	for _, sdcValue := range sdcs {
@@ -157,6 +168,8 @@ func getFilteredSdcState(ctx context.Context, sdcs []scaleiotypes.Sdc, method st
 
 	return
 }
+
+// getAllSdcState - function to return all sdc result from goscaleio.
 func getAllSdcState(sdcs []scaleiotypes.Sdc) (response []sdcModel) {
 	for _, sdcValue := range sdcs {
 		sdcState := sdcModel{

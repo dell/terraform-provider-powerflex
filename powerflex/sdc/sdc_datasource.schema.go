@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+// SDCDataSourceScheme is variable for schematic for SDC Data Source
 var SDCDataSourceScheme tfsdk.Schema = tfsdk.Schema{
 	Description: ".",
 	Attributes: map[string]tfsdk.Attribute{
