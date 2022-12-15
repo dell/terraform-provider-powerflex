@@ -21,9 +21,17 @@ provider "powerflex" {
 # # -----------------------------------------------------------------------------------
 # # Read all sdcs if id is blank, otherwise reads all sdcs
 # # -----------------------------------------------------------------------------------
+    # systemid is required field
+    # name is optional if empty then will return all sdc
+    # sdcid is optional if empty then will return all sdc
+    # sdcid and name both are empty then will return all sdc
 data "powerflex_sdc" "selected" {
-    sdcid = "595a0bb600000006"
+
+    
+    # sdcid = "c42844760000005f"
     systemid = "bae9b21d5a53850f"
+
+    # name = "LGLW6091" // LGLW6091
 }
 
 # Returns all sdcs matching criteria

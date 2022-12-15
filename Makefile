@@ -27,10 +27,11 @@ release:
 
 install: build
 	rm -rfv /root/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
-	find examples -type d -name ".terraform" -exec rm -rfv "{}" \;
+	find examples -type d -name ".terraform*.*" -exec rm -rfv "{}" \;
 	find examples -type f -name "trace.*" -delete
 	find examples -type f -name "*.tfstate" -delete
 	find examples -type f -name "*.hcl" -delete
+	find examples -type f -name "*.backup" -delete
 	rm -rf trace.*
 	
 	mkdir -p /root/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
@@ -38,10 +39,11 @@ install: build
 
 uninstall:
 	rm -rfv /root/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
-	find examples -type d -name ".terraform" -exec rm -rfv "{}" \;
+	find examples -type d -name ".terraform*.*" -exec rm -rfv "{}" \;
 	find examples -type f -name "trace.*" -delete
 	find examples -type f -name "*.tfstate" -delete
 	find examples -type f -name "*.hcl" -delete
+	find examples -type f -name "*.backup" -delete
 	rm -rf trace.*
 
 test: 

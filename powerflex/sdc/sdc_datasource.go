@@ -23,6 +23,16 @@ func SDCDataSource() datasource.DataSource {
 	return &sdcDataSource{}
 }
 
+var sdcFilterType = struct {
+	ALL     string
+	BY_NAME string
+	BY_ID   string
+}{
+	ALL:     "ALL",
+	BY_NAME: "BY_NAME",
+	BY_ID:   "BY_ID",
+}
+
 type sdcDataSource struct {
 	client *goscaleio.Client
 }
@@ -31,6 +41,7 @@ type sdcDataSourceModel struct {
 	Sdcs     []sdcModel   `tfsdk:"sdcs"`
 	ID       types.String `tfsdk:"sdcid"`
 	SystemID types.String `tfsdk:"systemid"`
+	Name     types.String `tfsdk:"name"`
 }
 
 type sdcModel struct {
@@ -79,8 +90,8 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		)
 		return
 	}
-	sdcs, err := system.GetSdc()
 
+	sdcs, err := system.GetSdc()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Read Powerflex sdcs",
@@ -88,9 +99,23 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		)
 		return
 	}
-
 	// Set state
-	state.Sdcs = getAllSdcState(sdcs)
+	searchFilter := sdcFilterType.ALL
+	if state.Name.ValueString() != "" {
+		searchFilter = sdcFilterType.BY_NAME
+	}
+	if state.ID.ValueString() != "" {
+		searchFilter = sdcFilterType.BY_ID
+	}
+	if state.Name.ValueString() != "" && state.ID.ValueString() != "" {
+		searchFilter = sdcFilterType.ALL
+	}
+
+	if searchFilter == sdcFilterType.ALL {
+		state.Sdcs = getAllSdcState(sdcs)
+	} else {
+		state.Sdcs = getFilteredSdcState(ctx, sdcs, searchFilter, state.Name.ValueString(), state.ID.ValueString())
+	}
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
@@ -99,6 +124,39 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	}
 }
 
+func getFilteredSdcState(ctx context.Context, sdcs []scaleiotypes.Sdc, method string, name string, id string) (response []sdcModel) {
+	tflog.Debug(ctx, "[POWERFLEX] searchFilter getFilteredSdcState method "+method+" name "+name+" id "+id)
+	for _, sdcValue := range sdcs {
+		sdcState := sdcModel{
+			ID:                 types.StringValue(sdcValue.ID),
+			Name:               types.StringValue(sdcValue.Name),
+			SdcGUID:            types.StringValue(sdcValue.SdcGUID),
+			SdcApproved:        types.BoolValue(sdcValue.SdcApproved),
+			OnVMWare:           types.BoolValue(sdcValue.OnVMWare),
+			SystemID:           types.StringValue(sdcValue.SystemID),
+			SdcIP:              types.StringValue(sdcValue.SdcIP),
+			MdmConnectionState: types.StringValue(sdcValue.MdmConnectionState),
+		}
+
+		for _, link := range sdcValue.Links {
+			sdcState.Links = append(sdcState.Links, sdcLinkModel{
+				Rel:  types.StringValue(link.Rel),
+				HREF: types.StringValue(link.HREF),
+			})
+		}
+		// tflog.Debug(ctx, "[POWERFLEX] searchFilter getFilteredSdcState sdcValue.Name "+sdcValue.Name)
+		// tflog.Debug(ctx, "[POWERFLEX] searchFilter getFilteredSdcState sdcValue.ID "+sdcValue.ID+" -- need "+id)
+		if method == sdcFilterType.BY_NAME && name == sdcValue.Name {
+			response = append(response, sdcState)
+		}
+		if method == sdcFilterType.BY_ID && id == sdcValue.ID {
+			response = append(response, sdcState)
+		}
+
+	}
+
+	return
+}
 func getAllSdcState(sdcs []scaleiotypes.Sdc) (response []sdcModel) {
 	for _, sdcValue := range sdcs {
 		sdcState := sdcModel{
@@ -118,7 +176,6 @@ func getAllSdcState(sdcs []scaleiotypes.Sdc) (response []sdcModel) {
 				HREF: types.StringValue(link.HREF),
 			})
 		}
-
 		response = append(response, sdcState)
 	}
 

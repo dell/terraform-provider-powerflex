@@ -11,14 +11,20 @@ var SDCDataSourceScheme tfsdk.Schema = tfsdk.Schema{
 		"sdcid": {
 			Type:        types.StringType,
 			Description: "",
-			Required:    true,
-			Sensitive:   true,
+			Optional:    true,
+			Computed:    true,
 		},
 		"systemid": {
 			Type:        types.StringType,
 			Description: "",
 			Required:    true,
 			Sensitive:   true,
+		},
+		"name": {
+			Type:        types.StringType,
+			Description: "",
+			Optional:    true,
+			Computed:    true,
 		},
 		"sdcs": {
 			Description: ".",
