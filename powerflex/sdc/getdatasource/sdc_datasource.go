@@ -1,4 +1,4 @@
-package sdcprovider
+package getdatasource
 
 import (
 	"context"
@@ -8,8 +8,6 @@ import (
 	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -73,8 +71,8 @@ func (d *sdcDataSource) Metadata(_ context.Context, req datasource.MetadataReque
 }
 
 // GetSchema - function used to return SDC datasource schema.
-func (d *sdcDataSource) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return SDCDataSourceScheme, nil
+func (d *sdcDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = SDCDataSourceScheme
 }
 
 // Configure - function to call initial configurations before resource execution.
