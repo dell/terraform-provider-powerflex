@@ -2,25 +2,23 @@ package powerflex
 
 import (
 	"context"
-	"os"
-
-	sdcprovider "terraform-provider-powerflex/powerflex/sdc"
-
 	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"os"
+	volumedatasource "terraform-provider-powerflex/powerflex/volume"
 )
 
 var (
 	_ provider.Provider = &powerflexProvider{}
 )
 
+// New returns the powerflex provider
 func New() provider.Provider {
 	return &powerflexProvider{}
 }
@@ -40,44 +38,38 @@ func (p *powerflexProvider) Metadata(_ context.Context, _ provider.MetadataReque
 	resp.TypeName = "powerflex"
 }
 
-func (p *powerflexProvider) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
-		Description: "Interact with powerflex.",
-		Attributes: map[string]tfsdk.Attribute{
-			"host": {
-				Description: "URI for powerflex API. May also be provided via powerflex_HOST environment variable.",
-				Type:        types.StringType,
+func (p *powerflexProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
+	resp.Schema = schema.Schema{
+		Description: "",
+		Attributes: map[string]schema.Attribute{
+			"host": schema.StringAttribute{
+				Description: "",
 				Optional:    true,
 			},
-			"username": {
-				Description: "Username for powerflex API. May also be provided via powerflex_USERNAME environment variable.",
-				Type:        types.StringType,
+			"username": schema.StringAttribute{
+				Description: "",
 				Optional:    true,
 			},
-			"password": {
-				Description: "Password for powerflex API. May also be provided via powerflex_PASSWORD environment variable.",
-				Type:        types.StringType,
+			"password": schema.StringAttribute{
+				Description: "",
 				Optional:    true,
 				Sensitive:   true,
 			},
-			"insecure": {
-				Description: "URI for powerflex API. May also be provided via powerflex_HOST environment variable.",
-				Type:        types.StringType,
+			"powerflex_version": schema.StringAttribute{
+				Description: "",
 				Optional:    true,
 			},
-			"usecerts": {
-				Description: "Username for powerflex API. May also be provided via powerflex_USERNAME environment variable.",
-				Type:        types.StringType,
+			"usecerts": schema.StringAttribute{
+				Description: "",
 				Optional:    true,
 			},
-			"powerflex_version": {
-				Description: "Password for powerflex API. May also be provided via powerflex_PASSWORD environment variable.",
-				Type:        types.StringType,
+			"insecure": schema.StringAttribute{
+				Description: "",
 				Optional:    true,
 				Sensitive:   true,
 			},
 		},
-	}, nil
+	}
 }
 
 func (p *powerflexProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
@@ -127,7 +119,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 
 	insecure := os.Getenv("POWERFLEX_HOST")
 	usecerts := os.Getenv("POWERFLEX_USERNAME")
-	powerflex_version := os.Getenv("POWERFLEX_PASSWORD")
+	powerflexVersion := os.Getenv("POWERFLEX_PASSWORD")
 
 	if !config.Host.IsNull() {
 		host = config.Host.ValueString()
@@ -150,7 +142,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	}
 
 	if !config.PowerflexVersion.IsNull() {
-		powerflex_version = config.PowerflexVersion.ValueString()
+		powerflexVersion = config.PowerflexVersion.ValueString()
 	}
 
 	if host == "" {
@@ -198,7 +190,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	tflog.Debug(ctx, "Creating powerflex client")
 
 	// Create a new powerflex client using the configuration values
-	client, err := goscaleio.NewClientWithArgs(host, powerflex_version, true, true)
+	client, err := goscaleio.NewClientWithArgs(host, powerflexVersion, true, true)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Create powerflex API Client",
@@ -212,7 +204,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	var goscaleioConf goscaleio.ConfigConnect = goscaleio.ConfigConnect{}
 	goscaleioConf.Endpoint = host
 	goscaleioConf.Username = username
-	goscaleioConf.Version = powerflex_version
+	goscaleioConf.Version = powerflexVersion
 	goscaleioConf.Password = password
 
 	_, err = client.Authenticate(&goscaleioConf)
@@ -235,12 +227,10 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 
 func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		sdcprovider.SDCDataSource,
+		volumedatasource.VolumeDataSource,
 	}
 }
 
 func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resource {
-	return []func() resource.Resource{
-		// NewOrderResource,
-	}
+	return []func() resource.Resource{}
 }
