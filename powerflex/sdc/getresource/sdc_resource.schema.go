@@ -7,7 +7,10 @@ import (
 var SDCReourceSchema schema.Schema = schema.Schema{
 	Description: "",
 	Attributes: map[string]schema.Attribute{
-		"sdcid": schema.StringAttribute{
+		"last_updated": schema.StringAttribute{
+			Computed: true,
+		},
+		"id": schema.StringAttribute{
 			Description: "",
 			Required:    true,
 		},
@@ -15,66 +18,43 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 			Description: "",
 			Required:    true,
 		},
+		"sdcguid": schema.StringAttribute{
+			Description: "",
+			Computed:    true,
+		},
+		"onvmware": schema.BoolAttribute{
+			Description: "",
+			Computed:    true,
+		},
+		"sdcapproved": schema.BoolAttribute{
+			Description: ".",
+			Computed:    true,
+		},
 		"systemid": schema.StringAttribute{
 			Description: "",
 			Required:    true,
 		},
-		"last_updated": schema.StringAttribute{
-			Description: "Timestamp of the last Terraform update of the sdc.",
-			Computed:    true,
-		},
-		"sdcs": schema.ListNestedAttribute{
+		"sdcip": schema.StringAttribute{
 			Description: "",
 			Computed:    true,
+		},
+		"mdmconnectionstate": schema.StringAttribute{
+			Description: "",
+			Computed:    true,
+		},
+		"links": schema.ListNestedAttribute{
+			Description: "",
+			Optional:    true,
+
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: map[string]schema.Attribute{
-					"id": schema.StringAttribute{
-						Description: "",
+					"rel": schema.StringAttribute{
+						Description: "Numeric identifier of the coffee ingredient.",
 						Computed:    true,
 					},
-					"name": schema.StringAttribute{
-						Description: "",
+					"href": schema.StringAttribute{
+						Description: "Numeric identifier of the coffee ingredient.",
 						Computed:    true,
-					},
-					"sdcguid": schema.StringAttribute{
-						Description: "",
-						Computed:    true,
-					},
-					"onvmware": schema.BoolAttribute{
-						Description: "",
-						Computed:    true,
-					},
-					"sdcapproved": schema.BoolAttribute{
-						Description: ".",
-						Computed:    true,
-					},
-					"systemid": schema.StringAttribute{
-						Description: "",
-						Computed:    true,
-					},
-					"sdcip": schema.StringAttribute{
-						Description: "",
-						Computed:    true,
-					},
-					"mdmconnectionstate": schema.StringAttribute{
-						Description: "",
-						Computed:    true,
-					},
-					"links": schema.ListNestedAttribute{
-						Description: "",
-						Computed:    true,
-						NestedObject: schema.NestedAttributeObject{
-							Attributes: map[string]schema.Attribute{
-								"rel": schema.StringAttribute{
-									Description: "Numeric identifier of the coffee ingredient.",
-									Computed:    true,
-								},
-								"href": schema.StringAttribute{
-									Description: "Numeric identifier of the coffee ingredient.",
-									Computed:    true,
-								},
-							},
-						},
 					},
 				},
 			},

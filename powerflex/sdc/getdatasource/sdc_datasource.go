@@ -46,6 +46,24 @@ type sdcDataSourceModel struct {
 	Name     types.String `tfsdk:"name"`
 }
 
+type SdcStatistics struct {
+	NumOfMappedVolumes      types.Int64   `tfsdk:"numofmappedvolumes"`
+	VolumeIds               VolumeIdsList `tfsdk:"volumeids"`
+	UserDataReadBwc         SdcBwc        `tfsdk:"userdatareadbwc"`
+	UserDataWriteBwc        SdcBwc        `tfsdk:"userdatawritebwc"`
+	UserDataTrimBwc         SdcBwc        `tfsdk:"userdatatrimbwc"`
+	UserDataSdcReadLatency  SdcBwc        `tfsdk:"userdatasdcreadlatency"`
+	UserDataSdcWriteLatency SdcBwc        `tfsdk:"userdatasdcwritelatency"`
+	UserDataSdcTrimLatency  SdcBwc        `tfsdk:"userdatasdctrimlatency"`
+}
+type SdcBwc struct {
+	TotalWeightInKb types.Int64 `tfsdk:"totalweightinkb"`
+	NumOccured      types.Int64 `tfsdk:"numoccured"`
+	NumSeconds      types.Int64 `tfsdk:"numseconds"`
+}
+
+type VolumeIdsList []types.String
+
 // sdcModel - MODEL for SDC data returned by goscaleio.
 type sdcModel struct {
 	ID                 types.String   `tfsdk:"id"`
@@ -57,6 +75,7 @@ type sdcModel struct {
 	MdmConnectionState types.String   `tfsdk:"mdmconnectionstate"`
 	Name               types.String   `tfsdk:"name"`
 	Links              []sdcLinkModel `tfsdk:"links"`
+	Statistics         SdcStatistics  `tfsdk:"statistics"`
 }
 
 // sdcLinkModel - MODEL for SDC Links data returned by goscaleio.
@@ -116,13 +135,21 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		searchFilter = sdcFilterType.ByID
 	}
 	if state.Name.ValueString() != "" && state.ID.ValueString() != "" {
-		searchFilter = sdcFilterType.All
+		searchFilter = sdcFilterType.ByID
 	}
 
 	if searchFilter == sdcFilterType.All {
 		state.Sdcs = getAllSdcState(sdcs)
 	} else {
-		state.Sdcs = getFilteredSdcState(ctx, sdcs, searchFilter, state.Name.ValueString(), state.ID.ValueString())
+		filterResult, err := getFilteredSdcState(*d.client, ctx, sdcs, searchFilter, state.Name.ValueString(), state.ID.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Read Statics for sdc id = "+state.ID.ValueString()+", name = "+state.Name.ValueString(),
+				err.Error(),
+			)
+			return
+		}
+		state.Sdcs = *filterResult
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -133,8 +160,9 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 }
 
 // getFilteredSdcState - function to filter sdc result from goscaleio.
-func getFilteredSdcState(ctx context.Context, sdcs []scaleiotypes.Sdc, method string, name string, id string) (response []sdcModel) {
+func getFilteredSdcState(client goscaleio.Client, ctx context.Context, sdcs []scaleiotypes.Sdc, method string, name string, id string) (*[]sdcModel, error) {
 	tflog.Debug(ctx, "[POWERFLEX] searchFilter getFilteredSdcState method "+method+" name "+name+" id "+id)
+	response := []sdcModel{}
 	for _, sdcValue := range sdcs {
 		sdcState := sdcModel{
 			ID:                 types.StringValue(sdcValue.ID),
@@ -153,15 +181,68 @@ func getFilteredSdcState(ctx context.Context, sdcs []scaleiotypes.Sdc, method st
 				HREF: types.StringValue(link.HREF),
 			})
 		}
-		// tflog.Debug(ctx, "[POWERFLEX] searchFilter getFilteredSdcState sdcValue.Name "+sdcValue.Name)
-		// tflog.Debug(ctx, "[POWERFLEX] searchFilter getFilteredSdcState sdcValue.ID "+sdcValue.ID+" -- need "+id)
+
+		sdcc := goscaleio.NewSdc(&client, &sdcValue)
+		stats, err := sdcc.GetStatistics()
+		if err != nil {
+			tflog.Debug(ctx, "[POWERFLEX] err in GetStatistics "+helper.PrettyJSON(err))
+			return nil, err // Sometimes unable to find link is error we get in 4.0
+		}
+
+		tflog.Debug(ctx, "[POWERFLEX] stats in GetStatistics "+helper.PrettyJSON(stats))
+
+		sdcState.Statistics = createStaticsObject(*stats)
+
 		if method == sdcFilterType.ByName && name == sdcValue.Name {
+
 			response = append(response, sdcState)
 		}
 		if method == sdcFilterType.ByID && id == sdcValue.ID {
 			response = append(response, sdcState)
 		}
 
+	}
+
+	return &response, nil
+}
+
+func createStaticsObject(stats scaleiotypes.SdcStatistics) (ret SdcStatistics) {
+	VolumeIdsAll := VolumeIdsList{}
+	for _, v := range stats.VolumeIds {
+		VolumeIdsAll = append(VolumeIdsAll, types.StringValue(v))
+	}
+	ret.NumOfMappedVolumes = types.Int64Value(int64(stats.NumOfMappedVolumes))
+	ret.VolumeIds = VolumeIdsAll
+
+	ret.UserDataReadBwc = SdcBwc{
+		TotalWeightInKb: types.Int64Value(int64(stats.UserDataReadBwc.TotalWeightInKb)),
+		NumOccured:      types.Int64Value(int64(stats.UserDataReadBwc.NumOccured)),
+		NumSeconds:      types.Int64Value(int64(stats.UserDataReadBwc.NumSeconds)),
+	}
+	ret.UserDataWriteBwc = SdcBwc{
+		TotalWeightInKb: types.Int64Value(int64(stats.UserDataWriteBwc.TotalWeightInKb)),
+		NumOccured:      types.Int64Value(int64(stats.UserDataWriteBwc.NumOccured)),
+		NumSeconds:      types.Int64Value(int64(stats.UserDataWriteBwc.NumSeconds)),
+	}
+	ret.UserDataTrimBwc = SdcBwc{
+		TotalWeightInKb: types.Int64Value(int64(stats.UserDataTrimBwc.TotalWeightInKb)),
+		NumOccured:      types.Int64Value(int64(stats.UserDataTrimBwc.NumOccured)),
+		NumSeconds:      types.Int64Value(int64(stats.UserDataTrimBwc.NumSeconds)),
+	}
+	ret.UserDataSdcReadLatency = SdcBwc{
+		TotalWeightInKb: types.Int64Value(int64(stats.UserDataSdcReadLatency.TotalWeightInKb)),
+		NumOccured:      types.Int64Value(int64(stats.UserDataSdcReadLatency.NumOccured)),
+		NumSeconds:      types.Int64Value(int64(stats.UserDataSdcReadLatency.NumSeconds)),
+	}
+	ret.UserDataSdcWriteLatency = SdcBwc{
+		TotalWeightInKb: types.Int64Value(int64(stats.UserDataSdcWriteLatency.TotalWeightInKb)),
+		NumOccured:      types.Int64Value(int64(stats.UserDataSdcWriteLatency.NumOccured)),
+		NumSeconds:      types.Int64Value(int64(stats.UserDataSdcWriteLatency.NumSeconds)),
+	}
+	ret.UserDataSdcTrimLatency = SdcBwc{
+		TotalWeightInKb: types.Int64Value(int64(stats.UserDataSdcTrimLatency.TotalWeightInKb)),
+		NumOccured:      types.Int64Value(int64(stats.UserDataSdcTrimLatency.NumOccured)),
+		NumSeconds:      types.Int64Value(int64(stats.UserDataSdcTrimLatency.NumSeconds)),
 	}
 
 	return

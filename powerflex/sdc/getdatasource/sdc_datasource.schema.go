@@ -1,7 +1,9 @@
 package getdatasource
 
 import (
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // SDCDataSourceScheme is variable for schematic for SDC Data Source
@@ -15,8 +17,7 @@ var SDCDataSourceScheme schema.Schema = schema.Schema{
 		},
 		"systemid": schema.StringAttribute{
 			Description: "",
-			Optional:    true,
-			Computed:    true,
+			Required:    true,
 		},
 		"name": schema.StringAttribute{
 			Description: "",
@@ -59,6 +60,56 @@ var SDCDataSourceScheme schema.Schema = schema.Schema{
 					"mdmconnectionstate": schema.StringAttribute{
 						Description: "",
 						Computed:    true,
+					},
+					"statistics": schema.ObjectAttribute{
+						Description: "",
+						Computed:    true,
+						AttributeTypes: map[string]attr.Type{
+							"numofmappedvolumes": types.Int64Type,
+							"volumeids":          types.ListType{ElemType: types.StringType},
+							"userdatareadbwc": types.ObjectType{
+								AttrTypes: map[string]attr.Type{
+									"totalweightinkb": types.Int64Type,
+									"numoccured":      types.Int64Type,
+									"numseconds":      types.Int64Type,
+								},
+							},
+							"userdatawritebwc": types.ObjectType{
+								AttrTypes: map[string]attr.Type{
+									"totalweightinkb": types.Int64Type,
+									"numoccured":      types.Int64Type,
+									"numseconds":      types.Int64Type,
+								},
+							},
+							"userdatatrimbwc": types.ObjectType{
+								AttrTypes: map[string]attr.Type{
+									"totalweightinkb": types.Int64Type,
+									"numoccured":      types.Int64Type,
+									"numseconds":      types.Int64Type,
+								},
+							},
+							"userdatasdcreadlatency": types.ObjectType{
+								AttrTypes: map[string]attr.Type{
+									"totalweightinkb": types.Int64Type,
+									"numoccured":      types.Int64Type,
+									"numseconds":      types.Int64Type,
+								},
+							},
+							"userdatasdcwritelatency": types.ObjectType{
+								AttrTypes: map[string]attr.Type{
+									"totalweightinkb": types.Int64Type,
+									"numoccured":      types.Int64Type,
+									"numseconds":      types.Int64Type,
+								},
+							},
+							"userdatasdctrimlatency": types.ObjectType{
+								AttrTypes: map[string]attr.Type{
+									"totalweightinkb": types.Int64Type,
+									"numoccured":      types.Int64Type,
+									"numseconds":      types.Int64Type,
+								},
+							},
+						},
 					},
 					"links": schema.ListNestedAttribute{
 						Description: "",

@@ -11,8 +11,8 @@ terraform {
 
 provider "powerflex" {
     username = "admin"
-    password = ""
-    host = ""
+    password = "Scaleio123!"
+    host = "https://10.234.221.217"
     insecure = ""
     usecerts = ""
     powerflex_version = ""
@@ -25,19 +25,19 @@ provider "powerflex" {
     # name is optional if empty then will return all sdc
     # sdcid is optional if empty then will return all sdc
     # sdcid and name both are empty then will return all sdc
-data "powerflex_sdc" "selected" {
+# data "powerflex_sdc" "selected" {
 
     
-    # sdcid = "c42844760000005f"
-    systemid = "bae9b21d5a53850f"
+#     # sdcid = "c42844760000005f"
+#     systemid = "bae9b21d5a53850f"
 
-    # name = "LGLW6091" // LGLW6091
-}
+#     # name = "LGLW6091" // LGLW6091
+# }
 
-# Returns all sdcs matching criteria
-output "allsdcresult" {
-  value = data.powerflex_sdc.selected.sdcs
-}
+# # Returns all sdcs matching criteria
+# output "allsdcresult" {
+#   value = data.powerflex_sdc.selected.sdcs
+# }
 # # -----------------------------------------------------------------------------------
 
 
@@ -45,14 +45,13 @@ output "allsdcresult" {
 # # -----------------------------------------------------------------------------------
 # # Change name of sdc and read that sdc
 # # -----------------------------------------------------------------------------------
-# # resource "powerflex_sdc" "sdc" {
-# #   sdcid = "595a0bb600000006"
-# #   name = "goodestname"
-# #   systemid = "bae9b21d5a53850f"
-# # }
+resource "powerflex_sdc" "sdc" {
+  id = "595a0bb300000003"
+  name = "ffror046"
+  systemid = "bae9b21d5a53850f"
+}
 
-# # output "changed_sdc" {
-# #   value = powerflex_sdc.sdc
-# #   sensitive   = true
-# # }
+output "changed_sdc" {
+  value = powerflex_sdc.sdc
+}
 # # -----------------------------------------------------------------------------------
