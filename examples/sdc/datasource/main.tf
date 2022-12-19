@@ -10,9 +10,9 @@ terraform {
 }
 
 provider "powerflex" {
-    username = "admin"
-    password = "Password123"
-    host = "https://10.247.101.69:443"
+    username = ""
+    password = ""
+    host = ""
     insecure = ""
     usecerts = ""
     powerflex_version = ""
@@ -26,9 +26,9 @@ provider "powerflex" {
     # sdcid is optional if empty then will return all sdc
     # sdcid and name both are empty then will return all sdc
 data "powerflex_sdc" "selected" {
-    # sdcid = "595a0bb100000001"
+    # sdcid = "c423b09800000003"
     systemid = "0e7a082862fedf0f"
-    name = "LGLW6090" // LGLW6091
+    # name = "LGLW6090"
 }
 
 # # Returns all sdcs matching criteria

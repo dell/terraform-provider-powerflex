@@ -95,7 +95,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 			path.Root("host"),
 			"Unknown powerflex API Host",
 			"The provider cannot create the powerflex API client as there is an unknown configuration value for the powerflex API host. "+
-				"Either target apply the source of the value first, set the value statically in the configuration, or use the powerflex_HOST environment variable.",
+				"Either target apply the source of the value first, set the value statically in the configuration, or use the POWERFLEX_HOST environment variable.",
 		)
 	}
 
@@ -125,9 +125,9 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	username := os.Getenv("POWERFLEX_USERNAME")
 	password := os.Getenv("POWERFLEX_PASSWORD")
 
-	insecure := os.Getenv("POWERFLEX_HOST")
-	usecerts := os.Getenv("POWERFLEX_USERNAME")
-	powerflexVersion := os.Getenv("POWERFLEX_PASSWORD")
+	insecure := os.Getenv("POWERFLEX_INSECURE")
+	usecerts := os.Getenv("POWERFLEX_USECERTS")
+	powerflexVersion := os.Getenv("POWERFLEX_POWERFLEX_VERSION")
 
 	if !config.Host.IsNull() {
 		host = config.Host.ValueString()
@@ -158,7 +158,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 			path.Root("host"),
 			"Missing powerflex API Host",
 			"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API host. "+
-				"Set the host value in the configuration or use the powerflex_HOST environment variable. "+
+				"Set the host value in the configuration or use the POWERFLEX_HOST environment variable. "+
 				"If either is already set, ensure the value is not empty.",
 		)
 	}

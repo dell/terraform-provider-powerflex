@@ -10,9 +10,9 @@ terraform {
 }
 
 provider "powerflex" {
-    username = "admin"
-    password = "Scaleio123!"
-    host = "https://10.234.221.217"
+    username = ""
+    password = ""
+    host = ""
     insecure = ""
     usecerts = ""
     powerflex_version = ""

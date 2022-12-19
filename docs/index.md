@@ -17,8 +17,8 @@ Interact with powerflex.
 
 ### Optional
 
-- `host` (String) URI for powerflex API. May also be provided via powerflex_HOST environment variable.
-- `insecure` (String) URI for powerflex API. May also be provided via powerflex_HOST environment variable.
+- `host` (String) URI for powerflex API. May also be provided via POWERFLEX_HOST environment variable.
+- `insecure` (String) URI for powerflex API. May also be provided via POWERFLEX_HOST environment variable.
 - `password` (String, Sensitive) Password for powerflex API. May also be provided via powerflex_PASSWORD environment variable.
 - `powerflex_version` (String, Sensitive) Password for powerflex API. May also be provided via powerflex_PASSWORD environment variable.
 - `usecerts` (String) Username for powerflex API. May also be provided via powerflex_USERNAME environment variable.
