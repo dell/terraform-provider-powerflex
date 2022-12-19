@@ -3,7 +3,7 @@
 files=(
     "/.terraform"
     "/.terraform.lock.hcl"
-    "/.terraform.tfstate"
+    "/*.tfstate"
     "/*.txt"
     "/*.backup"
 )

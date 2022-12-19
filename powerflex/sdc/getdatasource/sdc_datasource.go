@@ -46,6 +46,7 @@ type sdcDataSourceModel struct {
 	Name     types.String `tfsdk:"name"`
 }
 
+// SdcStatistics - MODEL for SDC statistics.
 type SdcStatistics struct {
 	NumOfMappedVolumes      types.Int64   `tfsdk:"numofmappedvolumes"`
 	VolumeIds               VolumeIdsList `tfsdk:"volumeids"`
@@ -56,12 +57,15 @@ type SdcStatistics struct {
 	UserDataSdcWriteLatency SdcBwc        `tfsdk:"userdatasdcwritelatency"`
 	UserDataSdcTrimLatency  SdcBwc        `tfsdk:"userdatasdctrimlatency"`
 }
+
+// SdcBwc - MODEL for SDC statistics BWC.
 type SdcBwc struct {
 	TotalWeightInKb types.Int64 `tfsdk:"totalweightinkb"`
 	NumOccured      types.Int64 `tfsdk:"numoccured"`
 	NumSeconds      types.Int64 `tfsdk:"numseconds"`
 }
 
+// VolumeIdsList - MODEL for SDC statistics Volume Id List.
 type VolumeIdsList []types.String
 
 // sdcModel - MODEL for SDC data returned by goscaleio.
@@ -141,7 +145,7 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	if searchFilter == sdcFilterType.All {
 		state.Sdcs = getAllSdcState(sdcs)
 	} else {
-		filterResult, err := getFilteredSdcState(*d.client, ctx, sdcs, searchFilter, state.Name.ValueString(), state.ID.ValueString())
+		filterResult, err := getFilteredSdcState(ctx, *d.client, sdcs, searchFilter, state.Name.ValueString(), state.ID.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Unable to Read Statics for sdc id = "+state.ID.ValueString()+", name = "+state.Name.ValueString(),
@@ -160,7 +164,7 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 }
 
 // getFilteredSdcState - function to filter sdc result from goscaleio.
-func getFilteredSdcState(client goscaleio.Client, ctx context.Context, sdcs []scaleiotypes.Sdc, method string, name string, id string) (*[]sdcModel, error) {
+func getFilteredSdcState(ctx context.Context, client goscaleio.Client, sdcs []scaleiotypes.Sdc, method string, name string, id string) (*[]sdcModel, error) {
 	tflog.Debug(ctx, "[POWERFLEX] searchFilter getFilteredSdcState method "+method+" name "+name+" id "+id)
 	response := []sdcModel{}
 	for _, sdcValue := range sdcs {

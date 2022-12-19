@@ -4,6 +4,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
 
+// SDCReourceSchema - varible holds schema for SDC resource
 var SDCReourceSchema schema.Schema = schema.Schema{
 	Description: "",
 	Attributes: map[string]schema.Attribute{

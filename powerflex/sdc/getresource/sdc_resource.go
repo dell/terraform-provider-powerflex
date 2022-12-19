@@ -20,6 +20,7 @@ var (
 	_ resource.ResourceWithImportState = &sdcResource{}
 )
 
+// SDCResource - function to return resource interface
 func SDCResource() resource.Resource {
 	return &sdcResource{}
 }
