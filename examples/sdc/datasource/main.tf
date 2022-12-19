@@ -10,9 +10,6 @@ terraform {
 }
 
 provider "powerflex" {
-    username = ""
-    password = ""
-    host = ""
     insecure = ""
     usecerts = ""
     powerflex_version = ""
