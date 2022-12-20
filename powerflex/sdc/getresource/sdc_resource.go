@@ -33,6 +33,7 @@ type sdcResource struct {
 
 // sdcResourceModel - struct to define sdc resource structure.
 type sdcResourceModel struct {
+	ID                 types.String `tfsdk:"id"`
 	LastUpdated        types.String `tfsdk:"last_updated"`
 	SdcID              types.String `tfsdk:"sdcid"`
 	SystemID           types.String `tfsdk:"systemid"`
@@ -94,9 +95,20 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 		)
 		return
 	}
-	plan = getSdcState(*nameChng.Sdc)
+	sdcs, err := system.GetSdc()
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Read Powerflex sdcs",
+			err.Error(),
+		)
+		return
+	}
+
+	finalSDC := findChangedSdc(sdcs, plan.SdcID.ValueString())
+	plan = getSdcState(finalSDC)
 
 	tflog.Debug(ctx, "[ANSHU] nameChng Result :-- "+helper.PrettyJSON(nameChng))
+
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -125,17 +137,29 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	}
 
 	system, err := r.client.FindSystem(state.SystemID.ValueString(), "", "")
-	singleSdc, err := system.FindSdc("id", state.SdcID.ValueString())
-	fmt.Println(singleSdc)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex systems sdcs Read",
+			"Unable to Read Powerflex systems Read",
 			err.Error(),
 		)
 		return
 	}
-	// state = getSdcState(*singleSdc)
-	tflog.Debug(ctx, "[ANSHUM] state return"+helper.PrettyJSON(state))
+	singleSdc, err := system.FindSdc("ID", state.ID.ValueString())
+
+	tflog.Debug(ctx, "[ANSHU] state singleSdc"+helper.PrettyJSON(singleSdc))
+	tflog.Debug(ctx, "[ANSHU] state state.Name.ValueString()"+state.Name.ValueString())
+	tflog.Debug(ctx, "[ANSHU] state state.ID.ValueString()"+state.ID.ValueString())
+
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Read Powerflex systems-sdcs Read",
+			err.Error(),
+		)
+		return
+	}
+
+	state = getSdcState(*singleSdc.Sdc)
+	// tflog.Debug(ctx, "[ANSHU] state return"+helper.PrettyJSON(state))
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -217,6 +241,7 @@ func getSdcState(sdc scaleiotypes.Sdc) (response sdcResourceModel) {
 		SdcIP:              types.StringValue(sdc.SdcIP),
 		MdmConnectionState: types.StringValue(sdc.MdmConnectionState),
 	}
+	pln.ID = types.StringValue(sdc.ID)
 	sourceKeywordAttrTypes := map[string]attr.Type{
 		"rel":  types.StringType,
 		"href": types.StringType,
@@ -237,4 +262,16 @@ func getSdcState(sdc scaleiotypes.Sdc) (response sdcResourceModel) {
 
 	pln.Links = listVal
 	return pln
+}
+
+func findChangedSdc(sdcs []scaleiotypes.Sdc, id string) scaleiotypes.Sdc {
+	var sdcReturnValue scaleiotypes.Sdc
+	for _, sdcValue := range sdcs {
+
+		if id == sdcValue.ID {
+			sdcReturnValue = sdcValue
+		}
+
+	}
+	return sdcReturnValue
 }

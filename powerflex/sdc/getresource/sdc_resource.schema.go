@@ -38,6 +38,10 @@ var sdcResourceSchemaDescriptions = struct {
 var SDCReourceSchema schema.Schema = schema.Schema{
 	Description: sdcResourceSchemaDescriptions.SdcResourceSchema,
 	Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{
+			Computed:    true,
+			Description: "",
+		},
 		"last_updated": schema.StringAttribute{
 			Computed:    true,
 			Description: sdcResourceSchemaDescriptions.LastUpdated,

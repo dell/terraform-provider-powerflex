@@ -15,6 +15,9 @@ module "base" {
 
 
 provider "powerflex" {
+    username = "${module.base.username}"
+    password = "${module.base.password}"
+    host = "${module.base.host}"
     insecure = ""
     usecerts = ""
     powerflex_version = ""

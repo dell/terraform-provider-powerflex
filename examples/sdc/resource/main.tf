@@ -9,7 +9,14 @@ terraform {
   }
 }
 
+module "base" {
+  source = "../../config"
+}
+
 provider "powerflex" {
+    username = "${module.base.username}"
+    password = "${module.base.password}"
+    host = "${module.base.host}"
     insecure = ""
     usecerts = ""
     powerflex_version = ""
@@ -23,7 +30,7 @@ provider "powerflex" {
 resource "powerflex_sdc" "sdc" {
   sdcid = "c423b09800000003"
   systemid = "0e7a082862fedf0f"
-  name = "frog06"
+  name = "frog11"
 }
 
 output "changed_sdc" {
