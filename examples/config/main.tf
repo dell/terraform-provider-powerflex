@@ -1,9 +1,9 @@
 output "username" {
-  value = ""
+  value = "ddd"
 }
 output "password" {
-  value = ""
+  value = "ddd"
 }
 output "host" {
-  value = ""
+  value = "ddd"
 }
