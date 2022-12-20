@@ -17,6 +17,7 @@ var (
 	_ datasource.DataSourceWithConfigure = &volumeDataSource{}
 )
 
+// VolumeDataSource returns the volume data source
 func VolumeDataSource() datasource.DataSource {
 	return &volumeDataSource{}
 }
@@ -28,7 +29,7 @@ type volumeDataSource struct {
 type volumeDataSourceModel struct {
 	Volumes       []volumeModel `tfsdk:"volumes"`
 	ID            types.String  `tfsdk:"id"`
-	StoragePoolId types.String  `tfsdk:"storage_pool_id"`
+	StoragePoolID types.String  `tfsdk:"storage_pool_id"`
 	Name          types.String  `tfsdk:"name"`
 }
 

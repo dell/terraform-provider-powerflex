@@ -4,6 +4,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 )
 
+// VolumeDataSourceSchema is the schema for reading the volume data
 var VolumeDataSourceSchema schema.Schema = schema.Schema{
 	Description: ".",
 	Attributes: map[string]schema.Attribute{
