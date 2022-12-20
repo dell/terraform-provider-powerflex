@@ -8,7 +8,7 @@ OS_ARCH=linux_amd64
 
 default: install
 
-build:
+build: test
 	go build -o ${BINARY}
 
 release:
@@ -47,11 +47,19 @@ uninstall:
 	rm -rf trace.*
 
 
-test: 
+test: check gosec
 	go test -i $(TEST) || exit 1                                                   
 	echo $(TEST) | xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=4                    
 
-testacc: 
+check:
+	gofmt -s -w .
+	golint ./...
+	go vet
+
+gosec: check
+	gosec -quiet -log gosec.log -out=gosecresults.csv -fmt=csv ./...
+
+testacc: test
 	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m   
 
 generate:
