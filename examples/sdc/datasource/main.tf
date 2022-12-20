@@ -9,6 +9,11 @@ terraform {
   }
 }
 
+module "base" {
+  source = "../../config"
+}
+
+
 provider "powerflex" {
     insecure = ""
     usecerts = ""
@@ -30,7 +35,7 @@ data "powerflex_sdc" "selected" {
 
 # # Returns all sdcs matching criteria
 output "allsdcresult" {
-  value = data.powerflex_sdc.selected.sdcs
+  value = data.powerflex_sdc.selected
 }
 # # -----------------------------------------------------------------------------------
 

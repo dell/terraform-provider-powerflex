@@ -94,20 +94,8 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 		)
 		return
 	}
+	plan = getSdcState(*nameChng.Sdc)
 
-	sdcs, err := system.GetSdc()
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex sdcs",
-			err.Error(),
-		)
-		return
-	}
-
-	finalSDC := findChangedSdc(sdcs, plan.SdcID.ValueString())
-	plan = getSdcState(finalSDC)
-
-	tflog.Debug(ctx, "[ANSHU]  finalSDC"+helper.PrettyJSON(finalSDC))
 	tflog.Debug(ctx, "[ANSHU] nameChng Result :-- "+helper.PrettyJSON(nameChng))
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -249,16 +237,4 @@ func getSdcState(sdc scaleiotypes.Sdc) (response sdcResourceModel) {
 
 	pln.Links = listVal
 	return pln
-}
-
-func findChangedSdc(sdcs []scaleiotypes.Sdc, id string) scaleiotypes.Sdc {
-	var sdcReturnValue scaleiotypes.Sdc
-	for _, sdcValue := range sdcs {
-
-		if id == sdcValue.ID {
-			sdcReturnValue = sdcValue
-		}
-
-	}
-	return sdcReturnValue
 }

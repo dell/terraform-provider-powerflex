@@ -6,67 +6,115 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+var sdcDatasourceSchemaDescriptions = struct {
+	SdcDatasourceSchema string
+
+	InputId       string
+	InputSdcId    string
+	InputSystemid string
+	InputName     string
+
+	Sdcs string // outpur slice
+
+	LastUpdated        string
+	SdcID              string
+	SystemID           string
+	Name               string
+	SdcIP              string
+	SdcApproved        string
+	OnVMWare           string
+	SdcGUID            string
+	MdmConnectionState string
+	Links              string
+	LinksRel           string
+	LinksHref          string
+	Statistics         string
+}{
+	SdcDatasourceSchema: "",
+
+	InputId:       "",
+	InputSdcId:    "",
+	InputSystemid: "",
+	InputName:     "",
+
+	Sdcs: "", // outpur slice
+
+	LastUpdated:        "",
+	SdcID:              "",
+	SystemID:           "",
+	Name:               "",
+	SdcIP:              "",
+	SdcApproved:        "",
+	OnVMWare:           "",
+	SdcGUID:            "",
+	MdmConnectionState: "",
+	Links:              "",
+	LinksRel:           "",
+	LinksHref:          "",
+	Statistics:         "",
+}
+
 // SDCDataSourceScheme is variable for schematic for SDC Data Source
 var SDCDataSourceScheme schema.Schema = schema.Schema{
-	Description: ".",
+	Description: sdcDatasourceSchemaDescriptions.SdcDatasourceSchema,
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
-			Description: "",
+			Description: sdcDatasourceSchemaDescriptions.InputId,
 			Optional:    true,
 		},
 		"sdcid": schema.StringAttribute{
-			Description: "",
+			Description: sdcDatasourceSchemaDescriptions.InputSdcId,
 			Optional:    true,
 			Computed:    true,
 		},
 		"systemid": schema.StringAttribute{
-			Description: "",
+			Description: sdcDatasourceSchemaDescriptions.InputSystemid,
 			Required:    true,
 		},
 		"name": schema.StringAttribute{
-			Description: "",
+			Description: sdcDatasourceSchemaDescriptions.InputName,
 			Optional:    true,
 			Computed:    true,
 		},
 		"sdcs": schema.ListNestedAttribute{
-			Description: "List of sdcs.",
+			Description: sdcDatasourceSchemaDescriptions.Sdcs,
 			Computed:    true,
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: map[string]schema.Attribute{
 					"id": schema.StringAttribute{
-						Description: "",
+						Description: sdcDatasourceSchemaDescriptions.SdcID,
 						Computed:    true,
 					},
 					"name": schema.StringAttribute{
-						Description: "",
+						Description: sdcDatasourceSchemaDescriptions.Name,
 						Computed:    true,
 					},
 					"sdcguid": schema.StringAttribute{
-						Description: "",
+						Description: sdcDatasourceSchemaDescriptions.SdcGUID,
 						Computed:    true,
 					},
 					"onvmware": schema.BoolAttribute{
-						Description: "",
+						Description: sdcDatasourceSchemaDescriptions.OnVMWare,
 						Computed:    true,
 					},
 					"sdcapproved": schema.BoolAttribute{
-						Description: ".",
+						Description: sdcDatasourceSchemaDescriptions.SdcApproved,
 						Computed:    true,
 					},
 					"systemid": schema.StringAttribute{
-						Description: "",
+						Description: sdcDatasourceSchemaDescriptions.SystemID,
 						Computed:    true,
 					},
 					"sdcip": schema.StringAttribute{
-						Description: "",
+						Description: sdcDatasourceSchemaDescriptions.SdcIP,
 						Computed:    true,
 					},
 					"mdmconnectionstate": schema.StringAttribute{
-						Description: "",
+						Description: sdcDatasourceSchemaDescriptions.MdmConnectionState,
 						Computed:    true,
 					},
 					"statistics": schema.ObjectAttribute{
-						Description: "",
+						Description: sdcDatasourceSchemaDescriptions.Statistics,
 						Computed:    true,
 						AttributeTypes: map[string]attr.Type{
 							"numofmappedvolumes": types.Int64Type,
@@ -116,16 +164,16 @@ var SDCDataSourceScheme schema.Schema = schema.Schema{
 						},
 					},
 					"links": schema.ListNestedAttribute{
-						Description: "",
+						Description: sdcDatasourceSchemaDescriptions.Links,
 						Computed:    true,
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"rel": schema.StringAttribute{
-									Description: "Numeric identifier of the coffee ingredient.",
+									Description: sdcDatasourceSchemaDescriptions.LinksRel,
 									Computed:    true,
 								},
 								"href": schema.StringAttribute{
-									Description: "Numeric identifier of the coffee ingredient.",
+									Description: sdcDatasourceSchemaDescriptions.LinksHref,
 									Computed:    true,
 								},
 							},
