@@ -9,8 +9,8 @@ import (
 var sdcDatasourceSchemaDescriptions = struct {
 	SdcDatasourceSchema string
 
-	InputId       string
-	InputSdcId    string
+	InputID       string
+	InputSdcID    string
 	InputSystemid string
 	InputName     string
 
@@ -32,8 +32,8 @@ var sdcDatasourceSchemaDescriptions = struct {
 }{
 	SdcDatasourceSchema: "",
 
-	InputId:       "",
-	InputSdcId:    "",
+	InputID:       "",
+	InputSdcID:    "",
 	InputSystemid: "",
 	InputName:     "",
 
@@ -59,11 +59,11 @@ var SDCDataSourceScheme schema.Schema = schema.Schema{
 	Description: sdcDatasourceSchemaDescriptions.SdcDatasourceSchema,
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
-			Description: sdcDatasourceSchemaDescriptions.InputId,
+			Description: sdcDatasourceSchemaDescriptions.InputID,
 			Optional:    true,
 		},
 		"sdcid": schema.StringAttribute{
-			Description: sdcDatasourceSchemaDescriptions.InputSdcId,
+			Description: sdcDatasourceSchemaDescriptions.InputSdcID,
 			Optional:    true,
 			Computed:    true,
 		},
