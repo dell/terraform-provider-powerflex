@@ -1,4 +1,4 @@
-# cd ../../ && make install && cd examples/sdc
+# cd ../../.. && make install && cd examples/sdc/resource
 # terraform init && terraform apply --auto-approve
 terraform {
   required_providers {
@@ -15,37 +15,15 @@ provider "powerflex" {
     powerflex_version = ""
 }
 
-# # -----------------------------------------------------------------------------------
-# # Read all sdcs if id is blank, otherwise reads all sdcs
-# # -----------------------------------------------------------------------------------
-    # systemid is required field
-    # name is optional if empty then will return all sdc
-    # sdcid is optional if empty then will return all sdc
-    # sdcid and name both are empty then will return all sdc
-# data "powerflex_sdc" "selected" {
-
-    
-#     # sdcid = "c42844760000005f"
-#     systemid = "bae9b21d5a53850f"
-
-#     # name = "LGLW6091" // LGLW6091
-# }
-
-# # Returns all sdcs matching criteria
-# output "allsdcresult" {
-#   value = data.powerflex_sdc.selected.sdcs
-# }
-# # -----------------------------------------------------------------------------------
-
 
 
 # # -----------------------------------------------------------------------------------
 # # Change name of sdc and read that sdc
 # # -----------------------------------------------------------------------------------
 resource "powerflex_sdc" "sdc" {
-  id = "595a0bb300000003"
-  name = "ffror046"
-  systemid = "bae9b21d5a53850f"
+  sdcid = "c423b09800000003"
+  systemid = "0e7a082862fedf0f"
+  name = "frog06"
 }
 
 output "changed_sdc" {

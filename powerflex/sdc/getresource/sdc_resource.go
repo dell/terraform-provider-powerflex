@@ -8,6 +8,7 @@ import (
 
 	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -25,38 +26,36 @@ func SDCResource() resource.Resource {
 	return &sdcResource{}
 }
 
+// sdcResource - struct to define sdc resource
 type sdcResource struct {
 	client *goscaleio.Client
 }
 
+// sdcResourceModel - struct to define sdc resource structure.
 type sdcResourceModel struct {
-	// Sdcs        []sdcModel   `tfsdk:"sdcs"`
-	LastUpdated        types.String   `tfsdk:"last_updated"`
-	SdcID              types.String   `tfsdk:"id"`
-	SystemID           types.String   `tfsdk:"systemid"`
-	Name               types.String   `tfsdk:"name"`
-	SdcIP              types.String   `tfsdk:"sdcip"`
-	SdcApproved        types.Bool     `tfsdk:"sdcapproved"`
-	OnVMWare           types.Bool     `tfsdk:"onvmware"`
-	SdcGUID            types.String   `tfsdk:"sdcguid"`
-	MdmConnectionState types.String   `tfsdk:"mdmconnectionstate"`
-	Links              []sdcLinkModel `tfsdk:"links"`
+	LastUpdated        types.String `tfsdk:"last_updated"`
+	SdcID              types.String `tfsdk:"sdcid"`
+	SystemID           types.String `tfsdk:"systemid"`
+	Name               types.String `tfsdk:"name"`
+	SdcIP              types.String `tfsdk:"sdcip"`
+	SdcApproved        types.Bool   `tfsdk:"sdcapproved"`
+	OnVMWare           types.Bool   `tfsdk:"onvmware"`
+	SdcGUID            types.String `tfsdk:"sdcguid"`
+	MdmConnectionState types.String `tfsdk:"mdmconnectionstate"`
+	Links              types.List   `tfsdk:"links"`
 }
 
-// sdcLinkModel - MODEL for SDC Links data returned by goscaleio.
-type sdcLinkModel struct {
-	Rel  types.String `tfsdk:"rel"`
-	HREF types.String `tfsdk:"href"`
-}
-
+// Metadata - function to return metadata for SDC resource.
 func (r *sdcResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_sdc"
 }
 
+// Schema - function to return Schema for SDC resource.
 func (r *sdcResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = SDCReourceSchema
 }
 
+// Configure - function to return Configuration for SDC resource.
 func (r *sdcResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
@@ -65,6 +64,7 @@ func (r *sdcResource) Configure(_ context.Context, req resource.ConfigureRequest
 	r.client = req.ProviderData.(*goscaleio.Client)
 }
 
+// Create - function to Create for SDC resource.
 func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "[ANSHU] Create")
 	// Retrieve values from plan
@@ -107,7 +107,7 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 	finalSDC := findChangedSdc(sdcs, plan.SdcID.ValueString())
 	plan = getSdcState(finalSDC)
 
-	tflog.Debug(ctx, "[ANSHU] plan getSdcState plan"+helper.PrettyJSON(plan))
+	tflog.Debug(ctx, "[ANSHU]  finalSDC"+helper.PrettyJSON(finalSDC))
 	tflog.Debug(ctx, "[ANSHU] nameChng Result :-- "+helper.PrettyJSON(nameChng))
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -125,6 +125,7 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 }
 
+// Read - function to Read for SDC resource.
 func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	tflog.Debug(ctx, "[ANSHU] Read")
 	// Get current state
@@ -155,6 +156,7 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	}
 }
 
+// Update - function to Update for SDC resource.
 func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	tflog.Debug(ctx, "[ANSHU] Update")
 	// Retrieve values from plan
@@ -196,6 +198,7 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	}
 }
 
+// Delete - function to Delete for SDC resource.
 func (r *sdcResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	tflog.Debug(ctx, "[ANSHU] Delete")
 	// Retrieve values from state
@@ -208,6 +211,7 @@ func (r *sdcResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 
 }
 
+// ImportState - function to ImportState for SDC resource.
 func (r *sdcResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
@@ -225,16 +229,25 @@ func getSdcState(sdc scaleiotypes.Sdc) (response sdcResourceModel) {
 		SdcIP:              types.StringValue(sdc.SdcIP),
 		MdmConnectionState: types.StringValue(sdc.MdmConnectionState),
 	}
-
-	plnLinks := []sdcLinkModel{}
+	sourceKeywordAttrTypes := map[string]attr.Type{
+		"rel":  types.StringType,
+		"href": types.StringType,
+	}
+	elemType := types.ObjectType{AttrTypes: sourceKeywordAttrTypes}
+	objLinksList := []attr.Value{}
 
 	for _, link := range sdc.Links {
-		plnLinks = append(plnLinks, sdcLinkModel{
-			Rel:  types.StringValue(link.Rel),
-			HREF: types.StringValue(link.HREF),
-		})
+		obj := map[string]attr.Value{
+			"rel":  types.StringValue(link.Rel),
+			"href": types.StringValue(link.HREF),
+		}
+		objVal, _ := types.ObjectValue(sourceKeywordAttrTypes, obj)
+		objLinksList = append(objLinksList, objVal)
 	}
 
+	listVal, _ := types.ListValue(elemType, objLinksList)
+
+	pln.Links = listVal
 	return pln
 }
 

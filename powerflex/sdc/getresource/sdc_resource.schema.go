@@ -11,7 +11,7 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 		"last_updated": schema.StringAttribute{
 			Computed: true,
 		},
-		"id": schema.StringAttribute{
+		"sdcid": schema.StringAttribute{
 			Description: "",
 			Required:    true,
 		},
@@ -45,16 +45,15 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 		},
 		"links": schema.ListNestedAttribute{
 			Description: "",
-			Optional:    true,
-
+			Computed:    true,
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: map[string]schema.Attribute{
 					"rel": schema.StringAttribute{
-						Description: "Numeric identifier of the coffee ingredient.",
+						Description: "",
 						Computed:    true,
 					},
 					"href": schema.StringAttribute{
-						Description: "Numeric identifier of the coffee ingredient.",
+						Description: "",
 						Computed:    true,
 					},
 				},
