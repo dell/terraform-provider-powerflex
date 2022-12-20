@@ -10,6 +10,10 @@ import (
 var SDCDataSourceScheme schema.Schema = schema.Schema{
 	Description: ".",
 	Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{
+			Description: "",
+			Optional:    true,
+		},
 		"sdcid": schema.StringAttribute{
 			Description: "",
 			Optional:    true,

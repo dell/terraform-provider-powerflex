@@ -66,17 +66,17 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	if state.Name.ValueString() != "" {
 		searchFilter = sdcFilterType.ByName
 	}
-	if state.ID.ValueString() != "" {
+	if state.SdcidID.ValueString() != "" {
 		searchFilter = sdcFilterType.ByID
 	}
-	if state.Name.ValueString() != "" && state.ID.ValueString() != "" {
+	if state.Name.ValueString() != "" && state.SdcidID.ValueString() != "" {
 		searchFilter = sdcFilterType.ByID
 	}
 
 	allSdcWithStats, err := getAllSdcState(ctx, *d.client, sdcs)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Read Statics for sdc id = "+state.ID.ValueString()+", name = "+state.Name.ValueString(),
+			"Unable to Read Statics for sdc id = "+state.SdcidID.ValueString()+", name = "+state.Name.ValueString(),
 			err.Error(),
 		)
 		return
@@ -85,7 +85,7 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	if searchFilter == sdcFilterType.All {
 		state.Sdcs = *allSdcWithStats
 	} else {
-		filterResult := getFilteredSdcState(allSdcWithStats, searchFilter, state.Name.ValueString(), state.ID.ValueString())
+		filterResult := getFilteredSdcState(allSdcWithStats, searchFilter, state.Name.ValueString(), state.SdcidID.ValueString())
 		state.Sdcs = *filterResult
 	}
 

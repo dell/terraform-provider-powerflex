@@ -28,8 +28,9 @@ type sdcDataSource struct {
 
 // sdcDataSourceModel - for returning result to terraform.
 type sdcDataSourceModel struct {
+	ID       types.String `tfsdk:"id"`
 	Sdcs     []sdcModel   `tfsdk:"sdcs"`
-	ID       types.String `tfsdk:"sdcid"`
+	SdcidID  types.String `tfsdk:"sdcid"`
 	SystemID types.String `tfsdk:"systemid"`
 	Name     types.String `tfsdk:"name"`
 }
