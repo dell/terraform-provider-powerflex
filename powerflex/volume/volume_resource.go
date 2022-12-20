@@ -2,6 +2,7 @@ package volume
 
 import (
 	"context"
+	"strconv"
 
 	// "time"
 
@@ -10,7 +11,7 @@ import (
 	"github.com/dell/goscaleio"
 	pftypes "github.com/dell/goscaleio/types/v1"
 
-	// "github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -40,20 +41,18 @@ type volumeResource struct {
 
 // volumeResourceModel maps the resource schema data.
 type volumeResourceModel struct {
-	ProtectionDomainID types.String `tfsdk:"protection_domain_id"`
-	StoragePoolID      types.String `tfsdk:"storage_pool_id"`
-	VolumeType         types.String `tfsdk:"volume_type"`
-	// UseRmCache                         types.Bool   `tfsdk:"use_rm_cache"`
-
-	VolumeSizeInKb types.String `tfsdk:"volume_size_in_kb"`
-	Name           types.String `tfsdk:"name"`
-	// MappingToAllSdcsEnabled            types.Bool   `tfsdk:"mapping_to_all_sdcs_enabled"`
-	// MappedSdcInfo                      types.List   `tfsdk:"mapped_sdc_info"`
-	// IsObfuscated                       types.Bool   `tfsdk:"is_obfuscated"`
-	ConsistencyGroupID types.String `tfsdk:"consistency_group_id"`
-	VTreeID            types.String `tfsdk:"vtree_id"`
-	AncestorVolumeID   types.String `tfsdk:"ancestor_volume_id"`
-	// MappedScsiInitiatorInfo            types.String `tfsdk:"mapped_scsi_initiator_info"`
+	ProtectionDomainID                 types.String `tfsdk:"protection_domain_id"`
+	StoragePoolID                      types.String `tfsdk:"storage_pool_id"`
+	VolumeType                         types.String `tfsdk:"volume_type"`
+	UseRmCache                         types.Bool   `tfsdk:"use_rm_cache"`
+	VolumeSizeInKb                     types.String `tfsdk:"volume_size_in_kb"`
+	Name                               types.String `tfsdk:"name"`
+	MappingToAllSdcsEnabled            types.Bool   `tfsdk:"mapping_to_all_sdcs_enabled"`
+	IsObfuscated                       types.Bool   `tfsdk:"is_obfuscated"`
+	ConsistencyGroupID                 types.String `tfsdk:"consistency_group_id"`
+	VTreeID                            types.String `tfsdk:"vtree_id"`
+	AncestorVolumeID                   types.String `tfsdk:"ancestor_volume_id"`
+	MappedScsiInitiatorInfo            types.String `tfsdk:"mapped_scsi_initiator_info"`
 	SizeInKb                           types.Int64  `tfsdk:"size_in_kb"`
 	CreationTime                       types.Int64  `tfsdk:"creation_time"`
 	ID                                 types.String `tfsdk:"id"`
@@ -70,7 +69,8 @@ type volumeResourceModel struct {
 	VolumeReplicationState             types.String `tfsdk:"volume_replication_state"`
 	ReplicationJournalVolume           types.Bool   `tfsdk:"replication_journal_volume"`
 	ReplicationTimeStamp               types.Int64  `tfsdk:"replication_time_stamp"`
-	// Links                              types.List   `tfsdk:"links"`
+	Links                              types.List   `tfsdk:"links"`
+	MappedSdcInfo                      types.List   `tfsdk:"mapped_sdc_info"`
 }
 
 type MappedSdcInfo struct {
@@ -117,12 +117,14 @@ func (r *volumeResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			},
 			"volume_type": schema.StringAttribute{
 				Description: "volume type",
+				Optional:    true,
 				Computed:    true,
 			},
-			// "use_rm_cache": schema.StringAttribute{
-			// 	Description: "use rm cache",
-			// 	Optional:    true,
-			// },
+			"use_rm_cache": schema.BoolAttribute{
+				Description: "use rm cache",
+				Optional:    true,
+				Computed:    true,
+			},
 			"id": schema.StringAttribute{
 				Description: "ID",
 				Computed:    true,
@@ -199,15 +201,70 @@ func (r *volumeResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Description: "replication time stamp",
 				Computed:    true,
 			},
-			// "links": schema.ListAttribute{
-			// 	Computed: true,
-			// 	ElementType: types.ObjectType{
-			// 		AttrTypes: map[string]attr.Type{
-			// 			"rel":  types.StringType,
-			// 			"href": types.StringType,
-			// 		},
-			// 	},
-			// },
+			"mapping_to_all_sdcs_enabled": schema.BoolAttribute{
+				Description: "mapping to all sdcs enabled",
+				Computed:    true,
+			},
+			"is_obfuscated": schema.BoolAttribute{
+				Description: "is obfuscated",
+				Computed:    true,
+			},
+			"mapped_scsi_initiator_info": schema.StringAttribute{
+				Description: "mapped scsi initiator info",
+				Computed:    true,
+			},
+			"links": schema.ListNestedAttribute{
+				Description: "",
+				Computed:    true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"rel": schema.StringAttribute{
+							Description: "",
+							Computed:    true,
+						},
+						"href": schema.StringAttribute{
+							Description: "Numeric identifier of the coffee ingredient.",
+							Computed:    true,
+						},
+					},
+				},
+			},
+			"mapped_sdc_info": schema.ListNestedAttribute{
+				Description: "",
+				Computed:    true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"sdc_id": schema.StringAttribute{
+							Description: "",
+							Computed:    true,
+						},
+						"sdc_ip": schema.StringAttribute{
+							Description: "",
+							Computed:    true,
+						},
+						"limit_iops": schema.Int64Attribute{
+							Description: "",
+							Computed:    true,
+						},
+						"limit_bw_in_mbps": schema.Int64Attribute{
+							Description: "",
+							Computed:    true,
+						},
+						"sdc_name": schema.StringAttribute{
+							Description: "",
+							Computed:    true,
+						},
+						"access_mode": schema.StringAttribute{
+							Description: "",
+							Computed:    true,
+						},
+						"is_direct_buffer_mapping": schema.BoolAttribute{
+							Description: "",
+							Computed:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -233,10 +290,10 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 	volumeCreate := &pftypes.VolumeParam{
 		ProtectionDomainID: plan.ProtectionDomainID.ValueString(),
 		StoragePoolID:      plan.StoragePoolID.ValueString(),
-		// UseRmCache:         strconv.FormatBool(plan.UseRmCache.ValueBool()),
-		VolumeType:     plan.VolumeType.ValueString(),
-		VolumeSizeInKb: plan.VolumeSizeInKb.ValueString(),
-		Name:           plan.Name.ValueString(),
+		UseRmCache:         strconv.FormatBool(plan.UseRmCache.ValueBool()),
+		VolumeType:         plan.VolumeType.ValueString(),
+		VolumeSizeInKb:     plan.VolumeSizeInKb.ValueString(),
+		Name:               plan.Name.ValueString(),
 	}
 	getSystems, _ := r.client.GetSystems()
 	sr := goscaleio.NewSystem(r.client)
@@ -273,23 +330,22 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 						)
 						return
 					}
-					tflog.Info(ctx, "[Anshuman] volume Resource State"+helper.PrettyJSON((volsResponse[0])))
+					tflog.Info(ctx, "[Volume] volume Resource State"+helper.PrettyJSON((volsResponse[0])))
 					vol := volsResponse[0]
 					spi := types.StringValue(vol.StoragePoolID)
-					tflog.Info(ctx, "[Anshuman-SPI] volume Resource State"+spi.ValueString())
+					tflog.Info(ctx, "[Volume-SPI] volume Resource State"+spi.ValueString())
 					res := volumeResourceModel{
-						ProtectionDomainID: plan.ProtectionDomainID,
-						VolumeSizeInKb:     plan.VolumeSizeInKb,
-						// VolumeType: plan.VolumeType,
-						StoragePoolID: types.StringValue(vol.StoragePoolID),
-						// UseRmCache:                         types.BoolValue(vol.UseRmCache),
-						// MappingToAllSdcsEnabled:            types.BoolValue(vol.MappingToAllSdcsEnabled),
-						// IsObfuscated:                       types.BoolValue(vol.IsObfuscated),
-						VolumeType:         types.StringValue(vol.VolumeType),
-						ConsistencyGroupID: types.StringValue(vol.ConsistencyGroupID),
-						VTreeID:            types.StringValue(vol.VTreeID),
-						AncestorVolumeID:   types.StringValue(vol.AncestorVolumeID),
-						// MappedScsiInitiatorInfo:            types.StringValue(vol.MappedScsiInitiatorInfo),
+						ProtectionDomainID:                 plan.ProtectionDomainID,
+						VolumeSizeInKb:                     plan.VolumeSizeInKb,
+						StoragePoolID:                      types.StringValue(vol.StoragePoolID),
+						UseRmCache:                         types.BoolValue(vol.UseRmCache),
+						MappingToAllSdcsEnabled:            types.BoolValue(vol.MappingToAllSdcsEnabled),
+						IsObfuscated:                       types.BoolValue(vol.IsObfuscated),
+						VolumeType:                         types.StringValue(vol.VolumeType),
+						ConsistencyGroupID:                 types.StringValue(vol.ConsistencyGroupID),
+						VTreeID:                            types.StringValue(vol.VTreeID),
+						AncestorVolumeID:                   types.StringValue(vol.AncestorVolumeID),
+						MappedScsiInitiatorInfo:            types.StringValue(vol.MappedScsiInitiatorInfo),
 						SizeInKb:                           types.Int64Value(int64(vol.SizeInKb)),
 						CreationTime:                       types.Int64Value(int64(vol.CreationTime)),
 						Name:                               types.StringValue(vol.Name),
@@ -308,7 +364,55 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 						ReplicationJournalVolume:           types.BoolValue(vol.ReplicationJournalVolume),
 						ReplicationTimeStamp:               types.Int64Value(int64(vol.ReplicationTimeStamp)),
 					}
-					tflog.Info(ctx, "[Anshuman-Plan] volume Resource State"+helper.PrettyJSON((res)))
+					linkAttrTypes := map[string]attr.Type{
+						"rel":  types.StringType,
+						"href": types.StringType,
+					}
+					mappedSdcInfoAttrTypes := map[string]attr.Type{
+						"sdc_id":                   types.StringType,
+						"sdc_ip":                   types.StringType,
+						"limit_iops":               types.Int64Type,
+						"limit_bw_in_mbps":         types.Int64Type,
+						"sdc_name":                 types.StringType,
+						"access_mode":              types.StringType,
+						"is_direct_buffer_mapping": types.BoolType,
+					}
+					linkElemType := types.ObjectType{
+						AttrTypes: linkAttrTypes,
+					}
+					mappedSdcInfoElemType := types.ObjectType{
+						AttrTypes: mappedSdcInfoAttrTypes,
+					}
+					objectLinks := []attr.Value{}
+					objectMappedSdcInfos := []attr.Value{}
+
+					for _, link := range vol.Links {
+						obj := map[string]attr.Value{
+							"rel":  types.StringValue(link.Rel),
+							"href": types.StringValue(link.HREF),
+						}
+						objVal, _ := types.ObjectValue(linkAttrTypes, obj)
+						objectLinks = append(objectLinks, objVal)
+					}
+					listVal, _ := types.ListValue(linkElemType, objectLinks)
+
+					for _, msi := range vol.MappedSdcInfo {
+						obj := map[string]attr.Value{
+							"sdc_id":                   types.StringValue(msi.SdcID),
+							"sdc_ip":                   types.StringValue(msi.SdcIP),
+							"limit_iops":               types.Int64Value(int64(msi.LimitIops)),
+							"limit_bw_in_mbps":         types.Int64Value(int64(msi.LimitBwInMbps)),
+							"sdc_name":                 types.StringValue(msi.SdcName),
+							"access_mode":              types.StringValue(msi.AccessMode),
+							"is_direct_buffer_mapping": types.BoolValue(msi.IsDirectBufferMapping),
+						}
+						objVal, _ := types.ObjectValue(mappedSdcInfoAttrTypes, obj)
+						objectMappedSdcInfos = append(objectMappedSdcInfos, objVal)
+					}
+					mappedSdcInfoVal, _ := types.ListValue(mappedSdcInfoElemType,objectMappedSdcInfos)
+					res.Links = listVal
+					res.MappedSdcInfo = mappedSdcInfoVal
+					tflog.Info(ctx, "[Volume-Plan] volume Resource State"+helper.PrettyJSON((res)))
 					plan = res
 					diags = resp.State.Set(ctx, plan)
 					resp.Diagnostics.Append(diags...)
