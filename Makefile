@@ -1,6 +1,6 @@
 TEST?=$$(go list ./... | grep -v 'vendor')
-HOSTNAME=dell.com
-NAMESPACE=dev
+HOSTNAME=registry.terraform.io
+NAMESPACE=dell
 NAME=powerflex
 BINARY=terraform-provider-${NAME}
 VERSION=0.1
