@@ -4,7 +4,7 @@ terraform {
   required_providers {
     powerflex = {
       version = "0.1"
-      source  = "dell.com/dev/powerflex"
+      source  = "registry.terraform.io/dell/powerflex"
     }
   }
 }
@@ -13,21 +13,12 @@ provider "powerflex" {
     username = var.powerflex_username
     password = var.powerflex_password
     host = var.powerflex_host
-    insecure = "true"
-    usecerts = "false"
-    # powerflex_version = ""
 }
 
-# # -----------------------------------------------------------------------------------
-# # Read all volumes if completely blank, otherwise reads specific volume based on id or name
-# # -----------------------------------------------------------------------------------
-    # name is optional , if mentioned then will retrieve the specific volume with that name
-    # id is optional , if mentioned then will retrieve the specific volume with that id
-    # id and name both are empty then will return all sdc
-
+# Read all protection domains
+# Filters by name or id if provided, but not both
 data "powerflex_protection_domain" "pd" {
-
-    # name = "domain1"
+    name = "domain1"
     # id = "4eeb304600000000"
 }
 

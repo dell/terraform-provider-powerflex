@@ -55,7 +55,7 @@ Read-Only:
 - `sds_decoupled_counter` (Attributes) SDS Decoupled Counter windows (see [below for nested schema](#nestedatt--protection_domains--sds_decoupled_counter))
 - `sds_receive_buffer_allocation_failures_counter` (Attributes) SDS receive Buffer Allocation Failure Counter windows (see [below for nested schema](#nestedatt--protection_domains--sds_receive_buffer_allocation_failures_counter))
 - `sds_sds_network_disconnections_counter` (Attributes) SDS-SDS Network Disconnection Counter windows (see [below for nested schema](#nestedatt--protection_domains--sds_sds_network_disconnections_counter))
-- `state` (String) A PD can be Active, ActivePending, Inactive or InactivePending
+- `state` (String) State of a PD, which can be Active, ActivePending, Inactive or InactivePending
 - `system_id` (String) System ID of the PD
 - `vtree_migration_network_throttling_enabled` (Boolean) Whether network throttling is enabled for vtree migration
 - `vtree_migration_network_throttling_in_kbps` (Number) Maximum allowed io for vtree migration in KBps
@@ -65,8 +65,8 @@ Read-Only:
 
 Read-Only:
 
-- `href` (String) Numeric identifier of the coffee ingredient.
-- `rel` (String) Numeric identifier of the coffee ingredient.
+- `href` (String) Specifies the exact path to fetch the details.
+- `rel` (String) Specifies the relationship with the Protection Domain.
 
 
 <a id="nestedatt--protection_domains--mdm_sds_network_disconnections_counter"></a>
