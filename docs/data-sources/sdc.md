@@ -3,12 +3,12 @@
 page_title: "powerflex_sdc Data Source - powerflex"
 subcategory: ""
 description: |-
-  .
+  
 ---
 
 # powerflex_sdc (Data Source)
 
-.
+
 
 
 
@@ -17,7 +17,7 @@ description: |-
 
 ### Required
 
-- `systemid` (String, Sensitive)
+- `systemid` (String)
 
 ### Optional
 
@@ -26,7 +26,8 @@ description: |-
 
 ### Read-Only
 
-- `sdcs` (Attributes List) . (see [below for nested schema](#nestedatt--sdcs))
+- `id` (String) The ID of this resource.
+- `sdcs` (Attributes List) (see [below for nested schema](#nestedatt--sdcs))
 
 <a id="nestedatt--sdcs"></a>
 ### Nested Schema for `sdcs`
@@ -38,9 +39,10 @@ Read-Only:
 - `mdmconnectionstate` (String)
 - `name` (String)
 - `onvmware` (Boolean)
-- `sdcapproved` (Boolean) .
+- `sdcapproved` (Boolean)
 - `sdcguid` (String)
 - `sdcip` (String)
+- `statistics` (Object) (see [below for nested schema](#nestedatt--sdcs--statistics))
 - `systemid` (String)
 
 <a id="nestedatt--sdcs--links"></a>
@@ -50,5 +52,79 @@ Read-Only:
 
 - `href` (String)
 - `rel` (String)
+
+
+<a id="nestedatt--sdcs--statistics"></a>
+### Nested Schema for `sdcs.statistics`
+
+Read-Only:
+
+- `numofmappedvolumes` (Number)
+- `userdatareadbwc` (Object) (see [below for nested schema](#nestedobjatt--sdcs--statistics--userdatareadbwc))
+- `userdatasdcreadlatency` (Object) (see [below for nested schema](#nestedobjatt--sdcs--statistics--userdatasdcreadlatency))
+- `userdatasdctrimlatency` (Object) (see [below for nested schema](#nestedobjatt--sdcs--statistics--userdatasdctrimlatency))
+- `userdatasdcwritelatency` (Object) (see [below for nested schema](#nestedobjatt--sdcs--statistics--userdatasdcwritelatency))
+- `userdatatrimbwc` (Object) (see [below for nested schema](#nestedobjatt--sdcs--statistics--userdatatrimbwc))
+- `userdatawritebwc` (Object) (see [below for nested schema](#nestedobjatt--sdcs--statistics--userdatawritebwc))
+- `volumeids` (List of String)
+
+<a id="nestedobjatt--sdcs--statistics--userdatareadbwc"></a>
+### Nested Schema for `sdcs.statistics.userdatareadbwc`
+
+Read-Only:
+
+- `numoccured` (Number)
+- `numseconds` (Number)
+- `totalweightinkb` (Number)
+
+
+<a id="nestedobjatt--sdcs--statistics--userdatasdcreadlatency"></a>
+### Nested Schema for `sdcs.statistics.userdatasdcreadlatency`
+
+Read-Only:
+
+- `numoccured` (Number)
+- `numseconds` (Number)
+- `totalweightinkb` (Number)
+
+
+<a id="nestedobjatt--sdcs--statistics--userdatasdctrimlatency"></a>
+### Nested Schema for `sdcs.statistics.userdatasdctrimlatency`
+
+Read-Only:
+
+- `numoccured` (Number)
+- `numseconds` (Number)
+- `totalweightinkb` (Number)
+
+
+<a id="nestedobjatt--sdcs--statistics--userdatasdcwritelatency"></a>
+### Nested Schema for `sdcs.statistics.userdatasdcwritelatency`
+
+Read-Only:
+
+- `numoccured` (Number)
+- `numseconds` (Number)
+- `totalweightinkb` (Number)
+
+
+<a id="nestedobjatt--sdcs--statistics--userdatatrimbwc"></a>
+### Nested Schema for `sdcs.statistics.userdatatrimbwc`
+
+Read-Only:
+
+- `numoccured` (Number)
+- `numseconds` (Number)
+- `totalweightinkb` (Number)
+
+
+<a id="nestedobjatt--sdcs--statistics--userdatawritebwc"></a>
+### Nested Schema for `sdcs.statistics.userdatawritebwc`
+
+Read-Only:
+
+- `numoccured` (Number)
+- `numseconds` (Number)
+- `totalweightinkb` (Number)
 
 
