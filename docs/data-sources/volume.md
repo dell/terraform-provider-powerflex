@@ -17,52 +17,52 @@ description: |-
 
 ### Optional
 
-- `name` (String)
-- `storage_pool_id` (String)
+- `id` (String) Unique identifier of the volume instance.
+- `name` (String) Name of the volume.
+- `storage_pool_id` (String) Specifies the unique identifier of the storage pool.
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `volumes` (Attributes List) List of volumes (see [below for nested schema](#nestedatt--volumes))
+- `volumes` (Attributes List) List of volumes. (see [below for nested schema](#nestedatt--volumes))
 
 <a id="nestedatt--volumes"></a>
 ### Nested Schema for `volumes`
 
 Read-Only:
 
-- `access_mode_limit` (String)
-- `ancestor_volume_id` (String) .
-- `compression_method` (String)
-- `consistency_group_id` (String)
-- `creation_time` (Number)
-- `data_layout` (String)
-- `id` (String)
-- `links` (Attributes List) (see [below for nested schema](#nestedatt--volumes--links))
-- `locked_auto_snapshot` (Boolean)
-- `locked_auto_snapshot_marked_for_removal` (Boolean)
-- `managed_by` (String)
-- `mapped_sdc_info` (Attributes List) (see [below for nested schema](#nestedatt--volumes--mapped_sdc_info))
-- `name` (String)
-- `not_genuine_snapshot` (Boolean)
-- `original_expiry_time` (Number)
-- `replication_journal_volume` (Boolean)
-- `replication_time_stamp` (Number)
-- `secure_snapshot_exp_time` (Number)
-- `size_in_kb` (Number)
-- `storage_pool_id` (String)
-- `time_stamp_is_accurate` (Boolean)
-- `use_rm_cache` (Boolean)
-- `volume_replication_state` (String)
-- `volume_type` (String)
-- `vtree_id` (String)
+- `access_mode_limit` (String) Specifies the access mode limit.
+- `ancestor_volume_id` (String) The volume id to which the snapshot is linked to.
+- `compression_method` (String) Specifies the compression method.
+- `consistency_group_id` (String) The unique id for the consistency group.
+- `creation_time` (Number) Specifies the time of creation.
+- `data_layout` (String) Specifies the layout for the data.
+- `id` (String) Unique identifier of the volume instance.
+- `links` (Attributes List) Specifies the links asscociated for a volume. (see [below for nested schema](#nestedatt--volumes--links))
+- `locked_auto_snapshot` (Boolean) Specifies if it's a locked auto snapshot.
+- `locked_auto_snapshot_marked_for_removal` (Boolean) Specifies if it's a locked auto snapshot marked for removal.
+- `managed_by` (String) Specifies by whom it's managed by.
+- `mapped_sdc_info` (Attributes List) Specifies the list of sdc's mapped to a volume. (see [below for nested schema](#nestedatt--volumes--mapped_sdc_info))
+- `name` (String) Name of the volume.
+- `not_genuine_snapshot` (Boolean) Specifies if not genuine snapshot.
+- `original_expiry_time` (Number) Specifies the original expiry time.
+- `replication_journal_volume` (Boolean) Specifies the replication journal volume.
+- `replication_time_stamp` (Number) Specifies the replication time stamp.
+- `secure_snapshot_exp_time` (Number) Specifies the secure snapshot expiry time.
+- `size_in_kb` (Number) Size of the volume in KB
+- `storage_pool_id` (String) Specifies the unique identifier of the storage pool.
+- `time_stamp_is_accurate` (Boolean) Specifies if the time stamp is accurate.
+- `use_rm_cache` (Boolean) Enable rm cache.
+- `volume_replication_state` (String) Specifies the volume replication state.
+- `volume_type` (String) Specifies the type of that volume.
+- `vtree_id` (String) Unique identifier of the VTree
 
 <a id="nestedatt--volumes--links"></a>
 ### Nested Schema for `volumes.links`
 
 Read-Only:
 
-- `href` (String) Numeric identifier of the coffee ingredient.
-- `rel` (String) Numeric identifier of the coffee ingredient.
+- `href` (String) Specifies the exact path to fetch the details.
+- `rel` (String) Specifies the relationship with the volume.
 
 
 <a id="nestedatt--volumes--mapped_sdc_info"></a>
@@ -70,12 +70,12 @@ Read-Only:
 
 Read-Only:
 
-- `access_mode` (String)
-- `is_direct_buffer_mapping` (Boolean)
-- `limit_bw_in_mbps` (Number)
-- `limit_iops` (Number)
-- `sdc_id` (String)
-- `sdc_ip` (String)
-- `sdc_name` (String)
+- `access_mode` (String) Specifies the access mode.
+- `is_direct_buffer_mapping` (Boolean) Specifies if it is direct buffer mapping.
+- `limit_bw_in_mbps` (Number) Specifies the bandwidth limits in Mbps.
+- `limit_iops` (Number) Specifies the IOPS limits.
+- `sdc_id` (String) Unique identifier for sdc.
+- `sdc_ip` (String) Ip of the sdc.
+- `sdc_name` (String) Specifies the name of the sdc.
 
 

@@ -28,12 +28,9 @@ func New() provider.Provider {
 type powerflexProvider struct{}
 
 type powerflexProviderModel struct {
-	Host             types.String `tfsdk:"host"`
-	Username         types.String `tfsdk:"username"`
-	Password         types.String `tfsdk:"password"`
-	Insecure         types.String `tfsdk:"insecure"`
-	UseCerts         types.String `tfsdk:"usecerts"`
-	PowerflexVersion types.String `tfsdk:"powerflex_version"`
+	Host     types.String `tfsdk:"host"`
+	Username types.String `tfsdk:"username"`
+	Password types.String `tfsdk:"password"`
 }
 
 func (p *powerflexProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -45,30 +42,20 @@ func (p *powerflexProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 		Description: "",
 		Attributes: map[string]schema.Attribute{
 			"host": schema.StringAttribute{
-				Description: "",
-				Optional:    true,
+				Description:         "the host to which it needs to be connected.",
+				MarkdownDescription: "the host to which it needs to be connected.",
+				Required:            true,
 			},
 			"username": schema.StringAttribute{
-				Description: "",
-				Optional:    true,
+				Description:         "The username required for authentication.",
+				MarkdownDescription: "The username required for authentication.",
+				Required:            true,
 			},
 			"password": schema.StringAttribute{
-				Description: "",
-				Optional:    true,
-				Sensitive:   true,
-			},
-			"powerflex_version": schema.StringAttribute{
-				Description: "",
-				Optional:    true,
-			},
-			"usecerts": schema.StringAttribute{
-				Description: "",
-				Optional:    true,
-			},
-			"insecure": schema.StringAttribute{
-				Description: "",
-				Optional:    true,
-				Sensitive:   true,
+				Description:         "The password required for the authentication.",
+				MarkdownDescription: "The password required for the authentication.",
+				Required:            true,
+				Sensitive:           true,
 			},
 		},
 	}
@@ -119,10 +106,6 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	username := os.Getenv("POWERFLEX_USERNAME")
 	password := os.Getenv("POWERFLEX_PASSWORD")
 
-	insecure := os.Getenv("POWERFLEX_HOST")
-	usecerts := os.Getenv("POWERFLEX_USERNAME")
-	powerflexVersion := os.Getenv("POWERFLEX_PASSWORD")
-
 	if !config.Host.IsNull() {
 		host = config.Host.ValueString()
 	}
@@ -133,18 +116,6 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 
 	if !config.Password.IsNull() {
 		password = config.Password.ValueString()
-	}
-
-	if !config.Insecure.IsNull() {
-		insecure = config.Insecure.ValueString()
-	}
-
-	if !config.UseCerts.IsNull() {
-		usecerts = config.UseCerts.ValueString()
-	}
-
-	if !config.PowerflexVersion.IsNull() {
-		powerflexVersion = config.PowerflexVersion.ValueString()
 	}
 
 	if host == "" {
@@ -184,15 +155,12 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	ctx = tflog.SetField(ctx, "powerflex_host", host)
 	ctx = tflog.SetField(ctx, "powerflex_username", username)
 	ctx = tflog.SetField(ctx, "powerflex_password", password)
-
-	ctx = tflog.SetField(ctx, "insecure", insecure)
-	ctx = tflog.SetField(ctx, "usecerts", usecerts)
 	ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "powerflex_password")
 
 	tflog.Debug(ctx, "Creating powerflex client")
 
 	// Create a new powerflex client using the configuration values
-	client, err := goscaleio.NewClientWithArgs(host, powerflexVersion, true, true)
+	Client, err := goscaleio.NewClientWithArgs(host, "", true, true)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Create powerflex API Client",
@@ -206,23 +174,23 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	var goscaleioConf goscaleio.ConfigConnect = goscaleio.ConfigConnect{}
 	goscaleioConf.Endpoint = host
 	goscaleioConf.Username = username
-	goscaleioConf.Version = powerflexVersion
+	goscaleioConf.Version = ""
 	goscaleioConf.Password = password
 
-	_, err = client.Authenticate(&goscaleioConf)
+	_, err = Client.Authenticate(&goscaleioConf)
 
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Auth Goscaleio API Client",
-			"An unexpected error occurred when creating the Unable to Auth Goscaleio API Client. "+
-				"Unable to Auth Goscaleio API Client.\n\n"+
+			"Unable to Authenticate Goscaleio API Client",
+			"An unexpected error occurred when authenticating the Goscaleio API Client. "+
+				"Unable to Authenticate Goscaleio API Client.\n\n"+
 				"powerflex Client Error: "+err.Error(),
 		)
 		return
 	}
 
-	resp.DataSourceData = client
-	resp.ResourceData = client
+	resp.DataSourceData = Client
+	resp.ResourceData = Client
 
 	tflog.Info(ctx, "Configured powerflex client", map[string]any{"success": true})
 }
