@@ -2,6 +2,10 @@ package powerflex
 
 import (
 	"context"
+	"os"
+	pd "terraform-provider-powerflex/powerflex/protectionDomain"
+	volumedatasource "terraform-provider-powerflex/powerflex/volume"
+
 	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -10,8 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"os"
-	volumedatasource "terraform-provider-powerflex/powerflex/volume"
 )
 
 var (
@@ -228,6 +230,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		volumedatasource.VolumeDataSource,
+		pd.ProtectionDomainDataSource,
 	}
 }
 

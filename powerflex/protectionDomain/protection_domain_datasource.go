@@ -17,6 +17,7 @@ var (
 	_ datasource.DataSourceWithConfigure = &protectionDomainDataSource{}
 )
 
+// ProtectionDomainDataSource returns the datasource for protection domain
 func ProtectionDomainDataSource() datasource.DataSource {
 	return &protectionDomainDataSource{}
 }
@@ -33,7 +34,7 @@ type protectionDomainDataSourceModel struct {
 
 type protectionDomainModel struct {
 	SystemID                    types.String    `tfsdk:"system_id"`
-	SdrSdsConnectivityInfo      PDConnInfoModel `tfsdk:"sdr_sds_connectivity_info"`
+	SdrSdsConnectivityInfo      pdConnInfoModel `tfsdk:"sdr_sds_connectivity"`
 	ReplicationCapacityMaxRatio types.Int64     `tfsdk:"replication_capacity_max_ratio"`
 
 	// Network throttling params
@@ -61,11 +62,11 @@ type protectionDomainModel struct {
 	RfCacheMaxIoSizeKb     types.Int64  `tfsdk:"rf_cache_max_io_size_kb"`
 
 	// Counter Params
-	SdsConfigurationFailureCP            PDCounterModel `tfsdk:"sds_configuration_failure_counter"`
-	SdsDecoupledCP                       PDCounterModel `tfsdk:"sds_decoupled_counter"`
-	MdmSdsNetworkDisconnectionsCP        PDCounterModel `tfsdk:"mdm_sds_network_disconnections_counter"`
-	SdsSdsNetworkDisconnectionsCP        PDCounterModel `tfsdk:"sds_sds_network_disconnections_counter"`
-	SdsReceiveBufferAllocationFailuresCP PDCounterModel `tfsdk:"sds_receive_buffer_allocation_failures_counter"`
+	SdsConfigurationFailureCP            pdCounterModel `tfsdk:"sds_configuration_failure_counter"`
+	SdsDecoupledCP                       pdCounterModel `tfsdk:"sds_decoupled_counter"`
+	MdmSdsNetworkDisconnectionsCP        pdCounterModel `tfsdk:"mdm_sds_network_disconnections_counter"`
+	SdsSdsNetworkDisconnectionsCP        pdCounterModel `tfsdk:"sds_sds_network_disconnections_counter"`
+	SdsReceiveBufferAllocationFailuresCP pdCounterModel `tfsdk:"sds_receive_buffer_allocation_failures_counter"`
 
 	State types.String                `tfsdk:"state"`
 	Name  types.String                `tfsdk:"name"`
@@ -73,35 +74,35 @@ type protectionDomainModel struct {
 	Links []protectionDomainLinkModel `tfsdk:"links"`
 }
 
-type WindowModel struct {
+type windowModel struct {
 	Threshold       types.Int64 `tfsdk:"threshold"`
 	WindowSizeInSec types.Int64 `tfsdk:"window_size_in_sec"`
 }
 
-type PDCounterModel struct {
-	ShortWindow  WindowModel `tfsdk:"short_window"`
-	MediumWindow WindowModel `tfsdk:"medium_window"`
-	LongWindow   WindowModel `tfsdk:"long_window"`
+type pdCounterModel struct {
+	ShortWindow  windowModel `tfsdk:"short_window"`
+	MediumWindow windowModel `tfsdk:"medium_window"`
+	LongWindow   windowModel `tfsdk:"long_window"`
 }
 
-func pdCounterModelValue(p scaleiotypes.PDCounterParams) PDCounterModel {
-	return PDCounterModel{
-		ShortWindow: WindowModel{
+func pdCounterModelValue(p scaleiotypes.PDCounterParams) pdCounterModel {
+	return pdCounterModel{
+		ShortWindow: windowModel{
 			Threshold:       types.Int64Value(int64(p.ShortWindow.Threshold)),
 			WindowSizeInSec: types.Int64Value(int64(p.ShortWindow.WindowSizeInSec)),
 		},
-		MediumWindow: WindowModel{
+		MediumWindow: windowModel{
 			Threshold:       types.Int64Value(int64(p.MediumWindow.Threshold)),
 			WindowSizeInSec: types.Int64Value(int64(p.MediumWindow.WindowSizeInSec)),
 		},
-		LongWindow: WindowModel{
+		LongWindow: windowModel{
 			Threshold:       types.Int64Value(int64(p.LongWindow.Threshold)),
 			WindowSizeInSec: types.Int64Value(int64(p.LongWindow.WindowSizeInSec)),
 		},
 	}
 }
 
-type PDConnInfoModel struct {
+type pdConnInfoModel struct {
 	ClientServerConnStatus types.String `tfsdk:"client_server_conn_status"`
 	DisconnectedClientID   types.String `tfsdk:"disconnected_client_id"`
 	DisconnectedClientName types.String `tfsdk:"disconnected_client_name"`
@@ -110,21 +111,34 @@ type PDConnInfoModel struct {
 	DisconnectedServerIP   types.String `tfsdk:"disconnected_server_ip"`
 }
 
-func pdConnInfoModelValue(p scaleiotypes.PDConnInfo) PDConnInfoModel {
-	pdconninfo := PDConnInfoModel{
+func pdConnInfoModelValue(p scaleiotypes.PDConnInfo) pdConnInfoModel {
+	pdconninfo := pdConnInfoModel{
 		ClientServerConnStatus: types.StringValue(p.ClientServerConnStatus),
 	}
 	if v := p.DisconnectedClientID; v != nil {
 		pdconninfo.DisconnectedClientID = types.StringValue(*v)
+	} else {
+		pdconninfo.DisconnectedClientID = types.StringNull()
 	}
 	if v := p.DisconnectedClientName; v != nil {
 		pdconninfo.DisconnectedClientName = types.StringValue(*v)
+	} else {
+		pdconninfo.DisconnectedClientName = types.StringNull()
 	}
 	if v := p.DisconnectedServerID; v != nil {
 		pdconninfo.DisconnectedServerID = types.StringValue(*v)
+	} else {
+		pdconninfo.DisconnectedServerID = types.StringNull()
+	}
+	if v := p.DisconnectedServerName; v != nil {
+		pdconninfo.DisconnectedServerName = types.StringValue(*v)
+	} else {
+		pdconninfo.DisconnectedServerName = types.StringNull()
 	}
 	if v := p.DisconnectedServerIP; v != nil {
 		pdconninfo.DisconnectedServerIP = types.StringValue(*v)
+	} else {
+		pdconninfo.DisconnectedServerIP = types.StringNull()
 	}
 	return pdconninfo
 }
@@ -233,9 +247,8 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 func getAllProtectionDomainState(protectionDomains []*scaleiotypes.ProtectionDomain) (response []protectionDomainModel) {
 	for _, protectionDomainValue := range protectionDomains {
 		protectionDomainState := protectionDomainModel{
-			SystemID:                    types.StringValue(protectionDomainValue.SystemID),
-			SdrSdsConnectivityInfo:      pdConnInfoModelValue(protectionDomainValue.SdrSdsConnectivityInfo),
-			ReplicationCapacityMaxRatio: types.Int64Value(int64(*protectionDomainValue.ReplicationCapacityMaxRatio)),
+			SystemID:               types.StringValue(protectionDomainValue.SystemID),
+			SdrSdsConnectivityInfo: pdConnInfoModelValue(protectionDomainValue.SdrSdsConnectivityInfo),
 
 			// Network throttling params
 			RebuildNetworkThrottlingInKbps:                   types.Int64Value(int64(protectionDomainValue.RebuildNetworkThrottlingInKbps)),
@@ -271,6 +284,12 @@ func getAllProtectionDomainState(protectionDomains []*scaleiotypes.ProtectionDom
 			State: types.StringValue(protectionDomainValue.ProtectionDomainState),
 			Name:  types.StringValue(protectionDomainValue.Name),
 			ID:    types.StringValue(protectionDomainValue.ID),
+		}
+
+		if v := protectionDomainValue.ReplicationCapacityMaxRatio; v != nil {
+			protectionDomainState.ReplicationCapacityMaxRatio = types.Int64Value(int64(*v))
+		} else {
+			protectionDomainState.ReplicationCapacityMaxRatio = types.Int64Null()
 		}
 
 		for _, link := range protectionDomainValue.Links {

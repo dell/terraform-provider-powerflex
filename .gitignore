@@ -1,2 +1,7 @@
 vendor/*
 gosec*
+
+
+.terraform*
+tfplan*
+terraform.tfvars
