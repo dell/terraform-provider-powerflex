@@ -1,11 +1,11 @@
-package protectiondomaindatasource
+package protectiondomain
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 )
 
-// ProtectionDomainDataSourceSchema defines the schema for Protection Domain datasource
-var ProtectionDomainDataSourceSchema schema.Schema = schema.Schema{
+// DataSourceSchema defines the schema for Protection Domain datasource
+var DataSourceSchema schema.Schema = schema.Schema{
 	Description: ".",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{

@@ -1,4 +1,4 @@
-package protectiondomaindatasource
+package protectiondomain
 
 import (
 	"context"
@@ -17,8 +17,8 @@ var (
 	_ datasource.DataSourceWithConfigure = &protectionDomainDataSource{}
 )
 
-// ProtectionDomainDataSource returns the datasource for protection domain
-func ProtectionDomainDataSource() datasource.DataSource {
+// DataSource returns the datasource for protection domain
+func DataSource() datasource.DataSource {
 	return &protectionDomainDataSource{}
 }
 
@@ -153,7 +153,7 @@ func (d *protectionDomainDataSource) Metadata(_ context.Context, req datasource.
 }
 
 func (d *protectionDomainDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = ProtectionDomainDataSourceSchema
+	resp.Schema = DataSourceSchema
 }
 
 func (d *protectionDomainDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
