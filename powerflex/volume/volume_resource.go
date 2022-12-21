@@ -3,19 +3,12 @@ package volume
 import (
 	"context"
 	"strconv"
-
-	// "time"
-
 	"terraform-provider-powerflex/helper"
 
 	"github.com/dell/goscaleio"
 	pftypes "github.com/dell/goscaleio/types/v1"
-
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-
-	// "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	// "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -73,55 +66,33 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 		VolumeSizeInKb:     plan.VolumeSizeInKb.ValueString(),
 		Name:               plan.Name.ValueString(),
 	}
-	getSystems, _ := r.client.GetSystems()
-	sr := goscaleio.NewSystem(r.client)
-	sr.System = getSystems[0]
-	getProtectionDomains, _ := sr.GetProtectionDomain("")
-	tflog.Info(ctx, "2. [POWERFLEX] volume Resource State"+helper.PrettyJSON((getSystems[0])))
-	for _, protectionDomain := range getProtectionDomains {
-		pdr := goscaleio.NewProtectionDomain(r.client)
-		pdr.ProtectionDomain = protectionDomain
-		tflog.Info(ctx, "hello"+pdr.ProtectionDomain.ID+" "+plan.ProtectionDomainID.ValueString())
-		if pdr.ProtectionDomain.ID == plan.ProtectionDomainID.ValueString() {
-			getStoragePool, _ := pdr.GetStoragePool("")
-			tflog.Info(ctx, "selected"+pdr.ProtectionDomain.ID+" "+plan.ProtectionDomainID.ValueString())
-			for _, sp := range getStoragePool {
-				spr := goscaleio.NewStoragePool(r.client)
-				spr.StoragePool = sp
-				tflog.Info(ctx, spr.StoragePool.ID+" "+plan.StoragePoolID.ValueString())
-				if spr.StoragePool.ID == plan.StoragePoolID.ValueString() {
-					tflog.Info(ctx, "selected : "+spr.StoragePool.ID+" "+plan.StoragePoolID.ValueString())
-					volCreateResponse, err1 := spr.CreateVolume(volumeCreate)
-					if err1 != nil {
-						resp.Diagnostics.AddError(
-							"Error creating volume",
-							"Could not create volume, unexpected error: "+err1.Error(),
-						)
-						return
-					}
-					// plan.ID = types.StringValue(volCreateResponse.ID)
-					volsResponse, err2 := spr.GetVolume("", volCreateResponse.ID, "", "", false)
-					if err2 != nil {
-						resp.Diagnostics.AddError(
-							"Error getting volume after creation",
-							"Could not get volume, unexpected error: "+err2.Error(),
-						)
-						return
-					}
-					tflog.Info(ctx, "[Volume] volume Resource State"+helper.PrettyJSON((volsResponse[0])))
-					vol := volsResponse[0]
-					spi := types.StringValue(vol.StoragePoolID)
-					tflog.Info(ctx, "[Volume-SPI] volume Resource State"+spi.ValueString())
+	spr, _ := getStoragePoolInstance(r.client, volumeCreate.StoragePoolID, volumeCreate.ProtectionDomainID)
+	volCreateResponse, err1 := spr.CreateVolume(volumeCreate)
+	if err1 != nil {
+		resp.Diagnostics.AddError(
+			"Error creating volume",
+			"Could not create volume, unexpected error: "+err1.Error(),
+		)
+		return
+	}
+	volsResponse, err2 := spr.GetVolume("", volCreateResponse.ID, "", "", false)
+	if err2 != nil {
+		resp.Diagnostics.AddError(
+			"Error getting volume after creation",
+			"Could not get volume, unexpected error: "+err2.Error(),
+		)
+		return
+	}
+	tflog.Info(ctx, "[Volume] volume Resource State"+helper.PrettyJSON((volsResponse[0])))
+	vol := volsResponse[0]
+	spi := types.StringValue(vol.StoragePoolID)
+	tflog.Info(ctx, "[Volume-SPI] volume Resource State"+spi.ValueString())
 
-					plan = updateVolumeState(vol, plan)
-					diags = resp.State.Set(ctx, plan)
-					resp.Diagnostics.Append(diags...)
-					if resp.Diagnostics.HasError() {
-						return
-					}
-				}
-			}
-		}
+	plan = updateVolumeState(vol, plan)
+	diags = resp.State.Set(ctx, plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 }
 
@@ -152,9 +123,6 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	// plan.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

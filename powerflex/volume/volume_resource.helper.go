@@ -1,6 +1,9 @@
 package volume
 
 import (
+	"errors"
+
+	"github.com/dell/goscaleio"
 	pftypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -87,3 +90,26 @@ func updateVolumeState(vol *pftypes.Volume, plan volumeResourceModel) (response 
 	response.MappedSdcInfo = mappedSdcInfoVal
 	return response
 }
+
+func getStoragePoolInstance(c *goscaleio.Client, spId string, pdId string) (*goscaleio.StoragePool, error) {
+	getSystems, _ := c.GetSystems()
+	sr := goscaleio.NewSystem(c)
+	sr.System = getSystems[0]
+	getProtectionDomains, _ := sr.GetProtectionDomain("")
+	pdr := goscaleio.NewProtectionDomain(c)
+	for _, protectionDomain := range getProtectionDomains {
+		pdr.ProtectionDomain = protectionDomain
+		if pdr.ProtectionDomain.ID == pdId {
+			getStoragePools, _ := pdr.GetStoragePool("")
+			spr := goscaleio.NewStoragePool(c)
+			for _, sp := range getStoragePools {
+				spr.StoragePool = sp
+				if spr.StoragePool.ID == spId {
+					return spr, nil
+				}
+			}
+		}
+	}
+	return nil, errors.New("couldn't find the storage pool")
+}
+
