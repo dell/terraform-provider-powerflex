@@ -1,11 +1,11 @@
-package protectiondomaindatasource
+package protectiondomain
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 )
 
-// ProtectionDomainDataSourceSchema defines the schema for Protection Domain datasource
-var ProtectionDomainDataSourceSchema schema.Schema = schema.Schema{
+// DataSourceSchema defines the schema for Protection Domain datasource
+var DataSourceSchema schema.Schema = schema.Schema{
 	Description:         "Datasource for powerflex manager protection domains.",
 	MarkdownDescription: "Datasource for powerflex manager protection domains.",
 	Attributes: map[string]schema.Attribute{
@@ -24,13 +24,13 @@ var ProtectionDomainDataSourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "List of protection domains fetched.",
 			Computed:            true,
 			NestedObject: schema.NestedAttributeObject{
-				Attributes: protectionDomainAttributes,
+				Attributes: protectionDomainDataAttributes,
 			},
 		},
 	},
 }
 
-var protectionDomainAttributes map[string]schema.Attribute = map[string]schema.Attribute{
+var protectionDomainDataAttributes map[string]schema.Attribute = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
 		Description:         "Unique identifier of the protection domain instance.",
 		MarkdownDescription: "Unique identifier of the protection domain instance.",
