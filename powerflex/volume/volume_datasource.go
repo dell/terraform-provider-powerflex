@@ -2,14 +2,10 @@ package volumedatasource
 
 import (
 	"context"
-
-	"terraform-provider-powerflex/helper"
-
 	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var (
@@ -98,9 +94,10 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	var err error
 
 	diags := req.Config.Get(ctx, &state)
-	tflog.Info(ctx, "[POWERFLEX] volumeDataSourceModel"+helper.PrettyJSON((state)))
 
-	if state.Name.ValueString() != "" && state.ID.ValueString() == "" {
+	//Read the volumes based on id or name or if both id and name
+	//are not mentioned , then return all volumes
+	if state.Name.ValueString() != "" {
 		volumes, err = d.client.GetVolume("", "", "", state.Name.ValueString(), false)
 		if err != nil {
 			resp.Diagnostics.AddError(
@@ -110,8 +107,8 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			return
 		}
 
-		state.Volumes = getAllVolumeState(volumes)
-	} else if state.ID.ValueString() != "" && state.Name.ValueString() == "" {
+		state.Volumes = updateVolumeState(volumes)
+	} else if state.ID.ValueString() != "" {
 		volumes, err = d.client.GetVolume("", state.ID.ValueString(), "", "", false)
 		if err != nil {
 			resp.Diagnostics.AddError(
@@ -121,21 +118,9 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			return
 		}
 
-		state.Volumes = getAllVolumeState(volumes)
-	} else if state.ID.ValueString() != "" && state.Name.ValueString() != "" {
-		volumes, err = d.client.GetVolume("", state.ID.ValueString(), "", state.Name.ValueString(), false)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Read Powerflex Volumes",
-				err.Error(),
-			)
-			return
-		}
-
-		state.Volumes = getAllVolumeState(volumes)
+		state.Volumes = updateVolumeState(volumes)
 	} else if state.ID.ValueString() == "" && state.Name.ValueString() == "" {
 		volumes, err = d.client.GetVolume("", "", "", "", false)
-		// tflog.Debug(ctx, "system"+helper.PrettyJSON(system))
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Unable to Read Powerflex Volumes",
@@ -144,7 +129,7 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			return
 		}
 
-		state.Volumes = getAllVolumeState(volumes)
+		state.Volumes = updateVolumeState(volumes)
 	}
 
 	diags = resp.State.Set(ctx, state)
@@ -154,7 +139,8 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 }
 
-func getAllVolumeState(volumes []*scaleiotypes.Volume) (response []volumeModel) {
+// updateVolumeState iterates over the volume list and update the state
+func updateVolumeState(volumes []*scaleiotypes.Volume) (response []volumeModel) {
 	for _, volumeValue := range volumes {
 		volumeState := volumeModel{
 			ID:                                 types.StringValue(volumeValue.ID),
@@ -201,6 +187,5 @@ func getAllVolumeState(volumes []*scaleiotypes.Volume) (response []volumeModel) 
 		}
 		response = append(response, volumeState)
 	}
-
 	return
 }
