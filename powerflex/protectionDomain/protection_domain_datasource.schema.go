@@ -17,7 +17,7 @@ var ProtectionDomainDataSourceSchema schema.Schema = schema.Schema{
 			Optional:    true,
 		},
 		"protection_domains": schema.ListNestedAttribute{
-			Description: "List of volumes",
+			Description: "List of protection domains fetched",
 			Computed:    true,
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: protectionDomainAttributes,

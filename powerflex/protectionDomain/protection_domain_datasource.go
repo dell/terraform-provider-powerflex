@@ -179,7 +179,7 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 	systems, err := d.client.GetSystems()
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex Protection Domains",
+			"Unable to Read Powerflex Systems",
 			err.Error(),
 		)
 		return
