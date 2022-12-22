@@ -22,7 +22,7 @@ description: |-
 
 ### Read-Only
 
-- `protection_domains` (Attributes List) List of volumes (see [below for nested schema](#nestedatt--protection_domains))
+- `protection_domains` (Attributes List) List of protection domains fetched (see [below for nested schema](#nestedatt--protection_domains))
 
 <a id="nestedatt--protection_domains"></a>
 ### Nested Schema for `protection_domains`
