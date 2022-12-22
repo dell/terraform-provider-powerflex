@@ -1,4 +1,4 @@
-package volumedatasource
+package volume
 
 import (
 	"context"
@@ -26,6 +26,7 @@ type volumeDataSourceModel struct {
 	Volumes       []volumeModel `tfsdk:"volumes"`
 	ID            types.String  `tfsdk:"id"`
 	StoragePoolID types.String  `tfsdk:"storage_pool_id"`
+	StoragePoolName types.String  `tfsdk:"storage_pool_name"`
 	Name          types.String  `tfsdk:"name"`
 }
 
@@ -119,7 +120,7 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		}
 
 		state.Volumes = updateVolumeState(volumes)
-	} else if state.ID.ValueString() == "" && state.Name.ValueString() == "" {
+	} else if state.ID.ValueString() == "" && state.Name.ValueString() == "" && state.StoragePoolID.ValueString() == "" && state.StoragePoolName.ValueString() == ""{
 		volumes, err = d.client.GetVolume("", "", "", "", false)
 		if err != nil {
 			resp.Diagnostics.AddError(
@@ -129,6 +130,46 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			return
 		}
 
+		state.Volumes = updateVolumeState(volumes)
+	}	else if state.StoragePoolID.ValueString() != "" {
+		sps,err1 := d.client.FindStoragePool(state.StoragePoolID.ValueString(),"","","")
+		if err1 != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Read Powerflex Volumes",
+				err.Error(),
+			)
+			return
+		}
+		sp := goscaleio.NewStoragePool(d.client)
+		sp.StoragePool = sps		
+		volumes, err = sp.GetVolume("", "", "", "", false)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Read Powerflex Volumes",
+				err.Error(),
+			)
+			return
+		}
+		state.Volumes = updateVolumeState(volumes)
+	}else if state.StoragePoolName.ValueString() != "" {
+		sps,err1 := d.client.FindStoragePool("",state.StoragePoolName.ValueString(),"","")
+		if err1 != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Read Powerflex Volumes",
+				err.Error(),
+			)
+			return
+		}
+		sp := goscaleio.NewStoragePool(d.client)
+		sp.StoragePool = sps		
+		volumes, err = sp.GetVolume("", "", "", "", false)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Read Powerflex Volumes",
+				err.Error(),
+			)
+			return
+		}
 		state.Volumes = updateVolumeState(volumes)
 	}
 
