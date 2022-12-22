@@ -9,14 +9,12 @@ var ProtectionDomainDataSourceSchema schema.Schema = schema.Schema{
 	Description: ".",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
-			Description: "",
+			Description: "Unique identifier of the protection domain instance.",
 			Optional:    true,
-			Computed:    true,
 		},
 		"name": schema.StringAttribute{
-			Description: "",
+			Description: "Unique name of the protection domain instance.",
 			Optional:    true,
-			Computed:    true,
 		},
 		"protection_domains": schema.ListNestedAttribute{
 			Description: "List of volumes",
@@ -30,11 +28,11 @@ var ProtectionDomainDataSourceSchema schema.Schema = schema.Schema{
 
 var protectionDomainAttributes map[string]schema.Attribute = map[string]schema.Attribute{
 	"id": schema.StringAttribute{
-		Description: "",
+		Description: "Unique identifier of the protection domain instance.",
 		Computed:    true,
 	},
 	"name": schema.StringAttribute{
-		Description: "",
+		Description: "Unique name of the protection domain instance.",
 		Computed:    true,
 	},
 	"state": schema.StringAttribute{

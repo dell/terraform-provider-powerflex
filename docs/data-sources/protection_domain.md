@@ -17,11 +17,11 @@ description: |-
 
 ### Optional
 
-- `name` (String)
+- `id` (String) Unique identifier of the protection domain instance.
+- `name` (String) Unique name of the protection domain instance.
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
 - `protection_domains` (Attributes List) List of volumes (see [below for nested schema](#nestedatt--protection_domains))
 
 <a id="nestedatt--protection_domains"></a>
@@ -32,10 +32,10 @@ Read-Only:
 - `fgl_default_metadata_cache_size` (Number) Fine Granularity Metadata Cache size
 - `fgl_default_num_concurrent_writes` (Number) Fine Granularity default number of concurrent writes
 - `fgl_metadata_cache_enabled` (Boolean) Whether Fine Granularity Metadata Cache is enabled or not
-- `id` (String)
+- `id` (String) Unique identifier of the protection domain instance.
 - `links` (Attributes List) Underlying REST API links (see [below for nested schema](#nestedatt--protection_domains--links))
 - `mdm_sds_network_disconnections_counter` (Attributes) MDM-SDS Network Disconnection Counter windows (see [below for nested schema](#nestedatt--protection_domains--mdm_sds_network_disconnections_counter))
-- `name` (String)
+- `name` (String) Unique name of the protection domain instance.
 - `overall_io_network_throttling_enabled` (Boolean) Whether network throttling is enabled for overall io
 - `overall_io_network_throttling_in_kbps` (Number) Maximum allowed io for protected maintenance mode in KBps. Must be greater than any other network throttling parameter.
 - `protected_maintenance_mode_network_throttling_enabled` (Boolean) Whether network throttling is enabled for protected maintenance mode
