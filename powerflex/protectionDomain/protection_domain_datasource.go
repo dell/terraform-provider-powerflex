@@ -10,11 +10,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+
+	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 )
 
 var (
-	_ datasource.DataSource              = &protectionDomainDataSource{}
-	_ datasource.DataSourceWithConfigure = &protectionDomainDataSource{}
+	_ datasource.DataSource                     = &protectionDomainDataSource{}
+	_ datasource.DataSourceWithConfigure        = &protectionDomainDataSource{}
+	_ datasource.DataSourceWithConfigValidators = &protectionDomainDataSource{}
 )
 
 // ProtectionDomainDataSource returns the datasource for protection domain
@@ -172,11 +176,6 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 	diags := req.Config.Get(ctx, &state)
 	tflog.Info(ctx, "[POWERFLEX] protectionDomainDataSourceModel"+helper.PrettyJSON((state)))
 
-	if state.Name.ValueString() != "" && state.ID.ValueString() != "" {
-		resp.Diagnostics.AddError("Both name and id provided.", "Only one of name and id can be set.")
-		return
-	}
-
 	systems, err := d.client.GetSystems()
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -202,6 +201,7 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 	}
 
 	if state.Name.ValueString() == "" && state.ID.ValueString() == "" {
+		// Fetch all protection domains
 		protectionDomains, err = system.GetProtectionDomain("")
 		if err != nil {
 			resp.Diagnostics.AddError(
@@ -212,6 +212,7 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 		}
 		state.ProtectionDomains = getAllProtectionDomainState(protectionDomains)
 	} else if state.ID.ValueString() != "" {
+		// Fetch protection domain of given id
 		var protectionDomain *scaleiotypes.ProtectionDomain
 		protectionDomain, err = system.FindProtectionDomain(state.ID.ValueString(), "", "")
 		if err != nil {
@@ -224,6 +225,7 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 		protectionDomains := append(protectionDomains, protectionDomain)
 		state.ProtectionDomains = getAllProtectionDomainState(protectionDomains)
 	} else if state.Name.ValueString() != "" {
+		// Fetch protection domain of given name
 		var protectionDomain *scaleiotypes.ProtectionDomain
 		protectionDomain, err = system.FindProtectionDomain("", state.Name.ValueString(), "")
 		if err != nil {
@@ -303,4 +305,13 @@ func getAllProtectionDomainState(protectionDomains []*scaleiotypes.ProtectionDom
 	}
 
 	return
+}
+
+func (d protectionDomainDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+	return []datasource.ConfigValidator{
+		datasourcevalidator.Conflicting(
+			path.MatchRoot("id"),
+			path.MatchRoot("name"),
+		),
+	}
 }
