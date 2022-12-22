@@ -16,7 +16,7 @@ var VolumeDataSourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Unique identifier of the volume instance.",
 			Optional:            true,
 			Validators: []validator.String{
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id"),path.MatchRoot("name"),path.MatchRoot("storage_pool_name")),
+				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id"), path.MatchRoot("name"), path.MatchRoot("storage_pool_name")),
 			},
 		},
 		"name": schema.StringAttribute{
@@ -24,7 +24,7 @@ var VolumeDataSourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Name of the volume.",
 			Optional:            true,
 			Validators: []validator.String{
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id"),path.MatchRoot("id"),path.MatchRoot("storage_pool_name")),
+				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id"), path.MatchRoot("id"), path.MatchRoot("storage_pool_name")),
 			},
 		},
 		"storage_pool_id": schema.StringAttribute{
@@ -32,7 +32,7 @@ var VolumeDataSourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Specifies the unique identifier of the storage pool.",
 			Optional:            true,
 			Validators: []validator.String{
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_name"),path.MatchRoot("id"),path.MatchRoot("name")),
+				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_name"), path.MatchRoot("id"), path.MatchRoot("name")),
 			},
 		},
 		"storage_pool_name": schema.StringAttribute{
@@ -40,7 +40,7 @@ var VolumeDataSourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Specifies the unique identifier of the storage pool.",
 			Optional:            true,
 			Validators: []validator.String{
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id"),path.MatchRoot("id"),path.MatchRoot("name")),
+				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id"), path.MatchRoot("id"), path.MatchRoot("name")),
 			},
 		},
 		"volumes": schema.ListNestedAttribute{
