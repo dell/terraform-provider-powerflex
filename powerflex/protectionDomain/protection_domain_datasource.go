@@ -200,18 +200,7 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 		return
 	}
 
-	if state.Name.ValueString() == "" && state.ID.ValueString() == "" {
-		// Fetch all protection domains
-		protectionDomains, err = system.GetProtectionDomain("")
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Read Powerflex ProtectionDomains",
-				err.Error(),
-			)
-			return
-		}
-		state.ProtectionDomains = getAllProtectionDomainState(protectionDomains)
-	} else if state.ID.ValueString() != "" {
+	if !state.ID.IsNull() {
 		// Fetch protection domain of given id
 		var protectionDomain *scaleiotypes.ProtectionDomain
 		protectionDomain, err = system.FindProtectionDomain(state.ID.ValueString(), "", "")
@@ -224,7 +213,7 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 		}
 		protectionDomains := append(protectionDomains, protectionDomain)
 		state.ProtectionDomains = getAllProtectionDomainState(protectionDomains)
-	} else if state.Name.ValueString() != "" {
+	} else if !state.Name.IsNull() {
 		// Fetch protection domain of given name
 		var protectionDomain *scaleiotypes.ProtectionDomain
 		protectionDomain, err = system.FindProtectionDomain("", state.Name.ValueString(), "")
@@ -236,6 +225,17 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 			return
 		}
 		protectionDomains := append(protectionDomains, protectionDomain)
+		state.ProtectionDomains = getAllProtectionDomainState(protectionDomains)
+	} else {
+		// Fetch all protection domains
+		protectionDomains, err = system.GetProtectionDomain("")
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Read Powerflex ProtectionDomains",
+				err.Error(),
+			)
+			return
+		}
 		state.ProtectionDomains = getAllProtectionDomainState(protectionDomains)
 	}
 
