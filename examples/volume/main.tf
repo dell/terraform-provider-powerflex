@@ -12,7 +12,8 @@ terraform {
 provider "powerflex" {
     username = ""
     password = ""
-    host = ""
+    endpoint = ""
+    #insecure = true
 }
 
 # # -----------------------------------------------------------------------------------
@@ -24,8 +25,8 @@ provider "powerflex" {
 
 data "powerflex_volume" "volume" {
 
-    #name = "cosu-ce5b8a2c48"
-    id = "4570761d00000024"
+    name = "cosu-ce5b8a2c48"
+    #id = "4570761d00000024"
 }
 
 output "volumeResult" {

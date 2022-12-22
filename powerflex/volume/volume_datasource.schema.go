@@ -1,7 +1,10 @@
 package volumedatasource
 
 import (
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
 // VolumeDataSourceSchema is the schema for reading the volume data
@@ -19,6 +22,9 @@ var VolumeDataSourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Name of the volume.",
 			Optional:            true,
 			Computed:            true,
+			Validators: []validator.String{
+				stringvalidator.ConflictsWith(path.MatchRoot("id")),
+			},
 		},
 		"storage_pool_id": schema.StringAttribute{
 			Description:         "Specifies the unique identifier of the storage pool.",
