@@ -12,14 +12,14 @@ terraform {
 provider "powerflex" {
     username = var.powerflex_username
     password = var.powerflex_password
-    host = var.powerflex_host
+    endpoint = var.powerflex_endpoint
 }
 
 # Read all protection domains
 # Filters by name or id if provided, but not both
 data "powerflex_protection_domain" "pd" {
     name = "domain1"
-    id = "4eeb304600000000"
+    # id = "4eeb304600000000"
 }
 
 output "inputPdID" {

@@ -9,7 +9,7 @@ variable "powerflex_password" {
   sensitive = true
 }
 
-variable "powerflex_host" {
+variable "powerflex_endpoint" {
   type        = string
   default     = "https://localhost:8000/"
 }
