@@ -25,8 +25,10 @@ provider "powerflex" {
 
 data "powerflex_volume" "volume" {
 
-    name = "cosu-ce5b8a2c48"
-    #id = "4570761d00000024"
+    #name = "cosu-ce5b8a2c48"
+    id = "4570761d00000024"
+    #storage_pool_id= "7630a24800000002"
+    #storage_pool_name= "pool2"
 }
 
 output "volumeResult" {

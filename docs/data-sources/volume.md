@@ -20,6 +20,7 @@ description: |-
 - `id` (String) Unique identifier of the volume instance.
 - `name` (String) Name of the volume.
 - `storage_pool_id` (String) Specifies the unique identifier of the storage pool.
+- `storage_pool_name` (String) Specifies the unique identifier of the storage pool.
 
 ### Read-Only
 
