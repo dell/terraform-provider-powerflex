@@ -13,8 +13,8 @@ var (
 	_ datasource.DataSourceWithConfigure = &volumeDataSource{}
 )
 
-// VolumeDataSource returns the volume data source
-func VolumeDataSource() datasource.DataSource {
+// DataSource returns the volume data source
+func DataSource() datasource.DataSource {
 	return &volumeDataSource{}
 }
 
@@ -78,7 +78,7 @@ func (d *volumeDataSource) Metadata(_ context.Context, req datasource.MetadataRe
 }
 
 func (d *volumeDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = VolumeDataSourceSchema
+	resp.Schema = DataSourceSchema
 }
 
 func (d *volumeDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
