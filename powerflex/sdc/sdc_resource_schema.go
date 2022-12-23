@@ -1,4 +1,4 @@
-package getresource
+package sdcsource
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"

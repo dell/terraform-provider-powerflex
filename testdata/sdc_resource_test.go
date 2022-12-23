@@ -21,7 +21,7 @@ var sdcResourceTestData resourceDataPoints
 func init() {
 	sdcResourceTestData.noOfSdc = "1"
 	sdcResourceTestData.noOflinks = "4"
-	sdcResourceTestData.name = "frog21"
+	sdcResourceTestData.name = "powerflex_sdc21"
 	sdcResourceTestData.sdcguid = "0877AE5E-BDBF-4E87-A002-218D9F883896"
 	sdcResourceTestData.sdcip = "10.247.96.90"
 	sdcResourceTestData.systemid = "0e7a082862fedf0f"

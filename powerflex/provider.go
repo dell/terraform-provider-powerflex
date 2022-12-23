@@ -4,8 +4,7 @@ import (
 	"context"
 	"os"
 
-	sdcgetdatasource "terraform-provider-powerflex/powerflex/sdc/getdatasource"
-	sdcgetresource "terraform-provider-powerflex/powerflex/sdc/getresource"
+	sdcsource "terraform-provider-powerflex/powerflex/sdc"
 
 	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -81,7 +80,7 @@ func (p *powerflexProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 
 // Configure - provider pre-initiate calle function.
 func (p *powerflexProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
-	tflog.Info(ctx, "Configuring powerflex client")
+	// tflog.Info(ctx, "Configuring powerflex client")
 
 	var config powerflexProviderModel
 	diags := req.Config.Get(ctx, &config)
@@ -236,13 +235,13 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 // DataSources - returns array of all datasources.
 func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		sdcgetdatasource.SDCDataSource,
+		sdcsource.SDCDataSource,
 	}
 }
 
 // Resources - returns array of all resources.
 func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		sdcgetresource.SDCResource,
+		sdcsource.SDCResource,
 	}
 }

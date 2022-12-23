@@ -1,4 +1,4 @@
-package getdatasource
+package sdcsource
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -67,10 +67,10 @@ var SDCDataSourceScheme schema.Schema = schema.Schema{
 			Optional:    true,
 			Computed:    true,
 		},
-		"systemid": schema.StringAttribute{
-			Description: sdcDatasourceSchemaDescriptions.InputSystemid,
-			Required:    true,
-		},
+		// "systemid": schema.StringAttribute{
+		// 	Description: sdcDatasourceSchemaDescriptions.InputSystemid,
+		// 	Required:    true,
+		// },
 		"name": schema.StringAttribute{
 			Description: sdcDatasourceSchemaDescriptions.InputName,
 			Optional:    true,

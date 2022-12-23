@@ -1,4 +1,4 @@
-package getdatasource
+package sdcsource
 
 import (
 	"context"
@@ -30,7 +30,7 @@ type sdcDataSource struct {
 type sdcDataSourceModel struct {
 	ID       types.String `tfsdk:"id"`
 	Sdcs     []sdcModel   `tfsdk:"sdcs"`
-	SdcidID  types.String `tfsdk:"sdcid"`
+	SdcID    types.String `tfsdk:"sdcid"`
 	SystemID types.String `tfsdk:"systemid"`
 	Name     types.String `tfsdk:"name"`
 }

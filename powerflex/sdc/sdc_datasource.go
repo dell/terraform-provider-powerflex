@@ -1,4 +1,4 @@
-package getdatasource
+package sdcsource
 
 import (
 	"context"
@@ -44,10 +44,19 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	var state sdcDataSourceModel
 	diags := req.Config.Get(ctx, &state)
 	tflog.Info(ctx, "[POWERFLEX] sdcDataSourceModel"+helper.PrettyJSON((state)))
-	system, err := d.client.FindSystem(state.SystemID.ValueString(), "", "")
+	allSystems, err := d.client.GetSystems()
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex systems sdcs",
+			"Unable to Read Powerflex all systems",
+			err.Error(),
+		)
+		return
+	}
+	system, err := d.client.FindSystem(allSystems[0].ID, "", "")
+
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Read Powerflex specific system",
 			err.Error(),
 		)
 		return
@@ -66,17 +75,17 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	if state.Name.ValueString() != "" {
 		searchFilter = sdcFilterType.ByName
 	}
-	if state.SdcidID.ValueString() != "" {
+	if state.SdcID.ValueString() != "" {
 		searchFilter = sdcFilterType.ByID
 	}
-	if state.Name.ValueString() != "" && state.SdcidID.ValueString() != "" {
+	if state.Name.ValueString() != "" && state.SdcID.ValueString() != "" {
 		searchFilter = sdcFilterType.ByID
 	}
 
 	allSdcWithStats, err := getAllSdcState(ctx, *d.client, sdcs)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Read Statics for sdc id = "+state.SdcidID.ValueString()+", name = "+state.Name.ValueString(),
+			"Unable to Read Statics for sdc id = "+state.SdcID.ValueString()+", name = "+state.Name.ValueString(),
 			err.Error(),
 		)
 		return
@@ -85,7 +94,7 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	if searchFilter == sdcFilterType.All {
 		state.Sdcs = *allSdcWithStats
 	} else {
-		filterResult := getFilteredSdcState(allSdcWithStats, searchFilter, state.Name.ValueString(), state.SdcidID.ValueString())
+		filterResult := getFilteredSdcState(allSdcWithStats, searchFilter, state.Name.ValueString(), state.SdcID.ValueString())
 		state.Sdcs = *filterResult
 	}
 

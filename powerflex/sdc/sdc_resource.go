@@ -1,8 +1,7 @@
-package getresource
+package sdcsource
 
 import (
 	"context"
-	"fmt"
 	"terraform-provider-powerflex/helper"
 	"time"
 
@@ -67,7 +66,7 @@ func (r *sdcResource) Configure(_ context.Context, req resource.ConfigureRequest
 
 // Create - function to Create for SDC resource.
 func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	tflog.Debug(ctx, "[ANSHU] Create")
+	tflog.Debug(ctx, "[POWERFLEX] Create")
 	// Retrieve values from plan
 	var plan sdcResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -107,7 +106,7 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 	finalSDC := findChangedSdc(sdcs, plan.SdcID.ValueString())
 	plan = getSdcState(finalSDC)
 
-	tflog.Debug(ctx, "[ANSHU] nameChng Result :-- "+helper.PrettyJSON(nameChng))
+	tflog.Debug(ctx, "[POWERFLEX] nameChng Result :-- "+helper.PrettyJSON(nameChng))
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -127,7 +126,7 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 // Read - function to Read for SDC resource.
 func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	tflog.Debug(ctx, "[ANSHU] Read")
+	tflog.Debug(ctx, "[POWERFLEX] Read")
 	// Get current state
 	var state sdcResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -146,9 +145,9 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	}
 	singleSdc, err := system.FindSdc("ID", state.ID.ValueString())
 
-	tflog.Debug(ctx, "[ANSHU] state singleSdc"+helper.PrettyJSON(singleSdc))
-	tflog.Debug(ctx, "[ANSHU] state state.Name.ValueString()"+state.Name.ValueString())
-	tflog.Debug(ctx, "[ANSHU] state state.ID.ValueString()"+state.ID.ValueString())
+	tflog.Debug(ctx, "[POWERFLEX] state singleSdc"+helper.PrettyJSON(singleSdc))
+	tflog.Debug(ctx, "[POWERFLEX] state state.Name.ValueString()"+state.Name.ValueString())
+	tflog.Debug(ctx, "[POWERFLEX] state state.ID.ValueString()"+state.ID.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -159,7 +158,7 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	}
 
 	state = getSdcState(*singleSdc.Sdc)
-	// tflog.Debug(ctx, "[ANSHU] state return"+helper.PrettyJSON(state))
+	// tflog.Debug(ctx, "[POWERFLEX] state return"+helper.PrettyJSON(state))
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -170,7 +169,7 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 
 // Update - function to Update for SDC resource.
 func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	tflog.Debug(ctx, "[ANSHU] Update")
+	tflog.Debug(ctx, "[POWERFLEX] Update")
 	// Retrieve values from plan
 	var plan sdcResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -185,7 +184,7 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	}
 	nameChng, err := system.ChangeSdcName(plan.SdcID.ValueString(), plan.Name.ValueString())
 
-	fmt.Println(nameChng)
+	tflog.Debug(ctx, helper.PrettyJSON(nameChng))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Change name Powerflex sdc",
@@ -212,7 +211,7 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 // Delete - function to Delete for SDC resource.
 func (r *sdcResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	tflog.Debug(ctx, "[ANSHU] Delete")
+	tflog.Debug(ctx, "[POWERFLEX] Delete")
 	// Retrieve values from state
 	var state sdcResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -264,6 +263,7 @@ func getSdcState(sdc scaleiotypes.Sdc) (response sdcResourceModel) {
 	return pln
 }
 
+// findChangedSdc - find sdc which is changed on behalf of id.
 func findChangedSdc(sdcs []scaleiotypes.Sdc, id string) scaleiotypes.Sdc {
 	var sdcReturnValue scaleiotypes.Sdc
 	for _, sdcValue := range sdcs {
