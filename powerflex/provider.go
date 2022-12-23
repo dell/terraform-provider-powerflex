@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"os"
-	volumedatasource "terraform-provider-powerflex/powerflex/volume"
+	"terraform-provider-powerflex/powerflex/volume"
 )
 
 var (
@@ -205,7 +205,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 
 func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		volumedatasource.DataSource,
+		volume.DataSource,
 	}
 }
 
