@@ -29,7 +29,6 @@ provider "powerflex" {
 # # -----------------------------------------------------------------------------------
 resource "powerflex_sdc" "sdc" {
   sdcid = "c423b09800000003"
-  systemid = "0e7a082862fedf0f"
   name = "powerflex_sdc11"
 }
 

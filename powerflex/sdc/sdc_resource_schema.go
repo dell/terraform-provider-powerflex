@@ -68,7 +68,7 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 		},
 		"systemid": schema.StringAttribute{
 			Description: sdcResourceSchemaDescriptions.SystemID,
-			Required:    true,
+			Computed:    true,
 		},
 		"sdcip": schema.StringAttribute{
 			Description: sdcResourceSchemaDescriptions.SdcIP,

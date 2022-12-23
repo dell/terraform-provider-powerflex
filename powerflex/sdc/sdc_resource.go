@@ -76,7 +76,16 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
-	system, err := r.client.FindSystem(plan.SystemID.ValueString(), "", "")
+	allSystems, err := r.client.GetSystems()
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Read Powerflex all systems",
+			err.Error(),
+		)
+		return
+	}
+
+	system, err := r.client.FindSystem(allSystems[0].ID, "", "")
 
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -134,8 +143,15 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	system, err := r.client.FindSystem(state.SystemID.ValueString(), "", "")
+	allSystems, err := r.client.GetSystems()
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Read Powerflex all systems",
+			err.Error(),
+		)
+		return
+	}
+	system, err := r.client.FindSystem(allSystems[0].ID, "", "")
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Read Powerflex systems Read",
@@ -174,7 +190,16 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	var plan sdcResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 
-	system, err := r.client.FindSystem(plan.SystemID.ValueString(), "", "")
+	allSystems, err := r.client.GetSystems()
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Read Powerflex all systems",
+			err.Error(),
+		)
+		return
+	}
+	system, err := r.client.FindSystem(allSystems[0].ID, "", "")
+
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Read Powerflex systems sdcs Update",

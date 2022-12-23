@@ -19,7 +19,6 @@ description: |-
 
 - `name` (String)
 - `sdcid` (String)
-- `systemid` (String)
 
 ### Read-Only
 
@@ -31,6 +30,7 @@ description: |-
 - `sdcapproved` (Boolean)
 - `sdcguid` (String)
 - `sdcip` (String)
+- `systemid` (String)
 
 <a id="nestedatt--links"></a>
 ### Nested Schema for `links`
