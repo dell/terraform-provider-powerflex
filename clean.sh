@@ -17,7 +17,7 @@ for d in $(find ./examples -maxdepth 4 -type d)
         echo "Cleaned {$d}"
     done
 
-echo "Removing sensitive data - ./testdata/powerflex_testing.go"
-grep -vs "username" "./testdata/powerflex_testing.go" > tmpfile && mv tmpfile "./testdata/powerflex_testing.go"
-grep -vs "password" "./testdata/powerflex_testing.go" > tmpfile && mv tmpfile "./testdata/powerflex_testing.go"
-grep -vs "host" "./testdata/powerflex_testing.go" > tmpfile && mv tmpfile "./testdata/powerflex_testing.go"
+echo "Removing sensitive data - ./testdata/powerflex_test.go"
+grep -vs "username" "./testdata/powerflex_test.go" > tmpfile && mv tmpfile "./testdata/powerflex_test.go"
+grep -vs "password" "./testdata/powerflex_test.go" > tmpfile && mv tmpfile "./testdata/powerflex_test.go"
+grep -vs "host" "./testdata/powerflex_test.go" > tmpfile && mv tmpfile "./testdata/powerflex_test.go"
