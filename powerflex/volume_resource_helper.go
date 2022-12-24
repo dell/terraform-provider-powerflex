@@ -11,11 +11,11 @@ import (
 )
 
 const (
-	// MiB to convert size in megabytes
+	// MiKB to convert size in megabytes
 	MiKB = 1024
-	// GiB to convert size in gigabytes
+	// GiKB to convert size in gigabytes
 	GiKB = 1024 * MiKB
-	// TiB to convert size in terabytes
+	// TiKB to convert size in terabytes
 	TiKB = 1024 * GiKB
 )
 
@@ -40,7 +40,7 @@ func createVolumetfs(vol *pftypes.Volume, plan volumeResourceModel) (state volum
 	state.ProtectionDomainID = plan.ProtectionDomainID
 	state.Size = plan.Size
 	state.CapacityUnit = plan.CapacityUnit
-	state.MapSdcsId = plan.MapSdcsId
+	state.MapSdcsID = plan.MapSdcsID
 	VSIKB, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 	state.VolumeSizeInKb = types.StringValue(strconv.FormatInt(VSIKB, 10))
 	state.StoragePoolID = types.StringValue(vol.StoragePoolID)
@@ -122,7 +122,7 @@ func createVolumetfs(vol *pftypes.Volume, plan volumeResourceModel) (state volum
 }
 
 // getStoragePoolInstance function to get storage pool from storage pool id and protection domain id
-func getStoragePoolInstance(c *goscaleio.Client, spId string, pdId string) (*goscaleio.StoragePool, error) {
+func getStoragePoolInstance(c *goscaleio.Client, spID string, pdID string) (*goscaleio.StoragePool, error) {
 	getSystems, _ := c.GetSystems()
 	sr := goscaleio.NewSystem(c)
 	sr.System = getSystems[0]
@@ -130,12 +130,12 @@ func getStoragePoolInstance(c *goscaleio.Client, spId string, pdId string) (*gos
 	pdr := goscaleio.NewProtectionDomain(c)
 	for _, protectionDomain := range getProtectionDomains {
 		pdr.ProtectionDomain = protectionDomain
-		if pdr.ProtectionDomain.ID == pdId {
+		if pdr.ProtectionDomain.ID == pdID {
 			getStoragePools, _ := pdr.GetStoragePool("")
 			spr := goscaleio.NewStoragePool(c)
 			for _, sp := range getStoragePools {
 				spr.StoragePool = sp
-				if spr.StoragePool.ID == spId {
+				if spr.StoragePool.ID == spID {
 					return spr, nil
 				}
 			}

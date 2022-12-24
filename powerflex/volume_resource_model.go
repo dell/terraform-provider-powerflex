@@ -12,7 +12,7 @@ type volumeResourceModel struct {
 	CapacityUnit                       types.String `tfsdk:"capacity_unit"`
 	VolumeSizeInKb                     types.String `tfsdk:"volume_size_in_kb"`
 	Name                               types.String `tfsdk:"name"`
-	MapSdcsId                          types.List   `tfsdk:"map_sdcs_id"`
+	MapSdcsID                          types.List   `tfsdk:"map_sdcs_id"`
 	MappingToAllSdcsEnabled            types.Bool   `tfsdk:"mapping_to_all_sdcs_enabled"`
 	IsObfuscated                       types.Bool   `tfsdk:"is_obfuscated"`
 	ConsistencyGroupID                 types.String `tfsdk:"consistency_group_id"`
@@ -39,15 +39,15 @@ type volumeResourceModel struct {
 	MappedSdcInfo                      types.List   `tfsdk:"mapped_sdc_info"`
 }
 
-type MappedSdcInfo struct {
-	SdcID                 types.String `tfsdk:"sdc_id"`
-	SdcIP                 types.String `tfsdk:"sdc_ip"`
-	LimitIops             types.Int64  `tfsdk:"limit_iops"`
-	LimitBwInMbps         types.Int64  `tfsdk:"limit_bw_in_mbps"`
-	SdcName               types.String `tfsdk:"sdc_name"`
-	AccessMode            types.String `tfsdk:"access_mode"`
-	IsDirectBufferMapping types.Bool   `tfsdk:"is_direct_buffer_mapping"`
-}
+// type MappedSdcInfo struct {
+// 	SdcID                 types.String `tfsdk:"sdc_id"`
+// 	SdcIP                 types.String `tfsdk:"sdc_ip"`
+// 	LimitIops             types.Int64  `tfsdk:"limit_iops"`
+// 	LimitBwInMbps         types.Int64  `tfsdk:"limit_bw_in_mbps"`
+// 	SdcName               types.String `tfsdk:"sdc_name"`
+// 	AccessMode            types.String `tfsdk:"access_mode"`
+// 	IsDirectBufferMapping types.Bool   `tfsdk:"is_direct_buffer_mapping"`
+// }
 
 // Link defines struct of Link
 type Link struct {

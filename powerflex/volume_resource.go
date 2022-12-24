@@ -18,7 +18,7 @@ var (
 	_ resource.ResourceWithImportState = &volumeResource{}
 )
 
-// NewvolumeResource is a helper function to simplify the provider implementation.
+// NewVolumeResource is a helper function to simplify the provider implementation.
 func NewVolumeResource() resource.Resource {
 	return &volumeResource{}
 }
@@ -88,7 +88,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 	vol := volsResponse[0]
 	msids := []string{}
-	diags = plan.MapSdcsId.ElementsAs(ctx, &msids, true)
+	diags = plan.MapSdcsID.ElementsAs(ctx, &msids, true)
 	if diags.HasError() {
 		resp.Diagnostics.Append(diags...)
 	}
@@ -207,18 +207,18 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 	planSdcIds := []string{}
 	stateSdcIds := []string{}
-	diags = plan.MapSdcsId.ElementsAs(ctx, &planSdcIds, true)
+	diags = plan.MapSdcsID.ElementsAs(ctx, &planSdcIds, true)
 	if diags.HasError() {
 		resp.Diagnostics.Append(diags...)
 	}
-	diags = state.MapSdcsId.ElementsAs(ctx, &stateSdcIds, true)
+	diags = state.MapSdcsID.ElementsAs(ctx, &stateSdcIds, true)
 	if diags.HasError() {
 		resp.Diagnostics.Append(diags...)
 	}
-	map_sdc_ids := Difference(planSdcIds, stateSdcIds)
-	unmap_sdc_ids := Difference(stateSdcIds, planSdcIds)
+	mapSdcIds := Difference(planSdcIds, stateSdcIds)
+	unmapSdcIds := Difference(stateSdcIds, planSdcIds)
 
-	for _, msi := range map_sdc_ids {
+	for _, msi := range mapSdcIds {
 		pfmvsp := pftypes.MapVolumeSdcParam{
 			SdcID:                 msi,
 			AllowMultipleMappings: "true",
@@ -232,7 +232,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 		}
 	}
 
-	for _, usi := range unmap_sdc_ids {
+	for _, usi := range unmapSdcIds {
 		err4 := volresource.UnmapVolumeSdc(
 			&pftypes.UnmapVolumeSdcParam{
 				SdcID: usi,
@@ -272,12 +272,12 @@ func (r *volumeResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	volsplan, _ := spr.GetVolume("", state.ID.ValueString(), "", "", false)
 	volresource := goscaleio.NewVolume(r.client)
 	volresource.Volume = volsplan[0]
-	sdcs_to_unmap := []string{}
-	diags = state.MapSdcsId.ElementsAs(ctx, &sdcs_to_unmap, true)
+	sdcsToUnmap := []string{}
+	diags = state.MapSdcsID.ElementsAs(ctx, &sdcsToUnmap, true)
 	if diags.HasError() {
 		resp.Diagnostics.Append(diags...)
 	}
-	for _, stu := range sdcs_to_unmap {
+	for _, stu := range sdcsToUnmap {
 		err := volresource.UnmapVolumeSdc(
 			&pftypes.UnmapVolumeSdcParam{
 				SdcID: stu,
