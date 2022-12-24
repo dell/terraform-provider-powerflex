@@ -5,7 +5,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// VolumeResourceSchema variable to define schema for the volume resource 
+// VolumeResourceSchema variable to define schema for the volume resource
 var VolumeResourceSchema schema.Schema = schema.Schema{
 	Description: "Manages an volume.",
 	Attributes: map[string]schema.Attribute{
