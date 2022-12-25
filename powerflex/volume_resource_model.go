@@ -38,4 +38,3 @@ type volumeResourceModel struct {
 	Links                              types.List   `tfsdk:"links"`
 	MappedSdcInfo                      types.List   `tfsdk:"mapped_sdc_info"`
 }
-
