@@ -39,18 +39,3 @@ type volumeResourceModel struct {
 	MappedSdcInfo                      types.List   `tfsdk:"mapped_sdc_info"`
 }
 
-// type MappedSdcInfo struct {
-// 	SdcID                 types.String `tfsdk:"sdc_id"`
-// 	SdcIP                 types.String `tfsdk:"sdc_ip"`
-// 	LimitIops             types.Int64  `tfsdk:"limit_iops"`
-// 	LimitBwInMbps         types.Int64  `tfsdk:"limit_bw_in_mbps"`
-// 	SdcName               types.String `tfsdk:"sdc_name"`
-// 	AccessMode            types.String `tfsdk:"access_mode"`
-// 	IsDirectBufferMapping types.Bool   `tfsdk:"is_direct_buffer_mapping"`
-// }
-
-// Link defines struct of Link
-type Link struct {
-	Rel  types.String `tfsdk:"rel"`
-	HREF types.String `tfsdk:"href"`
-}
