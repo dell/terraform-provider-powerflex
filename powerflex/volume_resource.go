@@ -191,7 +191,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	VSIKB, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 	plan.VolumeSizeInKb = types.StringValue(strconv.FormatInt(VSIKB, 10))
 
-	spr, err1 := getStoragePoolInstance(r.client, plan.StoragePoolID.ValueString(), plan.ProtectionDomainID.ValueString())
+	spr, err1 := getStoragePoolInstance(r.client, state.StoragePoolID.ValueString(), state.ProtectionDomainID.ValueString())
 	if err1 != nil {
 		resp.Diagnostics.AddError(
 			"Error getting storage pool",

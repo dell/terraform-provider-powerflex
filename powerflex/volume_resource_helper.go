@@ -126,22 +126,19 @@ func getStoragePoolInstance(c *goscaleio.Client, spID string, pdID string) (*gos
 	getSystems, _ := c.GetSystems()
 	sr := goscaleio.NewSystem(c)
 	sr.System = getSystems[0]
-	getProtectionDomains, _ := sr.GetProtectionDomain("")
 	pdr := goscaleio.NewProtectionDomain(c)
-	for _, protectionDomain := range getProtectionDomains {
-		pdr.ProtectionDomain = protectionDomain
-		if pdr.ProtectionDomain.ID == pdID {
-			getStoragePools, _ := pdr.GetStoragePool("")
-			spr := goscaleio.NewStoragePool(c)
-			for _, sp := range getStoragePools {
-				spr.StoragePool = sp
-				if spr.StoragePool.ID == spID {
-					return spr, nil
-				}
-			}
-		}
+	protectionDomain, err := sr.FindProtectionDomain(pdID,"","")
+	if err != nil {
+		return nil, err
 	}
-	return nil, errors.New("couldn't find the storage pool")
+	pdr.ProtectionDomain = protectionDomain
+	spr := goscaleio.NewStoragePool(c)
+	storagePool, err := pdr.FindStoragePool(spID,"","")
+	spr.StoragePool = storagePool
+	if err != nil {
+		return nil, err 
+	}
+	return spr, nil
 }
 
 // Difference function to find the state difference b/w sdcs
