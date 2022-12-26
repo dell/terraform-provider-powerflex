@@ -2,10 +2,11 @@ package powerflex
 
 import (
 	"context"
-	"github.com/dell/goscaleio"
+	"github.com/dell/goscaleio"	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -22,7 +23,6 @@ func New() provider.Provider {
 	return &powerflexProvider{}
 }
 
-// powerflexProvider is the provider implementation.
 type powerflexProvider struct{}
 
 // powerflexProviderModel - provider input struct.
@@ -231,10 +231,12 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 
 // DataSources - returns array of all datasources.
 func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource{}
+	return []func() datasource.DataSource{
+		VolumeDataSource,
+	}
 }
 
-// Resources - returns array of all resources.
+// Resources defines the resources implemented in the provider.
 func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewVolumeResource,

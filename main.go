@@ -6,21 +6,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"log"
 	"terraform-provider-powerflex/powerflex"
+
 )
 
-var (
-	version string = "dev"
-)
+// Provider documentation generation.
+//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate --provider-name powerflex
 
 func main() {
-	var debug bool
-	flag.BoolVar(&debug, "debug", false, "set to true to run the provider with support for debuggers like delve")
-	flag.Parse()
-	err := providerserver.Serve(context.Background(), powerflex.New, providerserver.ServeOpts{
-		Address: "dell.com/ses/powerflex",
-		Debug:   debug,
+	providerserver.Serve(context.Background(), powerflex.New, providerserver.ServeOpts{
+		// NOTE: This is not a typical Terraform Registry provider address,
+		// such as registry.terraform.io/dell/powerflex. This specific
+		// provider address is used in these tutorials in conjunction with a
+		// specific Terraform CLI configuration for manual development testing
+		// of this provider.
+		Address: "registry.terraform.io/dell/powerflex",
 	})
-	if err != nil {
-		log.Fatal(err.Error())
-	}
 }
