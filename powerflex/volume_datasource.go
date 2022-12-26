@@ -107,7 +107,7 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		if err1 != nil {
 			resp.Diagnostics.AddError(
 				"Unable to Read Powerflex Volumes",
-				err.Error(),
+				err1.Error(),
 			)
 			return
 		}
@@ -119,7 +119,7 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		if err1 != nil {
 			resp.Diagnostics.AddError(
 				"Unable to Read Powerflex Volumes",
-				err.Error(),
+				err1.Error(),
 			)
 			return
 		}
