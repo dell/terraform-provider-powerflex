@@ -34,14 +34,14 @@ type sdcResource struct {
 type sdcResourceModel struct {
 	ID                 types.String `tfsdk:"id"`
 	LastUpdated        types.String `tfsdk:"last_updated"`
-	SdcID              types.String `tfsdk:"sdcid"`
-	SystemID           types.String `tfsdk:"systemid"`
+	SdcID              types.String `tfsdk:"sdc_id"`
+	SystemID           types.String `tfsdk:"system_id"`
 	Name               types.String `tfsdk:"name"`
-	SdcIP              types.String `tfsdk:"sdcip"`
-	SdcApproved        types.Bool   `tfsdk:"sdcapproved"`
-	OnVMWare           types.Bool   `tfsdk:"onvmware"`
-	SdcGUID            types.String `tfsdk:"sdcguid"`
-	MdmConnectionState types.String `tfsdk:"mdmconnectionstate"`
+	SdcIP              types.String `tfsdk:"sdc_ip"`
+	SdcApproved        types.Bool   `tfsdk:"sdc_approved"`
+	OnVMWare           types.Bool   `tfsdk:"on_vmware"`
+	SdcGUID            types.String `tfsdk:"sdc_guid"`
+	MdmConnectionState types.String `tfsdk:"mdm_connection_state"`
 	Links              types.List   `tfsdk:"links"`
 }
 

@@ -3,12 +3,12 @@
 page_title: "powerflex_sdc Data Source - powerflex"
 subcategory: ""
 description: |-
-  
+  SDC Datasource.
 ---
 
 # powerflex_sdc (Data Source)
 
-
+SDC Datasource.
 
 
 
@@ -17,37 +17,37 @@ description: |-
 
 ### Optional
 
-- `name` (String)
-- `sdcid` (String)
+- `id` (String) SDC Datasource input for testing.
+- `name` (String) SDC Datasource SDC input sdc name to search for.
+- `sdcid` (String) SDC Datasource SDC input sdc id to search for.
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `sdcs` (Attributes List) (see [below for nested schema](#nestedatt--sdcs))
+- `sdcs` (Attributes List) SDC Datasource result SDCs. (see [below for nested schema](#nestedatt--sdcs))
 
 <a id="nestedatt--sdcs"></a>
 ### Nested Schema for `sdcs`
 
 Read-Only:
 
-- `id` (String)
-- `links` (Attributes List) (see [below for nested schema](#nestedatt--sdcs--links))
-- `mdmconnectionstate` (String)
-- `name` (String)
-- `onvmware` (Boolean)
-- `sdcapproved` (Boolean)
-- `sdcguid` (String)
-- `sdcip` (String)
-- `statistics` (Object) (see [below for nested schema](#nestedatt--sdcs--statistics))
-- `systemid` (String)
+- `id` (String) SDC Datasource SDC ID.
+- `links` (Attributes List) SDC Datasource SDC Links. (see [below for nested schema](#nestedatt--sdcs--links))
+- `mdmconnectionstate` (String) SDC Datasource SDC MDM connection status.
+- `name` (String) SDC Datasource SDC name.
+- `onvmware` (Boolean) SDC Datasource SDC is onvmware.
+- `sdcapproved` (Boolean) SDC Datasource SDC is approved.
+- `sdcguid` (String) SDC Datasource SDC GUID.
+- `sdcip` (String) SDC Datasource SDC IP.
+- `statistics` (Object) SDC Datasource SDC Statistics. (see [below for nested schema](#nestedatt--sdcs--statistics))
+- `systemid` (String) SDC Datasource SDC System ID.
 
 <a id="nestedatt--sdcs--links"></a>
 ### Nested Schema for `sdcs.links`
 
 Read-Only:
 
-- `href` (String)
-- `rel` (String)
+- `href` (String) SDC Datasource SDC Links-HREF.
+- `rel` (String) SDC Datasource SDC Links-Rel.
 
 
 <a id="nestedatt--sdcs--statistics"></a>

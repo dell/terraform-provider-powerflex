@@ -30,7 +30,7 @@ provider "powerflex" {
     # sdcid is optional if empty then will return all sdc
     # sdcid and name both are empty then will return all sdc
 data "powerflex_sdc" "selected" {
-    # sdcid = "c423b09800000003"
+    sdc_id = "c423b09800000003"
     # name = ""
 }
 

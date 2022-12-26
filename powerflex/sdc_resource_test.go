@@ -28,7 +28,7 @@ func init() {
 	sdcResourceTestData.systemid = "0e7a082862fedf0f"
 }
 
-func TestAccOrderResource(t *testing.T) {
+func TestSdcResource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{

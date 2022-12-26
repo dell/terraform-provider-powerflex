@@ -3,12 +3,12 @@
 page_title: "powerflex_sdc Resource - powerflex"
 subcategory: ""
 description: |-
-  
+  SDC Resource Name change schema.
 ---
 
 # powerflex_sdc (Resource)
 
-
+SDC Resource Name change schema.
 
 
 
@@ -17,27 +17,27 @@ description: |-
 
 ### Required
 
-- `name` (String)
-- `sdcid` (String)
+- `name` (String) SDC Resource SDC Name.
+- `sdcid` (String) SDC Resource SDC ID.
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
-- `last_updated` (String)
-- `links` (Attributes List) (see [below for nested schema](#nestedatt--links))
-- `mdmconnectionstate` (String)
-- `onvmware` (Boolean)
-- `sdcapproved` (Boolean)
-- `sdcguid` (String)
-- `sdcip` (String)
-- `systemid` (String)
+- `last_updated` (String) SDC Resource last updated timestamp.
+- `links` (Attributes List) SDC Resource Links. (see [below for nested schema](#nestedatt--links))
+- `mdmconnectionstate` (String) SDC Resource MDM Connection state.
+- `onvmware` (Boolean) SDC Resource SDC ID.
+- `sdcapproved` (Boolean) SDC Resource SDC Approved.
+- `sdcguid` (String) SDC Resource SDC GUID.
+- `sdcip` (String) SDC Resource SDC IP.
+- `systemid` (String) SDC Resource System ID.
 
 <a id="nestedatt--links"></a>
 ### Nested Schema for `links`
 
 Read-Only:
 
-- `href` (String)
-- `rel` (String)
+- `href` (String) SDC Resource Links HREF.
+- `rel` (String) SDC Resource Links Rel.
 
 

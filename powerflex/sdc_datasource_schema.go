@@ -1,9 +1,7 @@
 package powerflex
 
 import (
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 var sdcDatasourceSchemaDescriptions = struct {
@@ -62,7 +60,7 @@ var SDCDataSourceScheme schema.Schema = schema.Schema{
 			Description: sdcDatasourceSchemaDescriptions.InputID,
 			Optional:    true,
 		},
-		"sdcid": schema.StringAttribute{
+		"sdc_id": schema.StringAttribute{
 			Description: sdcDatasourceSchemaDescriptions.InputSdcID,
 			Optional:    true,
 			Computed:    true,
@@ -89,80 +87,80 @@ var SDCDataSourceScheme schema.Schema = schema.Schema{
 						Description: sdcDatasourceSchemaDescriptions.Name,
 						Computed:    true,
 					},
-					"sdcguid": schema.StringAttribute{
+					"sdc_guid": schema.StringAttribute{
 						Description: sdcDatasourceSchemaDescriptions.SdcGUID,
 						Computed:    true,
 					},
-					"onvmware": schema.BoolAttribute{
+					"on_vmware": schema.BoolAttribute{
 						Description: sdcDatasourceSchemaDescriptions.OnVMWare,
 						Computed:    true,
 					},
-					"sdcapproved": schema.BoolAttribute{
+					"sdc_approved": schema.BoolAttribute{
 						Description: sdcDatasourceSchemaDescriptions.SdcApproved,
 						Computed:    true,
 					},
-					"systemid": schema.StringAttribute{
+					"system_id": schema.StringAttribute{
 						Description: sdcDatasourceSchemaDescriptions.SystemID,
 						Computed:    true,
 					},
-					"sdcip": schema.StringAttribute{
+					"sdc_ip": schema.StringAttribute{
 						Description: sdcDatasourceSchemaDescriptions.SdcIP,
 						Computed:    true,
 					},
-					"mdmconnectionstate": schema.StringAttribute{
+					"mdm_connection_state": schema.StringAttribute{
 						Description: sdcDatasourceSchemaDescriptions.MdmConnectionState,
 						Computed:    true,
 					},
-					"statistics": schema.ObjectAttribute{
-						Description: sdcDatasourceSchemaDescriptions.Statistics,
-						Computed:    true,
-						AttributeTypes: map[string]attr.Type{
-							"numofmappedvolumes": types.Int64Type,
-							"volumeids":          types.ListType{ElemType: types.StringType},
-							"userdatareadbwc": types.ObjectType{
-								AttrTypes: map[string]attr.Type{
-									"totalweightinkb": types.Int64Type,
-									"numoccured":      types.Int64Type,
-									"numseconds":      types.Int64Type,
-								},
-							},
-							"userdatawritebwc": types.ObjectType{
-								AttrTypes: map[string]attr.Type{
-									"totalweightinkb": types.Int64Type,
-									"numoccured":      types.Int64Type,
-									"numseconds":      types.Int64Type,
-								},
-							},
-							"userdatatrimbwc": types.ObjectType{
-								AttrTypes: map[string]attr.Type{
-									"totalweightinkb": types.Int64Type,
-									"numoccured":      types.Int64Type,
-									"numseconds":      types.Int64Type,
-								},
-							},
-							"userdatasdcreadlatency": types.ObjectType{
-								AttrTypes: map[string]attr.Type{
-									"totalweightinkb": types.Int64Type,
-									"numoccured":      types.Int64Type,
-									"numseconds":      types.Int64Type,
-								},
-							},
-							"userdatasdcwritelatency": types.ObjectType{
-								AttrTypes: map[string]attr.Type{
-									"totalweightinkb": types.Int64Type,
-									"numoccured":      types.Int64Type,
-									"numseconds":      types.Int64Type,
-								},
-							},
-							"userdatasdctrimlatency": types.ObjectType{
-								AttrTypes: map[string]attr.Type{
-									"totalweightinkb": types.Int64Type,
-									"numoccured":      types.Int64Type,
-									"numseconds":      types.Int64Type,
-								},
-							},
-						},
-					},
+					// "statistics": schema.ObjectAttribute{
+					// 	Description: sdcDatasourceSchemaDescriptions.Statistics,
+					// 	Computed:    true,
+					// 	AttributeTypes: map[string]attr.Type{
+					// 		"numofmappedvolumes": types.Int64Type,
+					// 		"volumeids":          types.ListType{ElemType: types.StringType},
+					// 		"userdatareadbwc": types.ObjectType{
+					// 			AttrTypes: map[string]attr.Type{
+					// 				"totalweightinkb": types.Int64Type,
+					// 				"numoccured":      types.Int64Type,
+					// 				"numseconds":      types.Int64Type,
+					// 			},
+					// 		},
+					// 		"userdatawritebwc": types.ObjectType{
+					// 			AttrTypes: map[string]attr.Type{
+					// 				"totalweightinkb": types.Int64Type,
+					// 				"numoccured":      types.Int64Type,
+					// 				"numseconds":      types.Int64Type,
+					// 			},
+					// 		},
+					// 		"userdatatrimbwc": types.ObjectType{
+					// 			AttrTypes: map[string]attr.Type{
+					// 				"totalweightinkb": types.Int64Type,
+					// 				"numoccured":      types.Int64Type,
+					// 				"numseconds":      types.Int64Type,
+					// 			},
+					// 		},
+					// 		"userdatasdcreadlatency": types.ObjectType{
+					// 			AttrTypes: map[string]attr.Type{
+					// 				"totalweightinkb": types.Int64Type,
+					// 				"numoccured":      types.Int64Type,
+					// 				"numseconds":      types.Int64Type,
+					// 			},
+					// 		},
+					// 		"userdatasdcwritelatency": types.ObjectType{
+					// 			AttrTypes: map[string]attr.Type{
+					// 				"totalweightinkb": types.Int64Type,
+					// 				"numoccured":      types.Int64Type,
+					// 				"numseconds":      types.Int64Type,
+					// 			},
+					// 		},
+					// 		"userdatasdctrimlatency": types.ObjectType{
+					// 			AttrTypes: map[string]attr.Type{
+					// 				"totalweightinkb": types.Int64Type,
+					// 				"numoccured":      types.Int64Type,
+					// 				"numseconds":      types.Int64Type,
+					// 			},
+					// 		},
+					// 	},
+					// },
 					"links": schema.ListNestedAttribute{
 						Description: sdcDatasourceSchemaDescriptions.Links,
 						Computed:    true,

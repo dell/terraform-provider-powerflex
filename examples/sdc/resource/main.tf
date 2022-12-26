@@ -28,8 +28,8 @@ provider "powerflex" {
 # # Change name of sdc and read that sdc
 # # -----------------------------------------------------------------------------------
 resource "powerflex_sdc" "sdc" {
-  sdcid = "c423b09800000003"
-  name = "powerflex_sdc11"
+  sdc_id = "c423b09800000003"
+  name = "powerflex_sdc15"
 }
 
 output "changed_sdc" {

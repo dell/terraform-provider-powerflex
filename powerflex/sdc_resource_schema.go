@@ -46,7 +46,7 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 			Computed:    true,
 			Description: sdcResourceSchemaDescriptions.LastUpdated,
 		},
-		"sdcid": schema.StringAttribute{
+		"sdc_id": schema.StringAttribute{
 			Description: sdcResourceSchemaDescriptions.SdcID,
 			Required:    true,
 		},
@@ -54,27 +54,27 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 			Description: sdcResourceSchemaDescriptions.Name,
 			Required:    true,
 		},
-		"sdcguid": schema.StringAttribute{
+		"sdc_guid": schema.StringAttribute{
 			Description: sdcResourceSchemaDescriptions.SdcGUID,
 			Computed:    true,
 		},
-		"onvmware": schema.BoolAttribute{
+		"on_vmware": schema.BoolAttribute{
 			Description: sdcResourceSchemaDescriptions.SdcID,
 			Computed:    true,
 		},
-		"sdcapproved": schema.BoolAttribute{
+		"sdc_approved": schema.BoolAttribute{
 			Description: sdcResourceSchemaDescriptions.SdcApproved,
 			Computed:    true,
 		},
-		"systemid": schema.StringAttribute{
+		"system_id": schema.StringAttribute{
 			Description: sdcResourceSchemaDescriptions.SystemID,
 			Computed:    true,
 		},
-		"sdcip": schema.StringAttribute{
+		"sdc_ip": schema.StringAttribute{
 			Description: sdcResourceSchemaDescriptions.SdcIP,
 			Computed:    true,
 		},
-		"mdmconnectionstate": schema.StringAttribute{
+		"mdm_connection_state": schema.StringAttribute{
 			Description: sdcResourceSchemaDescriptions.MdmConnectionState,
 			Computed:    true,
 		},

@@ -7,6 +7,7 @@ import (
 
 	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -97,6 +98,10 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		filterResult := getFilteredSdcState(allSdcWithStats, searchFilter, state.Name.ValueString(), state.SdcID.ValueString())
 		state.Sdcs = *filterResult
 	}
+
+	state.ID = types.StringValue("")
+	state.Name = types.StringValue(state.Name.ValueString())
+	state.SdcID = types.StringValue(state.SdcID.ValueString())
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
