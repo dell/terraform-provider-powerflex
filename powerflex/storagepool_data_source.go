@@ -508,8 +508,7 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 		return
 	}
 
-	p1 := goscaleio.NewProtectionDomain(d.client)
-	p1.ProtectionDomain = pd
+	p1 := goscaleio.NewProtectionDomainEx(d.client, pd)
 
 	sp := goscaleio.NewStoragePool(d.client)
 
