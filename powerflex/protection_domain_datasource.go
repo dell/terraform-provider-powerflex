@@ -1,4 +1,4 @@
-package protectiondomain
+package powerflex
 
 import (
 	"context"
@@ -21,8 +21,8 @@ var (
 	_ datasource.DataSourceWithConfigValidators = &protectionDomainDataSource{}
 )
 
-// DataSource returns the datasource for protection domain
-func DataSource() datasource.DataSource {
+// ProtectionDomainDataSource returns the datasource for protection domain
+func ProtectionDomainDataSource() datasource.DataSource {
 	return &protectionDomainDataSource{}
 }
 
@@ -157,7 +157,7 @@ func (d *protectionDomainDataSource) Metadata(_ context.Context, req datasource.
 }
 
 func (d *protectionDomainDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = DataSourceSchema
+	resp.Schema = ProtectionDomainDataSourceSchema
 }
 
 func (d *protectionDomainDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
@@ -170,7 +170,6 @@ func (d *protectionDomainDataSource) Configure(_ context.Context, req datasource
 
 func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state protectionDomainDataSourceModel
-	var protectionDomains []*scaleiotypes.ProtectionDomain
 	var err error
 
 	diags := req.Config.Get(ctx, &state)
@@ -200,6 +199,8 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 		return
 	}
 
+	var protectionDomains []*scaleiotypes.ProtectionDomain
+
 	if !state.ID.IsNull() {
 		// Fetch protection domain of given id
 		var protectionDomain *scaleiotypes.ProtectionDomain
@@ -211,8 +212,7 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 			)
 			return
 		}
-		protectionDomains := append(protectionDomains, protectionDomain)
-		state.ProtectionDomains = getAllProtectionDomainState(protectionDomains)
+		protectionDomains = append(protectionDomains, protectionDomain)
 	} else if !state.Name.IsNull() {
 		// Fetch protection domain of given name
 		var protectionDomain *scaleiotypes.ProtectionDomain
@@ -224,8 +224,7 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 			)
 			return
 		}
-		protectionDomains := append(protectionDomains, protectionDomain)
-		state.ProtectionDomains = getAllProtectionDomainState(protectionDomains)
+		protectionDomains = append(protectionDomains, protectionDomain)
 	} else {
 		// Fetch all protection domains
 		protectionDomains, err = system.GetProtectionDomain("")
@@ -236,8 +235,9 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 			)
 			return
 		}
-		state.ProtectionDomains = getAllProtectionDomainState(protectionDomains)
 	}
+
+	state.ProtectionDomains = getAllProtectionDomainState(protectionDomains)
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
