@@ -8,6 +8,7 @@ import (
 // VolumeResourceSchema variable to define schema for the volume resource
 var VolumeResourceSchema schema.Schema = schema.Schema{
 	Description: "Manages volume resource.",
+	MarkdownDescription: "Manages volume resource",
 	Attributes: map[string]schema.Attribute{
 		"name": schema.StringAttribute{
 			Description: "The name of the volume.",
@@ -165,8 +166,9 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "map sdcs id",
 		},
 		"links": schema.ListNestedAttribute{
-			Description: "",
+			Description: "links for the volume resource",
 			Computed:    true,
+			MarkdownDescription: "links for the volume resource",
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: map[string]schema.Attribute{
 					"rel": schema.StringAttribute{
