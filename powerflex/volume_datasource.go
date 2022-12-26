@@ -100,22 +100,8 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	//is mentioned , then return all volumes
 	if state.Name.ValueString() != "" {
 		volumes, err = d.client.GetVolume("", "", "", state.Name.ValueString(), false)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Read Powerflex Volumes",
-				err.Error(),
-			)
-			return
-		}
 	} else if state.ID.ValueString() != "" {
 		volumes, err = d.client.GetVolume("", state.ID.ValueString(), "", "", false)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Read Powerflex Volumes",
-				err.Error(),
-			)
-			return
-		}
 	} else if state.StoragePoolID.ValueString() != "" {
 		sps, err1 := d.client.FindStoragePool(state.StoragePoolID.ValueString(), "", "", "")
 		if err1 != nil {
@@ -128,13 +114,6 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		sp := goscaleio.NewStoragePool(d.client)
 		sp.StoragePool = sps
 		volumes, err = sp.GetVolume("", "", "", "", false)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Read Powerflex Volumes",
-				err.Error(),
-			)
-			return
-		}
 	} else if state.StoragePoolName.ValueString() != "" {
 		sps, err1 := d.client.FindStoragePool("", state.StoragePoolName.ValueString(), "", "")
 		if err1 != nil {
@@ -147,24 +126,17 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		sp := goscaleio.NewStoragePool(d.client)
 		sp.StoragePool = sps
 		volumes, err = sp.GetVolume("", "", "", "", false)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Read Powerflex Volumes",
-				err.Error(),
-			)
-			return
-		}
 	} else {
 		volumes, err = d.client.GetVolume("", "", "", "", false)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Read Powerflex Volumes",
-				err.Error(),
-			)
-			return
-		}
 	}
-
+	//check if there is any error while getting the volume
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Read Powerflex Volumes",
+			err.Error(),
+		)
+		return
+	}
 	state.Volumes = updateVolumeState(volumes)
 	state.ID = types.StringValue("placeholder")
 	diags = resp.State.Set(ctx, state)
