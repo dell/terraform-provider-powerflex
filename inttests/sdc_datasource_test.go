@@ -21,7 +21,7 @@ var sdcTestData dataPoints
 func init() {
 	sdcTestData.noOfSdc = "1"
 	sdcTestData.noOflinks = "4"
-	sdcTestData.name = "frog06"
+	sdcTestData.name = "powerflex_sdc13"
 	sdcTestData.sdcguid = "0877AE5E-BDBF-4E87-A002-218D9F883896"
 	sdcTestData.sdcip = "10.247.96.90"
 	sdcTestData.systemid = "0e7a082862fedf0f"
@@ -36,7 +36,6 @@ func TestAccCoffeesDataSource(t *testing.T) {
 			// Error here = https://github.com/hashicorp/terraform-plugin-sdk/pull/1077
 			{
 				Config: ProviderConfigForTesting + `data "powerflex_sdc" "selected" {
-						systemid = "0e7a082862fedf0f"
 						sdcid = "c423b09800000003"
 						id = ""
 					}`,
