@@ -36,7 +36,6 @@ func TestAccVolumeResource(t *testing.T) {
 					name = "volume-test"
 					storage_pool_id = "7630a24600000000"
 					protection_domain_id = "4eeb304600000000"
-					capacity_unit = "GB"
 					size = 16
 					map_sdcs_id = ["c423b09a00000005","c423b09900000004"]
 				  }			

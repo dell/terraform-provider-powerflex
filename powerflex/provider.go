@@ -17,12 +17,12 @@ var (
 	_ provider.Provider = &powerflexProvider{}
 )
 
-// New - returns new provider instance.
+// New - returns new provider struct definition.
 func New() provider.Provider {
 	return &powerflexProvider{}
 }
 
-// powerflexProvider - empty provider instance.
+// powerflexProvider is the provider implementation.
 type powerflexProvider struct{}
 
 // powerflexProviderModel - provider input struct.

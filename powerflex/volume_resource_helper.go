@@ -1,12 +1,15 @@
 package powerflex
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"strconv"
 
 	"github.com/dell/goscaleio"
 	pftypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -41,6 +44,7 @@ func VolumeTerraformState(vol *pftypes.Volume, plan volumeResourceModel) (state 
 	state.Size = plan.Size
 	state.CapacityUnit = plan.CapacityUnit
 	state.MapSdcsID = plan.MapSdcsID
+	state.LockedAutoSnapshot = plan.LockedAutoSnapshot
 	VSIKB, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 	state.VolumeSizeInKb = types.StringValue(strconv.FormatInt(VSIKB, 10))
 	state.StoragePoolID = types.StringValue(vol.StoragePoolID)
@@ -61,7 +65,6 @@ func VolumeTerraformState(vol *pftypes.Volume, plan volumeResourceModel) (state 
 	state.AccessModeLimit = types.StringValue(vol.AccessModeLimit)
 	state.SecureSnapshotExpTime = types.Int64Value(int64(vol.SecureSnapshotExpTime))
 	state.ManagedBy = types.StringValue(vol.ManagedBy)
-	state.LockedAutoSnapshot = types.BoolValue(vol.LockedAutoSnapshot)
 	state.LockedAutoSnapshotMarkedForRemoval = types.BoolValue(vol.LockedAutoSnapshotMarkedForRemoval)
 	state.CompressionMethod = types.StringValue(vol.CompressionMethod)
 	state.TimeStampIsAccurate = types.BoolValue(vol.TimeStampIsAccurate)
@@ -127,16 +130,16 @@ func getStoragePoolInstance(c *goscaleio.Client, spID string, pdID string) (*gos
 	sr := goscaleio.NewSystem(c)
 	sr.System = getSystems[0]
 	pdr := goscaleio.NewProtectionDomain(c)
-	protectionDomain, err := sr.FindProtectionDomain(pdID,"","")
+	protectionDomain, err := sr.FindProtectionDomain(pdID, "", "")
 	if err != nil {
 		return nil, err
 	}
 	pdr.ProtectionDomain = protectionDomain
 	spr := goscaleio.NewStoragePool(c)
-	storagePool, err := pdr.FindStoragePool(spID,"","")
+	storagePool, err := pdr.FindStoragePool(spID, "", "")
 	spr.StoragePool = storagePool
 	if err != nil {
-		return nil, err 
+		return nil, err
 	}
 	return spr, nil
 }
@@ -155,4 +158,42 @@ func Difference(a, b []string) (diff []string) {
 		}
 	}
 	return
+}
+
+// stringDefaultModifier is a plan modifier that sets a default value for a
+// types.StringType attribute when it is not configured. The attribute must be
+// marked as Optional and Computed. When setting the state during the resource
+// Create, Read, or Update methods, this default value must also be included or
+// the Terraform CLI will generate an error.
+type stringDefaultModifier struct {
+	Default string
+}
+
+// Description returns a plain text description of the validator's behavior, suitable for a practitioner to understand its impact.
+func (m stringDefaultModifier) Description(ctx context.Context) string {
+	return fmt.Sprintf("If value is not configured, defaults to %s", m.Default)
+}
+
+// MarkdownDescription returns a markdown formatted description of the validator's behavior, suitable for a practitioner to understand its impact.
+func (m stringDefaultModifier) MarkdownDescription(ctx context.Context) string {
+	return fmt.Sprintf("If value is not configured, defaults to `%s`", m.Default)
+}
+
+// PlanModifyString runs the logic of the plan modifier.
+// Access to the configuration, plan, and state is available in `req`, while
+// `resp` contains fields for updating the planned value, triggering resource
+// replacement, and returning diagnostics.
+func (m stringDefaultModifier) PlanModifyString(ctx context.Context, req planmodifier.StringRequest, resp *planmodifier.StringResponse) {
+	// If the value is unknown or known, do not set default value.
+	// if !req.PlanValue.IsNull() {
+	// 	return
+	// }
+
+	resp.PlanValue = types.StringValue(m.Default)
+}
+
+func stringDefault(defaultValue string) planmodifier.String {
+	return stringDefaultModifier{
+		Default: defaultValue,
+	}
 }

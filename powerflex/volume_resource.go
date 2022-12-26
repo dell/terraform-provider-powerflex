@@ -56,20 +56,20 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	if plan.Size.ValueInt64() % 8 != 0 {
+	if plan.Size.ValueInt64()%8 != 0 {
 		resp.Diagnostics.AddError(
 			"Error: Size Must be in granularity of 8GB",
-			"Could not assign volume with size. sizeInGb (" + strconv.FormatInt(plan.Size.ValueInt64(),10) + ") must be a positive number in granularity of 8 GB.",
+			"Could not assign volume with size. sizeInGb ("+strconv.FormatInt(plan.Size.ValueInt64(), 10)+") must be a positive number in granularity of 8 GB.",
 		)
 		return
 	}
 	VSIKB, err := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error: Invalid Capacity unit",
+			"Error: Invalid Capacity unit :" + plan.CapacityUnit.String(),
 			err.Error(),
 		)
-		return 
+		return
 	}
 	volumeCreate := &pftypes.VolumeParam{
 		ProtectionDomainID: plan.ProtectionDomainID.ValueString(),
@@ -86,7 +86,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 			"Error creating volume",
 			"Could not create volume, unexpected error: "+err1.Error(),
 		)
-		return 
+		return
 	}
 	volsResponse, err2 := spr.GetVolume("", volCreateResponse.ID, "", "", false)
 	if err2 != nil {
@@ -94,17 +94,17 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 			"Error getting volume after creation",
 			"Could not get volume, unexpected error: "+err2.Error(),
 		)
-		return 
+		return
 	}
 	vol := volsResponse[0]
+	vr := goscaleio.NewVolume(r.client)
+	vr.Volume = vol
 	msids := []string{}
 	diags = plan.MapSdcsID.ElementsAs(ctx, &msids, true)
 	if diags.HasError() {
 		resp.Diagnostics.Append(diags...)
 	}
 	for _, msid := range msids {
-		vr := goscaleio.NewVolume(r.client)
-		vr.Volume = vol
 		// Add mapped SDC
 		pfmvsp := pftypes.MapVolumeSdcParam{
 			SdcID:                 msid,
@@ -114,9 +114,18 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 		if err3 != nil {
 			resp.Diagnostics.AddError(
 				"Error Mapping Volume to SDCs",
-				"Could map volume to scs with id: "+msid+", unexpected error: "+err3.Error(),
+				"Could not map volume to scs with id: "+msid+", unexpected error: "+err3.Error(),
 			)
 			return
+		}
+	}
+	if plan.LockedAutoSnapshot.ValueBool() {
+		err := vr.LockAutoSnapshot()
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error Locking Auto Snapshots",
+				"Could not lock auto snapshots, unexpected error: " + err.Error(),
+			)
 		}
 	}
 	volsResponse, err2 = spr.GetVolume("", volCreateResponse.ID, "", "", false)
@@ -151,7 +160,7 @@ func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, res
 			"Error getting storage pool",
 			"Could not get storage pool, unexpected err: "+err1.Error(),
 		)
-		return 
+		return
 	}
 	volsResponse, err2 := spr.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
@@ -208,8 +217,8 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 		err_rename := volresource.SetVolumeName(plan.Name.ValueString())
 		if err_rename != nil {
 			resp.Diagnostics.AddError(
-				"Error renaming the volume -> " + plan.Name.ValueString() + " : " + state.Name.ValueString(),
-				"Could not rename the volume, unexpected error:" + err_rename.Error(),
+				"Error renaming the volume -> "+plan.Name.ValueString()+" : "+state.Name.ValueString(),
+				"Could not rename the volume, unexpected error:"+err_rename.Error(),
 			)
 			return
 		}
@@ -228,7 +237,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 				"Error setting volume size -> "+plan.VolumeSizeInKb.ValueString()+":"+state.VolumeSizeInKb.ValueString(),
 				"Could not set new volume size -> "+sizeInGB+", unexpected err: "+err3.Error(),
 			)
-			return 
+			return
 		}
 	}
 	planSdcIds := []string{}
@@ -255,7 +264,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 				"Error Mapping Volume to SDCs",
 				"Could map volume to scs with id: "+msi+", unexpected error: "+err3.Error(),
 			)
-			return 
+			return
 		}
 	}
 
@@ -273,7 +282,24 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 			return
 		}
 	}
-
+	if plan.LockedAutoSnapshot.ValueBool() && !state.LockedAutoSnapshot.ValueBool() {
+		err := volresource.LockAutoSnapshot()
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error Locking Auto Snapshots",
+				"Could not lock auto snapshots, unexpected error: " + err.Error(),
+			)
+		}
+	}
+	if !plan.LockedAutoSnapshot.ValueBool() && state.LockedAutoSnapshot.ValueBool() {
+		err := volresource.UnlockAutoSnapshot()
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error Unlocking Auto Snapshots",
+				"Could not unlock auto snapshots, unexpected error: " + err.Error(),
+			)
+		}
+	}
 	vols, _ := spr.GetVolume("", state.ID.ValueString(), "", "", false)
 	state = VolumeTerraformState(vols[0], plan)
 	// Set refreshed state

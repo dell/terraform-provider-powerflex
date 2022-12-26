@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/dell/goscaleio v1.9.1-0.20221215063720-0dc44cf1bb2f
 	github.com/hashicorp/terraform-plugin-framework v1.0.0
+	github.com/hashicorp/terraform-plugin-framework-validators v0.8.0
 	github.com/hashicorp/terraform-plugin-log v0.7.0
 	github.com/joho/godotenv v1.4.0
 )
@@ -50,13 +51,13 @@ require (
 	github.com/oklog/run v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/vmihailenco/msgpack/v4 v4.3.12 // indirect
-	github.com/vmihailenco/tagparser v0.1.1 // indirect
+	github.com/vmihailenco/tagparser v0.1.2 // indirect
 	github.com/zclconf/go-cty v1.12.1 // indirect
 	golang.org/x/crypto v0.0.0-20220517005047-85d78b3ac167 // indirect
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
 	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
-	google.golang.org/appengine v1.6.6 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20200904004341-0bd0a958aa1d // indirect
 	google.golang.org/grpc v1.51.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
