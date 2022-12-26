@@ -19,7 +19,7 @@ SDC Datasource.
 
 - `id` (String) SDC Datasource input for testing.
 - `name` (String) SDC Datasource SDC input sdc name to search for.
-- `sdcid` (String) SDC Datasource SDC input sdc id to search for.
+- `sdc_id` (String) SDC Datasource SDC input sdc id to search for.
 
 ### Read-Only
 
@@ -32,14 +32,13 @@ Read-Only:
 
 - `id` (String) SDC Datasource SDC ID.
 - `links` (Attributes List) SDC Datasource SDC Links. (see [below for nested schema](#nestedatt--sdcs--links))
-- `mdmconnectionstate` (String) SDC Datasource SDC MDM connection status.
+- `mdm_connection_state` (String) SDC Datasource SDC MDM connection status.
 - `name` (String) SDC Datasource SDC name.
-- `onvmware` (Boolean) SDC Datasource SDC is onvmware.
-- `sdcapproved` (Boolean) SDC Datasource SDC is approved.
-- `sdcguid` (String) SDC Datasource SDC GUID.
-- `sdcip` (String) SDC Datasource SDC IP.
-- `statistics` (Object) SDC Datasource SDC Statistics. (see [below for nested schema](#nestedatt--sdcs--statistics))
-- `systemid` (String) SDC Datasource SDC System ID.
+- `on_vmware` (Boolean) SDC Datasource SDC is onvmware.
+- `sdc_approved` (Boolean) SDC Datasource SDC is approved.
+- `sdc_guid` (String) SDC Datasource SDC GUID.
+- `sdc_ip` (String) SDC Datasource SDC IP.
+- `system_id` (String) SDC Datasource SDC System ID.
 
 <a id="nestedatt--sdcs--links"></a>
 ### Nested Schema for `sdcs.links`
@@ -48,79 +47,5 @@ Read-Only:
 
 - `href` (String) SDC Datasource SDC Links-HREF.
 - `rel` (String) SDC Datasource SDC Links-Rel.
-
-
-<a id="nestedatt--sdcs--statistics"></a>
-### Nested Schema for `sdcs.statistics`
-
-Read-Only:
-
-- `numofmappedvolumes` (Number)
-- `userdatareadbwc` (Object) (see [below for nested schema](#nestedobjatt--sdcs--statistics--userdatareadbwc))
-- `userdatasdcreadlatency` (Object) (see [below for nested schema](#nestedobjatt--sdcs--statistics--userdatasdcreadlatency))
-- `userdatasdctrimlatency` (Object) (see [below for nested schema](#nestedobjatt--sdcs--statistics--userdatasdctrimlatency))
-- `userdatasdcwritelatency` (Object) (see [below for nested schema](#nestedobjatt--sdcs--statistics--userdatasdcwritelatency))
-- `userdatatrimbwc` (Object) (see [below for nested schema](#nestedobjatt--sdcs--statistics--userdatatrimbwc))
-- `userdatawritebwc` (Object) (see [below for nested schema](#nestedobjatt--sdcs--statistics--userdatawritebwc))
-- `volumeids` (List of String)
-
-<a id="nestedobjatt--sdcs--statistics--userdatareadbwc"></a>
-### Nested Schema for `sdcs.statistics.userdatareadbwc`
-
-Read-Only:
-
-- `numoccured` (Number)
-- `numseconds` (Number)
-- `totalweightinkb` (Number)
-
-
-<a id="nestedobjatt--sdcs--statistics--userdatasdcreadlatency"></a>
-### Nested Schema for `sdcs.statistics.userdatasdcreadlatency`
-
-Read-Only:
-
-- `numoccured` (Number)
-- `numseconds` (Number)
-- `totalweightinkb` (Number)
-
-
-<a id="nestedobjatt--sdcs--statistics--userdatasdctrimlatency"></a>
-### Nested Schema for `sdcs.statistics.userdatasdctrimlatency`
-
-Read-Only:
-
-- `numoccured` (Number)
-- `numseconds` (Number)
-- `totalweightinkb` (Number)
-
-
-<a id="nestedobjatt--sdcs--statistics--userdatasdcwritelatency"></a>
-### Nested Schema for `sdcs.statistics.userdatasdcwritelatency`
-
-Read-Only:
-
-- `numoccured` (Number)
-- `numseconds` (Number)
-- `totalweightinkb` (Number)
-
-
-<a id="nestedobjatt--sdcs--statistics--userdatatrimbwc"></a>
-### Nested Schema for `sdcs.statistics.userdatatrimbwc`
-
-Read-Only:
-
-- `numoccured` (Number)
-- `numseconds` (Number)
-- `totalweightinkb` (Number)
-
-
-<a id="nestedobjatt--sdcs--statistics--userdatawritebwc"></a>
-### Nested Schema for `sdcs.statistics.userdatawritebwc`
-
-Read-Only:
-
-- `numoccured` (Number)
-- `numseconds` (Number)
-- `totalweightinkb` (Number)
 
 

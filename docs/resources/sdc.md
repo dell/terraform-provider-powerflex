@@ -18,19 +18,19 @@ SDC Resource Name change schema.
 ### Required
 
 - `name` (String) SDC Resource SDC Name.
-- `sdcid` (String) SDC Resource SDC ID.
+- `sdc_id` (String) SDC Resource SDC ID.
 
 ### Read-Only
 
 - `id` (String) The ID of this resource.
 - `last_updated` (String) SDC Resource last updated timestamp.
 - `links` (Attributes List) SDC Resource Links. (see [below for nested schema](#nestedatt--links))
-- `mdmconnectionstate` (String) SDC Resource MDM Connection state.
-- `onvmware` (Boolean) SDC Resource SDC ID.
-- `sdcapproved` (Boolean) SDC Resource SDC Approved.
-- `sdcguid` (String) SDC Resource SDC GUID.
-- `sdcip` (String) SDC Resource SDC IP.
-- `systemid` (String) SDC Resource System ID.
+- `mdm_connection_state` (String) SDC Resource MDM Connection state.
+- `on_vmware` (Boolean) SDC Resource SDC ID.
+- `sdc_approved` (Boolean) SDC Resource SDC Approved.
+- `sdc_guid` (String) SDC Resource SDC GUID.
+- `sdc_ip` (String) SDC Resource SDC IP.
+- `system_id` (String) SDC Resource System ID.
 
 <a id="nestedatt--links"></a>
 ### Nested Schema for `links`
