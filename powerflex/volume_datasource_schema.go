@@ -7,8 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
-// DataSourceSchema is the schema for reading the volume data
-var DataSourceSchema schema.Schema = schema.Schema{
+// VolumeDataSourceSchema is the schema for reading the volume data
+var VolumeDataSourceSchema schema.Schema = schema.Schema{
 	Description: ".",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
