@@ -30,12 +30,11 @@ func init() {
 func TestAccVolumeDataSource(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			//retrieving volume based on id
 			{
-				Config: VolumeDataSourceConfig1,
+				Config: ProviderConfigForTesting + VolumeDataSourceConfig1,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify the first volume to ensure attributes are correctly set
 					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.id", volumeTestData.id),
@@ -47,7 +46,7 @@ func TestAccVolumeDataSource(t *testing.T) {
 			},
 			//retrieving volume based on name
 			{
-				Config: VolumeDataSourceConfig2,
+				Config: ProviderConfigForTesting + VolumeDataSourceConfig2,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify the first volume to ensure attributes are correctly set
 					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.id", volumeTestData.id),
@@ -59,7 +58,7 @@ func TestAccVolumeDataSource(t *testing.T) {
 			},
 			//retrieving volume based on storage pool id
 			{
-				Config: VolumeDataSourceConfig3,
+				Config: ProviderConfigForTesting + VolumeDataSourceConfig3,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify the volume to ensure storage pool id attributes is correctly set
 					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.storage_pool_id", volumeTestData.storagePoolID),
@@ -67,7 +66,7 @@ func TestAccVolumeDataSource(t *testing.T) {
 			},
 			//retrieving volume based on storage pool name
 			{
-				Config: VolumeDataSourceConfig4,
+				Config: ProviderConfigForTesting + VolumeDataSourceConfig4,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify the volume to ensure storage pool id attributes is correctly set
 					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.storage_pool_id", volumeTestData.storagePoolID),
@@ -75,7 +74,7 @@ func TestAccVolumeDataSource(t *testing.T) {
 			},
 			//retrieving all the volumes
 			{
-				Config: VolumeDataSourceConfig5,
+				Config: ProviderConfigForTesting + VolumeDataSourceConfig5,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify the volume to ensure all attributes are set
 					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.storage_pool_id", volumeTestData.storagePoolID),
@@ -86,60 +85,30 @@ func TestAccVolumeDataSource(t *testing.T) {
 }
 
 var VolumeDataSourceConfig1 = `
-provider "powerflex" {
-	username = "` + username + `"
-	password = "` + password + `"
-	endpoint = "` + endpoint + `"
-	insecure = true
-}
 data "powerflex_volume" "all" {						
 	id = "457752ff000000c7"
 }
 `
 
 var VolumeDataSourceConfig2 = `
-provider "powerflex" {
-	username = "` + username + `"
-	password = "` + password + `"
-	endpoint = "` + endpoint + `"
-	insecure = true
-}
 data "powerflex_volume" "all" {						
 	name = "cicd-dbc5a5909d"
 }
 `
 
 var VolumeDataSourceConfig3 = `
-provider "powerflex" {
-	username = "` + username + `"
-	password = "` + password + `"
-	endpoint = "` + endpoint + `"
-	insecure = true
-}
 data "powerflex_volume" "all" {						
 	storage_pool_id = "7630a24600000000"
 }
 `
 
 var VolumeDataSourceConfig4 = `
-provider "powerflex" {
-	username = "` + username + `"
-	password = "` + password + `"
-	endpoint = "` + endpoint + `"
-	insecure = true
-}
 data "powerflex_volume" "all" {						
 	storage_pool_name = "pool1"
 }
 `
 
 var VolumeDataSourceConfig5 = `
-provider "powerflex" {
-	username = "` + username + `"
-	password = "` + password + `"
-	endpoint = "` + endpoint + `"
-	insecure = true
-}
 data "powerflex_volume" "all" {						
 }
 `

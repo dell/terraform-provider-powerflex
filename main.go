@@ -2,11 +2,9 @@ package main
 
 import (
 	"context"
-	"flag"
-	"github.com/hashicorp/terraform-plugin-framework/providerserver"
-	"log"
 	"terraform-provider-powerflex/powerflex"
 
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 )
 
 // Provider documentation generation.
