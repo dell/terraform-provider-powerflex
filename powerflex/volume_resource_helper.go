@@ -20,7 +20,7 @@ const (
 )
 
 // covertToKB fucntion to convert size into kb
-func convertToKB(capacityUnit string, size int64) (int64, string) {
+func convertToKB(capacityUnit string, size int64) (int64, error) {
 	var valInKiB int64
 	switch capacityUnit {
 	case "MB":
@@ -30,13 +30,13 @@ func convertToKB(capacityUnit string, size int64) (int64, string) {
 	case "GB":
 		valInKiB = size * GiKB
 	default:
-		return 0, "Invalid Capacity unit"
+		return 0, errors.New("invalid capacity unit")
 	}
-	return int64(valInKiB), ""
+	return int64(valInKiB), nil
 }
 
 // createVolumetfs function to convert goscaleio volume struct to terraform volume struct
-func createVolumetfs(vol *pftypes.Volume, plan volumeResourceModel) (state volumeResourceModel) {
+func VolumeTerraformState(vol *pftypes.Volume, plan volumeResourceModel) (state volumeResourceModel) {
 	state.ProtectionDomainID = plan.ProtectionDomainID
 	state.Size = plan.Size
 	state.CapacityUnit = plan.CapacityUnit

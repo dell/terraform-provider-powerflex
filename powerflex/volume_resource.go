@@ -56,12 +56,20 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	if plan.Size.ValueInt64() % 8 != 0 {
+		resp.Diagnostics.AddError(
+			"Error: Size Must be in granularity of 8GB",
+			"Could not assign volume with size. sizeInGb (" + strconv.FormatInt(plan.Size.ValueInt64(),10) + ") must be a positive number in granularity of 8 GB.",
+		)
+		return
+	}
 	VSIKB, err := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
-	if err != "" {
+	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error: Invalid Capacity unit",
-			err,
+			err.Error(),
 		)
+		return 
 	}
 	volumeCreate := &pftypes.VolumeParam{
 		ProtectionDomainID: plan.ProtectionDomainID.ValueString(),
@@ -78,6 +86,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 			"Error creating volume",
 			"Could not create volume, unexpected error: "+err1.Error(),
 		)
+		return 
 	}
 	volsResponse, err2 := spr.GetVolume("", volCreateResponse.ID, "", "", false)
 	if err2 != nil {
@@ -85,6 +94,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 			"Error getting volume after creation",
 			"Could not get volume, unexpected error: "+err2.Error(),
 		)
+		return 
 	}
 	vol := volsResponse[0]
 	msids := []string{}
@@ -106,6 +116,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 				"Error Mapping Volume to SDCs",
 				"Could map volume to scs with id: "+msid+", unexpected error: "+err3.Error(),
 			)
+			return
 		}
 	}
 	volsResponse, err2 = spr.GetVolume("", volCreateResponse.ID, "", "", false)
@@ -114,9 +125,10 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 			"Error getting volume after mapping the sdcs",
 			"Could not get volume after mapping the sdcs, unexpected error: "+err2.Error(),
 		)
+		return
 	}
 	vol = volsResponse[0]
-	state := createVolumetfs(vol, plan)
+	state := VolumeTerraformState(vol, plan)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -139,6 +151,7 @@ func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, res
 			"Error getting storage pool",
 			"Could not get storage pool, unexpected err: "+err1.Error(),
 		)
+		return 
 	}
 	volsResponse, err2 := spr.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
@@ -149,7 +162,7 @@ func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 	vol := volsResponse[0]
-	state = createVolumetfs(vol, state)
+	state = VolumeTerraformState(vol, state)
 	// Set refreshed state
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
@@ -184,25 +197,38 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 			"Error getting storage pool",
 			"Could not get storage pool, unexpected err: "+err1.Error(),
 		)
+		return
 	}
 	volsplan, _ := spr.GetVolume("", state.ID.ValueString(), "", "", false)
 	volresource := goscaleio.NewVolume(r.client)
 	volresource.Volume = volsplan[0]
 
+	// updating the name of volume if there is change in plan
 	if plan.Name.ValueString() != state.Name.ValueString() {
-		volresource.SetVolumeName(plan.Name.ValueString())
+		err_rename := volresource.SetVolumeName(plan.Name.ValueString())
+		if err_rename != nil {
+			resp.Diagnostics.AddError(
+				"Error renaming the volume -> " + plan.Name.ValueString() + " : " + state.Name.ValueString(),
+				"Could not rename the volume, unexpected error:" + err_rename.Error(),
+			)
+			return
+		}
 	}
+
+	// updating the size of the volume if there is change in plan
 	if plan.VolumeSizeInKb.ValueString() != state.VolumeSizeInKb.ValueString() {
 		sizeInGb, _ := strconv.Atoi(strconv.FormatInt(VSIKB, 10))
 		sizeInGb = sizeInGb / 1048576
-		sizeInGb = ((sizeInGb / 8) + 1) * 8
-		newSizeIn8Gb := strconv.FormatInt(int64(sizeInGb), 10)
-		err3 := volresource.SetVolumeSize(newSizeIn8Gb)
+		sizeInGB := strconv.FormatInt(int64(sizeInGb), 10)
+		// sizeInGb = ((sizeInGb / 8) + 1) * 8
+		// newSizeIn8Gb := strconv.FormatInt(int64(sizeInGb), 10)
+		err3 := volresource.SetVolumeSize(sizeInGB)
 		if err3 != nil {
 			resp.Diagnostics.AddError(
 				"Error setting volume size -> "+plan.VolumeSizeInKb.ValueString()+":"+state.VolumeSizeInKb.ValueString(),
-				"Could not set new volume size -> "+newSizeIn8Gb+", unexpected err: "+err3.Error(),
+				"Could not set new volume size -> "+sizeInGB+", unexpected err: "+err3.Error(),
 			)
+			return 
 		}
 	}
 	planSdcIds := []string{}
@@ -229,6 +255,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 				"Error Mapping Volume to SDCs",
 				"Could map volume to scs with id: "+msi+", unexpected error: "+err3.Error(),
 			)
+			return 
 		}
 	}
 
@@ -243,11 +270,12 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 				"Error Unmapping Volume to SDCs",
 				"Could Unmap volume to scs with id: "+usi+", unexpected error: "+err4.Error(),
 			)
+			return
 		}
 	}
 
 	vols, _ := spr.GetVolume("", state.ID.ValueString(), "", "", false)
-	state = createVolumetfs(vols[0], plan)
+	state = VolumeTerraformState(vols[0], plan)
 	// Set refreshed state
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
@@ -268,6 +296,7 @@ func (r *volumeResource) Delete(ctx context.Context, req resource.DeleteRequest,
 			"Error getting storage pool",
 			"Could not get storage pool, unexpected err: "+err1.Error(),
 		)
+		return
 	}
 	volsplan, _ := spr.GetVolume("", state.ID.ValueString(), "", "", false)
 	volresource := goscaleio.NewVolume(r.client)
@@ -288,6 +317,7 @@ func (r *volumeResource) Delete(ctx context.Context, req resource.DeleteRequest,
 				"Error Unmapping Volume to SDCs",
 				"Couldn't unmap volume to scs with id: "+stu+", unexpected error: "+err.Error(),
 			)
+			return
 		}
 	}
 	err := volresource.RemoveVolume("")
@@ -296,6 +326,7 @@ func (r *volumeResource) Delete(ctx context.Context, req resource.DeleteRequest,
 			"Error Removing Volume",
 			"Couldn't remove volume "+err.Error(),
 		)
+		return
 	}
 	if resp.Diagnostics.HasError() {
 		return
