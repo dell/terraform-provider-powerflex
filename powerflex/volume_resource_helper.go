@@ -38,8 +38,8 @@ func convertToKB(capacityUnit string, size int64) (int64, error) {
 	return int64(valInKiB), nil
 }
 
-// createVolumetfs function to convert goscaleio volume struct to terraform volume struct
-func VolumeTerraformState(vol *pftypes.Volume, plan volumeResourceModel) (state volumeResourceModel) {
+// VolumeTerraformState function to convert goscaleio volume struct to terraform volume struct
+func VolumeTerraformState(vol *pftypes.Volume, plan VolumeResourceModel) (state VolumeResourceModel) {
 	state.ProtectionDomainID = plan.ProtectionDomainID
 	state.Size = plan.Size
 	state.CapacityUnit = plan.CapacityUnit

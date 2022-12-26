@@ -50,7 +50,7 @@ func (r *volumeResource) Configure(_ context.Context, req resource.ConfigureRequ
 // Create creates the resource and sets the initial Terraform state.
 func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan volumeResourceModel
+	var plan VolumeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -148,7 +148,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 // Read refreshes the Terraform state with the latest data.
 func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Get current state
-	var state volumeResourceModel
+	var state VolumeResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -183,7 +183,7 @@ func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, res
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Get plan values
-	var plan volumeResourceModel
+	var plan VolumeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -191,7 +191,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	// Get current state
-	var state volumeResourceModel
+	var state VolumeResourceModel
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -214,11 +214,11 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	// updating the name of volume if there is change in plan
 	if plan.Name.ValueString() != state.Name.ValueString() {
-		err_rename := volresource.SetVolumeName(plan.Name.ValueString())
-		if err_rename != nil {
+		errRename := volresource.SetVolumeName(plan.Name.ValueString())
+		if errRename != nil {
 			resp.Diagnostics.AddError(
 				"Error renaming the volume -> "+plan.Name.ValueString()+" : "+state.Name.ValueString(),
-				"Could not rename the volume, unexpected error:"+err_rename.Error(),
+				"Could not rename the volume, unexpected error:"+errRename.Error(),
 			)
 			return
 		}
@@ -313,7 +313,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *volumeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
-	var state volumeResourceModel
+	var state VolumeResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	spr, err1 := getStoragePoolInstance(r.client, state.StoragePoolID.ValueString(), state.ProtectionDomainID.ValueString())

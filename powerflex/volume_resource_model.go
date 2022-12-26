@@ -3,7 +3,7 @@ package powerflex
 import "github.com/hashicorp/terraform-plugin-framework/types"
 
 // volumeResourceModel maps the resource schema data.
-type volumeResourceModel struct {
+type VolumeResourceModel struct {
 	ProtectionDomainID                 types.String `tfsdk:"protection_domain_id"`
 	StoragePoolID                      types.String `tfsdk:"storage_pool_id"`
 	VolumeType                         types.String `tfsdk:"volume_type"`
