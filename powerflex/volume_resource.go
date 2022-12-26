@@ -66,7 +66,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 	VSIKB, err := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error: Invalid Capacity unit :" + plan.CapacityUnit.String(),
+			"Error: Invalid Capacity unit :"+plan.CapacityUnit.String(),
 			err.Error(),
 		)
 		return
@@ -124,7 +124,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error Locking Auto Snapshots",
-				"Could not lock auto snapshots, unexpected error: " + err.Error(),
+				"Could not lock auto snapshots, unexpected error: "+err.Error(),
 			)
 		}
 	}
@@ -287,7 +287,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error Locking Auto Snapshots",
-				"Could not lock auto snapshots, unexpected error: " + err.Error(),
+				"Could not lock auto snapshots, unexpected error: "+err.Error(),
 			)
 		}
 	}
@@ -296,7 +296,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error Unlocking Auto Snapshots",
-				"Could not unlock auto snapshots, unexpected error: " + err.Error(),
+				"Could not unlock auto snapshots, unexpected error: "+err.Error(),
 			)
 		}
 	}
