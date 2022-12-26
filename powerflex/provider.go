@@ -4,8 +4,6 @@ import (
 	"context"
 	"os"
 
-	sdcsource "terraform-provider-powerflex/powerflex/sdc"
-
 	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -235,13 +233,13 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 // DataSources - returns array of all datasources.
 func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		sdcsource.SDCDataSource,
+		SDCDataSource,
 	}
 }
 
 // Resources - returns array of all resources.
 func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		sdcsource.SDCResource,
+		SDCResource,
 	}
 }

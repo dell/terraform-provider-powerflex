@@ -1,4 +1,4 @@
-package sdcsource
+package powerflex
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -9,10 +9,10 @@ import (
 var sdcDatasourceSchemaDescriptions = struct {
 	SdcDatasourceSchema string
 
-	InputID       string
-	InputSdcID    string
-	InputSystemid string
-	InputName     string
+	InputID    string
+	InputSdcID string
+	// InputSystemid string
+	InputName string
 
 	Sdcs string // outpur slice
 
@@ -30,28 +30,28 @@ var sdcDatasourceSchemaDescriptions = struct {
 	LinksHref          string
 	Statistics         string
 }{
-	SdcDatasourceSchema: "",
+	SdcDatasourceSchema: "SDC Datasource.",
 
-	InputID:       "",
-	InputSdcID:    "",
-	InputSystemid: "",
-	InputName:     "",
+	InputID:    "SDC Datasource input for testing.",
+	InputSdcID: "SDC Datasource SDC input sdc id to search for.",
+	// InputSystemid: "",
+	InputName: "SDC Datasource SDC input sdc name to search for.",
 
-	Sdcs: "", // outpur slice
+	Sdcs: "SDC Datasource result SDCs.", // outpur slice
 
-	LastUpdated:        "",
-	SdcID:              "",
-	SystemID:           "",
-	Name:               "",
-	SdcIP:              "",
-	SdcApproved:        "",
-	OnVMWare:           "",
-	SdcGUID:            "",
-	MdmConnectionState: "",
-	Links:              "",
-	LinksRel:           "",
-	LinksHref:          "",
-	Statistics:         "",
+	LastUpdated:        "SDC Datasource SDC result last updated timestamp.",
+	SdcID:              "SDC Datasource SDC ID.",
+	SystemID:           "SDC Datasource SDC System ID.",
+	Name:               "SDC Datasource SDC name.",
+	SdcIP:              "SDC Datasource SDC IP.",
+	SdcApproved:        "SDC Datasource SDC is approved.",
+	OnVMWare:           "SDC Datasource SDC is onvmware.",
+	SdcGUID:            "SDC Datasource SDC GUID.",
+	MdmConnectionState: "SDC Datasource SDC MDM connection status.",
+	Links:              "SDC Datasource SDC Links.",
+	LinksRel:           "SDC Datasource SDC Links-Rel.",
+	LinksHref:          "SDC Datasource SDC Links-HREF.",
+	Statistics:         "SDC Datasource SDC Statistics.",
 }
 
 // SDCDataSourceScheme is variable for schematic for SDC Data Source

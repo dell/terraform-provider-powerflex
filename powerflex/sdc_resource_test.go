@@ -1,7 +1,6 @@
-package powerflextesting
+package powerflex
 
 import (
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -10,6 +9,7 @@ import (
 type resourceDataPoints struct {
 	noOfSdc   string
 	name      string
+	newname   string
 	systemid  string
 	sdcguid   string
 	sdcip     string
@@ -22,13 +22,13 @@ func init() {
 	sdcResourceTestData.noOfSdc = "1"
 	sdcResourceTestData.noOflinks = "4"
 	sdcResourceTestData.name = "powerflex_sdc21"
+	sdcResourceTestData.newname = "powerflex_sdc56"
 	sdcResourceTestData.sdcguid = "0877AE5E-BDBF-4E87-A002-218D9F883896"
 	sdcResourceTestData.sdcip = "10.247.96.90"
 	sdcResourceTestData.systemid = "0e7a082862fedf0f"
 }
 
 func TestAccOrderResource(t *testing.T) {
-	os.Setenv("TF_ACC", "1")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -37,7 +37,6 @@ func TestAccOrderResource(t *testing.T) {
 				Config: ProviderConfigForTesting + `
 				resource "powerflex_sdc" "sdc" {
 					sdcid = "c423b09800000003"
-					systemid = "0e7a082862fedf0f"
 					name = "` + sdcResourceTestData.name + `"
 				  }
 				  `,

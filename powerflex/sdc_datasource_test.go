@@ -1,7 +1,6 @@
-package powerflextesting
+package powerflex
 
 import (
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -21,14 +20,13 @@ var sdcTestData dataPoints
 func init() {
 	sdcTestData.noOfSdc = "1"
 	sdcTestData.noOflinks = "4"
-	sdcTestData.name = "powerflex_sdc13"
+	sdcTestData.name = "powerflex_sdc21"
 	sdcTestData.sdcguid = "0877AE5E-BDBF-4E87-A002-218D9F883896"
 	sdcTestData.sdcip = "10.247.96.90"
 	sdcTestData.systemid = "0e7a082862fedf0f"
 }
 
 func TestAccCoffeesDataSource(t *testing.T) {
-	os.Setenv("TF_ACC", "1")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{

@@ -1,4 +1,4 @@
-package sdcsource
+package powerflex
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -19,19 +19,19 @@ var sdcResourceSchemaDescriptions = struct {
 	LinksRel           string
 	LinksHref          string
 }{
-	SdcResourceSchema:  "",
-	LastUpdated:        "",
-	SdcID:              "",
-	SystemID:           "",
-	Name:               "",
-	SdcIP:              "",
-	SdcApproved:        "",
-	OnVMWare:           "",
-	SdcGUID:            "",
-	MdmConnectionState: "",
-	Links:              "",
-	LinksRel:           "",
-	LinksHref:          "",
+	SdcResourceSchema:  "SDC Resource Name change schema.",
+	LastUpdated:        "SDC Resource last updated timestamp.",
+	SdcID:              "SDC Resource SDC ID.",
+	SystemID:           "SDC Resource System ID.",
+	Name:               "SDC Resource SDC Name.",
+	SdcIP:              "SDC Resource SDC IP.",
+	SdcApproved:        "SDC Resource SDC Approved.",
+	OnVMWare:           "SDC Resource On VMware.",
+	SdcGUID:            "SDC Resource SDC GUID.",
+	MdmConnectionState: "SDC Resource MDM Connection state.",
+	Links:              "SDC Resource Links.",
+	LinksRel:           "SDC Resource Links Rel.",
+	LinksHref:          "SDC Resource Links HREF.",
 }
 
 // SDCReourceSchema - varible holds schema for SDC resource

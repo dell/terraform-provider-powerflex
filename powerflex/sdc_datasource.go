@@ -1,4 +1,4 @@
-package sdcsource
+package powerflex
 
 import (
 	"context"
