@@ -1,4 +1,4 @@
-package volume
+package powerflex
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"

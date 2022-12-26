@@ -1,4 +1,4 @@
-package volume
+package powerflex
 
 import (
 	"context"
@@ -164,6 +164,7 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			return
 		}
 	}
+
 	state.Volumes = updateVolumeState(volumes)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)

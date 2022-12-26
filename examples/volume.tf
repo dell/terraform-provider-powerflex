@@ -1,4 +1,4 @@
-# cd ../../ && make install && cd examples/volume
+# cd ../ && make install && cd examples
 # terraform init && terraform apply --auto-approve
 terraform {
   required_providers {
