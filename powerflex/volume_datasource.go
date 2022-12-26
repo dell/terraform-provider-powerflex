@@ -1,4 +1,4 @@
-package volume
+package powerflex
 
 import (
 	"context"
@@ -13,8 +13,8 @@ var (
 	_ datasource.DataSourceWithConfigure = &volumeDataSource{}
 )
 
-// DataSource returns the volume data source
-func DataSource() datasource.DataSource {
+// VolumeDataSource returns the volume data source
+func VolumeDataSource() datasource.DataSource {
 	return &volumeDataSource{}
 }
 
@@ -78,7 +78,7 @@ func (d *volumeDataSource) Metadata(_ context.Context, req datasource.MetadataRe
 }
 
 func (d *volumeDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = DataSourceSchema
+	resp.Schema = VolumeDataSourceSchema
 }
 
 func (d *volumeDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
@@ -96,8 +96,8 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 
 	diags := req.Config.Get(ctx, &state)
 
-	//Read the volumes based on id or name or if both id and name
-	//are not mentioned , then return all volumes
+	//Read the volumes based on volume id/name or storage pool id/name and if nothing
+	//is mentioned , then return all volumes
 	if state.Name.ValueString() != "" {
 		volumes, err = d.client.GetVolume("", "", "", state.Name.ValueString(), false)
 		if err != nil {
@@ -107,8 +107,6 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			)
 			return
 		}
-
-		state.Volumes = updateVolumeState(volumes)
 	} else if state.ID.ValueString() != "" {
 		volumes, err = d.client.GetVolume("", state.ID.ValueString(), "", "", false)
 		if err != nil {
@@ -118,19 +116,6 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			)
 			return
 		}
-
-		state.Volumes = updateVolumeState(volumes)
-	} else if state.ID.ValueString() == "" && state.Name.ValueString() == "" && state.StoragePoolID.ValueString() == "" && state.StoragePoolName.ValueString() == "" {
-		volumes, err = d.client.GetVolume("", "", "", "", false)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Read Powerflex Volumes",
-				err.Error(),
-			)
-			return
-		}
-
-		state.Volumes = updateVolumeState(volumes)
 	} else if state.StoragePoolID.ValueString() != "" {
 		sps, err1 := d.client.FindStoragePool(state.StoragePoolID.ValueString(), "", "", "")
 		if err1 != nil {
@@ -150,7 +135,6 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			)
 			return
 		}
-		state.Volumes = updateVolumeState(volumes)
 	} else if state.StoragePoolName.ValueString() != "" {
 		sps, err1 := d.client.FindStoragePool("", state.StoragePoolName.ValueString(), "", "")
 		if err1 != nil {
@@ -170,9 +154,18 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			)
 			return
 		}
-		state.Volumes = updateVolumeState(volumes)
+	} else {
+		volumes, err = d.client.GetVolume("", "", "", "", false)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Read Powerflex Volumes",
+				err.Error(),
+			)
+			return
+		}
 	}
 
+	state.Volumes = updateVolumeState(volumes)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
