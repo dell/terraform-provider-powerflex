@@ -166,6 +166,7 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 
 	state.Volumes = updateVolumeState(volumes)
+	state.ID = types.StringValue("placeholder")
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

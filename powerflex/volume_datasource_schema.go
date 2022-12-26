@@ -15,6 +15,7 @@ var VolumeDataSourceSchema schema.Schema = schema.Schema{
 			Description:         "Unique identifier of the volume instance.",
 			MarkdownDescription: "Unique identifier of the volume instance.",
 			Optional:            true,
+			Computed:            true,
 			Validators: []validator.String{
 				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id"), path.MatchRoot("name"), path.MatchRoot("storage_pool_name")),
 			},
