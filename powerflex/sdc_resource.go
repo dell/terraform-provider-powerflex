@@ -71,7 +71,7 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 		"SDC can not be added through terraform, You can import SDC and update name through terraform.",
 		"SDC can not be added through terraform, You can import SDC and update name through terraform.",
 	)
-	return
+	// return
 	// Retrieve values from plan
 	var plan sdcResourceModel
 	diags := req.Plan.Get(ctx, &plan)
