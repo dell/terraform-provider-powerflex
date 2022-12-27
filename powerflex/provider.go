@@ -5,6 +5,8 @@ import (
 
 	"terraform-provider-powerflex/powerflex/sds"
 
+	"os"
+
 	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -13,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"os"
 )
 
 var (
@@ -211,9 +212,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 
 // DataSources - returns array of all datasources.
 func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource{
-		VolumeDataSource,
-	}
+	return []func() datasource.DataSource{}
 }
 
 // Resources - returns array of all resources.
