@@ -39,8 +39,8 @@ func TestAccVolumeResource(t *testing.T) {
 
 			// createVolumeInvalidCapacityUnitTest
 			{
-				Config: ProviderConfigForTesting + createVolumeInvalidCapacityUnitTest,
-				ExpectError:  regexp.MustCompile(`.*Attribute capacity_unit value must be one of: ["\"GB\"" "\"TB\""]*.`),
+				Config:      ProviderConfigForTesting + createVolumeInvalidCapacityUnitTest,
+				ExpectError: regexp.MustCompile(`.*Attribute capacity_unit value must be one of: ["\"GB\"" "\"TB\""]*.`),
 			},
 		},
 	})
