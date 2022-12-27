@@ -225,6 +225,8 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 			return
 		}
 		protectionDomains = append(protectionDomains, protectionDomain)
+		// this is required for acceptance testing
+		state.ID = types.StringValue(protectionDomain.ID)
 	} else {
 		// Fetch all protection domains
 		protectionDomains, err = system.GetProtectionDomain("")
@@ -235,6 +237,8 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 			)
 			return
 		}
+		// this is required for acceptance testing
+		state.ID = types.StringValue("DummyID")
 	}
 
 	state.ProtectionDomains = getAllProtectionDomainState(protectionDomains)
