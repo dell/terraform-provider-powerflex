@@ -17,13 +17,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"os"
 )
 
 var (
 	_ provider.Provider = &powerflexProvider{}
 )
 
-// New - returns new provider instance.
+// New returns the powerflex provider
 func New() provider.Provider {
 	return &powerflexProvider{}
 }
@@ -33,12 +34,10 @@ type powerflexProvider struct{}
 
 // powerflexProviderModel - provider input struct.
 type powerflexProviderModel struct {
-	Host             types.String `tfsdk:"host"`
-	Username         types.String `tfsdk:"username"`
-	Password         types.String `tfsdk:"password"`
-	Insecure         types.String `tfsdk:"insecure"`
-	UseCerts         types.String `tfsdk:"usecerts"`
-	PowerflexVersion types.String `tfsdk:"powerflex_version"`
+	EndPoint types.String `tfsdk:"endpoint"`
+	Username types.String `tfsdk:"username"`
+	Password types.String `tfsdk:"password"`
+	Insecure types.Bool   `tfsdk:"insecure"`
 }
 
 // Metadata - provider metadata AKA name.
@@ -46,36 +45,30 @@ func (p *powerflexProvider) Metadata(_ context.Context, _ provider.MetadataReque
 	resp.TypeName = "powerflex"
 }
 
-// GetSchema - provider schema.
 func (p *powerflexProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description: "",
 		Attributes: map[string]schema.Attribute{
-			"host": schema.StringAttribute{
-				Description: "",
-				Optional:    true,
+			"endpoint": schema.StringAttribute{
+				Description:         "the endpoint to which it needs to be connected.",
+				MarkdownDescription: "the endpoint to which it needs to be connected.",
+				Required:            true,
 			},
 			"username": schema.StringAttribute{
-				Description: "",
-				Optional:    true,
+				Description:         "The username required for authentication.",
+				MarkdownDescription: "The username required for authentication.",
+				Required:            true,
 			},
 			"password": schema.StringAttribute{
-				Description: "",
-				Optional:    true,
-				Sensitive:   true,
+				Description:         "The password required for the authentication.",
+				MarkdownDescription: "The password required for the authentication.",
+				Required:            true,
+				Sensitive:           true,
 			},
-			"powerflex_version": schema.StringAttribute{
-				Description: "",
-				Optional:    true,
-			},
-			"usecerts": schema.StringAttribute{
-				Description: "",
-				Optional:    true,
-			},
-			"insecure": schema.StringAttribute{
-				Description: "",
-				Optional:    true,
-				Sensitive:   true,
+			"insecure": schema.BoolAttribute{
+				Description:         "Specifies if the user wants to do SSL verification.",
+				MarkdownDescription: "Specifies if the user wants to do SSL verification.",
+				Optional:            true,
 			},
 		},
 	}
@@ -92,12 +85,12 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 		return
 	}
 
-	if config.Host.IsUnknown() {
+	if config.EndPoint.IsUnknown() {
 		resp.Diagnostics.AddAttributeError(
-			path.Root("host"),
-			"Unknown powerflex API Host",
-			"The provider cannot create the powerflex API client as there is an unknown configuration value for the powerflex API host. "+
-				"Either target apply the source of the value first, set the value statically in the configuration, or use the powerflex_HOST environment variable.",
+			path.Root("endpoint"),
+			"Unknown powerflex API EndPoint",
+			"The provider cannot create the powerflex API client as there is an unknown configuration value for the powerflex API endpoint. "+
+				"Either target apply the source of the value first, set the value statically in the configuration, or use the POWERFLEX_ENDPOINT environment variable.",
 		)
 	}
 
@@ -106,7 +99,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 			path.Root("username"),
 			"Unknown powerflex API Username",
 			"The provider cannot create the powerflex API client as there is an unknown configuration value for the powerflex API username. "+
-				"Either target apply the source of the value first, set the value statically in the configuration, or use the powerflex_USERNAME environment variable.",
+				"Either target apply the source of the value first, set the value statically in the configuration, or use the POWERFLEX_USERNAME environment variable.",
 		)
 	}
 
@@ -115,7 +108,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 			path.Root("password"),
 			"Unknown powerflex API Password",
 			"The provider cannot create the powerflex API client as there is an unknown configuration value for the powerflex API password. "+
-				"Either target apply the source of the value first, set the value statically in the configuration, or use the powerflex_PASSWORD environment variable.",
+				"Either target apply the source of the value first, set the value statically in the configuration, or use the POWERFLEX_PASSWORD environment variable.",
 		)
 	}
 
@@ -123,16 +116,13 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 		return
 	}
 
-	host := os.Getenv("POWERFLEX_HOST")
+	endpoint := os.Getenv("POWERFLEX_ENDPOINT")
 	username := os.Getenv("POWERFLEX_USERNAME")
 	password := os.Getenv("POWERFLEX_PASSWORD")
+	insecure := os.Getenv("POWERFLEX_INSECURE") == "true"
 
-	insecure := os.Getenv("POWERFLEX_HOST")
-	usecerts := os.Getenv("POWERFLEX_USERNAME")
-	powerflexVersion := os.Getenv("POWERFLEX_PASSWORD")
-
-	if !config.Host.IsNull() {
-		host = config.Host.ValueString()
+	if !config.EndPoint.IsNull() {
+		endpoint = config.EndPoint.ValueString()
 	}
 
 	if !config.Username.IsNull() {
@@ -142,25 +132,16 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	if !config.Password.IsNull() {
 		password = config.Password.ValueString()
 	}
-
 	if !config.Insecure.IsNull() {
-		insecure = config.Insecure.ValueString()
+		insecure = config.Insecure.ValueBool()
 	}
 
-	if !config.UseCerts.IsNull() {
-		usecerts = config.UseCerts.ValueString()
-	}
-
-	if !config.PowerflexVersion.IsNull() {
-		powerflexVersion = config.PowerflexVersion.ValueString()
-	}
-
-	if host == "" {
+	if endpoint == "" {
 		resp.Diagnostics.AddAttributeError(
-			path.Root("host"),
-			"Missing powerflex API Host",
-			"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API host. "+
-				"Set the host value in the configuration or use the powerflex_HOST environment variable. "+
+			path.Root("endpoint"),
+			"Missing powerflex API Endpoint",
+			"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API endpoint. "+
+				"Set the endpoint value in the configuration or use the POWERFLEX_ENDPOINT environment variable. "+
 				"If either is already set, ensure the value is not empty.",
 		)
 	}
@@ -170,7 +151,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 			path.Root("username"),
 			"Missing powerflex API Username",
 			"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API username. "+
-				"Set the username value in the configuration or use the powerflex_USERNAME environment variable. "+
+				"Set the username value in the configuration or use the POWERFLEX_USERNAME environment variable. "+
 				"If either is already set, ensure the value is not empty.",
 		)
 	}
@@ -180,7 +161,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 			path.Root("password"),
 			"Missing powerflex API Password",
 			"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API password. "+
-				"Set the password value in the configuration or use the powerflex_PASSWORD environment variable. "+
+				"Set the password value in the configuration or use the POWERFLEX_PASSWORD environment variable. "+
 				"If either is already set, ensure the value is not empty.",
 		)
 	}
@@ -189,18 +170,15 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 		return
 	}
 
-	ctx = tflog.SetField(ctx, "powerflex_host", host)
+	ctx = tflog.SetField(ctx, "powerflex_endpoint", endpoint)
 	ctx = tflog.SetField(ctx, "powerflex_username", username)
 	ctx = tflog.SetField(ctx, "powerflex_password", password)
-
-	ctx = tflog.SetField(ctx, "insecure", insecure)
-	ctx = tflog.SetField(ctx, "usecerts", usecerts)
 	ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "powerflex_password")
-
+	ctx = tflog.SetField(ctx, "insecure", insecure)
 	tflog.Debug(ctx, "Creating powerflex client")
 
 	// Create a new powerflex client using the configuration values
-	client, err := goscaleio.NewClientWithArgs(host, powerflexVersion, true, true)
+	Client, err := goscaleio.NewClientWithArgs(endpoint, "", true, true)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Create powerflex API Client",
@@ -212,25 +190,25 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	}
 
 	var goscaleioConf goscaleio.ConfigConnect = goscaleio.ConfigConnect{}
-	goscaleioConf.Endpoint = host
+	goscaleioConf.Endpoint = endpoint
 	goscaleioConf.Username = username
-	goscaleioConf.Version = powerflexVersion
+	goscaleioConf.Version = ""
 	goscaleioConf.Password = password
 
-	_, err = client.Authenticate(&goscaleioConf)
+	_, err = Client.Authenticate(&goscaleioConf)
 
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Auth Goscaleio API Client",
-			"An unexpected error occurred when creating the Unable to Auth Goscaleio API Client. "+
-				"Unable to Auth Goscaleio API Client.\n\n"+
+			"Unable to Authenticate Goscaleio API Client",
+			"An unexpected error occurred when authenticating the Goscaleio API Client. "+
+				"Unable to Authenticate Goscaleio API Client.\n\n"+
 				"powerflex Client Error: "+err.Error(),
 		)
 		return
 	}
 
-	resp.DataSourceData = client
-	resp.ResourceData = client
+	resp.DataSourceData = Client
+	resp.ResourceData = Client
 
 	tflog.Info(ctx, "Configured powerflex client", map[string]any{"success": true})
 }
@@ -238,15 +216,13 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 // DataSources - returns array of all datasources.
 func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		sdcgetdatasource.SDCDataSource,
+		VolumeDataSource,
 	}
 }
 
 // Resources - returns array of all resources.
 func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		sdcgetresource.SDCResource,
-		vol.NewVolumeResource,
 		sds.SDSResource,
 	}
 }
