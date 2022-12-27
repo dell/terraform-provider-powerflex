@@ -212,7 +212,9 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 
 // DataSources - returns array of all datasources.
 func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource{}
+	return []func() datasource.DataSource{
+		StoragePoolDataSource,
+	}
 }
 
 // Resources - returns array of all resources.
