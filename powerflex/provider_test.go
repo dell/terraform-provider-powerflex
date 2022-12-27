@@ -13,11 +13,7 @@ import (
 var ProviderConfigForTesting = ``
 
 func init() {
-	err := godotenv.Load("POWERFLEX_TERRAFORM_TEST.env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
+	godotenv.Load("POWERFLEX_TERRAFORM_TEST.env")
 	ProviderConfigForTesting = `
 		provider "powerflex" {
 			username = "` + os.Getenv("POWERFLEX_USERNAME") + `"
