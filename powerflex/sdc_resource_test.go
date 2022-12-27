@@ -1,6 +1,8 @@
 package powerflex
 
 import (
+	"os"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -24,27 +26,60 @@ func init() {
 	sdcResourceTestData.name = "powerflex_sdc21"
 	sdcResourceTestData.newname = "powerflex_sdc56"
 	sdcResourceTestData.sdcguid = "0877AE5E-BDBF-4E87-A002-218D9F883896"
-	sdcResourceTestData.sdcip = "10.247.96.90"
+	sdcResourceTestData.sdcip = ""
 	sdcResourceTestData.systemid = "0e7a082862fedf0f"
 }
 
-func TestSdcResource(t *testing.T) {
+func TestSdcResourceCreate(t *testing.T) {
+	os.Setenv("TF_ACC", "1")
 	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: TestAccProtoV6ProviderFactories,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			// Create and Read testing
 			{
-				Config: ProviderConfigForTesting + `
+				Config: providerConfigForTesting + `
 				resource "powerflex_sdc" "sdc" {
-					sdcid = "c423b09800000003"
+					sdc_id = "c423b09800000003"
+					name = "` + sdcResourceTestData.name + `"
+				  }
+				  `,
+				ExpectError: regexp.MustCompile(`.*SDC can not be added*`),
+			},
+		},
+	})
+}
+func TestSdcResourceUpdate(t *testing.T) {
+	os.Setenv("TF_ACC", "1")
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: providerConfigForTesting + `
+				resource "powerflex_sdc" "sdc" {
+					sdc_id = "c423b09800000003"
+					name = "` + sdcResourceTestData.name + `"
+				  }
+				  `,
+				ExpectError: regexp.MustCompile(`.*SDC can not be added*`),
+			},
+			{
+				ResourceName:        "powerflex_sdc.sdc",
+				ImportState:         true,
+				ImportStateVerify:   true,
+				ImportStateIdPrefix: "c423b09800000003",
+			},
+			// Update testing
+			{
+				Config: providerConfigForTesting + `
+				resource "powerflex_sdc" "sdc" {
+					sdc_id = "c423b09800000003"
 					name = "` + sdcResourceTestData.name + `"
 				  }
 				  `,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "systemid", sdcResourceTestData.systemid),
-					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "sdcguid", sdcResourceTestData.sdcguid),
-					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", sdcResourceTestData.name),
-					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "sdcip", sdcResourceTestData.sdcip),
+					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "system_id", sdcResourceTestData.systemid),
+					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "sdc_guid", sdcResourceTestData.sdcguid),
+					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", sdcResourceTestData.newname),
+					// resource.TestCheckResourceAttr("powerflex_sdc.sdc", "sdcip", sdcResourceTestData.sdcip),
 					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "links.#", sdcResourceTestData.noOflinks),
 				),
 			},

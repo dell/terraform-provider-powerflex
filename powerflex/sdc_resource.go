@@ -67,66 +67,15 @@ func (r *sdcResource) Configure(_ context.Context, req resource.ConfigureRequest
 // Create - function to Create for SDC resource.
 func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "[POWERFLEX] Create")
+	resp.Diagnostics.AddError(
+		"SDC can not be added through terraform, You can import SDC and update name through terraform.",
+		"SDC can not be added through terraform, You can import SDC and update name through terraform.",
+	)
+	return
 	// Retrieve values from plan
 	var plan sdcResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	allSystems, err := r.client.GetSystems()
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex all systems",
-			err.Error(),
-		)
-		return
-	}
-
-	system, err := r.client.FindSystem(allSystems[0].ID, "", "")
-
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex systems sdcs Create",
-			err.Error(),
-		)
-		return
-	}
-	nameChng, err := system.ChangeSdcName(plan.SdcID.ValueString(), plan.Name.ValueString())
-
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Change name Powerflex sdc",
-			err.Error(),
-		)
-		return
-	}
-	sdcs, err := system.GetSdc()
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex sdcs",
-			err.Error(),
-		)
-		return
-	}
-
-	finalSDC := findChangedSdc(sdcs, plan.SdcID.ValueString())
-	plan = getSdcState(finalSDC)
-
-	tflog.Debug(ctx, "[POWERFLEX] nameChng Result :-- "+helper.PrettyJSON(nameChng))
-
-	diags = resp.State.Set(ctx, plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	plan.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-
-	// Set state to fully populated data
-	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -160,7 +109,6 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 	singleSdc, err := system.FindSdc("ID", state.ID.ValueString())
-
 	tflog.Debug(ctx, "[POWERFLEX] state singleSdc"+helper.PrettyJSON(singleSdc))
 	tflog.Debug(ctx, "[POWERFLEX] state state.Name.ValueString()"+state.Name.ValueString())
 	tflog.Debug(ctx, "[POWERFLEX] state state.ID.ValueString()"+state.ID.ValueString())
@@ -190,6 +138,10 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	var plan sdcResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	allSystems, err := r.client.GetSystems()
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -198,33 +150,55 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		)
 		return
 	}
+
 	system, err := r.client.FindSystem(allSystems[0].ID, "", "")
 
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex systems sdcs Update",
+			"Unable to Read Powerflex systems sdcs Create",
 			err.Error(),
 		)
 		return
 	}
 	nameChng, err := system.ChangeSdcName(plan.SdcID.ValueString(), plan.Name.ValueString())
 
-	tflog.Debug(ctx, helper.PrettyJSON(nameChng))
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Change name Powerflex sdc",
+			"[Create] Unable to Change name Powerflex sdc",
 			err.Error(),
 		)
 		return
 	}
-	// plan = getSdcState(*nameChng)
+	sdcs, err := system.GetSdc()
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Read Powerflex sdcs",
+			err.Error(),
+		)
+		return
+	}
+
+	finalSDC := findChangedSdc(sdcs, plan.SdcID.ValueString())
+	plan = getSdcState(finalSDC)
+
+	tflog.Debug(ctx, "[POWERFLEX] nameChng Result :-- "+helper.PrettyJSON(nameChng))
+
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// plan.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+	plan.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+
+	// Set state to fully populated data
+	diags = resp.State.Set(ctx, plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	plan.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)

@@ -1,10 +1,11 @@
 package powerflex
 
 import (
-	"github.com/hashicorp/terraform-plugin-framework/providerserver"
-	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"os"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 )
 
 var endpoint = os.Getenv("POWERFLEX_ENDPOINT")

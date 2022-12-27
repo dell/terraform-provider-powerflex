@@ -4,23 +4,17 @@ terraform {
   required_providers {
     powerflex = {
       version = "0.1"
-      source  = "dell.com/dev/powerflex"
+      source  = "registry.terraform.io/dell/powerflex"
     }
   }
 }
 
-module "base" {
-  source = "../../config"
-}
 
 
 provider "powerflex" {
-    username = "${module.base.username}"
-    password = "${module.base.password}"
-    host = "${module.base.host}"
-    insecure = ""
-    usecerts = ""
-    powerflex_version = ""
+    username = ""
+    password = ""
+    host = ""
 }
 
 # # -----------------------------------------------------------------------------------

@@ -1,10 +1,12 @@
 # cd ../../.. && make install && cd examples/sdc/resource
 # terraform init && terraform apply --auto-approve
+# terraform init && terraform import powerflex_sdc.sdc c423b09800000003
+# terraform destroy
 terraform {
   required_providers {
     powerflex = {
       version = "0.1"
-      source  = "dell.com/dev/powerflex"
+      source  = "registry.terraform.io/dell/powerflex"
     }
   }
 }
@@ -16,10 +18,10 @@ module "base" {
 provider "powerflex" {
     username = "${module.base.username}"
     password = "${module.base.password}"
-    host = "${module.base.host}"
-    insecure = ""
-    usecerts = ""
-    powerflex_version = ""
+    endpoint = "${module.base.host}"
+    # insecure = ""
+    # usecerts = ""
+    # powerflex_version = ""
 }
 
 
@@ -29,7 +31,7 @@ provider "powerflex" {
 # # -----------------------------------------------------------------------------------
 resource "powerflex_sdc" "sdc" {
   sdc_id = "c423b09800000003"
-  name = "powerflex_sdc15"
+  name = "powerflex_sdc20"
 }
 
 output "changed_sdc" {
