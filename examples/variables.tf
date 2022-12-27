@@ -12,7 +12,6 @@ variable "endpoint" {
     type = string
     description = "Stores the endpoint of PowerFlex host"
 }
-<<<<<<< HEAD
 variable "username" {
   type = string
   description = "Stores the username of PowerFlex host."
@@ -52,5 +51,3 @@ variable "volume_resource_size" {
   type = number
   description = "Stores the size of volume"
 }
-=======
->>>>>>> main
