@@ -21,10 +21,7 @@ func init() {
 		provider "powerflex" {
 			username = "` + os.Getenv("GOSCALEIO_USERNAME") + `"
 			password = "` + os.Getenv("GOSCALEIO_PASSWORD") + `"
-			host = "` + os.Getenv("GOSCALEIO_ENDPOINT") + `"
-			insecure = ""
-			usecerts = ""
-			powerflex_version = ""
+			endpoint = "` + os.Getenv("GOSCALEIO_ENDPOINT") + `"
 		}
 	`
 }

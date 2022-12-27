@@ -8,7 +8,7 @@ variable "password" {
   description = "Stores the password of PowerFlex host."
 }
 
-variable "host" {
+variable "endpoint" {
     type = string
     description = "Stores the endpoint of PowerFlex host"
 }

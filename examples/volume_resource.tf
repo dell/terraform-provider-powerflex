@@ -9,7 +9,7 @@ terraform {
 provider "powerflex" {
     username = var.username
     password = var.password
-    host = var.host
+    endpoint = var.endpoin
 }
 resource "powerflex_volume" "avengers" {
   name = var.volume_resource_name
