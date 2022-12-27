@@ -10,7 +10,7 @@ terraform {
 provider "powerflex" {
     username = var.powerflex_username
     password = var.powerflex_password
-    host = var.powerflex_endpoint
+    endpoint = var.powerflex_endpoint
 }
 
 resource "powerflex_sds" "create" {
