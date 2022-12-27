@@ -209,6 +209,7 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 		VolumeDataSource,
 		// StoragePoolDataSource,
 		SDCDataSource,
+		StoragePoolDataSource,
 	}
 }
 
