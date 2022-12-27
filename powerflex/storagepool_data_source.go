@@ -155,7 +155,7 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 	if err1 != nil {
 		resp.Diagnostics.AddError(
 			"Unable to find system",
-			err.Error(),
+			err1.Error(),
 		)
 		return
 	}
@@ -170,7 +170,7 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 	if err3 != nil {
 		resp.Diagnostics.AddError(
 			"Unable to find protection domain",
-			err.Error(),
+			err3.Error(),
 		)
 		return
 	}
@@ -204,7 +204,7 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 		if err3 != nil {
 			resp.Diagnostics.AddError(
 				"Unable to read storage pool",
-				err.Error(),
+				err3.Error(),
 			)
 			return
 		}
@@ -218,7 +218,7 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 		if err4 != nil {
 			resp.Diagnostics.AddError(
 				"Unable to get volumes associated with storage pool",
-				err.Error(),
+				err4.Error(),
 			)
 			return
 		}
@@ -227,7 +227,7 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 		if err5 != nil {
 			resp.Diagnostics.AddError(
 				"Unable to get SDS associated with storage pool",
-				err.Error(),
+				err5.Error(),
 			)
 			return
 		}

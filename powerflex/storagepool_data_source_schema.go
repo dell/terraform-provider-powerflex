@@ -28,7 +28,6 @@ var DataSourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Protection Domain Name.",
 			Optional:            true,
 			Validators: []validator.String{
-				stringvalidator.ConflictsWith(path.MatchRoot("protection_domain_id")),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),
 			},
 		},
@@ -44,7 +43,7 @@ var DataSourceSchema schema.Schema = schema.Schema{
 			ElementType:         types.StringType,
 			Optional:            true,
 			Validators: []validator.List{
-				listvalidator.ConflictsWith(path.MatchRoot("storage_pool_id")),
+				listvalidator.ExactlyOneOf(path.MatchRoot("storage_pool_id")),
 			},
 		},
 		"storage_pools": schema.ListNestedAttribute{
