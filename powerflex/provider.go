@@ -2,12 +2,8 @@ package powerflex
 
 import (
 	"context"
-	"os"
 
-	sdcgetdatasource "terraform-provider-powerflex/powerflex/sdc/getdatasource"
-	sdcgetresource "terraform-provider-powerflex/powerflex/sdc/getresource"
 	"terraform-provider-powerflex/powerflex/sds"
-	vol "terraform-provider-powerflex/powerflex/volume"
 
 	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
