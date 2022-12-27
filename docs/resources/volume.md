@@ -18,15 +18,17 @@ Manages volume resource
 ### Required
 
 - `name` (String) The name of the volume.
-- `protection_domain_id` (String) protection domain id
 - `size` (Number) volume size
-- `storage_pool_id` (String) storage pool id
 
 ### Optional
 
 - `capacity_unit` (String) capacity unit
 - `map_sdcs_id` (List of String) map sdcs id
 - `mapped_sdc_info` (Attributes List) mapped sdc info (see [below for nested schema](#nestedatt--mapped_sdc_info))
+- `protection_domain_id` (String) Protection Domain ID.
+- `protection_domain_name` (String) Protection Domain Name.
+- `storage_pool_id` (String) storage pool id
+- `storage_pool_name` (String) Storage Pool Name
 
 ### Read-Only
 
