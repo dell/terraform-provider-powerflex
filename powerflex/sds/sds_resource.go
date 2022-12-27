@@ -5,9 +5,6 @@ import (
 
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 
-	"net/http"
-	"sync"
-
 	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -40,6 +37,7 @@ var (
 	_ resource.ResourceWithImportState = &sdsResource{}
 )
 
+// SDS Resource
 func SDSResource() resource.Resource {
 	return &sdsResource{}
 }
@@ -48,19 +46,12 @@ type sdsResource struct {
 	client *goscaleio.Client
 }
 
-type SDSParam struct {
-	ProtectionDomainID string    `json:"protectionDomainId,omitempty"`
-	Name               string    `json:"name,omitempty"`
-	once               sync.Once // creates the metadata value once.
-	metadata           http.Header
-}
-
 func (r *sdsResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_sds"
 }
 
 func (r *sdsResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = SDSReourceSchema
+	resp.Schema = SDSResourceSchema
 }
 
 func (r *sdsResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
@@ -121,7 +112,7 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 
 	// Create SDS
-	sdsId, err := pdm.CreateSds(sdsName, iplist)
+	sdsID, err := pdm.CreateSds(sdsName, iplist)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error",
@@ -131,7 +122,7 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 
 	// Get created SDS
-	rsp, err := pdm.FindSds("ID", sdsId)
+	rsp, err := pdm.FindSds("ID", sdsID)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting SDS after creation",

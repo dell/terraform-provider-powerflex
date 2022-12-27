@@ -5,7 +5,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-var SDSReourceSchema schema.Schema = schema.Schema{
+// SDS resource schema
+var SDSResourceSchema schema.Schema = schema.Schema{
 	Description: "",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
