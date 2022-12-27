@@ -13,7 +13,7 @@ func TestAccVolumeResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			// create volume test
 			{
-				Config: ProviderConfigForTesting + create_volume_test,
+				Config: ProviderConfigForTesting + createVolumeTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_volume.avengers", "name", "volume-test-01"),
 					resource.TestCheckResourceAttr("powerflex_volume.avengers", "size", "8"),
@@ -22,7 +22,7 @@ func TestAccVolumeResource(t *testing.T) {
 			},
 			// update volume test
 			{
-				Config: ProviderConfigForTesting + update_volume_test,
+				Config: ProviderConfigForTesting + updateVolumeTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_volume.avengers", "name", "volume-test"),
 					resource.TestCheckResourceAttr("powerflex_volume.avengers", "size", "16"),
@@ -33,7 +33,7 @@ func TestAccVolumeResource(t *testing.T) {
 	})
 }
 
-var create_volume_test = `
+var createVolumeTest = `
 resource "powerflex_volume" "avengers" {
 	name = "volume-ses-test"
 	storage_pool_id = "7630a24600000000"
@@ -44,7 +44,7 @@ resource "powerflex_volume" "avengers" {
   }
 `
 
-var update_volume_test = `
+var updateVolumeTest = `
 resource "powerflex_volume" "avengers" {
 	name = "volume-ses"
 	storage_pool_id = "7630a24600000000"
