@@ -15,7 +15,7 @@ func TestAccVolumeResource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + createVolumeTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_volume.avengers", "name", "volume-test-01"),
+					resource.TestCheckResourceAttr("powerflex_volume.avengers", "name", "volume-ses-test"),
 					resource.TestCheckResourceAttr("powerflex_volume.avengers", "size", "8"),
 					resource.TestCheckResourceAttr("powerflex_volume.avengers", "map_sdcs_id.0", "c423b09800000003"),
 				),
@@ -24,7 +24,7 @@ func TestAccVolumeResource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + updateVolumeTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_volume.avengers", "name", "volume-test"),
+					resource.TestCheckResourceAttr("powerflex_volume.avengers", "name", "volume-ses"),
 					resource.TestCheckResourceAttr("powerflex_volume.avengers", "size", "16"),
 					resource.TestCheckResourceAttr("powerflex_volume.avengers", "map_sdcs_id.0", "c423b09a00000005"),
 				),

@@ -1,7 +1,6 @@
 package powerflex
 
 import (
-	"log"
 	"os"
 	"testing"
 
@@ -21,7 +20,6 @@ func init() {
 			endpoint = "` + os.Getenv("POWERFLEX_ENDPOINT") + `"
 		}
 	`
-
 }
 
 var (

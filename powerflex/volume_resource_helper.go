@@ -44,7 +44,7 @@ func VolumeTerraformState(vol *pftypes.Volume, plan VolumeResourceModel) (state 
 	state.Size = plan.Size
 	state.CapacityUnit = plan.CapacityUnit
 	state.MapSdcsID = plan.MapSdcsID
-	state.LockedAutoSnapshot = plan.LockedAutoSnapshot
+	state.LockedAutoSnapshot = types.BoolValue(vol.LockedAutoSnapshot)
 	VSIKB, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 	state.VolumeSizeInKb = types.StringValue(strconv.FormatInt(VSIKB, 10))
 	state.StoragePoolID = types.StringValue(vol.StoragePoolID)

@@ -119,7 +119,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 			return
 		}
 	}
-	if plan.LockedAutoSnapshot.ValueBool() {
+	/* 	if plan.LockedAutoSnapshot.ValueBool() {
 		err := vr.LockAutoSnapshot()
 		if err != nil {
 			resp.Diagnostics.AddError(
@@ -127,7 +127,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 				"Could not lock auto snapshots, unexpected error: "+err.Error(),
 			)
 		}
-	}
+	} */
 	volsResponse, err2 = spr.GetVolume("", volCreateResponse.ID, "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
@@ -282,24 +282,24 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 			return
 		}
 	}
-	if plan.LockedAutoSnapshot.ValueBool() && !state.LockedAutoSnapshot.ValueBool() {
-		err := volresource.LockAutoSnapshot()
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error Locking Auto Snapshots",
-				"Could not lock auto snapshots, unexpected error: "+err.Error(),
-			)
-		}
-	}
-	if !plan.LockedAutoSnapshot.ValueBool() && state.LockedAutoSnapshot.ValueBool() {
-		err := volresource.UnlockAutoSnapshot()
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error Unlocking Auto Snapshots",
-				"Could not unlock auto snapshots, unexpected error: "+err.Error(),
-			)
-		}
-	}
+	/* 	if plan.LockedAutoSnapshot.ValueBool() && !state.LockedAutoSnapshot.ValueBool() {
+	   		err := volresource.LockAutoSnapshot()
+	   		if err != nil {
+	   			resp.Diagnostics.AddError(
+	   				"Error Locking Auto Snapshots",
+	   				"Could not lock auto snapshots, unexpected error: "+err.Error(),
+	   			)
+	   		}
+	   	}
+	   	if !plan.LockedAutoSnapshot.ValueBool() && state.LockedAutoSnapshot.ValueBool() {
+	   		err := volresource.UnlockAutoSnapshot()
+	   		if err != nil {
+	   			resp.Diagnostics.AddError(
+	   				"Error Unlocking Auto Snapshots",
+	   				"Could not unlock auto snapshots, unexpected error: "+err.Error(),
+	   			)
+	   		}
+	   	} */
 	vols, _ := spr.GetVolume("", state.ID.ValueString(), "", "", false)
 	state = VolumeTerraformState(vols[0], plan)
 	// Set refreshed state

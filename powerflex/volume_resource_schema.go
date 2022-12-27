@@ -118,7 +118,7 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 		},
 		"locked_auto_snapshot": schema.BoolAttribute{
 			Description:         "locked auto snapshot",
-			Optional:            true,
+			Computed:            true,
 			MarkdownDescription: "locake auto snapshot",
 		},
 		"locked_auto_snapshot_marked_for_removal": schema.BoolAttribute{
