@@ -211,6 +211,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		VolumeDataSource,
+		StoragePoolDataSource,
 	}
 }
 
