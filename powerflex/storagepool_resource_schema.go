@@ -4,79 +4,53 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
 
-var storagepoolResourceSchemaDescriptions = struct {
-	storagepoolReourceSchema string
-	LastUpdated              string
-	SystemID                 string
-	Name                     string
-	ProtectionDomainID       string
-	MediaType                string
-	UseRmcache               string
-	UseRfCache               string
-	Links                    string
-	LinksRel                 string
-	LinksHref                string
-}{
-	storagepoolReourceSchema: "",
-	LastUpdated:              "",
-	SystemID:                 "",
-	Name:                     "",
-	ProtectionDomainID:       "",
-	MediaType:                "",
-	UseRmcache:               "",
-	UseRfCache:               "",
-	Links:                    "",
-	LinksRel:                 "",
-	LinksHref:                "",
-}
-
 // StoragepoolReourceSchema - varible holds schema for Storagepool
 var StoragepoolReourceSchema schema.Schema = schema.Schema{
-	Description: storagepoolResourceSchemaDescriptions.storagepoolReourceSchema,
+	Description: "Fetches the list of Storagepool",
 	Attributes: map[string]schema.Attribute{
 		"last_updated": schema.StringAttribute{
-			Description: storagepoolResourceSchemaDescriptions.LastUpdated,
+			Description: "Last Updated",
 			Computed:    true,
 		},
 		"id": schema.StringAttribute{
-			Description: "",
+			Description: "Gets the ID of Storagepool",
 			Computed:    true,
 		},
 		"systemid": schema.StringAttribute{
-			Description: storagepoolResourceSchemaDescriptions.SystemID,
+			Description: "Gets the System ID",
 			Computed:    true,
 		},
 		"protection_domain_id": schema.StringAttribute{
-			Description: storagepoolResourceSchemaDescriptions.ProtectionDomainID,
+			Description: "Gets the Protection Domain ID for Storagepool",
 			Required:    true,
 		},
 		"name": schema.StringAttribute{
-			Description: storagepoolResourceSchemaDescriptions.Name,
+			Description: "Returns the Name of Storagepool",
 			Required:    true,
 		},
 		"media_type": schema.StringAttribute{
-			Description: storagepoolResourceSchemaDescriptions.MediaType,
+			Description: "Gets the Media Type",
 			Required:    true,
 		},
 		"use_rmcache": schema.BoolAttribute{
-			Description: storagepoolResourceSchemaDescriptions.UseRmcache,
+			Description: "Gets the Read RAM Cache",
 			Computed:    true,
 		},
 		"use_rfcache": schema.BoolAttribute{
-			Description: storagepoolResourceSchemaDescriptions.UseRfCache,
+			Description: "Gets the RFCache",
 			Computed:    true,
 		},
 		"links": schema.ListNestedAttribute{
-			Description: storagepoolResourceSchemaDescriptions.Links,
+			Description: "Specifies the links asscociated with Storagepool",
 			Computed:    true,
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: map[string]schema.Attribute{
 					"rel": schema.StringAttribute{
-						Description: storagepoolResourceSchemaDescriptions.LinksRel,
+						Description: "Specifies the relationship with the Storagepool",
 						Computed:    true,
 					},
 					"href": schema.StringAttribute{
-						Description: storagepoolResourceSchemaDescriptions.LinksHref,
+						Description: "Specifies the exact path to fetch the details",
 						Computed:    true,
 					},
 				},

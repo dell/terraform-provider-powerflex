@@ -4,15 +4,15 @@ terraform {
   required_providers {
     powerflex = {
       version = "0.1"
-      source  = "dell.com/dev/powerflex"
+      source  = "dell/powerflex"
     }
   }
 }
 
 provider "powerflex" {
-    username = "admin"
-    password = "Password123"
-    endpoint = "https://10.247.101.69:443"
+    username = var.username
+    password = var.password
+    endpoint = var.endpoint
     insecure = true
 }
 

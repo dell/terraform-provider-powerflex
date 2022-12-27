@@ -308,10 +308,12 @@ func (r *storagepoolResource) Delete(ctx context.Context, req resource.DeleteReq
 	resp.State.RemoveResource(ctx)
 }
 
+// Function used to ImportState for Storagepool Resource
 func (r *storagepoolResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
+// Function to update the State for Storagepool Resource
 func updateStoragepoolState(storagepool *scaleiotypes.StoragePool, plan storagepoolResourceModel) (state storagepoolResourceModel) {
 	state.ProtectionDomainID = plan.ProtectionDomainID
 	state.ID = types.StringValue(storagepool.ID)

@@ -1,6 +1,7 @@
 package powerflex
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -27,6 +28,18 @@ func TestAccStoragepoolResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "media_type", "HDD"),
 				),
+			},
+
+			// createVolumeInvalidSizeTest
+			{
+				Config:      StoragePoolResourceCreateInvalidConfig,
+				ExpectError: regexp.MustCompile(`.*Incorrect Name format.*`),
+			},
+
+			// createVolumeInvalidCapacityUnitTest
+			{
+				Config:      StoragePoolResourceUpdateInvalidConfig,
+				ExpectError: regexp.MustCompile(`.*Media Type is required to have either HDD(Default) or SSD*.`),
 			},
 		},
 	})
@@ -60,4 +73,34 @@ resource "powerflex_storagepool" "storagepool" {
   		protection_domain_id = "4eeb304600000000"
   		media_type = "HDD"
   }
+`
+
+var StoragePoolResourceCreateInvalidConfig = `
+provider "powerflex" {
+	username = "` + username + `"
+	password = "` + password + `"
+	endpoint = "` + endpoint + `"
+	insecure = true
+  }		
+
+  resource "powerflex_storagepool" "storagepool" {
+	name = "SP123"
+	  protection_domain_id = "4eeb304600000000"
+	  media_type = "HDD"
+}
+`
+
+var StoragePoolResourceUpdateInvalidConfig = `
+provider "powerflex" {
+	username = "` + username + `"
+	password = "` + password + `"
+	endpoint = "` + endpoint + `"
+	insecure = true
+}
+
+  resource "powerflex_storagepool" "storagepool" {
+	name = "Storage_919"
+	  protection_domain_id = "4eeb304600000000"
+	  media_type = "SDD"
+}
 `
