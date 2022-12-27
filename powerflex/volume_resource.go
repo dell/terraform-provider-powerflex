@@ -79,7 +79,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 		VolumeSizeInKb:     strconv.FormatInt(VSIKB, 10),
 		Name:               plan.Name.ValueString(),
 	}
-	spr, _ := getStoragePoolInstance(r.client, volumeCreate.StoragePoolID, volumeCreate.ProtectionDomainID)
+	spr, _ := getStoragePoolInstance(r.client, volumeCreate.StoragePoolID, plan.StoragePoolName.ValueString(), volumeCreate.ProtectionDomainID, plan.ProtectionDomainName.ValueString())
 	volCreateResponse, err1 := spr.CreateVolume(volumeCreate)
 	if err1 != nil {
 		resp.Diagnostics.AddError(
@@ -154,7 +154,7 @@ func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, res
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	spr, err1 := getStoragePoolInstance(r.client, state.StoragePoolID.ValueString(), state.ProtectionDomainID.ValueString())
+	spr, err1 := getStoragePoolInstance(r.client, state.StoragePoolID.ValueString(), state.StoragePoolName.ValueString(), state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString())
 	if err1 != nil {
 		resp.Diagnostics.AddError(
 			"Error getting storage pool",
@@ -200,7 +200,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	VSIKB, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 	plan.VolumeSizeInKb = types.StringValue(strconv.FormatInt(VSIKB, 10))
 
-	spr, err1 := getStoragePoolInstance(r.client, state.StoragePoolID.ValueString(), state.ProtectionDomainID.ValueString())
+	spr, err1 := getStoragePoolInstance(r.client, state.StoragePoolID.ValueString(), state.StoragePoolName.ValueString(), state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString())
 	if err1 != nil {
 		resp.Diagnostics.AddError(
 			"Error getting storage pool",
@@ -262,7 +262,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 		if err3 != nil {
 			resp.Diagnostics.AddError(
 				"Error Mapping Volume to SDCs",
-				"Could map volume to scs with id: "+msi+", unexpected error: "+err3.Error(),
+				"Could not map volume to scs with id: "+msi+", unexpected error: "+err3.Error(),
 			)
 			return
 		}
@@ -277,7 +277,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 		if err4 != nil {
 			resp.Diagnostics.AddError(
 				"Error Unmapping Volume to SDCs",
-				"Could Unmap volume to scs with id: "+usi+", unexpected error: "+err4.Error(),
+				"Could not Unmap volume to scs with id: "+usi+", unexpected error: "+err4.Error(),
 			)
 			return
 		}
@@ -316,7 +316,7 @@ func (r *volumeResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	var state VolumeResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	spr, err1 := getStoragePoolInstance(r.client, state.StoragePoolID.ValueString(), state.ProtectionDomainID.ValueString())
+	spr, err1 := getStoragePoolInstance(r.client, state.StoragePoolID.ValueString(), state.StoragePoolName.ValueString(), state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString())
 	if err1 != nil {
 		resp.Diagnostics.AddError(
 			"Error getting storage pool",

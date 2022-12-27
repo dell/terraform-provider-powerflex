@@ -41,6 +41,8 @@ func convertToKB(capacityUnit string, size int64) (int64, error) {
 // VolumeTerraformState function to convert goscaleio volume struct to terraform volume struct
 func VolumeTerraformState(vol *pftypes.Volume, plan VolumeResourceModel) (state VolumeResourceModel) {
 	state.ProtectionDomainID = plan.ProtectionDomainID
+	state.ProtectionDomainName = plan.ProtectionDomainName
+	state.StoragePoolName = plan.StoragePoolName
 	state.Size = plan.Size
 	state.CapacityUnit = plan.CapacityUnit
 	state.MapSdcsID = plan.MapSdcsID
@@ -125,22 +127,39 @@ func VolumeTerraformState(vol *pftypes.Volume, plan VolumeResourceModel) (state 
 }
 
 // getStoragePoolInstance function to get storage pool from storage pool id and protection domain id
-func getStoragePoolInstance(c *goscaleio.Client, spID string, pdID string) (*goscaleio.StoragePool, error) {
+func getStoragePoolInstance(c *goscaleio.Client, spID string, spName string, pdID string, pdName string) (*goscaleio.StoragePool, error) {
 	getSystems, _ := c.GetSystems()
 	sr := goscaleio.NewSystem(c)
 	sr.System = getSystems[0]
 	pdr := goscaleio.NewProtectionDomain(c)
-	protectionDomain, err := sr.FindProtectionDomain(pdID, "", "")
-	if err != nil {
-		return nil, err
+	if pdID != "" {
+		protectionDomain, err := sr.FindProtectionDomain(pdID, "", "")
+		pdr.ProtectionDomain = protectionDomain
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		protectionDomain, err := sr.FindProtectionDomain("", pdName, "")
+		pdr.ProtectionDomain = protectionDomain
+		if err != nil {
+			return nil, err
+		}
 	}
-	pdr.ProtectionDomain = protectionDomain
 	spr := goscaleio.NewStoragePool(c)
-	storagePool, err := pdr.FindStoragePool(spID, "", "")
-	spr.StoragePool = storagePool
-	if err != nil {
-		return nil, err
+	if spID != "" {
+		storagePool, err := pdr.FindStoragePool(spID, "", "")
+		spr.StoragePool = storagePool
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		storagePool, err := pdr.FindStoragePool("", spName, "")
+		spr.StoragePool = storagePool
+		if err != nil {
+			return nil, err
+		}
 	}
+
 	return spr, nil
 }
 

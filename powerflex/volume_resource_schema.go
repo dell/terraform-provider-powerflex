@@ -2,6 +2,7 @@ package powerflex
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -20,13 +21,30 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 		},
 		"storage_pool_id": schema.StringAttribute{
 			Description:         "storage pool id",
-			Required:            true,
+			Optional:            true,
+			Computed:            true,
 			MarkdownDescription: "storage pool id",
 		},
+		"storage_pool_name": schema.StringAttribute{
+			Description:         "Storage Pool Name",
+			Optional:            true,
+			MarkdownDescription: "Storage Pool Name",
+			Validators: []validator.String{
+				stringvalidator.ExactlyOneOf(path.MatchRoot("storage_pool_id")),
+			},
+		},
 		"protection_domain_id": schema.StringAttribute{
-			Description:         "protection domain id",
-			Required:            true,
-			MarkdownDescription: "protection domain id",
+			Description:         "Protection Domain ID.",
+			MarkdownDescription: "Protection Domain ID.",
+			Optional:            true,
+		},
+		"protection_domain_name": schema.StringAttribute{
+			Description:         "Protection Domain Name.",
+			MarkdownDescription: "Protection Domain Name.",
+			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),
+			},
 		},
 		"size": schema.Int64Attribute{
 			Description:         "volume size",

@@ -4,7 +4,9 @@ import "github.com/hashicorp/terraform-plugin-framework/types"
 
 // VolumeResourceModel maps the resource schema data.
 type VolumeResourceModel struct {
+	ProtectionDomainName               types.String `tfsdk:"protection_domain_name"`
 	ProtectionDomainID                 types.String `tfsdk:"protection_domain_id"`
+	StoragePoolName                    types.String `tfsdk:"storage_pool_name"`
 	StoragePoolID                      types.String `tfsdk:"storage_pool_id"`
 	VolumeType                         types.String `tfsdk:"volume_type"`
 	UseRmCache                         types.Bool   `tfsdk:"use_rm_cache"`

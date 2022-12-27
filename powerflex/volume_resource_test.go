@@ -36,7 +36,7 @@ func TestAccVolumeResource(t *testing.T) {
 var createVolumeTest = `
 resource "powerflex_volume" "avengers" {
 	name = "volume-ses-test"
-	storage_pool_id = "7630a24600000000"
+	storage_pool_name = "pool1"
 	protection_domain_id = "4eeb304600000000"
 	capacity_unit = "GB"
 	size = 8
@@ -48,7 +48,7 @@ var updateVolumeTest = `
 resource "powerflex_volume" "avengers" {
 	name = "volume-ses"
 	storage_pool_id = "7630a24600000000"
-	protection_domain_id = "4eeb304600000000"
+	protection_domain_name = "domain1"
 	size = 16
 	map_sdcs_id = ["c423b09a00000005","c423b09900000004"]
   }			
