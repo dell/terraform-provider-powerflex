@@ -37,11 +37,12 @@ var (
 	_ resource.ResourceWithImportState = &sdsResource{}
 )
 
-// SDS Resource
-func SDSResource() resource.Resource {
+// NewSDSResource is a helper function to simplify the provider implementation.
+func NewSDSResource() resource.Resource {
 	return &sdsResource{}
 }
 
+// sdsResource is the resource implementation.
 type sdsResource struct {
 	client *goscaleio.Client
 }

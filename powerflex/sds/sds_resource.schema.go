@@ -5,9 +5,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// SDS resource schema
+// SDSResourceSchema variable to define schema for the SDS resource
 var SDSResourceSchema schema.Schema = schema.Schema{
-	Description: "",
+	Description: "Manages SDS resource",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "The id of the SDS",

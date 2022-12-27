@@ -220,6 +220,6 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 // Resources - returns array of all resources.
 func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		sds.SDSResource,
+		sds.NewSDSResource,
 	}
 }
