@@ -2,6 +2,8 @@ package powerflex
 
 import (
 	"context"
+	"os"
+
 	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -10,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"os"
 )
 
 var (
@@ -205,6 +206,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		VolumeDataSource,
+		StoragePoolDataSource,
 	}
 }
 
