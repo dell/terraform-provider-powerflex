@@ -6,6 +6,7 @@ import (
 
 	sdcgetdatasource "terraform-provider-powerflex/powerflex/sdc/getdatasource"
 	sdcgetresource "terraform-provider-powerflex/powerflex/sdc/getresource"
+	"terraform-provider-powerflex/powerflex/sds"
 	vol "terraform-provider-powerflex/powerflex/volume"
 
 	"github.com/dell/goscaleio"
@@ -246,5 +247,6 @@ func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resou
 	return []func() resource.Resource{
 		sdcgetresource.SDCResource,
 		vol.NewVolumeResource,
+		sds.SDSResource,
 	}
 }
