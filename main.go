@@ -13,10 +13,10 @@ import (
 func main() {
 	providerserver.Serve(context.Background(), powerflex.New, providerserver.ServeOpts{
 		// NOTE: This is not a typical Terraform Registry provider address,
-		// such as dell.com/dev/powerflex. This specific
+		// such as registry.terraform.io/dell/powerflex. This specific
 		// provider address is used in these tutorials in conjunction with a
 		// specific Terraform CLI configuration for manual development testing
 		// of this provider.
-		Address: "dell.com/dev/powerflex",
+		Address: "registry.terraform.io/dell/powerflex",
 	})
 }

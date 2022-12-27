@@ -1,6 +1,6 @@
 TEST?=$$(go list ./... | grep -v 'vendor')
-HOSTNAME=dell.com
-NAMESPACE=dev
+HOSTNAME=registry.terraform.io
+NAMESPACE=dell
 NAME=powerflex
 BINARY=terraform-provider-${NAME}
 VERSION=0.1
@@ -27,14 +27,24 @@ release:
 
 install: build
 	rm -rfv /root/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
-	bash ./clean.sh
+	find examples -type d -name ".terraform" -exec rm -rfv "{}" +;
+	find examples -type f -name "trace.*" -delete
+	find examples -type f -name "*.tfstate" -delete
+	find examples -type f -name "*.hcl" -delete
+	find examples -type f -name "*.backup" -delete
+	rm -rf trace.*
 	
 	mkdir -p /root/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 	mv ${BINARY} /root/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 
 uninstall:
 	rm -rfv /root/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
-	bash ./clean.sh
+	find examples -type d -name ".terraform" -exec rm -rfv "{}" +;
+	find examples -type f -name "trace.*" -delete
+	find examples -type f -name "*.tfstate" -delete
+	find examples -type f -name "*.hcl" -delete
+	find examples -type f -name "*.backup" -delete
+	rm -rf trace.*
 
 
 test: 

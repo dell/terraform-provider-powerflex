@@ -2,8 +2,6 @@ package powerflex
 
 import (
 	"context"
-	"os"
-
 	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -12,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"os"
 )
 
 var (
@@ -217,4 +216,5 @@ func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resou
 	return []func() resource.Resource{
 		SDCResource,
 	}
+	return []func() resource.Resource{}
 }

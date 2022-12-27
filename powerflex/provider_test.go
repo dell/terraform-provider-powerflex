@@ -1,13 +1,10 @@
 package powerflex
 
 import (
-	"log"
-	"os"
-	"testing"
-
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
-	"github.com/joho/godotenv"
+	"os"
+	"testing"
 )
 
 var endpoint = os.Getenv("POWERFLEX_ENDPOINT")
@@ -23,13 +20,6 @@ var (
 		"powerflex": providerserver.NewProtocol6WithError(New()),
 	}
 )
-
-func init() {
-	err := godotenv.Load("POWERFLEX_TERRAFORM_TEST.env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-}
 
 func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("POWERFLEX_USERNAME"); v == "" {
