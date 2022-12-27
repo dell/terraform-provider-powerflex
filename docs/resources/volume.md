@@ -25,7 +25,6 @@ Manages volume resource
 ### Optional
 
 - `capacity_unit` (String) capacity unit
-- `locked_auto_snapshot` (Boolean) locake auto snapshot
 - `map_sdcs_id` (List of String) map sdcs id
 - `mapped_sdc_info` (Attributes List) mapped sdc info (see [below for nested schema](#nestedatt--mapped_sdc_info))
 
@@ -40,6 +39,7 @@ Manages volume resource
 - `id` (String) The ID of the volume.
 - `is_obfuscated` (Boolean) is obfuscated
 - `links` (Attributes List) links for the volume resource (see [below for nested schema](#nestedatt--links))
+- `locked_auto_snapshot` (Boolean) locake auto snapshot
 - `locked_auto_snapshot_marked_for_removal` (Boolean) locaked auto snapshot marked for removal
 - `managed_by` (String) managed by
 - `mapped_scsi_initiator_info` (String) mapped scsi initiator info
