@@ -1,6 +1,7 @@
 package powerflex
 
 import (
+	"regexp"
 	"testing"
 
 	// "github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -29,6 +30,18 @@ func TestAccVolumeResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_volume.avengers", "map_sdcs_id.0", "c423b09a00000005"),
 				),
 			},
+
+			// createVolumeInvalidSizeTest
+			{
+				Config:      ProviderConfigForTesting + createVolumeInvalidSizeTest,
+				ExpectError: regexp.MustCompile(`.*Size Must be in granularity of 8GB.*`),
+			},
+
+			// createVolumeInvalidCapacityUnitTest
+			{
+				Config: ProviderConfigForTesting + createVolumeInvalidCapacityUnitTest,
+				ExpectError:  regexp.MustCompile(`.*Attribute capacity_unit value must be one of: ["\"GB\"" "\"TB\""]*.`),
+			},
 		},
 	})
 }
@@ -52,4 +65,24 @@ resource "powerflex_volume" "avengers" {
 	size = 16
 	map_sdcs_id = ["c423b09a00000005","c423b09900000004"]
   }			
+`
+var createVolumeInvalidSizeTest = `
+resource "powerflex_volume" "avengers-invalid-size" {
+	name = "volume-ses-invalid-size-test"
+	storage_pool_id = "7630a24600000000"
+	protection_domain_name = "domain1"
+	size = 10
+	map_sdcs_id = ["c423b09a00000005","c423b09900000004"]
+  }		
+`
+
+var createVolumeInvalidCapacityUnitTest = `
+resource "powerflex_volume" "avengers-invalid-capacity" {
+	name = "volume-ses-invalid-capacity-unit"
+	storage_pool_id = "pool1"
+	protection_domain_name = "domain1"
+	size = 8
+	capacity_unit = "HB"
+	map_sdcs_id = ["c423b09a00000005","c423b09900000004"]
+  }	
 `
