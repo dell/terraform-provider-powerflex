@@ -1,4 +1,4 @@
-package sds
+package powerflex
 
 import (
 	"context"
@@ -75,23 +75,8 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
-	// Initialize system
-	s := goscaleio.NewSystem(r.client)
-
-	systems, err := r.client.GetSystems()
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error",
-			"Could not get Systems, unexpected error: "+err.Error(),
-		)
-
-		return
-	}
-
-	s.System = systems[0]
-
 	// Initialize protection domain
-	pd, err := s.FindProtectionDomain(plan.ProtectionDomainID.ValueString(), "", "")
+	pd, err := r.getProtectionDomain(plan.ProtectionDomainID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error",
@@ -100,9 +85,6 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 		return
 	}
-
-	pdm := goscaleio.NewProtectionDomain(r.client)
-	pdm.ProtectionDomain = pd
 
 	sdsName := plan.Name.ValueString()
 	sdsIPList := plan.IPList.Elements()
@@ -113,7 +95,7 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 
 	// Create SDS
-	sdsID, err := pdm.CreateSds(sdsName, iplist)
+	sdsID, err := pd.CreateSds(sdsName, iplist)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error",
@@ -123,7 +105,7 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 
 	// Get created SDS
-	rsp, err := pdm.FindSds("ID", sdsID)
+	rsp, err := pd.FindSds("ID", sdsID)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting SDS after creation",
@@ -152,23 +134,8 @@ func (r *sdsResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	// Initialize System
-	s := goscaleio.NewSystem(r.client)
-
-	systems, err := r.client.GetSystems()
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error",
-			"Could not get Systems, unexpected error: "+err.Error(),
-		)
-
-		return
-	}
-
-	s.System = systems[0]
-
 	// Initialize protection domain
-	pd, err := s.FindProtectionDomain(state.ProtectionDomainID.ValueString(), "", "")
+	pd, err := r.getProtectionDomain(state.ProtectionDomainID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error",
@@ -178,11 +145,8 @@ func (r *sdsResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	pdm := goscaleio.NewProtectionDomain(r.client)
-	pdm.ProtectionDomain = pd
-
 	// Get SDS
-	rsp, err := pdm.FindSds("ID", state.ID.ValueString())
+	rsp, err := pd.FindSds("ID", state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting SDS after creation",
@@ -220,23 +184,8 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		return
 	}
 
-	// Initialize system
-	s := goscaleio.NewSystem(r.client)
-
-	systems, err := r.client.GetSystems()
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error",
-			"Could not get Systems, unexpected error: "+err.Error(),
-		)
-
-		return
-	}
-
-	s.System = systems[0]
-
-	// Initialize prtection domain
-	pd, err := s.FindProtectionDomain(plan.ProtectionDomainID.ValueString(), "", "")
+	// Initialize protection domain
+	pd, err := r.getProtectionDomain(plan.ProtectionDomainID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error",
@@ -246,12 +195,9 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		return
 	}
 
-	pdm := goscaleio.NewProtectionDomain(r.client)
-	pdm.ProtectionDomain = pd
-
 	// Check if there difference between plan and state
 	if plan.Name.ValueString() != state.Name.ValueString() {
-		err := pdm.SetSdsName(state.ID.ValueString(), plan.Name.ValueString())
+		err := pd.SetSdsName(state.ID.ValueString(), plan.Name.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error",
@@ -263,7 +209,7 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	}
 
 	// Find updated SDS
-	rsp, err := pdm.FindSds("ID", state.ID.ValueString())
+	rsp, err := pd.FindSds("ID", state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting SDS after creation",
@@ -292,23 +238,8 @@ func (r *sdsResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 		return
 	}
 
-	// Initialize system
-	s := goscaleio.NewSystem(r.client)
-
-	systems, err := r.client.GetSystems()
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error",
-			"Could not get Systems, unexpected error: "+err.Error(),
-		)
-
-		return
-	}
-
-	s.System = systems[0]
-
 	// Initialize protection domain
-	pd, err := s.FindProtectionDomain(state.ProtectionDomainID.ValueString(), "", "")
+	pd, err := r.getProtectionDomain(state.ProtectionDomainID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error",
@@ -318,11 +249,8 @@ func (r *sdsResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 		return
 	}
 
-	pdm := goscaleio.NewProtectionDomain(r.client)
-	pdm.ProtectionDomain = pd
-
 	// Find SDS
-	sds, err := pdm.FindSds("ID", state.ID.ValueString())
+	sds, err := pd.FindSds("ID", state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Find Powerflex SDS",
@@ -333,7 +261,7 @@ func (r *sdsResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 	}
 
 	// Delete SDS
-	err = pdm.DeleteSds(state.ID.ValueString())
+	err = pd.DeleteSds(state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to delete Powerflex SDS",
@@ -377,4 +305,25 @@ func updateSdsState(sds *scaleiotypes.Sds, plan sdsResourceModel) (state sdsReso
 	state.RmcacheMemoryAllocationState = types.StringValue(sds.RmcacheMemoryAllocationState)
 
 	return state
+}
+
+func (r *sdsResource) getProtectionDomain(pdID string) (*goscaleio.ProtectionDomain, error) {
+	// Initialize system
+	s := goscaleio.NewSystem(r.client)
+
+	systems, err := r.client.GetSystems()
+	if err != nil {
+		return nil, err
+	}
+
+	s.System = systems[0]
+
+	pd, err := s.FindProtectionDomain(pdID, "", "")
+	if err != nil {
+		return nil, err
+	}
+	pdm := goscaleio.NewProtectionDomain(r.client)
+	pdm.ProtectionDomain = pd
+
+	return pdm, nil
 }

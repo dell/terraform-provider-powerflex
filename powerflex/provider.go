@@ -3,8 +3,6 @@ package powerflex
 import (
 	"context"
 
-	"terraform-provider-powerflex/powerflex/sds"
-
 	"os"
 
 	"github.com/dell/goscaleio"
@@ -220,6 +218,6 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 // Resources - returns array of all resources.
 func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		sds.NewSDSResource,
+		NewSDSResource,
 	}
 }
