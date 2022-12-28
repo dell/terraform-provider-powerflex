@@ -1,7 +1,8 @@
 vendor/*
 gosec*
-
-
 .terraform*
 tfplan*
 terraform.tfvars
+powerflex/*.env
+powerflex/trace.txt
+examples/trace.txt
