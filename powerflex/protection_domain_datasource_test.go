@@ -1,7 +1,9 @@
 package powerflex
 
 import (
+	"fmt"
 	"os"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -25,6 +27,7 @@ var (
 	ProtectionDomainDataSourceConfig1 string
 	ProtectionDomainDataSourceConfig2 string
 	ProtectionDomainDataSourceConfig3 string
+	ProtectionDomainDataSourceConfig4 string
 )
 
 // TestAccProtectionDomainDataSource tests the protectiondomain data source
@@ -70,6 +73,11 @@ func TestAccProtectionDomainDataSource(t *testing.T) {
 					// resource.TestCheckOutput("pdResult3", "domain1"),
 				),
 			},
+			//retrieving all the protection domains
+			{
+				Config:      ProtectionDomainDataSourceConfig4,
+				ExpectError: regexp.MustCompile(""),
+			},
 		},
 	})
 }
@@ -79,11 +87,11 @@ func init() {
 	password = os.Getenv("POWERFLEX_PASSWORD")
 	endpoint = os.Getenv("POWERFLEX_ENDPOINT")
 
-	ProtectionDomainDataSourceConfig1 = `
+	ProtectionDomainDataSourceConfig1 = fmt.Sprintf(`
 provider "powerflex" {
-	username = "` + username + `"
-	password = "` + password + `"
-	endpoint = "` + endpoint + `"
+	username = "%s"
+	password = "%s"
+	endpoint = "%s"
 	insecure = true
 }
 data "powerflex_protection_domain" "pd1" {						
@@ -92,13 +100,13 @@ data "powerflex_protection_domain" "pd1" {
 output "pdResult1" {
 	value = data.powerflex_protection_domain.pd1.protection_domains[0].name
 }
-`
+`, username, password, endpoint)
 
-	ProtectionDomainDataSourceConfig2 = `
+	ProtectionDomainDataSourceConfig2 = fmt.Sprintf(`
 provider "powerflex" {
-	username = "` + username + `"
-	password = "` + password + `"
-	endpoint = "` + endpoint + `"
+	username = "%s"
+	password = "%s"
+	endpoint = "%s"
 	insecure = true
 }
 data "powerflex_protection_domain" "pd2" {			
@@ -107,13 +115,13 @@ data "powerflex_protection_domain" "pd2" {
 output "pdResult2" {
 	value = data.powerflex_protection_domain.pd2.protection_domains[0].name
 }
-`
+`, username, password, endpoint)
 
-	ProtectionDomainDataSourceConfig3 = `
+	ProtectionDomainDataSourceConfig3 = fmt.Sprintf(`
 provider "powerflex" {
-	username = "` + username + `"
-	password = "` + password + `"
-	endpoint = "` + endpoint + `"
+	username = "%s"
+	password = "%s"
+	endpoint = "%s"
 	insecure = true
 }
 data "powerflex_protection_domain" "pd3" {						
@@ -121,5 +129,21 @@ data "powerflex_protection_domain" "pd3" {
 output "pdResult3" {
 	value = data.powerflex_protection_domain.pd3.protection_domains
 }
-`
+`, username, password, endpoint)
+
+	ProtectionDomainDataSourceConfig4 = fmt.Sprintf(`
+provider "powerflex" {
+	username = "%s"
+	password = "%s"
+	endpoint = "%s"
+	insecure = true
+}
+data "powerflex_protection_domain" "pd4" {
+	id = "blahblahid"
+	name = "blahblahname"					
+}
+output "pdResult3" {
+	value = data.powerflex_protection_domain.pd3.protection_domains
+}
+`, username, password, endpoint)
 }

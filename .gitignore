@@ -1,6 +1,7 @@
 vendor/*
 gosec*
 
+coverage.*
 
 .terraform*
 tfplan*
