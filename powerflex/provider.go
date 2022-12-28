@@ -18,13 +18,14 @@ var (
 	_ provider.Provider = &powerflexProvider{}
 )
 
-// New returns the powerflex provider
+// New - returns new provider struct definition.
 func New() provider.Provider {
 	return &powerflexProvider{}
 }
 
 type powerflexProvider struct{}
 
+// powerflexProviderModel - provider input struct.
 type powerflexProviderModel struct {
 	EndPoint types.String `tfsdk:"endpoint"`
 	Username types.String `tfsdk:"username"`
@@ -32,10 +33,12 @@ type powerflexProviderModel struct {
 	Insecure types.Bool   `tfsdk:"insecure"`
 }
 
+// Metadata - provider metadata AKA name.
 func (p *powerflexProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
 	resp.TypeName = "powerflex"
 }
 
+// GetSchema - provider schema.
 func (p *powerflexProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description: "",
@@ -65,6 +68,7 @@ func (p *powerflexProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 	}
 }
 
+// Configure - provider pre-initiate calle function.
 func (p *powerflexProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
 	tflog.Info(ctx, "Configuring powerflex client")
 
@@ -203,6 +207,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	tflog.Info(ctx, "Configured powerflex client", map[string]any{"success": true})
 }
 
+// DataSources - returns array of all datasources.
 func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		VolumeDataSource,
@@ -210,6 +215,9 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 	}
 }
 
+// Resources defines the resources implemented in the provider.
 func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resource {
-	return []func() resource.Resource{}
+	return []func() resource.Resource{
+		NewVolumeResource,
+	}
 }
