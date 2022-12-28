@@ -19,7 +19,7 @@ var (
 	_ provider.Provider = &powerflexProvider{}
 )
 
-// New returns the powerflex provider
+// New - returns new provider struct definition.
 func New() provider.Provider {
 	return &powerflexProvider{}
 }
@@ -40,6 +40,7 @@ func (p *powerflexProvider) Metadata(_ context.Context, _ provider.MetadataReque
 	resp.TypeName = "powerflex"
 }
 
+// GetSchema - provider schema.
 func (p *powerflexProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description: "",
@@ -215,9 +216,10 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 	}
 }
 
-// Resources - returns array of all resources.
+// Resources defines the resources implemented in the provider.
 func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		NewSDSResource,
+		NewVolumeResource,
+		NewSDSResource
 	}
 }
