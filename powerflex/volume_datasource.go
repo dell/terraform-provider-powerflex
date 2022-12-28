@@ -2,6 +2,7 @@ package powerflex
 
 import (
 	"context"
+
 	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -95,7 +96,10 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	var err error
 
 	diags := req.Config.Get(ctx, &state)
-
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	//Read the volumes based on volume id/name or storage pool id/name and if nothing
 	//is mentioned , then return all volumes
 	if state.Name.ValueString() != "" {
