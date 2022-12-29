@@ -3,9 +3,12 @@ package powerflex
 import (
 	"fmt"
 	"os"
-	"regexp"
 	"testing"
 
+	"reflect"
+
+	scaleiotypes "github.com/dell/goscaleio/types/v1"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -43,7 +46,6 @@ func TestAccProtectionDomainDataSource(t *testing.T) {
 			{
 				Config: ProtectionDomainDataSourceConfig1,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify the first protection domain to ensure attributes are correctly set
 					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd1", "protection_domains.#", "1"),
 					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd1", "protection_domains.0.id", protectiondomainTestData.id),
 					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd1", "protection_domains.0.name", protectiondomainTestData.name),
@@ -53,33 +55,67 @@ func TestAccProtectionDomainDataSource(t *testing.T) {
 			{
 				Config: ProtectionDomainDataSourceConfig2,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify the first protection domain to ensure attributes are correctly set
 					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd2", "protection_domains.#", "1"),
 					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd2", "protection_domains.0.id", protectiondomainTestData.id),
 					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd2", "protection_domains.0.name", protectiondomainTestData.name),
-					// resource.TestCheckOutput("pdResult", "domain1"),
 				),
 			},
 			//retrieving all the protection domains
 			{
 				Config: ProtectionDomainDataSourceConfig3,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify the volume to ensure all attributes are set
 					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd3", "protection_domains.#", "3"),
 					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd3", "protection_domains.0.id", protectiondomainTestData.id),
 					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd3", "protection_domains.0.name", protectiondomainTestData.name),
 					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd3", "protection_domains.1.name", protectiondomainTestData.name2),
 					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd3", "protection_domains.2.name", protectiondomainTestData.name3),
-					// resource.TestCheckOutput("pdResult3", "domain1"),
 				),
-			},
-			//retrieving all the protection domains
-			{
-				Config:      ProtectionDomainDataSourceConfig4,
-				ExpectError: regexp.MustCompile(""),
 			},
 		},
 	})
+}
+
+func TestNonNullPDConnInfo(t *testing.T) {
+	inputStr := "Dummy"
+	input := scaleiotypes.PDConnInfo{
+		ClientServerConnStatus: "Dummy",
+		DisconnectedClientID:   &inputStr,
+		DisconnectedClientName: &inputStr,
+		DisconnectedServerID:   &inputStr,
+		DisconnectedServerName: &inputStr,
+		DisconnectedServerIP:   &inputStr,
+	}
+
+	expectedOut := pdConnInfoModel{
+		ClientServerConnStatus: types.StringValue(inputStr),
+		DisconnectedClientID:   types.StringValue(inputStr),
+		DisconnectedClientName: types.StringValue(inputStr),
+		DisconnectedServerID:   types.StringValue(inputStr),
+		DisconnectedServerName: types.StringValue(inputStr),
+		DisconnectedServerIP:   types.StringValue(inputStr),
+	}
+
+	out := pdConnInfoModelValue(input)
+
+	if !reflect.DeepEqual(out, expectedOut) {
+		t.Fatalf("Error matching output and expected: %#v vs %#v", out, expectedOut)
+	}
+
+}
+
+func TestNonNullReplicationCapacityMaxRatio(t *testing.T) {
+	inp := 10
+	input := scaleiotypes.ProtectionDomain{
+		ReplicationCapacityMaxRatio: &inp,
+	}
+
+	outList := getAllProtectionDomainState([]*scaleiotypes.ProtectionDomain{
+		&input,
+	})
+	out := outList[0]
+	if actual := out.ReplicationCapacityMaxRatio.ValueInt64(); actual != int64(inp) {
+		t.Fatalf("Error matching output and expected: %#v vs %#v", actual, inp)
+	}
 }
 
 func init() {
@@ -125,22 +161,6 @@ provider "powerflex" {
 	insecure = true
 }
 data "powerflex_protection_domain" "pd3" {						
-}
-output "pdResult3" {
-	value = data.powerflex_protection_domain.pd3.protection_domains
-}
-`, username, password, endpoint)
-
-	ProtectionDomainDataSourceConfig4 = fmt.Sprintf(`
-provider "powerflex" {
-	username = "%s"
-	password = "%s"
-	endpoint = "%s"
-	insecure = true
-}
-data "powerflex_protection_domain" "pd4" {
-	id = "blahblahid"
-	name = "blahblahname"					
 }
 output "pdResult3" {
 	value = data.powerflex_protection_domain.pd3.protection_domains
