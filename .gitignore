@@ -1,3 +1,11 @@
+vendor/*
+gosec*
+
+coverage.out
+
+.terraform*
+tfplan*
+terraform.tfvars
 powerflex/*.env
 powerflex/trace.txt
 examples/trace.txt
