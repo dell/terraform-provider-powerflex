@@ -10,9 +10,9 @@ terraform {
 }
 
 provider "powerflex" {
-    username = var.powerflex_username
-    password = var.powerflex_password
-    endpoint = var.powerflex_endpoint
+    username = var.username
+    password = var.password
+    endpoint = var.endpoint
 }
 
 # Read all protection domains
