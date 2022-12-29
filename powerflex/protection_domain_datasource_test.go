@@ -33,7 +33,7 @@ var (
 )
 
 // TestAccProtectionDomainDataSource tests the protectiondomain data source
-// where it fetches the protectiondomains based on protectiondomain id/name or storage pool id/name
+// where it fetches the protectiondomains based on protectiondomain id/name
 // and if nothing is mentioned , then return all protectiondomains
 func TestAccProtectionDomainDataSource(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
@@ -74,10 +74,11 @@ func TestAccProtectionDomainDataSource(t *testing.T) {
 	})
 }
 
+// TestNonNullPDConnInfo tests if non-null PDConnInfo are properly marshalled
 func TestNonNullPDConnInfo(t *testing.T) {
 	inputStr := "Dummy"
 	input := scaleiotypes.PDConnInfo{
-		ClientServerConnStatus: "Dummy",
+		ClientServerConnStatus: inputStr,
 		DisconnectedClientID:   &inputStr,
 		DisconnectedClientName: &inputStr,
 		DisconnectedServerID:   &inputStr,
@@ -102,6 +103,8 @@ func TestNonNullPDConnInfo(t *testing.T) {
 
 }
 
+// TestNonNullReplicationCapacityMaxRatio tests that properl marshalling occurs when
+// ReplicationCapacityMaxRatio field has non null value
 func TestNonNullReplicationCapacityMaxRatio(t *testing.T) {
 	inp := 10
 	input := scaleiotypes.ProtectionDomain{
@@ -118,29 +121,21 @@ func TestNonNullReplicationCapacityMaxRatio(t *testing.T) {
 }
 
 func init() {
+	// retrieve protection domain by id
 	ProtectionDomainDataSourceConfig1 = `
-data "powerflex_protection_domain" "pd1" {						
-	id = "4eeb304600000000"
-}
-output "pdResult1" {
-	value = data.powerflex_protection_domain.pd1.protection_domains[0].name
-}
-`
-
+	data "powerflex_protection_domain" "pd1" {						
+		id = "4eeb304600000000"
+	}
+	`
+	// retrieve protection domain by name
 	ProtectionDomainDataSourceConfig2 = `
-data "powerflex_protection_domain" "pd2" {			
-	name = "domain1"
-}
-output "pdResult2" {
-	value = data.powerflex_protection_domain.pd2.protection_domains[0].name
-}
-`
-
+	data "powerflex_protection_domain" "pd2" {			
+		name = "domain1"
+	}
+	`
+	// retrieve all protection domains
 	ProtectionDomainDataSourceConfig3 = `
-data "powerflex_protection_domain" "pd3" {						
-}
-output "pdResult3" {
-	value = data.powerflex_protection_domain.pd3.protection_domains
-}
-`
+	data "powerflex_protection_domain" "pd3" {						
+	}
+	`
 }
