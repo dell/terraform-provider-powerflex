@@ -10,15 +10,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
-	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 )
 
 var (
-	_ datasource.DataSource                     = &protectionDomainDataSource{}
-	_ datasource.DataSourceWithConfigure        = &protectionDomainDataSource{}
-	_ datasource.DataSourceWithConfigValidators = &protectionDomainDataSource{}
+	_ datasource.DataSource              = &protectionDomainDataSource{}
+	_ datasource.DataSourceWithConfigure = &protectionDomainDataSource{}
 )
 
 // ProtectionDomainDataSource returns the datasource for protection domain
@@ -225,6 +221,8 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 			return
 		}
 		protectionDomains = append(protectionDomains, protectionDomain)
+		// this is required for acceptance testing
+		state.ID = types.StringValue(protectionDomain.ID)
 	} else {
 		// Fetch all protection domains
 		protectionDomains, err = system.GetProtectionDomain("")
@@ -235,6 +233,8 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 			)
 			return
 		}
+		// this is required for acceptance testing
+		state.ID = types.StringValue("DummyID")
 	}
 
 	state.ProtectionDomains = getAllProtectionDomainState(protectionDomains)
@@ -305,13 +305,4 @@ func getAllProtectionDomainState(protectionDomains []*scaleiotypes.ProtectionDom
 	}
 
 	return
-}
-
-func (d protectionDomainDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
-	return []datasource.ConfigValidator{
-		datasourcevalidator.Conflicting(
-			path.MatchRoot("id"),
-			path.MatchRoot("name"),
-		),
-	}
 }

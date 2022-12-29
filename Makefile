@@ -61,8 +61,12 @@ check:
 gosec:
 	gosec -quiet -log gosec.log -out=gosecresults.csv -fmt=csv ./...
 
-testacc: test
+testacc:
 	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m   
 
 generate:
 	go generate ./...
+
+cover:
+	go test -coverprofile=coverage.out ./...
+	go tool cover -html coverage.out -o coverage.html
