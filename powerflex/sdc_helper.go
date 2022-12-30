@@ -2,12 +2,10 @@ package powerflex
 
 import (
 	"context"
-	"terraform-provider-powerflex/helper"
 
 	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // sdcFilterType - Enum structure for filter types.
@@ -155,14 +153,14 @@ func getAllSdcState(ctx context.Context, client goscaleio.Client, sdcs []scaleio
 			})
 		}
 
-		sdcc := goscaleio.NewSdc(&client, &sdcValue)
-		stats, err := sdcc.GetStatistics()
-		if err != nil {
-			tflog.Debug(ctx, "[POWERFLEX] err in GetStatistics "+helper.PrettyJSON(err))
-			return nil, err // Sometimes unable to find link is error we get in 4.0
-		}
+		// sdcc := goscaleio.NewSdc(&client, &sdcValue)
+		// stats, err := sdcc.GetStatistics()
+		// if err != nil {
+		// 	tflog.Debug(ctx, "[POWERFLEX] err in GetStatistics "+helper.PrettyJSON(err))
+		// 	return nil, err // Sometimes unable to find link is error we get in 4.0
+		// }
 
-		tflog.Debug(ctx, "[POWERFLEX] stats in GetStatistics "+helper.PrettyJSON(stats))
+		// tflog.Debug(ctx, "[POWERFLEX] stats in GetStatistics "+helper.PrettyJSON(stats))
 
 		// sdcState.Statistics = createStaticsObject(*stats)
 

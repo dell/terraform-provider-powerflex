@@ -3,12 +3,12 @@
 page_title: "powerflex_sdc Data Source - powerflex"
 subcategory: ""
 description: |-
-  SDC Datasource.
+  
 ---
 
 # powerflex_sdc (Data Source)
 
-SDC Datasource.
+
 
 
 
@@ -17,35 +17,35 @@ SDC Datasource.
 
 ### Optional
 
-- `id` (String) SDC Datasource input for testing.
-- `name` (String) SDC Datasource SDC input sdc name to search for.
-- `sdc_id` (String) SDC Datasource SDC input sdc id to search for.
+- `id` (String) Input ID required only for testing.
+- `name` (String) SDC input sdc name to search for.
+- `sdc_id` (String) Input SDC id to search for.
 
 ### Read-Only
 
-- `sdcs` (Attributes List) SDC Datasource result SDCs. (see [below for nested schema](#nestedatt--sdcs))
+- `sdcs` (Attributes List) result SDCs. (see [below for nested schema](#nestedatt--sdcs))
 
 <a id="nestedatt--sdcs"></a>
 ### Nested Schema for `sdcs`
 
 Read-Only:
 
-- `id` (String) SDC Datasource SDC ID.
-- `links` (Attributes List) SDC Datasource SDC Links. (see [below for nested schema](#nestedatt--sdcs--links))
-- `mdm_connection_state` (String) SDC Datasource SDC MDM connection status.
-- `name` (String) SDC Datasource SDC name.
-- `on_vmware` (Boolean) SDC Datasource SDC is onvmware.
-- `sdc_approved` (Boolean) SDC Datasource SDC is approved.
-- `sdc_guid` (String) SDC Datasource SDC GUID.
-- `sdc_ip` (String) SDC Datasource SDC IP.
-- `system_id` (String) SDC Datasource SDC System ID.
+- `id` (String) SDC ID.
+- `links` (Attributes List) SDC Links. (see [below for nested schema](#nestedatt--sdcs--links))
+- `mdm_connection_state` (String) SDC MDM connection status.
+- `name` (String) SDC name.
+- `on_vmware` (Boolean) SDC is onvmware.
+- `sdc_approved` (Boolean) SDC is approved.
+- `sdc_guid` (String) SDC GUID.
+- `sdc_ip` (String) SDC IP.
+- `system_id` (String) SDC System ID.
 
 <a id="nestedatt--sdcs--links"></a>
 ### Nested Schema for `sdcs.links`
 
 Read-Only:
 
-- `href` (String) SDC Datasource SDC Links-HREF.
-- `rel` (String) SDC Datasource SDC Links-Rel.
+- `href` (String) SDC Links-HREF.
+- `rel` (String) SDC Links-Rel.
 
 

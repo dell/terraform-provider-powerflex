@@ -67,14 +67,63 @@ func (r *sdcResource) Configure(_ context.Context, req resource.ConfigureRequest
 // Create - function to Create for SDC resource.
 func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "[POWERFLEX] Create")
-	resp.Diagnostics.AddError(
-		"SDC can not be added through terraform, You can import SDC and update name through terraform.",
-		"SDC can not be added through terraform, You can import SDC and update name through terraform.",
-	)
-	// return
-	// Retrieve values from plan
+
 	var plan sdcResourceModel
 	diags := req.Plan.Get(ctx, &plan)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	system, err := getFirstSystem(r.client)
+
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Read Powerflex systems sdcs Create",
+			err.Error(),
+		)
+		return
+	}
+
+	nameChng, err := system.ChangeSdcName(plan.SdcID.ValueString(), plan.Name.ValueString())
+
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"[Create] Unable to Change name Powerflex sdc",
+			err.Error(),
+		)
+		return
+	}
+	sdcs, err := system.GetSdc()
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Read Powerflex sdcs",
+			err.Error(),
+		)
+		return
+	}
+
+	finalSDC := findChangedSdc(sdcs, plan.SdcID.ValueString())
+	plan = getSdcState(finalSDC)
+
+	tflog.Debug(ctx, "[POWERFLEX] nameChng Result :-- "+helper.PrettyJSON(nameChng))
+
+	diags = resp.State.Set(ctx, plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	plan.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+
+	// Set state to fully populated data
+	diags = resp.State.Set(ctx, plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	plan.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
 
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -92,15 +141,8 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	allSystems, err := r.client.GetSystems()
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex all systems",
-			err.Error(),
-		)
-		return
-	}
-	system, err := r.client.FindSystem(allSystems[0].ID, "", "")
+
+	system, err := getFirstSystem(r.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Read Powerflex systems Read",
@@ -108,10 +150,7 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		)
 		return
 	}
-	singleSdc, err := system.FindSdc("ID", state.ID.ValueString())
-	tflog.Debug(ctx, "[POWERFLEX] state singleSdc"+helper.PrettyJSON(singleSdc))
-	tflog.Debug(ctx, "[POWERFLEX] state state.Name.ValueString()"+state.Name.ValueString())
-	tflog.Debug(ctx, "[POWERFLEX] state state.ID.ValueString()"+state.ID.ValueString())
+	singleSdc, err := system.FindSdc("ID", state.SdcID.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -122,6 +161,7 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	}
 
 	state = getSdcState(*singleSdc.Sdc)
+
 	// tflog.Debug(ctx, "[POWERFLEX] state return"+helper.PrettyJSON(state))
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -136,22 +176,15 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	tflog.Debug(ctx, "[POWERFLEX] Update")
 	// Retrieve values from plan
 	var plan sdcResourceModel
+	var state sdcResourceModel
+	req.State.Get(ctx, &state)
 	diags := req.Plan.Get(ctx, &plan)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	allSystems, err := r.client.GetSystems()
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex all systems",
-			err.Error(),
-		)
-		return
-	}
-
-	system, err := r.client.FindSystem(allSystems[0].ID, "", "")
+	system, err := getFirstSystem(r.client)
 
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -159,6 +192,15 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 			err.Error(),
 		)
 		return
+	}
+	if state.Name.ValueString() == plan.Name.ValueString() {
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"[Create] Same name alredy exists.",
+				err.Error(),
+			)
+			return
+		}
 	}
 	nameChng, err := system.ChangeSdcName(plan.SdcID.ValueString(), plan.Name.ValueString())
 
@@ -223,7 +265,8 @@ func (r *sdcResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 
 // ImportState - function to ImportState for SDC resource.
 func (r *sdcResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	tflog.Debug(ctx, "[POWERFLEX] ImportState :-- "+helper.PrettyJSON(req))
+	resource.ImportStatePassthroughID(ctx, path.Root("sdc_id"), req, resp)
 }
 
 // getSdcState - function to return all sdc result from goscaleio.

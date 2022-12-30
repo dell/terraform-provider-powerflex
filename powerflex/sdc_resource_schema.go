@@ -19,19 +19,19 @@ var sdcResourceSchemaDescriptions = struct {
 	LinksRel           string
 	LinksHref          string
 }{
-	SdcResourceSchema:  "SDC Resource Name change schema.",
-	LastUpdated:        "SDC Resource last updated timestamp.",
-	SdcID:              "SDC Resource SDC ID.",
-	SystemID:           "SDC Resource System ID.",
-	Name:               "SDC Resource SDC Name.",
-	SdcIP:              "SDC Resource SDC IP.",
-	SdcApproved:        "SDC Resource SDC Approved.",
-	OnVMWare:           "SDC Resource On VMware.",
-	SdcGUID:            "SDC Resource SDC GUID.",
-	MdmConnectionState: "SDC Resource MDM Connection state.",
-	Links:              "SDC Resource Links.",
-	LinksRel:           "SDC Resource Links Rel.",
-	LinksHref:          "SDC Resource Links HREF.",
+	SdcResourceSchema:  "",
+	LastUpdated:        "last updated timestamp.",
+	SdcID:              "SDC ID.",
+	SystemID:           "System ID.",
+	Name:               "SDC Name.",
+	SdcIP:              "SDC IP.",
+	SdcApproved:        "SDC Approved.",
+	OnVMWare:           "On VMware.",
+	SdcGUID:            "SDC GUID.",
+	MdmConnectionState: "MDM Connection state.",
+	Links:              "Links.",
+	LinksRel:           "Links Rel.",
+	LinksHref:          "Links HREF.",
 }
 
 // SDCReourceSchema - varible holds schema for SDC resource

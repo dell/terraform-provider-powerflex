@@ -45,15 +45,8 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	var state sdcDataSourceModel
 	diags := req.Config.Get(ctx, &state)
 	tflog.Info(ctx, "[POWERFLEX] sdcDataSourceModel"+helper.PrettyJSON((state)))
-	allSystems, err := d.client.GetSystems()
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex all systems",
-			err.Error(),
-		)
-		return
-	}
-	system, err := d.client.FindSystem(allSystems[0].ID, "", "")
+
+	system, err := getFirstSystem(d.client)
 
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -79,11 +72,8 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	if state.SdcID.ValueString() != "" {
 		searchFilter = sdcFilterType.ByID
 	}
-	if state.Name.ValueString() != "" && state.SdcID.ValueString() != "" {
-		searchFilter = sdcFilterType.ByID
-	}
 
-	allSdcWithStats, err := getAllSdcState(ctx, *d.client, sdcs)
+	allSdcWithStats, _ := getAllSdcState(ctx, *d.client, sdcs)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Read Statics for sdc id = "+state.SdcID.ValueString()+", name = "+state.Name.ValueString(),

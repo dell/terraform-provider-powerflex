@@ -13,8 +13,9 @@ terraform {
 
 provider "powerflex" {
     username = ""
-    password = ""
-    host = ""
+password = ""
+endpoint = ""
+insecure = true
 }
 
 # # -----------------------------------------------------------------------------------
@@ -24,7 +25,7 @@ provider "powerflex" {
     # sdcid is optional if empty then will return all sdc
     # sdcid and name both are empty then will return all sdc
 data "powerflex_sdc" "selected" {
-    sdc_id = "c423b09800000003"
+    # sdc_id = "c423b09800000003"
     # name = ""
 }
 

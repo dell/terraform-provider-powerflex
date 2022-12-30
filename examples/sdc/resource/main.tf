@@ -1,6 +1,6 @@
 # cd ../../.. && make install && cd examples/sdc/resource
-# terraform init && terraform apply --auto-approve
 # terraform init && terraform import powerflex_sdc.sdc c423b09800000003
+# terraform init && terraform apply --auto-approve
 # terraform destroy
 terraform {
   required_providers {
@@ -19,9 +19,6 @@ provider "powerflex" {
     username = "${module.base.username}"
     password = "${module.base.password}"
     endpoint = "${module.base.host}"
-    # insecure = ""
-    # usecerts = ""
-    # powerflex_version = ""
 }
 
 
@@ -31,7 +28,7 @@ provider "powerflex" {
 # # -----------------------------------------------------------------------------------
 resource "powerflex_sdc" "sdc" {
   sdc_id = "c423b09800000003"
-  name = "powerflex_sdc20"
+  name = "powerflex_sdc25"
 }
 
 output "changed_sdc" {

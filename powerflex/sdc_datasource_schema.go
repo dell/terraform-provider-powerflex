@@ -1,7 +1,10 @@
 package powerflex
 
 import (
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
 var sdcDatasourceSchemaDescriptions = struct {
@@ -28,28 +31,28 @@ var sdcDatasourceSchemaDescriptions = struct {
 	LinksHref          string
 	Statistics         string
 }{
-	SdcDatasourceSchema: "SDC Datasource.",
+	SdcDatasourceSchema: "",
 
-	InputID:    "SDC Datasource input for testing.",
-	InputSdcID: "SDC Datasource SDC input sdc id to search for.",
+	InputID:    "Input ID required only for testing.",
+	InputSdcID: "Input SDC id to search for.",
 	// InputSystemid: "",
-	InputName: "SDC Datasource SDC input sdc name to search for.",
+	InputName: "SDC input sdc name to search for.",
 
-	Sdcs: "SDC Datasource result SDCs.", // outpur slice
+	Sdcs: "result SDCs.", // outpur slice
 
-	LastUpdated:        "SDC Datasource SDC result last updated timestamp.",
-	SdcID:              "SDC Datasource SDC ID.",
-	SystemID:           "SDC Datasource SDC System ID.",
-	Name:               "SDC Datasource SDC name.",
-	SdcIP:              "SDC Datasource SDC IP.",
-	SdcApproved:        "SDC Datasource SDC is approved.",
-	OnVMWare:           "SDC Datasource SDC is onvmware.",
-	SdcGUID:            "SDC Datasource SDC GUID.",
-	MdmConnectionState: "SDC Datasource SDC MDM connection status.",
-	Links:              "SDC Datasource SDC Links.",
-	LinksRel:           "SDC Datasource SDC Links-Rel.",
-	LinksHref:          "SDC Datasource SDC Links-HREF.",
-	Statistics:         "SDC Datasource SDC Statistics.",
+	LastUpdated:        "SDC result last updated timestamp.",
+	SdcID:              "SDC ID.",
+	SystemID:           "SDC System ID.",
+	Name:               "SDC name.",
+	SdcIP:              "SDC IP.",
+	SdcApproved:        "SDC is approved.",
+	OnVMWare:           "SDC is onvmware.",
+	SdcGUID:            "SDC GUID.",
+	MdmConnectionState: "SDC MDM connection status.",
+	Links:              "SDC Links.",
+	LinksRel:           "SDC Links-Rel.",
+	LinksHref:          "SDC Links-HREF.",
+	Statistics:         "SDC Statistics.",
 }
 
 // SDCDataSourceScheme is variable for schematic for SDC Data Source
@@ -64,15 +67,17 @@ var SDCDataSourceScheme schema.Schema = schema.Schema{
 			Description: sdcDatasourceSchemaDescriptions.InputSdcID,
 			Optional:    true,
 			Computed:    true,
+			Validators: []validator.String{
+				stringvalidator.ConflictsWith(path.MatchRoot("name")),
+			},
 		},
-		// "systemid": schema.StringAttribute{
-		// 	Description: sdcDatasourceSchemaDescriptions.InputSystemid,
-		// 	Required:    true,
-		// },
 		"name": schema.StringAttribute{
 			Description: sdcDatasourceSchemaDescriptions.InputName,
 			Optional:    true,
 			Computed:    true,
+			Validators: []validator.String{
+				stringvalidator.ConflictsWith(path.MatchRoot("sdc_id")),
+			},
 		},
 		"sdcs": schema.ListNestedAttribute{
 			Description: sdcDatasourceSchemaDescriptions.Sdcs,
