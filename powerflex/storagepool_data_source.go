@@ -181,7 +181,7 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 
 	spID := []string{}
 	// Check if storage pool ID or name is provided
-	if state.StoragePoolID.IsNull() != true {
+	if !state.StoragePoolID.IsNull() {
 		diags = state.StoragePoolID.ElementsAs(ctx, &spID, true)
 	} else {
 		diags = state.StoragePoolName.ElementsAs(ctx, &spID, true)
@@ -195,7 +195,7 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 	for _, spIdentifier := range spID {
 		var s1 *scaleio_types.StoragePool
 
-		if state.StoragePoolID.IsNull() != true {
+		if !state.StoragePoolID.IsNull() {
 			s1, err3 = p1.FindStoragePool(spIdentifier, "", "")
 		} else {
 			s1, err3 = p1.FindStoragePool("", spIdentifier, "")

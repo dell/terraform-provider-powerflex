@@ -1,16 +1,32 @@
 package powerflex
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
+	"github.com/joho/godotenv"
 )
 
-var endpoint = os.Getenv("POWERFLEX_ENDPOINT")
-var username = os.Getenv("POWERFLEX_USERNAME")
-var password = os.Getenv("POWERFLEX_PASSWORD")
+var ProviderConfigForTesting = ``
+
+func init() {
+	godotenv.Load("POWERFLEX_TERRAFORM_TEST.env")
+
+	username := os.Getenv("POWERFLEX_USERNAME")
+	password := os.Getenv("POWERFLEX_PASSWORD")
+	endpoint := os.Getenv("POWERFLEX_ENDPOINT")
+
+	ProviderConfigForTesting = fmt.Sprintf(`
+		provider "powerflex" {
+			username = "%s"
+			password = "%s"
+			endpoint = "%s"
+		}
+	`, username, password, endpoint)
+}
 
 var (
 	// testAccProtoV6ProviderFactories are used to instantiate a provider during
