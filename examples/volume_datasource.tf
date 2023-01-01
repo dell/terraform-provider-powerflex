@@ -1,20 +1,4 @@
-# cd ../ && make install && cd examples
 # terraform init && terraform apply --auto-approve
-terraform {
-  required_providers {
-    powerflex = {
-      version = "0.1"
-      source  = "registry.terraform.io/dell/powerflex"
-    }
-  }
-}
-
-provider "powerflex" {
-    username = ""
-    password = ""
-    endpoint = ""
-    #insecure = true
-}
 
 # # -----------------------------------------------------------------------------------
 # # Read all volumes if completely blank, otherwise reads specific volume based on id or name
