@@ -220,5 +220,6 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewVolumeResource,
+		StoragepoolResource,
 	}
 }
