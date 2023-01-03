@@ -22,8 +22,8 @@ var sdcResourceTestData resourceDataPoints
 func init() {
 	sdcResourceTestData.noOfSdc = "1"
 	sdcResourceTestData.noOflinks = "4"
-	sdcResourceTestData.name = "powerflex_sdc22"
-	sdcResourceTestData.newname = "powerflex_sdc56"
+	sdcResourceTestData.name = "powerflex_sdc26"
+	sdcResourceTestData.newname = ""
 	sdcResourceTestData.sdcguid = "0877AE5E-BDBF-4E87-A002-218D9F883896"
 	sdcResourceTestData.sdcip = ""
 	sdcResourceTestData.systemid = "0e7a082862fedf0f"
@@ -85,33 +85,33 @@ func TestSdcResourceCreateUpdate(t *testing.T) {
 var (
 	TestSdcResourceCreateBlock = `
 	resource "powerflex_sdc" "sdc" {
-		sdc_id = "c423b09800000003"
+		id = "c423b09800000003"
 		name = "` + sdcResourceTestData.name + `"
 	  }
 	  `
 
 	TestSdcResourceUpdateBlock = `
 	  resource "powerflex_sdc" "sdc" {
-		  sdc_id = "c423b09800000003"
-		  name = "` + sdcResourceTestData.name + `"
+		  id = "c423b09800000003"
+		  name = "` + sdcResourceTestData.newname + `"
 		}
 		`
 
 	TestSdcResourceUpdateImportBlock = `
 	resource "powerflex_sdc" "test_import" {
 		id = "c423b09800000003"
-		sdc_id = "c423b09800000003"
+		name = "powerflex_sdc26"
 	  }
 	  `
 	TestSdcResourceCreateUpdateBlockS1 = `
 	resource "powerflex_sdc" "sdc" {
-		sdc_id = "c423b09900000004"
+		id = "c423b09900000004"
 		name = "Block_S33"
 	  }
 	  `
 	TestSdcResourceCreateUpdateBlockS2 = `
 	resource "powerflex_sdc" "sdc" {
-		sdc_id = "c423b09900000004"
+		id = "c423b09900000004"
 		name = "Block_S34"
 	  }
 	  `

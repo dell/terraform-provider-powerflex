@@ -18,7 +18,6 @@ description: |-
 ### Required
 
 - `name` (String) SDC Name.
-- `sdc_id` (String) SDC ID.
 
 ### Read-Only
 
@@ -26,7 +25,7 @@ description: |-
 - `last_updated` (String) last updated timestamp.
 - `links` (Attributes List) Links. (see [below for nested schema](#nestedatt--links))
 - `mdm_connection_state` (String) MDM Connection state.
-- `on_vmware` (Boolean) SDC ID.
+- `on_vmware` (Boolean) On VMware.
 - `sdc_approved` (Boolean) SDC Approved.
 - `sdc_guid` (String) SDC GUID.
 - `sdc_ip` (String) SDC IP.

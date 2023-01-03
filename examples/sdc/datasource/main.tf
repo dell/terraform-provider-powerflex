@@ -11,11 +11,14 @@ terraform {
 
 
 
+module "base" {
+  source = "../../config"
+}
+
 provider "powerflex" {
-    username = ""
-password = ""
-endpoint = ""
-insecure = true
+    username = "${module.base.username}"
+    password = "${module.base.password}"
+    endpoint = "${module.base.host}"
 }
 
 # # -----------------------------------------------------------------------------------
@@ -25,7 +28,7 @@ insecure = true
     # sdcid is optional if empty then will return all sdc
     # sdcid and name both are empty then will return all sdc
 data "powerflex_sdc" "selected" {
-    # sdc_id = "c423b09800000003"
+    # id = "c423b09800000003"
     # name = ""
 }
 

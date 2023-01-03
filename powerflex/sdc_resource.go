@@ -34,7 +34,6 @@ type sdcResource struct {
 type sdcResourceModel struct {
 	ID                 types.String `tfsdk:"id"`
 	LastUpdated        types.String `tfsdk:"last_updated"`
-	SdcID              types.String `tfsdk:"sdc_id"`
 	SystemID           types.String `tfsdk:"system_id"`
 	Name               types.String `tfsdk:"name"`
 	SdcIP              types.String `tfsdk:"sdc_ip"`
@@ -85,7 +84,7 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
-	nameChng, err := system.ChangeSdcName(plan.SdcID.ValueString(), plan.Name.ValueString())
+	nameChng, err := system.ChangeSdcName(plan.ID.ValueString(), plan.Name.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -103,7 +102,7 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
-	finalSDC := findChangedSdc(sdcs, plan.SdcID.ValueString())
+	finalSDC := findChangedSdc(sdcs, plan.ID.ValueString())
 	plan = getSdcState(finalSDC)
 
 	tflog.Debug(ctx, "[POWERFLEX] nameChng Result :-- "+helper.PrettyJSON(nameChng))
@@ -150,7 +149,7 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		)
 		return
 	}
-	singleSdc, err := system.FindSdc("ID", state.SdcID.ValueString())
+	singleSdc, err := system.FindSdc("ID", state.ID.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -202,7 +201,7 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 			return
 		}
 	}
-	nameChng, err := system.ChangeSdcName(plan.SdcID.ValueString(), plan.Name.ValueString())
+	nameChng, err := system.ChangeSdcName(plan.ID.ValueString(), plan.Name.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -220,7 +219,7 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		return
 	}
 
-	finalSDC := findChangedSdc(sdcs, plan.SdcID.ValueString())
+	finalSDC := findChangedSdc(sdcs, plan.ID.ValueString())
 	plan = getSdcState(finalSDC)
 
 	tflog.Debug(ctx, "[POWERFLEX] nameChng Result :-- "+helper.PrettyJSON(nameChng))
@@ -266,14 +265,14 @@ func (r *sdcResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 // ImportState - function to ImportState for SDC resource.
 func (r *sdcResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	tflog.Debug(ctx, "[POWERFLEX] ImportState :-- "+helper.PrettyJSON(req))
-	resource.ImportStatePassthroughID(ctx, path.Root("sdc_id"), req, resp)
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
 // getSdcState - function to return all sdc result from goscaleio.
 func getSdcState(sdc scaleiotypes.Sdc) (response sdcResourceModel) {
 	// var basenameOpts []sdcModel = []sdcModel{}
 	pln := sdcResourceModel{
-		SdcID:              types.StringValue(sdc.ID),
+		ID:                 types.StringValue(sdc.ID),
 		Name:               types.StringValue(sdc.Name),
 		SdcGUID:            types.StringValue(sdc.SdcGUID),
 		SdcApproved:        types.BoolValue(sdc.SdcApproved),

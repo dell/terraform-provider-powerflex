@@ -17,9 +17,8 @@ description: |-
 
 ### Optional
 
-- `id` (String) Input ID required only for testing.
+- `id` (String) Input SDC id to search for.
 - `name` (String) SDC input sdc name to search for.
-- `sdc_id` (String) Input SDC id to search for.
 
 ### Read-Only
 

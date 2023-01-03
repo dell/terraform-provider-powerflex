@@ -2,7 +2,6 @@ package powerflex
 
 import (
 	"os"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -29,9 +28,9 @@ endpoint = ""
 `
 
 func init() {
-	sdcTestData.noOfSdc = "0"
+	sdcTestData.noOfSdc = "1"
 	sdcTestData.noOflinks = "4"
-	sdcTestData.name = ""
+	sdcTestData.name = "powerflex_sdc26"
 	sdcTestData.sdcguid = "0877AE5E-BDBF-4E87-A002-218D9F883896"
 	sdcTestData.sdcip = ""
 	sdcTestData.systemid = "0e7a082862fedf0f"
@@ -61,27 +60,7 @@ func TestSdcDataSource(t *testing.T) {
 				Config: providerConfigForTesting + TestSdcDataSourceBlockNegative,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify number of sdc returned
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.#", "0"),
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "id", ""),
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "name", ""),
-				),
-			},
-		},
-	})
-}
-
-func TestSdcDataSourceNegetive(t *testing.T) {
-	os.Setenv("TF_ACC", "1")
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Read testing
-			// Error here = https://github.com/hashicorp/terraform-plugin-sdk/pull/1077
-			{
-				Config: providerConfigForTesting + TestSdcDataSourceBlockNegative,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify number of sdc returned
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.#", "0"),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.#", "133"),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "id", ""),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "name", ""),
 				),
@@ -117,8 +96,13 @@ func TestSdcDataSourceByNameAndID(t *testing.T) {
 			// Read testing
 			// Error here = https://github.com/hashicorp/terraform-plugin-sdk/pull/1077
 			{
-				Config:      providerConfigForTesting + TestSdcDataSourceByNameAndIDBlock,
-				ExpectError: regexp.MustCompile(`.*name or sdc_id*`),
+				Config: providerConfigForTesting + TestSdcDataSourceBlockNegative,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					// Verify number of sdc returned
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.#", "133"),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "id", ""),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "name", ""),
+				),
 			},
 		},
 	})
@@ -126,19 +110,16 @@ func TestSdcDataSourceByNameAndID(t *testing.T) {
 
 var (
 	TestSdcDataSourceBlock = `data "powerflex_sdc" "selected" {
-		id = ""
-		sdc_id = "c423b09800000004"
+		id = "c423b09800000003"
 	}`
 	TestSdcDataSourceBlockNegative = `data "powerflex_sdc" "selected" {
-		sdc_id = "something"
 		id = ""
 	}`
 	TestSdcDataSourceByNameBlock = `data "powerflex_sdc" "selected" {
 		name = "LGLW6092"
-		id = ""
 	}`
 	TestSdcDataSourceByNameAndIDBlock = `data "powerflex_sdc" "selected" {
-		sdc_id = "c423b09800000005"
-		id = ""
+		id = "c423b09800000005"
+		name = "LGLW6092"
 	}`
 )

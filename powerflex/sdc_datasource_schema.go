@@ -18,7 +18,7 @@ var sdcDatasourceSchemaDescriptions = struct {
 	Sdcs string // outpur slice
 
 	LastUpdated        string
-	SdcID              string
+	ID                 string
 	SystemID           string
 	Name               string
 	SdcIP              string
@@ -41,7 +41,7 @@ var sdcDatasourceSchemaDescriptions = struct {
 	Sdcs: "result SDCs.", // outpur slice
 
 	LastUpdated:        "SDC result last updated timestamp.",
-	SdcID:              "SDC ID.",
+	ID:                 "SDC ID.",
 	SystemID:           "SDC System ID.",
 	Name:               "SDC name.",
 	SdcIP:              "SDC IP.",
@@ -59,11 +59,11 @@ var sdcDatasourceSchemaDescriptions = struct {
 var SDCDataSourceScheme schema.Schema = schema.Schema{
 	Description: sdcDatasourceSchemaDescriptions.SdcDatasourceSchema,
 	Attributes: map[string]schema.Attribute{
+		// "id": schema.StringAttribute{
+		// 	Description: sdcDatasourceSchemaDescriptions.InputID,
+		// 	Optional:    true,
+		// },
 		"id": schema.StringAttribute{
-			Description: sdcDatasourceSchemaDescriptions.InputID,
-			Optional:    true,
-		},
-		"sdc_id": schema.StringAttribute{
 			Description: sdcDatasourceSchemaDescriptions.InputSdcID,
 			Optional:    true,
 			Computed:    true,
@@ -76,7 +76,7 @@ var SDCDataSourceScheme schema.Schema = schema.Schema{
 			Optional:    true,
 			Computed:    true,
 			Validators: []validator.String{
-				stringvalidator.ConflictsWith(path.MatchRoot("sdc_id")),
+				stringvalidator.ConflictsWith(path.MatchRoot("id")),
 			},
 		},
 		"sdcs": schema.ListNestedAttribute{
@@ -85,7 +85,7 @@ var SDCDataSourceScheme schema.Schema = schema.Schema{
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: map[string]schema.Attribute{
 					"id": schema.StringAttribute{
-						Description: sdcDatasourceSchemaDescriptions.SdcID,
+						Description: sdcDatasourceSchemaDescriptions.ID,
 						Computed:    true,
 					},
 					"name": schema.StringAttribute{

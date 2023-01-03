@@ -5,9 +5,9 @@ import (
 )
 
 var sdcResourceSchemaDescriptions = struct {
-	SdcResourceSchema  string
-	LastUpdated        string
-	SdcID              string
+	SdcResourceSchema string
+	LastUpdated       string
+	// SdcID              string
 	SystemID           string
 	Name               string
 	SdcIP              string
@@ -19,9 +19,9 @@ var sdcResourceSchemaDescriptions = struct {
 	LinksRel           string
 	LinksHref          string
 }{
-	SdcResourceSchema:  "",
-	LastUpdated:        "last updated timestamp.",
-	SdcID:              "SDC ID.",
+	SdcResourceSchema: "",
+	LastUpdated:       "last updated timestamp.",
+	// SdcID:              "SDC ID.",
 	SystemID:           "System ID.",
 	Name:               "SDC Name.",
 	SdcIP:              "SDC IP.",
@@ -39,16 +39,12 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 	Description: sdcResourceSchemaDescriptions.SdcResourceSchema,
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
-			Computed:    true,
+			Required:    true,
 			Description: "",
 		},
 		"last_updated": schema.StringAttribute{
 			Computed:    true,
 			Description: sdcResourceSchemaDescriptions.LastUpdated,
-		},
-		"sdc_id": schema.StringAttribute{
-			Description: sdcResourceSchemaDescriptions.SdcID,
-			Required:    true,
 		},
 		"name": schema.StringAttribute{
 			Description: sdcResourceSchemaDescriptions.Name,
@@ -59,7 +55,7 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 			Computed:    true,
 		},
 		"on_vmware": schema.BoolAttribute{
-			Description: sdcResourceSchemaDescriptions.SdcID,
+			Description: sdcResourceSchemaDescriptions.OnVMWare,
 			Computed:    true,
 		},
 		"sdc_approved": schema.BoolAttribute{
