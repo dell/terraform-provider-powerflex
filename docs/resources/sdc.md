@@ -17,11 +17,11 @@ description: |-
 
 ### Required
 
+- `id` (String) SDC ID.
 - `name` (String) SDC Name.
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
 - `last_updated` (String) last updated timestamp.
 - `links` (Attributes List) Links. (see [below for nested schema](#nestedatt--links))
 - `mdm_connection_state` (String) MDM Connection state.

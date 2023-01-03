@@ -5,9 +5,9 @@ import (
 )
 
 var sdcResourceSchemaDescriptions = struct {
-	SdcResourceSchema string
-	LastUpdated       string
-	// SdcID              string
+	SdcResourceSchema  string
+	LastUpdated        string
+	ID                 string
 	SystemID           string
 	Name               string
 	SdcIP              string
@@ -19,9 +19,9 @@ var sdcResourceSchemaDescriptions = struct {
 	LinksRel           string
 	LinksHref          string
 }{
-	SdcResourceSchema: "",
-	LastUpdated:       "last updated timestamp.",
-	// SdcID:              "SDC ID.",
+	SdcResourceSchema:  "",
+	LastUpdated:        "last updated timestamp.",
+	ID:                 "SDC ID.",
 	SystemID:           "System ID.",
 	Name:               "SDC Name.",
 	SdcIP:              "SDC IP.",
@@ -40,7 +40,7 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Required:    true,
-			Description: "",
+			Description: sdcResourceSchemaDescriptions.ID,
 		},
 		"last_updated": schema.StringAttribute{
 			Computed:    true,

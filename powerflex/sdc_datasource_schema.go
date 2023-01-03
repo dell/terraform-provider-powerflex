@@ -59,10 +59,6 @@ var sdcDatasourceSchemaDescriptions = struct {
 var SDCDataSourceScheme schema.Schema = schema.Schema{
 	Description: sdcDatasourceSchemaDescriptions.SdcDatasourceSchema,
 	Attributes: map[string]schema.Attribute{
-		// "id": schema.StringAttribute{
-		// 	Description: sdcDatasourceSchemaDescriptions.InputID,
-		// 	Optional:    true,
-		// },
 		"id": schema.StringAttribute{
 			Description: sdcDatasourceSchemaDescriptions.InputSdcID,
 			Optional:    true,
