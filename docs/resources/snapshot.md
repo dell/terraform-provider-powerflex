@@ -18,7 +18,7 @@ Manages snapshot resource
 ### Required
 
 - `name` (String) The name of the snapshot.
-- `volume_id` (String) The volume id for which snapsshot is created
+- `volume_id` (String) The volume id for which snapshot is created
 
 ### Optional
 
