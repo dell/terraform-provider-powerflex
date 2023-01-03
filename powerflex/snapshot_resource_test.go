@@ -38,6 +38,8 @@ resource "powerflex_snapshot" "snapshots-create" {
 	capacity_unit="TB"
 }
 `
+
+// snapshot-create-invalid is already created using UI on powerflex. so if we try to rename this to an existing snapshot name, it will throw an error.
 var updateSnapshotRenameNegTest = `
 resource "powerflex_snapshot" "snapshots-create" {
 	name = "snapshot-create-invalid"
@@ -45,7 +47,7 @@ resource "powerflex_snapshot" "snapshots-create" {
 }
 `
 
-var createSnapshotWithoutVolumeNegTest = `
+var createSnapshotWithNonExistentVolumeNegTest = `
 resource "powerflex_snapshot" "snapshots-create-without-volume-id" {
 	name = "snapshots-create-beta"
 	volume_id = "abc"

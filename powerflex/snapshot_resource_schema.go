@@ -21,7 +21,7 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 		"volume_id": schema.StringAttribute{
 			Description:         "The volume id for which snapshot is created.",
 			Required:            true,
-			MarkdownDescription: "The volume id for which snapsshot is created",
+			MarkdownDescription: "The volume id for which snapshot is created",
 		},
 		"access_mode": schema.StringAttribute{
 			Description:         "The Access mode of snapshot",
