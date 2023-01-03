@@ -57,7 +57,7 @@ func TestSdcDataSource(t *testing.T) {
 				),
 			},
 			{
-				Config: providerConfigForTesting + TestSdcDataSourceBlockNegative,
+				Config: providerConfigForTesting + TestSdcDataSourceBlockOnlyID,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify number of sdc returned
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.#", "133"),
@@ -96,7 +96,7 @@ func TestSdcDataSourceByNameAndID(t *testing.T) {
 			// Read testing
 			// Error here = https://github.com/hashicorp/terraform-plugin-sdk/pull/1077
 			{
-				Config: providerConfigForTesting + TestSdcDataSourceBlockNegative,
+				Config: providerConfigForTesting + TestSdcDataSourceBlockOnlyID,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify number of sdc returned
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.#", "133"),
@@ -112,14 +112,10 @@ var (
 	TestSdcDataSourceBlock = `data "powerflex_sdc" "selected" {
 		id = "c423b09800000003"
 	}`
-	TestSdcDataSourceBlockNegative = `data "powerflex_sdc" "selected" {
+	TestSdcDataSourceBlockOnlyID = `data "powerflex_sdc" "selected" {
 		id = ""
 	}`
 	TestSdcDataSourceByNameBlock = `data "powerflex_sdc" "selected" {
-		name = "LGLW6092"
-	}`
-	TestSdcDataSourceByNameAndIDBlock = `data "powerflex_sdc" "selected" {
-		id = "c423b09800000005"
 		name = "LGLW6092"
 	}`
 )
