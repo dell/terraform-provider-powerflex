@@ -334,8 +334,7 @@ func findChangedSdc(sdcs []scaleiotypes.Sdc, id string) (*scaleiotypes.Sdc, erro
 
 	if found {
 		return &sdcReturnValue, nil
-	} else {
-		return nil, fmt.Errorf("SDC Not Found")
 	}
+	return nil, fmt.Errorf("SDC Not Found")
 
 }
