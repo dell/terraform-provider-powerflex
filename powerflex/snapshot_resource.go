@@ -75,7 +75,14 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 	snapID := snapResps.VolumeIDList[0]
-	snapResponse, _ := r.client.GetVolume("", snapID, "", "", false)
+	snapResponse, err2 := r.client.GetVolume("", snapID, "", "", false)
+	if err2 != nil {
+		resp.Diagnostics.AddError(
+			"Error getting snapshot",
+			"Could not get snapshot, unexpected error: "+err2.Error(),
+		)
+		return
+	}
 	snap := snapResponse[0]
 	snapResource := goscaleio.NewVolume(r.client)
 	snapResource.Volume = snap
@@ -153,7 +160,14 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		}
 		successMapped = append(successMapped, msid)
 	}
-	snapResponse, _ = r.client.GetVolume("", snapID, "", "", false)
+	snapResponse, err2 = r.client.GetVolume("", snapID, "", "", false)
+	if err2 != nil {
+		resp.Diagnostics.AddError(
+			"Error getting snapshot",
+			"Could not get snapshot, unexpected error: "+err2.Error(),
+		)
+		return
+	}
 	snap = snapResponse[0]
 	state := SnapshotTerraformState(snap, plan)
 	diags = resp.State.Set(ctx, state)
@@ -168,7 +182,14 @@ func (r *snapshotResource) Read(ctx context.Context, req resource.ReadRequest, r
 	var state SnapshotResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	snapResponse, _ := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
+	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
+	if err2 != nil {
+		resp.Diagnostics.AddError(
+			"Error getting snapshot",
+			"Could not get snapshot, unexpected error: "+err2.Error(),
+		)
+		return
+	}
 	snap := snapResponse[0]
 	state = SnapshotTerraformState(snap, state)
 	diags = resp.State.Set(ctx, state)
@@ -188,7 +209,14 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	resp.Diagnostics.Append(diags...)
 	VSIKB, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 	plan.VolumeSizeInKb = types.StringValue(strconv.FormatInt(VSIKB, 10))
-	snapResponse, _ := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
+	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
+	if err2 != nil {
+		resp.Diagnostics.AddError(
+			"Error getting snapshot",
+			"Could not get snapshot, unexpected error: "+err2.Error(),
+		)
+		return
+	}
 	snap := snapResponse[0]
 	snapResource := goscaleio.NewVolume(r.client)
 	snapResource.Volume = snap
@@ -289,7 +317,14 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 			return
 		}
 	}
-	snapResponse, _ = r.client.GetVolume("", state.ID.ValueString(), "", "", false)
+	snapResponse, err2 = r.client.GetVolume("", state.ID.ValueString(), "", "", false)
+	if err2 != nil {
+		resp.Diagnostics.AddError(
+			"Error getting snapshot",
+			"Could not get snapshot, unexpected error: "+err2.Error(),
+		)
+		return
+	}
 	snap = snapResponse[0]
 	snapResource.Volume = snap
 	state = SnapshotTerraformState(snap, plan)
@@ -305,7 +340,14 @@ func (r *snapshotResource) Delete(ctx context.Context, req resource.DeleteReques
 	var state SnapshotResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	snapResponse, _ := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
+	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
+	if err2 != nil {
+		resp.Diagnostics.AddError(
+			"Error getting snapshot",
+			"Could not get snapshot, unexpected error: "+err2.Error(),
+		)
+		return
+	}
 	snapshot := goscaleio.NewVolume(r.client)
 	snapshot.Volume = snapResponse[0]
 	sdcsToUnmap := []string{}
