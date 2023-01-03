@@ -65,6 +65,7 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	snapParam := &pftypes.SnapshotVolumesParam{
 		SnapshotDefs: snapshotReqs,
 	}
+	// create a snapshot of one volume, this requires a volume id and snapshot as parameter
 	snapResps, err := sr.CreateSnapshotConsistencyGroup(snapParam)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -78,6 +79,7 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	snap := snapResponse[0]
 	snapResource := goscaleio.NewVolume(r.client)
 	snapResource.Volume = snap
+	// setting access mode limit on snapshot. default value - ReadOnly
 	err = snapResource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -85,6 +87,8 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 			"Could not set snapshots, unexpected err: "+err.Error(),
 		)
 	}
+
+	// if size of volume is defined, then checking if size of snapshot is defined greater than volume then expand the snapshot size otherwise throw error.
 	if !plan.Size.IsNull() {
 		vikb, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 		tflog.Info(ctx, "vikb"+strconv.FormatInt(vikb, 10))
@@ -107,6 +111,8 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		}
 
 	}
+
+	// locking the auto snapshot on finding LockedAutoSnapshot parameter as true
 	if plan.LockedAutoSnapshot.ValueBool() {
 		err := snapResource.LockAutoSnapshot()
 		if err != nil {
@@ -128,6 +134,7 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 			SdcID:                 msid,
 			AllowMultipleMappings: "true",
 		}
+		// mapping the snapshot to sdc
 		err3 := snapResource.MapVolumeSdc(&pfmvsp)
 		if err3 != nil {
 			resp.Diagnostics.AddError(
@@ -210,6 +217,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 			return
 		}
 	}
+	// changing the access mode in case of change in access mode state
 	if plan.AccessMode.ValueString() != state.AccessMode.ValueString() {
 		err := snapResource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
 		if err != nil {
@@ -221,6 +229,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 		}
 	}
 
+	// locking the snapshot in case of change in LockedAutoSnapshot state to true
 	if plan.LockedAutoSnapshot.ValueBool() && !state.LockedAutoSnapshot.ValueBool() {
 		err := snapResource.LockAutoSnapshot()
 		if err != nil {
@@ -230,6 +239,8 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 			)
 		}
 	}
+
+	// unlocking the snapshot in case of change in LockedAutoSnapshot state to false
 	if !plan.LockedAutoSnapshot.ValueBool() && state.LockedAutoSnapshot.ValueBool() {
 		err := snapResource.UnlockAutoSnapshot()
 		if err != nil {
