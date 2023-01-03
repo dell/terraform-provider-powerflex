@@ -161,7 +161,7 @@ func TestAccSnapshotResource(t *testing.T) {
 			},
 
 			{
-				Config:      ProviderConfigForTesting + createSnapshotWithoutVolumeNegTest,
+				Config:      ProviderConfigForTesting + createSnapshotWithNonExistentVolumeNegTest,
 				ExpectError: regexp.MustCompile(`.*Could not create snapshot*.`),
 			},
 			{
