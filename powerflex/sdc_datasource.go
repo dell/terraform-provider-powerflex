@@ -89,7 +89,6 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		state.Sdcs = *filterResult
 	}
 
-	state.ID = types.StringValue("")
 	state.Name = types.StringValue(state.Name.ValueString())
 	state.ID = types.StringValue(state.ID.ValueString())
 

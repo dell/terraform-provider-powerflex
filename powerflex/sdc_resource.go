@@ -2,6 +2,7 @@ package powerflex
 
 import (
 	"context"
+	"fmt"
 	"terraform-provider-powerflex/helper"
 	"time"
 
@@ -102,8 +103,15 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
-	finalSDC := findChangedSdc(sdcs, plan.ID.ValueString())
-	plan = getSdcState(finalSDC)
+	finalSDC, err := findChangedSdc(sdcs, plan.ID.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Read Changed SDC",
+			err.Error(),
+		)
+		return
+	}
+	plan = getSdcState(*finalSDC)
 
 	tflog.Debug(ctx, "[POWERFLEX] nameChng Result :-- "+helper.PrettyJSON(nameChng))
 
@@ -219,8 +227,15 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		return
 	}
 
-	finalSDC := findChangedSdc(sdcs, plan.ID.ValueString())
-	plan = getSdcState(finalSDC)
+	finalSDC, err := findChangedSdc(sdcs, plan.ID.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Read Changed SDC",
+			err.Error(),
+		)
+		return
+	}
+	plan = getSdcState(*finalSDC)
 
 	tflog.Debug(ctx, "[POWERFLEX] nameChng Result :-- "+helper.PrettyJSON(nameChng))
 
@@ -305,14 +320,22 @@ func getSdcState(sdc scaleiotypes.Sdc) (response sdcResourceModel) {
 }
 
 // findChangedSdc - find sdc which is changed on behalf of id.
-func findChangedSdc(sdcs []scaleiotypes.Sdc, id string) scaleiotypes.Sdc {
+func findChangedSdc(sdcs []scaleiotypes.Sdc, id string) (*scaleiotypes.Sdc, error) {
 	var sdcReturnValue scaleiotypes.Sdc
+	var found bool
 	for _, sdcValue := range sdcs {
 
 		if id == sdcValue.ID {
+			found = true
 			sdcReturnValue = sdcValue
 		}
 
 	}
-	return sdcReturnValue
+
+	if found {
+		return &sdcReturnValue, nil
+	} else {
+		return nil, fmt.Errorf("SDC Not Found")
+	}
+
 }

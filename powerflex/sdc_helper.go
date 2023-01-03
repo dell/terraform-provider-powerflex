@@ -31,28 +31,6 @@ type sdcDataSourceModel struct {
 	Name types.String `tfsdk:"name"`
 }
 
-// sdcStatistics - MODEL for SDC statistics.
-type sdcStatistics struct {
-	NumOfMappedVolumes      types.Int64   `tfsdk:"numofmappedvolumes"`
-	VolumeIds               VolumeIdsList `tfsdk:"volumeids"`
-	UserDataReadBwc         sdcBwc        `tfsdk:"userdatareadbwc"`
-	UserDataWriteBwc        sdcBwc        `tfsdk:"userdatawritebwc"`
-	UserDataTrimBwc         sdcBwc        `tfsdk:"userdatatrimbwc"`
-	UserDataSdcReadLatency  sdcBwc        `tfsdk:"userdatasdcreadlatency"`
-	UserDataSdcWriteLatency sdcBwc        `tfsdk:"userdatasdcwritelatency"`
-	UserDataSdcTrimLatency  sdcBwc        `tfsdk:"userdatasdctrimlatency"`
-}
-
-// sdcBwc - MODEL for SDC statistics BWC.
-type sdcBwc struct {
-	TotalWeightInKb types.Int64 `tfsdk:"totalweightinkb"`
-	NumOccured      types.Int64 `tfsdk:"numoccured"`
-	NumSeconds      types.Int64 `tfsdk:"numseconds"`
-}
-
-// VolumeIdsList - MODEL for SDC statistics Volume Id List.
-type VolumeIdsList []types.String
-
 // sdcModel - MODEL for SDC data returned by goscaleio.
 type sdcModel struct {
 	ID                 types.String   `tfsdk:"id"`
@@ -64,7 +42,6 @@ type sdcModel struct {
 	MdmConnectionState types.String   `tfsdk:"mdm_connection_state"`
 	Name               types.String   `tfsdk:"name"`
 	Links              []sdcLinkModel `tfsdk:"links"`
-	// Statistics         sdcStatistics  `tfsdk:"statistics"`
 }
 
 // sdcLinkModel - MODEL for SDC Links data returned by goscaleio.
@@ -87,48 +64,6 @@ func getFilteredSdcState(sdcs *[]sdcModel, method string, name string, id string
 	return &response
 }
 
-// func createStaticsObject(stats scaleiotypes.SdcStatistics) (ret sdcStatistics) {
-// 	VolumeIdsAll := VolumeIdsList{}
-// 	for _, v := range stats.VolumeIds {
-// 		VolumeIdsAll = append(VolumeIdsAll, types.StringValue(v))
-// 	}
-// 	ret.NumOfMappedVolumes = types.Int64Value(int64(stats.NumOfMappedVolumes))
-// 	ret.VolumeIds = VolumeIdsAll
-
-// 	ret.UserDataReadBwc = sdcBwc{
-// 		TotalWeightInKb: types.Int64Value(int64(stats.UserDataReadBwc.TotalWeightInKb)),
-// 		NumOccured:      types.Int64Value(int64(stats.UserDataReadBwc.NumOccured)),
-// 		NumSeconds:      types.Int64Value(int64(stats.UserDataReadBwc.NumSeconds)),
-// 	}
-// 	ret.UserDataWriteBwc = sdcBwc{
-// 		TotalWeightInKb: types.Int64Value(int64(stats.UserDataWriteBwc.TotalWeightInKb)),
-// 		NumOccured:      types.Int64Value(int64(stats.UserDataWriteBwc.NumOccured)),
-// 		NumSeconds:      types.Int64Value(int64(stats.UserDataWriteBwc.NumSeconds)),
-// 	}
-// 	ret.UserDataTrimBwc = sdcBwc{
-// 		TotalWeightInKb: types.Int64Value(int64(stats.UserDataTrimBwc.TotalWeightInKb)),
-// 		NumOccured:      types.Int64Value(int64(stats.UserDataTrimBwc.NumOccured)),
-// 		NumSeconds:      types.Int64Value(int64(stats.UserDataTrimBwc.NumSeconds)),
-// 	}
-// 	ret.UserDataSdcReadLatency = sdcBwc{
-// 		TotalWeightInKb: types.Int64Value(int64(stats.UserDataSdcReadLatency.TotalWeightInKb)),
-// 		NumOccured:      types.Int64Value(int64(stats.UserDataSdcReadLatency.NumOccured)),
-// 		NumSeconds:      types.Int64Value(int64(stats.UserDataSdcReadLatency.NumSeconds)),
-// 	}
-// 	ret.UserDataSdcWriteLatency = sdcBwc{
-// 		TotalWeightInKb: types.Int64Value(int64(stats.UserDataSdcWriteLatency.TotalWeightInKb)),
-// 		NumOccured:      types.Int64Value(int64(stats.UserDataSdcWriteLatency.NumOccured)),
-// 		NumSeconds:      types.Int64Value(int64(stats.UserDataSdcWriteLatency.NumSeconds)),
-// 	}
-// 	ret.UserDataSdcTrimLatency = sdcBwc{
-// 		TotalWeightInKb: types.Int64Value(int64(stats.UserDataSdcTrimLatency.TotalWeightInKb)),
-// 		NumOccured:      types.Int64Value(int64(stats.UserDataSdcTrimLatency.NumOccured)),
-// 		NumSeconds:      types.Int64Value(int64(stats.UserDataSdcTrimLatency.NumSeconds)),
-// 	}
-
-// 	return
-// }
-
 // getAllSdcState - function to return all sdc result from goscaleio.
 func getAllSdcState(ctx context.Context, client goscaleio.Client, sdcs []scaleiotypes.Sdc) (*[]sdcModel, error) {
 	response := []sdcModel{}
@@ -150,17 +85,6 @@ func getAllSdcState(ctx context.Context, client goscaleio.Client, sdcs []scaleio
 				HREF: types.StringValue(link.HREF),
 			})
 		}
-
-		// sdcc := goscaleio.NewSdc(&client, &sdcValue)
-		// stats, err := sdcc.GetStatistics()
-		// if err != nil {
-		// 	tflog.Debug(ctx, "[POWERFLEX] err in GetStatistics "+helper.PrettyJSON(err))
-		// 	return nil, err // Sometimes unable to find link is error we get in 4.0
-		// }
-
-		// tflog.Debug(ctx, "[POWERFLEX] stats in GetStatistics "+helper.PrettyJSON(stats))
-
-		// sdcState.Statistics = createStaticsObject(*stats)
 
 		response = append(response, sdcState)
 	}

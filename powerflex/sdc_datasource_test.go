@@ -18,15 +18,6 @@ type sdcDataPoints struct {
 
 var sdcTestData sdcDataPoints
 
-var providerConfigForTesting = `
-provider "powerflex" {
-	username = ""
-password = ""
-endpoint = ""
-	insecure = true
-}
-`
-
 func init() {
 	sdcTestData.noOfSdc = "1"
 	sdcTestData.noOflinks = "4"
@@ -44,7 +35,7 @@ func TestSdcDataSource(t *testing.T) {
 			// Read testing
 			// Error here = https://github.com/hashicorp/terraform-plugin-sdk/pull/1077
 			{
-				Config: providerConfigForTesting + TestSdcDataSourceBlock,
+				Config: ProviderConfigForTesting + TestSdcDataSourceBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify number of sdc returned
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.#", sdcTestData.noOfSdc),
@@ -57,7 +48,7 @@ func TestSdcDataSource(t *testing.T) {
 				),
 			},
 			{
-				Config: providerConfigForTesting + TestSdcDataSourceBlockOnlyID,
+				Config: ProviderConfigForTesting + TestSdcDataSourceBlockOnlyID,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify number of sdc returned
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.#", "133"),
@@ -77,31 +68,11 @@ func TestSdcDataSourceByName(t *testing.T) {
 			// Read testing
 			// Error here = https://github.com/hashicorp/terraform-plugin-sdk/pull/1077
 			{
-				Config: providerConfigForTesting + TestSdcDataSourceByNameBlock,
+				Config: ProviderConfigForTesting + TestSdcDataSourceByNameBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify number of sdc returned
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.#", "1"),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "name", "LGLW6092"),
-				),
-			},
-		},
-	})
-}
-
-func TestSdcDataSourceByNameAndID(t *testing.T) {
-	os.Setenv("TF_ACC", "1")
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Read testing
-			// Error here = https://github.com/hashicorp/terraform-plugin-sdk/pull/1077
-			{
-				Config: providerConfigForTesting + TestSdcDataSourceBlockOnlyID,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify number of sdc returned
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.#", "133"),
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "id", ""),
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "name", ""),
 				),
 			},
 		},

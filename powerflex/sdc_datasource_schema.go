@@ -29,7 +29,6 @@ var sdcDatasourceSchemaDescriptions = struct {
 	Links              string
 	LinksRel           string
 	LinksHref          string
-	Statistics         string
 }{
 	SdcDatasourceSchema: "",
 
@@ -52,7 +51,6 @@ var sdcDatasourceSchemaDescriptions = struct {
 	Links:              "SDC Links.",
 	LinksRel:           "SDC Links-Rel.",
 	LinksHref:          "SDC Links-HREF.",
-	Statistics:         "SDC Statistics.",
 }
 
 // SDCDataSourceScheme is variable for schematic for SDC Data Source
@@ -112,56 +110,6 @@ var SDCDataSourceScheme schema.Schema = schema.Schema{
 						Description: sdcDatasourceSchemaDescriptions.MdmConnectionState,
 						Computed:    true,
 					},
-					// "statistics": schema.ObjectAttribute{
-					// 	Description: sdcDatasourceSchemaDescriptions.Statistics,
-					// 	Computed:    true,
-					// 	AttributeTypes: map[string]attr.Type{
-					// 		"numofmappedvolumes": types.Int64Type,
-					// 		"volumeids":          types.ListType{ElemType: types.StringType},
-					// 		"userdatareadbwc": types.ObjectType{
-					// 			AttrTypes: map[string]attr.Type{
-					// 				"totalweightinkb": types.Int64Type,
-					// 				"numoccured":      types.Int64Type,
-					// 				"numseconds":      types.Int64Type,
-					// 			},
-					// 		},
-					// 		"userdatawritebwc": types.ObjectType{
-					// 			AttrTypes: map[string]attr.Type{
-					// 				"totalweightinkb": types.Int64Type,
-					// 				"numoccured":      types.Int64Type,
-					// 				"numseconds":      types.Int64Type,
-					// 			},
-					// 		},
-					// 		"userdatatrimbwc": types.ObjectType{
-					// 			AttrTypes: map[string]attr.Type{
-					// 				"totalweightinkb": types.Int64Type,
-					// 				"numoccured":      types.Int64Type,
-					// 				"numseconds":      types.Int64Type,
-					// 			},
-					// 		},
-					// 		"userdatasdcreadlatency": types.ObjectType{
-					// 			AttrTypes: map[string]attr.Type{
-					// 				"totalweightinkb": types.Int64Type,
-					// 				"numoccured":      types.Int64Type,
-					// 				"numseconds":      types.Int64Type,
-					// 			},
-					// 		},
-					// 		"userdatasdcwritelatency": types.ObjectType{
-					// 			AttrTypes: map[string]attr.Type{
-					// 				"totalweightinkb": types.Int64Type,
-					// 				"numoccured":      types.Int64Type,
-					// 				"numseconds":      types.Int64Type,
-					// 			},
-					// 		},
-					// 		"userdatasdctrimlatency": types.ObjectType{
-					// 			AttrTypes: map[string]attr.Type{
-					// 				"totalweightinkb": types.Int64Type,
-					// 				"numoccured":      types.Int64Type,
-					// 				"numseconds":      types.Int64Type,
-					// 			},
-					// 		},
-					// 	},
-					// },
 					"links": schema.ListNestedAttribute{
 						Description: sdcDatasourceSchemaDescriptions.Links,
 						Computed:    true,

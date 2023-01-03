@@ -35,11 +35,11 @@ func TestSdcResourceUpdate(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// {
-			// 	Config:      providerConfigForTesting + TestSdcResourceCreateBlock,
+			// 	Config:      ProviderConfigForTesting + TestSdcResourceCreateBlock,
 			// 	ExpectError: regexp.MustCompile(`.*SDC can not be added*`),
 			// },
 			{
-				Config:            providerConfigForTesting + TestSdcResourceUpdateImportBlock,
+				Config:            ProviderConfigForTesting + TestSdcResourceUpdateImportBlock,
 				ResourceName:      "powerflex_sdc.test_import",
 				ImportState:       true,
 				ImportStateVerify: false,
@@ -47,7 +47,7 @@ func TestSdcResourceUpdate(t *testing.T) {
 			},
 			// // Update testing
 			{
-				Config: providerConfigForTesting + TestSdcResourceUpdateBlock,
+				Config: ProviderConfigForTesting + TestSdcResourceUpdateBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "system_id", sdcResourceTestData.systemid),
 					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "sdc_guid", sdcResourceTestData.sdcguid),
@@ -66,14 +66,14 @@ func TestSdcResourceCreateUpdate(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: providerConfigForTesting + TestSdcResourceCreateUpdateBlockS1,
+				Config: ProviderConfigForTesting + TestSdcResourceCreateUpdateBlockS1,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", "Block_S33"),
 				),
 			},
 			// // Update testing
 			{
-				Config: providerConfigForTesting + TestSdcResourceCreateUpdateBlockS2,
+				Config: ProviderConfigForTesting + TestSdcResourceCreateUpdateBlockS2,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", "Block_S34"),
 				),
