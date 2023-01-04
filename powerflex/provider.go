@@ -211,6 +211,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		VolumeDataSource,
+		SDCDataSource,
 		ProtectionDomainDataSource,
 		StoragePoolDataSource,
 	}
@@ -220,5 +221,6 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewVolumeResource,
+		SDCResource,
 	}
 }

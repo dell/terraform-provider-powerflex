@@ -1,3 +1,5 @@
+examples/config/
+powerflex/*.env
 vendor/*
 gosec*
 
