@@ -85,6 +85,19 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			Computed:            true,
 			MarkdownDescription: "lock auto snapshot",
 		},
+		"remove_mode": schema.StringAttribute{
+			Description:         "remove mode of snapshot",
+			Optional:            true,
+			Computed:            true,
+			MarkdownDescription: "remove mode of snapshot",
+			Validators: []validator.String{stringvalidator.OneOf(
+				"ONLY_ME",
+				"INCLUDING_DESCENDANTS",
+			)},
+			PlanModifiers: []planmodifier.String{
+				stringDefault("ONLY_ME"),
+			},
+		},
 		// "map_sdcs_id": schema.ListAttribute{
 		// 	ElementType:         types.StringType,
 		// 	Optional:            true,

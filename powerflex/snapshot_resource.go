@@ -391,7 +391,7 @@ func (r *snapshotResource) Delete(ctx context.Context, req resource.DeleteReques
 			return
 		}
 	}
-	err := snapshot.RemoveVolume("")
+	err := snapshot.RemoveVolume(state.RemoveMode.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Removing Volume",

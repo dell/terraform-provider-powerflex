@@ -18,20 +18,35 @@ Manages snapshot resource
 ### Required
 
 - `name` (String) The name of the snapshot.
-- `volume_id` (String) The volume id for which snapshot is created
 
 ### Optional
 
 - `access_mode` (String) The Access mode of snapshot
 - `capacity_unit` (String) capacity unit
-- `locked_auto_snapshot` (Boolean) locake auto snapshot
-- `map_sdcs_id` (List of String) map sdcs id
+- `lock_auto_snapshot` (Boolean) lock auto snapshot
+- `remove_mode` (String) remove mode of snapshot
+- `sdc_list` (Attributes List) mapped sdc info (see [below for nested schema](#nestedatt--sdc_list))
 - `size` (Number) volume size
+- `volume_id` (String) The volume id for which snapshot is created
+- `volume_name` (String) The volume name for which snapshot is created
 
 ### Read-Only
 
 - `id` (String) The ID of the snapshot.
 - `size_in_kb` (Number) Size in KB
 - `volume_size_in_kb` (String) volume siz in kb
+
+<a id="nestedatt--sdc_list"></a>
+### Nested Schema for `sdc_list`
+
+Optional:
+
+- `access_mode` (String) The Access Mode of the SDC
+- `is_direct_buffer_mapping` (Boolean) is direct buffer mapping
+- `limit_bw_in_mbps` (Number) limit bw in mbps
+- `limit_iops` (Number) limit iops
+- `sdc_id` (String) The ID of the SDC
+- `sdc_ip` (String) The IP of the SDC
+- `sdc_name` (String) The Name of the SDC
 
 

@@ -39,6 +39,7 @@ func SnapshotTerraformState(vol *pftypes.Volume, plan SnapshotResourceModel, sdc
 	}
 	state.SizeInKb = types.Int64Value(int64(vol.SizeInKb))
 	state.LockAutoSnapshot = types.BoolValue(vol.LockedAutoSnapshot)
+	state.RemoveMode = plan.RemoveMode
 	// state.MapSdcIds = plan.MapSdcIds
 	state.SdcList = sdcMapState(vol.MappedSdcInfo, sdcListState)
 	return state
