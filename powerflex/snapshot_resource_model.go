@@ -13,5 +13,6 @@ type SnapshotResourceModel struct {
 	VolumeSizeInKb     types.String `tfsdk:"volume_size_in_kb"`
 	SizeInKb           types.Int64  `tfsdk:"size_in_kb"`
 	LockedAutoSnapshot types.Bool   `tfsdk:"locked_auto_snapshot"`
-	MapSdcIds          types.List   `tfsdk:"map_sdcs_id"`
+	SdcList            types.List   `tfsdk:"sdc_list"`
+	// MapSdcIds          types.List   `tfsdk:"map_sdcs_id"`
 }

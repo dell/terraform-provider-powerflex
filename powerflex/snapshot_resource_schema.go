@@ -5,7 +5,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // SnapshotResourceSchema variable to define schema for the snapshot resource
@@ -75,10 +74,74 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			Computed:            true,
 			MarkdownDescription: "locake auto snapshot",
 		},
-		"map_sdcs_id": schema.ListAttribute{
-			ElementType:         types.StringType,
+		// "map_sdcs_id": schema.ListAttribute{
+		// 	ElementType:         types.StringType,
+		// 	Optional:            true,
+		// 	MarkdownDescription: "map sdcs id",
+		// },
+		"sdc_list": schema.ListNestedAttribute{
+			Description:         "mapped sdc info",
+			Computed:            true,
 			Optional:            true,
-			MarkdownDescription: "map sdcs id",
+			MarkdownDescription: "mapped sdc info",
+			NestedObject: schema.NestedAttributeObject{
+				Attributes: map[string]schema.Attribute{
+					"sdc_id": schema.StringAttribute{
+						Description:         "The ID of the SDC",
+						Optional:            true,
+						Computed:            true,
+						MarkdownDescription: "The ID of the SDC",
+					},
+					"sdc_ip": schema.StringAttribute{
+						Description:         "The IP of the SDC",
+						Optional:            true,
+						Computed:            true,
+						MarkdownDescription: "The IP of the SDC",
+						/* 						Validators: []validator.String{
+							stringvalidator.AtLeastOneOf(path.Expressions{
+								path.MatchRoot("sdc_id"),
+								path.MatchRoot("sdc_name"),
+							}...),
+						}, */
+					},
+					"sdc_name": schema.StringAttribute{
+						Description:         "The Name of the SDC",
+						Computed:            true,
+						Optional:            true,
+						MarkdownDescription: "The Name of the SDC",
+						/* 						Validators: []validator.String{
+							stringvalidator.AtLeastOneOf(path.Expressions{
+								path.MatchRoot("sdc_id"),
+								path.MatchRoot("sdc_ip"),
+							}...),
+						}, */
+					},
+					"limit_iops": schema.Int64Attribute{
+						Description:         "limit iops",
+						Optional:            true,
+						Computed:            true,
+						MarkdownDescription: "limit iops",
+					},
+					"limit_bw_in_mbps": schema.Int64Attribute{
+						Description:         "limit bw in mbps",
+						Optional:            true,
+						Computed:            true,
+						MarkdownDescription: "limit bw in mbps",
+					},
+					"access_mode": schema.StringAttribute{
+						Description:         "The Access Mode of the SDC",
+						Computed:            true,
+						Optional:            true,
+						MarkdownDescription: "The Access Mode of the SDC",
+					},
+					"is_direct_buffer_mapping": schema.BoolAttribute{
+						Description:         "is direct buffer mapping",
+						Optional:            true,
+						Computed:            true,
+						MarkdownDescription: "is direct buffer mapping",
+					},
+				},
+			},
 		},
 	},
 }

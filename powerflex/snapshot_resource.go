@@ -3,6 +3,7 @@ package powerflex
 import (
 	"context"
 	"strconv"
+	"terraform-provider-powerflex/helper"
 
 	"github.com/dell/goscaleio"
 	pftypes "github.com/dell/goscaleio/types/v1"
@@ -132,13 +133,14 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		}
 	}
 	successMapped := make([]string, 0)
-	msids := []string{}
-	diags = plan.MapSdcIds.ElementsAs(ctx, &msids, true)
+	sdcList := []SdcList{}
+	diags = plan.SdcList.ElementsAs(ctx, &sdcList, true)
 	resp.Diagnostics.Append(diags...)
-	for _, msid := range msids {
+	tflog.Debug(ctx, "PK-debug"+helper.PrettyJSON(sdcList))
+	for _, si := range sdcList {
 		// Add mapped SDC
 		pfmvsp := pftypes.MapVolumeSdcParam{
-			SdcID:                 msid,
+			SdcID:                 si.SdcID,
 			AllowMultipleMappings: "true",
 		}
 		// mapping the snapshot to sdc
@@ -146,7 +148,7 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		if err3 != nil {
 			resp.Diagnostics.AddError(
 				"Error Mapping Snapshot to SDCs",
-				"Could not map Snapshot to scs with id: "+msid+", unexpected error: "+err3.Error(),
+				"Could not map Snapshot to scs with id: "+si.SdcID+", unexpected error: "+err3.Error(),
 			)
 			for _, usi := range successMapped {
 				snapResource.UnmapVolumeSdc(
@@ -158,7 +160,7 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 			snapResource.RemoveVolume("")
 			return
 		}
-		successMapped = append(successMapped, msid)
+		successMapped = append(successMapped, si.SdcID)
 	}
 	snapResponse, err2 = r.client.GetVolume("", snapID, "", "", false)
 	if err2 != nil {
@@ -169,7 +171,7 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 	snap = snapResponse[0]
-	state := SnapshotTerraformState(snap, plan)
+	state := SnapshotTerraformState(snap, plan, sdcList)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -190,8 +192,11 @@ func (r *snapshotResource) Read(ctx context.Context, req resource.ReadRequest, r
 		)
 		return
 	}
+	sdcList := []SdcList{}
+	diags = state.SdcList.ElementsAs(ctx, &sdcList, true)
+	resp.Diagnostics.Append(diags...)
 	snap := snapResponse[0]
-	state = SnapshotTerraformState(snap, state)
+	state = SnapshotTerraformState(snap, state, sdcList)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -278,13 +283,21 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 			)
 		}
 	}
-	planSdcIds := []string{}
-	stateSdcIds := []string{}
-	diags = plan.MapSdcIds.ElementsAs(ctx, &planSdcIds, true)
+	planSdcList := []SdcList{}
+	stateSdcList := []SdcList{}
+	diags = plan.SdcList.ElementsAs(ctx, &planSdcList, true)
+	resp.Diagnostics.Append(diags...)
+	diags = state.SdcList.ElementsAs(ctx, &stateSdcList, true)
 	resp.Diagnostics.Append(diags...)
 
-	diags = state.MapSdcIds.ElementsAs(ctx, &stateSdcIds, true)
-	resp.Diagnostics.Append(diags...)
+	planSdcIds := []string{}
+	stateSdcIds := []string{}
+	for _, psl := range planSdcList {
+		planSdcIds = append(planSdcIds, psl.SdcID)
+	}
+	for _, ssl := range stateSdcList {
+		stateSdcIds = append(stateSdcIds, ssl.SdcID)
+	}
 	mapSdcIds := Difference(planSdcIds, stateSdcIds)
 	unmapSdcIds := Difference(stateSdcIds, planSdcIds)
 
@@ -327,7 +340,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 	snap = snapResponse[0]
 	snapResource.Volume = snap
-	state = SnapshotTerraformState(snap, plan)
+	state = SnapshotTerraformState(snap, plan, planSdcList)
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -350,19 +363,19 @@ func (r *snapshotResource) Delete(ctx context.Context, req resource.DeleteReques
 	}
 	snapshot := goscaleio.NewVolume(r.client)
 	snapshot.Volume = snapResponse[0]
-	sdcsToUnmap := []string{}
-	diags = state.MapSdcIds.ElementsAs(ctx, &sdcsToUnmap, true)
+	sdcsToUnmap := []SdcList{}
+	diags = state.SdcList.ElementsAs(ctx, &sdcsToUnmap, true)
 	resp.Diagnostics.Append(diags...)
 	for _, stu := range sdcsToUnmap {
 		err := snapshot.UnmapVolumeSdc(
 			&pftypes.UnmapVolumeSdcParam{
-				SdcID: stu,
+				SdcID: stu.SdcID,
 			},
 		)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error Unmapping Volume to SDCs",
-				"Couldn't unmap volume to scs with id: "+stu+", unexpected error: "+err.Error(),
+				"Couldn't unmap volume to scs with id: "+stu.SdcID+", unexpected error: "+err.Error(),
 			)
 			return
 		}
