@@ -1,3 +1,5 @@
+examples/config/
+powerflex/*.env
 vendor/*
 gosec*
 .terraform*
@@ -8,3 +10,4 @@ powerflex/trace.txt
 examples/trace.txt
 coverage*
 test*
+
