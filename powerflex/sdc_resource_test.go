@@ -34,10 +34,6 @@ func TestSdcResourceUpdate(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			// {
-			// 	Config:      ProviderConfigForTesting + TestSdcResourceCreateBlock,
-			// 	ExpectError: regexp.MustCompile(`.*SDC can not be added*`),
-			// },
 			{
 				Config:            ProviderConfigForTesting + TestSdcResourceUpdateImportBlock,
 				ResourceName:      "powerflex_sdc.test_import",
