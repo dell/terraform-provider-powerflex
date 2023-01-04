@@ -23,7 +23,9 @@ type SdcList struct {
 // SnapshotTerraformState function to convert goscaleio snapshot struct to terraform snapshot struct
 func SnapshotTerraformState(vol *pftypes.Volume, plan SnapshotResourceModel, sdcListState []SdcList) (state SnapshotResourceModel) {
 	state.Name = types.StringValue(vol.Name)
-	state.VolumeID = plan.VolumeID
+	if plan.VolumeID.ValueString() != "" {
+		state.VolumeID = plan.VolumeID
+	}
 	state.VolumeName = plan.VolumeName
 	state.AccessMode = plan.AccessMode
 	state.ID = types.StringValue(vol.ID)
