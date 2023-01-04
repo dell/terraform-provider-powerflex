@@ -132,7 +132,7 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	}
 
 	// locking the auto snapshot on finding LockedAutoSnapshot parameter as true
-	if plan.LockedAutoSnapshot.ValueBool() {
+	if plan.LockAutoSnapshot.ValueBool() {
 		err := snapResource.LockAutoSnapshot()
 		if err != nil {
 			resp.Diagnostics.AddError(
@@ -274,7 +274,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 
 	// locking the snapshot in case of change in LockedAutoSnapshot state to true
-	if plan.LockedAutoSnapshot.ValueBool() && !state.LockedAutoSnapshot.ValueBool() {
+	if plan.LockAutoSnapshot.ValueBool() && !state.LockAutoSnapshot.ValueBool() {
 		err := snapResource.LockAutoSnapshot()
 		if err != nil {
 			resp.Diagnostics.AddError(
@@ -285,7 +285,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 
 	// unlocking the snapshot in case of change in LockedAutoSnapshot state to false
-	if !plan.LockedAutoSnapshot.ValueBool() && state.LockedAutoSnapshot.ValueBool() {
+	if !plan.LockAutoSnapshot.ValueBool() && state.LockAutoSnapshot.ValueBool() {
 		err := snapResource.UnlockAutoSnapshot()
 		if err != nil {
 			resp.Diagnostics.AddError(

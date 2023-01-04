@@ -79,11 +79,11 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			Computed:            true,
 			MarkdownDescription: "Size in KB",
 		},
-		"locked_auto_snapshot": schema.BoolAttribute{
-			Description:         "locked auto snapshot",
+		"lock_auto_snapshot": schema.BoolAttribute{
+			Description:         "lock auto snapshot",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "locake auto snapshot",
+			MarkdownDescription: "lock auto snapshot",
 		},
 		// "map_sdcs_id": schema.ListAttribute{
 		// 	ElementType:         types.StringType,
