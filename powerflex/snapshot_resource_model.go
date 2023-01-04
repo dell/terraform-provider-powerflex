@@ -6,6 +6,7 @@ import "github.com/hashicorp/terraform-plugin-framework/types"
 type SnapshotResourceModel struct {
 	Name               types.String `tfsdk:"name"`
 	VolumeID           types.String `tfsdk:"volume_id"`
+	VolumeName         types.String `tfsdk:"volume_name"`
 	AccessMode         types.String `tfsdk:"access_mode"`
 	ID                 types.String `tfsdk:"id"`
 	Size               types.Int64  `tfsdk:"size"`

@@ -2,6 +2,7 @@ package powerflex
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -19,8 +20,18 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 		},
 		"volume_id": schema.StringAttribute{
 			Description:         "The volume id for which snapshot is created.",
-			Required:            true,
+			Optional:            true,
+			Computed:            true,
 			MarkdownDescription: "The volume id for which snapshot is created",
+		},
+		"volume_name": schema.StringAttribute{
+			Description:         "The volume name for which snapshot is created.",
+			Optional:            true,
+			Computed:            true,
+			MarkdownDescription: "The volume name for which snapshot is created",
+			Validators: []validator.String{
+				stringvalidator.ExactlyOneOf(path.MatchRoot("volume_id")),
+			},
 		},
 		"access_mode": schema.StringAttribute{
 			Description:         "The Access mode of snapshot",

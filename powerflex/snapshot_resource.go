@@ -58,6 +58,17 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	sr := goscaleio.NewSystem(r.client)
 	sr.System = gs[0]
 	snapshotReqs := make([]*pftypes.SnapshotDef, 0)
+	if plan.VolumeName.ValueString() != "" {
+		snapResponse, err2 := r.client.GetVolume("", "", "", plan.VolumeName.ValueString(), false)
+		if err2 != nil {
+			resp.Diagnostics.AddError(
+				"Error getting volume",
+				"Could not get volume, unexpected error: "+err2.Error(),
+			)
+			return
+		}
+		plan.VolumeID = types.StringValue(snapResponse[0].ID)
+	}
 	snapReq := &pftypes.SnapshotDef{
 		VolumeID:     plan.VolumeID.ValueString(),
 		SnapshotName: plan.Name.ValueString(),
