@@ -296,9 +296,8 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 		}
 	}
 
-	if (plan.RetentionUnit.ValueString() != state.RetentionUnit.String()) || (plan.DesiredRetention.ValueInt64() != state.DesiredRetention.ValueInt64()) {
+	if (!plan.DesiredRetention.IsNull() && (plan.RetentionUnit.ValueString() != state.RetentionUnit.String()) || (plan.DesiredRetention.ValueInt64() != state.DesiredRetention.ValueInt64())) {
 		retentionInMin := convertToMin(plan.DesiredRetention.ValueInt64(), plan.RetentionUnit.ValueString())
-		tflog.Debug(ctx, "pk-debug > "+retentionInMin+" : "+strconv.FormatInt(plan.DesiredRetention.ValueInt64(), 10)+plan.RetentionUnit.ValueString())
 		err := snapResource.SetSnapshotSecurity(retentionInMin)
 		if err != nil {
 			resp.Diagnostics.AddError(
@@ -313,6 +312,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	resp.Diagnostics.Append(diags...)
 	diags = state.SdcList.ElementsAs(ctx, &stateSdcList, true)
 	resp.Diagnostics.Append(diags...)
+
 
 	planSdcIds := []string{}
 	stateSdcIds := []string{}

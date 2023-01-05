@@ -25,14 +25,16 @@ func SnapshotTerraformState(vol *pftypes.Volume, plan SnapshotResourceModel, sdc
 	state.VolumeName = plan.VolumeName
 	state.AccessMode = plan.AccessMode
 	state.Size = plan.Size
-	state.CapacityUnit = plan.CapacityUnit
-	state.DesiredRetention = plan.DesiredRetention
-	state.RetentionUnit = plan.RetentionUnit
 	state.RemoveMode = plan.RemoveMode
 	state.Name = types.StringValue(vol.Name)
 	state.ID = types.StringValue(vol.ID)
 	state.SizeInKb = types.Int64Value(int64(vol.SizeInKb))
 	state.LockAutoSnapshot = types.BoolValue(vol.LockedAutoSnapshot)
+	state.CapacityUnit = plan.CapacityUnit
+	state.RetentionUnit = plan.RetentionUnit
+	if !plan.DesiredRetention.IsNull() {
+		state.DesiredRetention = plan.DesiredRetention
+	}
 	if plan.VolumeID.ValueString() != "" {
 		state.VolumeID = plan.VolumeID
 	}
@@ -61,8 +63,8 @@ func sdcMapState(sdcInfos []*pftypes.MappedSdcInfo, sdcListState []SdcList) base
 		AttrTypes: sdcInfoAttrTypes,
 	}
 	objectSdcInfos := []attr.Value{}
-	for _, msi := range sdcInfos {
-		for _, sls := range sdcListState {
+	for _, sls := range sdcListState {
+		for _, msi := range sdcInfos {
 			if sls.SdcID == msi.SdcID {
 				obj := map[string]attr.Value{
 					"sdc_id":                   types.StringValue(msi.SdcID),
@@ -85,9 +87,10 @@ func sdcMapState(sdcInfos []*pftypes.MappedSdcInfo, sdcListState []SdcList) base
 func convertToMin(desireRetention int64, retentionUnit string) string {
 	retentionMin := ""
 	if retentionUnit == "days" {
-		retentionMin = strconv.FormatInt(desireRetention*24*60, 10)
+		retentionMin = strconv.FormatInt(desireRetention*2, 10)
 	} else {
-		retentionMin = strconv.FormatInt(desireRetention*60, 10)
+		retentionMin = strconv.FormatInt(desireRetention*1, 10)
 	}
 	return retentionMin
 }
+

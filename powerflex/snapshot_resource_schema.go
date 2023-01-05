@@ -88,7 +88,6 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 		"desired_retention": schema.Int64Attribute{
 			Description:         "desired retention of snapshot",
 			Optional:            true,
-			Computed:            true,
 			MarkdownDescription: "desired retention of snapshot",
 		},
 		"retention_unit": schema.StringAttribute{
@@ -101,7 +100,7 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 				"days",
 			)},
 			PlanModifiers: []planmodifier.String{
-				stringDefault("days"),
+				stringDefault("hours"),
 			},
 		},
 		"remove_mode": schema.StringAttribute{
