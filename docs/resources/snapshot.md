@@ -23,8 +23,10 @@ Manages snapshot resource
 
 - `access_mode` (String) The Access mode of snapshot
 - `capacity_unit` (String) capacity unit
+- `desired_retention` (Number) desired retention of snapshot
 - `lock_auto_snapshot` (Boolean) lock auto snapshot
 - `remove_mode` (String) remove mode of snapshot
+- `retention_unit` (String) retention unit of snapshot
 - `sdc_list` (Attributes List) mapped sdc info (see [below for nested schema](#nestedatt--sdc_list))
 - `size` (Number) volume size
 - `volume_id` (String) The volume id for which snapshot is created
