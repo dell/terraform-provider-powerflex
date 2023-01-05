@@ -4,7 +4,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
@@ -54,9 +53,6 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 				"SSD",
 				"Transitional",
 			)},
-			PlanModifiers: []planmodifier.String{
-				stringDefault("HDD"),
-			},
 		},
 		"use_rmcache": schema.BoolAttribute{
 			Description:         "Enable/Disable RMcache on a specific storage pool",

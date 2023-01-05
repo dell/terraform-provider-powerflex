@@ -20,7 +20,7 @@ func TestAccStoragepoolResource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + StoragePoolResourceCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "random_name"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "storage_pool"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rmcache", "true"),
@@ -31,7 +31,7 @@ func TestAccStoragepoolResource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + StoragePoolResourceUpdate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "random_name_new"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "storage_pool_new"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rmcache", "true"),
@@ -52,7 +52,7 @@ func TestAccStoragepoolResourceUpdateRMCache(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + StoragePoolResourceCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "random_name"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "storage_pool"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rmcache", "true"),
@@ -63,7 +63,7 @@ func TestAccStoragepoolResourceUpdateRMCache(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + StoragePoolResourceCreateRMCacehFalse,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "random_name"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "storage_pool"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rmcache", "false"),
@@ -114,7 +114,7 @@ func TestAccStoragepoolResourceVariousCases(t *testing.T) {
 		{
 			Config: ProviderConfigForTesting + StoragePoolResourceCreateRMCacehFalse,
 			Check: resource.ComposeAggregateTestCheckFunc(
-				resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "random_name"),
+				resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "storage_pool"),
 				resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "protection_domain_id", "4eeb304600000000"),
 				resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "media_type", "HDD"),
 				resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rmcache", "false"),
@@ -142,7 +142,7 @@ func TestAccStoragepoolResourceInvalidUpdateProtectionDomainID(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + StoragePoolResourceCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "random_name"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "storage_pool"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rmcache", "true"),
@@ -168,7 +168,7 @@ func TestAccStoragepoolResourceInvalidUpdateName(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + StoragePoolResourceCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "random_name"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "storage_pool"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rmcache", "true"),
@@ -194,7 +194,7 @@ func TestAccStoragepoolResourceInvalidUpdateMediaType(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + StoragePoolResourceCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "random_name"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "storage_pool"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rmcache", "true"),
@@ -212,7 +212,7 @@ func TestAccStoragepoolResourceInvalidUpdateMediaType(t *testing.T) {
 
 var StoragePoolResourceCreate = `
 resource "powerflex_storagepool" "storagepool" {
-	name = "random_name"
+	name = "storage_pool"
 	protection_domain_id = "4eeb304600000000"
 	media_type = "HDD"
 	use_rmcache = true
@@ -221,7 +221,7 @@ resource "powerflex_storagepool" "storagepool" {
 `
 var StoragePoolResourceCreateRMCacehFalse = `
 resource "powerflex_storagepool" "storagepool" {
-	name = "random_name"
+	name = "storage_pool"
 	protection_domain_id = "4eeb304600000000"
 	media_type = "HDD"
 	use_rmcache = false
@@ -230,7 +230,7 @@ resource "powerflex_storagepool" "storagepool" {
 `
 var StoragePoolResourceUpdate = `
 resource "powerflex_storagepool" "storagepool" {
-	name = "random_name_new"
+	name = "storage_pool_new"
 	protection_domain_id = "4eeb304600000000"
 	media_type = "HDD"
 	use_rmcache = true
@@ -239,16 +239,16 @@ resource "powerflex_storagepool" "storagepool" {
 `
 var CreateInvalidMediaType = `
   resource "powerflex_storagepool" "storagepool" {
-	name = "random_name"
+	name = "storage_pool"
 	protection_domain_id = "4eeb304600000000"
-	media_type = "SAD"
+	media_type = "SSD"
 	use_rmcache = true
 	use_rfcache = true
 }
 `
 var CreateInvalidProtectionDomainID = `
 resource "powerflex_storagepool" "storagepool" {
-	name = "random_name"
+	name = "storage_pool"
 	protection_domain_id = "123"
 	media_type = "HDD"
 	use_rmcache = true
@@ -257,7 +257,7 @@ resource "powerflex_storagepool" "storagepool" {
 `
 var CreateInvalidName = `
 resource "powerflex_storagepool" "storagepool" {
-	name = "asd44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444"
+	name = "storage_pool"
 	protection_domain_id = "4eeb304600000000"
 	media_type = "HDD"
 	use_rmcache = true
