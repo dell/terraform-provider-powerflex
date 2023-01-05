@@ -75,8 +75,8 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	}
 	snapshotReqs = append(snapshotReqs, snapReq)
 	snapParam := &pftypes.SnapshotVolumesParam{
-		SnapshotDefs: snapshotReqs,
-		RetentionPeriodInMin: convertToMin(plan.DesiredRetention.ValueInt64(),plan.RetentionUnit.ValueString()),
+		SnapshotDefs:         snapshotReqs,
+		RetentionPeriodInMin: convertToMin(plan.DesiredRetention.ValueInt64(), plan.RetentionUnit.ValueString()),
 	}
 	// create a snapshot of one volume, this requires a volume id and snapshot as parameter
 	snapResps, err := sr.CreateSnapshotConsistencyGroup(snapParam)
@@ -296,10 +296,10 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 		}
 	}
 
-	if (plan.RetentionUnit.ValueString() != state.RetentionUnit.String()) || (plan.DesiredRetention.ValueInt64() != state.DesiredRetention.ValueInt64()){
-		retention_in_min := convertToMin(plan.DesiredRetention.ValueInt64(),plan.RetentionUnit.ValueString())	
-		tflog.Debug(ctx,"pk-debug > "+retention_in_min + " : "+ strconv.FormatInt(plan.DesiredRetention.ValueInt64(),10) + plan.RetentionUnit.ValueString() )
-		err := snapResource.SetSnapshotSecurity(retention_in_min)
+	if (plan.RetentionUnit.ValueString() != state.RetentionUnit.String()) || (plan.DesiredRetention.ValueInt64() != state.DesiredRetention.ValueInt64()) {
+		retentionInMin := convertToMin(plan.DesiredRetention.ValueInt64(), plan.RetentionUnit.ValueString())
+		tflog.Debug(ctx, "pk-debug > "+retentionInMin+" : "+strconv.FormatInt(plan.DesiredRetention.ValueInt64(), 10)+plan.RetentionUnit.ValueString())
+		err := snapResource.SetSnapshotSecurity(retentionInMin)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error Setting Snapshots Security",

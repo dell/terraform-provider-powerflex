@@ -82,12 +82,12 @@ func sdcMapState(sdcInfos []*pftypes.MappedSdcInfo, sdcListState []SdcList) base
 	return mappedSdcInfoVal
 }
 
-func convertToMin(desire_retention int64, retention_unit string) string {
-	retention_min := ""
-	if retention_unit == "days" {
-		retention_min = strconv.FormatInt(desire_retention * 24 * 60 , 10)
+func convertToMin(desireRetention int64, retentionUnit string) string {
+	retentionMin := ""
+	if retentionUnit == "days" {
+		retentionMin = strconv.FormatInt(desireRetention*24*60, 10)
 	} else {
-		retention_min = strconv.FormatInt(desire_retention * 60, 10)
+		retentionMin = strconv.FormatInt(desireRetention*60, 10)
 	}
-	return retention_min
+	return retentionMin
 }
