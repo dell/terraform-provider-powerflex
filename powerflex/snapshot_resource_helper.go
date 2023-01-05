@@ -22,24 +22,26 @@ type SdcList struct {
 
 // SnapshotTerraformState function to convert goscaleio snapshot struct to terraform snapshot struct
 func SnapshotTerraformState(vol *pftypes.Volume, plan SnapshotResourceModel, sdcListState []SdcList) (state SnapshotResourceModel) {
+	state.VolumeName = plan.VolumeName
+	state.AccessMode = plan.AccessMode
+	state.Size = plan.Size
+	state.CapacityUnit = plan.CapacityUnit
+	state.DesiredRetention = plan.DesiredRetention
+	state.RetentionUnit = plan.RetentionUnit
+	state.RemoveMode = plan.RemoveMode
 	state.Name = types.StringValue(vol.Name)
+	state.ID = types.StringValue(vol.ID)
+	state.SizeInKb = types.Int64Value(int64(vol.SizeInKb))
+	state.LockAutoSnapshot = types.BoolValue(vol.LockedAutoSnapshot)
 	if plan.VolumeID.ValueString() != "" {
 		state.VolumeID = plan.VolumeID
 	}
-	state.VolumeName = plan.VolumeName
-	state.AccessMode = plan.AccessMode
-	state.ID = types.StringValue(vol.ID)
-	state.Size = plan.Size
-	state.CapacityUnit = plan.CapacityUnit
 	if plan.Size.IsUnknown() {
 		state.VolumeSizeInKb = types.StringValue(strconv.FormatInt(int64(vol.SizeInKb), 10))
 	} else {
 		VSIKB, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 		state.VolumeSizeInKb = types.StringValue(strconv.FormatInt(VSIKB, 10))
 	}
-	state.SizeInKb = types.Int64Value(int64(vol.SizeInKb))
-	state.LockAutoSnapshot = types.BoolValue(vol.LockedAutoSnapshot)
-	state.RemoveMode = plan.RemoveMode
 	// state.MapSdcIds = plan.MapSdcIds
 	state.SdcList = sdcMapState(vol.MappedSdcInfo, sdcListState)
 	return state
@@ -78,4 +80,14 @@ func sdcMapState(sdcInfos []*pftypes.MappedSdcInfo, sdcListState []SdcList) base
 	}
 	mappedSdcInfoVal, _ := types.ListValue(sdcInfoElemType, objectSdcInfos)
 	return mappedSdcInfoVal
+}
+
+func convertToMin(desire_retention int64, retention_unit string) string {
+	retention_min := ""
+	if retention_unit == "days" {
+		retention_min = strconv.FormatInt(desire_retention * 24 * 60 , 10)
+	} else {
+		retention_min = strconv.FormatInt(desire_retention * 60, 10)
+	}
+	return retention_min
 }

@@ -85,6 +85,25 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			Computed:            true,
 			MarkdownDescription: "lock auto snapshot",
 		},
+		"desired_retention": schema.Int64Attribute{
+			Description:         "desired retention of snapshot",
+			Optional:            true,
+			Computed:            true,
+			MarkdownDescription: "desired retention of snapshot",
+		},
+		"retention_unit": schema.StringAttribute{
+			Description:         "retention unit of snapshot",
+			Optional:            true,
+			Computed:            true,
+			MarkdownDescription: "retention unit of snapshot",
+			Validators: []validator.String{stringvalidator.OneOf(
+				"hours",
+				"days",
+			)},
+			PlanModifiers: []planmodifier.String{
+				stringDefault("days"),
+			},
+		},
 		"remove_mode": schema.StringAttribute{
 			Description:         "remove mode of snapshot",
 			Optional:            true,

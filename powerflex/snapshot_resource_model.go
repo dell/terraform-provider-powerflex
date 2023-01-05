@@ -16,5 +16,7 @@ type SnapshotResourceModel struct {
 	LockAutoSnapshot types.Bool   `tfsdk:"lock_auto_snapshot"`
 	SdcList          types.List   `tfsdk:"sdc_list"`
 	RemoveMode       types.String `tfsdk:"remove_mode"`
+	DesiredRetention types.Int64  `tfsdk:"desired_retention"`
+	RetentionUnit    types.String `tfsdk:"retention_unit"`
 	// MapSdcIds          types.List   `tfsdk:"map_sdcs_id"`
 }
