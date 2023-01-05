@@ -4,12 +4,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
 // StoragepoolReourceSchema - varible holds schema for Storagepool
 var StoragepoolReourceSchema schema.Schema = schema.Schema{
-	Description: "Fetches the list of Storagepool",
+	Description: "Manages storage pool resource",
 	Attributes: map[string]schema.Attribute{
 		"last_updated": schema.StringAttribute{
 			Description:         "Last Updated",
@@ -17,49 +18,54 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 			Computed:            true,
 		},
 		"id": schema.StringAttribute{
-			Description:         "Gets the ID of Storagepool",
-			MarkdownDescription: "Gets the ID of Storagepool",
+			Description:         "ID of the Storage pool",
+			MarkdownDescription: "ID of the Storage pool",
 			Computed:            true,
 		},
 		"systemid": schema.StringAttribute{
-			Description:         "Gets the System ID",
-			MarkdownDescription: "Gets the System ID",
+			Description:         "ID of the system",
+			MarkdownDescription: "ID of the system",
 			Computed:            true,
 		},
 		"protection_domain_id": schema.StringAttribute{
-			Description:         "Gets the Protection Domain ID for Storagepool",
-			MarkdownDescription: "Gets the Protection Domain ID for Storagepool",
+			Description:         "ID of the Protection domain",
+			MarkdownDescription: "ID of the Protection domain",
 			Optional:            true,
 			Validators: []validator.String{
 				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_name")),
 			},
 		},
 		"protection_domain_name": schema.StringAttribute{
-			Description:         "Gets the Protection Domain Name for Storagepool",
-			MarkdownDescription: "Gets the Protection Domain Name for Storagepool",
+			Description:         "Name of the Protection domain.",
+			MarkdownDescription: "Name of the Protection domain.",
 			Optional:            true,
-			Validators: []validator.String{
-				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),
-			},
 		},
 		"name": schema.StringAttribute{
-			Description:         "Returns the Name of Storagepool",
-			MarkdownDescription: "Returns the Name of Storagepool",
+			Description:         "Name of the Storage pool",
+			MarkdownDescription: "Name of the Storage pool",
 			Required:            true,
 		},
 		"media_type": schema.StringAttribute{
-			Description:         "Gets the Media Type",
-			MarkdownDescription: "Gets the Media Type",
+			Description:         "Media Type",
+			MarkdownDescription: "Media Type",
 			Required:            true,
+			Validators: []validator.String{stringvalidator.OneOf(
+				"HDD",
+				"SSD",
+				"Transitional",
+			)},
+			PlanModifiers: []planmodifier.String{
+				stringDefault("HDD"),
+			},
 		},
 		"use_rmcache": schema.BoolAttribute{
-			Description:         "Gets the Read RAM Cache",
-			MarkdownDescription: "Gets the Read RAM Cache",
+			Description:         "Enable/Disable RMcache on a specific storage pool",
+			MarkdownDescription: "Enable/Disable RMcache on a specific storage pool",
 			Optional:            true,
 		},
 		"use_rfcache": schema.BoolAttribute{
-			Description:         "Gets the RFCache",
-			MarkdownDescription: "Gets the RFCache",
+			Description:         "Enable/Disable RFcache on a specific storage pool",
+			MarkdownDescription: "Enable/Disable RFcache on a specific storage pool",
 			Optional:            true,
 		},
 		"links": schema.ListNestedAttribute{

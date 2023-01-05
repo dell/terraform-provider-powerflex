@@ -11,9 +11,7 @@ import (
 // TestAccStoragepoolResource
 func TestAccStoragepoolResource(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
-
 		t.Skip("Dont run with units tests because it will try to create the context")
-
 	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -43,12 +41,9 @@ func TestAccStoragepoolResource(t *testing.T) {
 		},
 	})
 }
-
 func TestAccStoragepoolResourceUpdateRMCache(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
-
 		t.Skip("Dont run with units tests because it will try to create the context")
-
 	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -82,9 +77,7 @@ func TestAccStoragepoolResourceUpdateRMCache(t *testing.T) {
 // TestAccStoragepoolResourceInvalidCreate
 func TestAccStoragepoolResourceInvalidCreate(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
-
 		t.Skip("Dont run with units tests because it will try to create the context")
-
 	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -100,9 +93,7 @@ func TestAccStoragepoolResourceInvalidCreate(t *testing.T) {
 // TestAccStoragepoolResourceInvalidProtectionDomainID
 func TestAccStoragepoolResourceInvalidProtectionDomainID(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
-
 		t.Skip("Dont run with units tests because it will try to create the context")
-
 	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -114,7 +105,6 @@ func TestAccStoragepoolResourceInvalidProtectionDomainID(t *testing.T) {
 		},
 	})
 }
-
 func TestAccStoragepoolResourceVariousCases(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
@@ -141,12 +131,9 @@ func TestAccStoragepoolResourceVariousCases(t *testing.T) {
 		})
 	}
 }
-
 func TestAccStoragepoolResourceInvalidUpdateProtectionDomainID(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
-
 		t.Skip("Dont run with units tests because it will try to create the context")
-
 	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -170,12 +157,9 @@ func TestAccStoragepoolResourceInvalidUpdateProtectionDomainID(t *testing.T) {
 		},
 	})
 }
-
 func TestAccStoragepoolResourceInvalidUpdateName(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
-
 		t.Skip("Dont run with units tests because it will try to create the context")
-
 	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -199,12 +183,9 @@ func TestAccStoragepoolResourceInvalidUpdateName(t *testing.T) {
 		},
 	})
 }
-
 func TestAccStoragepoolResourceInvalidUpdateMediaType(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
-
 		t.Skip("Dont run with units tests because it will try to create the context")
-
 	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -238,7 +219,6 @@ resource "powerflex_storagepool" "storagepool" {
 	use_rfcache = true
 }
 `
-
 var StoragePoolResourceCreateRMCacehFalse = `
 resource "powerflex_storagepool" "storagepool" {
 	name = "random_name"
@@ -248,7 +228,6 @@ resource "powerflex_storagepool" "storagepool" {
 	use_rfcache = false
 }
 `
-
 var StoragePoolResourceUpdate = `
 resource "powerflex_storagepool" "storagepool" {
 	name = "random_name_new"
@@ -258,7 +237,6 @@ resource "powerflex_storagepool" "storagepool" {
 	use_rfcache = true
   }
 `
-
 var CreateInvalidMediaType = `
   resource "powerflex_storagepool" "storagepool" {
 	name = "random_name"
@@ -268,7 +246,6 @@ var CreateInvalidMediaType = `
 	use_rfcache = true
 }
 `
-
 var CreateInvalidProtectionDomainID = `
 resource "powerflex_storagepool" "storagepool" {
 	name = "random_name"
@@ -278,7 +255,6 @@ resource "powerflex_storagepool" "storagepool" {
 	use_rfcache = true
   }
 `
-
 var CreateInvalidName = `
 resource "powerflex_storagepool" "storagepool" {
 	name = "asd44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444"

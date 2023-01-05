@@ -26,7 +26,6 @@ func StoragepoolResource() resource.Resource {
 
 type storagepoolResource struct {
 	client *goscaleio.Client
-	system *goscaleio.System
 }
 
 type storagepoolResourceModel struct {
@@ -60,18 +59,27 @@ func (r *storagepoolResource) Configure(_ context.Context, req resource.Configur
 	if req.ProviderData == nil {
 		return
 	}
-
 	r.client = req.ProviderData.(*goscaleio.Client)
-	r.system = goscaleio.NewSystem(r.client)
-	systems, err := r.client.GetSystems()
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error",
-			"Could not get Systems, unexpected error: "+err.Error(),
-		)
-		return
+}
+
+// getNewProtectionDomainEx function to get Protection Domain
+func getNewProtectionDomainEx(c *goscaleio.Client, pdID string, pdName string, href string) (*goscaleio.ProtectionDomain, error) {
+	system, _ := getFirstSystem(c)
+	pdr := goscaleio.NewProtectionDomainEx(c, &scaleiotypes.ProtectionDomain{})
+	if pdID != "" {
+		protectionDomain, err := system.FindProtectionDomain(pdID, "", "")
+		pdr.ProtectionDomain = protectionDomain
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		protectionDomain, err := system.FindProtectionDomain("", pdName, "")
+		pdr.ProtectionDomain = protectionDomain
+		if err != nil {
+			return nil, err
+		}
 	}
-	r.system.System = systems[0]
+	return pdr, nil
 }
 
 // Function used to Create Storagepool Resource
@@ -79,7 +87,6 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 	tflog.Debug(ctx, "Create storagepool")
 	// Retrieve values from plan
 	var plan storagepoolResourceModel
-	var pd *scaleiotypes.ProtectionDomain
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -87,17 +94,16 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	pd, err := r.system.FindProtectionDomain(plan.ProtectionDomainID.ValueString(), plan.ProtectionDomainName.ValueString(), "")
+	pd, err := getNewProtectionDomainEx(r.client, plan.ProtectionDomainID.ValueString(), plan.ProtectionDomainName.ValueString(), "")
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to find protection domain",
-			err.Error(),
+			"Error getting storage pool",
+			"Could not get storage pool, unexpected err: "+err.Error(),
 		)
 		return
 	}
-	p1 := goscaleio.NewProtectionDomainEx(r.client, pd)
 
-	sp, err := p1.CreateStoragePool(plan.Name.ValueString(), plan.MediaType.ValueString())
+	sp, err := pd.CreateStoragePool(plan.Name.ValueString(), plan.MediaType.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error creating Storage Pool",
@@ -106,7 +112,7 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	spResponse, err := p1.FindStoragePool(sp, "", "")
+	spResponse, err := pd.FindStoragePool(sp, "", "")
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting Storagepool after creation",
@@ -116,15 +122,15 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	if plan.UseRmcache.ValueBool() {
-		a := goscaleio.NewStoragePoolEx(r.client, spResponse)
-		a.ModifyRMCache("true")
+		rm := goscaleio.NewStoragePoolEx(r.client, spResponse)
+		rm.ModifyRMCache("true")
 	} else {
-		a := goscaleio.NewStoragePoolEx(r.client, spResponse)
-		a.ModifyRMCache("false")
+		rm := goscaleio.NewStoragePoolEx(r.client, spResponse)
+		rm.ModifyRMCache("false")
 	}
 
 	if plan.UseRfcache.ValueBool() {
-		_, err := p1.EnableRFCache(sp)
+		_, err := pd.EnableRFCache(sp)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting while updating Storagepool",
@@ -148,7 +154,6 @@ func (r *storagepoolResource) Read(ctx context.Context, req resource.ReadRequest
 	tflog.Debug(ctx, "Read Storagepool")
 	// Get current state
 	var state storagepoolResourceModel
-	var pd *scaleiotypes.ProtectionDomain
 
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -156,17 +161,16 @@ func (r *storagepoolResource) Read(ctx context.Context, req resource.ReadRequest
 		return
 	}
 
-	pd, err := r.system.FindProtectionDomain(state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString(), "")
+	pd, err := getNewProtectionDomainEx(r.client, state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString(), "")
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to find protection domain",
-			err.Error(),
+			"Error getting storage pool",
+			"Could not get storage pool, unexpected err: "+err.Error(),
 		)
 		return
 	}
-	p1 := goscaleio.NewProtectionDomainEx(r.client, pd)
 
-	spr, err := p1.FindStoragePool(state.ID.ValueString(), "", "")
+	spr, err := pd.FindStoragePool(state.ID.ValueString(), "", "")
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Read Powerflex Storagepool",
@@ -188,7 +192,6 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 	tflog.Debug(ctx, "Update Storagepool")
 	// Retrieve values from plan
 	var plan storagepoolResourceModel
-	var pd *scaleiotypes.ProtectionDomain
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -203,18 +206,17 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
-	pd, err := r.system.FindProtectionDomain(plan.ProtectionDomainID.ValueString(), plan.ProtectionDomainName.ValueString(), "")
+	pd, err := getNewProtectionDomainEx(r.client, plan.ProtectionDomainID.ValueString(), plan.ProtectionDomainName.ValueString(), "")
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to find protection domain",
-			err.Error(),
+			"Error getting storage pool",
+			"Could not get storage pool, unexpected err: "+err.Error(),
 		)
 		return
 	}
-	p1 := goscaleio.NewProtectionDomainEx(r.client, pd)
 
 	if plan.Name.ValueString() != state.Name.ValueString() {
-		_, err := p1.ModifyStoragePoolName(state.ID.ValueString(), plan.Name.ValueString())
+		_, err := pd.ModifyStoragePoolName(state.ID.ValueString(), plan.Name.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting while updating Storagepool",
@@ -225,7 +227,7 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 	}
 
 	if plan.MediaType.ValueString() != state.MediaType.ValueString() {
-		_, err := p1.ModifyStoragePoolMedia(state.ID.ValueString(), plan.MediaType.ValueString())
+		_, err := pd.ModifyStoragePoolMedia(state.ID.ValueString(), plan.MediaType.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting while updating Storagepool",
@@ -235,7 +237,7 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 		}
 	}
 
-	spResponse, err := p1.FindStoragePool(state.ID.ValueString(), "", "")
+	spResponse, err := pd.FindStoragePool(state.ID.ValueString(), "", "")
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting while updating Storagepool",
@@ -245,15 +247,15 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 	}
 
 	if plan.UseRmcache.ValueBool() {
-		a := goscaleio.NewStoragePoolEx(r.client, spResponse)
-		a.ModifyRMCache("true")
+		rm := goscaleio.NewStoragePoolEx(r.client, spResponse)
+		rm.ModifyRMCache("true")
 	} else {
-		a := goscaleio.NewStoragePoolEx(r.client, spResponse)
-		a.ModifyRMCache("false")
+		rm := goscaleio.NewStoragePoolEx(r.client, spResponse)
+		rm.ModifyRMCache("false")
 	}
 
 	if plan.UseRfcache.ValueBool() {
-		_, err := p1.EnableRFCache(spResponse.ID)
+		_, err := pd.EnableRFCache(spResponse.ID)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting while updating Storagepool",
@@ -262,7 +264,7 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 			return
 		}
 	} else {
-		_, err := p1.DisableRFCache(spResponse.ID)
+		_, err := pd.DisableRFCache(spResponse.ID)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting while updating Storagepool",
@@ -286,7 +288,6 @@ func (r *storagepoolResource) Delete(ctx context.Context, req resource.DeleteReq
 	tflog.Debug(ctx, "Delete Storagepool")
 	// Retrieve values from state
 	var state storagepoolResourceModel
-	var pd *scaleiotypes.ProtectionDomain
 
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -294,17 +295,15 @@ func (r *storagepoolResource) Delete(ctx context.Context, req resource.DeleteReq
 		return
 	}
 
-	pd, err := r.system.FindProtectionDomain(state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString(), "")
+	pd, err := getNewProtectionDomainEx(r.client, state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString(), "")
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to find protection domain",
-			err.Error(),
+			"Error getting storage pool",
+			"Could not get storage pool, unexpected err: "+err.Error(),
 		)
 		return
 	}
 
-	p1 := goscaleio.NewProtectionDomain(r.client)
-	p1.ProtectionDomain = pd
 	spr, err := r.client.FindStoragePool(state.ID.ValueString(), "", "", "")
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -313,7 +312,7 @@ func (r *storagepoolResource) Delete(ctx context.Context, req resource.DeleteReq
 		)
 		return
 	}
-	err = p1.DeleteStoragePool(state.Name.ValueString())
+	err = pd.DeleteStoragePool(state.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Deleting Storagepool",
