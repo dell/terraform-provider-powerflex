@@ -210,6 +210,22 @@ func TestAccStoragepoolResourceInvalidUpdateMediaType(t *testing.T) {
 	})
 }
 
+func TestStoragepoolResourceResourceImport(t *testing.T) {
+	os.Setenv("TF_ACC", "1")
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:            ProviderConfigForTesting + TestStoragepoolResourceImportBlock,
+				ResourceName:      "powerflex_storagepool.storagepool",
+				ImportState:       true,
+				ImportStateVerify: false,
+				ImportStateId:     "7630a24800000002",
+			},
+		},
+	})
+}
+
 var StoragePoolResourceCreate = `
 resource "powerflex_storagepool" "storagepool" {
 	name = "storage_pool"
@@ -258,6 +274,16 @@ resource "powerflex_storagepool" "storagepool" {
 var CreateInvalidName = `
 resource "powerflex_storagepool" "storagepool" {
 	name = "storage_pool"
+	protection_domain_id = "4eeb304600000000"
+	media_type = "HDD"
+	use_rmcache = true
+	use_rfcache = true
+  }
+`
+var TestStoragepoolResourceImportBlock = `
+resource "powerflex_storagepool" "storagepool" {
+	name = "storage_pool"
+	id = "7630a24800000002"
 	protection_domain_id = "4eeb304600000000"
 	media_type = "HDD"
 	use_rmcache = true
