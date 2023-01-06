@@ -97,8 +97,8 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 	pd, err := getNewProtectionDomainEx(r.client, plan.ProtectionDomainID.ValueString(), plan.ProtectionDomainName.ValueString(), "")
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting storage pool",
-			"Could not get storage pool, unexpected err: "+err.Error(),
+			"Error getting Protection Domain",
+			"Could not get Protection Domain, unexpected err: "+err.Error(),
 		)
 		return
 	}
@@ -164,8 +164,8 @@ func (r *storagepoolResource) Read(ctx context.Context, req resource.ReadRequest
 	pd, err := getNewProtectionDomainEx(r.client, state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString(), "")
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting storage pool",
-			"Could not get storage pool, unexpected err: "+err.Error(),
+			"Error getting Protection Domain",
+			"Could not get Protection Domain, unexpected err: "+err.Error(),
 		)
 		return
 	}
@@ -209,8 +209,8 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 	pd, err := getNewProtectionDomainEx(r.client, plan.ProtectionDomainID.ValueString(), plan.ProtectionDomainName.ValueString(), "")
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting storage pool",
-			"Could not get storage pool, unexpected err: "+err.Error(),
+			"Error getting Protection Domain",
+			"Could not get Protection Domain, unexpected err: "+err.Error(),
 		)
 		return
 	}
@@ -298,8 +298,8 @@ func (r *storagepoolResource) Delete(ctx context.Context, req resource.DeleteReq
 	pd, err := getNewProtectionDomainEx(r.client, state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString(), "")
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting storage pool",
-			"Could not get storage pool, unexpected err: "+err.Error(),
+			"Error getting Protection Domain",
+			"Could not get Protection Domain, unexpected err: "+err.Error(),
 		)
 		return
 	}
