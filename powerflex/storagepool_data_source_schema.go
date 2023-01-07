@@ -43,7 +43,7 @@ var DataSourceSchema schema.Schema = schema.Schema{
 			ElementType:         types.StringType,
 			Optional:            true,
 			Validators: []validator.List{
-				listvalidator.ExactlyOneOf(path.MatchRoot("storage_pool_id")),
+				listvalidator.ConflictsWith(path.MatchRoot("storage_pool_id")),
 			},
 		},
 		"storage_pools": schema.ListNestedAttribute{
