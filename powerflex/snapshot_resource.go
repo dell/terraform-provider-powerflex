@@ -172,6 +172,44 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 			snapResource.RemoveVolume("")
 			return
 		}
+		// setting limits on mapped sdc
+		smslp := pftypes.SetMappedSdcLimitsParam{
+			SdcID:                si.SdcID,
+			BandwidthLimitInKbps: strconv.FormatInt(int64(si.LimitBwInMbps*1024), 10),
+			IopsLimit:            strconv.FormatInt(int64(si.LimitIops), 10),
+		}
+		err4 := snapResource.SetMappedSdcLimits(&smslp)
+		if err4 != nil {
+			resp.Diagnostics.AddError(
+				"Error Setting Mapped Sdc Limits",
+				"Could not set mapped sdc limit, unexpected error: "+err4.Error(),
+			)
+			for _, usi := range successMapped {
+				snapResource.UnmapVolumeSdc(
+					&pftypes.UnmapVolumeSdcParam{
+						SdcID: usi,
+					},
+				)
+			}
+			snapResource.RemoveVolume("")
+			return
+		}
+		err5 := snapResource.SetVolumeMappingAccessMode(si.AccessMode, si.SdcID)
+		if err5 != nil {
+			resp.Diagnostics.AddError(
+				"Error Setting Access Mode On Mapped SDC To Snapshot",
+				"Could not set access mode on mapped sdc, unexpected error: "+err5.Error(),
+			)
+			for _, usi := range successMapped {
+				snapResource.UnmapVolumeSdc(
+					&pftypes.UnmapVolumeSdcParam{
+						SdcID: usi,
+					},
+				)
+			}
+			snapResource.RemoveVolume("")
+			return
+		}
 		successMapped = append(successMapped, si.SdcID)
 	}
 	snapResponse, err2 = r.client.GetVolume("", snapID, "", "", false)
@@ -262,17 +300,6 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 			return
 		}
 	}
-	// changing the access mode in case of change in access mode state
-	if plan.AccessMode.ValueString() != state.AccessMode.ValueString() {
-		err := snapResource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error Setting Snapshot Access Mode",
-				"Could not set the Snapshot Access Mode, unexpected err: "+err.Error(),
-			)
-			return
-		}
-	}
 
 	// locking the snapshot in case of change in LockedAutoSnapshot state to true
 	if plan.LockAutoSnapshot.ValueBool() && !state.LockAutoSnapshot.ValueBool() {
@@ -296,7 +323,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 		}
 	}
 
-	if (!plan.DesiredRetention.IsNull() && (plan.RetentionUnit.ValueString() != state.RetentionUnit.String()) || (plan.DesiredRetention.ValueInt64() != state.DesiredRetention.ValueInt64())) {
+	if !plan.DesiredRetention.IsNull() && (plan.RetentionUnit.ValueString() != state.RetentionUnit.String()) || (plan.DesiredRetention.ValueInt64() != state.DesiredRetention.ValueInt64()) {
 		retentionInMin := convertToMin(plan.DesiredRetention.ValueInt64(), plan.RetentionUnit.ValueString())
 		err := snapResource.SetSnapshotSecurity(retentionInMin)
 		if err != nil {
@@ -313,7 +340,6 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	diags = state.SdcList.ElementsAs(ctx, &stateSdcList, true)
 	resp.Diagnostics.Append(diags...)
 
-
 	planSdcIds := []string{}
 	stateSdcIds := []string{}
 	for _, psl := range planSdcList {
@@ -324,6 +350,19 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 	mapSdcIds := Difference(planSdcIds, stateSdcIds)
 	unmapSdcIds := Difference(stateSdcIds, planSdcIds)
+	nonchangeSdcIds := Difference(planSdcIds, mapSdcIds)
+
+	// changing the access mode in case of change in access mode state
+	if (plan.AccessMode.ValueString() == "ReadWrite") && (state.AccessMode.ValueString() == "ReadOnly") {
+		err := snapResource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error Setting Snapshot Access Mode",
+				"Could not set the Snapshot Access Mode, unexpected err: "+err.Error(),
+			)
+			return
+		}
+	}
 
 	for _, msi := range mapSdcIds {
 		pfmvsp := pftypes.MapVolumeSdcParam{
@@ -337,6 +376,23 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 				"Could not map snapshot to scs with id: "+msi+", unexpected error: "+err3.Error(),
 			)
 			return
+		}
+		for _, ssl := range planSdcList {
+			if ssl.SdcID == msi {
+				smslp := pftypes.SetMappedSdcLimitsParam{
+					SdcID:                ssl.SdcID,
+					BandwidthLimitInKbps: strconv.FormatInt(int64(ssl.LimitBwInMbps*1024), 10),
+					IopsLimit:            strconv.FormatInt(int64(ssl.LimitIops), 10),
+				}
+				err4 := snapResource.SetMappedSdcLimits(&smslp)
+				if err4 != nil {
+					resp.Diagnostics.AddError(
+						"Error Setting Mapped Sdc Limits",
+						"Could not set mapped sdc limit, unexpected error: "+err4.Error(),
+					)
+					return
+				}
+			}
 		}
 	}
 
@@ -353,6 +409,63 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 			)
 			return
 		}
+	}
+
+	// changing the access mode in case of change in access mode state
+	if (plan.AccessMode.ValueString() == "ReadOnly") && (state.AccessMode.ValueString() == "ReadWrite") {
+		err := snapResource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error Setting Snapshot Access Mode",
+				"Could not set the Snapshot Access Mode, unexpected err: "+err.Error(),
+			)
+			return
+		}
+	}
+
+	// yet to implement non change
+	for _, ncsi := range nonchangeSdcIds {
+		var planObj SdcList
+		var stateObj SdcList
+
+		for _, psl := range planSdcList {
+			if ncsi == psl.SdcID {
+				planObj = psl
+				break
+			}
+		}
+		for _, ssl := range stateSdcList {
+			if ncsi == ssl.SdcID {
+				stateObj = ssl
+				break
+			}
+		}
+		if (planObj.LimitIops != stateObj.LimitIops) || (planObj.LimitBwInMbps != stateObj.LimitBwInMbps) {
+			smslp := pftypes.SetMappedSdcLimitsParam{
+				SdcID:                planObj.SdcID,
+				BandwidthLimitInKbps: strconv.FormatInt(int64(planObj.LimitBwInMbps*1024), 10),
+				IopsLimit:            strconv.FormatInt(int64(planObj.LimitIops), 10),
+			}
+			err4 := snapResource.SetMappedSdcLimits(&smslp)
+			if err4 != nil {
+				resp.Diagnostics.AddError(
+					"Error Setting Mapped Sdc Limits",
+					"Could not set mapped sdc limit, unexpected error: "+err4.Error(),
+				)
+				return
+			}
+		}
+
+		if planObj.AccessMode != stateObj.AccessMode {
+			err5 := snapResource.SetVolumeMappingAccessMode(planObj.AccessMode, planObj.SdcID)
+			if err5 != nil {
+				resp.Diagnostics.AddError(
+					"Error Setting Access Mode On Mapped SDC To Snapshot",
+					"Could not set access mode on mapped sdc, unexpected error: "+err5.Error(),
+				)
+			}
+		}
+
 	}
 	snapResponse, err2 = r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {

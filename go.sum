@@ -42,6 +42,8 @@ github.com/dell/goscaleio v1.9.1-0.20230104171725-d3d35aa4463b h1:W8ZLXyFoBVNbCr
 github.com/dell/goscaleio v1.9.1-0.20230104171725-d3d35aa4463b/go.mod h1:f+OsYKdKJc8j/a0uHI6nJZpiMfx7wDd6yq78dAeBHsg=
 github.com/dell/goscaleio v1.9.1-0.20230104210533-a26d01526818 h1:/62IzYV8wx2fO+B6RvH1+xxxcoeoAgPAQYKHKK6Q3YI=
 github.com/dell/goscaleio v1.9.1-0.20230104210533-a26d01526818/go.mod h1:f+OsYKdKJc8j/a0uHI6nJZpiMfx7wDd6yq78dAeBHsg=
+github.com/dell/goscaleio v1.9.1-0.20230106055748-429976665c18 h1:Iu8sxHxweQwGdoWgTfvVRQ/G782/tF8727WXR4acNOA=
+github.com/dell/goscaleio v1.9.1-0.20230106055748-429976665c18/go.mod h1:f+OsYKdKJc8j/a0uHI6nJZpiMfx7wDd6yq78dAeBHsg=
 github.com/emirpasic/gods v1.12.0 h1:QAUIPSaCu4G+POclxeqb3F+WPpdKqFGlw36+yOzGlrg=
 github.com/emirpasic/gods v1.12.0/go.mod h1:YfzfFFoVP/catgzJb4IKIqXjX78Ha8FMSDh3ymbK86o=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
