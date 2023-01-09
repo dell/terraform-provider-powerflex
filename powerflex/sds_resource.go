@@ -101,7 +101,7 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error",
-			"Could not create SDS, unexpected error: "+err.Error()+" "+sdsName+iplist[0],
+			"Could not create SDS, unexpected error: "+err.Error(),
 		)
 		return
 	}
