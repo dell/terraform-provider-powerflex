@@ -99,8 +99,8 @@ type storagePoolModel struct {
 
 // storagepoolDataSourceModel maps the storage pool data source schema data
 type storagepoolDataSourceModel struct {
-	StoragePoolID        types.List         `tfsdk:"storage_pool_id"`
-	StoragePoolName      types.List         `tfsdk:"storage_pool_name"`
+	StoragePoolIDs       types.List         `tfsdk:"storage_pool_ids"`
+	StoragePoolNames     types.List         `tfsdk:"storage_pool_names"`
 	ProtectionDomainID   types.String       `tfsdk:"protection_domain_id"`
 	ProtectionDomainName types.String       `tfsdk:"protection_domain_name"`
 	StoragePools         []storagePoolModel `tfsdk:"storage_pools"`
@@ -171,10 +171,10 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 
 	spID := []string{}
 	// Check if storage pool ID or name is provided
-	if !state.StoragePoolID.IsNull() {
-		diags = state.StoragePoolID.ElementsAs(ctx, &spID, true)
-	} else if !state.StoragePoolName.IsNull() {
-		diags = state.StoragePoolName.ElementsAs(ctx, &spID, true)
+	if !state.StoragePoolIDs.IsNull() {
+		diags = state.StoragePoolIDs.ElementsAs(ctx, &spID, true)
+	} else if !state.StoragePoolNames.IsNull() {
+		diags = state.StoragePoolNames.ElementsAs(ctx, &spID, true)
 	} else {
 		// Get all the storage pools associated with protection domain
 		storagePools, _ := p1.GetStoragePool("")
@@ -196,7 +196,7 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 	for _, spIdentifier := range spID {
 		var s1 *scaleio_types.StoragePool
 
-		if !state.StoragePoolID.IsNull() {
+		if !state.StoragePoolIDs.IsNull() {
 			s1, err3 = p1.FindStoragePool(spIdentifier, "", "")
 		} else {
 			s1, err3 = p1.FindStoragePool("", spIdentifier, "")
@@ -233,7 +233,7 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 		state.StoragePools = append(state.StoragePools, storagePool)
 	}
 
-	//this is required for acceptance testing
+	// this is required for acceptance testing
 	state.ID = types.StringValue("dummyID")
 
 	// Set state
