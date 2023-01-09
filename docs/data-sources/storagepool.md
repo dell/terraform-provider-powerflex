@@ -19,8 +19,8 @@ Fetches the list of storage pools.
 
 - `protection_domain_id` (String) Protection Domain ID.
 - `protection_domain_name` (String) Protection Domain Name.
-- `storage_pool_id` (List of String) List of storage pool IDs.
-- `storage_pool_name` (List of String) List of storage pool names.
+- `storage_pool_ids` (List of String) List of storage pool IDs.
+- `storage_pool_names` (List of String) List of storage pool names.
 
 ### Read-Only
 
