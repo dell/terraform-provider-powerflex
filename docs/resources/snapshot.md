@@ -48,7 +48,6 @@ Optional:
 - `limit_bw_in_mbps` (Number) limit bw in mbps
 - `limit_iops` (Number) limit iops
 - `sdc_id` (String) The ID of the SDC
-- `sdc_ip` (String) The IP of the SDC
 - `sdc_name` (String) The Name of the SDC
 
 

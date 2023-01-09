@@ -12,7 +12,6 @@ import (
 // SdcList struct for sdc info response mapping to terrafrom
 type SdcList struct {
 	SdcID                 string `tfsdk:"sdc_id"`
-	SdcIP                 string `tfsdk:"sdc_ip"`
 	LimitIops             int    `tfsdk:"limit_iops"`
 	LimitBwInMbps         int    `tfsdk:"limit_bw_in_mbps"`
 	SdcName               string `tfsdk:"sdc_name"`
@@ -55,7 +54,6 @@ func SnapshotTerraformState(vol *pftypes.Volume, plan SnapshotResourceModel, sdc
 func sdcMapState(sdcInfos []*pftypes.MappedSdcInfo, sdcListState []SdcList) basetypes.ListValue {
 	sdcInfoAttrTypes := map[string]attr.Type{
 		"sdc_id":                   types.StringType,
-		"sdc_ip":                   types.StringType,
 		"limit_iops":               types.Int64Type,
 		"limit_bw_in_mbps":         types.Int64Type,
 		"sdc_name":                 types.StringType,
@@ -68,10 +66,9 @@ func sdcMapState(sdcInfos []*pftypes.MappedSdcInfo, sdcListState []SdcList) base
 	objectSdcInfos := []attr.Value{}
 	for _, sls := range sdcListState {
 		for _, msi := range sdcInfos {
-			if sls.SdcID == msi.SdcID {
+			if sls.SdcID == msi.SdcID || sls.SdcName == msi.SdcName {
 				obj := map[string]attr.Value{
 					"sdc_id":                   types.StringValue(msi.SdcID),
-					"sdc_ip":                   types.StringValue(msi.SdcIP),
 					"limit_iops":               types.Int64Value(int64(msi.LimitIops)),
 					"limit_bw_in_mbps":         types.Int64Value(int64(msi.LimitBwInMbps)),
 					"sdc_name":                 types.StringValue(msi.SdcName),
@@ -90,9 +87,9 @@ func sdcMapState(sdcInfos []*pftypes.MappedSdcInfo, sdcListState []SdcList) base
 func convertToMin(desireRetention int64, retentionUnit string) string {
 	retentionMin := ""
 	if retentionUnit == "days" {
-		retentionMin = strconv.FormatInt(desireRetention*2, 10)
+		retentionMin = strconv.FormatInt(desireRetention*24*60, 10)
 	} else {
-		retentionMin = strconv.FormatInt(desireRetention*1, 10)
+		retentionMin = strconv.FormatInt(desireRetention*60, 10)
 	}
 	return retentionMin
 }

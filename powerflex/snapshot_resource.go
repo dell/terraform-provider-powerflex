@@ -150,6 +150,25 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	resp.Diagnostics.Append(diags...)
 	tflog.Debug(ctx, "PK-debug"+helper.PrettyJSON(sdcList))
 	for _, si := range sdcList {
+		if si.SdcID == "" {
+			foundsdc, errA := sr.FindSdc("Name", si.SdcName)
+			si.SdcID = foundsdc.Sdc.ID
+			if errA != nil {
+				resp.Diagnostics.AddError(
+					"Error Finding SDC with name",
+					"Could not get sdc with name"+si.SdcName+",unexpected error: "+errA.Error(),
+				)
+				for _, usi := range successMapped {
+					snapResource.UnmapVolumeSdc(
+						&pftypes.UnmapVolumeSdcParam{
+							SdcID: usi,
+						},
+					)
+				}
+				snapResource.RemoveVolume("")
+				return
+			}
+		}
 		// Add mapped SDC
 		pfmvsp := pftypes.MapVolumeSdcParam{
 			SdcID:                 si.SdcID,
@@ -234,6 +253,9 @@ func (r *snapshotResource) Read(ctx context.Context, req resource.ReadRequest, r
 	var state SnapshotResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	gs, _ := r.client.GetSystems()
+	sr := goscaleio.NewSystem(r.client)
+	sr.System = gs[0]
 	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
@@ -244,6 +266,19 @@ func (r *snapshotResource) Read(ctx context.Context, req resource.ReadRequest, r
 	}
 	sdcList := []SdcList{}
 	diags = state.SdcList.ElementsAs(ctx, &sdcList, true)
+	for _, sl := range sdcList {
+		if sl.SdcID == "" {
+			foundsdc, errA := sr.FindSdc("Name", sl.SdcName)
+			sl.SdcID = foundsdc.Sdc.ID
+			if errA != nil {
+				resp.Diagnostics.AddError(
+					"Error Finding SDC with name",
+					"Could not get sdc with name"+sl.SdcName+",unexpected error: "+errA.Error(),
+				)
+				return
+			}
+		}
+	}
 	resp.Diagnostics.Append(diags...)
 	snap := snapResponse[0]
 	state = SnapshotTerraformState(snap, state, sdcList)
@@ -262,6 +297,9 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	var state SnapshotResourceModel
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	gs, _ := r.client.GetSystems()
+	sr := goscaleio.NewSystem(r.client)
+	sr.System = gs[0]
 	VSIKB, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 	plan.VolumeSizeInKb = types.StringValue(strconv.FormatInt(VSIKB, 10))
 	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
@@ -342,11 +380,39 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 
 	planSdcIds := []string{}
 	stateSdcIds := []string{}
-	for _, psl := range planSdcList {
-		planSdcIds = append(planSdcIds, psl.SdcID)
+	for idx, psl := range planSdcList {
+		if psl.SdcID == "" {
+			foundsdc, errA := sr.FindSdc("Name", psl.SdcName)
+			if errA != nil {
+				resp.Diagnostics.AddError(
+					"Error Finding SDC with name",
+					"Could not get sdc with name"+psl.SdcName+",unexpected error: "+errA.Error(),
+				)
+				return
+			}
+			planSdcList[idx].SdcID = foundsdc.Sdc.ID
+			planSdcIds = append(planSdcIds, planSdcList[idx].SdcID)
+		} else {
+			planSdcIds = append(planSdcIds, psl.SdcID)
+		}
+
 	}
-	for _, ssl := range stateSdcList {
-		stateSdcIds = append(stateSdcIds, ssl.SdcID)
+	for idx, ssl := range stateSdcList {
+		if ssl.SdcID == "" {
+			foundsdc, errA := sr.FindSdc("Name", ssl.SdcName)
+			if errA != nil {
+				resp.Diagnostics.AddError(
+					"Error Finding SDC with name",
+					"Could not get sdc with name"+ssl.SdcName+",unexpected error: "+errA.Error(),
+				)
+				return
+			}
+			stateSdcList[idx].SdcID = foundsdc.Sdc.ID
+			stateSdcIds = append(stateSdcIds, stateSdcList[idx].SdcID)
+		} else {
+			stateSdcIds = append(stateSdcIds, ssl.SdcID)
+		}
+
 	}
 	mapSdcIds := Difference(planSdcIds, stateSdcIds)
 	unmapSdcIds := Difference(stateSdcIds, planSdcIds)
@@ -365,6 +431,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 
 	for _, msi := range mapSdcIds {
+
 		pfmvsp := pftypes.MapVolumeSdcParam{
 			SdcID:                 msi,
 			AllowMultipleMappings: "true",
@@ -497,6 +564,9 @@ func (r *snapshotResource) Delete(ctx context.Context, req resource.DeleteReques
 	var state SnapshotResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	gs, _ := r.client.GetSystems()
+	sr := goscaleio.NewSystem(r.client)
+	sr.System = gs[0]
 	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
@@ -510,6 +580,19 @@ func (r *snapshotResource) Delete(ctx context.Context, req resource.DeleteReques
 	sdcsToUnmap := []SdcList{}
 	diags = state.SdcList.ElementsAs(ctx, &sdcsToUnmap, true)
 	resp.Diagnostics.Append(diags...)
+	for _, ssl := range sdcsToUnmap {
+		if ssl.SdcID == "" {
+			foundsdc, errA := sr.FindSdc("Name", ssl.SdcName)
+			ssl.SdcID = foundsdc.Sdc.ID
+			if errA != nil {
+				resp.Diagnostics.AddError(
+					"Error Finding SDC with name",
+					"Could not get sdc with name"+ssl.SdcName+",unexpected error: "+errA.Error(),
+				)
+				return
+			}
+		}
+	}
 	for _, stu := range sdcsToUnmap {
 		err := snapshot.UnmapVolumeSdc(
 			&pftypes.UnmapVolumeSdcParam{

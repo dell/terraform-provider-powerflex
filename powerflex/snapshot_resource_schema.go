@@ -134,29 +134,16 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 						Computed:            true,
 						MarkdownDescription: "The ID of the SDC",
 					},
-					"sdc_ip": schema.StringAttribute{
-						Description:         "The IP of the SDC",
-						Optional:            true,
-						Computed:            true,
-						MarkdownDescription: "The IP of the SDC",
-						/* 						Validators: []validator.String{
-							stringvalidator.AtLeastOneOf(path.Expressions{
-								path.MatchRoot("sdc_id"),
-								path.MatchRoot("sdc_name"),
-							}...),
-						}, */
-					},
 					"sdc_name": schema.StringAttribute{
 						Description:         "The Name of the SDC",
 						Computed:            true,
 						Optional:            true,
 						MarkdownDescription: "The Name of the SDC",
-						/* 						Validators: []validator.String{
-							stringvalidator.AtLeastOneOf(path.Expressions{
-								path.MatchRoot("sdc_id"),
-								path.MatchRoot("sdc_ip"),
-							}...),
-						}, */
+						// Validators: []validator.String{
+						// 	stringvalidator.ExactlyOneOf(path.Expression{
+						// 		path.MatchRoot("sdc_id"),
+						// 	}...),
+						// },
 					},
 					"limit_iops": schema.Int64Attribute{
 						Description:         "limit iops",
@@ -175,6 +162,13 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 						Computed:            true,
 						Optional:            true,
 						MarkdownDescription: "The Access Mode of the SDC",
+						Validators: []validator.String{stringvalidator.OneOf(
+							"ReadOnly",
+							"ReadWrite",
+						)},
+						PlanModifiers: []planmodifier.String{
+							stringDefault("ReadOnly"),
+						},
 					},
 					"is_direct_buffer_mapping": schema.BoolAttribute{
 						Description:         "is direct buffer mapping",
