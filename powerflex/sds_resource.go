@@ -2,6 +2,7 @@ package powerflex
 
 import (
 	"context"
+	"terraform-provider-powerflex/helper"
 
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // SDSResourceModel maps the resource schema data.
@@ -208,6 +210,45 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		}
 	}
 
+	planIplist := []string{}
+	stateIplist := []string{}
+
+	for _, v := range plan.IPList.Elements() {
+		s := v.String()[1 : len(v.String())-1]
+		planIplist = append(planIplist, s)
+	}
+
+	for _, v := range state.IPList.Elements() {
+		s := v.String()[1 : len(v.String())-1]
+		stateIplist = append(stateIplist, s)
+	}
+
+	if len(planIplist) < 3 {
+		if planIplist[0] != planIplist[0] {
+			err := pd.SetSDSIPRole(state.ID.ValueString(), planIplist[0], "sdcOnly")
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"Error",
+					"Could not set ip of SDS, unexpected error: "+err.Error(),
+				)
+
+				return
+			}
+		}
+
+		if planIplist[1] != planIplist[1] {
+			err := pd.SetSDSIPRole(state.ID.ValueString(), planIplist[1], "sdsOnly")
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"Error",
+					"Could not set ip of SDS, unexpected error: "+err.Error(),
+				)
+
+				return
+			}
+		}
+	}
+
 	// Find updated SDS
 	rsp, err := pd.FindSds("ID", state.ID.ValueString())
 	if err != nil {
@@ -271,14 +312,8 @@ func (r *sdsResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 		return
 	}
 
-	// Set state
-	state = updateSdsState(sds, state)
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
+	tflog.Debug(ctx, "Delete SDS :-- "+helper.PrettyJSON(sds))
+	resp.State.RemoveResource(ctx)
 }
 
 func (r *sdsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

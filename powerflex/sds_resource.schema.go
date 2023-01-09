@@ -30,6 +30,12 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 			Optional:            true,
 			MarkdownDescription: "IP list of SDS",
 		},
+		"ip_role": schema.ListAttribute{
+			Description:         "IP role list of SDS",
+			ElementType:         types.StringType,
+			Optional:            true,
+			MarkdownDescription: "IP role list of SDS",
+		},
 		"drl_mode": schema.StringAttribute{
 			Description:         "DRL mode of SDS",
 			Computed:            true,
