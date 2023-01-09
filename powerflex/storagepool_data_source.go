@@ -99,8 +99,8 @@ type storagePoolModel struct {
 
 // storagepoolDataSourceModel maps the storage pool data source schema data
 type storagepoolDataSourceModel struct {
-	StoragePoolID        types.List         `tfsdk:"storage_pool_id"`
-	StoragePoolName      types.List         `tfsdk:"storage_pool_name"`
+	StoragePoolIDs       types.List         `tfsdk:"storage_pool_ids"`
+	StoragePoolNames     types.List         `tfsdk:"storage_pool_names"`
 	ProtectionDomainID   types.String       `tfsdk:"protection_domain_id"`
 	ProtectionDomainName types.String       `tfsdk:"protection_domain_name"`
 	StoragePools         []storagePoolModel `tfsdk:"storage_pools"`
@@ -141,21 +141,11 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 	}
 
 	// Get the systems on the PowerFlex cluster
-	c1, err := d.client.GetSystems()
+	c2, err := getFirstSystem(d.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to get systems",
+			"Error in getting system instance",
 			err.Error(),
-		)
-		return
-	}
-
-	// Get the details of system
-	c2, err1 := d.client.FindSystem(c1[0].ID, "", "")
-	if err1 != nil {
-		resp.Diagnostics.AddError(
-			"Unable to find system",
-			err1.Error(),
 		)
 		return
 	}
@@ -181,10 +171,21 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 
 	spID := []string{}
 	// Check if storage pool ID or name is provided
-	if state.StoragePoolID.IsNull() != true {
-		diags = state.StoragePoolID.ElementsAs(ctx, &spID, true)
+	if !state.StoragePoolIDs.IsNull() {
+		diags = state.StoragePoolIDs.ElementsAs(ctx, &spID, true)
+	} else if !state.StoragePoolNames.IsNull() {
+		diags = state.StoragePoolNames.ElementsAs(ctx, &spID, true)
 	} else {
-		diags = state.StoragePoolName.ElementsAs(ctx, &spID, true)
+		// Get all the storage pools associated with protection domain
+		storagePools, _ := p1.GetStoragePool("")
+		for sp := range storagePools {
+			spID = append(spID, storagePools[sp].Name)
+		}
+	}
+
+	if numSP := len(spID); numSP == 0 {
+		resp.Diagnostics.AddError("No storage pools found for the specified protection domain", "")
+		return
 	}
 
 	if diags.HasError() {
@@ -195,7 +196,7 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 	for _, spIdentifier := range spID {
 		var s1 *scaleio_types.StoragePool
 
-		if state.StoragePoolID.IsNull() != true {
+		if !state.StoragePoolIDs.IsNull() {
 			s1, err3 = p1.FindStoragePool(spIdentifier, "", "")
 		} else {
 			s1, err3 = p1.FindStoragePool("", spIdentifier, "")
@@ -209,10 +210,6 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 			return
 		}
 		sp.StoragePool = s1
-		storagePool := storagePoolModel{
-			ID:   types.StringValue(s1.ID),
-			Name: types.StringValue(s1.Name),
-		}
 
 		volList, err4 := sp.GetVolume("", "", "", "", false)
 		if err4 != nil {
@@ -232,82 +229,94 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 			return
 		}
 
-		// Iterate through volume list
-		for _, vol := range volList {
-			storagePool.Volumes = append(storagePool.Volumes, volume{
-				ID:   types.StringValue(vol.ID),
-				Name: types.StringValue(vol.Name),
-			})
-		}
-
-		// Iterate through SDS list
-		for _, sds := range sdsList {
-			storagePool.SDS = append(storagePool.SDS, sdsData{
-				ID:   types.StringValue(sds.ID),
-				Name: types.StringValue(sds.Name),
-			})
-		}
-
-		// Iterate through the Links
-		for _, link := range s1.Links {
-			storagePool.Links = append(storagePool.Links, linkModel{
-				Rel:  types.StringValue(link.Rel),
-				HREF: types.StringValue(link.HREF),
-			})
-		}
-
-		storagePool.RebalanceioPriorityPolicy = types.StringValue(s1.RebalanceioPriorityPolicy)
-		storagePool.RebalanceioPriorityAppBwPerDeviceThresholdInKbps = types.Int64Value(int64(s1.RebalanceioPriorityAppBwPerDeviceThresholdInKbps))
-		storagePool.RebalanceioPriorityAppIopsPerDeviceThreshold = types.Int64Value(int64(s1.RebalanceioPriorityAppIopsPerDeviceThreshold))
-		storagePool.RebalanceioPriorityBwLimitPerDeviceInKbps = types.Int64Value(int64(s1.RebalanceioPriorityBwLimitPerDeviceInKbps))
-		storagePool.RebalanceioPriorityQuietPeriodInMsec = types.Int64Value(int64(s1.RebalanceioPriorityQuietPeriodInMsec))
-		storagePool.RebalanceioPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.RebalanceioPriorityNumOfConcurrentIosPerDevice))
-		storagePool.RebuildioPriorityPolicy = types.StringValue(s1.RebuildioPriorityPolicy)
-		storagePool.RebuildioPriorityAppBwPerDeviceThresholdInKbps = types.Int64Value(int64(s1.RebuildioPriorityAppBwPerDeviceThresholdInKbps))
-		storagePool.RebuildioPriorityAppIopsPerDeviceThreshold = types.Int64Value(int64(s1.RebuildioPriorityAppIopsPerDeviceThreshold))
-		storagePool.RebuildioPriorityBwLimitPerDeviceInKbps = types.Int64Value(int64(s1.RebalanceioPriorityBwLimitPerDeviceInKbps))
-		storagePool.RebuildioPriorityQuietPeriodInMsec = types.Int64Value(int64(s1.RebuildioPriorityQuietPeriodInMsec))
-		storagePool.RebuildioPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.RebuildioPriorityNumOfConcurrentIosPerDevice))
-		storagePool.ZeroPaddingEnabled = types.BoolValue(s1.ZeroPaddingEnabled)
-		storagePool.UseRmcache = types.BoolValue(s1.UseRmcache)
-		storagePool.SparePercentage = types.Int64Value(int64(s1.SparePercentage))
-		storagePool.RmCacheWriteHandlingMode = types.StringValue(s1.RmCacheWriteHandlingMode)
-		storagePool.RebalanceEnabled = types.BoolValue(s1.RebalanceEnabled)
-		storagePool.RebuildEnabled = types.BoolValue(s1.RebuildEnabled)
-		storagePool.NumofParallelRebuildRebalanceJobsPerDevice = types.Int64Value(int64(s1.NumofParallelRebuildRebalanceJobsPerDevice))
-		storagePool.BackgroundScannerBWLimitKBps = types.Int64Value(int64(s1.BackgroundScannerBWLimitKBps))
-		storagePool.ProtectedMaintenanceModeIoPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.ProtectedMaintenanceModeIoPriorityNumOfConcurrentIosPerDevice))
-		storagePool.DataLayout = types.StringValue(s1.DataLayout)
-		storagePool.VtreeMigrationIoPriorityBwLimitPerDeviceInKbps = types.Int64Value(int64(s1.VtreeMigrationIoPriorityBwLimitPerDeviceInKbps))
-		storagePool.VtreeMigrationIoPriorityPolicy = types.StringValue(s1.VtreeMigrationIoPriorityPolicy)
-		storagePool.AddressSpaceUsage = types.StringValue(s1.AddressSpaceUsage)
-		storagePool.ExternalAccelerationType = types.StringValue(s1.ExternalAccelerationType)
-		storagePool.PersistentChecksumState = types.StringValue(s1.PersistentChecksumState)
-		storagePool.UseRfcache = types.BoolValue(s1.UseRfcache)
-		storagePool.ChecksumEnabled = types.BoolValue(s1.ChecksumEnabled)
-		storagePool.CompressionMethod = types.StringValue(s1.CompressionMethod)
-		storagePool.FragmentationEnabled = types.BoolValue(s1.FragmentationEnabled)
-		storagePool.CapacityUsageState = types.StringValue(s1.CapacityUsageState)
-		storagePool.CapacityUsageType = types.StringValue(s1.CapacityUsageType)
-		storagePool.AddressSpaceUsageType = types.StringValue(s1.AddressSpaceUsageType)
-		storagePool.BgScannerCompareErrorAction = types.StringValue(s1.BgScannerCompareErrorAction)
-		storagePool.BgScannerReadErrorAction = types.StringValue(s1.BgScannerReadErrorAction)
-		storagePool.ReplicationCapacityMaxRatio = types.Int64Value(int64(s1.ReplicationCapacityMaxRatio))
-		storagePool.PersistentChecksumEnabled = types.BoolValue(s1.PersistentChecksumEnabled)
-		storagePool.PersistentChecksumBuilderLimitKb = types.Int64Value(int64(s1.PersistentChecksumBuilderLimitKb))
-		storagePool.PersistentChecksumValidateOnRead = types.BoolValue(s1.PersistentChecksumValidateOnRead)
-		storagePool.VtreeMigrationIoPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.VtreeMigrationIoPriorityNumOfConcurrentIosPerDevice))
-		storagePool.ProtectedMaintenanceModeIoPriorityPolicy = types.StringValue(s1.ProtectedMaintenanceModeIoPriorityPolicy)
-		storagePool.BackgroundScannerMode = types.StringValue(s1.BackgroundScannerMode)
-		storagePool.MediaType = types.StringValue(s1.MediaType)
+		storagePool := getStoragePoolState(volList, sdsList, s1)
 		state.StoragePools = append(state.StoragePools, storagePool)
 	}
 
-	state.ID = types.StringValue("placeholder")
+	// this is required for acceptance testing
+	state.ID = types.StringValue("dummyID")
+
 	// Set state
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+}
+
+func getStoragePoolState(volList []*scaleio_types.Volume, sdsList []scaleio_types.Sds, s1 *scaleio_types.StoragePool) (storagePool storagePoolModel) {
+	storagePool = storagePoolModel{
+		ID:   types.StringValue(s1.ID),
+		Name: types.StringValue(s1.Name),
+	}
+
+	// Iterate through volume list
+	for _, vol := range volList {
+		storagePool.Volumes = append(storagePool.Volumes, volume{
+			ID:   types.StringValue(vol.ID),
+			Name: types.StringValue(vol.Name),
+		})
+	}
+
+	// Iterate through SDS list
+	for _, sds := range sdsList {
+		storagePool.SDS = append(storagePool.SDS, sdsData{
+			ID:   types.StringValue(sds.ID),
+			Name: types.StringValue(sds.Name),
+		})
+	}
+
+	// Iterate through the Links
+	for _, link := range s1.Links {
+		storagePool.Links = append(storagePool.Links, linkModel{
+			Rel:  types.StringValue(link.Rel),
+			HREF: types.StringValue(link.HREF),
+		})
+	}
+
+	storagePool.RebalanceioPriorityPolicy = types.StringValue(s1.RebalanceioPriorityPolicy)
+	storagePool.RebalanceioPriorityAppBwPerDeviceThresholdInKbps = types.Int64Value(int64(s1.RebalanceioPriorityAppBwPerDeviceThresholdInKbps))
+	storagePool.RebalanceioPriorityAppIopsPerDeviceThreshold = types.Int64Value(int64(s1.RebalanceioPriorityAppIopsPerDeviceThreshold))
+	storagePool.RebalanceioPriorityBwLimitPerDeviceInKbps = types.Int64Value(int64(s1.RebalanceioPriorityBwLimitPerDeviceInKbps))
+	storagePool.RebalanceioPriorityQuietPeriodInMsec = types.Int64Value(int64(s1.RebalanceioPriorityQuietPeriodInMsec))
+	storagePool.RebalanceioPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.RebalanceioPriorityNumOfConcurrentIosPerDevice))
+	storagePool.RebuildioPriorityPolicy = types.StringValue(s1.RebuildioPriorityPolicy)
+	storagePool.RebuildioPriorityAppBwPerDeviceThresholdInKbps = types.Int64Value(int64(s1.RebuildioPriorityAppBwPerDeviceThresholdInKbps))
+	storagePool.RebuildioPriorityAppIopsPerDeviceThreshold = types.Int64Value(int64(s1.RebuildioPriorityAppIopsPerDeviceThreshold))
+	storagePool.RebuildioPriorityBwLimitPerDeviceInKbps = types.Int64Value(int64(s1.RebalanceioPriorityBwLimitPerDeviceInKbps))
+	storagePool.RebuildioPriorityQuietPeriodInMsec = types.Int64Value(int64(s1.RebuildioPriorityQuietPeriodInMsec))
+	storagePool.RebuildioPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.RebuildioPriorityNumOfConcurrentIosPerDevice))
+	storagePool.ZeroPaddingEnabled = types.BoolValue(s1.ZeroPaddingEnabled)
+	storagePool.UseRmcache = types.BoolValue(s1.UseRmcache)
+	storagePool.SparePercentage = types.Int64Value(int64(s1.SparePercentage))
+	storagePool.RmCacheWriteHandlingMode = types.StringValue(s1.RmCacheWriteHandlingMode)
+	storagePool.RebalanceEnabled = types.BoolValue(s1.RebalanceEnabled)
+	storagePool.RebuildEnabled = types.BoolValue(s1.RebuildEnabled)
+	storagePool.NumofParallelRebuildRebalanceJobsPerDevice = types.Int64Value(int64(s1.NumofParallelRebuildRebalanceJobsPerDevice))
+	storagePool.BackgroundScannerBWLimitKBps = types.Int64Value(int64(s1.BackgroundScannerBWLimitKBps))
+	storagePool.ProtectedMaintenanceModeIoPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.ProtectedMaintenanceModeIoPriorityNumOfConcurrentIosPerDevice))
+	storagePool.DataLayout = types.StringValue(s1.DataLayout)
+	storagePool.VtreeMigrationIoPriorityBwLimitPerDeviceInKbps = types.Int64Value(int64(s1.VtreeMigrationIoPriorityBwLimitPerDeviceInKbps))
+	storagePool.VtreeMigrationIoPriorityPolicy = types.StringValue(s1.VtreeMigrationIoPriorityPolicy)
+	storagePool.AddressSpaceUsage = types.StringValue(s1.AddressSpaceUsage)
+	storagePool.ExternalAccelerationType = types.StringValue(s1.ExternalAccelerationType)
+	storagePool.PersistentChecksumState = types.StringValue(s1.PersistentChecksumState)
+	storagePool.UseRfcache = types.BoolValue(s1.UseRfcache)
+	storagePool.ChecksumEnabled = types.BoolValue(s1.ChecksumEnabled)
+	storagePool.CompressionMethod = types.StringValue(s1.CompressionMethod)
+	storagePool.FragmentationEnabled = types.BoolValue(s1.FragmentationEnabled)
+	storagePool.CapacityUsageState = types.StringValue(s1.CapacityUsageState)
+	storagePool.CapacityUsageType = types.StringValue(s1.CapacityUsageType)
+	storagePool.AddressSpaceUsageType = types.StringValue(s1.AddressSpaceUsageType)
+	storagePool.BgScannerCompareErrorAction = types.StringValue(s1.BgScannerCompareErrorAction)
+	storagePool.BgScannerReadErrorAction = types.StringValue(s1.BgScannerReadErrorAction)
+	storagePool.ReplicationCapacityMaxRatio = types.Int64Value(int64(s1.ReplicationCapacityMaxRatio))
+	storagePool.PersistentChecksumEnabled = types.BoolValue(s1.PersistentChecksumEnabled)
+	storagePool.PersistentChecksumBuilderLimitKb = types.Int64Value(int64(s1.PersistentChecksumBuilderLimitKb))
+	storagePool.PersistentChecksumValidateOnRead = types.BoolValue(s1.PersistentChecksumValidateOnRead)
+	storagePool.VtreeMigrationIoPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.VtreeMigrationIoPriorityNumOfConcurrentIosPerDevice))
+	storagePool.ProtectedMaintenanceModeIoPriorityPolicy = types.StringValue(s1.ProtectedMaintenanceModeIoPriorityPolicy)
+	storagePool.BackgroundScannerMode = types.StringValue(s1.BackgroundScannerMode)
+	storagePool.MediaType = types.StringValue(s1.MediaType)
+	return
 }

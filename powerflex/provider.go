@@ -2,12 +2,10 @@ package powerflex
 
 import (
 	"context"
-
-	"terraform-provider-powerflex/powerflex/sds"
-
 	"os"
 
 	"github.com/dell/goscaleio"
+	"github.com/dell/terraform-provider-powerflex/powerflex/sds"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
@@ -21,12 +19,11 @@ var (
 	_ provider.Provider = &powerflexProvider{}
 )
 
-// New returns the powerflex provider
+// New - returns new provider struct definition.
 func New() provider.Provider {
 	return &powerflexProvider{}
 }
 
-// powerflexProvider - empty provider instance.
 type powerflexProvider struct{}
 
 // powerflexProviderModel - provider input struct.
@@ -42,6 +39,7 @@ func (p *powerflexProvider) Metadata(_ context.Context, _ provider.MetadataReque
 	resp.TypeName = "powerflex"
 }
 
+// GetSchema - provider schema.
 func (p *powerflexProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description: "",
@@ -213,13 +211,19 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 // DataSources - returns array of all datasources.
 func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		VolumeDataSource,
+		SDCDataSource,
+		ProtectionDomainDataSource,
 		StoragePoolDataSource,
 	}
 }
 
-// Resources - returns array of all resources.
+// Resources defines the resources implemented in the provider.
 func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		sds.NewSDSResource,
+		NewVolumeResource,
+		SDCResource,
+		StoragepoolResource,
 	}
 }
