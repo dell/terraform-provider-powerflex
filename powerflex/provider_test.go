@@ -1,6 +1,7 @@
 package powerflex
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -13,13 +14,18 @@ var ProviderConfigForTesting = ``
 
 func init() {
 	godotenv.Load("POWERFLEX_TERRAFORM_TEST.env")
-	ProviderConfigForTesting = `
+
+	username := os.Getenv("POWERFLEX_USERNAME")
+	password := os.Getenv("POWERFLEX_PASSWORD")
+	endpoint := os.Getenv("POWERFLEX_ENDPOINT")
+
+	ProviderConfigForTesting = fmt.Sprintf(`
 		provider "powerflex" {
-			username = "` + os.Getenv("POWERFLEX_USERNAME") + `"
-			password = "` + os.Getenv("POWERFLEX_PASSWORD") + `"
-			endpoint = "` + os.Getenv("POWERFLEX_ENDPOINT") + `"
+			username = "%s"
+			password = "%s"
+			endpoint = "%s"
 		}
-	`
+	`, username, password, endpoint)
 }
 
 var (
