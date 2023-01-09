@@ -392,6 +392,14 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 					)
 					return
 				}
+				err5 := snapResource.SetVolumeMappingAccessMode(ssl.AccessMode, ssl.SdcID)
+				if err5 != nil {
+					resp.Diagnostics.AddError(
+						"Error Setting Access Mode On Mapped SDC To Snapshot",
+						"Could not set access mode on mapped sdc, unexpected error: "+err5.Error(),
+					)
+				}
+
 			}
 		}
 	}
@@ -422,8 +430,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 			return
 		}
 	}
-
-	// yet to implement non change
+	tflog.Debug(ctx, "Priyanshu-Ses"+helper.PrettyJSON(nonchangeSdcIds))
 	for _, ncsi := range nonchangeSdcIds {
 		var planObj SdcList
 		var stateObj SdcList

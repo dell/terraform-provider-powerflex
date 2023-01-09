@@ -22,7 +22,7 @@ type SdcList struct {
 
 // SnapshotTerraformState function to convert goscaleio snapshot struct to terraform snapshot struct
 func SnapshotTerraformState(vol *pftypes.Volume, plan SnapshotResourceModel, sdcListState []SdcList) (state SnapshotResourceModel) {
-	state.VolumeName = plan.VolumeName
+
 	state.AccessMode = plan.AccessMode
 	state.Size = plan.Size
 	state.RemoveMode = plan.RemoveMode
@@ -37,6 +37,9 @@ func SnapshotTerraformState(vol *pftypes.Volume, plan SnapshotResourceModel, sdc
 	}
 	if plan.VolumeID.ValueString() != "" {
 		state.VolumeID = plan.VolumeID
+	}
+	if plan.VolumeName.ValueString() != "" {
+		state.VolumeName = plan.VolumeName
 	}
 	if plan.Size.IsUnknown() {
 		state.VolumeSizeInKb = types.StringValue(strconv.FormatInt(int64(vol.SizeInKb), 10))
@@ -93,4 +96,3 @@ func convertToMin(desireRetention int64, retentionUnit string) string {
 	}
 	return retentionMin
 }
-
