@@ -21,7 +21,7 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 		},
 		"name": schema.StringAttribute{
 			Description:         "Name of SDS",
-			Optional:            true,
+			Required:            true,
 			MarkdownDescription: "Name of SDS",
 		},
 		"ip_list": schema.ListAttribute{
