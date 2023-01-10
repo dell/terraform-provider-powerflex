@@ -66,7 +66,7 @@ func sdcMapState(sdcInfos []*pftypes.MappedSdcInfo, sdcListState []SdcList) base
 	objectSdcInfos := []attr.Value{}
 	for _, sls := range sdcListState {
 		for _, msi := range sdcInfos {
-			if sls.SdcID == msi.SdcID || sls.SdcName == msi.SdcName {
+			if sls.SdcID == msi.SdcID {
 				obj := map[string]attr.Value{
 					"sdc_id":                   types.StringValue(msi.SdcID),
 					"limit_iops":               types.Int64Value(int64(msi.LimitIops)),

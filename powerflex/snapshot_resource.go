@@ -54,9 +54,14 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	var plan SnapshotResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
-	gs, _ := r.client.GetSystems()
-	sr := goscaleio.NewSystem(r.client)
-	sr.System = gs[0]
+	sr, err := getFirstSystem(r.client)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting first system",
+			"Could not get first system, unexpected error: "+err.Error(),
+		)
+		return
+	}
 	snapshotReqs := make([]*pftypes.SnapshotDef, 0)
 	if plan.VolumeName.ValueString() != "" {
 		snapResponse, err2 := r.client.GetVolume("", "", "", plan.VolumeName.ValueString(), false)
@@ -253,9 +258,14 @@ func (r *snapshotResource) Read(ctx context.Context, req resource.ReadRequest, r
 	var state SnapshotResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	gs, _ := r.client.GetSystems()
-	sr := goscaleio.NewSystem(r.client)
-	sr.System = gs[0]
+	sr, err := getFirstSystem(r.client)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting first system",
+			"Could not get first system, unexpected error: "+err.Error(),
+		)
+		return
+	}
 	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
@@ -297,9 +307,14 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	var state SnapshotResourceModel
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	gs, _ := r.client.GetSystems()
-	sr := goscaleio.NewSystem(r.client)
-	sr.System = gs[0]
+	sr, err := getFirstSystem(r.client)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting first system",
+			"Could not get first system, unexpected error: "+err.Error(),
+		)
+		return
+	}
 	VSIKB, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 	plan.VolumeSizeInKb = types.StringValue(strconv.FormatInt(VSIKB, 10))
 	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
@@ -564,9 +579,14 @@ func (r *snapshotResource) Delete(ctx context.Context, req resource.DeleteReques
 	var state SnapshotResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	gs, _ := r.client.GetSystems()
-	sr := goscaleio.NewSystem(r.client)
-	sr.System = gs[0]
+	sr, err := getFirstSystem(r.client)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting first system",
+			"Could not get first system, unexpected error: "+err.Error(),
+		)
+		return
+	}
 	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
@@ -607,7 +627,7 @@ func (r *snapshotResource) Delete(ctx context.Context, req resource.DeleteReques
 			return
 		}
 	}
-	err := snapshot.RemoveVolume(state.RemoveMode.ValueString())
+	err = snapshot.RemoveVolume(state.RemoveMode.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Removing Volume",

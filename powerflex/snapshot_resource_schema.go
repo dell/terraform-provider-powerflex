@@ -139,11 +139,9 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 						Computed:            true,
 						Optional:            true,
 						MarkdownDescription: "The Name of the SDC",
-						// Validators: []validator.String{
-						// 	stringvalidator.ExactlyOneOf(path.Expression{
-						// 		path.MatchRoot("sdc_id"),
-						// 	}...),
-						// },
+						Validators: []validator.String{
+							stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("sdc_id")),
+						},
 					},
 					"limit_iops": schema.Int64Attribute{
 						Description:         "limit iops",
