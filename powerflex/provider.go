@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/dell/goscaleio"
-	"github.com/dell/terraform-provider-powerflex/powerflex/sds"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
@@ -221,7 +220,7 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 // Resources defines the resources implemented in the provider.
 func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		sds.NewSDSResource,
+		NewSDSResource,
 		NewVolumeResource,
 		SDCResource,
 		StoragepoolResource,

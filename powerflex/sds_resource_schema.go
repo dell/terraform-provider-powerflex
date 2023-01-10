@@ -1,4 +1,4 @@
-package sds
+package powerflex
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"

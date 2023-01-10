@@ -1,4 +1,4 @@
-package sds
+package powerflex
 
 import (
 	"context"
