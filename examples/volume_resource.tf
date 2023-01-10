@@ -1,4 +1,3 @@
-
 resource "powerflex_volume" "avengers" {
   name = "<volume-name>"
   storage_pool_id = "<storage-pool-id>"
