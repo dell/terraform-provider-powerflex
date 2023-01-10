@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     powerflex = {
-      version = "0.1"
-      source  = "dell/powerflex"
+      version = "0.0.1"
+      source  = "registry.terraform.io/dell/powerflex"
     }
   }
 }
@@ -16,7 +16,7 @@ provider "powerflex" {
 resource "powerflex_sds" "create" {
   name = "SDS_01"
   ip_list = [
-      "10.247.101.60"
+      "10.247.100.232"
     ]
   protection_domain_id = "4eeb304600000000"
 }
