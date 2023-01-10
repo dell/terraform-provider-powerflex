@@ -1,4 +1,3 @@
-
 # terraform init && terraform apply --auto-approve
 # Read all protection domains
 # Filters by name or id if provided, but not both

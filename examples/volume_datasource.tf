@@ -1,5 +1,3 @@
-# terraform init && terraform apply --auto-approve
-
 # # -----------------------------------------------------------------------------------
 # # Read all volumes if completely blank, otherwise reads specific volume based on id or name
 # # -----------------------------------------------------------------------------------

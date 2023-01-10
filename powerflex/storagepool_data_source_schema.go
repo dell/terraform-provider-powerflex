@@ -31,19 +31,19 @@ var DataSourceSchema schema.Schema = schema.Schema{
 				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),
 			},
 		},
-		"storage_pool_id": schema.ListAttribute{
+		"storage_pool_ids": schema.ListAttribute{
 			Description:         "List of storage pool IDs.",
 			MarkdownDescription: "List of storage pool IDs.",
 			ElementType:         types.StringType,
 			Optional:            true,
 		},
-		"storage_pool_name": schema.ListAttribute{
+		"storage_pool_names": schema.ListAttribute{
 			Description:         "List of storage pool names.",
 			MarkdownDescription: "List of storage pool names.",
 			ElementType:         types.StringType,
 			Optional:            true,
 			Validators: []validator.List{
-				listvalidator.ExactlyOneOf(path.MatchRoot("storage_pool_id")),
+				listvalidator.ConflictsWith(path.MatchRoot("storage_pool_ids")),
 			},
 		},
 		"storage_pools": schema.ListNestedAttribute{
