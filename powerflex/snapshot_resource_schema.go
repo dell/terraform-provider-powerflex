@@ -168,12 +168,6 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 							stringDefault("ReadOnly"),
 						},
 					},
-					"is_direct_buffer_mapping": schema.BoolAttribute{
-						Description:         "is direct buffer mapping",
-						Optional:            true,
-						Computed:            true,
-						MarkdownDescription: "is direct buffer mapping",
-					},
 				},
 			},
 		},

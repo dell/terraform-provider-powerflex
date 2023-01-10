@@ -16,7 +16,6 @@ type SdcList struct {
 	LimitBwInMbps         int    `tfsdk:"limit_bw_in_mbps"`
 	SdcName               string `tfsdk:"sdc_name"`
 	AccessMode            string `tfsdk:"access_mode"`
-	IsDirectBufferMapping bool   `tfsdk:"is_direct_buffer_mapping"`
 }
 
 // SnapshotTerraformState function to convert goscaleio snapshot struct to terraform snapshot struct
@@ -58,7 +57,6 @@ func sdcMapState(sdcInfos []*pftypes.MappedSdcInfo, sdcListState []SdcList) base
 		"limit_bw_in_mbps":         types.Int64Type,
 		"sdc_name":                 types.StringType,
 		"access_mode":              types.StringType,
-		"is_direct_buffer_mapping": types.BoolType,
 	}
 	sdcInfoElemType := types.ObjectType{
 		AttrTypes: sdcInfoAttrTypes,
@@ -73,7 +71,6 @@ func sdcMapState(sdcInfos []*pftypes.MappedSdcInfo, sdcListState []SdcList) base
 					"limit_bw_in_mbps":         types.Int64Value(int64(msi.LimitBwInMbps)),
 					"sdc_name":                 types.StringValue(msi.SdcName),
 					"access_mode":              types.StringValue(msi.AccessMode),
-					"is_direct_buffer_mapping": types.BoolValue(msi.IsDirectBufferMapping),
 				}
 				objVal, _ := types.ObjectValue(sdcInfoAttrTypes, obj)
 				objectSdcInfos = append(objectSdcInfos, objVal)

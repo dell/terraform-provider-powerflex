@@ -3,7 +3,6 @@ package powerflex
 import (
 	"context"
 	"strconv"
-	"terraform-provider-powerflex/helper"
 
 	"github.com/dell/goscaleio"
 	pftypes "github.com/dell/goscaleio/types/v1"
@@ -117,24 +116,17 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	if !plan.Size.IsNull() {
 		vikb, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 		tflog.Info(ctx, "vikb"+strconv.FormatInt(vikb, 10))
-		if int64(snapResource.Volume.SizeInKb) > vikb {
-			resp.Diagnostics.AddError(
-				"Error setting the snapshot size",
-				"Could not set the size for snapshot below volume size",
-			)
-			snapResource.RemoveVolume("")
-			return
+		if int64(snapResource.Volume.SizeInKb) != vikb {
+			err3 := snapResource.SetVolumeSize(strconv.FormatInt(plan.Size.ValueInt64(), 10))
+			if err3 != nil {
+				resp.Diagnostics.AddError(
+					"Error setting snapshot size",
+					"Could not set snapshot size, unexpected err: "+err3.Error(),
+				)
+				snapResource.RemoveVolume("")
+				return
+			}
 		}
-		err3 := snapResource.SetVolumeSize(strconv.FormatInt(plan.Size.ValueInt64(), 10))
-		if err3 != nil {
-			resp.Diagnostics.AddError(
-				"Error setting snapshot size",
-				"Could not set snapshot size, unexpected err: "+err3.Error(),
-			)
-			snapResource.RemoveVolume("")
-			return
-		}
-
 	}
 
 	// locking the auto snapshot on finding LockedAutoSnapshot parameter as true
@@ -153,7 +145,6 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	sdcList := []SdcList{}
 	diags = plan.SdcList.ElementsAs(ctx, &sdcList, true)
 	resp.Diagnostics.Append(diags...)
-	tflog.Debug(ctx, "PK-debug"+helper.PrettyJSON(sdcList))
 	for _, si := range sdcList {
 		if si.SdcID == "" {
 			foundsdc, errA := sr.FindSdc("Name", si.SdcName)
@@ -362,6 +353,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 				"Error Locking Auto Snapshots",
 				"Could not lock auto snapshots, unexpected error: "+err.Error(),
 			)
+			return
 		}
 	}
 
@@ -373,6 +365,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 				"Error Unlocking Auto Snapshots",
 				"Could not unlock auto snapshots, unexpected error: "+err.Error(),
 			)
+			return
 		}
 	}
 
@@ -384,6 +377,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 				"Error Setting Snapshots Security",
 				"Could not set snapshot security, unexpected error: "+err.Error(),
 			)
+			return
 		}
 	}
 	planSdcList := []SdcList{}
@@ -480,6 +474,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 						"Error Setting Access Mode On Mapped SDC To Snapshot",
 						"Could not set access mode on mapped sdc, unexpected error: "+err5.Error(),
 					)
+					return
 				}
 
 			}
@@ -512,7 +507,6 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 			return
 		}
 	}
-	tflog.Debug(ctx, "Priyanshu-Ses"+helper.PrettyJSON(nonchangeSdcIds))
 	for _, ncsi := range nonchangeSdcIds {
 		var planObj SdcList
 		var stateObj SdcList
@@ -552,6 +546,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 					"Error Setting Access Mode On Mapped SDC To Snapshot",
 					"Could not set access mode on mapped sdc, unexpected error: "+err5.Error(),
 				)
+				return
 			}
 		}
 

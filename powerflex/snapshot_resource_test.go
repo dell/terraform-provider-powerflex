@@ -236,7 +236,7 @@ func TestAccSnapshotResource(t *testing.T) {
 			{
 				// test-7
 				Config:      ProviderConfigForTesting + createSnapshotWithlowSizeNegTest,
-				ExpectError: regexp.MustCompile(`.*Could not set the size for snapshot below volume size*.`),
+				ExpectError: regexp.MustCompile(`.*Could not set snapshot size*.`),
 			},
 			{
 				// test-8
