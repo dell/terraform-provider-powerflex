@@ -92,7 +92,7 @@ func (d *snapshotPolicyDataSource) Read(ctx context.Context, req datasource.Read
 		sps, err = d.client.GetSnapshotPolicy("", plan.ID.ValueString())
 	} else if plan.Name.IsNull() && plan.ID.IsNull() {
 		sps, err = d.client.GetSnapshotPolicy("", "")
-	} else{
+	} else {
 		resp.Diagnostics.AddError(
 			"Unable to Read Powerflex Snapshot Policy",
 			"Don't provide empty values",

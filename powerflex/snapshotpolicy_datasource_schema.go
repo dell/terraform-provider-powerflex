@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// VolumeDataSourceSchema is the schema for reading the volume data
+// SnapshotPolicyDataSourceSchema is the schema for reading the snapshot policy data
 var SnapshotPolicyDataSourceSchema schema.Schema = schema.Schema{
 	Description: ".",
 	Attributes: map[string]schema.Attribute{

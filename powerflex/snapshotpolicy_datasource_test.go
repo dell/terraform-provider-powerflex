@@ -3,12 +3,12 @@ package powerflex
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"os"
-	"testing"
 	"regexp"
+	"testing"
 )
 
 // TestAccSnapshotPolicyDataSource tests the snapshot policy data source
-// where it fetches the snapshot policies based on snapshot policy id/name 
+// where it fetches the snapshot policies based on snapshot policy id/name
 // and if nothing is mentioned , then return all snapshot policies
 func TestAccSnapshotPolicyDataSource(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
@@ -49,7 +49,7 @@ func TestAccSnapshotPolicyDataSource(t *testing.T) {
 			{
 				Config:      ProviderConfigForTesting + SnapshotPolicyDataSourceConfig4,
 				ExpectError: regexp.MustCompile(".*Unable to Read Powerflex Snapshot Policy.*"),
-			},	
+			},
 			//retrieving snapshot policy with incorrect snapshot policy id
 			{
 				Config:      ProviderConfigForTesting + SnapshotPolicyDataSourceConfig5,
