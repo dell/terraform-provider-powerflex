@@ -61,6 +61,7 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 		},
 		"drl_mode": schema.StringAttribute{
 			Description:         "DRL mode of SDS",
+			Optional:            true,
 			Computed:            true,
 			MarkdownDescription: "DRL mode of SDS",
 		},
@@ -71,6 +72,7 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 		},
 		"fault_set_id": schema.StringAttribute{
 			Description:         "Fault set id of SDS",
+			Optional:            true,
 			Computed:            true,
 			MarkdownDescription: "Fault set id of SDS",
 		},
@@ -81,6 +83,7 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 		},
 		"port": schema.Int64Attribute{
 			Description:         "Port of SDS",
+			Optional:            true,
 			Computed:            true,
 			MarkdownDescription: "Port mode of SDS",
 		},
@@ -89,8 +92,13 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 			Computed:            true,
 			MarkdownDescription: "Membership state of SDS",
 		},
+		// /api/instances/Sds::{id}/action/setSdsRmcacheEnabled
+		// {
+		// "rmcacheEnabled": "TRUE"
+		// }
 		"rmcache_enabled": schema.BoolAttribute{
 			Description:         "Rmcache enabled state of SDS",
+			Optional:            true,
 			Computed:            true,
 			MarkdownDescription: "Rmcache enabled state of SDS",
 		},
@@ -104,13 +112,20 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 			Computed:            true,
 			MarkdownDescription: "Mdm connection state of SDS",
 		},
+		// /api/instances/Sds::{id}/action/setSdsRmcacheSize
+		// {
+		// "rmcacheSizeInMB": "256"
+		// }
+		// create and read is kb, but update is mb
 		"rmcache_size_in_kb": schema.Int64Attribute{
 			Description:         "Rmcache size in kb of SDS",
+			Optional:            true,
 			Computed:            true,
 			MarkdownDescription: "Rmcache size in kb of SDS",
 		},
 		"num_of_io_buffers": schema.Int64Attribute{
 			Description:         "Number of io buffers of SDS",
+			Optional:            true,
 			Computed:            true,
 			MarkdownDescription: "Number of io buffers of SDS",
 		},

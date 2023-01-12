@@ -77,6 +77,10 @@ resource "powerflex_sds" "sds" {
 			role = "all"
 		}
 	]
+	rmcache_enabled = true
+	rmcache_size_in_kb = 256000
+	# num_of_io_buffers = 4
+	drl_mode = "Volatile"
 	protection_domain_id = "4eeb304600000000"
 }
 `

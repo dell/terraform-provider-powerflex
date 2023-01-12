@@ -14,12 +14,11 @@ import (
 
 // SDSResourceModel maps the resource schema data.
 type sdsResourceModel struct {
-	ID                   types.String `tfsdk:"id"`
-	Name                 types.String `tfsdk:"name"`
-	ProtectionDomainID   types.String `tfsdk:"protection_domain_id"`
-	ProtectionDomainName types.String `tfsdk:"protection_domain_name"`
-	IPList               types.List   `tfsdk:"ip_list"`
-	// []sdsIPModel
+	ID                           types.String `tfsdk:"id"`
+	Name                         types.String `tfsdk:"name"`
+	ProtectionDomainID           types.String `tfsdk:"protection_domain_id"`
+	ProtectionDomainName         types.String `tfsdk:"protection_domain_name"`
+	IPList                       types.List   `tfsdk:"ip_list"`
 	Port                         types.Int64  `tfsdk:"port"`
 	SdsState                     types.String `tfsdk:"sds_state"`
 	MembershipState              types.String `tfsdk:"membership_state"`
@@ -127,13 +126,39 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 		iplist = append(iplist, sdsIp)
 	}
 
-	// iplist := getIPList(ctx, plan)
-
 	// Create SDS
-	sdsID, err2 := pdm.CreateSdsWithIPRole(sdsName, iplist)
+	paramIpList := make([]*scaleiotypes.SdsIPList, 0)
+	for _, ip := range iplist {
+		paramIpList = append(paramIpList, &scaleiotypes.SdsIPList{SdsIP: ip})
+	}
+
+	params := scaleiotypes.Sds{
+		Name:   sdsName,
+		IPList: paramIpList,
+	}
+	if !plan.RmcacheEnabled.IsNull() {
+		params.RmcacheEnabled = plan.RmcacheEnabled.ValueBool()
+	}
+	if !plan.RmcacheSizeInKb.IsNull() {
+		params.RmcacheSizeInKb = int(plan.RmcacheSizeInKb.ValueInt64())
+	}
+	if !plan.DrlMode.IsNull() {
+		params.DrlMode = plan.DrlMode.ValueString()
+	}
+	if !plan.FaultSetID.IsNull() {
+		params.FaultSetID = plan.FaultSetID.ValueString()
+	}
+	if !plan.Port.IsNull() {
+		params.Port = int(plan.Port.ValueInt64())
+	}
+	// this is still not working for whatever reason
+	// if !plan.NumOfIoBuffers.IsNull() {
+	// 	params.NumOfIoBuffers = int(plan.NumOfIoBuffers.ValueInt64())
+	// }
+	sdsID, err2 := pdm.CreateSdsWithParams(&params)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("Could not create SDS with name %s and IP list %v", sdsName, iplist),
+			fmt.Sprintf("Could not create SDS with name %s and IP list %v and niobuff %d", sdsName, iplist, params.NumOfIoBuffers),
 			err2.Error(),
 		)
 		return
