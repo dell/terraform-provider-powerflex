@@ -130,8 +130,14 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		sp := goscaleio.NewStoragePool(d.client)
 		sp.StoragePool = sps
 		volumes, err = sp.GetVolume("", "", "", "", false)
-	} else {
+	} else if state.Name.IsNull() && state.ID.IsNull() && state.StoragePoolID.IsNull() && state.StoragePoolName.IsNull() {
 		volumes, err = d.client.GetVolume("", "", "", "", false)
+	} else {
+		resp.Diagnostics.AddError(
+			"Unable to Read Powerflex Volume",
+			"Don't provide empty values",
+		)
+		return
 	}
 	//check if there is any error while getting the volume
 	if err != nil {
