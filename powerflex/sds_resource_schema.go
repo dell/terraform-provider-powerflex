@@ -1,8 +1,11 @@
 package powerflex
 
 import (
+	"github.com/dell/goscaleio"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
 // SDSResourceSchema variable to define schema for the SDS resource
@@ -16,19 +19,45 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 		},
 		"protection_domain_id": schema.StringAttribute{
 			Description:         "Protection domain id",
-			Required:            true,
+			Optional:            true,
 			MarkdownDescription: "Protection domain id",
+		},
+		"protection_domain_name": schema.StringAttribute{
+			Description:         "Protection domain name",
+			Optional:            true,
+			MarkdownDescription: "Protection domain name",
+			Validators: []validator.String{
+				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),
+			},
 		},
 		"name": schema.StringAttribute{
 			Description:         "Name of SDS",
-			Optional:            true,
+			Required:            true,
 			MarkdownDescription: "Name of SDS",
 		},
-		"ip_list": schema.ListAttribute{
+		"ip_list": schema.ListNestedAttribute{
 			Description:         "IP list of SDS",
-			ElementType:         types.StringType,
-			Optional:            true,
 			MarkdownDescription: "IP list of SDS",
+			Required:            true,
+			NestedObject: schema.NestedAttributeObject{
+				Attributes: map[string]schema.Attribute{
+					"ip": schema.StringAttribute{
+						Description:         "IP address to be assigned to the Storagepool",
+						MarkdownDescription: "IP address to be assigned to the Storagepool",
+						Required:            true,
+					},
+					"role": schema.StringAttribute{
+						Description:         "Role to be assigned to the IP address",
+						MarkdownDescription: "Role to be assigned to the IP address",
+						Required:            true,
+						Validators: []validator.String{stringvalidator.OneOf(
+							goscaleio.RoleAll,
+							goscaleio.RoleSdcOnly,
+							goscaleio.RoleSdsOnly,
+						)},
+					},
+				},
+			},
 		},
 		"drl_mode": schema.StringAttribute{
 			Description:         "DRL mode of SDS",
@@ -36,9 +65,9 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "DRL mode of SDS",
 		},
 		"rmcache_frozen": schema.BoolAttribute{
-			Description:         "RMcache frozon state of SDS",
+			Description:         "RMcache frozen state of SDS",
 			Computed:            true,
-			MarkdownDescription: "RMcache frozon state of SDS",
+			MarkdownDescription: "RMcache frozen state of SDS",
 		},
 		"fault_set_id": schema.StringAttribute{
 			Description:         "Fault set id of SDS",
