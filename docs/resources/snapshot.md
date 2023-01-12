@@ -27,7 +27,7 @@ Manages snapshot resource
 - `lock_auto_snapshot` (Boolean) lock auto snapshot
 - `remove_mode` (String) remove mode of snapshot
 - `retention_unit` (String) retention unit of snapshot
-- `sdc_list` (Attributes List) mapped sdc info (see [below for nested schema](#nestedatt--sdc_list))
+- `sdc_list` (Attributes Set) mapped sdc info (see [below for nested schema](#nestedatt--sdc_list))
 - `size` (Number) volume size
 - `volume_id` (String) The volume id for which snapshot is created
 - `volume_name` (String) The volume name for which snapshot is created
@@ -44,7 +44,6 @@ Manages snapshot resource
 Optional:
 
 - `access_mode` (String) The Access Mode of the SDC
-- `is_direct_buffer_mapping` (Boolean) is direct buffer mapping
 - `limit_bw_in_mbps` (Number) limit bw in mbps
 - `limit_iops` (Number) limit iops
 - `sdc_id` (String) The ID of the SDC

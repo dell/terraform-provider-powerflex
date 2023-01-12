@@ -188,6 +188,14 @@ resource "powerflex_snapshot" "snapshots-create-locked-auto-invalid" {
 }
 `
 
+// var createSnapshotWithVolumeNamePosTest = `
+// resource "powerflex_snapshot" "snapshot-create-with-volume-name" {
+// 	name = "snapshots-create-volume-name"
+// 	volume_name = "ses-test-volume"
+// 	access_mode = "ReadWrite"
+// }
+// `
+
 func TestAccSnapshotResource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -281,6 +289,11 @@ func TestAccSnapshotResource(t *testing.T) {
 				Config:      ProviderConfigForTesting + createSnapshotLockedAutoSnapshotNegTest,
 				ExpectError: regexp.MustCompile(`.*Error Locking Auto Snapshots*.`),
 			},
+			// {
+			// 	Config: ProviderConfigForTesting + createSnapshotWithVolumeNamePosTest,
+			// 	Check: resource.ComposeAggregateTestCheckFunc(
+			// 		resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create-volume-name", "volume_name", "ses-test-volume")),
+			// },
 		},
 	})
 }

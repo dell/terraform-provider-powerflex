@@ -2,6 +2,7 @@ package powerflex
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/dell/goscaleio"
@@ -51,6 +52,19 @@ func (r *snapshotResource) Configure(_ context.Context, req resource.ConfigureRe
 // Create creates the resource and sets the initial Terraform state.
 func (r *snapshotResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan SnapshotResourceModel
+	attrState := &attrState{
+		name:             false,
+		volumeID:         false,
+		volumeName:       false,
+		desiredRetention: false,
+		retentionUnit:    false,
+		accessMode:       false,
+		capacityUnit:     false,
+		size:             false,
+		sizeInKb:         false,
+		sdcList:          make(map[string]*sdcAttr),
+		errMsg:           make(map[string]string),
+	}
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	sr, err := getFirstSystem(r.client)
@@ -62,7 +76,8 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 	snapshotReqs := make([]*pftypes.SnapshotDef, 0)
-	if plan.VolumeName.ValueString() != "" {
+
+	if !plan.VolumeName.IsNull() {
 		snapResponse, err2 := r.client.GetVolume("", "", "", plan.VolumeName.ValueString(), false)
 		if err2 != nil {
 			resp.Diagnostics.AddError(
@@ -79,8 +94,9 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	}
 	snapshotReqs = append(snapshotReqs, snapReq)
 	snapParam := &pftypes.SnapshotVolumesParam{
-		SnapshotDefs:         snapshotReqs,
-		RetentionPeriodInMin: convertToMin(plan.DesiredRetention.ValueInt64(), plan.RetentionUnit.ValueString()),
+		SnapshotDefs: snapshotReqs,
+		// RetentionPeriodInMin: convertToMin(plan.DesiredRetention.ValueInt64(), plan.RetentionUnit.ValueString()),
+		AccessMode: plan.AccessMode.ValueString(),
 	}
 	// create a snapshot of one volume, this requires a volume id and snapshot as parameter
 	snapResps, err := sr.CreateSnapshotConsistencyGroup(snapParam)
@@ -91,6 +107,11 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		)
 		return
 	}
+	// setting success update for name, volume_id, desired_retention, retention_unit and volume_name.
+	attrState.name = true
+	attrState.volumeID = true
+	attrState.volumeName = true
+	attrState.accessMode = true
 	snapID := snapResps.VolumeIDList[0]
 	snapResponse, err2 := r.client.GetVolume("", snapID, "", "", false)
 	if err2 != nil {
@@ -98,72 +119,55 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 			"Error getting snapshot",
 			"Could not get snapshot, unexpected error: "+err2.Error(),
 		)
+		// add state update here before so we don't lose the creation of snapshot
 		return
 	}
 	snap := snapResponse[0]
 	snapResource := goscaleio.NewVolume(r.client)
 	snapResource.Volume = snap
-	// setting access mode limit on snapshot. default value - ReadOnly
-	err = snapResource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error Setting Volume Access Mode",
-			"Could not set snapshots, unexpected err: "+err.Error(),
-		)
-	}
 
-	// if size of volume is defined, then checking if size of snapshot is defined greater than volume then expand the snapshot size otherwise throw error.
+	// setting snapshot size. default value will be equal to volume size
 	if !plan.Size.IsNull() {
 		vikb, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 		tflog.Info(ctx, "vikb"+strconv.FormatInt(vikb, 10))
 		if int64(snapResource.Volume.SizeInKb) != vikb {
 			err3 := snapResource.SetVolumeSize(strconv.FormatInt(plan.Size.ValueInt64(), 10))
 			if err3 != nil {
-				resp.Diagnostics.AddError(
-					"Error setting snapshot size",
-					"Could not set snapshot size, unexpected err: "+err3.Error(),
-				)
-				snapResource.RemoveVolume("")
-				return
+				attrState.errMsg["size/capacity_unit"] = err3.Error()
+			} else {
+				attrState.capacityUnit = true
+				attrState.size = true
 			}
 		}
 	}
-
+	attrState.sizeInKb = true
 	// locking the auto snapshot on finding LockedAutoSnapshot parameter as true
 	if plan.LockAutoSnapshot.ValueBool() {
 		err := snapResource.LockAutoSnapshot()
 		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error Locking Auto Snapshots",
-				"Could not lock auto snapshots, unexpected error: "+err.Error(),
-			)
-			snapResource.RemoveVolume("")
-			return
+			attrState.errMsg["lock_auto_snapshot"] = err.Error()
+		} else {
+			attrState.lockAutoSnapshot = true
 		}
 	}
-	successMapped := make([]string, 0)
+	// unmarshalling the plan sdclist data into sdcList struct for iterative mapping of snapshot to sdc
 	sdcList := []SdcList{}
 	diags = plan.SdcList.ElementsAs(ctx, &sdcList, true)
 	resp.Diagnostics.Append(diags...)
 	for _, si := range sdcList {
 		if si.SdcID == "" {
 			foundsdc, errA := sr.FindSdc("Name", si.SdcName)
-			si.SdcID = foundsdc.Sdc.ID
 			if errA != nil {
-				resp.Diagnostics.AddError(
-					"Error Finding SDC with name",
-					"Could not get sdc with name"+si.SdcName+",unexpected error: "+errA.Error(),
-				)
-				for _, usi := range successMapped {
-					snapResource.UnmapVolumeSdc(
-						&pftypes.UnmapVolumeSdcParam{
-							SdcID: usi,
-						},
-					)
-				}
-				snapResource.RemoveVolume("")
-				return
+				attrState.errMsg["sdc_map_err_"+si.SdcName] = errA.Error()
+				continue
+			} else {
+				si.SdcID = foundsdc.Sdc.ID
 			}
+		}
+		attrState.sdcList[si.SdcID] = &sdcAttr{
+			isSdcMapped:     false,
+			isSdcLimitSet:   false,
+			isAccessModeSet: false,
 		}
 		// Add mapped SDC
 		pfmvsp := pftypes.MapVolumeSdcParam{
@@ -173,19 +177,9 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		// mapping the snapshot to sdc
 		err3 := snapResource.MapVolumeSdc(&pfmvsp)
 		if err3 != nil {
-			resp.Diagnostics.AddError(
-				"Error Mapping Snapshot to SDCs",
-				"Could not map Snapshot to scs with id: "+si.SdcID+", unexpected error: "+err3.Error(),
-			)
-			for _, usi := range successMapped {
-				snapResource.UnmapVolumeSdc(
-					&pftypes.UnmapVolumeSdcParam{
-						SdcID: usi,
-					},
-				)
-			}
-			snapResource.RemoveVolume("")
-			return
+			attrState.errMsg["sdc_map_err_"+si.SdcID] += "\n" + err3.Error()
+		} else {
+			attrState.sdcList[si.SdcID].isSdcMapped = true
 		}
 		// setting limits on mapped sdc
 		smslp := pftypes.SetMappedSdcLimitsParam{
@@ -195,38 +189,27 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		}
 		err4 := snapResource.SetMappedSdcLimits(&smslp)
 		if err4 != nil {
-			resp.Diagnostics.AddError(
-				"Error Setting Mapped Sdc Limits",
-				"Could not set mapped sdc limit, unexpected error: "+err4.Error(),
-			)
-			for _, usi := range successMapped {
-				snapResource.UnmapVolumeSdc(
-					&pftypes.UnmapVolumeSdcParam{
-						SdcID: usi,
-					},
-				)
-			}
-			snapResource.RemoveVolume("")
-			return
+			attrState.errMsg["sdc_map_err_"+si.SdcID] += "\n" + err4.Error()
+		} else {
+			attrState.sdcList[si.SdcID].isSdcLimitSet = true
 		}
 		err5 := snapResource.SetVolumeMappingAccessMode(si.AccessMode, si.SdcID)
 		if err5 != nil {
-			resp.Diagnostics.AddError(
-				"Error Setting Access Mode On Mapped SDC To Snapshot",
-				"Could not set access mode on mapped sdc, unexpected error: "+err5.Error(),
-			)
-			for _, usi := range successMapped {
-				snapResource.UnmapVolumeSdc(
-					&pftypes.UnmapVolumeSdcParam{
-						SdcID: usi,
-					},
-				)
-			}
-			snapResource.RemoveVolume("")
-			return
+			attrState.errMsg["sdc_map_err_"+si.SdcID] += "\n" + err5.Error()
+		} else {
+			attrState.sdcList[si.SdcID].isAccessModeSet = true
 		}
-		successMapped = append(successMapped, si.SdcID)
 	}
+	if !plan.DesiredRetention.IsNull() {
+		retentionInMin := convertToMin(plan.DesiredRetention.ValueInt64(), plan.RetentionUnit.ValueString())
+		errRetention := snapResource.SetSnapshotSecurity(retentionInMin)
+		if errRetention != nil {
+			attrState.errMsg["desired_retention/retention_unit"] = errRetention.Error()
+		} else {
+			attrState.desiredRetention = true
+		}
+	}
+	attrState.retentionUnit = true
 	snapResponse, err2 = r.client.GetVolume("", snapID, "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
@@ -236,9 +219,20 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 	snap = snapResponse[0]
-	state := SnapshotTerraformState(snap, plan, sdcList)
+	state := SnapshotTerraformState(snap, plan, attrState)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
+	if len(attrState.errMsg) > 0 {
+		failureAction := ""
+		failureMessage := ""
+		for key, value := range attrState.errMsg {
+			failureAction += key + ", "
+			failureMessage += key + " : " + value + "\n"
+		}
+		resp.Diagnostics.AddError(
+			fmt.Sprintf("Failed Actions [%v]", failureAction),
+			failureMessage)
+	}
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -249,14 +243,7 @@ func (r *snapshotResource) Read(ctx context.Context, req resource.ReadRequest, r
 	var state SnapshotResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	sr, err := getFirstSystem(r.client)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error getting first system",
-			"Could not get first system, unexpected error: "+err.Error(),
-		)
-		return
-	}
+	errMsg := make(map[string]string, 0)
 	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
@@ -265,24 +252,16 @@ func (r *snapshotResource) Read(ctx context.Context, req resource.ReadRequest, r
 		)
 		return
 	}
-	sdcList := []SdcList{}
-	diags = state.SdcList.ElementsAs(ctx, &sdcList, true)
-	for _, sl := range sdcList {
-		if sl.SdcID == "" {
-			foundsdc, errA := sr.FindSdc("Name", sl.SdcName)
-			sl.SdcID = foundsdc.Sdc.ID
-			if errA != nil {
-				resp.Diagnostics.AddError(
-					"Error Finding SDC with name",
-					"Could not get sdc with name"+sl.SdcName+",unexpected error: "+errA.Error(),
-				)
-				return
-			}
-		}
+	snap := snapResponse[0]
+	refreshState(snap, &state)
+	// checking for volume from which snapshot is created
+	vol, errVol := r.client.GetVolume("", state.VolumeID.ValueString(), "", "", false)
+	if errVol != nil {
+		errMsg["volume_name"] = errVol.Error()
+	} else {
+		state.VolumeName = types.StringValue(vol[0].Name)
 	}
 	resp.Diagnostics.Append(diags...)
-	snap := snapResponse[0]
-	state = SnapshotTerraformState(snap, state, sdcList)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -298,6 +277,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	var state SnapshotResourceModel
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	errMsg := make(map[string]string, 0)
 	sr, err := getFirstSystem(r.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -306,8 +286,6 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 		)
 		return
 	}
-	VSIKB, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
-	plan.VolumeSizeInKb = types.StringValue(strconv.FormatInt(VSIKB, 10))
 	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
@@ -319,65 +297,38 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	snap := snapResponse[0]
 	snapResource := goscaleio.NewVolume(r.client)
 	snapResource.Volume = snap
+
 	// updating the name of volume if there is change in plan
 	if plan.Name.ValueString() != state.Name.ValueString() {
-		errRename := snapResource.SetVolumeName(plan.Name.ValueString())
-		if errRename != nil {
-			resp.Diagnostics.AddError(
-				"Error renaming the snapshot -> "+plan.Name.ValueString()+" : "+state.Name.ValueString(),
-				"Could not rename the snapshot, unexpected error:"+errRename.Error(),
-			)
-			return
+		err := snapResource.SetVolumeName(plan.Name.ValueString())
+		if err != nil {
+			errMsg["name"] = err.Error()
 		}
 	}
+	VSIKB, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
+	plan.VolumeSizeInKb = types.StringValue(strconv.FormatInt(VSIKB, 10))
 	// updating the size of the volume if there is change in plan
 	if plan.VolumeSizeInKb.ValueString() != state.VolumeSizeInKb.ValueString() {
 		sizeInGb, _ := strconv.Atoi(strconv.FormatInt(VSIKB, 10))
 		sizeInGb = sizeInGb / 1048576
 		sizeInGB := strconv.FormatInt(int64(sizeInGb), 10)
-		err3 := snapResource.SetVolumeSize(sizeInGB)
-		if err3 != nil {
-			resp.Diagnostics.AddError(
-				"Error setting snapshot size -> "+plan.VolumeSizeInKb.ValueString()+":"+state.VolumeSizeInKb.ValueString(),
-				"Could not set new snapshot size -> "+sizeInGB+", unexpected err: "+err3.Error(),
-			)
-			return
+		err := snapResource.SetVolumeSize(sizeInGB)
+		if err != nil {
+			errMsg["size/capacity_unit"] = err.Error()
 		}
 	}
-
 	// locking the snapshot in case of change in LockedAutoSnapshot state to true
 	if plan.LockAutoSnapshot.ValueBool() && !state.LockAutoSnapshot.ValueBool() {
 		err := snapResource.LockAutoSnapshot()
 		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error Locking Auto Snapshots",
-				"Could not lock auto snapshots, unexpected error: "+err.Error(),
-			)
-			return
+			errMsg["lock_auto_snapshot"] = err.Error()
 		}
 	}
-
 	// unlocking the snapshot in case of change in LockedAutoSnapshot state to false
 	if !plan.LockAutoSnapshot.ValueBool() && state.LockAutoSnapshot.ValueBool() {
 		err := snapResource.UnlockAutoSnapshot()
 		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error Unlocking Auto Snapshots",
-				"Could not unlock auto snapshots, unexpected error: "+err.Error(),
-			)
-			return
-		}
-	}
-
-	if !plan.DesiredRetention.IsNull() && (plan.RetentionUnit.ValueString() != state.RetentionUnit.String()) || (plan.DesiredRetention.ValueInt64() != state.DesiredRetention.ValueInt64()) {
-		retentionInMin := convertToMin(plan.DesiredRetention.ValueInt64(), plan.RetentionUnit.ValueString())
-		err := snapResource.SetSnapshotSecurity(retentionInMin)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error Setting Snapshots Security",
-				"Could not set snapshot security, unexpected error: "+err.Error(),
-			)
-			return
+			errMsg["lock_auto_snapshot"] = err.Error()
 		}
 	}
 	planSdcList := []SdcList{}
@@ -386,18 +337,14 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	resp.Diagnostics.Append(diags...)
 	diags = state.SdcList.ElementsAs(ctx, &stateSdcList, true)
 	resp.Diagnostics.Append(diags...)
-
 	planSdcIds := []string{}
 	stateSdcIds := []string{}
 	for idx, psl := range planSdcList {
 		if psl.SdcID == "" {
 			foundsdc, errA := sr.FindSdc("Name", psl.SdcName)
 			if errA != nil {
-				resp.Diagnostics.AddError(
-					"Error Finding SDC with name",
-					"Could not get sdc with name"+psl.SdcName+",unexpected error: "+errA.Error(),
-				)
-				return
+				errMsg["sdc_map_err_"+psl.SdcName] = errA.Error()
+				continue
 			}
 			planSdcList[idx].SdcID = foundsdc.Sdc.ID
 			planSdcIds = append(planSdcIds, planSdcList[idx].SdcID)
@@ -410,11 +357,8 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 		if ssl.SdcID == "" {
 			foundsdc, errA := sr.FindSdc("Name", ssl.SdcName)
 			if errA != nil {
-				resp.Diagnostics.AddError(
-					"Error Finding SDC with name",
-					"Could not get sdc with name"+ssl.SdcName+",unexpected error: "+errA.Error(),
-				)
-				return
+				errMsg["sdc_map_err_"+ssl.SdcName] = errA.Error()
+				continue
 			}
 			stateSdcList[idx].SdcID = foundsdc.Sdc.ID
 			stateSdcIds = append(stateSdcIds, stateSdcList[idx].SdcID)
@@ -431,27 +375,18 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	if (plan.AccessMode.ValueString() == "ReadWrite") && (state.AccessMode.ValueString() == "ReadOnly") {
 		err := snapResource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
 		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error Setting Snapshot Access Mode",
-				"Could not set the Snapshot Access Mode, unexpected err: "+err.Error(),
-			)
-			return
+			errMsg["access-readwrite"] = err.Error()
 		}
 	}
 
 	for _, msi := range mapSdcIds {
-
 		pfmvsp := pftypes.MapVolumeSdcParam{
 			SdcID:                 msi,
 			AllowMultipleMappings: "true",
 		}
 		err3 := snapResource.MapVolumeSdc(&pfmvsp)
 		if err3 != nil {
-			resp.Diagnostics.AddError(
-				"Error Mapping Snapshots to SDCs",
-				"Could not map snapshot to scs with id: "+msi+", unexpected error: "+err3.Error(),
-			)
-			return
+			errMsg["sdc_map_err_"+msi] += "\n" + err3.Error()
 		}
 		for _, ssl := range planSdcList {
 			if ssl.SdcID == msi {
@@ -462,21 +397,12 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 				}
 				err4 := snapResource.SetMappedSdcLimits(&smslp)
 				if err4 != nil {
-					resp.Diagnostics.AddError(
-						"Error Setting Mapped Sdc Limits",
-						"Could not set mapped sdc limit, unexpected error: "+err4.Error(),
-					)
-					return
+					errMsg["sdc_map_err_"+msi] += "\n" + err4.Error()
 				}
 				err5 := snapResource.SetVolumeMappingAccessMode(ssl.AccessMode, ssl.SdcID)
 				if err5 != nil {
-					resp.Diagnostics.AddError(
-						"Error Setting Access Mode On Mapped SDC To Snapshot",
-						"Could not set access mode on mapped sdc, unexpected error: "+err5.Error(),
-					)
-					return
+					errMsg["sdc_map_err_"+msi] += "\n" + err5.Error()
 				}
-
 			}
 		}
 	}
@@ -488,25 +414,10 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 			},
 		)
 		if err4 != nil {
-			resp.Diagnostics.AddError(
-				"Error Unmapping Snapshot to SDCs",
-				"Could not Unmap snapshot to scs with id: "+usi+", unexpected error: "+err4.Error(),
-			)
-			return
+			errMsg["sdc_unmap_err_"+usi] += "\n" + err4.Error()
 		}
 	}
 
-	// changing the access mode in case of change in access mode state
-	if (plan.AccessMode.ValueString() == "ReadOnly") && (state.AccessMode.ValueString() == "ReadWrite") {
-		err := snapResource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error Setting Snapshot Access Mode",
-				"Could not set the Snapshot Access Mode, unexpected err: "+err.Error(),
-			)
-			return
-		}
-	}
 	for _, ncsi := range nonchangeSdcIds {
 		var planObj SdcList
 		var stateObj SdcList
@@ -531,25 +442,32 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 			}
 			err4 := snapResource.SetMappedSdcLimits(&smslp)
 			if err4 != nil {
-				resp.Diagnostics.AddError(
-					"Error Setting Mapped Sdc Limits",
-					"Could not set mapped sdc limit, unexpected error: "+err4.Error(),
-				)
-				return
+				errMsg["sdc_map_err_"+planObj.SdcID] += "\n" + err4.Error()
 			}
 		}
 
 		if planObj.AccessMode != stateObj.AccessMode {
 			err5 := snapResource.SetVolumeMappingAccessMode(planObj.AccessMode, planObj.SdcID)
 			if err5 != nil {
-				resp.Diagnostics.AddError(
-					"Error Setting Access Mode On Mapped SDC To Snapshot",
-					"Could not set access mode on mapped sdc, unexpected error: "+err5.Error(),
-				)
-				return
+				errMsg["sdc_map_err_"+planObj.SdcID] += "\n" + err5.Error()
 			}
 		}
 
+	}
+
+	// changing the access mode in case of change in access mode state
+	if (plan.AccessMode.ValueString() == "ReadOnly") && (state.AccessMode.ValueString() == "ReadWrite") {
+		err := snapResource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
+		if err != nil {
+			errMsg["access-readwrite"] = err.Error()
+		}
+	}
+	if !plan.DesiredRetention.IsNull() && ((plan.RetentionUnit.ValueString() != state.RetentionUnit.String()) || (plan.DesiredRetention.ValueInt64() != state.DesiredRetention.ValueInt64())) {
+		retentionInMin := convertToMin(plan.DesiredRetention.ValueInt64(), plan.RetentionUnit.ValueString())
+		err := snapResource.SetSnapshotSecurity(retentionInMin)
+		if err != nil {
+			errMsg["desired_retention/retention_unit"] = err.Error()
+		}
 	}
 	snapResponse, err2 = r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
@@ -561,9 +479,20 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 	snap = snapResponse[0]
 	snapResource.Volume = snap
-	state = SnapshotTerraformState(snap, plan, planSdcList)
-	diags = resp.State.Set(ctx, &state)
+	refreshState(snap, &state)
+	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
+	if len(errMsg) > 0 {
+		failureAction := ""
+		failureMessage := ""
+		for key, value := range errMsg {
+			failureAction += key + ", "
+			failureMessage += key + " : " + value + "\n"
+		}
+		resp.Diagnostics.AddError(
+			fmt.Sprintf("Failed Actions [%v]", failureAction),
+			failureMessage)
+	}
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -609,6 +538,9 @@ func (r *snapshotResource) Delete(ctx context.Context, req resource.DeleteReques
 		}
 	}
 	for _, stu := range sdcsToUnmap {
+		if stu.SdcID == "" {
+			continue
+		}
 		err := snapshot.UnmapVolumeSdc(
 			&pftypes.UnmapVolumeSdcParam{
 				SdcID: stu.SdcID,

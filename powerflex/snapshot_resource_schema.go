@@ -121,7 +121,7 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 		// 	Optional:            true,
 		// 	MarkdownDescription: "map sdcs id",
 		// },
-		"sdc_list": schema.ListNestedAttribute{
+		"sdc_list": schema.SetNestedAttribute{
 			Description:         "mapped sdc info",
 			Computed:            true,
 			Optional:            true,
