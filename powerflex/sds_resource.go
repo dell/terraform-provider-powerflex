@@ -153,35 +153,14 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 
 	// Get created SDS
-	// rsp, err3 := pdm.FindSds("ID", sdsID)
-	sdss, err3 := pdm.GetSds()
-	// if err != nil {
-	// 	return nil, err
-	// }
+	rsp, err3 := pdm.FindSds("ID", sdsID)
 	if err3 != nil {
 		resp.Diagnostics.AddError(
-			"Error getting all SDS after creation",
+			"Error getting SDS after creation",
 			err3.Error(),
 		)
 		return
 	}
-	var rsp *scaleiotypes.Sds
-	found := false
-	for _, sds := range sdss {
-		if sds.ID == sdsID {
-			rsp = &sds
-			found = true
-			break
-		}
-	}
-	if !found {
-		resp.Diagnostics.AddError(
-			"No matching SDS",
-			fmt.Sprintf("The SDS ID: %s", sdsID),
-		)
-		return
-	}
-	// resp.Diagnostics.AddError("1st Dummy", fmt.Sprintf("Sds created with IP:%s, role:%s", rsp.IPList[0].SdsIP.IP, rsp.IPList[0].SdsIP.Role))
 
 	// Set refreshed state
 	state, dgs := updateSdsState(rsp, plan)
