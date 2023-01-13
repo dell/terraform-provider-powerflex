@@ -35,7 +35,7 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 			Required:            true,
 			MarkdownDescription: "Name of SDS",
 		},
-		"ip_list": schema.ListNestedAttribute{
+		"ip_list": schema.SetNestedAttribute{
 			Description:         "IP list of SDS",
 			MarkdownDescription: "IP list of SDS",
 			Required:            true,

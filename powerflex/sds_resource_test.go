@@ -45,6 +45,10 @@ func TestAccSDSResourceManyIP(t *testing.T) {
 					role = "sdcOnly"
 				},
 				{
+					ip = "10.10.10.1"
+					role = "sdcOnly"
+				},
+				{
 					ip = "10.10.10.2"
 					role = "sdcOnly"
 				}

@@ -20,7 +20,7 @@ type sdsResourceModel struct {
 	Name                         types.String `tfsdk:"name"`
 	ProtectionDomainID           types.String `tfsdk:"protection_domain_id"`
 	ProtectionDomainName         types.String `tfsdk:"protection_domain_name"`
-	IPList                       types.List   `tfsdk:"ip_list"`
+	IPList                       types.Set    `tfsdk:"ip_list"`
 	Port                         types.Int64  `tfsdk:"port"`
 	SdsState                     types.String `tfsdk:"sds_state"`
 	MembershipState              types.String `tfsdk:"membership_state"`
@@ -349,7 +349,7 @@ func updateSdsState(sds *scaleiotypes.Sds, plan sdsResourceModel) (sdsResourceMo
 		diags = append(diags, dgs...)
 		objectIPs = append(objectIPs, objVal)
 	}
-	setVal, dgs := types.ListValue(IPElemType, objectIPs)
+	setVal, dgs := types.SetValue(IPElemType, objectIPs)
 	diags = append(diags, dgs...)
 	state.IPList = setVal
 
