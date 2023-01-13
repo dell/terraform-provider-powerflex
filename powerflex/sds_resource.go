@@ -7,6 +7,8 @@ import (
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 
 	"github.com/dell/goscaleio"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -85,14 +87,6 @@ func (r *sdsResource) Configure(_ context.Context, req resource.ConfigureRequest
 // 	return iplist
 // }
 
-// func marshallIPList(ctx context.Context, ips []scaleiotypes.SdsIP, sds *sdsResourceModel) {
-// 	ipModellist := []sdsIPModel{}
-// 	for _, ip := range ips {
-// 		ipModellist = append(ipModellist, sdsIPModel{IP: types.StringValue(ip.IP), Role: types.StringValue(ip.Role)})
-// 	}
-// 	sds.IPList = basetypes.NewListValueMust(sds.IPList.Type(), ipModellist)
-// }
-
 // Create creates the resource and sets the initial Terraform state.
 func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
@@ -115,7 +109,7 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 
 	sdsName := plan.Name.ValueString()
-	iplist := []scaleiotypes.SdsIP{}
+	iplist := []*scaleiotypes.SdsIP{}
 	var ipModellist []sdsIPModel
 	plan.IPList.ElementsAs(ctx, &ipModellist, false)
 	for _, v := range ipModellist {
@@ -123,18 +117,12 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 			IP:   v.IP.ValueString(),
 			Role: v.Role.ValueString(),
 		}
-		iplist = append(iplist, sdsIp)
-	}
-
-	// Create SDS
-	paramIpList := make([]*scaleiotypes.SdsIPList, 0)
-	for _, ip := range iplist {
-		paramIpList = append(paramIpList, &scaleiotypes.SdsIPList{SdsIP: ip})
+		iplist = append(iplist, &sdsIp)
 	}
 
 	params := scaleiotypes.Sds{
 		Name:   sdsName,
-		IPList: paramIpList,
+		IPList: iplist,
 	}
 	if !plan.RmcacheEnabled.IsNull() {
 		params.RmcacheEnabled = plan.RmcacheEnabled.ValueBool()
@@ -165,23 +153,42 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 
 	// Get created SDS
-	rsp, err3 := pdm.FindSds("ID", sdsID)
+	// rsp, err3 := pdm.FindSds("ID", sdsID)
+	sdss, err3 := pdm.GetSds()
+	// if err != nil {
+	// 	return nil, err
+	// }
 	if err3 != nil {
 		resp.Diagnostics.AddError(
-			"Error getting SDS after creation",
+			"Error getting all SDS after creation",
 			err3.Error(),
 		)
 		return
 	}
+	var rsp *scaleiotypes.Sds
+	found := false
+	for _, sds := range sdss {
+		if sds.ID == sdsID {
+			rsp = &sds
+			found = true
+			break
+		}
+	}
+	if !found {
+		resp.Diagnostics.AddError(
+			"No matching SDS",
+			fmt.Sprintf("The SDS ID: %s", sdsID),
+		)
+		return
+	}
+	// resp.Diagnostics.AddError("1st Dummy", fmt.Sprintf("Sds created with IP:%s, role:%s", rsp.IPList[0].SdsIP.IP, rsp.IPList[0].SdsIP.Role))
 
 	// Set refreshed state
-	state := updateSdsState(rsp, plan)
+	state, dgs := updateSdsState(rsp, plan)
+	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 // Read refreshes the Terraform state with the latest data.
@@ -214,7 +221,8 @@ func (r *sdsResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	}
 
 	// Set refreshed state
-	state = updateSdsState(rsp, state)
+	state, dgs := updateSdsState(rsp, state)
+	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
@@ -274,7 +282,8 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	}
 
 	// Set refreshed state
-	state = updateSdsState(rsp, plan)
+	state, dgs := updateSdsState(rsp, plan)
+	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
@@ -302,17 +311,6 @@ func (r *sdsResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 		return
 	}
 
-	// Find SDS
-	sds, err := pdm.FindSds("ID", state.ID.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Find Powerflex SDS",
-			err.Error(),
-		)
-
-		return
-	}
-
 	// Delete SDS
 	err = pdm.DeleteSds(state.ID.ValueString())
 	if err != nil {
@@ -324,13 +322,10 @@ func (r *sdsResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 		return
 	}
 
-	// Set state
-	state = updateSdsState(sds, state)
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	resp.State.RemoveResource(ctx)
 
 }
 
@@ -339,7 +334,7 @@ func (r *sdsResource) ImportState(ctx context.Context, req resource.ImportStateR
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func updateSdsState(sds *scaleiotypes.Sds, plan sdsResourceModel) sdsResourceModel {
+func updateSdsState(sds *scaleiotypes.Sds, plan sdsResourceModel) (sdsResourceModel, diag.Diagnostics) {
 	state := plan
 	state.ID = types.StringValue(sds.ID)
 	state.Name = types.StringValue(sds.Name)
@@ -356,5 +351,28 @@ func updateSdsState(sds *scaleiotypes.Sds, plan sdsResourceModel) sdsResourceMod
 	state.NumOfIoBuffers = types.Int64Value(int64(sds.NumOfIoBuffers))
 	state.RmcacheMemoryAllocationState = types.StringValue(sds.RmcacheMemoryAllocationState)
 
-	return state
+	IPAttrTypes := map[string]attr.Type{
+		"ip":   types.StringType,
+		"role": types.StringType,
+	}
+	IPElemType := types.ObjectType{
+		AttrTypes: IPAttrTypes,
+	}
+
+	objectIPs := []attr.Value{}
+	var diags diag.Diagnostics
+	for _, ip := range sds.IPList {
+		obj := map[string]attr.Value{
+			"ip":   types.StringValue(ip.IP),
+			"role": types.StringValue(ip.Role),
+		}
+		objVal, dgs := types.ObjectValue(IPAttrTypes, obj)
+		diags = append(diags, dgs...)
+		objectIPs = append(objectIPs, objVal)
+	}
+	setVal, dgs := types.ListValue(IPElemType, objectIPs)
+	diags = append(diags, dgs...)
+	state.IPList = setVal
+
+	return state, diags
 }
