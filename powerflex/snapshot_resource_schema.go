@@ -133,6 +133,9 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 						Optional:            true,
 						Computed:            true,
 						MarkdownDescription: "The ID of the SDC",
+						Validators: []validator.String{
+							stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("sdc_name")),
+						},
 					},
 					"sdc_name": schema.StringAttribute{
 						Description:         "The Name of the SDC",

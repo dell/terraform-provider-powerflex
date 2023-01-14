@@ -7,6 +7,7 @@ import (
 
 	"github.com/dell/goscaleio"
 	pftypes "github.com/dell/goscaleio/types/v1"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -77,17 +78,6 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	}
 	snapshotReqs := make([]*pftypes.SnapshotDef, 0)
 
-	if !plan.VolumeName.IsNull() {
-		snapResponse, err2 := r.client.GetVolume("", "", "", plan.VolumeName.ValueString(), false)
-		if err2 != nil {
-			resp.Diagnostics.AddError(
-				"Error getting volume",
-				"Could not get volume, unexpected error: "+err2.Error(),
-			)
-			return
-		}
-		plan.VolumeID = types.StringValue(snapResponse[0].ID)
-	}
 	snapReq := &pftypes.SnapshotDef{
 		VolumeID:     plan.VolumeID.ValueString(),
 		SnapshotName: plan.Name.ValueString(),
@@ -278,14 +268,6 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	errMsg := make(map[string]string, 0)
-	sr, err := getFirstSystem(r.client)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error getting first system",
-			"Could not get first system, unexpected error: "+err.Error(),
-		)
-		return
-	}
 	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
@@ -339,33 +321,11 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	resp.Diagnostics.Append(diags...)
 	planSdcIds := []string{}
 	stateSdcIds := []string{}
-	for idx, psl := range planSdcList {
-		if psl.SdcID == "" {
-			foundsdc, errA := sr.FindSdc("Name", psl.SdcName)
-			if errA != nil {
-				errMsg["sdc_map_err_"+psl.SdcName] = errA.Error()
-				continue
-			}
-			planSdcList[idx].SdcID = foundsdc.Sdc.ID
-			planSdcIds = append(planSdcIds, planSdcList[idx].SdcID)
-		} else {
-			planSdcIds = append(planSdcIds, psl.SdcID)
-		}
-
+	for _, psl := range planSdcList {
+		planSdcIds = append(planSdcIds, psl.SdcID)
 	}
-	for idx, ssl := range stateSdcList {
-		if ssl.SdcID == "" {
-			foundsdc, errA := sr.FindSdc("Name", ssl.SdcName)
-			if errA != nil {
-				errMsg["sdc_map_err_"+ssl.SdcName] = errA.Error()
-				continue
-			}
-			stateSdcList[idx].SdcID = foundsdc.Sdc.ID
-			stateSdcIds = append(stateSdcIds, stateSdcList[idx].SdcID)
-		} else {
-			stateSdcIds = append(stateSdcIds, ssl.SdcID)
-		}
-
+	for _, ssl := range stateSdcList {
+		stateSdcIds = append(stateSdcIds, ssl.SdcID)
 	}
 	mapSdcIds := Difference(planSdcIds, stateSdcIds)
 	unmapSdcIds := Difference(stateSdcIds, planSdcIds)
@@ -503,14 +463,6 @@ func (r *snapshotResource) Delete(ctx context.Context, req resource.DeleteReques
 	var state SnapshotResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	sr, err := getFirstSystem(r.client)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error getting first system",
-			"Could not get first system, unexpected error: "+err.Error(),
-		)
-		return
-	}
 	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
@@ -524,23 +476,7 @@ func (r *snapshotResource) Delete(ctx context.Context, req resource.DeleteReques
 	sdcsToUnmap := []SdcList{}
 	diags = state.SdcList.ElementsAs(ctx, &sdcsToUnmap, true)
 	resp.Diagnostics.Append(diags...)
-	for _, ssl := range sdcsToUnmap {
-		if ssl.SdcID == "" {
-			foundsdc, errA := sr.FindSdc("Name", ssl.SdcName)
-			ssl.SdcID = foundsdc.Sdc.ID
-			if errA != nil {
-				resp.Diagnostics.AddError(
-					"Error Finding SDC with name",
-					"Could not get sdc with name"+ssl.SdcName+",unexpected error: "+errA.Error(),
-				)
-				return
-			}
-		}
-	}
 	for _, stu := range sdcsToUnmap {
-		if stu.SdcID == "" {
-			continue
-		}
 		err := snapshot.UnmapVolumeSdc(
 			&pftypes.UnmapVolumeSdcParam{
 				SdcID: stu.SdcID,
@@ -554,7 +490,7 @@ func (r *snapshotResource) Delete(ctx context.Context, req resource.DeleteReques
 			return
 		}
 	}
-	err = snapshot.RemoveVolume(state.RemoveMode.ValueString())
+	err := snapshot.RemoveVolume(state.RemoveMode.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Removing Volume",
@@ -566,6 +502,77 @@ func (r *snapshotResource) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 	resp.State.RemoveResource(ctx)
+}
+
+func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	if req.Plan.Raw.IsNull() {
+		return 
+	}
+	var plan SnapshotResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	errMsg := make(map[string]string, 0)
+	sr, err := getFirstSystem(r.client)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting first system",
+			"Could not get first system, unexpected error: "+err.Error(),
+		)
+		return
+	}
+	if !plan.VolumeName.IsNull() {
+		snapResponse, err2 := r.client.GetVolume("", "", "", plan.VolumeName.ValueString(), false)
+		if err2 != nil {
+			resp.Diagnostics.AddError(
+				"Error getting volume",
+				"Could not get volume, unexpected error: "+err2.Error(),
+			)
+			return
+		}
+		plan.VolumeID = types.StringValue(snapResponse[0].ID)
+	}
+	sdcList := []SdcList{}
+	diags = plan.SdcList.ElementsAs(ctx, &sdcList, true)
+	resp.Diagnostics.Append(diags...)
+	for _, si := range sdcList {
+		if si.SdcID == "" {
+			foundsdc, errA := sr.FindSdc("Name", si.SdcName)
+			if errA != nil {
+				errMsg["sdc_map_err_"+si.SdcName] = errA.Error()
+				continue
+			} else {
+				si.SdcID = foundsdc.Sdc.ID
+			}
+		}
+	}
+	sdcInfoElemType := types.ObjectType{
+		AttrTypes: SdcInfoAttrTypes,
+	}
+	objectSdcInfos := []attr.Value{}
+	for _, si := range sdcList {
+		// refreshing state for drift outside terraform
+		if si.SdcID == "" {
+			foundsdc, errA := sr.FindSdc("Name", si.SdcName)
+			if errA != nil {
+				errMsg["sdc_map_err_"+si.SdcName] = errA.Error()
+			} else {
+				si.SdcID = foundsdc.Sdc.ID
+			}
+		}
+		obj := map[string]attr.Value{
+			"sdc_id":           types.StringValue(si.SdcID),
+			"limit_iops":       types.Int64Value(int64(si.LimitIops)),
+			"limit_bw_in_mbps": types.Int64Value(int64(si.LimitBwInMbps)),
+			"sdc_name":         types.StringValue(si.SdcName),
+			"access_mode":      types.StringValue(si.AccessMode),
+		}
+		objVal, _ := types.ObjectValue(SdcInfoAttrTypes, obj)
+		objectSdcInfos = append(objectSdcInfos, objVal)
+	}
+	mappedSdcInfoVal, _ := types.SetValue(sdcInfoElemType, objectSdcInfos)
+	plan.SdcList = mappedSdcInfoVal
+	diags = resp.Plan.Set(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
 }
 
 func (r *snapshotResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
