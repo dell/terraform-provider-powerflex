@@ -17,6 +17,9 @@ var SnapshotPolicyDataSourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Unique identifier of the snapshot policy instance.",
 			Optional:            true,
 			Computed:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 		"name": schema.StringAttribute{
 			Description:         "Name of the snapshot policy.",
@@ -24,6 +27,7 @@ var SnapshotPolicyDataSourceSchema schema.Schema = schema.Schema{
 			Optional:            true,
 			Validators: []validator.String{
 				stringvalidator.ConflictsWith(path.MatchRoot("id")),
+				stringvalidator.LengthAtLeast(1),
 			},
 		},
 		"snapshotpolicies": schema.ListNestedAttribute{
@@ -129,14 +133,14 @@ var SnapshotPolicyDataSourceSchema schema.Schema = schema.Schema{
 						Computed:            true,
 					},
 					"links": schema.ListNestedAttribute{
-						Description:         "Specifies the links asscociated for a volume.",
-						MarkdownDescription: "Specifies the links asscociated for a volume.",
+						Description:         "Specifies the links asscociated for a snapshot policy.",
+						MarkdownDescription: "Specifies the links asscociated for a snapshot policy.",
 						Computed:            true,
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"rel": schema.StringAttribute{
-									Description:         "Specifies the relationship with the volume.",
-									MarkdownDescription: "Specifies the relationship with the volume.",
+									Description:         "Specifies the relationship with the snapshot policy.",
+									MarkdownDescription: "Specifies the relationship with the snapshot policy.",
 									Computed:            true,
 								},
 								"href": schema.StringAttribute{

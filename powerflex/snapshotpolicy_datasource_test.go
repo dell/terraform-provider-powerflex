@@ -48,7 +48,7 @@ func TestAccSnapshotPolicyDataSource(t *testing.T) {
 			//retrieving snapshot policy with empty snapshot policy id
 			{
 				Config:      ProviderConfigForTesting + SnapshotPolicyDataSourceConfig4,
-				ExpectError: regexp.MustCompile(".*Unable to Read Powerflex Snapshot Policy.*"),
+				ExpectError: regexp.MustCompile(".*Invalid Attribute Value Length.*"),
 			},
 			//retrieving snapshot policy with incorrect snapshot policy id
 			{
