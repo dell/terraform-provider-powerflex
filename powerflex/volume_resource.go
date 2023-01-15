@@ -116,9 +116,9 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 					"Couldn't get the sdc, unexpected error: "+errA.Error(),
 				)
 				return
-			} else {
-				si.SdcID = foundsdc.Sdc.ID
 			}
+			si.SdcID = foundsdc.Sdc.ID
+
 		}
 		obj := map[string]attr.Value{
 			"sdc_id":           types.StringValue(si.SdcID),

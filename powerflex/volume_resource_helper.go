@@ -20,14 +20,6 @@ const (
 	TiKB = 1024 * GiKB
 )
 
-var SdcInfoAttrTypes = map[string]attr.Type{
-	"sdc_id":           types.StringType,
-	"limit_iops":       types.Int64Type,
-	"limit_bw_in_mbps": types.Int64Type,
-	"sdc_name":         types.StringType,
-	"access_mode":      types.StringType,
-}
-
 // VolumeResourceModel maps the resource schema data.
 type VolumeResourceModel struct {
 	ProtectionDomainName types.String `tfsdk:"protection_domain_name"`
@@ -52,6 +44,15 @@ type SDCItemize struct {
 	LimitBwInMbps int    `tfsdk:"limit_bw_in_mbps"`
 	SdcName       string `tfsdk:"sdc_name"`
 	AccessMode    string `tfsdk:"access_mode"`
+}
+
+// SdcInfoAttrTypes variable to store the attr type of sdc_list schema
+var SdcInfoAttrTypes = map[string]attr.Type{
+	"sdc_id":           types.StringType,
+	"limit_iops":       types.Int64Type,
+	"limit_bw_in_mbps": types.Int64Type,
+	"sdc_name":         types.StringType,
+	"access_mode":      types.StringType,
 }
 
 // covertToKB fucntion to convert size into kb
