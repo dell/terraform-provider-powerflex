@@ -69,6 +69,13 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 			Optional:            true,
 			Computed:            true,
 			MarkdownDescription: "volume type",
+			Validators: []validator.String{stringvalidator.OneOf(
+				"ThinProvisioned",
+				"ThickProvisioned",
+			)},
+			PlanModifiers: []planmodifier.String{
+				stringDefault("ThinProvisioned"),
+			},
 		},
 		"use_rm_cache": schema.BoolAttribute{
 			Description:         "use rm cache",
@@ -85,6 +92,19 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 			Description:         "Size in KB",
 			Computed:            true,
 			MarkdownDescription: "Size in KB",
+		},
+		"access_mode": schema.StringAttribute{
+			Description:         "The Access mode of snapshot",
+			Optional:            true,
+			Computed:            true,
+			MarkdownDescription: "The Access mode of snapshot",
+			Validators: []validator.String{stringvalidator.OneOf(
+				"ReadOnly",
+				"ReadWrite",
+			)},
+			PlanModifiers: []planmodifier.String{
+				stringDefault("ReadWrite"),
+			},
 		},
 		"remove_mode": schema.StringAttribute{
 			Description:         "remove mode of snapshot",

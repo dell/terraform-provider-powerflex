@@ -54,8 +54,10 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 		return
 	}
 	var plan VolumeResourceModel
+	var state VolumeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+
 	sr, err := getFirstSystem(r.client)
 	pdr := goscaleio.NewProtectionDomain(r.client)
 	if err != nil {
@@ -100,9 +102,18 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 		VSIKB := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 		plan.SizeInKb = types.Int64Value(int64(VSIKB))
 	}
+
 	sdcList := []SDCItemize{}
 	diags = plan.SdcList.ElementsAs(ctx, &sdcList, true)
 	resp.Diagnostics.Append(diags...)
+
+	if !plan.SdcList.IsUnknown() && plan.AccessMode.ValueString() == "ReadOnly" {
+		resp.Diagnostics.AddError(
+			"Error: SDC can't be mapped, The volume is limited to read-only access",
+			"Could not map sdc to volume with ReadOnly access mode. The volume is limited to read-only access",
+		)
+		return 
+	}
 	sdcInfoElemType := types.ObjectType{
 		AttrTypes: SdcInfoAttrTypes,
 	}
@@ -132,6 +143,36 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	}
 	mappedSdcInfoVal, _ := types.SetValue(sdcInfoElemType, objectSdcInfos)
 	plan.SdcList = mappedSdcInfoVal
+
+	// update scenario
+	if !req.State.Raw.IsNull() {
+		diags := req.State.Get(ctx, &state)
+		resp.Diagnostics.Append(diags...)
+		if plan.SizeInKb.ValueInt64() < state.SizeInKb.ValueInt64() {
+			resp.Diagnostics.AddError(
+				"Error: Volume capacity can only be increased",
+				"volume size with "+state.Size.String()+" size couldn't be decreased to "+plan.Size.String()+" size",
+			)
+			return
+		}
+		// volume type can't be updated after volume creation
+		if plan.VolumeType.ValueString() != state.VolumeType.ValueString() {
+			resp.Diagnostics.AddError(
+				"Error: Volume Type can't be updated",
+				state.VolumeType.ValueString()+" volume type couldn't be converted to "+plan.VolumeType.ValueString()+" volume type",
+			)
+			return
+		}
+		// volume rmcahce can't be update after volume creation
+		if plan.UseRmCache.ValueBool() != state.UseRmCache.ValueBool() {
+			resp.Diagnostics.AddError(
+				"Error: Volume RMCache can't be updated",
+				"volume RMCache sets to "+state.UseRmCache.String()+" can't be change to "+plan.UseRmCache.String(),
+			)
+			return
+		}
+	}
+
 	diags = resp.Plan.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -177,6 +218,12 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 	vol := volsResponse[0]
 	vr := goscaleio.NewVolume(r.client)
 	vr.Volume = vol
+	if !plan.AccessMode.IsNull() {
+		err := vr.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
+		if err != nil {
+			errMsg["access_mode"] = err.Error()
+		}
+	}
 	sdcItems := []SDCItemize{}
 	diags = plan.SdcList.ElementsAs(ctx, &sdcItems, true)
 	resp.Diagnostics.Append(diags...)
@@ -335,6 +382,12 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	unmapSdcIds := Difference(stateSdcIds, planSdcIds)
 	nonchangeSdcIds := Difference(planSdcIds, mapSdcIds)
 
+	if !plan.AccessMode.IsNull() {
+		err := volresource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
+		if err != nil {
+			errMsg["access_mode"] = err.Error()
+		}
+	}
 	for _, msi := range mapSdcIds {
 		pfmvsp := pftypes.MapVolumeSdcParam{
 			SdcID:                 msi,
@@ -410,7 +463,6 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 		}
 
 	}
-
 	vols, err2 := spr.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(

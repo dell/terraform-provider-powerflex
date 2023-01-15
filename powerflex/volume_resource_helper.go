@@ -33,6 +33,7 @@ type VolumeResourceModel struct {
 	Name                 types.String `tfsdk:"name"`
 	SizeInKb             types.Int64  `tfsdk:"size_in_kb"`
 	ID                   types.String `tfsdk:"id"`
+	AccessMode           types.String `tfsdk:"access_mode"`
 	RemoveMode           types.String `tfsdk:"remove_mode"`
 	SdcList              types.Set    `tfsdk:"sdc_list"`
 }

@@ -22,6 +22,7 @@ Manages volume resource
 
 ### Optional
 
+- `access_mode` (String) The Access mode of snapshot
 - `capacity_unit` (String) capacity unit
 - `protection_domain_id` (String) Protection Domain ID.
 - `protection_domain_name` (String) Protection Domain Name.
