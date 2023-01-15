@@ -73,19 +73,58 @@ func (r *sdsResource) Configure(_ context.Context, req resource.ConfigureRequest
 	r.client = req.ProviderData.(*goscaleio.Client)
 }
 
-// func getIPList(ctx context.Context, sds sdsResourceModel) []scaleiotypes.SdsIP {
-// 	iplist := []scaleiotypes.SdsIP{}
-// 	var ipModellist []sdsIPModel
-// 	sds.IPList.ElementsAs(ctx, &ipModellist, false)
-// 	for _, v := range ipModellist {
-// 		sdsIp := scaleiotypes.SdsIP{
-// 			IP:   v.IP.ValueString(),
-// 			Role: v.Role.ValueString(),
-// 		}
-// 		iplist = append(iplist, sdsIp)
-// 	}
-// 	return iplist
-// }
+func (sds *sdsResourceModel) getIPList(ctx context.Context) []*scaleiotypes.SdsIP {
+	iplist := []*scaleiotypes.SdsIP{}
+	var ipModellist []sdsIPModel
+	sds.IPList.ElementsAs(ctx, &ipModellist, false)
+	for _, v := range ipModellist {
+		sdsIP := scaleiotypes.SdsIP{
+			IP:   v.IP.ValueString(),
+			Role: v.Role.ValueString(),
+		}
+		iplist = append(iplist, &sdsIP)
+	}
+	return iplist
+}
+
+func sdsIPListDiff(ctx context.Context, plan, state *sdsResourceModel) (toAdd, toRmv, changed, common []*scaleiotypes.SdsIP) {
+	plist, slist := plan.getIPList(ctx), state.getIPList(ctx)
+	type ipObj struct {
+		pip *scaleiotypes.SdsIP
+		sip *scaleiotypes.SdsIP
+	}
+	vmap := make(map[string]*ipObj)
+	for _, pip := range plist {
+		vmap[pip.IP] = &ipObj{pip, nil}
+	}
+	for _, sip := range slist {
+		if mip, ok := vmap[sip.IP]; ok {
+			mip.sip = sip
+		} else {
+			vmap[sip.IP] = &ipObj{nil, sip}
+		}
+	}
+	toAdd, toRmv, common, changed = make([]*scaleiotypes.SdsIP, 0), make([]*scaleiotypes.SdsIP, 0),
+		make([]*scaleiotypes.SdsIP, 0), make([]*scaleiotypes.SdsIP, 0)
+	for _, mip := range vmap {
+		if mip.sip != nil {
+			if mip.pip != nil {
+				if mip.pip.Role == mip.sip.Role {
+					common = append(common, mip.pip)
+				} else {
+					changed = append(changed, mip.pip)
+				}
+			} else {
+				toRmv = append(toRmv, mip.sip)
+				// toAdd = append(toAdd, mip.pip)
+			}
+		} else {
+			// toRmv = append(toRmv, mip.pip)
+			toAdd = append(toAdd, mip.pip)
+		}
+	}
+	return toAdd, toRmv, changed, common
+}
 
 // Create creates the resource and sets the initial Terraform state.
 func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -109,16 +148,7 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 
 	sdsName := plan.Name.ValueString()
-	iplist := []*scaleiotypes.SdsIP{}
-	var ipModellist []sdsIPModel
-	plan.IPList.ElementsAs(ctx, &ipModellist, false)
-	for _, v := range ipModellist {
-		sdsIp := scaleiotypes.SdsIP{
-			IP:   v.IP.ValueString(),
-			Role: v.Role.ValueString(),
-		}
-		iplist = append(iplist, &sdsIp)
-	}
+	iplist := plan.getIPList(ctx)
 
 	params := scaleiotypes.Sds{
 		Name:   sdsName,
@@ -248,6 +278,50 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 			return
 		}
+	}
+
+	// Check if there are updates in ip lists
+	// toAdd, toRmv, changed, common := sdsIPListDiff(ctx, &plan, &state)
+	toAdd, toRmv, changed, _ := sdsIPListDiff(ctx, &plan, &state)
+	// err4 := sds.AddSdSIP("0.2.2.3", goscaleio.RoleSdsOnly)
+	for _, ip := range toAdd {
+		err := pdm.AddSdSIP(state.ID.ValueString(), ip.IP, ip.Role)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Error adding IP %s to SDS with role %s", ip.IP, ip.Role),
+				err.Error(),
+			)
+			return
+		}
+	}
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	for _, ip := range changed {
+		err := pdm.SetSDSIPRole(state.ID.ValueString(), ip.IP, ip.Role)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Error updating IP %s role to %s in SDS", ip.IP, ip.Role),
+				err.Error(),
+			)
+			return
+		}
+	}
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	for _, ip := range toRmv {
+		err := pdm.RemoveSDSIP(state.ID.ValueString(), ip.IP)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Error removing IP %s with role %s from SDS", ip.IP, ip.Role),
+				err.Error(),
+			)
+			return
+		}
+	}
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
 	// Find updated SDS

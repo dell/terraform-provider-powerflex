@@ -16,7 +16,19 @@ func TestAccSDSResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "1"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "2"),
+					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.ip", "10.247.100.232"),
+					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.role", "all"),
+					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.ip", "10.10.10.1"),
+					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.role", "sdcOnly"),
+					// resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
+					// 	"ip":   "10.247.100.232",
+					// 	"role": "all",
+					// }),
+					// resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
+					// 	"ip":   "10.10.10.1",
+					// 	"role": "sdcOnly",
+					// }),
 				),
 			},
 			// update sds name test
@@ -25,6 +37,18 @@ func TestAccSDSResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_02"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "2"),
+					// resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list", map[string]string{
+					// 	"ip":   "10.247.100.232",
+					// 	"role": "sdsOnly",
+					// }),
+					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.role", "sdsOnly"),
+					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.ip", "10.10.10.2"),
+					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.role", "sdcOnly"),
+					// resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list", map[string]string{
+					// 	"ip":   "10.10.10.2",
+					// 	"role": "sdcOnly",
+					// }),
 				),
 			},
 		},
@@ -38,7 +62,7 @@ func TestAccSDSResourceManyIP(t *testing.T) {
 			ip_list = [
 				{
 					ip = "10.247.100.232"
-					role = "all"
+					role = "sdsOnly"
 				},
 				{
 					ip = "10.10.10.1"
@@ -79,6 +103,10 @@ resource "powerflex_sds" "sds" {
 		{
 			ip = "10.247.100.232"
 			role = "all"
+		},
+		{
+			ip = "10.10.10.1"
+			role = "sdcOnly"
 		}
 	]
 	rmcache_enabled = true
@@ -95,7 +123,11 @@ resource "powerflex_sds" "sds" {
 	ip_list = [
 		{
 			ip = "10.247.100.232"
-			role = "all"
+			role = "sdsOnly"
+		},
+		{
+			ip = "10.10.10.2"
+			role = "sdcOnly"
 		}
 	]
 	protection_domain_id = "4eeb304600000000"
