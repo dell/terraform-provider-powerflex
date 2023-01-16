@@ -321,66 +321,66 @@ func TestStoragepoolResourceByAnika(t *testing.T) {
 				Config:      ProviderConfigForTesting + ModifySPWithExistingSPName,
 				ExpectError: regexp.MustCompile(`.*Error getting while updating Storagepool*.`),
 			},
-			//Was not able to test - Same issue as Discussed with Akash
-			// {
-			// 	Config:      ProviderConfigForTesting + CreateStoragePool2,
-			// 	Check: resource.ComposeAggregateTestCheckFunc(
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp10", "name", "ses-storage-pool13"),
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp10", "protection_domain_name", "domain1"),
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp10", "media_type", "HDD"),
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp10", "use_rmcache", "false"),
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp10", "use_rfcache", "false"),
-			// 	),
-			// },
-			// {
-			// 	Config:      ProviderConfigForTesting + ModifySPWithInvalidRfCache,
-			// 	ExpectError: regexp.MustCompile(`.*Inappropriate value for attribute.*`),
-			// },
-			//Was not able to test - Same issue as Discussed with Akash
-			// {
-			// 	Config:      ProviderConfigForTesting + CreateStoragePool3,
-			// 	Check: resource.ComposeAggregateTestCheckFunc(
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp11", "name", "ses-storage-pool14"),
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp11", "protection_domain_name", "domain1"),
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp11", "media_type", "HDD"),
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp11", "use_rmcache", "false"),
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp11", "use_rfcache", "true"),
-			// 	),
-			// },
-			// {
-			// 	Config:      ProviderConfigForTesting + ModifySPWithInvalidRmCache,
-			// 	ExpectError: regexp.MustCompile(`.*Inappropriate value for attribute.*`),
-			// },
-			//Was not able to test - Same issue as Discussed with Akash
-			// {
-			// 	Config:      ProviderConfigForTesting + CreateStoragePool4,
-			// 	Check: resource.ComposeAggregateTestCheckFunc(
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp12", "name", "ses-storage-pool15"),
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp12", "protection_domain_name", "domain1"),
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp12", "media_type", "HDD"),
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp12", "use_rmcache", "false"),
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp12", "use_rfcache", "true"),
-			// 	),
-			// },
-			// {
-			// 	Config:      ProviderConfigForTesting + ModifySPWithInvalidMediaType,
-			// 	ExpectError: regexp.MustCompile(`.*Invalid Attribute Value Match.*`),
-			// },
-			//Was not able to test - Same issue as Discussed with Akash
-			// {
-			// 	Config:      ProviderConfigForTesting + CreateStoragePool5,
-			// 	Check: resource.ComposeAggregateTestCheckFunc(
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp13", "name", "ses-storage-pool16"),
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp13", "protection_domain_name", "domain1"),
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp13", "media_type", "HDD"),
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp13", "use_rmcache", "false"),
-			// 		resource.TestCheckResourceAttr("powerflex_storagepool.sp13", "use_rfcache", "true"),
-			// 	),
-			// },
-			// {
-			// 	Config:      ProviderConfigForTesting + ModifySPWithEmptyMediaType,
-			// 	ExpectError: regexp.MustCompile(`.*Invalid Attribute Value Match.*`),
-			// },
+			//Was not able to test previously- Same issue as Discussed with Akash
+			{
+				Config:      ProviderConfigForTesting + CreateStoragePool2,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp10", "name", "ses-storage-pool13"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp10", "protection_domain_name", "domain1"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp10", "media_type", "HDD"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp10", "use_rmcache", "false"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp10", "use_rfcache", "false"),
+				),
+			},
+			{
+				Config:      ProviderConfigForTesting + ModifySPWithInvalidRfCache,
+				ExpectError: regexp.MustCompile(`.*Inappropriate value for attribute.*`),
+			},
+			//Was not able to test previously- Same issue as Discussed with Akash
+			{
+				Config:      ProviderConfigForTesting + CreateStoragePool3,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp11", "name", "ses-storage-pool14"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp11", "protection_domain_name", "domain1"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp11", "media_type", "HDD"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp11", "use_rmcache", "false"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp11", "use_rfcache", "true"),
+				),
+			},
+			{
+				Config:      ProviderConfigForTesting + ModifySPWithInvalidRmCache,
+				ExpectError: regexp.MustCompile(`.*Inappropriate value for attribute.*`),
+			},
+			//Was not able to test previously- Same issue as Discussed with Akash
+			{
+				Config:      ProviderConfigForTesting + CreateStoragePool4,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp12", "name", "ses-storage-pool15"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp12", "protection_domain_name", "domain1"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp12", "media_type", "HDD"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp12", "use_rmcache", "false"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp12", "use_rfcache", "true"),
+				),
+			},
+			{
+				Config:      ProviderConfigForTesting + ModifySPWithInvalidMediaType,
+				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value Match.*`),
+			},
+			//Was not able to test previously - Same issue as Discussed with Akash
+			{
+				Config:      ProviderConfigForTesting + CreateStoragePool5,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp13", "name", "ses-storage-pool16"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp13", "protection_domain_name", "domain1"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp13", "media_type", "HDD"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp13", "use_rmcache", "false"),
+					resource.TestCheckResourceAttr("powerflex_storagepool.sp13", "use_rfcache", "true"),
+				),
+			},
+			{
+				Config:      ProviderConfigForTesting + ModifySPWithEmptyMediaType,
+				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value Match.*`),
+			},
 			//Bug
 			// {
 			// 	Config:      ProviderConfigForTesting + CreateStoragePool6,
@@ -664,7 +664,7 @@ resource "powerflex_storagepool" "sp1" {
 
 }
 `
-
+//bug
 // var CreateSPWithEmptySPName = `
 // resource "powerflex_storagepool" "sp1" {
 // 	media_type= "HDD"
@@ -739,7 +739,7 @@ resource "powerflex_storagepool" "sp1" {
 	use_rfcache = "use_rfcache"
 }
 `
-
+//bug
 // var CreateSPWithRequiredParams = `
 // resource "powerflex_storagepool" "sp1" {
 // 	media_type= "HDD"
@@ -757,6 +757,7 @@ resource "powerflex_storagepool" "sp2" {
 	use_rfcache = true
 }
 `
+//bug
 // var CreateSPWithPDNameandOneOptionalRmCache = `
 // resource "powerflex_storagepool" "sp3" {
 // 	media_type= "HDD"
@@ -766,6 +767,7 @@ resource "powerflex_storagepool" "sp2" {
 //  }
 // `
 
+//bug
 // var CreateSPWithPDNameandOneOptionalRfCache = `
 // resource "powerflex_storagepool" "sp4" {
 // 	media_type= "HDD"
@@ -821,90 +823,91 @@ resource "powerflex_storagepool" "sp8" {
 	use_rfcache = true
 }
 `
-//Was not able to test - Same issue as Discussed with Akash
-// var CreateStoragePool2 = `
-// resource "powerflex_storagepool" "sp10" {
-// 	media_type= "HDD"
-// 	protection_domain_name = "domain1"
-// 	name = "ses-storage-pool13"
-// 	use_rmcache = false
-// 	use_rfcache = false
-// }
-// `
+//Was not able to test previously- Same issue as Discussed with Akash
+var CreateStoragePool2 = `
+resource "powerflex_storagepool" "sp10" {
+	media_type= "HDD"
+	protection_domain_name = "domain1"
+	name = "ses-storage-pool13"
+	use_rmcache = false
+	use_rfcache = false
+}
+`
 
-// var ModifySPWithInvalidRfCache = `
-// resource "powerflex_storagepool" "sp10" {
-// 	media_type= "HDD"
-// 	protection_domain_name = "domain1"
-// 	name = "ses-storage-pool13"
-// 	use_rmcache = false
-// 	use_rfcache = "use_rfcache"
-// }
-// `
+var ModifySPWithInvalidRfCache = `
+resource "powerflex_storagepool" "sp10" {
+	media_type= "HDD"
+	protection_domain_name = "domain1"
+	name = "ses-storage-pool13"
+	use_rmcache = false
+	use_rfcache = "use_rfcache"
+}
+`
 
-//Was not able to test - Same issue as Discussed with Akash
-// var CreateStoragePool3 = `
-// resource "powerflex_storagepool" "sp11" {
-// 	media_type= "HDD"
-// 	protection_domain_name = "domain1"
-// 	name = "ses-storage-pool14"
-// 	use_rmcache = false
-// 	use_rfcache = true
-// }
-// `
+//Was not able to test previously- Same issue as Discussed with Akash
+var CreateStoragePool3 = `
+resource "powerflex_storagepool" "sp11" {
+	media_type= "HDD"
+	protection_domain_name = "domain1"
+	name = "ses-storage-pool14"
+	use_rmcache = false
+	use_rfcache = true
+}
+`
 
-// var ModifySPWithInvalidRmCache = `
-// resource "powerflex_storagepool" "sp11" {
-// 	media_type= "HDD"
-// 	protection_domain_name = "domain1"
-// 	name = "ses-storage-pool14"
-// 	use_rmcache = "use_rmcache"
-// 	use_rfcache = true
-// }
-// `
+var ModifySPWithInvalidRmCache = `
+resource "powerflex_storagepool" "sp11" {
+	media_type= "HDD"
+	protection_domain_name = "domain1"
+	name = "ses-storage-pool14"
+	use_rmcache = "use_rmcache"
+	use_rfcache = true
+}
+`
 
-//Was not able to test - Same issue as Discussed with Akash
-// var CreateStoragePool4 = `
-// resource "powerflex_storagepool" "sp12" {
-// 	media_type= "HDD"
-// 	protection_domain_name = "domain1"
-// 	name = "ses-storage-pool15"
-// 	use_rmcache = false
-// 	use_rfcache = true
-// }
-// `
+//Was not able to test previously- Same issue as Discussed with Akash
+var CreateStoragePool4 = `
+resource "powerflex_storagepool" "sp12" {
+	media_type= "HDD"
+	protection_domain_name = "domain1"
+	name = "ses-storage-pool15"
+	use_rmcache = false
+	use_rfcache = true
+}
+`
 
-// var ModifySPWithInvalidMediaType = `
-// resource "powerflex_storagepool" "sp12" {
-// 	media_type= "MediaType"
-// 	protection_domain_name = "domain1"
-// 	name = "ses-storage-pool15"
-// 	use_rmcache = false
-// 	use_rfcache = true
-// }
-// `
+var ModifySPWithInvalidMediaType = `
+resource "powerflex_storagepool" "sp12" {
+	media_type= "MediaType"
+	protection_domain_name = "domain1"
+	name = "ses-storage-pool15"
+	use_rmcache = false
+	use_rfcache = true
+}
+`
 
-//Was not able to test - Same issue as Discussed with Akash
-// var CreateStoragePool5 = `
-// resource "powerflex_storagepool" "sp13" {
-// 	media_type= "HDD"
-// 	protection_domain_name = "domain1"
-// 	name = "ses-storage-pool16"
-// 	use_rmcache = false
-// 	use_rfcache = true
-// }
-// `
+//Was not able to test previously- Same issue as Discussed with Akash
+var CreateStoragePool5 = `
+resource "powerflex_storagepool" "sp13" {
+	media_type= "HDD"
+	protection_domain_name = "domain1"
+	name = "ses-storage-pool16"
+	use_rmcache = false
+	use_rfcache = true
+}
+`
 
-// var ModifySPWithEmptyMediaType = `
-// resource "powerflex_storagepool" "sp13" {
-// 	media_type= ""
-// 	protection_domain_name = "domain1"
-// 	name = "ses-storage-pool16"
-// 	use_rmcache = false
-// 	use_rfcache = true
-// }
-// `
+var ModifySPWithEmptyMediaType = `
+resource "powerflex_storagepool" "sp13" {
+	media_type= ""
+	protection_domain_name = "domain1"
+	name = "ses-storage-pool16"
+	use_rmcache = false
+	use_rfcache = true
+}
+`
 
+//bug
 // var CreateStoragePool6 = `
 // resource "powerflex_storagepool" "sp16" {
 // 	media_type= "HDD"

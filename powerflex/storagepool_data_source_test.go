@@ -50,10 +50,19 @@ func TestStoragePoolDataSource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + StoragePoolDataSourceConfig5,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_storagepool.example5", "storage_pools.#", "16"),
+					resource.TestCheckResourceAttr("data.powerflex_storagepool.example5", "storage_pools.#", "8"),
 					resource.TestCheckResourceAttr("data.powerflex_storagepool.example5", "protection_domain_name", "domain1"),
 				),
-			},
+			 },				
+		},
+	})
+}
+
+func TestStoragePoolDataSourceNegativeScenario(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
 			{
 				Config:      ProviderConfigForTesting + SPDataSourceEmptyPDName,
 				ExpectError: regexp.MustCompile(`.*Unable to find protection domain*.`),
@@ -126,6 +135,10 @@ func TestStoragePoolDataSource(t *testing.T) {
 			{
 				Config:      ProviderConfigForTesting + SPDataSourceWithEmptySPIDPartII,
 				ExpectError: regexp.MustCompile(`.*No storage pools found for the specified protection domain*.`),
+			},
+			{
+				Config:      ProviderConfigForTesting + SPDataSourceWOPDIDAndName,
+				ExpectError: regexp.MustCompile(".*Invalid Attribute Combination.*"),
 			},
 		},
 	})
@@ -282,5 +295,11 @@ var SPDataSourceWithEmptySPIDPartII = `
 data "powerflex_storagepool" "example20" {
 	protection_domain_name = "domain1"
 	storage_pool_ids = []
+}
+`
+
+var SPDataSourceWOPDIDAndName = `
+data "powerflex_storagepool" "example21" {
+	storage_pool_names = ["pool1"]
 }
 `
