@@ -102,6 +102,12 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 			Computed:            true,
 			MarkdownDescription: "Rmcache enabled state of SDS",
 		},
+		"rfcache_enabled": schema.BoolAttribute{
+			Description:         "Rfcache enabled state of SDS",
+			Optional:            true,
+			Computed:            true,
+			MarkdownDescription: "Rfcache enabled state of SDS",
+		},
 		"is_on_vmware": schema.BoolAttribute{
 			Description:         "Is on vmware state of SDS",
 			Computed:            true,
@@ -117,11 +123,11 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 		// "rmcacheSizeInMB": "256"
 		// }
 		// create and read is kb, but update is mb
-		"rmcache_size_in_kb": schema.Int64Attribute{
-			Description:         "Rmcache size in kb of SDS",
+		"rmcache_size_in_mb": schema.Int64Attribute{
+			Description:         "Rmcache size in MB of SDS",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "Rmcache size in kb of SDS",
+			MarkdownDescription: "Rmcache size in MB of SDS",
 		},
 		"num_of_io_buffers": schema.Int64Attribute{
 			Description:         "Number of io buffers of SDS",

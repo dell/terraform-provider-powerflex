@@ -17,6 +17,10 @@ func TestAccSDSResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "2"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_size_in_mb", "156"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "true"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rfcache_enabled", "true"),
+					// resource.TestCheckResourceAttr("powerflex_sds.sds", "num_of_io_buffers", "4"),
 					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.ip", "10.247.100.232"),
 					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.role", "all"),
 					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.ip", "10.10.10.1"),
@@ -31,13 +35,20 @@ func TestAccSDSResource(t *testing.T) {
 					// }),
 				),
 			},
-			// update sds name test
+			// update sds name
+			// update sds ips from all, sdcOnly to sdsOnly, all
+			// increase rmcache
+			// disable rfcache
 			{
 				Config: ProviderConfigForTesting + updateSDSTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_02"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "2"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_size_in_mb", "256"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "true"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rfcache_enabled", "false"),
+					// resource.TestCheckResourceAttr("powerflex_sds.sds", "num_of_io_buffers", "4"),
 					// resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list", map[string]string{
 					// 	"ip":   "10.247.100.232",
 					// 	"role": "sdsOnly",
@@ -49,6 +60,19 @@ func TestAccSDSResource(t *testing.T) {
 					// 	"ip":   "10.10.10.2",
 					// 	"role": "sdcOnly",
 					// }),
+				),
+			},
+			// disable sds rmcache
+			// re-enable rfcache
+			{
+				Config: ProviderConfigForTesting + updateSDSTest2,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_02"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "2"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_size_in_mb", "256"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "false"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rfcache_enabled", "true"),
 				),
 			},
 		},
@@ -110,9 +134,10 @@ resource "powerflex_sds" "sds" {
 		}
 	]
 	rmcache_enabled = true
-	rmcache_size_in_kb = 256000
+	rmcache_size_in_mb = 156
 	# num_of_io_buffers = 4
-	drl_mode = "Volatile"
+	rfcache_enabled = true
+	drl_mode = "NonVolatile"
 	protection_domain_id = "4eeb304600000000"
 }
 `
@@ -130,6 +155,30 @@ resource "powerflex_sds" "sds" {
 			role = "sdcOnly"
 		}
 	]
+	drl_mode = "Volatile"
+	rmcache_size_in_mb = 256
+	rmcache_enabled = true
+	rfcache_enabled = false
+	protection_domain_id = "4eeb304600000000"
+}
+`
+
+var updateSDSTest2 = `
+resource "powerflex_sds" "sds" {
+	name = "Tf_SDS_02"
+	ip_list = [
+		{
+			ip = "10.247.100.232"
+			role = "sdsOnly"
+		},
+		{
+			ip = "10.10.10.2"
+			role = "sdcOnly"
+		}
+	]
+	# rmcache_size_in_mb = 256
+	rmcache_enabled = false
+	rfcache_enabled = true
 	protection_domain_id = "4eeb304600000000"
 }
 `

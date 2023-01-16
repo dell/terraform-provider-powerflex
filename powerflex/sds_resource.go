@@ -3,6 +3,7 @@ package powerflex
 import (
 	"context"
 	"fmt"
+	"time"
 
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 
@@ -27,7 +28,8 @@ type sdsResourceModel struct {
 	MdmConnectionState           types.String `tfsdk:"mdm_connection_state"`
 	DrlMode                      types.String `tfsdk:"drl_mode"`
 	RmcacheEnabled               types.Bool   `tfsdk:"rmcache_enabled"`
-	RmcacheSizeInKb              types.Int64  `tfsdk:"rmcache_size_in_kb"`
+	RmcacheSizeInMB              types.Int64  `tfsdk:"rmcache_size_in_mb"`
+	RfcacheEnabled               types.Bool   `tfsdk:"rfcache_enabled"`
 	RmcacheFrozen                types.Bool   `tfsdk:"rmcache_frozen"`
 	IsOnVMware                   types.Bool   `tfsdk:"is_on_vmware"`
 	FaultSetID                   types.String `tfsdk:"fault_set_id"`
@@ -157,8 +159,8 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	if !plan.RmcacheEnabled.IsNull() {
 		params.RmcacheEnabled = plan.RmcacheEnabled.ValueBool()
 	}
-	if !plan.RmcacheSizeInKb.IsNull() {
-		params.RmcacheSizeInKb = int(plan.RmcacheSizeInKb.ValueInt64())
+	if !plan.RmcacheSizeInMB.IsNull() {
+		params.RmcacheSizeInKb = int(plan.RmcacheSizeInMB.ValueInt64()) * 1024
 	}
 	if !plan.DrlMode.IsNull() {
 		params.DrlMode = plan.DrlMode.ValueString()
@@ -170,7 +172,7 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 		params.Port = int(plan.Port.ValueInt64())
 	}
 	// this is still not working for whatever reason
-	// if !plan.NumOfIoBuffers.IsNull() {
+	// if !plan.NumOfIoBuffers.IsUnknown() {
 	// 	params.NumOfIoBuffers = int(plan.NumOfIoBuffers.ValueInt64())
 	// }
 	sdsID, err2 := pdm.CreateSdsWithParams(&params)
@@ -180,6 +182,19 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 			err2.Error(),
 		)
 		return
+	}
+
+	if !plan.RfcacheEnabled.IsUnknown() {
+		time.Sleep(1 * time.Second)
+		rfCacheEnabled := plan.RfcacheEnabled.ValueBool()
+		err := pdm.SetSdsRfCache(sdsID, rfCacheEnabled)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Could not set SDS Rf Cache settings to %t", rfCacheEnabled),
+				err.Error(),
+			)
+			return
+		}
 	}
 
 	// Get created SDS
@@ -324,6 +339,70 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		return
 	}
 
+	// check if there is change in sds port
+	if !plan.Port.IsUnknown() && !state.Port.Equal(plan.Port) {
+		port := plan.Port.ValueInt64()
+		err := pdm.SetSdsPort(state.ID.ValueString(), int(port))
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Could not change SDS port to %d", port),
+				err.Error(),
+			)
+
+			return
+		}
+	}
+
+	// check if there is change in sds drl mode
+	if !plan.DrlMode.IsUnknown() && !state.DrlMode.Equal(plan.DrlMode) {
+		drlMode := plan.DrlMode.ValueString()
+		err := pdm.SetSdsDrlMode(state.ID.ValueString(), drlMode)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Could not change SDS DRL Mode to %s", drlMode),
+				err.Error(),
+			)
+			return
+		}
+	}
+
+	// check if there is change in sds rmcache
+	if !plan.RmcacheEnabled.IsUnknown() && !state.RmcacheEnabled.Equal(plan.RmcacheEnabled) {
+		rmCacheEnabled := plan.RmcacheEnabled.ValueBool()
+		err := pdm.SetSdsRmCache(state.ID.ValueString(), rmCacheEnabled)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Could not change SDS Read Ram Cache settings to %t", rmCacheEnabled),
+				err.Error(),
+			)
+			return
+		}
+	}
+	if !plan.RmcacheSizeInMB.IsUnknown() && !state.RmcacheSizeInMB.Equal(plan.RmcacheSizeInMB) {
+		rmCacheSize := plan.RmcacheSizeInMB.ValueInt64()
+		err := pdm.SetSdsRmCacheSize(state.ID.ValueString(), int(rmCacheSize))
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Could not change SDS Read Ram Cache size to %d", rmCacheSize),
+				err.Error(),
+			)
+			return
+		}
+	}
+
+	// check if there is change in sds rfcache
+	if !plan.RfcacheEnabled.IsUnknown() && !state.RfcacheEnabled.Equal(plan.RfcacheEnabled) {
+		rfCacheEnabled := plan.RfcacheEnabled.ValueBool()
+		err := pdm.SetSdsRfCache(state.ID.ValueString(), rfCacheEnabled)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Could not change SDS Rf Cache settings to %t", rfCacheEnabled),
+				err.Error(),
+			)
+			return
+		}
+	}
+
 	// Find updated SDS
 	rsp, err := pdm.FindSds("ID", state.ID.ValueString())
 	if err != nil {
@@ -397,7 +476,8 @@ func updateSdsState(sds *scaleiotypes.Sds, plan sdsResourceModel) (sdsResourceMo
 	state.MdmConnectionState = types.StringValue(sds.MdmConnectionState)
 	state.DrlMode = types.StringValue(sds.DrlMode)
 	state.RmcacheEnabled = types.BoolValue(sds.RmcacheEnabled)
-	state.RmcacheSizeInKb = types.Int64Value(int64(sds.RmcacheSizeInKb))
+	state.RmcacheSizeInMB = types.Int64Value(int64(sds.RmcacheSizeInKb) / 1024)
+	state.RfcacheEnabled = types.BoolValue(sds.RfcacheEnabled)
 	state.RmcacheFrozen = types.BoolValue(sds.RmcacheFrozen)
 	state.IsOnVMware = types.BoolValue(sds.IsOnVMware)
 	state.FaultSetID = types.StringValue(sds.FaultSetID)
