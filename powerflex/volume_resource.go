@@ -107,12 +107,12 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	diags = plan.SdcList.ElementsAs(ctx, &sdcList, true)
 	resp.Diagnostics.Append(diags...)
 
-	if !plan.SdcList.IsUnknown() && plan.AccessMode.ValueString() == "ReadOnly" {
+	if len(sdcList) > 0 && plan.AccessMode.ValueString() == "ReadOnly" {
 		resp.Diagnostics.AddError(
-			"Error: SDC can't be mapped, The volume is limited to read-only access",
-			"Could not map sdc to volume with ReadOnly access mode. The volume is limited to read-only access",
+			"Error: SDC can't be mapped, planned access_mode sets to 'ReadOnly`",
+			"Could not map sdc to volume with ReadOnly access mode",
 		)
-		return 
+		return
 	}
 	sdcInfoElemType := types.ObjectType{
 		AttrTypes: SdcInfoAttrTypes,
