@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// DataSourceSchema is the schema for reading the sds data
+// SdsDataSourceSchema is the schema for reading the sds data
 var SdsDataSourceSchema schema.Schema = schema.Schema{
 	Description: "Fetches the list of sds.",
 	Attributes: map[string]schema.Attribute{
