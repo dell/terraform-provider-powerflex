@@ -17,27 +17,38 @@ Manages SDS resource
 
 ### Required
 
-- `protection_domain_id` (String) Protection domain id
+- `ip_list` (Attributes Set) IP list of SDS (see [below for nested schema](#nestedatt--ip_list))
+- `name` (String) Name of SDS
 
 ### Optional
 
-- `ip_list` (List of String) IP list of SDS
-- `name` (String) Name of SDS
+- `drl_mode` (String) DRL mode of SDS
+- `performance_profile` (String) Performance Profile of SDS
+- `port` (Number) Port mode of SDS
+- `protection_domain_id` (String) Protection domain id
+- `protection_domain_name` (String) Protection domain name
+- `rfcache_enabled` (Boolean) Rfcache enabled state of SDS
+- `rmcache_enabled` (Boolean) Rmcache enabled state of SDS
+- `rmcache_size_in_mb` (Number) Rmcache size in MB of SDS
 
 ### Read-Only
 
-- `drl_mode` (String) DRL mode of SDS
 - `fault_set_id` (String) Fault set id of SDS
 - `id` (String) The id of the SDS
 - `is_on_vmware` (Boolean) Is on vmware state of SDS
 - `mdm_connection_state` (String) Mdm connection state of SDS
 - `membership_state` (String) Membership state of SDS
 - `num_of_io_buffers` (Number) Number of io buffers of SDS
-- `port` (Number) Port mode of SDS
-- `rmcache_enabled` (Boolean) Rmcache enabled state of SDS
-- `rmcache_frozen` (Boolean) RMcache frozon state of SDS
+- `rmcache_frozen` (Boolean) RMcache frozen state of SDS
 - `rmcache_memory_allocation_state` (String) Rmcache memory allocation state of SDS
-- `rmcache_size_in_kb` (Number) Rmcache size in kb of SDS
 - `sds_state` (String) State of SDS
+
+<a id="nestedatt--ip_list"></a>
+### Nested Schema for `ip_list`
+
+Required:
+
+- `ip` (String) IP address to be assigned to the Storagepool
+- `role` (String) Role to be assigned to the IP address
 
 
