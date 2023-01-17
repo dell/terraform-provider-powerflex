@@ -109,7 +109,7 @@ type sdsDataModel struct {
 	Links                                       []linkModel            `tfsdk:"links"`
 }
 
-// storagepoolDataSourceModel maps the storage pool data source schema data
+// sdsDataSourceModel maps the Sds data source schema data
 type sdsDataSourceModel struct {
 	SDSIDs               types.List     `tfsdk:"sds_ids"`
 	SDSNames             types.List     `tfsdk:"sds_names"`
@@ -138,6 +138,7 @@ func (d *sdsDataSource) Configure(_ context.Context, req datasource.ConfigureReq
 	d.client = req.ProviderData.(*goscaleio.Client)
 }
 
+// sdsCounterModelValue processes the different types of windows information
 func sdsCounterModelValue(s1 scaleio_types.SdsWindow) sdsWindow {
 	return sdsWindow{
 		ShortWindow: sdsWindowType{
@@ -164,6 +165,7 @@ func sdsCounterModelValue(s1 scaleio_types.SdsWindow) sdsWindow {
 	}
 }
 
+// sdsCertificateInfo process SDS certificate information and maps to certificateInfoModel struct
 func sdsCertificateInfo(s1 scaleio_types.CertificateInfo) certificateInfoModel {
 	certicateInfo := certificateInfoModel{}
 
@@ -288,6 +290,7 @@ func (d *sdsDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	}
 }
 
+// getSdsState saves SDS response in SDS struct
 func getSdsState(s1 *scaleio_types.Sds) (sdsDetail sdsDataModel) {
 	sdsDetail = sdsDataModel{
 		ID:                             types.StringValue(s1.ID),

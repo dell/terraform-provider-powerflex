@@ -292,6 +292,7 @@ var SdsDataSourceSchema schema.Schema = schema.Schema{
 	},
 }
 
+// getSdsAllWindowParamsSchema defines the schema for different window types
 func getSdsAllWindowParamsSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"short_window": schema.SingleNestedAttribute{
@@ -315,6 +316,7 @@ func getSdsAllWindowParamsSchema() map[string]schema.Attribute {
 	}
 }
 
+// getSdsWindowParamsSchema defines the schema for windows parameters
 func getSdsWindowParamsSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"threshold": schema.Int64Attribute{
@@ -345,6 +347,7 @@ func getSdsWindowParamsSchema() map[string]schema.Attribute {
 	}
 }
 
+// getCertificateInfoSchema defines the schema for certificates
 func getCertificateInfoSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"subject": schema.StringAttribute{
@@ -385,6 +388,7 @@ func getCertificateInfoSchema() map[string]schema.Attribute {
 	}
 }
 
+// getRaidControllersSchema defines the schema for RAID controller
 func getRaidControllersSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"serial_number": schema.StringAttribute{
