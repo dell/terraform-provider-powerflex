@@ -17,6 +17,7 @@ var VolumeDataSourceSchema schema.Schema = schema.Schema{
 			Optional:            true,
 			Computed:            true,
 			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id"), path.MatchRoot("name"), path.MatchRoot("storage_pool_name")),
 			},
 		},
@@ -25,6 +26,7 @@ var VolumeDataSourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Name of the volume.",
 			Optional:            true,
 			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id"), path.MatchRoot("id"), path.MatchRoot("storage_pool_name")),
 			},
 		},
@@ -33,6 +35,7 @@ var VolumeDataSourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Specifies the unique identifier of the storage pool.",
 			Optional:            true,
 			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_name"), path.MatchRoot("id"), path.MatchRoot("name")),
 			},
 		},
@@ -41,6 +44,7 @@ var VolumeDataSourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Specifies the unique identifier of the storage pool.",
 			Optional:            true,
 			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id"), path.MatchRoot("id"), path.MatchRoot("name")),
 			},
 		},
