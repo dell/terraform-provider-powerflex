@@ -69,7 +69,7 @@
 				
 				<option value="file6">terraform-provider-powerflex/powerflex/sdc_resource.go (73.7%)</option>
 				
-				<option value="file7">terraform-provider-powerflex/powerflex/sds_resource.go (75.2%)</option>
+				<option value="file7">terraform-provider-powerflex/powerflex/sds_resource.go (78.7%)</option>
 				
 				<option value="file8">terraform-provider-powerflex/powerflex/snapshotpolicy_datasource.go (94.3%)</option>
 				
@@ -1483,7 +1483,6 @@ func findChangedSdc(sdcs []scaleiotypes.Sdc, id string) (*scaleiotypes.Sdc, erro
 import (
         "context"
         "fmt"
-        "time"
 
         scaleiotypes "github.com/dell/goscaleio/types/v1"
 
@@ -1571,7 +1570,7 @@ func (sds *sdsResourceModel) getIPList(ctx context.Context) []*scaleiotypes.SdsI
         <span class="cov8" title="1">return iplist</span>
 }
 
-// Gte difference between sets of IP in state and plan
+// Get difference between sets of IP in state and plan
 func sdsIPListDiff(ctx context.Context, plan, state *sdsResourceModel) (toAdd, toRmv, changed, common []*scaleiotypes.SdsIP) <span class="cov8" title="1">{
         plist, slist := plan.getIPList(ctx), state.getIPList(ctx)
         type ipObj struct {
@@ -1660,8 +1659,22 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
                 return
         }</span>
 
+        // Get created SDS
+        <span class="cov8" title="1">if rsp, err := pdm.FindSds("ID", sdsID); err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Error getting SDS after creation",
+                        err.Error(),
+                )
+                return
+        }</span> else<span class="cov8" title="1"> {
+                // Set refreshed state
+                state, dgs := updateSdsState(rsp, plan)
+                resp.Diagnostics.Append(dgs...)
+                diags := resp.State.Set(ctx, state)
+                resp.Diagnostics.Append(diags...)
+        }</span>
+
         <span class="cov8" title="1">if !plan.RfcacheEnabled.IsUnknown() </span><span class="cov8" title="1">{
-                time.Sleep(1 * time.Second)
                 rfCacheEnabled := plan.RfcacheEnabled.ValueBool()
                 err := pdm.SetSdsRfCache(sdsID, rfCacheEnabled)
                 if err != nil </span><span class="cov0" title="0">{
@@ -1669,7 +1682,6 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
                                 fmt.Sprintf("Could not set SDS Rf Cache settings to %t", rfCacheEnabled),
                                 err.Error(),
                         )
-                        return
                 }</span>
         }
 
@@ -1681,26 +1693,24 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
                                 fmt.Sprintf("Could not set SDS Performance Profile settings to %s", perfprof),
                                 err.Error(),
                         )
-                        return
                 }</span>
         }
 
-        // Get created SDS
-        <span class="cov8" title="1">rsp, err3 := pdm.FindSds("ID", sdsID)
-        if err3 != nil </span><span class="cov0" title="0">{
+        // Get updated SDS
+        <span class="cov8" title="1">if rsp, err := pdm.FindSds("ID", sdsID); err != nil </span><span class="cov0" title="0">{
                 resp.Diagnostics.AddError(
-                        "Error getting SDS after creation",
-                        err3.Error(),
+                        "Error getting SDS after setting Rf cache and Performance Profile",
+                        err.Error(),
                 )
                 return
+        }</span> else<span class="cov8" title="1"> {
+                // Set refreshed state
+                state, dgs := updateSdsState(rsp, plan)
+                resp.Diagnostics.Append(dgs...)
+
+                diags := resp.State.Set(ctx, state)
+                resp.Diagnostics.Append(diags...)
         }</span>
-
-        // Set refreshed state
-        <span class="cov8" title="1">state, dgs := updateSdsState(rsp, plan)
-        resp.Diagnostics.Append(dgs...)
-
-        diags = resp.State.Set(ctx, state)
-        resp.Diagnostics.Append(diags...)</span>
 }
 
 // Read refreshes the Terraform state with the latest data.
@@ -1778,52 +1788,44 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
                                 "Could not rename SDS",
                                 err.Error(),
                         )
-
-                        return
                 }</span>
         }
 
         // Check if there are updates in ip lists
-        <span class="cov8" title="1">toAdd, toRmv, changed, _ := sdsIPListDiff(ctx, &amp;plan, &amp;state)
-        for _, ip := range toAdd </span><span class="cov8" title="1">{
-                err := pdm.AddSdSIP(state.ID.ValueString(), ip.IP, ip.Role)
-                if err != nil </span><span class="cov0" title="0">{
-                        resp.Diagnostics.AddError(
-                                fmt.Sprintf("Error adding IP %s to SDS with role %s", ip.IP, ip.Role),
-                                err.Error(),
-                        )
-                        return
-                }</span>
-        }
-        <span class="cov8" title="1">if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
-                return
-        }</span>
-        <span class="cov8" title="1">for _, ip := range changed </span><span class="cov8" title="1">{
-                err := pdm.SetSDSIPRole(state.ID.ValueString(), ip.IP, ip.Role)
-                if err != nil </span><span class="cov0" title="0">{
-                        resp.Diagnostics.AddError(
-                                fmt.Sprintf("Error updating IP %s role to %s in SDS", ip.IP, ip.Role),
-                                err.Error(),
-                        )
-                        return
-                }</span>
-        }
-        <span class="cov8" title="1">if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
-                return
-        }</span>
-        <span class="cov8" title="1">for _, ip := range toRmv </span><span class="cov8" title="1">{
-                err := pdm.RemoveSDSIP(state.ID.ValueString(), ip.IP)
-                if err != nil </span><span class="cov0" title="0">{
-                        resp.Diagnostics.AddError(
-                                fmt.Sprintf("Error removing IP %s with role %s from SDS", ip.IP, ip.Role),
-                                err.Error(),
-                        )
-                        return
-                }</span>
-        }
-        <span class="cov8" title="1">if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
-                return
-        }</span>
+        // Stop updating IPs if one IP updation fails
+        <span class="cov8" title="1">func() </span><span class="cov8" title="1">{
+                toAdd, toRmv, changed, _ := sdsIPListDiff(ctx, &amp;plan, &amp;state)
+                for _, ip := range toAdd </span><span class="cov8" title="1">{
+                        err := pdm.AddSdSIP(state.ID.ValueString(), ip.IP, ip.Role)
+                        if err != nil </span><span class="cov0" title="0">{
+                                resp.Diagnostics.AddError(
+                                        fmt.Sprintf("Error adding IP %s to SDS with role %s", ip.IP, ip.Role),
+                                        err.Error(),
+                                )
+                                return
+                        }</span>
+                }
+                <span class="cov8" title="1">for _, ip := range changed </span><span class="cov8" title="1">{
+                        err := pdm.SetSDSIPRole(state.ID.ValueString(), ip.IP, ip.Role)
+                        if err != nil </span><span class="cov0" title="0">{
+                                resp.Diagnostics.AddError(
+                                        fmt.Sprintf("Error updating IP %s role to %s in SDS", ip.IP, ip.Role),
+                                        err.Error(),
+                                )
+                                return
+                        }</span>
+                }
+                <span class="cov8" title="1">for _, ip := range toRmv </span><span class="cov8" title="1">{
+                        err := pdm.RemoveSDSIP(state.ID.ValueString(), ip.IP)
+                        if err != nil </span><span class="cov0" title="0">{
+                                resp.Diagnostics.AddError(
+                                        fmt.Sprintf("Error removing IP %s with role %s from SDS", ip.IP, ip.Role),
+                                        err.Error(),
+                                )
+                                return
+                        }</span>
+                }
+        }()
 
         // check if there is change in sds port
         <span class="cov8" title="1">if !plan.Port.IsUnknown() &amp;&amp; !state.Port.Equal(plan.Port) </span><span class="cov0" title="0">{
@@ -1834,8 +1836,6 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
                                 fmt.Sprintf("Could not change SDS port to %d", port),
                                 err.Error(),
                         )
-
-                        return
                 }</span>
         }
 
@@ -1848,7 +1848,6 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
                                 fmt.Sprintf("Could not change SDS DRL Mode to %s", drlMode),
                                 err.Error(),
                         )
-                        return
                 }</span>
         }
 
@@ -1861,7 +1860,6 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
                                 fmt.Sprintf("Could not change SDS Read Ram Cache settings to %t", rmCacheEnabled),
                                 err.Error(),
                         )
-                        return
                 }</span>
         }
         <span class="cov8" title="1">if !plan.RmcacheSizeInMB.IsUnknown() &amp;&amp; !state.RmcacheSizeInMB.Equal(plan.RmcacheSizeInMB) </span><span class="cov8" title="1">{
@@ -1872,7 +1870,6 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
                                 fmt.Sprintf("Could not change SDS Read Ram Cache size to %d", rmCacheSize),
                                 err.Error(),
                         )
-                        return
                 }</span>
         }
 
@@ -1885,7 +1882,6 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
                                 fmt.Sprintf("Could not change SDS Rf Cache settings to %t", rfCacheEnabled),
                                 err.Error(),
                         )
-                        return
                 }</span>
         }
 
@@ -1898,7 +1894,6 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
                                 fmt.Sprintf("Could not set SDS Performance Profile settings to %s", perfprof),
                                 err.Error(),
                         )
-                        return
                 }</span>
         }
 

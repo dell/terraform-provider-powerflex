@@ -3,7 +3,6 @@ package powerflex
 import (
 	"context"
 	"fmt"
-	"time"
 
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 
@@ -91,7 +90,7 @@ func (sds *sdsResourceModel) getIPList(ctx context.Context) []*scaleiotypes.SdsI
 	return iplist
 }
 
-// Gte difference between sets of IP in state and plan
+// Get difference between sets of IP in state and plan
 func sdsIPListDiff(ctx context.Context, plan, state *sdsResourceModel) (toAdd, toRmv, changed, common []*scaleiotypes.SdsIP) {
 	plist, slist := plan.getIPList(ctx), state.getIPList(ctx)
 	type ipObj struct {
@@ -180,8 +179,22 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
+	// Get created SDS
+	if rsp, err := pdm.FindSds("ID", sdsID); err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting SDS after creation",
+			err.Error(),
+		)
+		return
+	} else {
+		// Set refreshed state
+		state, dgs := updateSdsState(rsp, plan)
+		resp.Diagnostics.Append(dgs...)
+		diags := resp.State.Set(ctx, state)
+		resp.Diagnostics.Append(diags...)
+	}
+
 	if !plan.RfcacheEnabled.IsUnknown() {
-		time.Sleep(1 * time.Second)
 		rfCacheEnabled := plan.RfcacheEnabled.ValueBool()
 		err := pdm.SetSdsRfCache(sdsID, rfCacheEnabled)
 		if err != nil {
@@ -189,7 +202,6 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 				fmt.Sprintf("Could not set SDS Rf Cache settings to %t", rfCacheEnabled),
 				err.Error(),
 			)
-			return
 		}
 	}
 
@@ -201,26 +213,24 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 				fmt.Sprintf("Could not set SDS Performance Profile settings to %s", perfprof),
 				err.Error(),
 			)
-			return
 		}
 	}
 
-	// Get created SDS
-	rsp, err3 := pdm.FindSds("ID", sdsID)
-	if err3 != nil {
+	// Get updated SDS
+	if rsp, err := pdm.FindSds("ID", sdsID); err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting SDS after creation",
-			err3.Error(),
+			"Error getting SDS after setting Rf cache and Performance Profile",
+			err.Error(),
 		)
 		return
+	} else {
+		// Set refreshed state
+		state, dgs := updateSdsState(rsp, plan)
+		resp.Diagnostics.Append(dgs...)
+
+		diags := resp.State.Set(ctx, state)
+		resp.Diagnostics.Append(diags...)
 	}
-
-	// Set refreshed state
-	state, dgs := updateSdsState(rsp, plan)
-	resp.Diagnostics.Append(dgs...)
-
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
 }
 
 // Read refreshes the Terraform state with the latest data.
@@ -298,52 +308,44 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 				"Could not rename SDS",
 				err.Error(),
 			)
-
-			return
 		}
 	}
 
 	// Check if there are updates in ip lists
-	toAdd, toRmv, changed, _ := sdsIPListDiff(ctx, &plan, &state)
-	for _, ip := range toAdd {
-		err := pdm.AddSdSIP(state.ID.ValueString(), ip.IP, ip.Role)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Error adding IP %s to SDS with role %s", ip.IP, ip.Role),
-				err.Error(),
-			)
-			return
+	// Stop updating IPs if one IP updation fails
+	func() {
+		toAdd, toRmv, changed, _ := sdsIPListDiff(ctx, &plan, &state)
+		for _, ip := range toAdd {
+			err := pdm.AddSdSIP(state.ID.ValueString(), ip.IP, ip.Role)
+			if err != nil {
+				resp.Diagnostics.AddError(
+					fmt.Sprintf("Error adding IP %s to SDS with role %s", ip.IP, ip.Role),
+					err.Error(),
+				)
+				return
+			}
 		}
-	}
-	if resp.Diagnostics.HasError() {
-		return
-	}
-	for _, ip := range changed {
-		err := pdm.SetSDSIPRole(state.ID.ValueString(), ip.IP, ip.Role)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Error updating IP %s role to %s in SDS", ip.IP, ip.Role),
-				err.Error(),
-			)
-			return
+		for _, ip := range changed {
+			err := pdm.SetSDSIPRole(state.ID.ValueString(), ip.IP, ip.Role)
+			if err != nil {
+				resp.Diagnostics.AddError(
+					fmt.Sprintf("Error updating IP %s role to %s in SDS", ip.IP, ip.Role),
+					err.Error(),
+				)
+				return
+			}
 		}
-	}
-	if resp.Diagnostics.HasError() {
-		return
-	}
-	for _, ip := range toRmv {
-		err := pdm.RemoveSDSIP(state.ID.ValueString(), ip.IP)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Error removing IP %s with role %s from SDS", ip.IP, ip.Role),
-				err.Error(),
-			)
-			return
+		for _, ip := range toRmv {
+			err := pdm.RemoveSDSIP(state.ID.ValueString(), ip.IP)
+			if err != nil {
+				resp.Diagnostics.AddError(
+					fmt.Sprintf("Error removing IP %s with role %s from SDS", ip.IP, ip.Role),
+					err.Error(),
+				)
+				return
+			}
 		}
-	}
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	}()
 
 	// check if there is change in sds port
 	if !plan.Port.IsUnknown() && !state.Port.Equal(plan.Port) {
@@ -354,8 +356,6 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 				fmt.Sprintf("Could not change SDS port to %d", port),
 				err.Error(),
 			)
-
-			return
 		}
 	}
 
@@ -368,7 +368,6 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 				fmt.Sprintf("Could not change SDS DRL Mode to %s", drlMode),
 				err.Error(),
 			)
-			return
 		}
 	}
 
@@ -381,7 +380,6 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 				fmt.Sprintf("Could not change SDS Read Ram Cache settings to %t", rmCacheEnabled),
 				err.Error(),
 			)
-			return
 		}
 	}
 	if !plan.RmcacheSizeInMB.IsUnknown() && !state.RmcacheSizeInMB.Equal(plan.RmcacheSizeInMB) {
@@ -392,7 +390,6 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 				fmt.Sprintf("Could not change SDS Read Ram Cache size to %d", rmCacheSize),
 				err.Error(),
 			)
-			return
 		}
 	}
 
@@ -405,7 +402,6 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 				fmt.Sprintf("Could not change SDS Rf Cache settings to %t", rfCacheEnabled),
 				err.Error(),
 			)
-			return
 		}
 	}
 
@@ -418,7 +414,6 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 				fmt.Sprintf("Could not set SDS Performance Profile settings to %s", perfprof),
 				err.Error(),
 			)
-			return
 		}
 	}
 

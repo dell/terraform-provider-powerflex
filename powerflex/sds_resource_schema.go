@@ -9,9 +9,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
+const sdsResourceSchemaDescription = `Manages SDSs in powerflex.
+Note: SDS creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
+One can manually remove the taint and try applying the configuration (after making necessary adjustments).
+`
+
 // SDSResourceSchema variable to define schema for the SDS resource
 var SDSResourceSchema schema.Schema = schema.Schema{
-	Description: "Manages SDS resource",
+	Description:         "Manages SDS resource",
+	MarkdownDescription: sdsResourceSchemaDescription,
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "The id of the SDS",
@@ -43,8 +49,8 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: map[string]schema.Attribute{
 					"ip": schema.StringAttribute{
-						Description:         "IP address to be assigned to the Storagepool",
-						MarkdownDescription: "IP address to be assigned to the Storagepool",
+						Description:         "IP address to be assigned to the SDS",
+						MarkdownDescription: "IP address to be assigned to the SDS",
 						Required:            true,
 					},
 					"role": schema.StringAttribute{
