@@ -55,19 +55,33 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">terraform-provider-powerflex/powerflex/protection_domain_datasource.go (80.5%)</option>
+				<option value="file0">terraform-provider-powerflex/powerflex/helper.go (71.4%)</option>
 				
-				<option value="file1">terraform-provider-powerflex/powerflex/protection_domain_datasource_schema.go (100.0%)</option>
+				<option value="file1">terraform-provider-powerflex/powerflex/protection_domain_datasource.go (80.5%)</option>
 				
-				<option value="file2">terraform-provider-powerflex/powerflex/provider.go (77.0%)</option>
+				<option value="file2">terraform-provider-powerflex/powerflex/protection_domain_datasource_schema.go (100.0%)</option>
 				
-				<option value="file3">terraform-provider-powerflex/powerflex/storagepool_data_source.go (85.6%)</option>
+				<option value="file3">terraform-provider-powerflex/powerflex/provider.go (77.0%)</option>
 				
-				<option value="file4">terraform-provider-powerflex/powerflex/volume_datasource.go (84.3%)</option>
+				<option value="file4">terraform-provider-powerflex/powerflex/sdc_datasource.go (77.8%)</option>
 				
-				<option value="file5">terraform-provider-powerflex/powerflex/volume_resource.go (72.4%)</option>
+				<option value="file5">terraform-provider-powerflex/powerflex/sdc_helper.go (100.0%)</option>
 				
-				<option value="file6">terraform-provider-powerflex/powerflex/volume_resource_helper.go (91.6%)</option>
+				<option value="file6">terraform-provider-powerflex/powerflex/sdc_resource.go (73.7%)</option>
+				
+				<option value="file7">terraform-provider-powerflex/powerflex/sds_resource.go (75.2%)</option>
+				
+				<option value="file8">terraform-provider-powerflex/powerflex/snapshotpolicy_datasource.go (94.3%)</option>
+				
+				<option value="file9">terraform-provider-powerflex/powerflex/storagepool_data_source.go (86.2%)</option>
+				
+				<option value="file10">terraform-provider-powerflex/powerflex/storagepool_resource.go (79.5%)</option>
+				
+				<option value="file11">terraform-provider-powerflex/powerflex/volume_datasource.go (84.3%)</option>
+				
+				<option value="file12">terraform-provider-powerflex/powerflex/volume_resource.go (12.2%)</option>
+				
+				<option value="file13">terraform-provider-powerflex/powerflex/volume_resource_helper.go (22.1%)</option>
 				
 				</select>
 			</div>
@@ -82,6 +96,28 @@
 		<div id="content">
 		
 		<pre class="file" id="file0" style="display: none">package powerflex
+
+import (
+        "fmt"
+
+        "github.com/dell/goscaleio"
+)
+
+// getFirstSystem - finds available first system and returns it.
+func getFirstSystem(rc *goscaleio.Client) (*goscaleio.System, error) <span class="cov8" title="1">{
+        allSystems, err := rc.GetSystems()
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("Error in goscaleio GetSystems")
+        }</span>
+        <span class="cov8" title="1">system, err := rc.FindSystem(allSystems[0].ID, "", "")
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("Error in goscaleio FindSystem")
+        }</span>
+        <span class="cov8" title="1">return system, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package powerflex
 
 import (
         "context"
@@ -391,7 +427,7 @@ func getAllProtectionDomainState(protectionDomains []*scaleiotypes.ProtectionDom
 }
 </pre>
 		
-		<pre class="file" id="file1" style="display: none">package powerflex
+		<pre class="file" id="file2" style="display: none">package powerflex
 
 import (
         "github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -672,7 +708,7 @@ func getWindowParamsSchema() map[string]schema.Attribute <span class="cov8" titl
 }</span>
 </pre>
 		
-		<pre class="file" id="file2" style="display: none">package powerflex
+		<pre class="file" id="file3" style="display: none">package powerflex
 
 import (
         "context"
@@ -885,20 +921,1248 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.DataSource <span class="cov8" title="1">{
         return []func() datasource.DataSource{
                 VolumeDataSource,
+                SDCDataSource,
                 ProtectionDomainDataSource,
                 StoragePoolDataSource,
+                SnapshotPolicyDataSource,
         }
 }</span>
 
 // Resources defines the resources implemented in the provider.
 func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resource <span class="cov8" title="1">{
         return []func() resource.Resource{
+                NewSDSResource,
                 NewVolumeResource,
+                SDCResource,
+                StoragepoolResource,
         }
 }</span>
 </pre>
 		
-		<pre class="file" id="file3" style="display: none">package powerflex
+		<pre class="file" id="file4" style="display: none">package powerflex
+
+import (
+        "context"
+
+        "terraform-provider-powerflex/helper"
+
+        "github.com/dell/goscaleio"
+        "github.com/hashicorp/terraform-plugin-framework/datasource"
+        "github.com/hashicorp/terraform-plugin-framework/types"
+        "github.com/hashicorp/terraform-plugin-log/tflog"
+)
+
+var (
+        _ datasource.DataSource              = &amp;sdcDataSource{}
+        _ datasource.DataSourceWithConfigure = &amp;sdcDataSource{}
+)
+
+// SDCDataSource - function used to return SDC DataSource provider with singleton values.
+func SDCDataSource() datasource.DataSource <span class="cov8" title="1">{
+        return &amp;sdcDataSource{}
+}</span>
+
+// Metadata - function used to define datasource metadata[referance in tf file].
+func (d *sdcDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) <span class="cov8" title="1">{
+        resp.TypeName = req.ProviderTypeName + "_sdc"
+}</span>
+
+// GetSchema - function used to return SDC datasource schema.
+func (d *sdcDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) <span class="cov8" title="1">{
+        resp.Schema = SDCDataSourceScheme
+}</span>
+
+// Configure - function to call initial configurations before resource execution.
+func (d *sdcDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) <span class="cov8" title="1">{
+        if req.ProviderData == nil </span><span class="cov8" title="1">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">d.client = req.ProviderData.(*goscaleio.Client)</span>
+}
+
+// Read - function to read sdc values from goscaleio.
+func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) <span class="cov8" title="1">{
+        var state sdcDataSourceModel
+        diags := req.Config.Get(ctx, &amp;state)
+        tflog.Info(ctx, "[POWERFLEX] sdcDataSourceModel"+helper.PrettyJSON((state)))
+
+        system, err := getFirstSystem(d.client)
+
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Unable to Read Powerflex specific system",
+                        err.Error(),
+                )
+                return
+        }</span>
+
+        <span class="cov8" title="1">sdcs, err := system.GetSdc()
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Unable to Read Powerflex sdcs",
+                        err.Error(),
+                )
+                return
+        }</span>
+        // Set state
+        <span class="cov8" title="1">searchFilter := sdcFilterType.All
+        if state.Name.ValueString() != "" </span><span class="cov8" title="1">{
+                searchFilter = sdcFilterType.ByName
+        }</span>
+        <span class="cov8" title="1">if state.ID.ValueString() != "" </span><span class="cov8" title="1">{
+                searchFilter = sdcFilterType.ByID
+        }</span>
+
+        <span class="cov8" title="1">allSdcWithStats, _ := getAllSdcState(ctx, *d.client, sdcs)
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Unable to Read Statics for sdc id = "+state.ID.ValueString()+", name = "+state.Name.ValueString(),
+                        err.Error(),
+                )
+                return
+        }</span>
+
+        <span class="cov8" title="1">if searchFilter == sdcFilterType.All </span><span class="cov0" title="0">{
+                state.Sdcs = *allSdcWithStats
+        }</span> else<span class="cov8" title="1"> {
+                filterResult := getFilteredSdcState(allSdcWithStats, searchFilter, state.Name.ValueString(), state.ID.ValueString())
+                state.Sdcs = *filterResult
+        }</span>
+
+        <span class="cov8" title="1">state.Name = types.StringValue(state.Name.ValueString())
+        state.ID = types.StringValue(state.ID.ValueString())
+
+        diags = resp.State.Set(ctx, state)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package powerflex
+
+import (
+        "context"
+
+        "github.com/dell/goscaleio"
+        scaleiotypes "github.com/dell/goscaleio/types/v1"
+        "github.com/hashicorp/terraform-plugin-framework/types"
+)
+
+// sdcFilterType - Enum structure for filter types.
+var sdcFilterType = struct {
+        All    string
+        ByName string
+        ByID   string
+}{
+        All:    "All",
+        ByName: "ByName",
+        ByID:   "ByID",
+}
+
+// sdcDataSource - for returning singleton holder with goscaleio client.
+type sdcDataSource struct {
+        client *goscaleio.Client
+}
+
+// sdcDataSourceModel - for returning result to terraform.
+type sdcDataSourceModel struct {
+        ID   types.String `tfsdk:"id"`
+        Sdcs []sdcModel   `tfsdk:"sdcs"`
+        Name types.String `tfsdk:"name"`
+}
+
+// sdcModel - MODEL for SDC data returned by goscaleio.
+type sdcModel struct {
+        ID                 types.String   `tfsdk:"id"`
+        SystemID           types.String   `tfsdk:"system_id"`
+        SdcIP              types.String   `tfsdk:"sdc_ip"`
+        SdcApproved        types.Bool     `tfsdk:"sdc_approved"`
+        OnVMWare           types.Bool     `tfsdk:"on_vmware"`
+        SdcGUID            types.String   `tfsdk:"sdc_guid"`
+        MdmConnectionState types.String   `tfsdk:"mdm_connection_state"`
+        Name               types.String   `tfsdk:"name"`
+        Links              []sdcLinkModel `tfsdk:"links"`
+}
+
+// sdcLinkModel - MODEL for SDC Links data returned by goscaleio.
+type sdcLinkModel struct {
+        Rel  types.String `tfsdk:"rel"`
+        HREF types.String `tfsdk:"href"`
+}
+
+// getFilteredSdcState - function to filter sdc result from goscaleio.
+func getFilteredSdcState(sdcs *[]sdcModel, method string, name string, id string) *[]sdcModel <span class="cov8" title="1">{
+        response := []sdcModel{}
+        for _, sdcValue := range *sdcs </span><span class="cov8" title="1">{
+                if method == sdcFilterType.ByName &amp;&amp; name == sdcValue.Name.ValueString() </span><span class="cov8" title="1">{
+                        response = append(response, sdcValue)
+                }</span>
+                <span class="cov8" title="1">if method == sdcFilterType.ByID &amp;&amp; id == sdcValue.ID.ValueString() </span><span class="cov8" title="1">{
+                        response = append(response, sdcValue)
+                }</span>
+        }
+        <span class="cov8" title="1">return &amp;response</span>
+}
+
+// getAllSdcState - function to return all sdc result from goscaleio.
+func getAllSdcState(ctx context.Context, client goscaleio.Client, sdcs []scaleiotypes.Sdc) (*[]sdcModel, error) <span class="cov8" title="1">{
+        response := []sdcModel{}
+        for _, sdcValue := range sdcs </span><span class="cov8" title="1">{
+                sdcState := sdcModel{
+                        ID:                 types.StringValue(sdcValue.ID),
+                        Name:               types.StringValue(sdcValue.Name),
+                        SdcGUID:            types.StringValue(sdcValue.SdcGUID),
+                        SdcApproved:        types.BoolValue(sdcValue.SdcApproved),
+                        OnVMWare:           types.BoolValue(sdcValue.OnVMWare),
+                        SystemID:           types.StringValue(sdcValue.SystemID),
+                        SdcIP:              types.StringValue(sdcValue.SdcIP),
+                        MdmConnectionState: types.StringValue(sdcValue.MdmConnectionState),
+                }
+
+                for _, link := range sdcValue.Links </span><span class="cov8" title="1">{
+                        sdcState.Links = append(sdcState.Links, sdcLinkModel{
+                                Rel:  types.StringValue(link.Rel),
+                                HREF: types.StringValue(link.HREF),
+                        })
+                }</span>
+
+                <span class="cov8" title="1">response = append(response, sdcState)</span>
+        }
+
+        <span class="cov8" title="1">return &amp;response, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package powerflex
+
+import (
+        "context"
+        "fmt"
+        "terraform-provider-powerflex/helper"
+        "time"
+
+        "github.com/dell/goscaleio"
+        scaleiotypes "github.com/dell/goscaleio/types/v1"
+        "github.com/hashicorp/terraform-plugin-framework/attr"
+        "github.com/hashicorp/terraform-plugin-framework/path"
+        "github.com/hashicorp/terraform-plugin-framework/resource"
+        "github.com/hashicorp/terraform-plugin-framework/types"
+        "github.com/hashicorp/terraform-plugin-log/tflog"
+)
+
+var (
+        _ resource.Resource                = &amp;sdcResource{}
+        _ resource.ResourceWithConfigure   = &amp;sdcResource{}
+        _ resource.ResourceWithImportState = &amp;sdcResource{}
+)
+
+// SDCResource - function to return resource interface
+func SDCResource() resource.Resource <span class="cov8" title="1">{
+        return &amp;sdcResource{}
+}</span>
+
+// sdcResource - struct to define sdc resource
+type sdcResource struct {
+        client *goscaleio.Client
+}
+
+// sdcResourceModel - struct to define sdc resource structure.
+type sdcResourceModel struct {
+        ID                 types.String `tfsdk:"id"`
+        LastUpdated        types.String `tfsdk:"last_updated"`
+        SystemID           types.String `tfsdk:"system_id"`
+        Name               types.String `tfsdk:"name"`
+        SdcIP              types.String `tfsdk:"sdc_ip"`
+        SdcApproved        types.Bool   `tfsdk:"sdc_approved"`
+        OnVMWare           types.Bool   `tfsdk:"on_vmware"`
+        SdcGUID            types.String `tfsdk:"sdc_guid"`
+        MdmConnectionState types.String `tfsdk:"mdm_connection_state"`
+        Links              types.List   `tfsdk:"links"`
+}
+
+// Metadata - function to return metadata for SDC resource.
+func (r *sdcResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) <span class="cov8" title="1">{
+        resp.TypeName = req.ProviderTypeName + "_sdc"
+}</span>
+
+// Schema - function to return Schema for SDC resource.
+func (r *sdcResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) <span class="cov8" title="1">{
+        resp.Schema = SDCReourceSchema
+}</span>
+
+// Configure - function to return Configuration for SDC resource.
+func (r *sdcResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) <span class="cov8" title="1">{
+        if req.ProviderData == nil </span><span class="cov8" title="1">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">r.client = req.ProviderData.(*goscaleio.Client)</span>
+}
+
+// Create - function to Create for SDC resource.
+func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) <span class="cov8" title="1">{
+        tflog.Debug(ctx, "[POWERFLEX] Create")
+
+        var plan sdcResourceModel
+        diags := req.Plan.Get(ctx, &amp;plan)
+
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">system, err := getFirstSystem(r.client)
+
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Unable to Read Powerflex systems sdcs Create",
+                        err.Error(),
+                )
+                return
+        }</span>
+
+        <span class="cov8" title="1">nameChng, err := system.ChangeSdcName(plan.ID.ValueString(), plan.Name.ValueString())
+
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "[Create] Unable to Change name Powerflex sdc",
+                        err.Error(),
+                )
+                return
+        }</span>
+        <span class="cov8" title="1">sdcs, err := system.GetSdc()
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Unable to Read Powerflex sdcs",
+                        err.Error(),
+                )
+                return
+        }</span>
+
+        <span class="cov8" title="1">finalSDC, err := findChangedSdc(sdcs, plan.ID.ValueString())
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Unable to Read Changed SDC",
+                        err.Error(),
+                )
+                return
+        }</span>
+        <span class="cov8" title="1">plan = getSdcState(*finalSDC)
+
+        tflog.Debug(ctx, "[POWERFLEX] nameChng Result :-- "+helper.PrettyJSON(nameChng))
+
+        diags = resp.State.Set(ctx, plan)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">plan.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+
+        // Set state to fully populated data
+        diags = resp.State.Set(ctx, plan)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">plan.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+}
+
+// Read - function to Read for SDC resource.
+func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) <span class="cov8" title="1">{
+        tflog.Debug(ctx, "[POWERFLEX] Read")
+        // Get current state
+        var state sdcResourceModel
+        diags := req.State.Get(ctx, &amp;state)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">system, err := getFirstSystem(r.client)
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Unable to Read Powerflex systems Read",
+                        err.Error(),
+                )
+                return
+        }</span>
+        <span class="cov8" title="1">singleSdc, err := system.FindSdc("ID", state.ID.ValueString())
+
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Unable to Read Powerflex systems-sdcs Read",
+                        err.Error(),
+                )
+                return
+        }</span>
+
+        <span class="cov8" title="1">state = getSdcState(*singleSdc.Sdc)
+
+        // tflog.Debug(ctx, "[POWERFLEX] state return"+helper.PrettyJSON(state))
+        // Set refreshed state
+        diags = resp.State.Set(ctx, &amp;state)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+}
+
+// Update - function to Update for SDC resource.
+func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) <span class="cov8" title="1">{
+        tflog.Debug(ctx, "[POWERFLEX] Update")
+        // Retrieve values from plan
+        var plan sdcResourceModel
+        var state sdcResourceModel
+        req.State.Get(ctx, &amp;state)
+        diags := req.Plan.Get(ctx, &amp;plan)
+
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">system, err := getFirstSystem(r.client)
+
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Unable to Read Powerflex systems sdcs Create",
+                        err.Error(),
+                )
+                return
+        }</span>
+        <span class="cov8" title="1">if state.Name.ValueString() == plan.Name.ValueString() </span><span class="cov0" title="0">{
+                if err != nil </span><span class="cov0" title="0">{
+                        resp.Diagnostics.AddError(
+                                "[Create] Same name alredy exists.",
+                                err.Error(),
+                        )
+                        return
+                }</span>
+        }
+        <span class="cov8" title="1">nameChng, err := system.ChangeSdcName(plan.ID.ValueString(), plan.Name.ValueString())
+
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "[Create] Unable to Change name Powerflex sdc",
+                        err.Error(),
+                )
+                return
+        }</span>
+        <span class="cov8" title="1">sdcs, err := system.GetSdc()
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Unable to Read Powerflex sdcs",
+                        err.Error(),
+                )
+                return
+        }</span>
+
+        <span class="cov8" title="1">finalSDC, err := findChangedSdc(sdcs, plan.ID.ValueString())
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Unable to Read Changed SDC",
+                        err.Error(),
+                )
+                return
+        }</span>
+        <span class="cov8" title="1">plan = getSdcState(*finalSDC)
+
+        tflog.Debug(ctx, "[POWERFLEX] nameChng Result :-- "+helper.PrettyJSON(nameChng))
+
+        diags = resp.State.Set(ctx, plan)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">plan.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+
+        // Set state to fully populated data
+        diags = resp.State.Set(ctx, plan)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">plan.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+
+        // Set state to fully populated data
+        diags = resp.State.Set(ctx, plan)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+}
+
+// Delete - function to Delete for SDC resource.
+func (r *sdcResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) <span class="cov8" title="1">{
+        tflog.Debug(ctx, "[POWERFLEX] Delete")
+        // Retrieve values from state
+        var state sdcResourceModel
+        diags := req.State.Get(ctx, &amp;state)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+}
+
+// ImportState - function to ImportState for SDC resource.
+func (r *sdcResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) <span class="cov8" title="1">{
+        tflog.Debug(ctx, "[POWERFLEX] ImportState :-- "+helper.PrettyJSON(req))
+        resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}</span>
+
+// getSdcState - function to return all sdc result from goscaleio.
+func getSdcState(sdc scaleiotypes.Sdc) (response sdcResourceModel) <span class="cov8" title="1">{
+        // var basenameOpts []sdcModel = []sdcModel{}
+        pln := sdcResourceModel{
+                ID:                 types.StringValue(sdc.ID),
+                Name:               types.StringValue(sdc.Name),
+                SdcGUID:            types.StringValue(sdc.SdcGUID),
+                SdcApproved:        types.BoolValue(sdc.SdcApproved),
+                OnVMWare:           types.BoolValue(sdc.OnVMWare),
+                SystemID:           types.StringValue(sdc.SystemID),
+                SdcIP:              types.StringValue(sdc.SdcIP),
+                MdmConnectionState: types.StringValue(sdc.MdmConnectionState),
+        }
+        pln.ID = types.StringValue(sdc.ID)
+        sourceKeywordAttrTypes := map[string]attr.Type{
+                "rel":  types.StringType,
+                "href": types.StringType,
+        }
+        elemType := types.ObjectType{AttrTypes: sourceKeywordAttrTypes}
+        objLinksList := []attr.Value{}
+
+        for _, link := range sdc.Links </span><span class="cov8" title="1">{
+                obj := map[string]attr.Value{
+                        "rel":  types.StringValue(link.Rel),
+                        "href": types.StringValue(link.HREF),
+                }
+                objVal, _ := types.ObjectValue(sourceKeywordAttrTypes, obj)
+                objLinksList = append(objLinksList, objVal)
+        }</span>
+
+        <span class="cov8" title="1">listVal, _ := types.ListValue(elemType, objLinksList)
+
+        pln.Links = listVal
+        return pln</span>
+}
+
+// findChangedSdc - find sdc which is changed on behalf of id.
+func findChangedSdc(sdcs []scaleiotypes.Sdc, id string) (*scaleiotypes.Sdc, error) <span class="cov8" title="1">{
+        var sdcReturnValue scaleiotypes.Sdc
+        var found bool
+        for _, sdcValue := range sdcs </span><span class="cov8" title="1">{
+
+                if id == sdcValue.ID </span><span class="cov8" title="1">{
+                        found = true
+                        sdcReturnValue = sdcValue
+                }</span>
+
+        }
+
+        <span class="cov8" title="1">if found </span><span class="cov8" title="1">{
+                return &amp;sdcReturnValue, nil
+        }</span>
+        <span class="cov0" title="0">return nil, fmt.Errorf("SDC Not Found")</span>
+
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package powerflex
+
+import (
+        "context"
+        "fmt"
+        "time"
+
+        scaleiotypes "github.com/dell/goscaleio/types/v1"
+
+        "github.com/dell/goscaleio"
+        "github.com/hashicorp/terraform-plugin-framework/attr"
+        "github.com/hashicorp/terraform-plugin-framework/diag"
+        "github.com/hashicorp/terraform-plugin-framework/path"
+        "github.com/hashicorp/terraform-plugin-framework/resource"
+        "github.com/hashicorp/terraform-plugin-framework/types"
+)
+
+// SDSResourceModel maps the resource schema data.
+type sdsResourceModel struct {
+        ID                           types.String `tfsdk:"id"`
+        Name                         types.String `tfsdk:"name"`
+        ProtectionDomainID           types.String `tfsdk:"protection_domain_id"`
+        ProtectionDomainName         types.String `tfsdk:"protection_domain_name"`
+        IPList                       types.Set    `tfsdk:"ip_list"`
+        Port                         types.Int64  `tfsdk:"port"`
+        SdsState                     types.String `tfsdk:"sds_state"`
+        MembershipState              types.String `tfsdk:"membership_state"`
+        MdmConnectionState           types.String `tfsdk:"mdm_connection_state"`
+        DrlMode                      types.String `tfsdk:"drl_mode"`
+        RmcacheEnabled               types.Bool   `tfsdk:"rmcache_enabled"`
+        RmcacheSizeInMB              types.Int64  `tfsdk:"rmcache_size_in_mb"`
+        RfcacheEnabled               types.Bool   `tfsdk:"rfcache_enabled"`
+        RmcacheFrozen                types.Bool   `tfsdk:"rmcache_frozen"`
+        IsOnVMware                   types.Bool   `tfsdk:"is_on_vmware"`
+        FaultSetID                   types.String `tfsdk:"fault_set_id"`
+        NumOfIoBuffers               types.Int64  `tfsdk:"num_of_io_buffers"`
+        RmcacheMemoryAllocationState types.String `tfsdk:"rmcache_memory_allocation_state"`
+        PerformanceProfile           types.String `tfsdk:"performance_profile"`
+}
+
+// SDS IP object
+type sdsIPModel struct {
+        IP   types.String `tfsdk:"ip"`
+        Role types.String `tfsdk:"role"`
+}
+
+var (
+        _ resource.Resource                = &amp;sdsResource{}
+        _ resource.ResourceWithConfigure   = &amp;sdsResource{}
+        _ resource.ResourceWithImportState = &amp;sdsResource{}
+)
+
+// NewSDSResource is a helper function to simplify the provider implementation.
+func NewSDSResource() resource.Resource <span class="cov8" title="1">{
+        return &amp;sdsResource{}
+}</span>
+
+// sdsResource is the resource implementation.
+type sdsResource struct {
+        client *goscaleio.Client
+}
+
+func (r *sdsResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) <span class="cov8" title="1">{
+        resp.TypeName = req.ProviderTypeName + "_sds"
+}</span>
+
+func (r *sdsResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) <span class="cov8" title="1">{
+        resp.Schema = SDSResourceSchema
+}</span>
+
+func (r *sdsResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) <span class="cov8" title="1">{
+        if req.ProviderData == nil </span><span class="cov8" title="1">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">r.client = req.ProviderData.(*goscaleio.Client)</span>
+}
+
+// Conversion of list of IPs from tf model to go type
+func (sds *sdsResourceModel) getIPList(ctx context.Context) []*scaleiotypes.SdsIP <span class="cov8" title="1">{
+        iplist := []*scaleiotypes.SdsIP{}
+        var ipModellist []sdsIPModel
+        sds.IPList.ElementsAs(ctx, &amp;ipModellist, false)
+        for _, v := range ipModellist </span><span class="cov8" title="1">{
+                sdsIP := scaleiotypes.SdsIP{
+                        IP:   v.IP.ValueString(),
+                        Role: v.Role.ValueString(),
+                }
+                iplist = append(iplist, &amp;sdsIP)
+        }</span>
+        <span class="cov8" title="1">return iplist</span>
+}
+
+// Gte difference between sets of IP in state and plan
+func sdsIPListDiff(ctx context.Context, plan, state *sdsResourceModel) (toAdd, toRmv, changed, common []*scaleiotypes.SdsIP) <span class="cov8" title="1">{
+        plist, slist := plan.getIPList(ctx), state.getIPList(ctx)
+        type ipObj struct {
+                pip *scaleiotypes.SdsIP
+                sip *scaleiotypes.SdsIP
+        }
+        vmap := make(map[string]*ipObj)
+        for _, pip := range plist </span><span class="cov8" title="1">{
+                vmap[pip.IP] = &amp;ipObj{pip, nil}
+        }</span>
+        <span class="cov8" title="1">for _, sip := range slist </span><span class="cov8" title="1">{
+                if mip, ok := vmap[sip.IP]; ok </span><span class="cov8" title="1">{
+                        mip.sip = sip
+                }</span> else<span class="cov8" title="1"> {
+                        vmap[sip.IP] = &amp;ipObj{nil, sip}
+                }</span>
+        }
+        <span class="cov8" title="1">toAdd, toRmv, common, changed = make([]*scaleiotypes.SdsIP, 0), make([]*scaleiotypes.SdsIP, 0),
+                make([]*scaleiotypes.SdsIP, 0), make([]*scaleiotypes.SdsIP, 0)
+        for _, mip := range vmap </span><span class="cov8" title="1">{
+                if mip.sip != nil </span><span class="cov8" title="1">{
+                        if mip.pip != nil </span><span class="cov8" title="1">{
+                                if mip.pip.Role == mip.sip.Role </span><span class="cov8" title="1">{
+                                        common = append(common, mip.pip)
+                                }</span> else<span class="cov8" title="1"> {
+                                        changed = append(changed, mip.pip)
+                                }</span>
+                        } else<span class="cov8" title="1"> {
+                                toRmv = append(toRmv, mip.sip)
+                                // toAdd = append(toAdd, mip.pip)
+                        }</span>
+                } else<span class="cov8" title="1"> {
+                        // toRmv = append(toRmv, mip.pip)
+                        toAdd = append(toAdd, mip.pip)
+                }</span>
+        }
+        <span class="cov8" title="1">return toAdd, toRmv, changed, common</span>
+}
+
+// Create creates the resource and sets the initial Terraform state.
+func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) <span class="cov8" title="1">{
+        // Retrieve values from plan
+        var plan sdsResourceModel
+
+        diags := req.Plan.Get(ctx, &amp;plan)
+
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">pdm, err := getNewProtectionDomainEx(r.client, plan.ProtectionDomainID.ValueString(), plan.ProtectionDomainName.ValueString(), "")
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Error getting Protection Domain",
+                        err.Error(),
+                )
+                return
+        }</span>
+
+        <span class="cov8" title="1">sdsName := plan.Name.ValueString()
+        iplist := plan.getIPList(ctx)
+
+        params := scaleiotypes.Sds{
+                Name:   sdsName,
+                IPList: iplist,
+        }
+        if !plan.RmcacheEnabled.IsNull() </span><span class="cov8" title="1">{
+                params.RmcacheEnabled = plan.RmcacheEnabled.ValueBool()
+        }</span>
+        <span class="cov8" title="1">if !plan.RmcacheSizeInMB.IsNull() </span><span class="cov8" title="1">{
+                params.RmcacheSizeInKb = int(plan.RmcacheSizeInMB.ValueInt64()) * 1024
+        }</span>
+        <span class="cov8" title="1">if !plan.DrlMode.IsNull() </span><span class="cov8" title="1">{
+                params.DrlMode = plan.DrlMode.ValueString()
+        }</span>
+        <span class="cov8" title="1">if !plan.Port.IsNull() </span><span class="cov8" title="1">{
+                params.Port = int(plan.Port.ValueInt64())
+        }</span>
+        <span class="cov8" title="1">sdsID, err2 := pdm.CreateSdsWithParams(&amp;params)
+        if err2 != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        fmt.Sprintf("Could not create SDS with name %s and IP list %v", sdsName, iplist),
+                        err2.Error(),
+                )
+                return
+        }</span>
+
+        <span class="cov8" title="1">if !plan.RfcacheEnabled.IsUnknown() </span><span class="cov8" title="1">{
+                time.Sleep(1 * time.Second)
+                rfCacheEnabled := plan.RfcacheEnabled.ValueBool()
+                err := pdm.SetSdsRfCache(sdsID, rfCacheEnabled)
+                if err != nil </span><span class="cov0" title="0">{
+                        resp.Diagnostics.AddError(
+                                fmt.Sprintf("Could not set SDS Rf Cache settings to %t", rfCacheEnabled),
+                                err.Error(),
+                        )
+                        return
+                }</span>
+        }
+
+        <span class="cov8" title="1">if !plan.PerformanceProfile.IsUnknown() </span><span class="cov8" title="1">{
+                perfprof := plan.PerformanceProfile.ValueString()
+                err := pdm.SetSdsPerformanceProfile(sdsID, perfprof)
+                if err != nil </span><span class="cov0" title="0">{
+                        resp.Diagnostics.AddError(
+                                fmt.Sprintf("Could not set SDS Performance Profile settings to %s", perfprof),
+                                err.Error(),
+                        )
+                        return
+                }</span>
+        }
+
+        // Get created SDS
+        <span class="cov8" title="1">rsp, err3 := pdm.FindSds("ID", sdsID)
+        if err3 != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Error getting SDS after creation",
+                        err3.Error(),
+                )
+                return
+        }</span>
+
+        // Set refreshed state
+        <span class="cov8" title="1">state, dgs := updateSdsState(rsp, plan)
+        resp.Diagnostics.Append(dgs...)
+
+        diags = resp.State.Set(ctx, state)
+        resp.Diagnostics.Append(diags...)</span>
+}
+
+// Read refreshes the Terraform state with the latest data.
+func (r *sdsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) <span class="cov8" title="1">{
+        // Retrieve values from state
+        var state sdsResourceModel
+        diags := req.State.Get(ctx, &amp;state)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">pdm, err := getNewProtectionDomainEx(r.client, state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString(), "")
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Error getting Protection Domain",
+                        err.Error(),
+                )
+                return
+        }</span>
+
+        // Get SDS
+        <span class="cov8" title="1">var rsp *scaleiotypes.Sds
+        if rsp, err = pdm.FindSds("ID", state.ID.ValueString()); err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Could not get SDS",
+                        err.Error(),
+                )
+                return
+        }</span>
+
+        // Set refreshed state
+        <span class="cov8" title="1">state, dgs := updateSdsState(rsp, state)
+        resp.Diagnostics.Append(dgs...)
+
+        diags = resp.State.Set(ctx, state)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+}
+
+// Update updates the resource and sets the updated Terraform state on success.
+func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) <span class="cov8" title="1">{
+        // Retrieve values from plan
+        var plan sdsResourceModel
+        diags := req.Plan.Get(ctx, &amp;plan)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        // Retrieve values from state
+        <span class="cov8" title="1">var state sdsResourceModel
+        diags = req.State.Get(ctx, &amp;state)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">pdm, err := getNewProtectionDomainEx(r.client, state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString(), "")
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Error getting Protection Domain",
+                        err.Error(),
+                )
+                return
+        }</span>
+
+        // Check if there difference between plan and state
+        <span class="cov8" title="1">if plan.Name.ValueString() != state.Name.ValueString() </span><span class="cov8" title="1">{
+                err := pdm.SetSdsName(state.ID.ValueString(), plan.Name.ValueString())
+                if err != nil </span><span class="cov0" title="0">{
+                        resp.Diagnostics.AddError(
+                                "Could not rename SDS",
+                                err.Error(),
+                        )
+
+                        return
+                }</span>
+        }
+
+        // Check if there are updates in ip lists
+        <span class="cov8" title="1">toAdd, toRmv, changed, _ := sdsIPListDiff(ctx, &amp;plan, &amp;state)
+        for _, ip := range toAdd </span><span class="cov8" title="1">{
+                err := pdm.AddSdSIP(state.ID.ValueString(), ip.IP, ip.Role)
+                if err != nil </span><span class="cov0" title="0">{
+                        resp.Diagnostics.AddError(
+                                fmt.Sprintf("Error adding IP %s to SDS with role %s", ip.IP, ip.Role),
+                                err.Error(),
+                        )
+                        return
+                }</span>
+        }
+        <span class="cov8" title="1">if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+        <span class="cov8" title="1">for _, ip := range changed </span><span class="cov8" title="1">{
+                err := pdm.SetSDSIPRole(state.ID.ValueString(), ip.IP, ip.Role)
+                if err != nil </span><span class="cov0" title="0">{
+                        resp.Diagnostics.AddError(
+                                fmt.Sprintf("Error updating IP %s role to %s in SDS", ip.IP, ip.Role),
+                                err.Error(),
+                        )
+                        return
+                }</span>
+        }
+        <span class="cov8" title="1">if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+        <span class="cov8" title="1">for _, ip := range toRmv </span><span class="cov8" title="1">{
+                err := pdm.RemoveSDSIP(state.ID.ValueString(), ip.IP)
+                if err != nil </span><span class="cov0" title="0">{
+                        resp.Diagnostics.AddError(
+                                fmt.Sprintf("Error removing IP %s with role %s from SDS", ip.IP, ip.Role),
+                                err.Error(),
+                        )
+                        return
+                }</span>
+        }
+        <span class="cov8" title="1">if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        // check if there is change in sds port
+        <span class="cov8" title="1">if !plan.Port.IsUnknown() &amp;&amp; !state.Port.Equal(plan.Port) </span><span class="cov0" title="0">{
+                port := plan.Port.ValueInt64()
+                err := pdm.SetSdsPort(state.ID.ValueString(), int(port))
+                if err != nil </span><span class="cov0" title="0">{
+                        resp.Diagnostics.AddError(
+                                fmt.Sprintf("Could not change SDS port to %d", port),
+                                err.Error(),
+                        )
+
+                        return
+                }</span>
+        }
+
+        // check if there is change in sds drl mode
+        <span class="cov8" title="1">if !plan.DrlMode.IsUnknown() &amp;&amp; !state.DrlMode.Equal(plan.DrlMode) </span><span class="cov8" title="1">{
+                drlMode := plan.DrlMode.ValueString()
+                err := pdm.SetSdsDrlMode(state.ID.ValueString(), drlMode)
+                if err != nil </span><span class="cov0" title="0">{
+                        resp.Diagnostics.AddError(
+                                fmt.Sprintf("Could not change SDS DRL Mode to %s", drlMode),
+                                err.Error(),
+                        )
+                        return
+                }</span>
+        }
+
+        // check if there is change in sds rmcache
+        <span class="cov8" title="1">if !plan.RmcacheEnabled.IsUnknown() &amp;&amp; !state.RmcacheEnabled.Equal(plan.RmcacheEnabled) </span><span class="cov8" title="1">{
+                rmCacheEnabled := plan.RmcacheEnabled.ValueBool()
+                err := pdm.SetSdsRmCache(state.ID.ValueString(), rmCacheEnabled)
+                if err != nil </span><span class="cov0" title="0">{
+                        resp.Diagnostics.AddError(
+                                fmt.Sprintf("Could not change SDS Read Ram Cache settings to %t", rmCacheEnabled),
+                                err.Error(),
+                        )
+                        return
+                }</span>
+        }
+        <span class="cov8" title="1">if !plan.RmcacheSizeInMB.IsUnknown() &amp;&amp; !state.RmcacheSizeInMB.Equal(plan.RmcacheSizeInMB) </span><span class="cov8" title="1">{
+                rmCacheSize := plan.RmcacheSizeInMB.ValueInt64()
+                err := pdm.SetSdsRmCacheSize(state.ID.ValueString(), int(rmCacheSize))
+                if err != nil </span><span class="cov0" title="0">{
+                        resp.Diagnostics.AddError(
+                                fmt.Sprintf("Could not change SDS Read Ram Cache size to %d", rmCacheSize),
+                                err.Error(),
+                        )
+                        return
+                }</span>
+        }
+
+        // check if there is change in sds rfcache
+        <span class="cov8" title="1">if !plan.RfcacheEnabled.IsUnknown() &amp;&amp; !state.RfcacheEnabled.Equal(plan.RfcacheEnabled) </span><span class="cov8" title="1">{
+                rfCacheEnabled := plan.RfcacheEnabled.ValueBool()
+                err := pdm.SetSdsRfCache(state.ID.ValueString(), rfCacheEnabled)
+                if err != nil </span><span class="cov0" title="0">{
+                        resp.Diagnostics.AddError(
+                                fmt.Sprintf("Could not change SDS Rf Cache settings to %t", rfCacheEnabled),
+                                err.Error(),
+                        )
+                        return
+                }</span>
+        }
+
+        // Check if performance profile has been changed
+        <span class="cov8" title="1">if !plan.PerformanceProfile.IsUnknown() &amp;&amp; !state.PerformanceProfile.Equal(plan.PerformanceProfile) </span><span class="cov8" title="1">{
+                perfprof := plan.PerformanceProfile.ValueString()
+                err := pdm.SetSdsPerformanceProfile(state.ID.ValueString(), perfprof)
+                if err != nil </span><span class="cov0" title="0">{
+                        resp.Diagnostics.AddError(
+                                fmt.Sprintf("Could not set SDS Performance Profile settings to %s", perfprof),
+                                err.Error(),
+                        )
+                        return
+                }</span>
+        }
+
+        // Find updated SDS
+        <span class="cov8" title="1">rsp, err := pdm.FindSds("ID", state.ID.ValueString())
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Error getting SDS after updation",
+                        err.Error(),
+                )
+                return
+        }</span>
+
+        // Set refreshed state
+        <span class="cov8" title="1">state, dgs := updateSdsState(rsp, plan)
+        resp.Diagnostics.Append(dgs...)
+
+        diags = resp.State.Set(ctx, state)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+}
+
+// Delete deletes the resource and removes the Terraform state on success.
+func (r *sdsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) <span class="cov8" title="1">{
+        // Retrieve values from state
+        var state sdsResourceModel
+        diags := req.State.Get(ctx, &amp;state)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">pdm, err := getNewProtectionDomainEx(r.client, state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString(), "")
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Error getting Protection Domain",
+                        err.Error(),
+                )
+                return
+        }</span>
+
+        // Delete SDS
+        <span class="cov8" title="1">err = pdm.DeleteSds(state.ID.ValueString())
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Unable to delete Powerflex SDS",
+                        err.Error(),
+                )
+
+                return
+        }</span>
+
+        <span class="cov8" title="1">if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+        <span class="cov8" title="1">resp.State.RemoveResource(ctx)</span>
+
+}
+
+func (r *sdsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) <span class="cov0" title="0">{
+        // Retrieve import ID and save to id attribute
+        resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}</span>
+
+func updateSdsState(sds *scaleiotypes.Sds, plan sdsResourceModel) (sdsResourceModel, diag.Diagnostics) <span class="cov8" title="1">{
+        state := plan
+        state.ID = types.StringValue(sds.ID)
+        state.Name = types.StringValue(sds.Name)
+        state.Port = types.Int64Value(int64(sds.Port))
+        state.SdsState = types.StringValue(sds.SdsState)
+        state.MembershipState = types.StringValue(sds.MembershipState)
+        state.MdmConnectionState = types.StringValue(sds.MdmConnectionState)
+        state.DrlMode = types.StringValue(sds.DrlMode)
+        state.RmcacheEnabled = types.BoolValue(sds.RmcacheEnabled)
+        state.RmcacheSizeInMB = types.Int64Value(int64(sds.RmcacheSizeInKb) / 1024)
+        state.RfcacheEnabled = types.BoolValue(sds.RfcacheEnabled)
+        state.RmcacheFrozen = types.BoolValue(sds.RmcacheFrozen)
+        state.IsOnVMware = types.BoolValue(sds.IsOnVMware)
+        state.FaultSetID = types.StringValue(sds.FaultSetID)
+        state.NumOfIoBuffers = types.Int64Value(int64(sds.NumOfIoBuffers))
+        state.RmcacheMemoryAllocationState = types.StringValue(sds.RmcacheMemoryAllocationState)
+        state.PerformanceProfile = types.StringValue(sds.PerformanceProfile)
+
+        IPAttrTypes := map[string]attr.Type{
+                "ip":   types.StringType,
+                "role": types.StringType,
+        }
+        IPElemType := types.ObjectType{
+                AttrTypes: IPAttrTypes,
+        }
+
+        objectIPs := []attr.Value{}
+        var diags diag.Diagnostics
+        for _, ip := range sds.IPList </span><span class="cov8" title="1">{
+                obj := map[string]attr.Value{
+                        "ip":   types.StringValue(ip.IP),
+                        "role": types.StringValue(ip.Role),
+                }
+                objVal, dgs := types.ObjectValue(IPAttrTypes, obj)
+                diags = append(diags, dgs...)
+                objectIPs = append(objectIPs, objVal)
+        }</span>
+        <span class="cov8" title="1">setVal, dgs := types.SetValue(IPElemType, objectIPs)
+        diags = append(diags, dgs...)
+        state.IPList = setVal
+
+        return state, diags</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package powerflex
+
+import (
+        "context"
+
+        "github.com/dell/goscaleio"
+        scaleiotypes "github.com/dell/goscaleio/types/v1"
+        "github.com/hashicorp/terraform-plugin-framework/datasource"
+        "github.com/hashicorp/terraform-plugin-framework/types"
+)
+
+var (
+        _ datasource.DataSource              = &amp;snapshotPolicyDataSource{}
+        _ datasource.DataSourceWithConfigure = &amp;snapshotPolicyDataSource{}
+)
+
+// SnapshotPolicyDataSource returns the snapshot policy data source
+func SnapshotPolicyDataSource() datasource.DataSource <span class="cov8" title="1">{
+        return &amp;snapshotPolicyDataSource{}
+}</span>
+
+type snapshotPolicyDataSource struct {
+        client *goscaleio.Client
+}
+
+type snapshotPolicyDataSourceModel struct {
+        SnapshotPolicies []snapshotPolicyModel `tfsdk:"snapshotpolicies"`
+        ID               types.String          `tfsdk:"id"`
+        Name             types.String          `tfsdk:"name"`
+}
+
+type snapshotPolicyModel struct {
+        ID                                    types.String              `tfsdk:"id"`
+        Name                                  types.String              `tfsdk:"name"`
+        SnapshotPolicyState                   types.String              `tfsdk:"snapshot_policy_state"`
+        AutoSnapshotCreationCadenceInMin      types.Int64               `tfsdk:"auto_snapshot_creation_cadence_in_min"`
+        MaxVTreeAutoSnapshots                 types.Int64               `tfsdk:"max_vtree_auto_snapshots"`
+        NumOfSourceVolumes                    types.Int64               `tfsdk:"num_of_source_volumes"`
+        NumOfExpiredButLockedSnapshots        types.Int64               `tfsdk:"num_of_expired_but_locked_snapshots"`
+        NumOfCreationFailures                 types.Int64               `tfsdk:"num_of_creation_failures"`
+        NumOfRetainedSnapshotsPerLevel        []types.Int64             `tfsdk:"num_of_retained_snapshots_per_level"`
+        SnapshotAccessMode                    types.String              `tfsdk:"snapshot_access_mode"`
+        SecureSnapshots                       types.Bool                `tfsdk:"secure_snapshots"`
+        TimeOfLastAutoSnapshot                types.Int64               `tfsdk:"time_of_last_auto_snapshot"`
+        NextAutoSnapshotCreationTime          types.Int64               `tfsdk:"next_auto_snapshot_creation_time"`
+        TimeOfLastAutoSnapshotCreationFailure types.Int64               `tfsdk:"time_of_last_auto_snapshot_creation_failure"`
+        LastAutoSnapshotCreationFailureReason types.String              `tfsdk:"last_auto_snapshot_creation_failure_reason"`
+        LastAutoSnapshotFailureInFirstLevel   types.Bool                `tfsdk:"last_auto_snapshot_failure_in_first_level"`
+        NumOfAutoSnapshots                    types.Int64               `tfsdk:"num_of_auto_snapshots"`
+        NumOfLockedSnapshots                  types.Int64               `tfsdk:"num_of_locked_snapshots"`
+        SystemID                              types.String              `tfsdk:"system_id"`
+        Links                                 []snapshotPolicyLinkModel `tfsdk:"links"`
+}
+
+type snapshotPolicyLinkModel struct {
+        Rel  types.String `tfsdk:"rel"`
+        HREF types.String `tfsdk:"href"`
+}
+
+func (d *snapshotPolicyDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) <span class="cov8" title="1">{
+        resp.TypeName = req.ProviderTypeName + "_snapshotpolicy"
+}</span>
+
+func (d *snapshotPolicyDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) <span class="cov8" title="1">{
+        resp.Schema = SnapshotPolicyDataSourceSchema
+}</span>
+
+func (d *snapshotPolicyDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) <span class="cov8" title="1">{
+        if req.ProviderData == nil </span><span class="cov8" title="1">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">d.client = req.ProviderData.(*goscaleio.Client)</span>
+}
+
+func (d *snapshotPolicyDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) <span class="cov8" title="1">{
+        var plan snapshotPolicyDataSourceModel
+        var sps []*scaleiotypes.SnapshotPolicy
+        var err error
+
+        diags := req.Config.Get(ctx, &amp;plan)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        //Read the snapshot policies based on snapshot policy id/name and if nothing
+        //is mentioned , then returns all the snapshot policies
+        <span class="cov8" title="1">if plan.Name.ValueString() != "" </span><span class="cov8" title="1">{
+                sps, err = d.client.GetSnapshotPolicy(plan.Name.ValueString(), "")
+        }</span> else<span class="cov8" title="1"> if plan.ID.ValueString() != "" </span><span class="cov8" title="1">{
+                sps, err = d.client.GetSnapshotPolicy("", plan.ID.ValueString())
+        }</span> else<span class="cov8" title="1"> {
+                sps, err = d.client.GetSnapshotPolicy("", "")
+        }</span>
+        //check if there is any error while getting the snapshot policy
+        <span class="cov8" title="1">if err != nil </span><span class="cov8" title="1">{
+                resp.Diagnostics.AddError(
+                        "Unable to Read Powerflex Snapshot Policy",
+                        err.Error(),
+                )
+                return
+        }</span>
+        <span class="cov8" title="1">plan.SnapshotPolicies = updateSnapshotPolicyState(sps)
+        plan.ID = types.StringValue("dummyID")
+        diags = resp.State.Set(ctx, plan)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+}
+
+// updateSnapshotPolicyState iterates over the snapshotpolicy list and update the state
+func updateSnapshotPolicyState(sps []*scaleiotypes.SnapshotPolicy) (response []snapshotPolicyModel) <span class="cov8" title="1">{
+        for _, sp := range sps </span><span class="cov8" title="1">{
+                spState := snapshotPolicyModel{
+                        ID:                                    types.StringValue(sp.ID),
+                        Name:                                  types.StringValue(sp.Name),
+                        SnapshotPolicyState:                   types.StringValue(sp.SnapshotPolicyState),
+                        AutoSnapshotCreationCadenceInMin:      types.Int64Value((int64)(sp.AutoSnapshotCreationCadenceInMin)),
+                        MaxVTreeAutoSnapshots:                 types.Int64Value((int64)(sp.MaxVTreeAutoSnapshots)),
+                        NumOfSourceVolumes:                    types.Int64Value((int64)(sp.NumOfSourceVolumes)),
+                        NumOfExpiredButLockedSnapshots:        types.Int64Value((int64)(sp.NumOfExpiredButLockedSnapshots)),
+                        NumOfCreationFailures:                 types.Int64Value((int64)(sp.NumOfCreationFailures)),
+                        SnapshotAccessMode:                    types.StringValue(sp.SnapshotAccessMode),
+                        SecureSnapshots:                       types.BoolValue(sp.SecureSnapshots),
+                        TimeOfLastAutoSnapshot:                types.Int64Value((int64)(sp.TimeOfLastAutoSnapshot)),
+                        NextAutoSnapshotCreationTime:          types.Int64Value((int64)(sp.NextAutoSnapshotCreationTime)),
+                        TimeOfLastAutoSnapshotCreationFailure: types.Int64Value((int64)(sp.TimeOfLastAutoSnapshotCreationFailure)),
+                        LastAutoSnapshotCreationFailureReason: types.StringValue(sp.LastAutoSnapshotCreationFailureReason),
+                        LastAutoSnapshotFailureInFirstLevel:   types.BoolValue(sp.LastAutoSnapshotFailureInFirstLevel),
+                        NumOfAutoSnapshots:                    types.Int64Value((int64)(sp.NumOfAutoSnapshots)),
+                        NumOfLockedSnapshots:                  types.Int64Value((int64)(sp.NumOfLockedSnapshots)),
+                        SystemID:                              types.StringValue(sp.SystemID),
+                }
+
+                for _, link := range sp.Links </span><span class="cov8" title="1">{
+                        spState.Links = append(spState.Links, snapshotPolicyLinkModel{
+                                Rel:  types.StringValue(link.Rel),
+                                HREF: types.StringValue(link.HREF),
+                        })
+                }</span>
+                <span class="cov8" title="1">for _, rspl := range sp.NumOfRetainedSnapshotsPerLevel </span><span class="cov8" title="1">{
+                        spState.NumOfRetainedSnapshotsPerLevel = append(spState.NumOfRetainedSnapshotsPerLevel, types.Int64Value((int64)(rspl)))
+                }</span>
+                <span class="cov8" title="1">response = append(response, spState)</span>
+        }
+        <span class="cov8" title="1">return</span>
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package powerflex
 
 import (
         "context"
@@ -999,8 +2263,8 @@ type storagePoolModel struct {
 
 // storagepoolDataSourceModel maps the storage pool data source schema data
 type storagepoolDataSourceModel struct {
-        StoragePoolID        types.List         `tfsdk:"storage_pool_id"`
-        StoragePoolName      types.List         `tfsdk:"storage_pool_name"`
+        StoragePoolIDs       types.List         `tfsdk:"storage_pool_ids"`
+        StoragePoolNames     types.List         `tfsdk:"storage_pool_names"`
         ProtectionDomainID   types.String       `tfsdk:"protection_domain_id"`
         ProtectionDomainName types.String       `tfsdk:"protection_domain_name"`
         StoragePools         []storagePoolModel `tfsdk:"storage_pools"`
@@ -1041,21 +2305,11 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
         }</span>
 
         // Get the systems on the PowerFlex cluster
-        <span class="cov8" title="1">c1, err := d.client.GetSystems()
+        <span class="cov8" title="1">c2, err := getFirstSystem(d.client)
         if err != nil </span><span class="cov0" title="0">{
                 resp.Diagnostics.AddError(
-                        "Unable to get systems",
+                        "Error in getting system instance",
                         err.Error(),
-                )
-                return
-        }</span>
-
-        // Get the details of system
-        <span class="cov8" title="1">c2, err1 := d.client.FindSystem(c1[0].ID, "", "")
-        if err1 != nil </span><span class="cov0" title="0">{
-                resp.Diagnostics.AddError(
-                        "Unable to find system",
-                        err1.Error(),
                 )
                 return
         }</span>
@@ -1081,10 +2335,21 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
 
         spID := []string{}
         // Check if storage pool ID or name is provided
-        if !state.StoragePoolID.IsNull() </span><span class="cov8" title="1">{
-                diags = state.StoragePoolID.ElementsAs(ctx, &amp;spID, true)
+        if !state.StoragePoolIDs.IsNull() </span><span class="cov8" title="1">{
+                diags = state.StoragePoolIDs.ElementsAs(ctx, &amp;spID, true)
+        }</span> else<span class="cov8" title="1"> if !state.StoragePoolNames.IsNull() </span><span class="cov8" title="1">{
+                diags = state.StoragePoolNames.ElementsAs(ctx, &amp;spID, true)
         }</span> else<span class="cov8" title="1"> {
-                diags = state.StoragePoolName.ElementsAs(ctx, &amp;spID, true)
+                // Get all the storage pools associated with protection domain
+                storagePools, _ := p1.GetStoragePool("")
+                for sp := range storagePools </span><span class="cov8" title="1">{
+                        spID = append(spID, storagePools[sp].Name)
+                }</span>
+        }
+
+        <span class="cov8" title="1">if numSP := len(spID); numSP == 0 </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError("No storage pools found for the specified protection domain", "")
+                return
         }</span>
 
         <span class="cov8" title="1">if diags.HasError() </span><span class="cov0" title="0">{
@@ -1095,7 +2360,7 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
         <span class="cov8" title="1">for _, spIdentifier := range spID </span><span class="cov8" title="1">{
                 var s1 *scaleio_types.StoragePool
 
-                if !state.StoragePoolID.IsNull() </span><span class="cov8" title="1">{
+                if !state.StoragePoolIDs.IsNull() </span><span class="cov8" title="1">{
                         s1, err3 = p1.FindStoragePool(spIdentifier, "", "")
                 }</span> else<span class="cov8" title="1"> {
                         s1, err3 = p1.FindStoragePool("", spIdentifier, "")
@@ -1109,10 +2374,6 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
                         return
                 }</span>
                 <span class="cov8" title="1">sp.StoragePool = s1
-                storagePool := storagePoolModel{
-                        ID:   types.StringValue(s1.ID),
-                        Name: types.StringValue(s1.Name),
-                }
 
                 volList, err4 := sp.GetVolume("", "", "", "", false)
                 if err4 != nil </span><span class="cov0" title="0">{
@@ -1132,78 +2393,13 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
                         return
                 }</span>
 
-                // Iterate through volume list
-                <span class="cov8" title="1">for _, vol := range volList </span><span class="cov8" title="1">{
-                        storagePool.Volumes = append(storagePool.Volumes, volume{
-                                ID:   types.StringValue(vol.ID),
-                                Name: types.StringValue(vol.Name),
-                        })
-                }</span>
-
-                // Iterate through SDS list
-                <span class="cov8" title="1">for _, sds := range sdsList </span><span class="cov8" title="1">{
-                        storagePool.SDS = append(storagePool.SDS, sdsData{
-                                ID:   types.StringValue(sds.ID),
-                                Name: types.StringValue(sds.Name),
-                        })
-                }</span>
-
-                // Iterate through the Links
-                <span class="cov8" title="1">for _, link := range s1.Links </span><span class="cov8" title="1">{
-                        storagePool.Links = append(storagePool.Links, linkModel{
-                                Rel:  types.StringValue(link.Rel),
-                                HREF: types.StringValue(link.HREF),
-                        })
-                }</span>
-
-                <span class="cov8" title="1">storagePool.RebalanceioPriorityPolicy = types.StringValue(s1.RebalanceioPriorityPolicy)
-                storagePool.RebalanceioPriorityAppBwPerDeviceThresholdInKbps = types.Int64Value(int64(s1.RebalanceioPriorityAppBwPerDeviceThresholdInKbps))
-                storagePool.RebalanceioPriorityAppIopsPerDeviceThreshold = types.Int64Value(int64(s1.RebalanceioPriorityAppIopsPerDeviceThreshold))
-                storagePool.RebalanceioPriorityBwLimitPerDeviceInKbps = types.Int64Value(int64(s1.RebalanceioPriorityBwLimitPerDeviceInKbps))
-                storagePool.RebalanceioPriorityQuietPeriodInMsec = types.Int64Value(int64(s1.RebalanceioPriorityQuietPeriodInMsec))
-                storagePool.RebalanceioPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.RebalanceioPriorityNumOfConcurrentIosPerDevice))
-                storagePool.RebuildioPriorityPolicy = types.StringValue(s1.RebuildioPriorityPolicy)
-                storagePool.RebuildioPriorityAppBwPerDeviceThresholdInKbps = types.Int64Value(int64(s1.RebuildioPriorityAppBwPerDeviceThresholdInKbps))
-                storagePool.RebuildioPriorityAppIopsPerDeviceThreshold = types.Int64Value(int64(s1.RebuildioPriorityAppIopsPerDeviceThreshold))
-                storagePool.RebuildioPriorityBwLimitPerDeviceInKbps = types.Int64Value(int64(s1.RebalanceioPriorityBwLimitPerDeviceInKbps))
-                storagePool.RebuildioPriorityQuietPeriodInMsec = types.Int64Value(int64(s1.RebuildioPriorityQuietPeriodInMsec))
-                storagePool.RebuildioPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.RebuildioPriorityNumOfConcurrentIosPerDevice))
-                storagePool.ZeroPaddingEnabled = types.BoolValue(s1.ZeroPaddingEnabled)
-                storagePool.UseRmcache = types.BoolValue(s1.UseRmcache)
-                storagePool.SparePercentage = types.Int64Value(int64(s1.SparePercentage))
-                storagePool.RmCacheWriteHandlingMode = types.StringValue(s1.RmCacheWriteHandlingMode)
-                storagePool.RebalanceEnabled = types.BoolValue(s1.RebalanceEnabled)
-                storagePool.RebuildEnabled = types.BoolValue(s1.RebuildEnabled)
-                storagePool.NumofParallelRebuildRebalanceJobsPerDevice = types.Int64Value(int64(s1.NumofParallelRebuildRebalanceJobsPerDevice))
-                storagePool.BackgroundScannerBWLimitKBps = types.Int64Value(int64(s1.BackgroundScannerBWLimitKBps))
-                storagePool.ProtectedMaintenanceModeIoPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.ProtectedMaintenanceModeIoPriorityNumOfConcurrentIosPerDevice))
-                storagePool.DataLayout = types.StringValue(s1.DataLayout)
-                storagePool.VtreeMigrationIoPriorityBwLimitPerDeviceInKbps = types.Int64Value(int64(s1.VtreeMigrationIoPriorityBwLimitPerDeviceInKbps))
-                storagePool.VtreeMigrationIoPriorityPolicy = types.StringValue(s1.VtreeMigrationIoPriorityPolicy)
-                storagePool.AddressSpaceUsage = types.StringValue(s1.AddressSpaceUsage)
-                storagePool.ExternalAccelerationType = types.StringValue(s1.ExternalAccelerationType)
-                storagePool.PersistentChecksumState = types.StringValue(s1.PersistentChecksumState)
-                storagePool.UseRfcache = types.BoolValue(s1.UseRfcache)
-                storagePool.ChecksumEnabled = types.BoolValue(s1.ChecksumEnabled)
-                storagePool.CompressionMethod = types.StringValue(s1.CompressionMethod)
-                storagePool.FragmentationEnabled = types.BoolValue(s1.FragmentationEnabled)
-                storagePool.CapacityUsageState = types.StringValue(s1.CapacityUsageState)
-                storagePool.CapacityUsageType = types.StringValue(s1.CapacityUsageType)
-                storagePool.AddressSpaceUsageType = types.StringValue(s1.AddressSpaceUsageType)
-                storagePool.BgScannerCompareErrorAction = types.StringValue(s1.BgScannerCompareErrorAction)
-                storagePool.BgScannerReadErrorAction = types.StringValue(s1.BgScannerReadErrorAction)
-                storagePool.ReplicationCapacityMaxRatio = types.Int64Value(int64(s1.ReplicationCapacityMaxRatio))
-                storagePool.PersistentChecksumEnabled = types.BoolValue(s1.PersistentChecksumEnabled)
-                storagePool.PersistentChecksumBuilderLimitKb = types.Int64Value(int64(s1.PersistentChecksumBuilderLimitKb))
-                storagePool.PersistentChecksumValidateOnRead = types.BoolValue(s1.PersistentChecksumValidateOnRead)
-                storagePool.VtreeMigrationIoPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.VtreeMigrationIoPriorityNumOfConcurrentIosPerDevice))
-                storagePool.ProtectedMaintenanceModeIoPriorityPolicy = types.StringValue(s1.ProtectedMaintenanceModeIoPriorityPolicy)
-                storagePool.BackgroundScannerMode = types.StringValue(s1.BackgroundScannerMode)
-                storagePool.MediaType = types.StringValue(s1.MediaType)
+                <span class="cov8" title="1">storagePool := getStoragePoolState(volList, sdsList, s1)
                 state.StoragePools = append(state.StoragePools, storagePool)</span>
         }
 
-        <span class="cov8" title="1">state.ID = types.StringValue("placeholder")
+        // this is required for acceptance testing
+        <span class="cov8" title="1">state.ID = types.StringValue("dummyID")
+
         // Set state
         diags = resp.State.Set(ctx, state)
         resp.Diagnostics.Append(diags...)
@@ -1211,9 +2407,453 @@ func (d *storagepoolDataSource) Read(ctx context.Context, req datasource.ReadReq
                 return
         }</span>
 }
+
+func getStoragePoolState(volList []*scaleio_types.Volume, sdsList []scaleio_types.Sds, s1 *scaleio_types.StoragePool) (storagePool storagePoolModel) <span class="cov8" title="1">{
+        storagePool = storagePoolModel{
+                ID:   types.StringValue(s1.ID),
+                Name: types.StringValue(s1.Name),
+        }
+
+        // Iterate through volume list
+        for _, vol := range volList </span><span class="cov8" title="1">{
+                storagePool.Volumes = append(storagePool.Volumes, volume{
+                        ID:   types.StringValue(vol.ID),
+                        Name: types.StringValue(vol.Name),
+                })
+        }</span>
+
+        // Iterate through SDS list
+        <span class="cov8" title="1">for _, sds := range sdsList </span><span class="cov8" title="1">{
+                storagePool.SDS = append(storagePool.SDS, sdsData{
+                        ID:   types.StringValue(sds.ID),
+                        Name: types.StringValue(sds.Name),
+                })
+        }</span>
+
+        // Iterate through the Links
+        <span class="cov8" title="1">for _, link := range s1.Links </span><span class="cov8" title="1">{
+                storagePool.Links = append(storagePool.Links, linkModel{
+                        Rel:  types.StringValue(link.Rel),
+                        HREF: types.StringValue(link.HREF),
+                })
+        }</span>
+
+        <span class="cov8" title="1">storagePool.RebalanceioPriorityPolicy = types.StringValue(s1.RebalanceioPriorityPolicy)
+        storagePool.RebalanceioPriorityAppBwPerDeviceThresholdInKbps = types.Int64Value(int64(s1.RebalanceioPriorityAppBwPerDeviceThresholdInKbps))
+        storagePool.RebalanceioPriorityAppIopsPerDeviceThreshold = types.Int64Value(int64(s1.RebalanceioPriorityAppIopsPerDeviceThreshold))
+        storagePool.RebalanceioPriorityBwLimitPerDeviceInKbps = types.Int64Value(int64(s1.RebalanceioPriorityBwLimitPerDeviceInKbps))
+        storagePool.RebalanceioPriorityQuietPeriodInMsec = types.Int64Value(int64(s1.RebalanceioPriorityQuietPeriodInMsec))
+        storagePool.RebalanceioPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.RebalanceioPriorityNumOfConcurrentIosPerDevice))
+        storagePool.RebuildioPriorityPolicy = types.StringValue(s1.RebuildioPriorityPolicy)
+        storagePool.RebuildioPriorityAppBwPerDeviceThresholdInKbps = types.Int64Value(int64(s1.RebuildioPriorityAppBwPerDeviceThresholdInKbps))
+        storagePool.RebuildioPriorityAppIopsPerDeviceThreshold = types.Int64Value(int64(s1.RebuildioPriorityAppIopsPerDeviceThreshold))
+        storagePool.RebuildioPriorityBwLimitPerDeviceInKbps = types.Int64Value(int64(s1.RebalanceioPriorityBwLimitPerDeviceInKbps))
+        storagePool.RebuildioPriorityQuietPeriodInMsec = types.Int64Value(int64(s1.RebuildioPriorityQuietPeriodInMsec))
+        storagePool.RebuildioPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.RebuildioPriorityNumOfConcurrentIosPerDevice))
+        storagePool.ZeroPaddingEnabled = types.BoolValue(s1.ZeroPaddingEnabled)
+        storagePool.UseRmcache = types.BoolValue(s1.UseRmcache)
+        storagePool.SparePercentage = types.Int64Value(int64(s1.SparePercentage))
+        storagePool.RmCacheWriteHandlingMode = types.StringValue(s1.RmCacheWriteHandlingMode)
+        storagePool.RebalanceEnabled = types.BoolValue(s1.RebalanceEnabled)
+        storagePool.RebuildEnabled = types.BoolValue(s1.RebuildEnabled)
+        storagePool.NumofParallelRebuildRebalanceJobsPerDevice = types.Int64Value(int64(s1.NumofParallelRebuildRebalanceJobsPerDevice))
+        storagePool.BackgroundScannerBWLimitKBps = types.Int64Value(int64(s1.BackgroundScannerBWLimitKBps))
+        storagePool.ProtectedMaintenanceModeIoPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.ProtectedMaintenanceModeIoPriorityNumOfConcurrentIosPerDevice))
+        storagePool.DataLayout = types.StringValue(s1.DataLayout)
+        storagePool.VtreeMigrationIoPriorityBwLimitPerDeviceInKbps = types.Int64Value(int64(s1.VtreeMigrationIoPriorityBwLimitPerDeviceInKbps))
+        storagePool.VtreeMigrationIoPriorityPolicy = types.StringValue(s1.VtreeMigrationIoPriorityPolicy)
+        storagePool.AddressSpaceUsage = types.StringValue(s1.AddressSpaceUsage)
+        storagePool.ExternalAccelerationType = types.StringValue(s1.ExternalAccelerationType)
+        storagePool.PersistentChecksumState = types.StringValue(s1.PersistentChecksumState)
+        storagePool.UseRfcache = types.BoolValue(s1.UseRfcache)
+        storagePool.ChecksumEnabled = types.BoolValue(s1.ChecksumEnabled)
+        storagePool.CompressionMethod = types.StringValue(s1.CompressionMethod)
+        storagePool.FragmentationEnabled = types.BoolValue(s1.FragmentationEnabled)
+        storagePool.CapacityUsageState = types.StringValue(s1.CapacityUsageState)
+        storagePool.CapacityUsageType = types.StringValue(s1.CapacityUsageType)
+        storagePool.AddressSpaceUsageType = types.StringValue(s1.AddressSpaceUsageType)
+        storagePool.BgScannerCompareErrorAction = types.StringValue(s1.BgScannerCompareErrorAction)
+        storagePool.BgScannerReadErrorAction = types.StringValue(s1.BgScannerReadErrorAction)
+        storagePool.ReplicationCapacityMaxRatio = types.Int64Value(int64(s1.ReplicationCapacityMaxRatio))
+        storagePool.PersistentChecksumEnabled = types.BoolValue(s1.PersistentChecksumEnabled)
+        storagePool.PersistentChecksumBuilderLimitKb = types.Int64Value(int64(s1.PersistentChecksumBuilderLimitKb))
+        storagePool.PersistentChecksumValidateOnRead = types.BoolValue(s1.PersistentChecksumValidateOnRead)
+        storagePool.VtreeMigrationIoPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.VtreeMigrationIoPriorityNumOfConcurrentIosPerDevice))
+        storagePool.ProtectedMaintenanceModeIoPriorityPolicy = types.StringValue(s1.ProtectedMaintenanceModeIoPriorityPolicy)
+        storagePool.BackgroundScannerMode = types.StringValue(s1.BackgroundScannerMode)
+        storagePool.MediaType = types.StringValue(s1.MediaType)
+        return</span>
+}
 </pre>
 		
-		<pre class="file" id="file4" style="display: none">package powerflex
+		<pre class="file" id="file10" style="display: none">package powerflex
+
+import (
+        "context"
+        "terraform-provider-powerflex/helper"
+
+        "github.com/dell/goscaleio"
+        scaleiotypes "github.com/dell/goscaleio/types/v1"
+        "github.com/hashicorp/terraform-plugin-framework/attr"
+        "github.com/hashicorp/terraform-plugin-framework/path"
+        "github.com/hashicorp/terraform-plugin-framework/resource"
+        "github.com/hashicorp/terraform-plugin-framework/types"
+        "github.com/hashicorp/terraform-plugin-log/tflog"
+)
+
+var (
+        _ resource.Resource                = &amp;storagepoolResource{}
+        _ resource.ResourceWithConfigure   = &amp;storagepoolResource{}
+        _ resource.ResourceWithImportState = &amp;storagepoolResource{}
+)
+
+// StoragepoolResource - function to return resource interface
+func StoragepoolResource() resource.Resource <span class="cov8" title="1">{
+        return &amp;storagepoolResource{}
+}</span>
+
+type storagepoolResource struct {
+        client *goscaleio.Client
+}
+
+type storagepoolResourceModel struct {
+        LastUpdated          types.String `tfsdk:"last_updated"`
+        ID                   types.String `tfsdk:"id"`
+        SystemID             types.String `tfsdk:"systemid"`
+        ProtectionDomainID   types.String `tfsdk:"protection_domain_id"`
+        ProtectionDomainName types.String `tfsdk:"protection_domain_name"`
+        Name                 types.String `tfsdk:"name"`
+        MediaType            types.String `tfsdk:"media_type"`
+        UseRmcache           types.Bool   `tfsdk:"use_rmcache"`
+        UseRfcache           types.Bool   `tfsdk:"use_rfcache"`
+        Links                types.List   `tfsdk:"links"`
+}
+
+// Link - MODEL for Storagepool Links data returned by goscaleio.
+type Link struct {
+        Rel  types.String `tfsdk:"rel"`
+        HREF types.String `tfsdk:"href"`
+}
+
+func (r *storagepoolResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) <span class="cov8" title="1">{
+        resp.TypeName = req.ProviderTypeName + "_storagepool"
+}</span>
+
+func (r *storagepoolResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) <span class="cov8" title="1">{
+        resp.Schema = StoragepoolReourceSchema
+}</span>
+
+func (r *storagepoolResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) <span class="cov8" title="1">{
+        if req.ProviderData == nil </span><span class="cov8" title="1">{
+                return
+        }</span>
+        <span class="cov8" title="1">r.client = req.ProviderData.(*goscaleio.Client)</span>
+}
+
+// getNewProtectionDomainEx function to get Protection Domain
+func getNewProtectionDomainEx(c *goscaleio.Client, pdID string, pdName string, href string) (*goscaleio.ProtectionDomain, error) <span class="cov8" title="1">{
+        system, _ := getFirstSystem(c)
+        pdr := goscaleio.NewProtectionDomainEx(c, &amp;scaleiotypes.ProtectionDomain{})
+        if pdID != "" </span><span class="cov8" title="1">{
+                protectionDomain, err := system.FindProtectionDomain(pdID, "", "")
+                pdr.ProtectionDomain = protectionDomain
+                if err != nil </span><span class="cov8" title="1">{
+                        return nil, err
+                }</span>
+        } else<span class="cov8" title="1"> {
+                protectionDomain, err := system.FindProtectionDomain("", pdName, "")
+                pdr.ProtectionDomain = protectionDomain
+                if err != nil </span><span class="cov8" title="1">{
+                        return nil, err
+                }</span>
+        }
+        <span class="cov8" title="1">return pdr, nil</span>
+}
+
+// Function used to Create Storagepool Resource
+func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) <span class="cov8" title="1">{
+        tflog.Debug(ctx, "Create storagepool")
+        // Retrieve values from plan
+        var plan storagepoolResourceModel
+
+        diags := req.Plan.Get(ctx, &amp;plan)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">pd, err := getNewProtectionDomainEx(r.client, plan.ProtectionDomainID.ValueString(), plan.ProtectionDomainName.ValueString(), "")
+        if err != nil </span><span class="cov8" title="1">{
+                resp.Diagnostics.AddError(
+                        "Error getting Protection Domain",
+                        "Could not get Protection Domain, unexpected err: "+err.Error(),
+                )
+                return
+        }</span>
+
+        <span class="cov8" title="1">sp, err := pd.CreateStoragePool(plan.Name.ValueString(), plan.MediaType.ValueString())
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Error creating Storage Pool",
+                        "Could not create Storage Pool, unexpected error: "+err.Error(),
+                )
+                return
+        }</span>
+
+        <span class="cov8" title="1">spResponse, err := pd.FindStoragePool(sp, "", "")
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Error getting Storagepool after creation",
+                        "Could not get Storagepool, unexpected error: "+err.Error(),
+                )
+                return
+        }</span>
+
+        <span class="cov8" title="1">if plan.UseRmcache.ValueBool() </span><span class="cov8" title="1">{
+                rm := goscaleio.NewStoragePoolEx(r.client, spResponse)
+                rm.ModifyRMCache("true")
+        }</span> else<span class="cov8" title="1"> {
+                rm := goscaleio.NewStoragePoolEx(r.client, spResponse)
+                rm.ModifyRMCache("false")
+        }</span>
+
+        <span class="cov8" title="1">if plan.UseRfcache.ValueBool() </span><span class="cov8" title="1">{
+                _, err := pd.EnableRFCache(sp)
+                if err != nil </span><span class="cov0" title="0">{
+                        resp.Diagnostics.AddError(
+                                "Error getting while updating Storagepool",
+                                "Could not get Storagepool, unexpected error: "+err.Error(),
+                        )
+                        return
+                }</span>
+        }
+
+        <span class="cov8" title="1">state := updateStoragepoolState(spResponse, plan)
+        tflog.Debug(ctx, "Create Storagepool :-- "+helper.PrettyJSON(sp))
+        diags = resp.State.Set(ctx, state)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+}
+
+// Function used to Read Storagepool Resource
+func (r *storagepoolResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) <span class="cov8" title="1">{
+        tflog.Debug(ctx, "Read Storagepool")
+        // Get current state
+        var state storagepoolResourceModel
+
+        diags := req.State.Get(ctx, &amp;state)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">pd, err := getNewProtectionDomainEx(r.client, state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString(), "")
+        if err != nil </span><span class="cov8" title="1">{
+                resp.Diagnostics.AddError(
+                        "Error getting Protection Domain",
+                        "Could not get Protection Domain, unexpected err: "+err.Error(),
+                )
+                return
+        }</span>
+
+        <span class="cov8" title="1">spr, err := pd.FindStoragePool(state.ID.ValueString(), "", "")
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Unable to Read Powerflex Storagepool",
+                        err.Error(),
+                )
+                return
+        }</span>
+        <span class="cov8" title="1">spResponse := updateStoragepoolState(spr, state)
+        tflog.Debug(ctx, "Read Storagepool :-- "+helper.PrettyJSON(spr))
+        diags = resp.State.Set(ctx, spResponse)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+}
+
+// Function used to Update Storagepool Resource
+func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) <span class="cov8" title="1">{
+        tflog.Debug(ctx, "Update Storagepool")
+        // Retrieve values from plan
+        var plan storagepoolResourceModel
+
+        diags := req.Plan.Get(ctx, &amp;plan)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+        //Get Current State
+        <span class="cov8" title="1">var state storagepoolResourceModel
+        diags = req.State.Get(ctx, &amp;state)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">pd, err := getNewProtectionDomainEx(r.client, plan.ProtectionDomainID.ValueString(), plan.ProtectionDomainName.ValueString(), "")
+        if err != nil </span><span class="cov8" title="1">{
+                resp.Diagnostics.AddError(
+                        "Error getting Protection Domain",
+                        "Could not get Protection Domain, unexpected err: "+err.Error(),
+                )
+                return
+        }</span>
+
+        <span class="cov8" title="1">if plan.Name.ValueString() != state.Name.ValueString() </span><span class="cov8" title="1">{
+                _, err := pd.ModifyStoragePoolName(state.ID.ValueString(), plan.Name.ValueString())
+                if err != nil </span><span class="cov0" title="0">{
+                        resp.Diagnostics.AddError(
+                                "Error getting while updating Storagepool",
+                                "Could not get Storagepool, unexpected error: "+err.Error(),
+                        )
+                        return
+                }</span>
+        }
+
+        <span class="cov8" title="1">if plan.MediaType.ValueString() != state.MediaType.ValueString() </span><span class="cov8" title="1">{
+                _, err := pd.ModifyStoragePoolMedia(state.ID.ValueString(), plan.MediaType.ValueString())
+                if err != nil </span><span class="cov0" title="0">{
+                        resp.Diagnostics.AddError(
+                                "Error getting while updating Storagepool",
+                                "Could not get Storagepool, unexpected error: "+err.Error(),
+                        )
+                        return
+                }</span>
+        }
+
+        <span class="cov8" title="1">spResponse, err := pd.FindStoragePool(state.ID.ValueString(), "", "")
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Error getting while updating Storagepool",
+                        "Could not get Storagepool, unexpected error: "+err.Error(),
+                )
+                return
+        }</span>
+
+        <span class="cov8" title="1">if plan.UseRmcache.ValueBool() </span><span class="cov8" title="1">{
+                rm := goscaleio.NewStoragePoolEx(r.client, spResponse)
+                rm.ModifyRMCache("true")
+        }</span> else<span class="cov8" title="1"> {
+                rm := goscaleio.NewStoragePoolEx(r.client, spResponse)
+                rm.ModifyRMCache("false")
+        }</span>
+
+        <span class="cov8" title="1">if plan.UseRfcache.ValueBool() </span><span class="cov8" title="1">{
+                _, err := pd.EnableRFCache(spResponse.ID)
+                if err != nil </span><span class="cov0" title="0">{
+                        resp.Diagnostics.AddError(
+                                "Error getting while updating Storagepool",
+                                "Could not get Storagepool, unexpected error: "+err.Error(),
+                        )
+                        return
+                }</span>
+        } else<span class="cov8" title="1"> {
+                _, err := pd.DisableRFCache(spResponse.ID)
+                if err != nil </span><span class="cov0" title="0">{
+                        resp.Diagnostics.AddError(
+                                "Error getting while updating Storagepool",
+                                "Could not get Storagepool, unexpected error: "+err.Error(),
+                        )
+                        return
+                }</span>
+        }
+
+        <span class="cov8" title="1">state1 := updateStoragepoolState(spResponse, plan)
+        tflog.Debug(ctx, "Update Storagepool :-- "+helper.PrettyJSON(spResponse))
+        diags = resp.State.Set(ctx, state1)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+}
+
+// Function used to Delete Storagepool Resource
+func (r *storagepoolResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) <span class="cov8" title="1">{
+        tflog.Debug(ctx, "Delete Storagepool")
+        // Retrieve values from state
+        var state storagepoolResourceModel
+
+        diags := req.State.Get(ctx, &amp;state)
+        resp.Diagnostics.Append(diags...)
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">pd, err := getNewProtectionDomainEx(r.client, state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString(), "")
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Error getting Protection Domain",
+                        "Could not get Protection Domain, unexpected err: "+err.Error(),
+                )
+                return
+        }</span>
+
+        <span class="cov8" title="1">spr, err := r.client.FindStoragePool(state.ID.ValueString(), "", "", "")
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Unable to Find Powerflex Storagepool",
+                        err.Error(),
+                )
+                return
+        }</span>
+        <span class="cov8" title="1">err = pd.DeleteStoragePool(state.Name.ValueString())
+        if err != nil </span><span class="cov0" title="0">{
+                resp.Diagnostics.AddError(
+                        "Error Deleting Storagepool",
+                        "Couldn't Delete Storagepool "+err.Error(),
+                )
+                return
+        }</span>
+        <span class="cov8" title="1">tflog.Debug(ctx, "Delete Storagepool :-- "+helper.PrettyJSON(spr))
+        if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+                return
+        }</span>
+        <span class="cov8" title="1">resp.State.RemoveResource(ctx)</span>
+}
+
+// Function used to ImportState for Storagepool Resource
+func (r *storagepoolResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) <span class="cov8" title="1">{
+        resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}</span>
+
+// Function to update the State for Storagepool Resource
+func updateStoragepoolState(storagepool *scaleiotypes.StoragePool, plan storagepoolResourceModel) (state storagepoolResourceModel) <span class="cov8" title="1">{
+        state.ProtectionDomainID = plan.ProtectionDomainID
+        state.ProtectionDomainName = plan.ProtectionDomainName
+        state.ID = types.StringValue(storagepool.ID)
+        state.Name = types.StringValue(storagepool.Name)
+        state.MediaType = types.StringValue(storagepool.MediaType)
+        state.UseRmcache = types.BoolValue(plan.UseRmcache.ValueBool())
+        state.UseRfcache = types.BoolValue(plan.UseRfcache.ValueBool())
+
+        linkAttrTypes := map[string]attr.Type{
+                "rel":  types.StringType,
+                "href": types.StringType,
+        }
+        linkElemType := types.ObjectType{
+                AttrTypes: linkAttrTypes,
+        }
+
+        objectLinks := []attr.Value{}
+        for _, link := range storagepool.Links </span><span class="cov8" title="1">{
+                obj := map[string]attr.Value{
+                        "rel":  types.StringValue(link.Rel),
+                        "href": types.StringValue(link.HREF),
+                }
+                objVal, _ := types.ObjectValue(linkAttrTypes, obj)
+                objectLinks = append(objectLinks, objVal)
+        }</span>
+        <span class="cov8" title="1">listVal, _ := types.ListValue(linkElemType, objectLinks)
+        state.Links = listVal
+        return state</span>
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package powerflex
 
 import (
         "context"
@@ -1417,7 +3057,7 @@ func updateVolumeState(volumes []*scaleiotypes.Volume) (response []volumeModel) 
 }
 </pre>
 		
-		<pre class="file" id="file5" style="display: none">package powerflex
+		<pre class="file" id="file12" style="display: none">package powerflex
 
 import (
         "context"
@@ -1475,7 +3115,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
         if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
                 return
         }</span>
-        <span class="cov8" title="1">if plan.Size.ValueInt64()%8 != 0 </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">if plan.Size.ValueInt64()%8 != 0 </span><span class="cov0" title="0">{
                 resp.Diagnostics.AddError(
                         "Error: Size Must be in granularity of 8GB",
                         "Could not assign volume with size. sizeInGb ("+strconv.FormatInt(plan.Size.ValueInt64(), 10)+") must be a positive number in granularity of 8 GB.",
@@ -1500,14 +3140,14 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
         }
         spr, _ := getStoragePoolInstance(r.client, volumeCreate.StoragePoolID, plan.StoragePoolName.ValueString(), volumeCreate.ProtectionDomainID, plan.ProtectionDomainName.ValueString())
         volCreateResponse, err1 := spr.CreateVolume(volumeCreate)
-        if err1 != nil </span><span class="cov0" title="0">{
+        if err1 != nil </span><span class="cov8" title="1">{
                 resp.Diagnostics.AddError(
                         "Error creating volume",
                         "Could not create volume, unexpected error: "+err1.Error(),
                 )
                 return
         }</span>
-        <span class="cov8" title="1">volsResponse, err2 := spr.GetVolume("", volCreateResponse.ID, "", "", false)
+        <span class="cov0" title="0">volsResponse, err2 := spr.GetVolume("", volCreateResponse.ID, "", "", false)
         if err2 != nil </span><span class="cov0" title="0">{
                 resp.Diagnostics.AddError(
                         "Error getting volume after creation",
@@ -1515,7 +3155,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
                 )
                 return
         }</span>
-        <span class="cov8" title="1">vol := volsResponse[0]
+        <span class="cov0" title="0">vol := volsResponse[0]
         vr := goscaleio.NewVolume(r.client)
         vr.Volume = vol
         msids := []string{}
@@ -1523,7 +3163,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
         if diags.HasError() </span><span class="cov0" title="0">{
                 resp.Diagnostics.Append(diags...)
         }</span>
-        <span class="cov8" title="1">for _, msid := range msids </span><span class="cov8" title="1">{
+        <span class="cov0" title="0">for _, msid := range msids </span><span class="cov0" title="0">{
                 // Add mapped SDC
                 pfmvsp := pftypes.MapVolumeSdcParam{
                         SdcID:                 msid,
@@ -1547,7 +3187,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
                         )
                 }
         } */
-        <span class="cov8" title="1">volsResponse, err2 = spr.GetVolume("", volCreateResponse.ID, "", "", false)
+        <span class="cov0" title="0">volsResponse, err2 = spr.GetVolume("", volCreateResponse.ID, "", "", false)
         if err2 != nil </span><span class="cov0" title="0">{
                 resp.Diagnostics.AddError(
                         "Error getting volume after mapping the sdcs",
@@ -1555,7 +3195,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
                 )
                 return
         }</span>
-        <span class="cov8" title="1">vol = volsResponse[0]
+        <span class="cov0" title="0">vol = volsResponse[0]
         state := VolumeTerraformState(vol, plan)
         diags = resp.State.Set(ctx, state)
         resp.Diagnostics.Append(diags...)
@@ -1565,7 +3205,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 }
 
 // Read refreshes the Terraform state with the latest data.
-func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) <span class="cov8" title="1">{
+func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) <span class="cov0" title="0">{
         // Get current state
         var state VolumeResourceModel
         diags := req.State.Get(ctx, &amp;state)
@@ -1573,7 +3213,7 @@ func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, res
         if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
                 return
         }</span>
-        <span class="cov8" title="1">spr, err1 := getStoragePoolInstance(r.client, state.StoragePoolID.ValueString(), state.StoragePoolName.ValueString(), state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString())
+        <span class="cov0" title="0">spr, err1 := getStoragePoolInstance(r.client, state.StoragePoolID.ValueString(), state.StoragePoolName.ValueString(), state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString())
         if err1 != nil </span><span class="cov0" title="0">{
                 resp.Diagnostics.AddError(
                         "Error getting storage pool",
@@ -1581,7 +3221,7 @@ func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, res
                 )
                 return
         }</span>
-        <span class="cov8" title="1">volsResponse, err2 := spr.GetVolume("", state.ID.ValueString(), "", "", false)
+        <span class="cov0" title="0">volsResponse, err2 := spr.GetVolume("", state.ID.ValueString(), "", "", false)
         if err2 != nil </span><span class="cov0" title="0">{
                 resp.Diagnostics.AddError(
                         "Error getting volume",
@@ -1589,7 +3229,7 @@ func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, res
                 )
                 return
         }</span>
-        <span class="cov8" title="1">vol := volsResponse[0]
+        <span class="cov0" title="0">vol := volsResponse[0]
         state = VolumeTerraformState(vol, state)
         // Set refreshed state
         diags = resp.State.Set(ctx, state)
@@ -1600,7 +3240,7 @@ func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, res
 }
 
 // Update updates the resource and sets the updated Terraform state on success.
-func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) <span class="cov8" title="1">{
+func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) <span class="cov0" title="0">{
         // Get plan values
         var plan VolumeResourceModel
         diags := req.Plan.Get(ctx, &amp;plan)
@@ -1610,13 +3250,13 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
         }</span>
 
         // Get current state
-        <span class="cov8" title="1">var state VolumeResourceModel
+        <span class="cov0" title="0">var state VolumeResourceModel
         diags = req.State.Get(ctx, &amp;state)
         resp.Diagnostics.Append(diags...)
         if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
                 return
         }</span>
-        <span class="cov8" title="1">VSIKB, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
+        <span class="cov0" title="0">VSIKB, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
         plan.VolumeSizeInKb = types.StringValue(strconv.FormatInt(VSIKB, 10))
 
         spr, err1 := getStoragePoolInstance(r.client, state.StoragePoolID.ValueString(), state.StoragePoolName.ValueString(), state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString())
@@ -1627,12 +3267,12 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
                 )
                 return
         }</span>
-        <span class="cov8" title="1">volsplan, _ := spr.GetVolume("", state.ID.ValueString(), "", "", false)
+        <span class="cov0" title="0">volsplan, _ := spr.GetVolume("", state.ID.ValueString(), "", "", false)
         volresource := goscaleio.NewVolume(r.client)
         volresource.Volume = volsplan[0]
 
         // updating the name of volume if there is change in plan
-        if plan.Name.ValueString() != state.Name.ValueString() </span><span class="cov8" title="1">{
+        if plan.Name.ValueString() != state.Name.ValueString() </span><span class="cov0" title="0">{
                 errRename := volresource.SetVolumeName(plan.Name.ValueString())
                 if errRename != nil </span><span class="cov0" title="0">{
                         resp.Diagnostics.AddError(
@@ -1644,7 +3284,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
         }
 
         // updating the size of the volume if there is change in plan
-        <span class="cov8" title="1">if plan.VolumeSizeInKb.ValueString() != state.VolumeSizeInKb.ValueString() </span><span class="cov8" title="1">{
+        <span class="cov0" title="0">if plan.VolumeSizeInKb.ValueString() != state.VolumeSizeInKb.ValueString() </span><span class="cov0" title="0">{
                 sizeInGb, _ := strconv.Atoi(strconv.FormatInt(VSIKB, 10))
                 sizeInGb = sizeInGb / 1048576
                 sizeInGB := strconv.FormatInt(int64(sizeInGb), 10)
@@ -1659,20 +3299,20 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
                         return
                 }</span>
         }
-        <span class="cov8" title="1">planSdcIds := []string{}
+        <span class="cov0" title="0">planSdcIds := []string{}
         stateSdcIds := []string{}
         diags = plan.MapSdcsID.ElementsAs(ctx, &amp;planSdcIds, true)
         if diags.HasError() </span><span class="cov0" title="0">{
                 resp.Diagnostics.Append(diags...)
         }</span>
-        <span class="cov8" title="1">diags = state.MapSdcsID.ElementsAs(ctx, &amp;stateSdcIds, true)
+        <span class="cov0" title="0">diags = state.MapSdcsID.ElementsAs(ctx, &amp;stateSdcIds, true)
         if diags.HasError() </span><span class="cov0" title="0">{
                 resp.Diagnostics.Append(diags...)
         }</span>
-        <span class="cov8" title="1">mapSdcIds := Difference(planSdcIds, stateSdcIds)
+        <span class="cov0" title="0">mapSdcIds := Difference(planSdcIds, stateSdcIds)
         unmapSdcIds := Difference(stateSdcIds, planSdcIds)
 
-        for _, msi := range mapSdcIds </span><span class="cov8" title="1">{
+        for _, msi := range mapSdcIds </span><span class="cov0" title="0">{
                 pfmvsp := pftypes.MapVolumeSdcParam{
                         SdcID:                 msi,
                         AllowMultipleMappings: "true",
@@ -1687,7 +3327,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
                 }</span>
         }
 
-        <span class="cov8" title="1">for _, usi := range unmapSdcIds </span><span class="cov8" title="1">{
+        <span class="cov0" title="0">for _, usi := range unmapSdcIds </span><span class="cov0" title="0">{
                 err4 := volresource.UnmapVolumeSdc(
                         &amp;pftypes.UnmapVolumeSdcParam{
                                 SdcID: usi,
@@ -1719,7 +3359,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
                                    )
                            }
                    } */
-        <span class="cov8" title="1">vols, _ := spr.GetVolume("", state.ID.ValueString(), "", "", false)
+        <span class="cov0" title="0">vols, _ := spr.GetVolume("", state.ID.ValueString(), "", "", false)
         state = VolumeTerraformState(vols[0], plan)
         // Set refreshed state
         diags = resp.State.Set(ctx, state)
@@ -1730,7 +3370,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
-func (r *volumeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) <span class="cov8" title="1">{
+func (r *volumeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) <span class="cov0" title="0">{
         // Retrieve values from state
         var state VolumeResourceModel
         diags := req.State.Get(ctx, &amp;state)
@@ -1743,7 +3383,7 @@ func (r *volumeResource) Delete(ctx context.Context, req resource.DeleteRequest,
                 )
                 return
         }</span>
-        <span class="cov8" title="1">volsplan, _ := spr.GetVolume("", state.ID.ValueString(), "", "", false)
+        <span class="cov0" title="0">volsplan, _ := spr.GetVolume("", state.ID.ValueString(), "", "", false)
         volresource := goscaleio.NewVolume(r.client)
         volresource.Volume = volsplan[0]
         sdcsToUnmap := []string{}
@@ -1751,7 +3391,7 @@ func (r *volumeResource) Delete(ctx context.Context, req resource.DeleteRequest,
         if diags.HasError() </span><span class="cov0" title="0">{
                 resp.Diagnostics.Append(diags...)
         }</span>
-        <span class="cov8" title="1">for _, stu := range sdcsToUnmap </span><span class="cov8" title="1">{
+        <span class="cov0" title="0">for _, stu := range sdcsToUnmap </span><span class="cov0" title="0">{
                 err := volresource.UnmapVolumeSdc(
                         &amp;pftypes.UnmapVolumeSdcParam{
                                 SdcID: stu,
@@ -1765,7 +3405,7 @@ func (r *volumeResource) Delete(ctx context.Context, req resource.DeleteRequest,
                         return
                 }</span>
         }
-        <span class="cov8" title="1">err := volresource.RemoveVolume("")
+        <span class="cov0" title="0">err := volresource.RemoveVolume("")
         if err != nil </span><span class="cov0" title="0">{
                 resp.Diagnostics.AddError(
                         "Error Removing Volume",
@@ -1773,10 +3413,10 @@ func (r *volumeResource) Delete(ctx context.Context, req resource.DeleteRequest,
                 )
                 return
         }</span>
-        <span class="cov8" title="1">if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
+        <span class="cov0" title="0">if resp.Diagnostics.HasError() </span><span class="cov0" title="0">{
                 return
         }</span>
-        <span class="cov8" title="1">resp.State.RemoveResource(ctx)</span>
+        <span class="cov0" title="0">resp.State.RemoveResource(ctx)</span>
 }
 
 func (r *volumeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) <span class="cov0" title="0">{
@@ -1785,7 +3425,7 @@ func (r *volumeResource) ImportState(ctx context.Context, req resource.ImportSta
 }</span>
 </pre>
 		
-		<pre class="file" id="file6" style="display: none">package powerflex
+		<pre class="file" id="file13" style="display: none">package powerflex
 
 import (
         "context"
@@ -1826,7 +3466,7 @@ func convertToKB(capacityUnit string, size int64) (int64, error) <span class="co
 }
 
 // VolumeTerraformState function to convert goscaleio volume struct to terraform volume struct
-func VolumeTerraformState(vol *pftypes.Volume, plan VolumeResourceModel) (state VolumeResourceModel) <span class="cov8" title="1">{
+func VolumeTerraformState(vol *pftypes.Volume, plan VolumeResourceModel) (state VolumeResourceModel) <span class="cov0" title="0">{
         state.ProtectionDomainID = plan.ProtectionDomainID
         state.ProtectionDomainName = plan.ProtectionDomainName
         state.StoragePoolName = plan.StoragePoolName
@@ -1884,7 +3524,7 @@ func VolumeTerraformState(vol *pftypes.Volume, plan VolumeResourceModel) (state 
         objectLinks := []attr.Value{}
         objectMappedSdcInfos := []attr.Value{}
 
-        for _, link := range vol.Links </span><span class="cov8" title="1">{
+        for _, link := range vol.Links </span><span class="cov0" title="0">{
                 obj := map[string]attr.Value{
                         "rel":  types.StringValue(link.Rel),
                         "href": types.StringValue(link.HREF),
@@ -1892,9 +3532,9 @@ func VolumeTerraformState(vol *pftypes.Volume, plan VolumeResourceModel) (state 
                 objVal, _ := types.ObjectValue(linkAttrTypes, obj)
                 objectLinks = append(objectLinks, objVal)
         }</span>
-        <span class="cov8" title="1">listVal, _ := types.ListValue(linkElemType, objectLinks)
+        <span class="cov0" title="0">listVal, _ := types.ListValue(linkElemType, objectLinks)
 
-        for _, msi := range vol.MappedSdcInfo </span><span class="cov8" title="1">{
+        for _, msi := range vol.MappedSdcInfo </span><span class="cov0" title="0">{
                 obj := map[string]attr.Value{
                         "sdc_id":                   types.StringValue(msi.SdcID),
                         "sdc_ip":                   types.StringValue(msi.SdcIP),
@@ -1907,7 +3547,7 @@ func VolumeTerraformState(vol *pftypes.Volume, plan VolumeResourceModel) (state 
                 objVal, _ := types.ObjectValue(mappedSdcInfoAttrTypes, obj)
                 objectMappedSdcInfos = append(objectMappedSdcInfos, objVal)
         }</span>
-        <span class="cov8" title="1">mappedSdcInfoVal, _ := types.ListValue(mappedSdcInfoElemType, objectMappedSdcInfos)
+        <span class="cov0" title="0">mappedSdcInfoVal, _ := types.ListValue(mappedSdcInfoElemType, objectMappedSdcInfos)
         state.Links = listVal
         state.MappedSdcInfo = mappedSdcInfoVal
         return state</span>
@@ -1925,7 +3565,7 @@ func getStoragePoolInstance(c *goscaleio.Client, spID string, spName string, pdI
                 if err != nil </span><span class="cov0" title="0">{
                         return nil, err
                 }</span>
-        } else<span class="cov8" title="1"> {
+        } else<span class="cov0" title="0"> {
                 protectionDomain, err := sr.FindProtectionDomain("", pdName, "")
                 pdr.ProtectionDomain = protectionDomain
                 if err != nil </span><span class="cov0" title="0">{
@@ -1933,7 +3573,7 @@ func getStoragePoolInstance(c *goscaleio.Client, spID string, spName string, pdI
                 }</span>
         }
         <span class="cov8" title="1">spr := goscaleio.NewStoragePool(c)
-        if spID != "" </span><span class="cov8" title="1">{
+        if spID != "" </span><span class="cov0" title="0">{
                 storagePool, err := pdr.FindStoragePool(spID, "", "")
                 spr.StoragePool = storagePool
                 if err != nil </span><span class="cov0" title="0">{
@@ -1951,19 +3591,19 @@ func getStoragePoolInstance(c *goscaleio.Client, spID string, spName string, pdI
 }
 
 // Difference function to find the state difference b/w sdcs
-func Difference(a, b []string) (diff []string) <span class="cov8" title="1">{
+func Difference(a, b []string) (diff []string) <span class="cov0" title="0">{
         m := make(map[string]bool)
 
-        for _, item := range b </span><span class="cov8" title="1">{
+        for _, item := range b </span><span class="cov0" title="0">{
                 m[item] = true
         }</span>
 
-        <span class="cov8" title="1">for _, item := range a </span><span class="cov8" title="1">{
-                if _, ok := m[item]; !ok </span><span class="cov8" title="1">{
+        <span class="cov0" title="0">for _, item := range a </span><span class="cov0" title="0">{
+                if _, ok := m[item]; !ok </span><span class="cov0" title="0">{
                         diff = append(diff, item)
                 }</span>
         }
-        <span class="cov8" title="1">return</span>
+        <span class="cov0" title="0">return</span>
 }
 
 // stringDefaultModifier is a plan modifier that sets a default value for a

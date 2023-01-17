@@ -174,7 +174,7 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	sdsID, err2 := pdm.CreateSdsWithParams(&params)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("Could not create SDS with name %s and IP list %v and niobuff %d", sdsName, iplist, params.NumOfIoBuffers),
+			fmt.Sprintf("Could not create SDS with name %s and IP list %v", sdsName, iplist),
 			err2.Error(),
 		)
 		return
