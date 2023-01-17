@@ -158,16 +158,16 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 		Name:   sdsName,
 		IPList: iplist,
 	}
-	if !plan.RmcacheEnabled.IsNull() {
+	if !plan.RmcacheEnabled.IsUnknown() {
 		params.RmcacheEnabled = plan.RmcacheEnabled.ValueBool()
 	}
-	if !plan.RmcacheSizeInMB.IsNull() {
+	if !plan.RmcacheSizeInMB.IsUnknown() {
 		params.RmcacheSizeInKb = int(plan.RmcacheSizeInMB.ValueInt64()) * 1024
 	}
-	if !plan.DrlMode.IsNull() {
+	if !plan.DrlMode.IsUnknown() {
 		params.DrlMode = plan.DrlMode.ValueString()
 	}
-	if !plan.Port.IsNull() {
+	if !plan.Port.IsUnknown() {
 		params.Port = int(plan.Port.ValueInt64())
 	}
 	sdsID, err2 := pdm.CreateSdsWithParams(&params)
@@ -180,19 +180,19 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 
 	// Get created SDS
-	if rsp, err := pdm.FindSds("ID", sdsID); err != nil {
+	rsp, err3 := pdm.FindSds("ID", sdsID)
+	if err3 != nil {
 		resp.Diagnostics.AddError(
 			"Error getting SDS after creation",
-			err.Error(),
+			err3.Error(),
 		)
 		return
-	} else {
-		// Set refreshed state
-		state, dgs := updateSdsState(rsp, plan)
-		resp.Diagnostics.Append(dgs...)
-		diags := resp.State.Set(ctx, state)
-		resp.Diagnostics.Append(diags...)
 	}
+	// Set refreshed state
+	state, dgs := updateSdsState(rsp, plan)
+	resp.Diagnostics.Append(dgs...)
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
 
 	if !plan.RfcacheEnabled.IsUnknown() {
 		rfCacheEnabled := plan.RfcacheEnabled.ValueBool()
@@ -217,20 +217,20 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 
 	// Get updated SDS
-	if rsp, err := pdm.FindSds("ID", sdsID); err != nil {
+	rsp, err4 := pdm.FindSds("ID", sdsID)
+	if err4 != nil {
 		resp.Diagnostics.AddError(
 			"Error getting SDS after setting Rf cache and Performance Profile",
-			err.Error(),
+			err4.Error(),
 		)
 		return
-	} else {
-		// Set refreshed state
-		state, dgs := updateSdsState(rsp, plan)
-		resp.Diagnostics.Append(dgs...)
-
-		diags := resp.State.Set(ctx, state)
-		resp.Diagnostics.Append(diags...)
 	}
+	// Set refreshed state
+	state, dgs = updateSdsState(rsp, plan)
+	resp.Diagnostics.Append(dgs...)
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
 }
 
 // Read refreshes the Terraform state with the latest data.
