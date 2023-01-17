@@ -3,12 +3,16 @@
 page_title: "powerflex_sds Resource - powerflex"
 subcategory: ""
 description: |-
-  Manages SDS resource
+  Manages SDSs in powerflex.
+  Note: SDS creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
+  One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 ---
 
 # powerflex_sds (Resource)
 
-Manages SDS resource
+Manages SDSs in powerflex.
+Note: SDS creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
+One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 
 
 
@@ -48,7 +52,7 @@ Manages SDS resource
 
 Required:
 
-- `ip` (String) IP address to be assigned to the Storagepool
+- `ip` (String) IP address to be assigned to the SDS
 - `role` (String) Role to be assigned to the IP address
 
 
