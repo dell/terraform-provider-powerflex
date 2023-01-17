@@ -3,6 +3,7 @@ package powerflex
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
@@ -35,6 +36,7 @@ type sdsResourceModel struct {
 	FaultSetID                   types.String `tfsdk:"fault_set_id"`
 	NumOfIoBuffers               types.Int64  `tfsdk:"num_of_io_buffers"`
 	RmcacheMemoryAllocationState types.String `tfsdk:"rmcache_memory_allocation_state"`
+	PerformanceProfile           types.String `tfsdk:"performance_profile"`
 }
 
 // SDS IP object
@@ -191,6 +193,19 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("Could not set SDS Rf Cache settings to %t", rfCacheEnabled),
+				err.Error(),
+			)
+			return
+		}
+	}
+
+	if !plan.PerformanceProfile.IsUnknown() {
+		perfprof := plan.PerformanceProfile.ValueString()
+		err := pdm.SetSdsPerformanceProfile(sdsID, perfprof)
+		// strings.Contains(strings.ToLower(perfprof), "high"))
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Could not set SDS Performance Profile settings to %s", perfprof),
 				err.Error(),
 			)
 			return
@@ -403,6 +418,20 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		}
 	}
 
+	// Check if performance profile has been changed
+	if !plan.PerformanceProfile.IsUnknown() && !state.PerformanceProfile.Equal(plan.PerformanceProfile) {
+		perfprof := plan.PerformanceProfile.ValueString()
+		err := pdm.SetSdsPerformanceProfile(state.ID.ValueString(), perfprof)
+		//strings.Contains(strings.ToLower(perfprof), "high"))
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Could not set SDS Performance Profile settings to %s", perfprof),
+				err.Error(),
+			)
+			return
+		}
+	}
+
 	// Find updated SDS
 	rsp, err := pdm.FindSds("ID", state.ID.ValueString())
 	if err != nil {
@@ -483,6 +512,14 @@ func updateSdsState(sds *scaleiotypes.Sds, plan sdsResourceModel) (sdsResourceMo
 	state.FaultSetID = types.StringValue(sds.FaultSetID)
 	state.NumOfIoBuffers = types.Int64Value(int64(sds.NumOfIoBuffers))
 	state.RmcacheMemoryAllocationState = types.StringValue(sds.RmcacheMemoryAllocationState)
+
+	prof := sds.PerformanceProfile
+	state.PerformanceProfile = types.StringValue(prof) // func(prof string) basetypes.StringValue {
+	if pprof := plan.PerformanceProfile.ValueString(); pprof != "" && strings.Contains(strings.ToLower(prof), pprof) {
+		state.PerformanceProfile = plan.PerformanceProfile
+	} // else if strings.Contains(strings.ToLower(prof), "custom")
+	// return types.StringValue(prof)
+	// }(sds.PerformanceProfile)
 
 	IPAttrTypes := map[string]attr.Type{
 		"ip":   types.StringType,

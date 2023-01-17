@@ -20,6 +20,7 @@ func TestAccSDSResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_size_in_mb", "156"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "true"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "rfcache_enabled", "true"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "performance_profile", "Compact"),
 					// resource.TestCheckResourceAttr("powerflex_sds.sds", "num_of_io_buffers", "4"),
 					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.ip", "10.247.100.232"),
 					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.role", "all"),
@@ -39,6 +40,7 @@ func TestAccSDSResource(t *testing.T) {
 			// update sds ips from all, sdcOnly to sdsOnly, all
 			// increase rmcache
 			// disable rfcache
+			// Enable high performance profile
 			{
 				Config: ProviderConfigForTesting + updateSDSTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -48,6 +50,7 @@ func TestAccSDSResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_size_in_mb", "256"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "true"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "rfcache_enabled", "false"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "performance_profile", "HighPerformance"),
 					// resource.TestCheckResourceAttr("powerflex_sds.sds", "num_of_io_buffers", "4"),
 					// resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list", map[string]string{
 					// 	"ip":   "10.247.100.232",
@@ -64,6 +67,7 @@ func TestAccSDSResource(t *testing.T) {
 			},
 			// disable sds rmcache
 			// re-enable rfcache
+			// Disable high performance profile
 			{
 				Config: ProviderConfigForTesting + updateSDSTest2,
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -73,6 +77,7 @@ func TestAccSDSResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_size_in_mb", "256"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "false"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "rfcache_enabled", "true"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "performance_profile", "Compact"),
 				),
 			},
 		},
@@ -133,6 +138,7 @@ resource "powerflex_sds" "sds" {
 			role = "sdcOnly"
 		}
 	]
+	performance_profile = "Compact"
 	rmcache_enabled = true
 	rmcache_size_in_mb = 156
 	# num_of_io_buffers = 4
@@ -156,6 +162,7 @@ resource "powerflex_sds" "sds" {
 		}
 	]
 	drl_mode = "Volatile"
+	performance_profile = "HighPerformance"
 	rmcache_size_in_mb = 256
 	rmcache_enabled = true
 	rfcache_enabled = false
@@ -177,6 +184,7 @@ resource "powerflex_sds" "sds" {
 		}
 	]
 	# rmcache_size_in_mb = 256
+	performance_profile = "Compact"
 	rmcache_enabled = false
 	rfcache_enabled = true
 	protection_domain_id = "4eeb304600000000"

@@ -2,6 +2,7 @@ package powerflex
 
 import (
 	"github.com/dell/goscaleio"
+	types "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -101,6 +102,16 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 			Optional:            true,
 			Computed:            true,
 			MarkdownDescription: "Rmcache enabled state of SDS",
+		},
+		"performance_profile": schema.StringAttribute{
+			Description:         "Performance Profile of SDS",
+			Optional:            true,
+			Computed:            true,
+			MarkdownDescription: "Performance Profile of SDS",
+			Validators: []validator.String{stringvalidator.OneOf(
+				types.PerformanceProfileHigh,
+				types.PerformanceProfileCompact,
+			)},
 		},
 		"rfcache_enabled": schema.BoolAttribute{
 			Description:         "Rfcache enabled state of SDS",
