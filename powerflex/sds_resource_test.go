@@ -1,6 +1,7 @@
 package powerflex
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -21,19 +22,14 @@ func TestAccSDSResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "true"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "rfcache_enabled", "true"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "performance_profile", "Compact"),
-					// resource.TestCheckResourceAttr("powerflex_sds.sds", "num_of_io_buffers", "4"),
-					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.ip", "10.247.100.232"),
-					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.role", "all"),
-					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.ip", "10.10.10.1"),
-					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.role", "sdcOnly"),
-					// resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-					// 	"ip":   "10.247.100.232",
-					// 	"role": "all",
-					// }),
-					// resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-					// 	"ip":   "10.10.10.1",
-					// 	"role": "sdcOnly",
-					// }),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
+						"ip":   "10.247.100.232",
+						"role": "all",
+					}),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
+						"ip":   "10.10.10.1",
+						"role": "sdcOnly",
+					}),
 				),
 			},
 			// update sds name
@@ -51,18 +47,14 @@ func TestAccSDSResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "true"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "rfcache_enabled", "false"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "performance_profile", "HighPerformance"),
-					// resource.TestCheckResourceAttr("powerflex_sds.sds", "num_of_io_buffers", "4"),
-					// resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list", map[string]string{
-					// 	"ip":   "10.247.100.232",
-					// 	"role": "sdsOnly",
-					// }),
-					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.role", "sdsOnly"),
-					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.ip", "10.10.10.2"),
-					// resource.TestCheckTypeSetElemAttr("powerflex_sds.sds", "ip_list.*.role", "sdcOnly"),
-					// resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list", map[string]string{
-					// 	"ip":   "10.10.10.2",
-					// 	"role": "sdcOnly",
-					// }),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
+						"ip":   "10.247.100.232",
+						"role": "sdsOnly",
+					}),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
+						"ip":   "10.10.10.2",
+						"role": "sdcOnly",
+					}),
 				),
 			},
 			// disable sds rmcache
@@ -84,7 +76,7 @@ func TestAccSDSResource(t *testing.T) {
 	})
 }
 
-func TestAccSDSResourceManyIP(t *testing.T) {
+func TestAccSDSResourceDuplicateIP(t *testing.T) {
 	createSDSTestMany := `
 		resource "powerflex_sds" "sds" {
 			name = "Tf_SDS_01"
@@ -120,6 +112,132 @@ func TestAccSDSResourceManyIP(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "3"),
 				),
+			},
+		},
+	})
+}
+
+func TestAccSDSResourceCreateWithoutIP(t *testing.T) {
+	createInvalidConfig := `
+		resource "powerflex_sds" "invalid" {
+			name = "Sds123"
+			protection_domain_id = "4eeb304600000000"
+		}
+		`
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// create sds test
+			{
+				Config:      ProviderConfigForTesting + createInvalidConfig,
+				ExpectError: regexp.MustCompile(`.*ip_list.*`),
+			},
+		},
+	})
+}
+
+func TestAccSDSResourceCreateWithBadRole(t *testing.T) {
+	createInvalidConfig := `
+		resource "powerflex_sds" "invalid" {
+			name = "Sds123"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+				{
+					ip = "10.10.10.1"
+					role = "invalidRole"
+				}
+			]
+		}
+		`
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// create sds test
+			{
+				Config:      ProviderConfigForTesting + createInvalidConfig,
+				ExpectError: regexp.MustCompile(`.*role.*`),
+			},
+		},
+	})
+}
+
+func TestAccSDSResourceCreateWithBadPerformanceProfile(t *testing.T) {
+	createInvalidConfig := `
+		resource "powerflex_sds" "invalid" {
+			name = "Sds123"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+				{
+					ip = "10.247.100.232"
+					role = "all"
+				}
+			]
+			performance_profile = "inv"
+		}
+		`
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// create sds test
+			{
+				Config:      ProviderConfigForTesting + createInvalidConfig,
+				ExpectError: regexp.MustCompile(`.*performance_profile.*`),
+			},
+		},
+	})
+}
+
+func TestAccSDSResourceCreateWithoutPD(t *testing.T) {
+	createInvalidConfig := `
+		resource "powerflex_sds" "invalid" {
+			name = "Sds123"
+			ip_list = [
+				{
+					ip = "10.247.100.232"
+					role = "all"
+				},
+				{
+					ip = "10.10.10.1"
+					role = "sdcOnly"
+				}
+			]
+		}
+		`
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// create sds test
+			{
+				Config:      ProviderConfigForTesting + createInvalidConfig,
+				ExpectError: regexp.MustCompile(`.*protection_domain.*`),
+			},
+		},
+	})
+}
+
+func TestAccSDSResourceCreateWithoutName(t *testing.T) {
+	createInvalidConfig := `
+		resource "powerflex_sds" "invalid" {
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+				{
+					ip = "10.247.100.232"
+					role = "all"
+				},
+				{
+					ip = "10.10.10.1"
+					role = "sdcOnly"
+				}
+			]
+		}
+		`
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// create sds test
+			{
+				Config:      ProviderConfigForTesting + createInvalidConfig,
+				ExpectError: regexp.MustCompile(`.*name.*`),
 			},
 		},
 	})
@@ -183,29 +301,9 @@ resource "powerflex_sds" "sds" {
 			role = "sdcOnly"
 		}
 	]
-	# rmcache_size_in_mb = 256
 	performance_profile = "Compact"
 	rmcache_enabled = false
 	rfcache_enabled = true
 	protection_domain_id = "4eeb304600000000"
 }
 `
-
-// var createInvalidConfig = `
-
-// resource "powerflex_storagepool" "storagepool" {
-// 	name = "SP123"
-// 	protection_domain_id = "4eeb304600000000"
-// 	media_type = "HDD"
-// }
-// `
-
-// var updateInvalidConfig = `
-// resource "powerflex_sds" "sds" {
-// 	name = "SDS_UPDATED"
-// 	ip_list = [
-// 		"10.247.101.60"
-// 	]
-// 	protection_domain_id = "4eeb304600000000"
-// }
-// `

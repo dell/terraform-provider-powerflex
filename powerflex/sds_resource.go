@@ -3,7 +3,6 @@ package powerflex
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
@@ -77,6 +76,7 @@ func (r *sdsResource) Configure(_ context.Context, req resource.ConfigureRequest
 	r.client = req.ProviderData.(*goscaleio.Client)
 }
 
+// Conversion of list of IPs from tf model to go type
 func (sds *sdsResourceModel) getIPList(ctx context.Context) []*scaleiotypes.SdsIP {
 	iplist := []*scaleiotypes.SdsIP{}
 	var ipModellist []sdsIPModel
@@ -91,6 +91,7 @@ func (sds *sdsResourceModel) getIPList(ctx context.Context) []*scaleiotypes.SdsI
 	return iplist
 }
 
+// Gte difference between sets of IP in state and plan
 func sdsIPListDiff(ctx context.Context, plan, state *sdsResourceModel) (toAdd, toRmv, changed, common []*scaleiotypes.SdsIP) {
 	plist, slist := plan.getIPList(ctx), state.getIPList(ctx)
 	type ipObj struct {
@@ -167,16 +168,9 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	if !plan.DrlMode.IsNull() {
 		params.DrlMode = plan.DrlMode.ValueString()
 	}
-	if !plan.FaultSetID.IsNull() {
-		params.FaultSetID = plan.FaultSetID.ValueString()
-	}
 	if !plan.Port.IsNull() {
 		params.Port = int(plan.Port.ValueInt64())
 	}
-	// this is still not working for whatever reason
-	// if !plan.NumOfIoBuffers.IsUnknown() {
-	// 	params.NumOfIoBuffers = int(plan.NumOfIoBuffers.ValueInt64())
-	// }
 	sdsID, err2 := pdm.CreateSdsWithParams(&params)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
@@ -202,7 +196,6 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	if !plan.PerformanceProfile.IsUnknown() {
 		perfprof := plan.PerformanceProfile.ValueString()
 		err := pdm.SetSdsPerformanceProfile(sdsID, perfprof)
-		// strings.Contains(strings.ToLower(perfprof), "high"))
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("Could not set SDS Performance Profile settings to %s", perfprof),
@@ -311,9 +304,7 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	}
 
 	// Check if there are updates in ip lists
-	// toAdd, toRmv, changed, common := sdsIPListDiff(ctx, &plan, &state)
 	toAdd, toRmv, changed, _ := sdsIPListDiff(ctx, &plan, &state)
-	// err4 := sds.AddSdSIP("0.2.2.3", goscaleio.RoleSdsOnly)
 	for _, ip := range toAdd {
 		err := pdm.AddSdSIP(state.ID.ValueString(), ip.IP, ip.Role)
 		if err != nil {
@@ -422,7 +413,6 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	if !plan.PerformanceProfile.IsUnknown() && !state.PerformanceProfile.Equal(plan.PerformanceProfile) {
 		perfprof := plan.PerformanceProfile.ValueString()
 		err := pdm.SetSdsPerformanceProfile(state.ID.ValueString(), perfprof)
-		//strings.Contains(strings.ToLower(perfprof), "high"))
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("Could not set SDS Performance Profile settings to %s", perfprof),
@@ -512,14 +502,7 @@ func updateSdsState(sds *scaleiotypes.Sds, plan sdsResourceModel) (sdsResourceMo
 	state.FaultSetID = types.StringValue(sds.FaultSetID)
 	state.NumOfIoBuffers = types.Int64Value(int64(sds.NumOfIoBuffers))
 	state.RmcacheMemoryAllocationState = types.StringValue(sds.RmcacheMemoryAllocationState)
-
-	prof := sds.PerformanceProfile
-	state.PerformanceProfile = types.StringValue(prof) // func(prof string) basetypes.StringValue {
-	if pprof := plan.PerformanceProfile.ValueString(); pprof != "" && strings.Contains(strings.ToLower(prof), pprof) {
-		state.PerformanceProfile = plan.PerformanceProfile
-	} // else if strings.Contains(strings.ToLower(prof), "custom")
-	// return types.StringValue(prof)
-	// }(sds.PerformanceProfile)
+	state.PerformanceProfile = types.StringValue(sds.PerformanceProfile)
 
 	IPAttrTypes := map[string]attr.Type{
 		"ip":   types.StringType,
