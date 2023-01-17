@@ -16,7 +16,18 @@ provider "powerflex" {
 resource "powerflex_sds" "create" {
   name = "SDS_01"
   ip_list = [
-      "10.247.100.232"
+      {
+        ip = "10.247.100.232"
+        role = "sdsOnly"
+      },
+      {
+        ip = "10.10.10.1"
+        role = "sdcOnly"
+      },
+      {
+        ip = "10.10.10.2"
+        role = "sdcOnly"
+      }
     ]
   protection_domain_id = "4eeb304600000000"
 }
