@@ -73,11 +73,6 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 				stringDefault("GB"),
 			},
 		},
-		// "volume_size_in_kb": schema.StringAttribute{
-		// 	Description:         "volume size in kb",
-		// 	Computed:            true,
-		// 	MarkdownDescription: "volume siz in kb",
-		// },
 		"size_in_kb": schema.Int64Attribute{
 			Description:         "Size in KB",
 			Computed:            true,
@@ -125,11 +120,6 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 				stringDefault("ONLY_ME"),
 			},
 		},
-		// "map_sdcs_id": schema.ListAttribute{
-		// 	ElementType:         types.StringType,
-		// 	Optional:            true,
-		// 	MarkdownDescription: "map sdcs id",
-		// },
 		"sdc_list": schema.SetNestedAttribute{
 			Description:         "mapped sdc info",
 			Computed:            true,

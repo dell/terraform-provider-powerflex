@@ -93,13 +93,6 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 		plan.VolumeName = types.StringValue(snapResponse[0].Name)
 	}
 	if !plan.Size.IsNull() {
-		// if plan.Size.ValueInt64()%8 != 0 {
-		// 	resp.Diagnostics.AddError(
-		// 		"Error: Size Must be in granularity of 8GB",
-		// 		"Could not assign volume with size. sizeInGb ("+strconv.FormatInt(plan.Size.ValueInt64(), 10)+") must be a positive number in granularity of 8 GB.",
-		// 	)
-		// 	return
-		// }
 		VSIKB := converterKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 		plan.SizeInKb = types.Int64Value(int64(VSIKB))
 	}
