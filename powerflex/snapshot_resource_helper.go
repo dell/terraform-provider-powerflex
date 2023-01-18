@@ -12,7 +12,7 @@ const (
 	// READWRITE represents access mode limit of snapshot
 	READWRITE = "ReadWrite"
 	// READONLY represents access mode limit of snapshot
-	READONLY = "ReadWrite"
+	READONLY = "ReadOnly"
 )
 
 // SnapshotResourceModel maps the resource schema data.
