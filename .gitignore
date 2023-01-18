@@ -8,6 +8,7 @@ terraform.tfvars
 powerflex/*.env
 powerflex/trace.txt
 examples/trace.txt
-coverage*
+cover*
 test*
+
 
