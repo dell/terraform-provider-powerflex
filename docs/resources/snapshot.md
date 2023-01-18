@@ -3,12 +3,16 @@
 page_title: "powerflex_snapshot Resource - powerflex"
 subcategory: ""
 description: |-
-  Manages snapshot resource
+  Manages Snapshot in powerflex.
+  Note: Snapshot creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
+  One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 ---
 
 # powerflex_snapshot (Resource)
 
-Manages snapshot resource
+Manages Snapshot in powerflex.
+Note: Snapshot creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
+One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 
 
 
@@ -28,7 +32,7 @@ Manages snapshot resource
 - `remove_mode` (String) remove mode of snapshot
 - `retention_unit` (String) retention unit of snapshot
 - `sdc_list` (Attributes Set) mapped sdc info (see [below for nested schema](#nestedatt--sdc_list))
-- `size` (Number) volume size
+- `size` (Number) snapshot size
 - `volume_id` (String) The volume id for which snapshot is created
 - `volume_name` (String) The volume name for which snapshot is created
 

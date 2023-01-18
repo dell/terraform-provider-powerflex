@@ -8,10 +8,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
+// SnapshotMarkdownDescription add notes for resource
+const SnapshotMarkdownDescription = `Manages Snapshot in powerflex.
+Note: Snapshot creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
+One can manually remove the taint and try applying the configuration (after making necessary adjustments).
+`
+
 // SnapshotResourceSchema variable to define schema for the snapshot resource
 var SnapshotResourceSchema schema.Schema = schema.Schema{
 	Description:         "Manages snapshot resource.",
-	MarkdownDescription: "Manages snapshot resource",
+	MarkdownDescription: SnapshotMarkdownDescription,
 	Attributes: map[string]schema.Attribute{
 		"name": schema.StringAttribute{
 			Description:         "The name of the snapshot.",
@@ -60,10 +66,10 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "The ID of the snapshot.",
 		},
 		"size": schema.Int64Attribute{
-			Description:         "volume size",
+			Description:         "snapshot size",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "volume size",
+			MarkdownDescription: "snapshot size",
 		},
 		"capacity_unit": schema.StringAttribute{
 			Description:         "capacity unit",
