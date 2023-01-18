@@ -52,6 +52,7 @@ func (r *snapshotResource) Configure(_ context.Context, req resource.ConfigureRe
 	r.client = req.ProviderData.(*goscaleio.Client)
 }
 
+// ModifyPlan modify resource plan attribute value
 func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	if req.Plan.Raw.IsNull() {
 		return
