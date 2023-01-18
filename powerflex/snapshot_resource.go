@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/dell/goscaleio"
 	pftypes "github.com/dell/goscaleio/types/v1"
@@ -11,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -50,24 +52,117 @@ func (r *snapshotResource) Configure(_ context.Context, req resource.ConfigureRe
 	r.client = req.ProviderData.(*goscaleio.Client)
 }
 
+func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	if req.Plan.Raw.IsNull() {
+		return
+	}
+	var plan SnapshotResourceModel
+	// var state SnapshotResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	// diags = req.State.Get(ctx, &state)
+	// resp.Diagnostics.Append(diags...)
+	sr, err := getFirstSystem(r.client)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting first system",
+			"Could not get first system, unexpected error: "+err.Error(),
+		)
+		return
+	}
+	if !plan.VolumeName.IsNull() {
+		snapResponse, err2 := r.client.GetVolume("", "", "", plan.VolumeName.ValueString(), false)
+		if err2 != nil {
+			resp.Diagnostics.AddError(
+				"Error getting volume",
+				"Could not get volume, unexpected error: "+err2.Error(),
+			)
+			return
+		}
+		plan.VolumeID = types.StringValue(snapResponse[0].ID)
+	}
+	if !plan.VolumeID.IsNull() {
+		snapResponse, err2 := r.client.GetVolume("", plan.VolumeID.ValueString(), "", "", false)
+		if err2 != nil {
+			resp.Diagnostics.AddError(
+				"Error getting volume",
+				"Could not get volume, unexpected error: "+err2.Error(),
+			)
+			return
+		}
+		plan.VolumeName = types.StringValue(snapResponse[0].Name)
+	}
+	if !plan.Size.IsNull() {
+		// if plan.Size.ValueInt64()%8 != 0 {
+		// 	resp.Diagnostics.AddError(
+		// 		"Error: Size Must be in granularity of 8GB",
+		// 		"Could not assign volume with size. sizeInGb ("+strconv.FormatInt(plan.Size.ValueInt64(), 10)+") must be a positive number in granularity of 8 GB.",
+		// 	)
+		// 	return
+		// }
+		VSIKB := converterKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
+		plan.SizeInKb = types.Int64Value(int64(VSIKB))
+	}
+	if plan.SizeInKb.ValueInt64() == 0 {
+		plan.Size = basetypes.NewInt64Unknown()
+		plan.SizeInKb = basetypes.NewInt64Unknown()
+	}
+	if !plan.DesiredRetention.IsNull() {
+		retentionInMin := convertToMin(plan.DesiredRetention.ValueInt64(), plan.RetentionUnit.ValueString())
+		plan.RetentionInMin = types.StringValue(retentionInMin)
+	}
+	sdcList := []SdcList{}
+	diags = plan.SdcList.ElementsAs(ctx, &sdcList, true)
+	resp.Diagnostics.Append(diags...)
+	sdcInfoElemType := types.ObjectType{
+		AttrTypes: SdcInfoAttrTypes,
+	}
+	objectSdcInfos := []attr.Value{}
+	for _, si := range sdcList {
+		if si.SdcID == "" {
+			foundsdc, errA := sr.FindSdc("Name", si.SdcName)
+			if errA != nil {
+				resp.Diagnostics.AddError(
+					"Error getting sdc id from sdc name: "+si.SdcName,
+					"Could not get SDC id, unexpected error: "+errA.Error(),
+				)
+				return
+			}
+			si.SdcID = foundsdc.Sdc.ID
+		}
+		if si.SdcName == "" {
+			foundsdc, errA := sr.FindSdc("ID", si.SdcID)
+			if errA != nil {
+				resp.Diagnostics.AddError(
+					"Error getting sdc name from sdc id: "+si.SdcID,
+					"Could not get SDC name, unexpected error: "+errA.Error(),
+				)
+				return
+			}
+			si.SdcName = foundsdc.Sdc.Name
+		}
+		obj := map[string]attr.Value{
+			"sdc_id":           types.StringValue(si.SdcID),
+			"limit_iops":       types.Int64Value(int64(si.LimitIops)),
+			"limit_bw_in_mbps": types.Int64Value(int64(si.LimitBwInMbps)),
+			"sdc_name":         types.StringValue(si.SdcName),
+			"access_mode":      types.StringValue(si.AccessMode),
+		}
+		objVal, _ := types.ObjectValue(SdcInfoAttrTypes, obj)
+		objectSdcInfos = append(objectSdcInfos, objVal)
+	}
+	mappedSdcInfoVal, _ := types.SetValue(sdcInfoElemType, objectSdcInfos)
+	plan.SdcList = mappedSdcInfoVal
+	diags = resp.Plan.Set(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+}
+
 // Create creates the resource and sets the initial Terraform state.
 func (r *snapshotResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan SnapshotResourceModel
-	attrState := &attrState{
-		name:             false,
-		volumeID:         false,
-		volumeName:       false,
-		desiredRetention: false,
-		retentionUnit:    false,
-		accessMode:       false,
-		capacityUnit:     false,
-		size:             false,
-		sizeInKb:         false,
-		sdcList:          make(map[string]*sdcAttr),
-		errMsg:           make(map[string]string),
-	}
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	errMsg := make(map[string]string, 0)
 	sr, err := getFirstSystem(r.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -85,8 +180,7 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	snapshotReqs = append(snapshotReqs, snapReq)
 	snapParam := &pftypes.SnapshotVolumesParam{
 		SnapshotDefs: snapshotReqs,
-		// RetentionPeriodInMin: convertToMin(plan.DesiredRetention.ValueInt64(), plan.RetentionUnit.ValueString()),
-		AccessMode: plan.AccessMode.ValueString(),
+		AccessMode:   plan.AccessMode.ValueString(),
 	}
 	// create a snapshot of one volume, this requires a volume id and snapshot as parameter
 	snapResps, err := sr.CreateSnapshotConsistencyGroup(snapParam)
@@ -97,11 +191,6 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		)
 		return
 	}
-	// setting success update for name, volume_id, desired_retention, retention_unit and volume_name.
-	attrState.name = true
-	attrState.volumeID = true
-	attrState.volumeName = true
-	attrState.accessMode = true
 	snapID := snapResps.VolumeIDList[0]
 	snapResponse, err2 := r.client.GetVolume("", snapID, "", "", false)
 	if err2 != nil {
@@ -117,27 +206,30 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	snapResource.Volume = snap
 
 	// setting snapshot size. default value will be equal to volume size
-	if !plan.Size.IsNull() {
+	if !plan.Size.IsUnknown() {
 		vikb, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 		tflog.Info(ctx, "vikb"+strconv.FormatInt(vikb, 10))
 		if int64(snapResource.Volume.SizeInKb) != vikb {
-			err3 := snapResource.SetVolumeSize(strconv.FormatInt(plan.Size.ValueInt64(), 10))
-			if err3 != nil {
-				attrState.errMsg["size/capacity_unit"] = err3.Error()
-			} else {
-				attrState.capacityUnit = true
-				attrState.size = true
+			switch plan.CapacityUnit.ValueString() {
+			case "TB":
+				err3 := snapResource.SetVolumeSize(strconv.FormatInt(plan.Size.ValueInt64()*1000, 10))
+				if err3 != nil {
+					errMsg["size/capacity_unit"] = err3.Error()
+				}
+			case "GB":
+				err3 := snapResource.SetVolumeSize(strconv.FormatInt(plan.Size.ValueInt64(), 10))
+				if err3 != nil {
+					errMsg["size/capacity_unit"] = err3.Error()
+				}
 			}
+
 		}
 	}
-	attrState.sizeInKb = true
 	// locking the auto snapshot on finding LockedAutoSnapshot parameter as true
 	if plan.LockAutoSnapshot.ValueBool() {
 		err := snapResource.LockAutoSnapshot()
 		if err != nil {
-			attrState.errMsg["lock_auto_snapshot"] = err.Error()
-		} else {
-			attrState.lockAutoSnapshot = true
+			errMsg["lock_auto_snapshot"] = err.Error()
 		}
 	}
 	// unmarshalling the plan sdclist data into sdcList struct for iterative mapping of snapshot to sdc
@@ -145,20 +237,6 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	diags = plan.SdcList.ElementsAs(ctx, &sdcList, true)
 	resp.Diagnostics.Append(diags...)
 	for _, si := range sdcList {
-		if si.SdcID == "" {
-			foundsdc, errA := sr.FindSdc("Name", si.SdcName)
-			if errA != nil {
-				attrState.errMsg["sdc_map_err_"+si.SdcName] = errA.Error()
-				continue
-			} else {
-				si.SdcID = foundsdc.Sdc.ID
-			}
-		}
-		attrState.sdcList[si.SdcID] = &sdcAttr{
-			isSdcMapped:     false,
-			isSdcLimitSet:   false,
-			isAccessModeSet: false,
-		}
 		// Add mapped SDC
 		pfmvsp := pftypes.MapVolumeSdcParam{
 			SdcID:                 si.SdcID,
@@ -167,9 +245,7 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		// mapping the snapshot to sdc
 		err3 := snapResource.MapVolumeSdc(&pfmvsp)
 		if err3 != nil {
-			attrState.errMsg["sdc_map_err_"+si.SdcID] += "\n" + err3.Error()
-		} else {
-			attrState.sdcList[si.SdcID].isSdcMapped = true
+			errMsg["sdc_map_err_"+si.SdcID] += "\n" + err3.Error()
 		}
 		// setting limits on mapped sdc
 		smslp := pftypes.SetMappedSdcLimitsParam{
@@ -179,27 +255,23 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		}
 		err4 := snapResource.SetMappedSdcLimits(&smslp)
 		if err4 != nil {
-			attrState.errMsg["sdc_map_err_"+si.SdcID] += "\n" + err4.Error()
-		} else {
-			attrState.sdcList[si.SdcID].isSdcLimitSet = true
+			errMsg["sdc_map_err_"+si.SdcID] += "\n" + err4.Error()
 		}
 		err5 := snapResource.SetVolumeMappingAccessMode(si.AccessMode, si.SdcID)
 		if err5 != nil {
-			attrState.errMsg["sdc_map_err_"+si.SdcID] += "\n" + err5.Error()
-		} else {
-			attrState.sdcList[si.SdcID].isAccessModeSet = true
+			errMsg["sdc_map_err_"+si.SdcID] += "\n" + err5.Error()
 		}
 	}
-	if !plan.DesiredRetention.IsNull() {
-		retentionInMin := convertToMin(plan.DesiredRetention.ValueInt64(), plan.RetentionUnit.ValueString())
-		errRetention := snapResource.SetSnapshotSecurity(retentionInMin)
+	// prompting error to reten in case of error with update
+	if (len(errMsg) > 0) && !plan.DesiredRetention.IsNull() {
+		errMsg["desired_retention/retention_unit"] = "The specified snapshot can't be reten with error in create."
+	}
+	if (len(errMsg) == 0) && !plan.DesiredRetention.IsNull() {
+		errRetention := snapResource.SetSnapshotSecurity(plan.RetentionInMin.ValueString())
 		if errRetention != nil {
-			attrState.errMsg["desired_retention/retention_unit"] = errRetention.Error()
-		} else {
-			attrState.desiredRetention = true
+			errMsg["desired_retention/retention_unit"] = errRetention.Error()
 		}
 	}
-	attrState.retentionUnit = true
 	snapResponse, err2 = r.client.GetVolume("", snapID, "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
@@ -209,18 +281,17 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 	snap = snapResponse[0]
-	state := SnapshotTerraformState(snap, plan, attrState)
-	diags = resp.State.Set(ctx, state)
+	refreshState(snap, &plan)
+	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
-	if len(attrState.errMsg) > 0 {
-		failureAction := ""
+	if len(errMsg) > 0 {
 		failureMessage := ""
-		for key, value := range attrState.errMsg {
-			failureAction += key + ", "
-			failureMessage += key + " : " + value + "\n"
+		for key, value := range errMsg {
+			failureMessage += key + " : " + value + ", "
 		}
+		failureMessage = strings.TrimSuffix(failureMessage, ", ")
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("Failed Actions [%v]", failureAction),
+			fmt.Sprintf("Failure Message: [%v]", failureMessage),
 			failureMessage)
 	}
 	if resp.Diagnostics.HasError() {
@@ -287,11 +358,9 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 			errMsg["name"] = err.Error()
 		}
 	}
-	VSIKB, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
-	plan.VolumeSizeInKb = types.StringValue(strconv.FormatInt(VSIKB, 10))
 	// updating the size of the volume if there is change in plan
-	if plan.VolumeSizeInKb.ValueString() != state.VolumeSizeInKb.ValueString() {
-		sizeInGb, _ := strconv.Atoi(strconv.FormatInt(VSIKB, 10))
+	if !plan.SizeInKb.IsUnknown() && (plan.SizeInKb.ValueInt64() != state.SizeInKb.ValueInt64()) {
+		sizeInGb, _ := strconv.Atoi(strconv.FormatInt(plan.SizeInKb.ValueInt64(), 10))
 		sizeInGb = sizeInGb / 1048576
 		sizeInGB := strconv.FormatInt(int64(sizeInGb), 10)
 		err := snapResource.SetVolumeSize(sizeInGB)
@@ -315,10 +384,14 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 	planSdcList := []SdcList{}
 	stateSdcList := []SdcList{}
+
+	//unmarshall the tfsdk sdclist type to go sdclist type
 	diags = plan.SdcList.ElementsAs(ctx, &planSdcList, true)
 	resp.Diagnostics.Append(diags...)
 	diags = state.SdcList.ElementsAs(ctx, &stateSdcList, true)
 	resp.Diagnostics.Append(diags...)
+
+	// getting all the sdc_ids from plan and state sdc list and saving into respective list for finding sdc to map and unmap.
 	planSdcIds := []string{}
 	stateSdcIds := []string{}
 	for _, psl := range planSdcList {
@@ -327,8 +400,14 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	for _, ssl := range stateSdcList {
 		stateSdcIds = append(stateSdcIds, ssl.SdcID)
 	}
+
+	// mapSdcIds will be storing the sdc id for which mapping action need to perform.
 	mapSdcIds := Difference(planSdcIds, stateSdcIds)
+
+	// unmapSdcIds will be storing the sdc id for which unmapping action need to perform.
 	unmapSdcIds := Difference(stateSdcIds, planSdcIds)
+
+	// nonchangeSdcIds will be storing the sdc id for which mapping parameter change action need to perform.
 	nonchangeSdcIds := Difference(planSdcIds, mapSdcIds)
 
 	// changing the access mode in case of change in access mode state
@@ -339,6 +418,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 		}
 	}
 
+	// retervial of sdc id from mapping list
 	for _, msi := range mapSdcIds {
 		pfmvsp := pftypes.MapVolumeSdcParam{
 			SdcID:                 msi,
@@ -348,6 +428,8 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 		if err3 != nil {
 			errMsg["sdc_map_err_"+msi] += "\n" + err3.Error()
 		}
+
+		// getting sdc parameter to set while mapping
 		for _, ssl := range planSdcList {
 			if ssl.SdcID == msi {
 				smslp := pftypes.SetMappedSdcLimitsParam{
@@ -367,6 +449,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 		}
 	}
 
+	// reterival of sdc id from unmapping list.
 	for _, usi := range unmapSdcIds {
 		err4 := snapResource.UnmapVolumeSdc(
 			&pftypes.UnmapVolumeSdcParam{
@@ -378,22 +461,28 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 		}
 	}
 
+	// reterival of sdc id from non changed sdc list.
 	for _, ncsi := range nonchangeSdcIds {
 		var planObj SdcList
 		var stateObj SdcList
 
+		// getting the plan sdc obj for comparision with state
 		for _, psl := range planSdcList {
 			if ncsi == psl.SdcID {
 				planObj = psl
 				break
 			}
 		}
+
+		// getting the state sdc obj for comparision with plan
 		for _, ssl := range stateSdcList {
 			if ncsi == ssl.SdcID {
 				stateObj = ssl
 				break
 			}
 		}
+
+		// updating the sdc mapping parameters: limit iops and bandwidth limits if there is change in plan and state
 		if (planObj.LimitIops != stateObj.LimitIops) || (planObj.LimitBwInMbps != stateObj.LimitBwInMbps) {
 			smslp := pftypes.SetMappedSdcLimitsParam{
 				SdcID:                planObj.SdcID,
@@ -406,6 +495,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 			}
 		}
 
+		// updating the access mode for sdc mapping if there is change in plan and state
 		if planObj.AccessMode != stateObj.AccessMode {
 			err5 := snapResource.SetVolumeMappingAccessMode(planObj.AccessMode, planObj.SdcID)
 			if err5 != nil {
@@ -422,13 +512,21 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 			errMsg["access-readwrite"] = err.Error()
 		}
 	}
-	if !plan.DesiredRetention.IsNull() && ((plan.RetentionUnit.ValueString() != state.RetentionUnit.String()) || (plan.DesiredRetention.ValueInt64() != state.DesiredRetention.ValueInt64())) {
-		retentionInMin := convertToMin(plan.DesiredRetention.ValueInt64(), plan.RetentionUnit.ValueString())
-		err := snapResource.SetSnapshotSecurity(retentionInMin)
+
+	// prompting error to reten in case of error with update
+	if (len(errMsg) > 0) && !plan.DesiredRetention.IsNull() {
+		errMsg["desired_retention/retention_unit"] = "The specified snapshot can't be reten with error in update."
+	}
+
+	// updating the retention in min if there is change in plan and state.
+	if (len(errMsg) == 0) && plan.DesiredRetention.ValueInt64() != state.DesiredRetention.ValueInt64() {
+		err := snapResource.SetSnapshotSecurity(plan.RetentionInMin.ValueString())
 		if err != nil {
 			errMsg["desired_retention/retention_unit"] = err.Error()
 		}
 	}
+
+	// getting the updated snapshot instance
 	snapResponse, err2 = r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
@@ -439,18 +537,21 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 	snap = snapResponse[0]
 	snapResource.Volume = snap
-	refreshState(snap, &state)
-	diags = resp.State.Set(ctx, state)
+	// refreshing the state
+	refreshState(snap, &plan)
+	// setting the state
+	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
+
+	// Adding error if the len of errMsg is greater than zero.
 	if len(errMsg) > 0 {
-		failureAction := ""
 		failureMessage := ""
 		for key, value := range errMsg {
-			failureAction += key + ", "
-			failureMessage += key + " : " + value + "\n"
+			failureMessage += key + " : " + value + ", "
 		}
+		failureMessage = strings.TrimSuffix(failureMessage, ", ")
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("Failed Actions [%v]", failureAction),
+			fmt.Sprintf("Failure Message: [%v]", failureMessage),
 			failureMessage)
 	}
 	if resp.Diagnostics.HasError() {
@@ -502,77 +603,6 @@ func (r *snapshotResource) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 	resp.State.RemoveResource(ctx)
-}
-
-func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	if req.Plan.Raw.IsNull() {
-		return 
-	}
-	var plan SnapshotResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	errMsg := make(map[string]string, 0)
-	sr, err := getFirstSystem(r.client)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error getting first system",
-			"Could not get first system, unexpected error: "+err.Error(),
-		)
-		return
-	}
-	if !plan.VolumeName.IsNull() {
-		snapResponse, err2 := r.client.GetVolume("", "", "", plan.VolumeName.ValueString(), false)
-		if err2 != nil {
-			resp.Diagnostics.AddError(
-				"Error getting volume",
-				"Could not get volume, unexpected error: "+err2.Error(),
-			)
-			return
-		}
-		plan.VolumeID = types.StringValue(snapResponse[0].ID)
-	}
-	sdcList := []SdcList{}
-	diags = plan.SdcList.ElementsAs(ctx, &sdcList, true)
-	resp.Diagnostics.Append(diags...)
-	for _, si := range sdcList {
-		if si.SdcID == "" {
-			foundsdc, errA := sr.FindSdc("Name", si.SdcName)
-			if errA != nil {
-				errMsg["sdc_map_err_"+si.SdcName] = errA.Error()
-				continue
-			} else {
-				si.SdcID = foundsdc.Sdc.ID
-			}
-		}
-	}
-	sdcInfoElemType := types.ObjectType{
-		AttrTypes: SdcInfoAttrTypes,
-	}
-	objectSdcInfos := []attr.Value{}
-	for _, si := range sdcList {
-		// refreshing state for drift outside terraform
-		if si.SdcID == "" {
-			foundsdc, errA := sr.FindSdc("Name", si.SdcName)
-			if errA != nil {
-				errMsg["sdc_map_err_"+si.SdcName] = errA.Error()
-			} else {
-				si.SdcID = foundsdc.Sdc.ID
-			}
-		}
-		obj := map[string]attr.Value{
-			"sdc_id":           types.StringValue(si.SdcID),
-			"limit_iops":       types.Int64Value(int64(si.LimitIops)),
-			"limit_bw_in_mbps": types.Int64Value(int64(si.LimitBwInMbps)),
-			"sdc_name":         types.StringValue(si.SdcName),
-			"access_mode":      types.StringValue(si.AccessMode),
-		}
-		objVal, _ := types.ObjectValue(SdcInfoAttrTypes, obj)
-		objectSdcInfos = append(objectSdcInfos, objVal)
-	}
-	mappedSdcInfoVal, _ := types.SetValue(sdcInfoElemType, objectSdcInfos)
-	plan.SdcList = mappedSdcInfoVal
-	diags = resp.Plan.Set(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
 }
 
 func (r *snapshotResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

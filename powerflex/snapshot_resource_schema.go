@@ -23,6 +23,9 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			Optional:            true,
 			Computed:            true,
 			MarkdownDescription: "The volume id for which snapshot is created",
+			Validators: []validator.String{
+				stringvalidator.ExactlyOneOf(path.MatchRoot("volume_name")),
+			},
 		},
 		"volume_name": schema.StringAttribute{
 			Description:         "The volume name for which snapshot is created.",
@@ -54,6 +57,7 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 		"size": schema.Int64Attribute{
 			Description:         "volume size",
 			Optional:            true,
+			Computed:            true,
 			MarkdownDescription: "volume size",
 		},
 		"capacity_unit": schema.StringAttribute{
@@ -69,11 +73,11 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 				stringDefault("GB"),
 			},
 		},
-		"volume_size_in_kb": schema.StringAttribute{
-			Description:         "volume size in kb",
-			Computed:            true,
-			MarkdownDescription: "volume siz in kb",
-		},
+		// "volume_size_in_kb": schema.StringAttribute{
+		// 	Description:         "volume size in kb",
+		// 	Computed:            true,
+		// 	MarkdownDescription: "volume siz in kb",
+		// },
 		"size_in_kb": schema.Int64Attribute{
 			Description:         "Size in KB",
 			Computed:            true,
@@ -102,6 +106,11 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			PlanModifiers: []planmodifier.String{
 				stringDefault("hours"),
 			},
+		},
+		"retention_in_min": schema.StringAttribute{
+			Description:         "retention of snapshot in min",
+			Computed:            true,
+			MarkdownDescription: "retention of snapshot in min",
 		},
 		"remove_mode": schema.StringAttribute{
 			Description:         "remove mode of snapshot",

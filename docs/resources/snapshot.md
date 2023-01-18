@@ -35,8 +35,8 @@ Manages snapshot resource
 ### Read-Only
 
 - `id` (String) The ID of the snapshot.
+- `retention_in_min` (String) retention of snapshot in min
 - `size_in_kb` (Number) Size in KB
-- `volume_size_in_kb` (String) volume siz in kb
 
 <a id="nestedatt--sdc_list"></a>
 ### Nested Schema for `sdc_list`
