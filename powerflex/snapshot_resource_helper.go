@@ -78,7 +78,7 @@ func refreshState(snap *pftypes.Volume, prestate *SnapshotResourceModel) {
 	} else {
 		drift = diff1 - prestate.DesiredRetention.ValueInt64()*HourInMins*MinuteInSeconds
 	}
-	if diff1 > 0  && drift > SecondsThreshold && drift < -SecondsThreshold{
+	if diff1 > 0 && drift > SecondsThreshold && drift < -SecondsThreshold {
 		prestate.RetentionInMin = types.StringValue(strconv.FormatInt(diff1/60, 10))
 	}
 	sdcInfoElemType := types.ObjectType{
