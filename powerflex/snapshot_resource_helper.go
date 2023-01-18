@@ -31,7 +31,6 @@ type SnapshotResourceModel struct {
 	DesiredRetention types.Int64  `tfsdk:"desired_retention"`
 	RetentionUnit    types.String `tfsdk:"retention_unit"`
 	RetentionInMin   types.String `tfsdk:"retention_in_min"`
-	// MapSdcIds          types.List   `tfsdk:"map_sdcs_id"`
 }
 
 // SdcList struct for sdc info response mapping to terrafrom
