@@ -38,7 +38,6 @@ install: build
 	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 	mv ${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 
-
 uninstall:
 	rm -rfv ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
 	find examples -type d -name ".terraform" -exec rm -rfv "{}" +;
@@ -68,5 +67,6 @@ generate:
 	go generate ./...
 
 cover:
+	rm -f coverage.*
 	go test -coverprofile=coverage.out ./...
 	go tool cover -html coverage.out -o coverage.html
