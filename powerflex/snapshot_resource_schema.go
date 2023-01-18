@@ -17,6 +17,9 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			Description:         "The name of the snapshot.",
 			Required:            true,
 			MarkdownDescription: "The name of the snapshot.",
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 		"volume_id": schema.StringAttribute{
 			Description:         "The volume id for which snapshot is created.",
@@ -24,6 +27,7 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			Computed:            true,
 			MarkdownDescription: "The volume id for which snapshot is created",
 			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("volume_name")),
 			},
 		},
@@ -33,6 +37,7 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			Computed:            true,
 			MarkdownDescription: "The volume name for which snapshot is created",
 			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("volume_id")),
 			},
 		},
@@ -133,6 +138,7 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 						Computed:            true,
 						MarkdownDescription: "The ID of the SDC",
 						Validators: []validator.String{
+							stringvalidator.LengthAtLeast(1),
 							stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("sdc_name")),
 						},
 					},
@@ -142,6 +148,7 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 						Optional:            true,
 						MarkdownDescription: "The Name of the SDC",
 						Validators: []validator.String{
+							stringvalidator.LengthAtLeast(1),
 							stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("sdc_id")),
 						},
 					},

@@ -200,7 +200,7 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 
 	// setting snapshot size. default value will be equal to volume size
 	if !plan.Size.IsUnknown() {
-		vikb, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
+		vikb := converterKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 		tflog.Info(ctx, "vikb"+strconv.FormatInt(vikb, 10))
 		if int64(snapResource.Volume.SizeInKb) != vikb {
 			switch plan.CapacityUnit.ValueString() {

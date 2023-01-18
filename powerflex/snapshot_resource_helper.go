@@ -13,6 +13,14 @@ const (
 	READWRITE = "ReadWrite"
 	// READONLY represents access mode limit of snapshot
 	READONLY = "ReadOnly"
+	// SecondsThreshold represents platform epoch drift
+	SecondsThreshold = 300
+	// DayInMins represents day in min
+	DayInMins = 24 * HourInMins
+	// HourInMins represents hour in min
+	HourInMins = 60
+	// MinuteInSeconds represents min in sec.
+	MinuteInSeconds = 60
 )
 
 // SnapshotResourceModel maps the resource schema data.
@@ -52,6 +60,7 @@ var SdcInfoAttrTypes = map[string]attr.Type{
 }
 
 func refreshState(snap *pftypes.Volume, prestate *SnapshotResourceModel) {
+	var drift int64
 	prestate.ID = types.StringValue(snap.ID)
 	prestate.Name = types.StringValue(snap.Name)
 	prestate.AccessMode = types.StringValue(snap.AccessModeLimit)
@@ -64,10 +73,12 @@ func refreshState(snap *pftypes.Volume, prestate *SnapshotResourceModel) {
 	}
 	prestate.LockAutoSnapshot = types.BoolValue(snap.LockedAutoSnapshot)
 	diff1 := int64(snap.SecureSnapshotExpTime) - int64(snap.CreationTime)
-	drift := diff1 - prestate.DesiredRetention.ValueInt64()*60
-	if drift < 600 && drift > -600 {
-		prestate.RetentionInMin = types.StringValue(prestate.DesiredRetention.String())
+	if prestate.RetentionUnit.ValueString() == "days" {
+		drift = diff1 - prestate.DesiredRetention.ValueInt64()*DayInMins*MinuteInSeconds
 	} else {
+		drift = diff1 - prestate.DesiredRetention.ValueInt64()*HourInMins*MinuteInSeconds
+	}
+	if drift > SecondsThreshold && drift < -SecondsThreshold {
 		prestate.RetentionInMin = types.StringValue(strconv.FormatInt(diff1/60, 10))
 	}
 	sdcInfoElemType := types.ObjectType{
@@ -93,16 +104,14 @@ func refreshState(snap *pftypes.Volume, prestate *SnapshotResourceModel) {
 func convertToMin(desireRetention int64, retentionUnit string) string {
 	retentionMin := ""
 	if retentionUnit == "days" {
-		// retentionMin = strconv.FormatInt(desireRetention*24*60, 10)
-		retentionMin = strconv.FormatInt(desireRetention*2, 10)
+		retentionMin = strconv.FormatInt(desireRetention*DayInMins, 10)
 	} else {
-		// retentionMin = strconv.FormatInt(desireRetention*60, 10)
-		retentionMin = strconv.FormatInt(desireRetention*1, 10)
+		retentionMin = strconv.FormatInt(desireRetention*HourInMins, 10)
 	}
 	return retentionMin
 }
 
-// covertToKB fucntion to convert size into kb
+// coverterKB fucntion to convert size into kb
 func converterKB(capacityUnit string, size int64) int64 {
 	var valInKiB int64
 	switch capacityUnit {
