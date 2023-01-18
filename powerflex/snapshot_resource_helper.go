@@ -8,6 +8,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+const (
+	// READWRITE represents access mode limit of snapshot
+	READWRITE = "ReadWrite"
+	// READONLY represents access mode limit of snapshot
+	READONLY = "ReadWrite"
+)
+
 // SnapshotResourceModel maps the resource schema data.
 type SnapshotResourceModel struct {
 	Name             types.String `tfsdk:"name"`
@@ -36,7 +43,7 @@ type SdcList struct {
 	AccessMode    string `tfsdk:"access_mode"`
 }
 
-// SdcInfoAttrTypes for defining sdc list stuct into terraform type
+// SdcInfoAttrTypes for defining sdc list struct into terraform type
 var SdcInfoAttrTypes = map[string]attr.Type{
 	"sdc_id":           types.StringType,
 	"limit_iops":       types.Int64Type,

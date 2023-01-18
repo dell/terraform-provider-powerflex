@@ -411,10 +411,10 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	nonchangeSdcIds := Difference(planSdcIds, mapSdcIds)
 
 	// changing the access mode in case of change in access mode state
-	if (plan.AccessMode.ValueString() == "ReadWrite") && (state.AccessMode.ValueString() == "ReadOnly") {
+	if (plan.AccessMode.ValueString() == READWRITE) && (state.AccessMode.ValueString() == READONLY) {
 		err := snapResource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
 		if err != nil {
-			errMsg["access-readwrite"] = err.Error()
+			errMsg["access"] = err.Error()
 		}
 	}
 
@@ -506,10 +506,10 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 
 	// changing the access mode in case of change in access mode state
-	if (plan.AccessMode.ValueString() == "ReadOnly") && (state.AccessMode.ValueString() == "ReadWrite") {
+	if (plan.AccessMode.ValueString() == READONLY) && (state.AccessMode.ValueString() == READWRITE) {
 		err := snapResource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
 		if err != nil {
-			errMsg["access-readwrite"] = err.Error()
+			errMsg["access"] = err.Error()
 		}
 	}
 
