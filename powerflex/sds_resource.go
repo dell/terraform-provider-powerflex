@@ -120,10 +120,8 @@ func sdsIPListDiff(ctx context.Context, plan, state *sdsResourceModel) (toAdd, t
 				}
 			} else {
 				toRmv = append(toRmv, mip.sip)
-				// toAdd = append(toAdd, mip.pip)
 			}
 		} else {
-			// toRmv = append(toRmv, mip.pip)
 			toAdd = append(toAdd, mip.pip)
 		}
 	}

@@ -12,6 +12,7 @@ import (
 const sdsResourceSchemaDescription = `Manages SDSs in powerflex.
 Note: SDS creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
+Warning: If the taint is not removed, terraform will destroy and recreate the resource.
 `
 
 // SDSResourceSchema variable to define schema for the SDS resource
