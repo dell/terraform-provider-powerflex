@@ -215,7 +215,6 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 		},
 		"mapped_sdc_info": schema.ListNestedAttribute{
 			Description:         "mapped sdc info",
-			Optional:            true,
 			Computed:            true,
 			MarkdownDescription: "mapped sdc info",
 			NestedObject: schema.NestedAttributeObject{

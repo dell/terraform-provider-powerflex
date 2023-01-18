@@ -14,10 +14,8 @@ import (
 )
 
 const (
-	// MiKB to convert size in megabytes
-	MiKB = 1024
 	// GiKB to convert size in gigabytes
-	GiKB = 1024 * MiKB
+	GiKB = 1024 * 1024
 	// TiKB to convert size in terabytes
 	TiKB = 1024 * GiKB
 )
@@ -26,8 +24,6 @@ const (
 func convertToKB(capacityUnit string, size int64) (int64, error) {
 	var valInKiB int64
 	switch capacityUnit {
-	case "MB":
-		valInKiB = size * MiKB
 	case "TB":
 		valInKiB = size * TiKB
 	case "GB":
@@ -204,11 +200,9 @@ func (m stringDefaultModifier) MarkdownDescription(ctx context.Context) string {
 // replacement, and returning diagnostics.
 func (m stringDefaultModifier) PlanModifyString(ctx context.Context, req planmodifier.StringRequest, resp *planmodifier.StringResponse) {
 	// If the value is unknown or known, do not set default value.
-	// if !req.PlanValue.IsNull() {
-	// 	return
-	// }
-
-	resp.PlanValue = types.StringValue(m.Default)
+	if req.PlanValue.IsUnknown() {
+		resp.PlanValue = types.StringValue(m.Default)
+	}
 }
 
 func stringDefault(defaultValue string) planmodifier.String {

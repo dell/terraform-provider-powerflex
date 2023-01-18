@@ -24,7 +24,6 @@ Manages volume resource
 
 - `capacity_unit` (String) capacity unit
 - `map_sdcs_id` (List of String) map sdcs id
-- `mapped_sdc_info` (Attributes List) mapped sdc info (see [below for nested schema](#nestedatt--mapped_sdc_info))
 - `protection_domain_id` (String) Protection Domain ID.
 - `protection_domain_name` (String) Protection Domain Name.
 - `storage_pool_id` (String) storage pool id
@@ -45,6 +44,7 @@ Manages volume resource
 - `locked_auto_snapshot_marked_for_removal` (Boolean) locaked auto snapshot marked for removal
 - `managed_by` (String) managed by
 - `mapped_scsi_initiator_info` (String) mapped scsi initiator info
+- `mapped_sdc_info` (Attributes List) mapped sdc info (see [below for nested schema](#nestedatt--mapped_sdc_info))
 - `mapping_to_all_sdcs_enabled` (Boolean) mapping to all sdcs enabled
 - `not_genuine_snapshot` (Boolean) not genuine snapshot
 - `original_expiry_time` (Number) original expriry time
@@ -59,6 +59,15 @@ Manages volume resource
 - `volume_type` (String) volume type
 - `vtree_id` (String) vtree id
 
+<a id="nestedatt--links"></a>
+### Nested Schema for `links`
+
+Read-Only:
+
+- `href` (String) href
+- `rel` (String) rel
+
+
 <a id="nestedatt--mapped_sdc_info"></a>
 ### Nested Schema for `mapped_sdc_info`
 
@@ -71,14 +80,5 @@ Read-Only:
 - `sdc_id` (String) The ID of the SDC
 - `sdc_ip` (String) The IP of the SDC
 - `sdc_name` (String) The Name of the SDC
-
-
-<a id="nestedatt--links"></a>
-### Nested Schema for `links`
-
-Read-Only:
-
-- `href` (String) href
-- `rel` (String) rel
 
 
