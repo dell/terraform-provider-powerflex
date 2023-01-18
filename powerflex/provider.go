@@ -222,6 +222,7 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 // Resources defines the resources implemented in the provider.
 func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		NewSDSResource,
 		NewVolumeResource,
 		NewSnapshotResource,
 		SDCResource,
