@@ -104,6 +104,8 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 	if !plan.DesiredRetention.IsNull() {
 		retentionInMin := convertToMin(plan.DesiredRetention.ValueInt64(), plan.RetentionUnit.ValueString())
 		plan.RetentionInMin = types.StringValue(retentionInMin)
+	} else {
+		plan.RetentionInMin = basetypes.NewStringNull()
 	}
 	sdcList := []SdcList{}
 	diags = plan.SdcList.ElementsAs(ctx, &sdcList, true)
@@ -256,9 +258,9 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 			errMsg["sdc_map_err_"+si.SdcID] += "\n" + err5.Error()
 		}
 	}
-	// prompting error to reten in case of error with update
+	// disabling retention in case of error with update
 	if (len(errMsg) > 0) && !plan.DesiredRetention.IsNull() {
-		errMsg["desired_retention/retention_unit"] = "The specified snapshot can't be reten with error in create."
+		errMsg["desired_retention/retention_unit"] = "The specified snapshot can't be retained due to failure in creation."
 	}
 	if (len(errMsg) == 0) && !plan.DesiredRetention.IsNull() {
 		errRetention := snapResource.SetSnapshotSecurity(plan.RetentionInMin.ValueString())
@@ -507,9 +509,9 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 		}
 	}
 
-	// prompting error to reten in case of error with update
+	// disabling retention in case of error with update
 	if (len(errMsg) > 0) && !plan.DesiredRetention.IsNull() {
-		errMsg["desired_retention/retention_unit"] = "The specified snapshot can't be reten with error in update."
+		errMsg["desired_retention/retention_unit"] = "The specified snapshot can't be retained due to failure in update."
 	}
 
 	// updating the retention in min if there is change in plan and state.
