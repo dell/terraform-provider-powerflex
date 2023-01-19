@@ -71,7 +71,7 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 		)
 		return
 	}
-	if plan.VolumeName.ValueString() != ""  {
+	if plan.VolumeName.ValueString() != "" {
 		snapResponse, err2 := r.client.GetVolume("", "", "", plan.VolumeName.ValueString(), false)
 		if err2 != nil {
 			resp.Diagnostics.AddError(
