@@ -169,6 +169,7 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 	var err error
 
 	diags := req.Config.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
 	tflog.Info(ctx, "[POWERFLEX] protectionDomainDataSourceModel"+helper.PrettyJSON((state)))
 
 	systems, err := d.client.GetSystems()

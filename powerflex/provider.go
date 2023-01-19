@@ -224,6 +224,7 @@ func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resou
 	return []func() resource.Resource{
 		NewSDSResource,
 		NewVolumeResource,
+		NewSnapshotResource,
 		SDCResource,
 		StoragepoolResource,
 	}
