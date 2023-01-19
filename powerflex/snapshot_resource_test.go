@@ -287,11 +287,11 @@ func TestAccSnapshotResource(t *testing.T) {
 				ExpectError: regexp.MustCompile(`.*The specified volume is not an auto-snapshot and hence cannot be locked*.`),
 			},
 			{
-				Config: ProviderConfigForTesting + createSnapshotWithInvalidVolumeID,
+				Config:      ProviderConfigForTesting + createSnapshotWithInvalidVolumeID,
 				ExpectError: regexp.MustCompile(`.*Error getting volume by id*.`),
 			},
 			{
-				Config: ProviderConfigForTesting + createSnapshotWithInvalideVolumeName,
+				Config:      ProviderConfigForTesting + createSnapshotWithInvalideVolumeName,
 				ExpectError: regexp.MustCompile(`.*Error getting volume by name*.`),
 			},
 		},
