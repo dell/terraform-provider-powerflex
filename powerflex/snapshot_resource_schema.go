@@ -12,6 +12,7 @@ import (
 const SnapshotMarkdownDescription = `Manages Snapshot in powerflex.
 Note: Snapshot creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
+Warning: If the taint is not removed, terraform will destroy and recreate the resource.
 `
 
 // SnapshotResourceSchema variable to define schema for the snapshot resource
@@ -178,6 +179,7 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 						Validators: []validator.String{stringvalidator.OneOf(
 							"ReadOnly",
 							"ReadWrite",
+							"NoAccess",
 						)},
 						PlanModifiers: []planmodifier.String{
 							stringDefault("ReadOnly"),

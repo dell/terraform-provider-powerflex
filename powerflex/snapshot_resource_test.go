@@ -141,7 +141,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
 			sdc_id = "c423b09900000004"
 			limit_iops = 190
 			limit_bw_in_mbps = 70
-			access_mode = "ReadWrite"
+			access_mode = "NoAccess"
 		},
     		{
 			sdc_id = "c423b09a00000005"
@@ -287,11 +287,11 @@ func TestAccSnapshotResource(t *testing.T) {
 				ExpectError: regexp.MustCompile(`.*The specified volume is not an auto-snapshot and hence cannot be locked*.`),
 			},
 			{
-				Config:      ProviderConfigForTesting + createSnapshotWithInvalidVolumeID,
+				Config: ProviderConfigForTesting + createSnapshotWithInvalidVolumeID,
 				ExpectError: regexp.MustCompile(`.*Error getting volume by id*.`),
 			},
 			{
-				Config:      ProviderConfigForTesting + createSnapshotWithInvalideVolumeName,
+				Config: ProviderConfigForTesting + createSnapshotWithInvalideVolumeName,
 				ExpectError: regexp.MustCompile(`.*Error getting volume by name*.`),
 			},
 		},
