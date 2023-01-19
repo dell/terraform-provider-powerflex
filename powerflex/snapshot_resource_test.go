@@ -198,6 +198,20 @@ resource "powerflex_snapshot" "snapshots-create-locked-auto-invalid" {
 }
 `
 
+var createSnapshotWithInvalidVolumeID = `
+resource "powerflex_snapshot" "snapshots-create" {
+	name = "snapshots-create-alpha"
+	volume_id = "inv"
+}
+`
+
+var createSnapshotWithInvalideVolumeName = `
+resource "powerflex_snapshot" "snapshots-create" {
+	name = "snapshots-create-alpha"
+	volume_name = "inv"
+}
+`
+
 func TestAccSnapshotResource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -271,6 +285,14 @@ func TestAccSnapshotResource(t *testing.T) {
 			{
 				Config:      ProviderConfigForTesting + createSnapshotLockedAutoSnapshotNegTest,
 				ExpectError: regexp.MustCompile(`.*The specified volume is not an auto-snapshot and hence cannot be locked*.`),
+			},
+			{
+				Config: ProviderConfigForTesting + createSnapshotWithInvalidVolumeID,
+				ExpectError: regexp.MustCompile(`.*Error getting volume by id*.`),
+			},
+			{
+				Config: ProviderConfigForTesting + createSnapshotWithInvalideVolumeName,
+				ExpectError: regexp.MustCompile(`.*Error getting volume by name*.`),
 			},
 		},
 	})

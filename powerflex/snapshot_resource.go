@@ -67,16 +67,16 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting first system",
-			"Could not get first system, unexpected error: "+err.Error(),
+			"unexpected error: "+err.Error(),
 		)
 		return
 	}
-	if !plan.VolumeName.IsNull() {
+	if plan.VolumeName.ValueString() != ""  {
 		snapResponse, err2 := r.client.GetVolume("", "", "", plan.VolumeName.ValueString(), false)
 		if err2 != nil {
 			resp.Diagnostics.AddError(
-				"Error getting volume",
-				"Could not get volume, unexpected error: "+err2.Error(),
+				"Error getting volume by name",
+				"unexpected error: "+err2.Error(),
 			)
 			return
 		}
@@ -86,8 +86,8 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 		snapResponse, err2 := r.client.GetVolume("", plan.VolumeID.ValueString(), "", "", false)
 		if err2 != nil {
 			resp.Diagnostics.AddError(
-				"Error getting volume",
-				"Could not get volume, unexpected error: "+err2.Error(),
+				"Error getting volume by id",
+				"unexpected error: "+err2.Error(),
 			)
 			return
 		}
@@ -120,7 +120,7 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 			if errA != nil {
 				resp.Diagnostics.AddError(
 					"Error getting sdc id from sdc name: "+si.SdcName,
-					"Could not get SDC id, unexpected error: "+errA.Error(),
+					"unexpected error: "+errA.Error(),
 				)
 				return
 			}
@@ -131,7 +131,7 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 			if errA != nil {
 				resp.Diagnostics.AddError(
 					"Error getting sdc name from sdc id: "+si.SdcID,
-					"Could not get SDC name, unexpected error: "+errA.Error(),
+					"unexpected error: "+errA.Error(),
 				)
 				return
 			}
@@ -163,7 +163,7 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting first system",
-			"Could not get first system, unexpected error: "+err.Error(),
+			"unexpected error: "+err.Error(),
 		)
 		return
 	}
@@ -183,7 +183,7 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error creating snapshot",
-			"Could not create snapshot, unexpected err: "+err.Error(),
+			"unexpected err: "+err.Error(),
 		)
 		return
 	}
@@ -192,7 +192,7 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	if err2 != nil {
 		resp.Diagnostics.AddError(
 			"Error getting snapshot",
-			"Could not get snapshot, unexpected error: "+err2.Error(),
+			"unexpected error: "+err2.Error(),
 		)
 		// add state update here before so we don't lose the creation of snapshot
 		return
