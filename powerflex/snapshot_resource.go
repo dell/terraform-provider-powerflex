@@ -144,10 +144,13 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 			"sdc_name":         types.StringValue(si.SdcName),
 			"access_mode":      types.StringValue(si.AccessMode),
 		}
-		objVal, _ := types.ObjectValue(SdcInfoAttrTypes, obj)
+		objVal, dgs1 := types.ObjectValue(SdcInfoAttrTypes, obj)
+		diags = append(diags, dgs1...)
 		objectSdcInfos = append(objectSdcInfos, objVal)
 	}
-	mappedSdcInfoVal, _ := types.SetValue(sdcInfoElemType, objectSdcInfos)
+	mappedSdcInfoVal, dgs2 := types.SetValue(sdcInfoElemType, objectSdcInfos)
+	diags = append(diags, dgs2...)
+	resp.Diagnostics.Append(diags...)
 	plan.SdcList = mappedSdcInfoVal
 	diags = resp.Plan.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -277,7 +280,8 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 	snap = snapResponse[0]
-	refreshState(snap, &plan)
+	dgs := refreshState(snap, &plan)
+	resp.Diagnostics.Append(dgs...)
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if len(errMsg) > 0 {
@@ -310,7 +314,8 @@ func (r *snapshotResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 	snap := snapResponse[0]
-	refreshState(snap, &state)
+	dgs := refreshState(snap, &state)
+	resp.Diagnostics.Append(dgs...)
 	// checking for volume from which snapshot is created
 	vol, errVol := r.client.GetVolume("", state.VolumeID.ValueString(), "", "", false)
 	if errVol != nil {
@@ -356,12 +361,15 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 	// updating the size of the volume if there is change in plan
 	if !plan.SizeInKb.IsUnknown() && (plan.SizeInKb.ValueInt64() != state.SizeInKb.ValueInt64()) {
-		sizeInGb, _ := strconv.Atoi(strconv.FormatInt(plan.SizeInKb.ValueInt64(), 10))
+		sizeInGb, err1 := strconv.Atoi(strconv.FormatInt(plan.SizeInKb.ValueInt64(), 10))
+		if err1 != nil {
+			errMsg["size: int-to-string-conversion-error"] = err1.Error()
+		}
 		sizeInGb = sizeInGb / 1048576
 		sizeInGB := strconv.FormatInt(int64(sizeInGb), 10)
-		err := snapResource.SetVolumeSize(sizeInGB)
-		if err != nil {
-			errMsg["size/capacity_unit"] = err.Error()
+		err2 := snapResource.SetVolumeSize(sizeInGB)
+		if err2 != nil {
+			errMsg["size/capacity_unit"] = err2.Error()
 		}
 	}
 	// locking the snapshot in case of change in LockedAutoSnapshot state to true
@@ -534,7 +542,8 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	snap = snapResponse[0]
 	snapResource.Volume = snap
 	// refreshing the state
-	refreshState(snap, &plan)
+	dgs := refreshState(snap, &plan)
+	resp.Diagnostics.Append(dgs...)
 	// setting the state
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)

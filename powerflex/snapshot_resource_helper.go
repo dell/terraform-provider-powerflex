@@ -5,6 +5,7 @@ import (
 
 	pftypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -59,7 +60,7 @@ var SdcInfoAttrTypes = map[string]attr.Type{
 	"access_mode":      types.StringType,
 }
 
-func refreshState(snap *pftypes.Volume, prestate *SnapshotResourceModel) {
+func refreshState(snap *pftypes.Volume, prestate *SnapshotResourceModel) (diags diag.Diagnostics) {
 	var drift int64
 	prestate.ID = types.StringValue(snap.ID)
 	prestate.Name = types.StringValue(snap.Name)
@@ -94,11 +95,14 @@ func refreshState(snap *pftypes.Volume, prestate *SnapshotResourceModel) {
 			"sdc_name":         types.StringValue(msi.SdcName),
 			"access_mode":      types.StringValue(msi.AccessMode),
 		}
-		objVal, _ := types.ObjectValue(SdcInfoAttrTypes, obj)
+		objVal, diag1 := types.ObjectValue(SdcInfoAttrTypes, obj)
+		diags = append(diags, diag1...)
 		objectSdcInfos = append(objectSdcInfos, objVal)
 	}
-	mappedSdcInfoVal, _ := types.SetValue(sdcInfoElemType, objectSdcInfos)
+	mappedSdcInfoVal, diag2 := types.SetValue(sdcInfoElemType, objectSdcInfos)
+	diags = append(diags, diag2...)
 	prestate.SdcList = mappedSdcInfoVal
+	return
 }
 
 func convertToMin(desireRetention int64, retentionUnit string) string {
