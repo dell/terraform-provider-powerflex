@@ -2,160 +2,131 @@ package powerflex
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"strconv"
 
 	"github.com/dell/goscaleio"
 	pftypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 const (
+	// MiKB to convert size in megabytes
+	MiKB = 1024
 	// GiKB to convert size in gigabytes
-	GiKB = 1024 * 1024
+	GiKB = 1024 * MiKB
 	// TiKB to convert size in terabytes
 	TiKB = 1024 * GiKB
+/* 	// READWRITE represents access mode limit of volume
+	READWRITE = "ReadWrite"
+	// READONLY represents access mode limit of volume
+	READONLY = "ReadOnly" */
 )
 
+/* var SdcInfoAttrTypes = map[string]attr.Type{
+	"sdc_id":           types.StringType,
+	"limit_iops":       types.Int64Type,
+	"limit_bw_in_mbps": types.Int64Type,
+	"sdc_name":         types.StringType,
+	"access_mode":      types.StringType,
+} */
+
+// VolumeResourceModel maps the resource schema data.
+type VolumeResourceModel struct {
+	ProtectionDomainName types.String `tfsdk:"protection_domain_name"`
+	ProtectionDomainID   types.String `tfsdk:"protection_domain_id"`
+	StoragePoolName      types.String `tfsdk:"storage_pool_name"`
+	StoragePoolID        types.String `tfsdk:"storage_pool_id"`
+	VolumeType           types.String `tfsdk:"volume_type"`
+	UseRmCache           types.Bool   `tfsdk:"use_rm_cache"`
+	CompressionMethod    types.String `tfsdk:"compression_method"`
+	Size                 types.Int64  `tfsdk:"size"`
+	CapacityUnit         types.String `tfsdk:"capacity_unit"`
+	Name                 types.String `tfsdk:"name"`
+	SizeInKb             types.Int64  `tfsdk:"size_in_kb"`
+	ID                   types.String `tfsdk:"id"`
+	AccessMode           types.String `tfsdk:"access_mode"`
+	RemoveMode           types.String `tfsdk:"remove_mode"`
+	SdcList              types.Set    `tfsdk:"sdc_list"`
+}
+
+// SDCItemize maps the sdc_list schema data
+type SDCItemize struct {
+	SdcID         string `tfsdk:"sdc_id"`
+	LimitIops     int    `tfsdk:"limit_iops"`
+	LimitBwInMbps int    `tfsdk:"limit_bw_in_mbps"`
+	SdcName       string `tfsdk:"sdc_name"`
+	AccessMode    string `tfsdk:"access_mode"`
+}
+
 // covertToKB fucntion to convert size into kb
-func convertToKB(capacityUnit string, size int64) (int64, error) {
+func convertToKB(capacityUnit string, size int64) int64 {
 	var valInKiB int64
 	switch capacityUnit {
+	case "MB":
+		valInKiB = size * MiKB
 	case "TB":
 		valInKiB = size * TiKB
 	case "GB":
 		valInKiB = size * GiKB
 	default:
-		return 0, errors.New("invalid capacity unit")
+		return 0
 	}
-	return int64(valInKiB), nil
+	return int64(valInKiB)
 }
 
-// VolumeTerraformState function to convert goscaleio volume struct to terraform volume struct
-func VolumeTerraformState(vol *pftypes.Volume, plan VolumeResourceModel) (state VolumeResourceModel) {
-	state.ProtectionDomainID = plan.ProtectionDomainID
-	state.ProtectionDomainName = plan.ProtectionDomainName
-	state.StoragePoolName = plan.StoragePoolName
-	state.Size = plan.Size
-	state.CapacityUnit = plan.CapacityUnit
-	state.MapSdcsID = plan.MapSdcsID
-	state.LockedAutoSnapshot = types.BoolValue(vol.LockedAutoSnapshot)
-	VSIKB, _ := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
-	state.VolumeSizeInKb = types.StringValue(strconv.FormatInt(VSIKB, 10))
+// refreshState function to update the state of volume resource in terraform.tfstate file
+func refreshVolumeState(vol *pftypes.Volume, state *VolumeResourceModel) (diags diag.Diagnostics) {
 	state.StoragePoolID = types.StringValue(vol.StoragePoolID)
 	state.UseRmCache = types.BoolValue(vol.UseRmCache)
-	state.MappingToAllSdcsEnabled = types.BoolValue(vol.MappingToAllSdcsEnabled)
-	state.IsObfuscated = types.BoolValue(vol.IsObfuscated)
 	state.VolumeType = types.StringValue(vol.VolumeType)
-	state.ConsistencyGroupID = types.StringValue(vol.ConsistencyGroupID)
-	state.VTreeID = types.StringValue(vol.VTreeID)
-	state.AncestorVolumeID = types.StringValue(vol.AncestorVolumeID)
-	state.MappedScsiInitiatorInfo = types.StringValue(vol.MappedScsiInitiatorInfo)
 	state.SizeInKb = types.Int64Value(int64(vol.SizeInKb))
-	state.CreationTime = types.Int64Value(int64(vol.CreationTime))
 	state.Name = types.StringValue(vol.Name)
 	state.ID = types.StringValue(vol.ID)
-	state.DataLayout = types.StringValue(vol.DataLayout)
-	state.NotGenuineSnapshot = types.BoolValue(vol.NotGenuineSnapshot)
-	state.AccessModeLimit = types.StringValue(vol.AccessModeLimit)
-	state.SecureSnapshotExpTime = types.Int64Value(int64(vol.SecureSnapshotExpTime))
-	state.ManagedBy = types.StringValue(vol.ManagedBy)
-	state.LockedAutoSnapshotMarkedForRemoval = types.BoolValue(vol.LockedAutoSnapshotMarkedForRemoval)
+	state.AccessMode = types.StringValue(vol.AccessModeLimit)
 	state.CompressionMethod = types.StringValue(vol.CompressionMethod)
-	state.TimeStampIsAccurate = types.BoolValue(vol.TimeStampIsAccurate)
-	state.OriginalExpiryTime = types.Int64Value(int64(vol.OriginalExpiryTime))
-	state.VolumeReplicationState = types.StringValue(vol.VolumeReplicationState)
-	state.ReplicationJournalVolume = types.BoolValue(vol.ReplicationJournalVolume)
-	state.ReplicationTimeStamp = types.Int64Value(int64(vol.ReplicationTimeStamp))
-
-	linkAttrTypes := map[string]attr.Type{
-		"rel":  types.StringType,
-		"href": types.StringType,
+	sdcInfoElemType := types.ObjectType{
+		AttrTypes: SdcInfoAttrTypes,
 	}
-	mappedSdcInfoAttrTypes := map[string]attr.Type{
-		"sdc_id":                   types.StringType,
-		"sdc_ip":                   types.StringType,
-		"limit_iops":               types.Int64Type,
-		"limit_bw_in_mbps":         types.Int64Type,
-		"sdc_name":                 types.StringType,
-		"access_mode":              types.StringType,
-		"is_direct_buffer_mapping": types.BoolType,
-	}
-	linkElemType := types.ObjectType{
-		AttrTypes: linkAttrTypes,
-	}
-	mappedSdcInfoElemType := types.ObjectType{
-		AttrTypes: mappedSdcInfoAttrTypes,
-	}
-	objectLinks := []attr.Value{}
-	objectMappedSdcInfos := []attr.Value{}
-
-	for _, link := range vol.Links {
-		obj := map[string]attr.Value{
-			"rel":  types.StringValue(link.Rel),
-			"href": types.StringValue(link.HREF),
-		}
-		objVal, _ := types.ObjectValue(linkAttrTypes, obj)
-		objectLinks = append(objectLinks, objVal)
-	}
-	listVal, _ := types.ListValue(linkElemType, objectLinks)
-
+	objectSdcInfos := []attr.Value{}
 	for _, msi := range vol.MappedSdcInfo {
+		// refreshing state for drift outside terraform
 		obj := map[string]attr.Value{
-			"sdc_id":                   types.StringValue(msi.SdcID),
-			"sdc_ip":                   types.StringValue(msi.SdcIP),
-			"limit_iops":               types.Int64Value(int64(msi.LimitIops)),
-			"limit_bw_in_mbps":         types.Int64Value(int64(msi.LimitBwInMbps)),
-			"sdc_name":                 types.StringValue(msi.SdcName),
-			"access_mode":              types.StringValue(msi.AccessMode),
-			"is_direct_buffer_mapping": types.BoolValue(msi.IsDirectBufferMapping),
+			"sdc_id":           types.StringValue(msi.SdcID),
+			"limit_iops":       types.Int64Value(int64(msi.LimitIops)),
+			"limit_bw_in_mbps": types.Int64Value(int64(msi.LimitBwInMbps)),
+			"sdc_name":         types.StringValue(msi.SdcName),
+			"access_mode":      types.StringValue(msi.AccessMode),
 		}
-		objVal, _ := types.ObjectValue(mappedSdcInfoAttrTypes, obj)
-		objectMappedSdcInfos = append(objectMappedSdcInfos, objVal)
+		objVal, diag1 := types.ObjectValue(SdcInfoAttrTypes, obj)
+		diags = append(diags, diag1...)
+		objectSdcInfos = append(objectSdcInfos, objVal)
 	}
-	mappedSdcInfoVal, _ := types.ListValue(mappedSdcInfoElemType, objectMappedSdcInfos)
-	state.Links = listVal
-	state.MappedSdcInfo = mappedSdcInfoVal
-	return state
+	mappedSdcInfoVal, diag2  := types.SetValue(sdcInfoElemType, objectSdcInfos)
+	diags = append(diags, diag2...)
+	state.SdcList = mappedSdcInfoVal
+	return
 }
 
 // getStoragePoolInstance function to get storage pool from storage pool id and protection domain id
-func getStoragePoolInstance(c *goscaleio.Client, spID string, spName string, pdID string, pdName string) (*goscaleio.StoragePool, error) {
+func getStoragePoolInstance(c *goscaleio.Client, spID string, pdID string) (*goscaleio.StoragePool, error) {
 	getSystems, _ := c.GetSystems()
 	sr := goscaleio.NewSystem(c)
 	sr.System = getSystems[0]
 	pdr := goscaleio.NewProtectionDomain(c)
-	if pdID != "" {
-		protectionDomain, err := sr.FindProtectionDomain(pdID, "", "")
-		pdr.ProtectionDomain = protectionDomain
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		protectionDomain, err := sr.FindProtectionDomain("", pdName, "")
-		pdr.ProtectionDomain = protectionDomain
-		if err != nil {
-			return nil, err
-		}
+	protectionDomain, err := sr.FindProtectionDomain(pdID, "", "")
+	pdr.ProtectionDomain = protectionDomain
+	if err != nil {
+		return nil, err
 	}
 	spr := goscaleio.NewStoragePool(c)
-	if spID != "" {
-		storagePool, err := pdr.FindStoragePool(spID, "", "")
-		spr.StoragePool = storagePool
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		storagePool, err := pdr.FindStoragePool("", spName, "")
-		spr.StoragePool = storagePool
-		if err != nil {
-			return nil, err
-		}
+	storagePool, err := pdr.FindStoragePool(spID, "", "")
+	spr.StoragePool = storagePool
+	if err != nil {
+		return nil, err
 	}
-
 	return spr, nil
 }
 
@@ -200,6 +171,9 @@ func (m stringDefaultModifier) MarkdownDescription(ctx context.Context) string {
 // replacement, and returning diagnostics.
 func (m stringDefaultModifier) PlanModifyString(ctx context.Context, req planmodifier.StringRequest, resp *planmodifier.StringResponse) {
 	// If the value is unknown or known, do not set default value.
+	if req.PlanValue.IsNull() {
+		resp.PlanValue = types.StringValue(m.Default)
+	}
 	if req.PlanValue.IsUnknown() {
 		resp.PlanValue = types.StringValue(m.Default)
 	}
