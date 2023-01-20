@@ -2,6 +2,7 @@ package powerflex
 
 import (
 	"os"
+	"regexp"
 	"testing"
 
 	"reflect"
@@ -30,6 +31,10 @@ var (
 	ProtectionDomainDataSourceConfig2 string
 	ProtectionDomainDataSourceConfig3 string
 	ProtectionDomainDataSourceConfig4 string
+	ProtectionDomainDataSourceConfig5 string
+	ProtectionDomainDataSourceConfig6 string
+	ProtectionDomainDataSourceConfig7 string
+	ProtectionDomainDataSourceConfig8 string
 )
 
 // TestAccProtectionDomainDataSource tests the protectiondomain data source
@@ -63,7 +68,7 @@ func TestAccProtectionDomainDataSource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + ProtectionDomainDataSourceConfig3,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd3", "protection_domains.#", "3"),
+					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd3", "protection_domains.#", "4"),
 					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd3", "protection_domains.0.id", protectiondomainTestData.id),
 					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd3", "protection_domains.0.name", protectiondomainTestData.name),
 					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd3", "protection_domains.1.name", protectiondomainTestData.name2),
@@ -120,6 +125,36 @@ func TestNonNullReplicationCapacityMaxRatio(t *testing.T) {
 	}
 }
 
+func TestNegativeScenarios(t *testing.T) {
+	os.Setenv("TF_ACC", "1")
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      ProviderConfigForTesting + ProtectionDomainDataSourceConfig4,
+				ExpectError: regexp.MustCompile(`.*Invalid Attribute Combination.*`),
+			},
+			{
+				Config:      ProviderConfigForTesting + ProtectionDomainDataSourceConfig5,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex ProtectionDomain by ID.*`),
+			},
+			{
+				Config:      ProviderConfigForTesting + ProtectionDomainDataSourceConfig6,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex ProtectionDomain by name.*`),
+			},
+			{
+				Config:      ProviderConfigForTesting + ProtectionDomainDataSourceConfig7,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex ProtectionDomain by ID.*`),
+			},
+			{
+				Config:      ProviderConfigForTesting + ProtectionDomainDataSourceConfig8,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex ProtectionDomain by name.*`),
+			},
+		},
+	})
+}
+
 func init() {
 	// retrieve protection domain by id
 	ProtectionDomainDataSourceConfig1 = `
@@ -136,6 +171,42 @@ func init() {
 	// retrieve all protection domains
 	ProtectionDomainDataSourceConfig3 = `
 	data "powerflex_protection_domain" "pd3" {						
+	}
+	`
+
+	// retrieve all protection domain by id and name
+	ProtectionDomainDataSourceConfig4 = `
+	data "powerflex_protection_domain" "pd4" {
+		name = "domain1"
+		id = "4eeb304600000000"
+	}
+	`
+
+	// retrieve protection domain by non existing id
+	ProtectionDomainDataSourceConfig5 = `
+	data "powerflex_protection_domain" "pd5" {
+		id = "non_existing_id"
+	}
+	`
+
+	// retrieve protection domain by non existing name
+	ProtectionDomainDataSourceConfig6 = `
+	data "powerflex_protection_domain" "pd6" {
+		name = "non_existing_name"
+	}
+	`
+
+	// retrieve protection domain by empty id
+	ProtectionDomainDataSourceConfig7 = `
+	data "powerflex_protection_domain" "pd7" {
+		id = ""
+	}
+	`
+
+	// retrieve protection domain by empty name
+	ProtectionDomainDataSourceConfig8 = `
+	data "powerflex_protection_domain" "pd8" {
+		name = ""
 	}
 	`
 }
