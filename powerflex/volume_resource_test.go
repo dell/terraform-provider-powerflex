@@ -111,7 +111,7 @@ func TestAccVolumeResource(t *testing.T) {
 				ExpectError: regexp.MustCompile(`.*Error getting protection domain*.`),
 			},
 			{
-				Config:      ProviderConfigForTesting + modifyPlanProtectionDomainIdNegTest,
+				Config:      ProviderConfigForTesting + modifyPlanProtectionDomainIDNegTest,
 				ExpectError: regexp.MustCompile(`.*Error getting protection domain with id*.`),
 			},
 			{
@@ -119,7 +119,7 @@ func TestAccVolumeResource(t *testing.T) {
 				ExpectError: regexp.MustCompile(`.*Error getting storage pool*.`),
 			},
 			{
-				Config:      ProviderConfigForTesting + modifyPlanStoragePoolIdNegTest,
+				Config:      ProviderConfigForTesting + modifyPlanStoragePoolIDNegTest,
 				ExpectError: regexp.MustCompile(`.*Error getting storage pool with id*.`),
 			},
 			{
@@ -127,7 +127,7 @@ func TestAccVolumeResource(t *testing.T) {
 				ExpectError: regexp.MustCompile(`.*Error getting sdc with the name*.`),
 			},
 			{
-				Config:      ProviderConfigForTesting + modifyPlanSdcIdNegTest,
+				Config:      ProviderConfigForTesting + modifyPlanSdcIDNegTest,
 				ExpectError: regexp.MustCompile(`.*Error getting sdc name from sdc id*.`),
 			},
 			{
