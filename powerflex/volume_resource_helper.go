@@ -19,10 +19,13 @@ const (
 	GiKB = 1024 * MiKB
 	// TiKB to convert size in terabytes
 	TiKB = 1024 * GiKB
-/* 	// READWRITE represents access mode limit of volume
-	READWRITE = "ReadWrite"
-	// READONLY represents access mode limit of volume
-	READONLY = "ReadOnly" */
+
+/*
+	 	// READWRITE represents access mode limit of volume
+		READWRITE = "ReadWrite"
+		// READONLY represents access mode limit of volume
+		READONLY = "ReadOnly"
+*/
 )
 
 /* var SdcInfoAttrTypes = map[string]attr.Type{
@@ -104,7 +107,7 @@ func refreshVolumeState(vol *pftypes.Volume, state *VolumeResourceModel) (diags 
 		diags = append(diags, diag1...)
 		objectSdcInfos = append(objectSdcInfos, objVal)
 	}
-	mappedSdcInfoVal, diag2  := types.SetValue(sdcInfoElemType, objectSdcInfos)
+	mappedSdcInfoVal, diag2 := types.SetValue(sdcInfoElemType, objectSdcInfos)
 	diags = append(diags, diag2...)
 	state.SdcList = mappedSdcInfoVal
 	return

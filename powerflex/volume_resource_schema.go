@@ -8,10 +8,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
+// VolumeMarkdownDescription add notes for resource
+const VolumeMarkdownDescription = `Manages Volume in powerflex.
+Note: Volume creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
+One can manually remove the taint and try applying the configuration (after making necessary adjustments).
+Warning: If the taint is not removed, terraform will destroy and recreate the resource.
+`
+
 // VolumeResourceSchema variable to define schema for the volume resource
 var VolumeResourceSchema schema.Schema = schema.Schema{
 	Description:         "Manages volume resource.",
-	MarkdownDescription: "Manages volume resource",
+	MarkdownDescription: VolumeMarkdownDescription,
 	Attributes: map[string]schema.Attribute{
 		"name": schema.StringAttribute{
 			Description:         "The name of the volume.",
@@ -119,10 +126,10 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Size in KB",
 		},
 		"access_mode": schema.StringAttribute{
-			Description:         "The Access mode of snapshot",
+			Description:         "The Access mode of Volume",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "The Access mode of snapshot",
+			MarkdownDescription: "The Access mode of Volume",
 			Validators: []validator.String{stringvalidator.OneOf(
 				"ReadOnly",
 				"ReadWrite",
@@ -132,10 +139,10 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 			},
 		},
 		"remove_mode": schema.StringAttribute{
-			Description:         "remove mode of snapshot",
+			Description:         "remove mode of Volume",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "remove mode of snapshot",
+			MarkdownDescription: "remove mode of Volume",
 			Validators: []validator.String{stringvalidator.OneOf(
 				"ONLY_ME",
 				"INCLUDING_DESCENDANTS",

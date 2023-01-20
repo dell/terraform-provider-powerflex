@@ -16,7 +16,7 @@ resource "powerflex_volume" "avengers-volume-protection-domain-name"{
 	size = 8
 }`
 
-var modifyPlanProtectionDomainIdNegTest = `
+var modifyPlanProtectionDomainIDNegTest = `
 resource "powerflex_volume" "avengers-volume-protection-domain-id"{
 	name = "avengers-volume-protection-domain-id"
 	protection_domain_id = "invalid-domain-id"
@@ -32,7 +32,7 @@ resource "powerflex_volume" "avengers-volume-storage-pool-name"{
 	size = 8
 }`
 
-var modifyPlanStoragePoolIdNegTest = `
+var modifyPlanStoragePoolIDNegTest = `
 resource "powerflex_volume" "avengers-volume-storage-pool-id"{
 	name = "avengers-volume-storage-pool-id"
 	protection_domain_name = "domain1"
@@ -53,7 +53,7 @@ resource "powerflex_volume" "avengers-volume-sdc-map-name"{
 	]
 }`
 
-var modifyPlanSdcIdNegTest = `
+var modifyPlanSdcIDNegTest = `
 resource "powerflex_volume" "avengers-volume-sdc-map-id"{
 	name = "avengers-volume-sdc-map-id"
 	protection_domain_name = "domain1"
