@@ -19,22 +19,7 @@ const (
 	GiKB = 1024 * MiKB
 	// TiKB to convert size in terabytes
 	TiKB = 1024 * GiKB
-
-/*
-	 	// READWRITE represents access mode limit of volume
-		READWRITE = "ReadWrite"
-		// READONLY represents access mode limit of volume
-		READONLY = "ReadOnly"
-*/
 )
-
-/* var SdcInfoAttrTypes = map[string]attr.Type{
-	"sdc_id":           types.StringType,
-	"limit_iops":       types.Int64Type,
-	"limit_bw_in_mbps": types.Int64Type,
-	"sdc_name":         types.StringType,
-	"access_mode":      types.StringType,
-} */
 
 // VolumeResourceModel maps the resource schema data.
 type VolumeResourceModel struct {
@@ -74,10 +59,8 @@ func convertToKB(capacityUnit string, size int64) int64 {
 		valInKiB = size * TiKB
 	case "GB":
 		valInKiB = size * GiKB
-	default:
-		return 0
 	}
-	return int64(valInKiB)
+	return valInKiB
 }
 
 // refreshState function to update the state of volume resource in terraform.tfstate file
@@ -95,7 +78,6 @@ func refreshVolumeState(vol *pftypes.Volume, state *VolumeResourceModel) (diags 
 	}
 	objectSdcInfos := []attr.Value{}
 	for _, msi := range vol.MappedSdcInfo {
-		// refreshing state for drift outside terraform
 		obj := map[string]attr.Value{
 			"sdc_id":           types.StringValue(msi.SdcID),
 			"limit_iops":       types.Int64Value(int64(msi.LimitIops)),

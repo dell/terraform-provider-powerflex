@@ -114,7 +114,7 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 
 	if !plan.Size.IsNull() {
 		VSIKB := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
-		plan.SizeInKb = types.Int64Value(int64(VSIKB))
+		plan.SizeInKb = types.Int64Value(VSIKB)
 	}
 	sdcList := []SDCItemize{}
 	diags = plan.SdcList.ElementsAs(ctx, &sdcList, true)
@@ -175,9 +175,6 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 	errMsg := make(map[string]string, 0)
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 	volumeCreate := &pftypes.VolumeParam{
 		ProtectionDomainID: plan.ProtectionDomainID.ValueString(),
 		StoragePoolID:      plan.StoragePoolID.ValueString(),
@@ -258,7 +255,8 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 	vol = volsResponse[0]
-	refreshVolumeState(vol, &plan)
+	dgs := refreshVolumeState(vol, &plan)
+	resp.Diagnostics.Append(dgs...)
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if len(errMsg) > 0 {
@@ -302,7 +300,8 @@ func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 	vol := volsResponse[0]
-	refreshVolumeState(vol, &state)
+	dgs := refreshVolumeState(vol, &state)
+	resp.Diagnostics.Append(dgs...)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -518,7 +517,8 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 	vol := vols[0]
-	refreshVolumeState(vol, &plan)
+	dgs := refreshVolumeState(vol, &plan)
+	resp.Diagnostics.Append(dgs...)
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 
