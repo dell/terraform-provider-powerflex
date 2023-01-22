@@ -314,14 +314,6 @@ func (r *storagepoolResource) ImportState(ctx context.Context, req resource.Impo
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-// func getStoragePool(client *goscaleio.Client, spID string) (*scaleiotypes.StoragePool, error) {
-// 	spr, err := client.FindStoragePool(spID, "", "", "")
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return spr, nil
-// }
-
 // Function to update the State for Storagepool Resource
 func updateStoragepoolState(storagepool *scaleiotypes.StoragePool, plan storagepoolResourceModel) (state storagepoolResourceModel) {
 	state.ProtectionDomainID = plan.ProtectionDomainID
