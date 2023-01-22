@@ -77,7 +77,6 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 	tflog.Debug(ctx, "Create storagepool")
 	// Retrieve values from plan
 	var plan storagepoolResourceModel
-	optionalPayloadParams := make(map[string]interface{})
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -94,19 +93,24 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
+	payload := &scaleiotypes.StoragePoolParam{
+		Name:      plan.Name.ValueString(),
+		MediaType: plan.MediaType.ValueString(),
+	}
+
 	if plan.UseRmcache.String() == "true" {
-		optionalPayloadParams["use_rmcache"] = "true"
+		payload.UseRmcache = "true"
 	} else {
-		optionalPayloadParams["use_rmcache"] = "false"
+		payload.UseRmcache = "false"
 	}
 
 	if plan.UseRfcache.String() == "true" {
-		optionalPayloadParams["use_rfcache"] = "true"
+		payload.UseRfcache = "true"
 	} else {
-		optionalPayloadParams["use_rfcache"] = "false"
+		payload.UseRfcache = "false"
 	}
 
-	sp, err := pd.CreateStoragePool(plan.Name.ValueString(), plan.MediaType.ValueString(), optionalPayloadParams)
+	sp, err := pd.CreateStoragePool(payload)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error creating Storage Pool",
