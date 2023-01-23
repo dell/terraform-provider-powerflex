@@ -66,10 +66,10 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	}
 	// Set state
 	searchFilter := sdcFilterType.All
-	if state.Name.ValueString() != "" {
+	if !state.Name.IsNull() {
 		searchFilter = sdcFilterType.ByName
 	}
-	if state.ID.ValueString() != "" {
+	if !state.ID.IsNull() {
 		searchFilter = sdcFilterType.ByID
 	}
 
