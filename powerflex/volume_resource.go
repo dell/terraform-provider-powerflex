@@ -2,9 +2,7 @@ package powerflex
 
 import (
 	"context"
-	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/dell/goscaleio"
 	pftypes "github.com/dell/goscaleio/types/v1"
@@ -146,6 +144,13 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 			}
 			si.SdcName = foundsdc.Sdc.Name
 		}
+		if si.LimitIops <= 10 {
+			resp.Diagnostics.AddError(
+				"Error setting the limit iops",
+				"sdc  "+si.SdcID + " " + si.SdcName +" limit iops can be only set above 10.",
+			)
+			return
+		}
 		obj := map[string]attr.Value{
 			"sdc_id":           types.StringValue(si.SdcID),
 			"limit_iops":       types.Int64Value(int64(si.LimitIops)),
@@ -172,7 +177,6 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
 	var plan VolumeResourceModel
-	errMsg := make(map[string]string, 0)
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	volumeCreate := &pftypes.VolumeParam{
@@ -212,9 +216,12 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 	vr := goscaleio.NewVolume(r.client)
 	vr.Volume = vol
 	if !plan.AccessMode.IsNull() {
-		err := vr.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
-		if err != nil {
-			errMsg["access"] = err.Error()
+		err3 := vr.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
+		if err3 != nil {
+			resp.Diagnostics.AddError(
+				"Error setting access mode on volume",
+				"unexpected error: "+err3.Error(),
+			)
 		}
 	}
 	sdcItems := []SDCItemize{}
@@ -227,27 +234,37 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 			AllowMultipleMappings: "true",
 		}
 		// mapping the snapshot to sdc
-		err3 := vr.MapVolumeSdc(&pfmvsp)
-		if err3 != nil {
-			errMsg["sdc_map_err_"+si.SdcID] += "\n" + err3.Error()
-		}
-		// setting limits on mapped sdc
-		smslp := pftypes.SetMappedSdcLimitsParam{
-			SdcID:                si.SdcID,
-			BandwidthLimitInKbps: strconv.FormatInt(int64(si.LimitBwInMbps*1024), 10),
-			IopsLimit:            strconv.FormatInt(int64(si.LimitIops), 10),
-		}
-		err4 := vr.SetMappedSdcLimits(&smslp)
+		err4 := vr.MapVolumeSdc(&pfmvsp)
 		if err4 != nil {
-			errMsg["sdc_map_err_"+si.SdcID] += "\n" + err4.Error()
-		}
-		err5 := vr.SetVolumeMappingAccessMode(si.AccessMode, si.SdcID)
-		if err5 != nil {
-			errMsg["sdc_map_err_"+si.SdcID] += "\n" + err5.Error()
+			resp.Diagnostics.AddError(
+				"Error mapping sdc: "+si.SdcID+" "+si.SdcName,
+				"unexpected error: "+err4.Error(),
+			)
+		} else {
+			// setting limits on mapped sdc
+			smslp := pftypes.SetMappedSdcLimitsParam{
+				SdcID:                si.SdcID,
+				BandwidthLimitInKbps: strconv.FormatInt(int64(si.LimitBwInMbps*1024), 10),
+				IopsLimit:            strconv.FormatInt(int64(si.LimitIops), 10),
+			}
+			err5 := vr.SetMappedSdcLimits(&smslp)
+			if err4 != nil {
+				resp.Diagnostics.AddError(
+					"Error Setting Limits to mapped sdc: "+si.SdcID+" "+si.SdcName,
+					"unexpected error: "+err5.Error(),
+				)
+			}
+			err6 := vr.SetVolumeMappingAccessMode(si.AccessMode, si.SdcID)
+			if err6 != nil {
+				resp.Diagnostics.AddError(
+					"Error Setting access mode to mapped sdc: "+si.SdcID+" "+si.SdcName,
+					"unexpected error: "+err5.Error(),
+				)
+			}
 		}
 	}
-	volsResponse, err2 = spr.GetVolume("", volCreateResponse.ID, "", "", false)
-	if err2 != nil {
+	volsResponse, err7 := spr.GetVolume("", volCreateResponse.ID, "", "", false)
+	if err7 != nil {
 		resp.Diagnostics.AddError(
 			"Error getting volume after mapping the sdcs",
 			"Could not get volume after mapping the sdcs, unexpected error: "+err2.Error(),
@@ -259,16 +276,6 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 	resp.Diagnostics.Append(dgs...)
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
-	if len(errMsg) > 0 {
-		failureMessage := ""
-		for key, value := range errMsg {
-			failureMessage += key + " : " + value + ", "
-		}
-		failureMessage = strings.TrimSuffix(failureMessage, ", ")
-		resp.Diagnostics.AddError(
-			fmt.Sprintf("Failure Message: [%v]", failureMessage),
-			failureMessage)
-	}
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -346,9 +353,12 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	volresource.Volume = volsplan[0]
 	// updating the name of volume if there is change in plan
 	if plan.Name.ValueString() != state.Name.ValueString() {
-		errRename := volresource.SetVolumeName(plan.Name.ValueString())
-		if errRename != nil {
-			errMsg["name"] = "Error renaming the volume -> " + plan.Name.ValueString() + " : " + state.Name.ValueString() + " \n unexpected error:" + errRename.Error()
+		err3 := volresource.SetVolumeName(plan.Name.ValueString())
+		if err3 != nil {
+			resp.Diagnostics.AddError(
+				"Error renaming the volume",
+				"unexpected error: "+err3.Error(),
+			)
 		}
 	}
 
@@ -356,25 +366,34 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if plan.SizeInKb.ValueInt64() != state.SizeInKb.ValueInt64() {
 		sizeInGb := plan.SizeInKb.ValueInt64() / 1048576
 		sizeInGB := strconv.FormatInt(int64(sizeInGb), 10)
-		err3 := volresource.SetVolumeSize(sizeInGB)
-		if err3 != nil {
-			errMsg["size"] = "Error setting volume size -> " + plan.SizeInKb.String() + ":" + state.SizeInKb.String() + "\nCould not set new volume size -> " + sizeInGB + ", unexpected err: " + err3.Error()
+		err4 := volresource.SetVolumeSize(sizeInGB)
+		if err4 != nil {
+			resp.Diagnostics.AddError(
+				"Error setting the volume size",
+				"unexpected error: "+err4.Error(),
+			)
 		}
 	}
 
 	// updating the use rm cache if there is change in plan
 	if !plan.UseRmCache.Equal(state.UseRmCache) {
-		err := volresource.SetVolumeUseRmCache(plan.UseRmCache.ValueBool())
-		if err != nil {
-			errMsg["use_rm_cache"] = err.Error()
+		err5 := volresource.SetVolumeUseRmCache(plan.UseRmCache.ValueBool())
+		if err5 != nil {
+			resp.Diagnostics.AddError(
+				"Error setting the use rm cache",
+				"unexpected error: "+err5.Error(),
+			)
 		}
 	}
 
 	// updating the compression if there is change in plan
 	if !plan.CompressionMethod.IsUnknown() && !plan.CompressionMethod.Equal(state.CompressionMethod) {
-		err := volresource.SetCompressionMethod(plan.CompressionMethod.ValueString())
-		if err != nil {
-			errMsg["compression_method"] = err.Error()
+		err6 := volresource.SetCompressionMethod(plan.CompressionMethod.ValueString())
+		if err6 != nil {
+			resp.Diagnostics.AddError(
+				"Error setting the compression method",
+				"unexpected error: "+err6.Error(),
+			)
 		}
 	}
 
@@ -408,9 +427,12 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	// changing the access mode in case of change in access mode state from readonly to readwrite
 	if (plan.AccessMode.ValueString() == READWRITE) && (state.AccessMode.ValueString() == READONLY) {
-		err := volresource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
-		if err != nil {
-			errMsg["access"] = err.Error()
+		err7 := volresource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
+		if err7 != nil {
+			resp.Diagnostics.AddError(
+				"Error setting the access mode",
+				"unexpected error: "+err7.Error(),
+			)
 		}
 	}
 
@@ -420,25 +442,35 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 			SdcID:                 msi,
 			AllowMultipleMappings: "true",
 		}
-		err3 := volresource.MapVolumeSdc(&pfmvsp)
-		if err3 != nil {
-			errMsg["sdc_map_err_"+msi] += "\n" + err3.Error()
-		}
-		// getting sdc parameter to set while mapping
-		for _, ssl := range planSdcList {
-			if ssl.SdcID == msi {
-				smslp := pftypes.SetMappedSdcLimitsParam{
-					SdcID:                ssl.SdcID,
-					BandwidthLimitInKbps: strconv.FormatInt(int64(ssl.LimitBwInMbps*1024), 10),
-					IopsLimit:            strconv.FormatInt(int64(ssl.LimitIops), 10),
-				}
-				err4 := volresource.SetMappedSdcLimits(&smslp)
-				if err4 != nil {
-					errMsg["sdc_map_err_"+msi] += "\n" + err4.Error()
-				}
-				err5 := volresource.SetVolumeMappingAccessMode(ssl.AccessMode, ssl.SdcID)
-				if err5 != nil {
-					errMsg["sdc_map_err_"+msi] += "\n" + err5.Error()
+		err8 := volresource.MapVolumeSdc(&pfmvsp)
+		if err8 != nil {
+			resp.Diagnostics.AddError(
+				"Error mapping volume to sdc: "+msi,
+				"unexpected error: "+err8.Error(),
+			)
+		} else {
+			// getting sdc parameter to set while mapping
+			for _, ssl := range planSdcList {
+				if ssl.SdcID == msi {
+					smslp := pftypes.SetMappedSdcLimitsParam{
+						SdcID:                ssl.SdcID,
+						BandwidthLimitInKbps: strconv.FormatInt(int64(ssl.LimitBwInMbps*1024), 10),
+						IopsLimit:            strconv.FormatInt(int64(ssl.LimitIops), 10),
+					}
+					err9 := volresource.SetMappedSdcLimits(&smslp)
+					if err9 != nil {
+						resp.Diagnostics.AddError(
+							"Error setting limits to sdc: "+ssl.SdcID+" "+ssl.SdcName,
+							"unexpected error: "+err9.Error(),
+						)
+					}
+					err10 := volresource.SetVolumeMappingAccessMode(ssl.AccessMode, ssl.SdcID)
+					if err10 != nil {
+						resp.Diagnostics.AddError(
+							"Error setting access mode to sdc: "+ssl.SdcID+" "+ssl.SdcName,
+							"unexpected error: "+err10.Error(),
+						)
+					}
 				}
 			}
 		}
@@ -484,17 +516,23 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 				BandwidthLimitInKbps: strconv.FormatInt(int64(planObj.LimitBwInMbps*1024), 10),
 				IopsLimit:            strconv.FormatInt(int64(planObj.LimitIops), 10),
 			}
-			err4 := volresource.SetMappedSdcLimits(&smslp)
-			if err4 != nil {
-				errMsg["sdc_map_err_"+planObj.SdcID] += "\n" + err4.Error()
+			err11 := volresource.SetMappedSdcLimits(&smslp)
+			if err11 != nil {
+				resp.Diagnostics.AddError(
+					"Error setting access mode to sdc: "+planObj.SdcID+" "+planObj.SdcName,
+					"unexpected error: "+err11.Error(),
+				)
 			}
 		}
 
 		// updating the access mode for sdc mapping if there is change in plan and state
 		if planObj.AccessMode != stateObj.AccessMode {
-			err5 := volresource.SetVolumeMappingAccessMode(planObj.AccessMode, planObj.SdcID)
-			if err5 != nil {
-				errMsg["sdc_map_err_"+planObj.SdcID] += "\n" + err5.Error()
+			err12 := volresource.SetVolumeMappingAccessMode(planObj.AccessMode, planObj.SdcID)
+			if err12 != nil {
+				resp.Diagnostics.AddError(
+					"Error setting access mode to sdc: "+planObj.SdcID+" "+planObj.SdcName,
+					"unexpected error: "+err12.Error(),
+				)
 			}
 		}
 
@@ -502,9 +540,12 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	// changing the access mode in case of change in access mode state from readwrite to readonly
 	if (plan.AccessMode.ValueString() == READONLY) && (state.AccessMode.ValueString() == READWRITE) {
-		err := volresource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
-		if err != nil {
-			errMsg["access"] = err.Error()
+		err13 := volresource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
+		if err13 != nil {
+			resp.Diagnostics.AddError(
+				"Error setting the access mode",
+				"unexpected error: "+err13.Error(),
+			)
 		}
 	}
 
@@ -522,16 +563,6 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 
-	if len(errMsg) > 0 {
-		failureMessage := ""
-		for key, value := range errMsg {
-			failureMessage += key + " : " + value + ", "
-		}
-		failureMessage = strings.TrimSuffix(failureMessage, ", ")
-		resp.Diagnostics.AddError(
-			fmt.Sprintf("Failure Message: [%v]", failureMessage),
-			failureMessage)
-	}
 	if resp.Diagnostics.HasError() {
 		return
 	}

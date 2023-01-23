@@ -102,16 +102,16 @@ func getStoragePoolInstance(c *goscaleio.Client, spID string, pdID string) (*gos
 	sr.System = getSystems[0]
 	pdr := goscaleio.NewProtectionDomain(c)
 	protectionDomain, err := sr.FindProtectionDomain(pdID, "", "")
-	pdr.ProtectionDomain = protectionDomain
 	if err != nil {
 		return nil, err
 	}
+	pdr.ProtectionDomain = protectionDomain
 	spr := goscaleio.NewStoragePool(c)
 	storagePool, err := pdr.FindStoragePool(spID, "", "")
-	spr.StoragePool = storagePool
 	if err != nil {
 		return nil, err
 	}
+	spr.StoragePool = storagePool
 	return spr, nil
 }
 

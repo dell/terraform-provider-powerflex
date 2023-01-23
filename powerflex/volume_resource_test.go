@@ -66,6 +66,28 @@ resource "powerflex_volume" "avengers-volume-sdc-map-id"{
 	]
 }`
 
+var modifyPlanVolumeInvalidMapLimit = `
+resource "powerflex_volume" "avengers-volume-create"{
+	name = "avengers-volume-create-lm"
+	protection_domain_name = "domain1"
+	storage_pool_name = "pool1" #pool1 have medium granularity
+	size = 8
+	use_rm_cache = true 
+	volume_type = "ThickProvisioned"
+	# compression_method = "Normal" 
+	access_mode = "ReadWrite"
+	sdc_list = [
+	  		{
+			   sdc_name = "LGLW6092"
+			   limit_iops = 9
+			   limit_bw_in_mbps = 122
+			   access_mode = "ReadOnly"
+		   },
+
+	]
+  }
+`
+
 var createVolumeWithInvalidCompressionMethodNegTest = `
 resource "powerflex_volume" "avengers-volume---create"{
 	name = "avengers-volume---create"
@@ -79,7 +101,7 @@ resource "powerflex_volume" "avengers-volume---create"{
   }
 `
 
-var createVolumeWithInvalidSdcConfigNegTest = `
+var createVolumeWithSdcConfigNegTest = `
 resource "powerflex_volume" "avengers-volume----create"{
 	name = "avengers-volume----create"
 	protection_domain_name = "domain1"
@@ -98,6 +120,130 @@ resource "powerflex_volume" "avengers-volume----create"{
 		   },
 	]
   }
+`
+
+var createVolumePosTest = `
+resource "powerflex_volume" "avengers-volume-create"{
+	name = "avengers-volume-create"
+	protection_domain_name = "domain1"
+	storage_pool_name = "pool1" #pool1 have medium granularity
+	size = 8
+	use_rm_cache = true 
+	volume_type = "ThickProvisioned"
+	# compression_method = "Normal" 
+	access_mode = "ReadWrite"
+	sdc_list = [
+	  {
+			   sdc_name = "LGLW6092"
+			   limit_iops = 119
+			   limit_bw_in_mbps = 19
+			   access_mode = "ReadOnly"
+		   },
+	]
+  }
+`
+
+var updateVolumePosTest = `
+resource "powerflex_volume" "avengers-volume-create"{
+	name = "avengers-volume-create"
+	protection_domain_name = "domain1"
+	storage_pool_name = "pool1" #pool1 have medium granularity
+	size = 8
+	use_rm_cache = true 
+	volume_type = "ThickProvisioned"
+	# compression_method = "Normal" 
+	access_mode = "ReadWrite"
+	sdc_list = [
+	  		{
+			   sdc_name = "LGLW6092"
+			   limit_iops = 328
+			   limit_bw_in_mbps = 28
+			   access_mode = "ReadOnly"
+		   },
+		   {
+			sdc_name = "Block_S34"
+			limit_iops = 129
+			limit_bw_in_mbps = 17
+			access_mode = "ReadWrite"
+		   },
+		   {
+			sdc_id = "c423b09800000003"
+			limit_iops = 38
+			limit_bw_in_mbps = 28
+			access_mode = "NoAccess"
+		   }
+	]
+  }
+`
+
+var updateVolumeUnmapPosTest = `
+resource "powerflex_volume" "avengers-volume-create"{
+	name = "avengers-volume-create"
+	protection_domain_name = "domain1"
+	storage_pool_name = "pool1" #pool1 have medium granularity
+	size = 8
+	use_rm_cache = true 
+	volume_type = "ThickProvisioned"
+	# compression_method = "Normal" 
+	access_mode = "ReadWrite"
+	sdc_list = [
+	  		{
+			   sdc_name = "LGLW6092"
+			   limit_iops = 328
+			   limit_bw_in_mbps = 28
+			   access_mode = "ReadOnly"
+		   },
+		//    {
+		// 	sdc_name = "Block_S34"
+		// 	limit_iops = 129
+		// 	limit_bw_in_mbps = 17
+		// 	access_mode = "ReadWrite"
+		//    },
+		   {
+			sdc_id = "c423b09800000003"
+			limit_iops = 38
+			limit_bw_in_mbps = 28
+			access_mode = "NoAccess"
+		   }
+	]
+  }
+`
+
+var createVolumePos01Test = `
+resource "powerflex_volume" "avengers-volume-create-01"{
+	name = "avengers-volume-create-01"
+	protection_domain_name = "domain1"
+	storage_pool_name = "pool1" #pool1 have medium granularity
+	size = 8
+	use_rm_cache = true 
+	volume_type = "ThickProvisioned"
+	access_mode = "ReadWrite"
+}
+`
+
+var updateVolumeRenameNegTest = `
+resource "powerflex_volume" "avengers-volume-create-01"{
+	name = "avengers-volume-create-101010101010101010101"
+	protection_domain_name = "domain1"
+	storage_pool_name = "pool1" #pool1 have medium granularity
+	size = 8
+	use_rm_cache = true 
+	volume_type = "ThickProvisioned"
+	access_mode = "ReadWrite"
+}
+`
+
+var updateVolumeSizeNegTest = `
+resource "powerflex_volume" "avengers-volume-create-01"{
+	name = "avengers-volume-create-01"
+	protection_domain_name = "domain1"
+	storage_pool_name = "pool1" #pool1 have medium granularity
+	size = 8
+	capacity_unit = "TB"
+	use_rm_cache = true 
+	volume_type = "ThickProvisioned"
+	access_mode = "ReadWrite"
+}
 `
 
 func TestAccVolumeResource(t *testing.T) {
@@ -131,12 +277,52 @@ func TestAccVolumeResource(t *testing.T) {
 				ExpectError: regexp.MustCompile(`.*Error getting sdc name from sdc id*.`),
 			},
 			{
+				Config:      ProviderConfigForTesting + modifyPlanVolumeInvalidMapLimit,
+				ExpectError: regexp.MustCompile(`.*Error setting the limit iops*.`),
+			},
+			{
 				Config:      ProviderConfigForTesting + createVolumeWithInvalidCompressionMethodNegTest,
 				ExpectError: regexp.MustCompile(`.*Error creating volume*.`),
 			},
 			{
-				Config:      ProviderConfigForTesting + createVolumeWithInvalidSdcConfigNegTest,
-				ExpectError: regexp.MustCompile(`.*Failure Message*.`),
+				Config:      ProviderConfigForTesting + createVolumeWithSdcConfigNegTest,
+				ExpectError: regexp.MustCompile(`.*Error mapping sdc*.`),
+			},
+			{
+				ExpectNonEmptyPlan: true,
+				Config:             ProviderConfigForTesting + createVolumePosTest,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "1"),
+				),
+			},
+			{
+				ExpectNonEmptyPlan: true,
+				Config:             ProviderConfigForTesting + updateVolumePosTest,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "3"),
+				),
+			},
+			{
+				ExpectNonEmptyPlan: true,
+				Config:             ProviderConfigForTesting + updateVolumeUnmapPosTest,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "2"),
+				),
+			},
+			{
+				// ExpectNonEmptyPlan: true,
+				Config:             ProviderConfigForTesting + createVolumePos01Test,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create-01", "size", "8"),
+				),
+			},
+			{
+				Config:      ProviderConfigForTesting + updateVolumeRenameNegTest,
+				ExpectError: regexp.MustCompile(`.*Error renaming the volume*.`),
+			},
+			{
+				Config:      ProviderConfigForTesting + updateVolumeSizeNegTest,
+				ExpectError: regexp.MustCompile(`.*Error setting the volume size*.`),
 			},
 		},
 	})
