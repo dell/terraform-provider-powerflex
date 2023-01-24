@@ -144,10 +144,10 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 			}
 			si.SdcName = foundsdc.Sdc.Name
 		}
-		if si.LimitIops <= 10 {
+		if si.LimitIops <= 10 && si.LimitIops > 0 {
 			resp.Diagnostics.AddError(
 				"Error setting the limit iops",
-				"sdc  "+si.SdcID+" "+si.SdcName+" limit iops can be only set above 10.",
+				"sdc  "+si.SdcID+" "+si.SdcName+" limit iops must be a number larger than 10 or 0.",
 			)
 			return
 		}
