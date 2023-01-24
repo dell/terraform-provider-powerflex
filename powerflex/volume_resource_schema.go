@@ -109,7 +109,7 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 			Description: "Compression Method on the volume.",
 			// Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "Compression Mehthod the volume.",
+			MarkdownDescription: "Compression Method the volume.",
 			Validators: []validator.String{stringvalidator.OneOf(
 				"None",
 				"Normal",
