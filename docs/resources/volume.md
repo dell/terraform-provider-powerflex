@@ -41,7 +41,7 @@ Warning: If the taint is not removed, terraform will destroy and recreate the re
 
 ### Read-Only
 
-- `compression_method` (String) Compression Mehthod the volume.
+- `compression_method` (String) Compression Method the volume.
 - `id` (String) The ID of the volume.
 - `size_in_kb` (Number) Size in KB
 
