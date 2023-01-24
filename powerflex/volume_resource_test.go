@@ -73,8 +73,7 @@ resource "powerflex_volume" "avengers-volume-create"{
 	storage_pool_name = "pool1" #pool1 have medium granularity
 	size = 8
 	use_rm_cache = true 
-	volume_type = "ThickProvisioned"
-	# compression_method = "Normal" 
+	volume_type = "ThickProvisioned" 
 	access_mode = "ReadWrite"
 	sdc_list = [
 	  		{
@@ -96,8 +95,6 @@ resource "powerflex_volume" "avengers-volume---create"{
 	size = 8
 	use_rm_cache = true 
 	volume_type = "ThickProvisioned"
-	// compression_method = "Normal" 
-	// # this config will result in error for storage pool with medium granularity
   }
 `
 
@@ -108,8 +105,7 @@ resource "powerflex_volume" "avengers-volume----create"{
 	storage_pool_name = "pool1" #pool1 have medium granularity
 	size = 8
 	use_rm_cache = true 
-	volume_type = "ThickProvisioned"
-	# compression_method = "Normal" 
+	volume_type = "ThickProvisioned" 
 	access_mode = "ReadOnly" # sdc_can't be mapped to volume with access mode readonly
 	sdc_list = [
 	  {
@@ -129,8 +125,7 @@ resource "powerflex_volume" "avengers-volume-create"{
 	storage_pool_name = "pool1" #pool1 have medium granularity
 	size = 8
 	use_rm_cache = true 
-	volume_type = "ThickProvisioned"
-	# compression_method = "Normal" 
+	volume_type = "ThickProvisioned" 
 	access_mode = "ReadWrite"
 	sdc_list = [
 	  {
@@ -150,8 +145,7 @@ resource "powerflex_volume" "avengers-volume-create"{
 	storage_pool_name = "pool1" #pool1 have medium granularity
 	size = 8
 	use_rm_cache = true 
-	volume_type = "ThickProvisioned"
-	# compression_method = "Normal" 
+	volume_type = "ThickProvisioned" 
 	access_mode = "ReadWrite"
 	sdc_list = [
 	  		{
@@ -183,8 +177,7 @@ resource "powerflex_volume" "avengers-volume-create"{
 	storage_pool_name = "pool1" #pool1 have medium granularity
 	size = 8
 	use_rm_cache = true 
-	volume_type = "ThickProvisioned"
-	# compression_method = "Normal" 
+	volume_type = "ThickProvisioned" 
 	access_mode = "ReadWrite"
 	sdc_list = [
 	  		{
