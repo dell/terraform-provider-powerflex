@@ -30,7 +30,6 @@ Warning: If the taint is not removed, terraform will destroy and recreate the re
 
 - `access_mode` (String) The Access mode of Volume
 - `capacity_unit` (String) capacity unit
-- `compression_method` (String) Compression Mehthod the volume.
 - `protection_domain_id` (String) Protection Domain ID.
 - `protection_domain_name` (String) Protection Domain Name.
 - `remove_mode` (String) remove mode of Volume
@@ -42,6 +41,7 @@ Warning: If the taint is not removed, terraform will destroy and recreate the re
 
 ### Read-Only
 
+- `compression_method` (String) Compression Mehthod the volume.
 - `id` (String) The ID of the volume.
 - `size_in_kb` (Number) Size in KB
 

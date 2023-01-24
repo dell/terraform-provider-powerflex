@@ -311,7 +311,7 @@ func TestAccVolumeResource(t *testing.T) {
 			},
 			{
 				// ExpectNonEmptyPlan: true,
-				Config:             ProviderConfigForTesting + createVolumePos01Test,
+				Config: ProviderConfigForTesting + createVolumePos01Test,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create-01", "size", "8"),
 				),
