@@ -11,19 +11,9 @@ import (
 var StoragepoolReourceSchema schema.Schema = schema.Schema{
 	Description: "Manages storage pool resource",
 	Attributes: map[string]schema.Attribute{
-		"last_updated": schema.StringAttribute{
-			Description:         "Last Updated",
-			MarkdownDescription: "Last Updated",
-			Computed:            true,
-		},
 		"id": schema.StringAttribute{
 			Description:         "ID of the Storage pool",
 			MarkdownDescription: "ID of the Storage pool",
-			Computed:            true,
-		},
-		"systemid": schema.StringAttribute{
-			Description:         "ID of the system",
-			MarkdownDescription: "ID of the system",
 			Computed:            true,
 		},
 		"protection_domain_id": schema.StringAttribute{
@@ -43,6 +33,9 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 			Description:         "Name of the Storage pool",
 			MarkdownDescription: "Name of the Storage pool",
 			Required:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 		"media_type": schema.StringAttribute{
 			Description:         "Media Type",
@@ -58,30 +51,13 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 			Description:         "Enable/Disable RMcache on a specific storage pool",
 			MarkdownDescription: "Enable/Disable RMcache on a specific storage pool",
 			Optional:            true,
+			Computed:            true,
 		},
 		"use_rfcache": schema.BoolAttribute{
 			Description:         "Enable/Disable RFcache on a specific storage pool",
 			MarkdownDescription: "Enable/Disable RFcache on a specific storage pool",
 			Optional:            true,
-		},
-		"links": schema.ListNestedAttribute{
-			Description:         "Specifies the links asscociated with Storagepool",
-			MarkdownDescription: "Specifies the links asscociated with Storagepool",
 			Computed:            true,
-			NestedObject: schema.NestedAttributeObject{
-				Attributes: map[string]schema.Attribute{
-					"rel": schema.StringAttribute{
-						Description:         "Specifies the relationship with the Storagepool",
-						MarkdownDescription: "Specifies the relationship with the Storagepool",
-						Computed:            true,
-					},
-					"href": schema.StringAttribute{
-						Description:         "Specifies the exact path to fetch the details",
-						MarkdownDescription: "Specifies the exact path to fetch the details",
-						Computed:            true,
-					},
-				},
-			},
 		},
 	},
 }

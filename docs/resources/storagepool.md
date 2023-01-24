@@ -30,16 +30,5 @@ Manages storage pool resource
 ### Read-Only
 
 - `id` (String) ID of the Storage pool
-- `last_updated` (String) Last Updated
-- `links` (Attributes List) Specifies the links asscociated with Storagepool (see [below for nested schema](#nestedatt--links))
-- `systemid` (String) ID of the system
-
-<a id="nestedatt--links"></a>
-### Nested Schema for `links`
-
-Read-Only:
-
-- `href` (String) Specifies the exact path to fetch the details
-- `rel` (String) Specifies the relationship with the Storagepool
 
 

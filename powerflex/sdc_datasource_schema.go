@@ -63,6 +63,7 @@ var SDCDataSourceScheme schema.Schema = schema.Schema{
 			Computed:    true,
 			Validators: []validator.String{
 				stringvalidator.ConflictsWith(path.MatchRoot("name")),
+				stringvalidator.LengthAtLeast(1),
 			},
 		},
 		"name": schema.StringAttribute{

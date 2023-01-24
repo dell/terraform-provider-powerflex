@@ -6,7 +6,6 @@ import (
 
 	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -29,22 +28,13 @@ type storagepoolResource struct {
 }
 
 type storagepoolResourceModel struct {
-	LastUpdated          types.String `tfsdk:"last_updated"`
 	ID                   types.String `tfsdk:"id"`
-	SystemID             types.String `tfsdk:"systemid"`
 	ProtectionDomainID   types.String `tfsdk:"protection_domain_id"`
 	ProtectionDomainName types.String `tfsdk:"protection_domain_name"`
 	Name                 types.String `tfsdk:"name"`
 	MediaType            types.String `tfsdk:"media_type"`
 	UseRmcache           types.Bool   `tfsdk:"use_rmcache"`
 	UseRfcache           types.Bool   `tfsdk:"use_rfcache"`
-	Links                types.List   `tfsdk:"links"`
-}
-
-// Link - MODEL for Storagepool Links data returned by goscaleio.
-type Link struct {
-	Rel  types.String `tfsdk:"rel"`
-	HREF types.String `tfsdk:"href"`
 }
 
 func (r *storagepoolResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -103,7 +93,24 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	sp, err := pd.CreateStoragePool(plan.Name.ValueString(), plan.MediaType.ValueString())
+	payload := &scaleiotypes.StoragePoolParam{
+		Name:      plan.Name.ValueString(),
+		MediaType: plan.MediaType.ValueString(),
+	}
+
+	if plan.UseRmcache.String() == "true" {
+		payload.UseRmcache = "true"
+	} else {
+		payload.UseRmcache = "false"
+	}
+
+	if plan.UseRfcache.String() == "true" {
+		payload.UseRfcache = "true"
+	} else {
+		payload.UseRfcache = "false"
+	}
+
+	sp, err := pd.CreateStoragePool(payload)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error creating Storage Pool",
@@ -119,25 +126,6 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 			"Could not get Storagepool, unexpected error: "+err.Error(),
 		)
 		return
-	}
-
-	if plan.UseRmcache.ValueBool() {
-		rm := goscaleio.NewStoragePoolEx(r.client, spResponse)
-		rm.ModifyRMCache("true")
-	} else {
-		rm := goscaleio.NewStoragePoolEx(r.client, spResponse)
-		rm.ModifyRMCache("false")
-	}
-
-	if plan.UseRfcache.ValueBool() {
-		_, err := pd.EnableRFCache(sp)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error getting while updating Storagepool",
-				"Could not get Storagepool, unexpected error: "+err.Error(),
-			)
-			return
-		}
 	}
 
 	state := updateStoragepoolState(spResponse, plan)
@@ -192,6 +180,7 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 	tflog.Debug(ctx, "Update Storagepool")
 	// Retrieve values from plan
 	var plan storagepoolResourceModel
+	var err1 error
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -215,14 +204,20 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
+	spResponse, err := pd.FindStoragePool(state.ID.ValueString(), "", "")
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error while getting Storagepool", err.Error(),
+		)
+		return
+	}
+
 	if plan.Name.ValueString() != state.Name.ValueString() {
 		_, err := pd.ModifyStoragePoolName(state.ID.ValueString(), plan.Name.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error getting while updating Storagepool",
-				"Could not get Storagepool, unexpected error: "+err.Error(),
+				"Error while updating name of Storagepool", err.Error(),
 			)
-			return
 		}
 	}
 
@@ -230,48 +225,43 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 		_, err := pd.ModifyStoragePoolMedia(state.ID.ValueString(), plan.MediaType.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error getting while updating Storagepool",
-				"Could not get Storagepool, unexpected error: "+err.Error(),
+				"Error while updating media type of Storagepool", err.Error(),
 			)
-			return
 		}
 	}
 
-	spResponse, err := pd.FindStoragePool(state.ID.ValueString(), "", "")
+	rm := goscaleio.NewStoragePoolEx(r.client, spResponse)
+
+	if !state.UseRmcache.Equal(plan.UseRmcache) {
+		err := rm.ModifyRMCache(plan.UseRmcache.String())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error while updating rm_cache of Storagepool", err.Error(),
+			)
+		}
+	}
+
+	if !state.UseRfcache.Equal(plan.UseRfcache) {
+		if plan.UseRfcache.String() == "true" {
+			_, err1 = pd.EnableRFCache(spResponse.ID)
+
+		} else {
+			_, err1 = pd.DisableRFCache(spResponse.ID)
+		}
+	}
+
+	if err1 != nil {
+		resp.Diagnostics.AddError(
+			"Error while updating rf_cache of Storagepool", err.Error(),
+		)
+	}
+
+	spResponse, err = pd.FindStoragePool(state.ID.ValueString(), "", "")
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting while updating Storagepool",
-			"Could not get Storagepool, unexpected error: "+err.Error(),
+			"Error while getting Storagepool", err.Error(),
 		)
 		return
-	}
-
-	if plan.UseRmcache.ValueBool() {
-		rm := goscaleio.NewStoragePoolEx(r.client, spResponse)
-		rm.ModifyRMCache("true")
-	} else {
-		rm := goscaleio.NewStoragePoolEx(r.client, spResponse)
-		rm.ModifyRMCache("false")
-	}
-
-	if plan.UseRfcache.ValueBool() {
-		_, err := pd.EnableRFCache(spResponse.ID)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error getting while updating Storagepool",
-				"Could not get Storagepool, unexpected error: "+err.Error(),
-			)
-			return
-		}
-	} else {
-		_, err := pd.DisableRFCache(spResponse.ID)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error getting while updating Storagepool",
-				"Could not get Storagepool, unexpected error: "+err.Error(),
-			)
-			return
-		}
 	}
 
 	state1 := updateStoragepoolState(spResponse, plan)
@@ -304,14 +294,6 @@ func (r *storagepoolResource) Delete(ctx context.Context, req resource.DeleteReq
 		return
 	}
 
-	spr, err := r.client.FindStoragePool(state.ID.ValueString(), "", "", "")
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Find Powerflex Storagepool",
-			err.Error(),
-		)
-		return
-	}
 	err = pd.DeleteStoragePool(state.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -320,7 +302,7 @@ func (r *storagepoolResource) Delete(ctx context.Context, req resource.DeleteReq
 		)
 		return
 	}
-	tflog.Debug(ctx, "Delete Storagepool :-- "+helper.PrettyJSON(spr))
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -339,27 +321,8 @@ func updateStoragepoolState(storagepool *scaleiotypes.StoragePool, plan storagep
 	state.ID = types.StringValue(storagepool.ID)
 	state.Name = types.StringValue(storagepool.Name)
 	state.MediaType = types.StringValue(storagepool.MediaType)
-	state.UseRmcache = types.BoolValue(plan.UseRmcache.ValueBool())
-	state.UseRfcache = types.BoolValue(plan.UseRfcache.ValueBool())
+	state.UseRmcache = types.BoolValue(storagepool.UseRmcache)
+	state.UseRfcache = types.BoolValue(storagepool.UseRfcache)
 
-	linkAttrTypes := map[string]attr.Type{
-		"rel":  types.StringType,
-		"href": types.StringType,
-	}
-	linkElemType := types.ObjectType{
-		AttrTypes: linkAttrTypes,
-	}
-
-	objectLinks := []attr.Value{}
-	for _, link := range storagepool.Links {
-		obj := map[string]attr.Value{
-			"rel":  types.StringValue(link.Rel),
-			"href": types.StringValue(link.HREF),
-		}
-		objVal, _ := types.ObjectValue(linkAttrTypes, obj)
-		objectLinks = append(objectLinks, objVal)
-	}
-	listVal, _ := types.ListValue(linkElemType, objectLinks)
-	state.Links = listVal
 	return state
 }

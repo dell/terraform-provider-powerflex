@@ -1,7 +1,9 @@
 package powerflex
 
 import (
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
 var sdcResourceSchemaDescriptions = struct {
@@ -49,6 +51,9 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 		"name": schema.StringAttribute{
 			Description: sdcResourceSchemaDescriptions.Name,
 			Required:    true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 		"sdc_guid": schema.StringAttribute{
 			Description: sdcResourceSchemaDescriptions.SdcGUID,
