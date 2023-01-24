@@ -3,12 +3,18 @@
 page_title: "powerflex_volume Resource - powerflex"
 subcategory: ""
 description: |-
-  Manages volume resource
+  Manages Volume in powerflex.
+  Note: Volume creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
+  One can manually remove the taint and try applying the configuration (after making necessary adjustments).
+  Warning: If the taint is not removed, terraform will destroy and recreate the resource.
 ---
 
 # powerflex_volume (Resource)
 
-Manages volume resource
+Manages Volume in powerflex.
+Note: Volume creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
+One can manually remove the taint and try applying the configuration (after making necessary adjustments).
+Warning: If the taint is not removed, terraform will destroy and recreate the resource.
 
 
 
@@ -22,63 +28,32 @@ Manages volume resource
 
 ### Optional
 
+- `access_mode` (String) The Access mode of Volume
 - `capacity_unit` (String) capacity unit
-- `map_sdcs_id` (List of String) map sdcs id
 - `protection_domain_id` (String) Protection Domain ID.
 - `protection_domain_name` (String) Protection Domain Name.
+- `remove_mode` (String) remove mode of Volume
+- `sdc_list` (Attributes Set) mapped sdc info (see [below for nested schema](#nestedatt--sdc_list))
 - `storage_pool_id` (String) storage pool id
 - `storage_pool_name` (String) Storage Pool Name
+- `use_rm_cache` (Boolean) use rm cache
+- `volume_type` (String) volume type
 
 ### Read-Only
 
-- `access_mode_limit` (String) access mode limit
-- `ancestor_volume_id` (String) ancestor volume id
-- `compression_method` (String) compression method
-- `consistency_group_id` (String) consistency group id
-- `creation_time` (Number) Creation Time
-- `data_layout` (String) data layout
+- `compression_method` (String) Compression Method the volume.
 - `id` (String) The ID of the volume.
-- `is_obfuscated` (Boolean) is obfuscated
-- `links` (Attributes List) links for the volume resource (see [below for nested schema](#nestedatt--links))
-- `locked_auto_snapshot` (Boolean) locake auto snapshot
-- `locked_auto_snapshot_marked_for_removal` (Boolean) locaked auto snapshot marked for removal
-- `managed_by` (String) managed by
-- `mapped_scsi_initiator_info` (String) mapped scsi initiator info
-- `mapped_sdc_info` (Attributes List) mapped sdc info (see [below for nested schema](#nestedatt--mapped_sdc_info))
-- `mapping_to_all_sdcs_enabled` (Boolean) mapping to all sdcs enabled
-- `not_genuine_snapshot` (Boolean) not genuine snapshot
-- `original_expiry_time` (Number) original expriry time
-- `replication_journal_volume` (Boolean) replication journal volume
-- `replication_time_stamp` (Number) replication time stamp
-- `secure_snapshot_exp_time` (Number) secure snapshot exp time
 - `size_in_kb` (Number) Size in KB
-- `time_stamp_is_accurate` (Boolean) time stamp is accurate
-- `use_rm_cache` (Boolean) use rm cache
-- `volume_replication_state` (String) volume replication state
-- `volume_size_in_kb` (String) volume siz in kb
-- `volume_type` (String) volume type
-- `vtree_id` (String) vtree id
 
-<a id="nestedatt--links"></a>
-### Nested Schema for `links`
+<a id="nestedatt--sdc_list"></a>
+### Nested Schema for `sdc_list`
 
-Read-Only:
-
-- `href` (String) href
-- `rel` (String) rel
-
-
-<a id="nestedatt--mapped_sdc_info"></a>
-### Nested Schema for `mapped_sdc_info`
-
-Read-Only:
+Optional:
 
 - `access_mode` (String) The Access Mode of the SDC
-- `is_direct_buffer_mapping` (Boolean) is direct buffer mapping
 - `limit_bw_in_mbps` (Number) limit bw in mbps
 - `limit_iops` (Number) limit iops
 - `sdc_id` (String) The ID of the SDC
-- `sdc_ip` (String) The IP of the SDC
 - `sdc_name` (String) The Name of the SDC
 
 
