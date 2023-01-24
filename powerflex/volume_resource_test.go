@@ -90,14 +90,14 @@ resource "powerflex_volume" "avengers-volume-create"{
 
 var createVolumeWithInvalidCompressionMethodNegTest = `
 resource "powerflex_volume" "avengers-volume---create"{
-	name = "avengers-volume---create"
+	name = "avengers-volume---create0101010101010100101010101010101010101"
 	protection_domain_name = "domain1"
 	storage_pool_name = "pool1" #pool1 have medium granularity
 	size = 8
 	use_rm_cache = true 
 	volume_type = "ThickProvisioned"
-	compression_method = "Normal" 
-	# this config will result in error for storage pool with medium granularity
+	// compression_method = "Normal" 
+	// # this config will result in error for storage pool with medium granularity
   }
 `
 
