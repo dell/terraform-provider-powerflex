@@ -52,26 +52,6 @@ func (r *storagepoolResource) Configure(_ context.Context, req resource.Configur
 	r.client = req.ProviderData.(*goscaleio.Client)
 }
 
-// getNewProtectionDomainEx function to get Protection Domain
-func getNewProtectionDomainEx(c *goscaleio.Client, pdID string, pdName string, href string) (*goscaleio.ProtectionDomain, error) {
-	system, _ := getFirstSystem(c)
-	pdr := goscaleio.NewProtectionDomainEx(c, &scaleiotypes.ProtectionDomain{})
-	if pdID != "" {
-		protectionDomain, err := system.FindProtectionDomain(pdID, "", "")
-		pdr.ProtectionDomain = protectionDomain
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		protectionDomain, err := system.FindProtectionDomain("", pdName, "")
-		pdr.ProtectionDomain = protectionDomain
-		if err != nil {
-			return nil, err
-		}
-	}
-	return pdr, nil
-}
-
 // Function used to Create Storagepool Resource
 func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "Create storagepool")
