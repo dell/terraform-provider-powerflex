@@ -73,14 +73,7 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		searchFilter = sdcFilterType.ByID
 	}
 
-	allSdcWithStats, _ := getAllSdcState(ctx, *d.client, sdcs)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Read Statics for sdc id = "+state.ID.ValueString()+", name = "+state.Name.ValueString(),
-			err.Error(),
-		)
-		return
-	}
+	allSdcWithStats := getAllSdcState(ctx, *d.client, sdcs)
 
 	if searchFilter == sdcFilterType.All {
 		state.Sdcs = *allSdcWithStats

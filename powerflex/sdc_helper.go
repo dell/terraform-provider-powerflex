@@ -65,7 +65,7 @@ func getFilteredSdcState(sdcs *[]sdcModel, method string, name string, id string
 }
 
 // getAllSdcState - function to return all sdc result from goscaleio.
-func getAllSdcState(ctx context.Context, client goscaleio.Client, sdcs []scaleiotypes.Sdc) (*[]sdcModel, error) {
+func getAllSdcState(ctx context.Context, client goscaleio.Client, sdcs []scaleiotypes.Sdc) *[]sdcModel {
 	response := []sdcModel{}
 	for _, sdcValue := range sdcs {
 		sdcState := sdcModel{
@@ -89,5 +89,5 @@ func getAllSdcState(ctx context.Context, client goscaleio.Client, sdcs []scaleio
 		response = append(response, sdcState)
 	}
 
-	return &response, nil
+	return &response
 }
