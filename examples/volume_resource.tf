@@ -1,8 +1,17 @@
-resource "powerflex_volume" "avengers" {
-  name = "<volume-name>"
-  storage_pool_id = "<storage-pool-id>"
-  protection_domain_id = "<protection-domain-id>"
-  capacity_unit = "<capacity-unit> - GB/TB "
-  size = 10
-  map_sdcs_id = ["<sdc-id-1>","<sdc-id-2>"]
+resource "powerflex_volume" "avengers-volume-create"{
+	name = "<volume-name>"
+	protection_domain_name = "<protection-domain-name>"
+	storage_pool_name = "<storage-pool-name>"
+	size = "<size in gb/tb>"
+	use_rm_cache = "true/false for use rm cache" 
+	volume_type = "<ThickProvisioned/ThickProvisioned volume type>" 
+	access_mode = "<ReadWrite/ReadOnly access mode>"
+	sdc_list = [
+	  		{
+			   sdc_name = "<sdc name>"
+			   limit_iops = "<iops limit in int>"
+			   limit_bw_in_mbps = "<bandwidth limit in mbps>"
+			   access_mode = "<ReadWrite/ReadOnly/Noaccess mode>"
+		   },
+	]
 }
