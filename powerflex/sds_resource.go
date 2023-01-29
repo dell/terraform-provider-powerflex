@@ -241,27 +241,28 @@ func (r *sdsResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	pdm, err := getNewProtectionDomainEx(r.client, state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString(), "")
+	// Get the system on the PowerFlex cluster
+	system, err := getFirstSystem(r.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting Protection Domain",
+			"Error in getting system instance on the PowerFlex cluster",
 			err.Error(),
 		)
 		return
 	}
 
 	// Get SDS
-	var rsp *scaleiotypes.Sds
-	if rsp, err = pdm.FindSds("ID", state.ID.ValueString()); err != nil {
+	var rsp scaleiotypes.Sds
+	if rsp, err = system.GetSdsByID(state.ID.ValueString()); err != nil {
 		resp.Diagnostics.AddError(
-			"Could not get SDS",
+			fmt.Sprintf("Could not get SDS by ID %s", state.ID.ValueString()),
 			err.Error(),
 		)
 		return
 	}
 
 	// Set refreshed state
-	state, dgs := updateSdsState(rsp, state)
+	state, dgs := updateSdsState(&rsp, state)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state)
@@ -482,6 +483,7 @@ func updateSdsState(sds *scaleiotypes.Sds, plan sdsResourceModel) (sdsResourceMo
 	state := plan
 	state.ID = types.StringValue(sds.ID)
 	state.Name = types.StringValue(sds.Name)
+	state.ProtectionDomainID = types.StringValue(sds.ProtectionDomainID)
 	state.Port = types.Int64Value(int64(sds.Port))
 	state.SdsState = types.StringValue(sds.SdsState)
 	state.MembershipState = types.StringValue(sds.MembershipState)
