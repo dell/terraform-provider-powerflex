@@ -255,25 +255,21 @@ func TestAccSnapshotResource(t *testing.T) {
 				ExpectError: regexp.MustCompile(`.*Requested volume size exceeds the volume allocation limit*.`),
 			},
 			{
-				ExpectNonEmptyPlan: true,
-				Config:             ProviderConfigForTesting + createSnapshotAccessModeMapSdcPosTest,
+				Config: ProviderConfigForTesting + createSnapshotAccessModeMapSdcPosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create-access-mode-sdc-map", "sdc_list.#", "1"),
 				),
 			},
 			{
-				ExpectNonEmptyPlan: true,
-				Config:             ProviderConfigForTesting + updateSnapshotInvalidAccessModePNegTest,
-				ExpectError:        regexp.MustCompile(`.*The command cannot be applied because the volume has read-write mappings*.`),
+				Config:      ProviderConfigForTesting + updateSnapshotInvalidAccessModePNegTest,
+				ExpectError: regexp.MustCompile(`.*The command cannot be applied because the volume has read-write mappings*.`),
 			},
 			{
-				ExpectNonEmptyPlan: true,
-				Config:             ProviderConfigForTesting + updateSnapshotInvalidLockNegTest,
-				ExpectError:        regexp.MustCompile(`.*The specified volume is not an auto-snapshot and hence cannot be locked*.`),
+				Config:      ProviderConfigForTesting + updateSnapshotInvalidLockNegTest,
+				ExpectError: regexp.MustCompile(`.*The specified volume is not an auto-snapshot and hence cannot be locked*.`),
 			},
 			{
-				ExpectNonEmptyPlan: true,
-				Config:             ProviderConfigForTesting + updateSnapshotMapSdcPosTest,
+				Config: ProviderConfigForTesting + updateSnapshotMapSdcPosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create-access-mode-sdc-map", "sdc_list.#", "3"),
 				),

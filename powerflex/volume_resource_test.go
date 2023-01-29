@@ -282,28 +282,24 @@ func TestAccVolumeResource(t *testing.T) {
 				ExpectError: regexp.MustCompile(`.*Error mapping sdc*.`),
 			},
 			{
-				ExpectNonEmptyPlan: true,
-				Config:             ProviderConfigForTesting + createVolumePosTest,
+				Config: ProviderConfigForTesting + createVolumePosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "1"),
 				),
 			},
 			{
-				ExpectNonEmptyPlan: true,
-				Config:             ProviderConfigForTesting + updateVolumePosTest,
+				Config: ProviderConfigForTesting + updateVolumePosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "3"),
 				),
 			},
 			{
-				ExpectNonEmptyPlan: true,
-				Config:             ProviderConfigForTesting + updateVolumeUnmapPosTest,
+				Config: ProviderConfigForTesting + updateVolumeUnmapPosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "2"),
 				),
 			},
 			{
-				// ExpectNonEmptyPlan: true,
 				Config: ProviderConfigForTesting + createVolumePos01Test,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create-01", "size", "8"),
