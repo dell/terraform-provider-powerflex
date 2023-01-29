@@ -440,7 +440,7 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	}
 
 	// Set refreshed state
-	state, dgs := updateSdsState(rsp, plan)
+	state, dgs := updateSdsState(rsp, state)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state)
