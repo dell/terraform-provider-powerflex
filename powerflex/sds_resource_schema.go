@@ -28,11 +28,13 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 		"protection_domain_id": schema.StringAttribute{
 			Description:         "Protection domain id",
 			Optional:            true,
+			Computed:            true,
 			MarkdownDescription: "Protection domain id",
 		},
 		"protection_domain_name": schema.StringAttribute{
 			Description:         "Protection domain name",
 			Optional:            true,
+			Computed:            true,
 			MarkdownDescription: "Protection domain name",
 			Validators: []validator.String{
 				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),

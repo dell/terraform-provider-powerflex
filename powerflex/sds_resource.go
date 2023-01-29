@@ -149,6 +149,9 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
+	// set the protection domain name in the plan so that it gets propagated to the state
+	plan.ProtectionDomainName = types.StringValue(pdm.ProtectionDomain.Name)
+
 	sdsName := plan.Name.ValueString()
 	iplist := plan.getIPList(ctx)
 
@@ -261,15 +264,25 @@ func (r *sdsResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
+	// when SDS is imported, protection domain name is not known and this causes a non empty plan
+	if state.ProtectionDomainName.IsNull() {
+		protectionDomain, err := system.FindProtectionDomain(rsp.ProtectionDomainID, "", "")
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Unable to read name of protection domain of ID %s for SDS %s", rsp.ProtectionDomainID, rsp.Name),
+				err.Error(),
+			)
+		} else {
+			state.ProtectionDomainName = types.StringValue(protectionDomain.Name)
+		}
+	}
+
 	// Set refreshed state
 	state, dgs := updateSdsState(&rsp, state)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 // Update updates the resource and sets the updated Terraform state on success.
