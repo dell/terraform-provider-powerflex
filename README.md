@@ -38,7 +38,7 @@ The Terraform Provide for PowerFlex is released and licensed under the MPL-2.0 l
   * [Snapshot](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/resources/snapshot.md)
 
 ## Installation and execution of Terraform Provider for Dell PowerFlex
-The installation and execution steps of Terraform Provider for Dell PowerFlex can be found [here](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/INSTALLATION.md).
+The installation and execution steps of Terraform Provider for Dell PowerFlex can be found [here](https://github.com/dell/terraform-provider-powerflex/blob/main/INSTALLATION.md).
 
 ## Releasing, Maintenance and Deprecation
 
