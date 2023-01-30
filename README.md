@@ -23,19 +23,19 @@ The Terraform Provide for PowerFlex is released and licensed under the MPL-2.0 l
 | v1.0.0 | 3.6 | ubuntu22.04 <br> <br> rhel8.x <br> rhel7.x | 1.3.2 <br> 1.2.9 <br> 1.3.2 <br> 1.2.9 <br> | 1.19.x | 1.0.1
 
 ## List of DataSources in Terraform Provider for Dell PowerFlex
-  * [SDC module](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/data-sources/sdc.md)
-  * [Storage pool module](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/data-sources/storagepool.md)
-  * [Volume module](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/data-sources/volume.md)
-  * [SDS module](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/data-sources/sds.md)
-  * [Protection Domain Module](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/data-sources/protection_domain.md)
+  * [SDC](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/data-sources/sdc.md)
+  * [Storage pool](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/data-sources/storagepool.md)
+  * [Volume](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/data-sources/volume.md)
+  * [SDS](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/data-sources/sds.md)
+  * [Protection Domain](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/data-sources/protection_domain.md)
   * [Snapshot Policy](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/data-sources/protection_domain.md)
 
 ## List of Resources in Terraform Provider for Dell PowerFlex
-  * [SDC module](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/resources/sdc.md)
-  * [Storage pool module](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/resources/storagepool.md)
-  * [Volume module](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/resources/volume.md)
-  * [SDS module](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/resources/sds.md)
-  * [Snapshot module](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/resources/snapshot.md)
+  * [SDC](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/resources/sdc.md)
+  * [Storage pool](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/resources/storagepool.md)
+  * [Volume](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/resources/volume.md)
+  * [SDS](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/resources/sds.md)
+  * [Snapshot](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/resources/snapshot.md)
 
 ## Installation and execution of Terraform Provider for Dell PowerFlex
 The installation and execution steps of Terraform Provider for Dell PowerFlex can be found [here](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/INSTALLATION.md).
