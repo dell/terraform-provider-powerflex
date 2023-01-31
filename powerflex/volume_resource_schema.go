@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
@@ -114,11 +115,17 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 				"None",
 				"Normal",
 			)},
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.UseStateForUnknown(),
+			},
 		},
 		"id": schema.StringAttribute{
 			Description:         "The ID of the volume.",
 			Computed:            true,
 			MarkdownDescription: "The ID of the volume.",
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.UseStateForUnknown(),
+			},
 		},
 		"size_in_kb": schema.Int64Attribute{
 			Description:         "Size in KB",
