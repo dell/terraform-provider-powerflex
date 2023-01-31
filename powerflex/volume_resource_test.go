@@ -344,17 +344,17 @@ func TestAccVolumeResource(t *testing.T) {
 				ExpectError: regexp.MustCompile(`.*Error setting the volume size*.`),
 			},
 			{
-				Config: ProviderConfigForTesting + createVolumeCompressionMethodNegTest,
+				Config:      ProviderConfigForTesting + createVolumeCompressionMethodNegTest,
 				ExpectError: regexp.MustCompile(`.*error setting the compression method*.`),
 			},
 			{
 				Config: ProviderConfigForTesting + createVolumeTypePosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create-volume-type","volume_type","ThinProvisioned"),
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create-volume-type", "volume_type", "ThinProvisioned"),
 				),
 			},
 			{
-				Config: ProviderConfigForTesting + updateVolumeTypeNegTest,
+				Config:      ProviderConfigForTesting + updateVolumeTypeNegTest,
 				ExpectError: regexp.MustCompile(`.*volume type can't be update after volume creation*.`),
 			},
 		},
