@@ -12,14 +12,14 @@ You may obtain a copy of the License at
 
 ## Installation from public repository
 
-The provider will be fetched from the public repository and installed by terraform automatically.
+The provider will be fetched from the public repository and installed by Terraform automatically.
 Create a file called `main.tf` in your workspace with the following contents
 
 ```tf
 terraform {
   required_providers {
     powerflex = {
-      version = "0.0.1"
+      version = "1.0.0"
       source  = "registry.terraform.io/dell/powerflex"
     }
   }

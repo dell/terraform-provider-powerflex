@@ -6,7 +6,7 @@ The Terraform Provider can be used to manage SDCs, volumes, snapshots, snapshot-
 
 ## Table of contents
 
-* [Support](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/SUPPORT.md)
+* [Support](https://github.com/dell/terraform-provider-powerflex/blob/main/about/SUPPORT.md)
 * [License](#license)
 * [Prerequisites](#prerequisites)
 * [List of DataSources in Terraform Provider for Dell PowerFlex](#list-of-datasources-in-terraform-provider-for-dell-powerflex)
@@ -18,9 +18,9 @@ The Terraform Provide for PowerFlex is released and licensed under the MPL-2.0 l
 
 ## Prerequisites
 
-| **Terraform Provider** | **PowerFlex/VxFlex OS Version** | **OS** | **Terraform** | **Golang** | **Terraform Plugin Framework version**              |
-|---------------------|-----------------------|-------|--------------------|--------------------------|--------------------|
-| v1.0.0 | 3.6 | ubuntu22.04 <br> <br> rhel8.x <br> rhel7.x | 1.3.2 <br> 1.2.9 <br> 1.3.2 <br> 1.2.9 <br> | 1.19.x | 1.0.1
+| **Terraform Provider** | **PowerFlex/VxFlex OS Version** | **OS** | **Terraform** | **Golang** |
+|---------------------|-----------------------|-------|--------------------|--------------------------|
+| v1.0.0 | 3.6 | ubuntu22.04 <br> rhel8.x <br> rhel7.x | 1.3.2 <br> 1.2.9 <br> | 1.19.x
 
 ## List of DataSources in Terraform Provider for Dell PowerFlex
   * [SDC](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/data-sources/sdc.md)
@@ -38,7 +38,7 @@ The Terraform Provide for PowerFlex is released and licensed under the MPL-2.0 l
   * [Snapshot](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/resources/snapshot.md)
 
 ## Installation and execution of Terraform Provider for Dell PowerFlex
-The installation and execution steps of Terraform Provider for Dell PowerFlex can be found [here](https://github.com/dell/terraform-provider-powerflex/blob/main/INSTALLATION.md).
+The installation and execution steps of Terraform Provider for Dell PowerFlex can be found [here](https://github.com/dell/terraform-provider-powerflex/blob/main/about/INSTALLATION.md).
 
 ## Releasing, Maintenance and Deprecation
 
