@@ -38,12 +38,21 @@ Read-Only:
 - `background_scanner_mode` (String) Scanner mode.
 - `bg_scanner_compare_error_action` (String) Scanner compare-error action.
 - `bg_scanner_read_error_action` (String) Scanner read-error action.
+- `capacity_alert_critical_threshold` (Number) Capacity alert critical threshold.
+- `capacity_alert_high_threshold` (Number) Capacity alert high threshold.
 - `capacity_usage_state` (String) Capacity usage state (normal/high/critical/full).
 - `capacity_usage_type` (String) Usage state reason.
 - `checksum_enabled` (Boolean) Checksum Enabled.
 - `compression_method` (String) Compression method.
 - `data_layout` (String) Data Layout.
 - `external_acceleration_type` (String) External acceleration type.
+- `fgl_accp_id` (String) FGL ID.
+- `fgl_extra_capacity` (Number) FGL extra capacity.
+- `fgl_nvdimm_metadata_amotization_x100` (Number) FGL NVDIMM metadata amortization.
+- `fgl_nvdimm_write_cache_size_mb` (Number) FGL NVDIMM write cache size in Mb.
+- `fgl_overprovisioning_factor` (Number) FGL overprovisioning factor.
+- `fgl_perf_profile` (String) FGL performance profile.
+- `fgl_write_atomicity_size` (Number) FGL write atomicity size.
 - `fragmentation_enabled` (Boolean) Fragmentation Enabled.
 - `id` (String) Storage pool ID.
 - `links` (Attributes List) Specifies the links asscociated with storage pool. (see [below for nested schema](#nestedatt--storage_pools--links))
@@ -54,8 +63,12 @@ Read-Only:
 - `persistent_checksum_enabled` (Boolean) Persistent checksum enabled.
 - `persistent_checksum_state` (String) Persistent Checksum State.
 - `persistent_checksum_validate_on_read` (Boolean) Persistent checksum validation on read.
+- `protected_maintenance_mode_io_priority_app_bw_per_device_threshold_kbps` (Number) Protected maintenance mode IO priority app bandwidth per device threshold in Kbps.
+- `protected_maintenance_mode_io_priority_app_iops_per_device_threshold` (Number) Protected maintenance mode IO priority app IOPS per device threshold.
+- `protected_maintenance_mode_io_priority_bw_limit_per_device_kbps` (Number) Protected maintenance mode IO priority bandwidth limit per device in Kbps.
 - `protected_maintenance_mode_io_priority_num_of_concurrent_ios_per_device` (Number) Number of Concurrent Protected Maintenance Mode IOPS per Device.
 - `protected_maintenance_mode_io_priority_policy` (String) Protected maintenance mode IO priority policy.
+- `protected_maintenance_mode_io_priority_quiet_period_msec` (Number) Protected maintenance mode IO priority quiet period in Msec.
 - `rebalance_enabled` (Boolean) Rebalance Enabled.
 - `rebalance_io_priority_app_bw_per_device_threshold_kbps` (Number) Rebalance Application Bandwidth per Device Threshold.
 - `rebalance_io_priority_app_iops_per_device_threshold` (Number) Rebalance Application IOPS per Device Threshold.
@@ -77,9 +90,12 @@ Read-Only:
 - `use_rf_cache` (Boolean) Use Read Flash Cache.
 - `use_rm_cache` (Boolean) Use RAM Read Cache.
 - `volumes` (Attributes List) List of volumes associated with storage pool. (see [below for nested schema](#nestedatt--storage_pools--volumes))
+- `vtree_migration_io_priority_app_bw_per_device_threshold_kbps` (Number) VTree migration IO priority App bandwidth per device threshold in Kbps.
+- `vtree_migration_io_priority_app_iops_per_device_threshold` (Number) VTree migration IO priority App IOPS per device threshold.
 - `vtree_migration_io_priority_bw_limit_per_device_kbps` (Number) VTree Migration Bandwidth Limit per Device.
 - `vtree_migration_io_priority_num_of_concurrent_ios_per_device` (Number) Number of concurrent VTree migration IOPS per device.
 - `vtree_migration_io_priority_policy` (String) VTree Migration IO Priority Policy.
+- `vtree_migration_io_priority_quiet_period_msec` (Number) VTree migration IO priority quiet period in Msec.
 - `zero_padding_enabled` (Boolean) Zero Padding Enabled.
 
 <a id="nestedatt--storage_pools--links"></a>
