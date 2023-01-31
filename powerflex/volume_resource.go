@@ -196,6 +196,14 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 		)
 		return
 	}
+	// platform fails silently for compression method "None".
+	if (spr.StoragePool.DataLayout != "FineGranularity") && (plan.CompressionMethod.ValueString() != ""){
+		resp.Diagnostics.AddError(
+			"error setting the compression method",
+			"compression may only be set on volumes with Fine Granularity layout on storage pool. This storage pool has "+ spr.StoragePool.DataLayout + " layout.",
+		)
+		return
+	} 
 	volCreateResponse, err1 := spr.CreateVolume(volumeCreate)
 	if err1 != nil {
 		resp.Diagnostics.AddError(
@@ -373,6 +381,14 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 				"unexpected error: "+err4.Error(),
 			)
 		}
+	}
+
+	// prompt error on change in volume type, as we can't update the volume type after the creation
+	if !plan.VolumeType.Equal(state.VolumeType){
+		resp.Diagnostics.AddError(
+			"volume type can't be update after volume creation.",
+			"unxpected error: volume type change is not supported",
+		)
 	}
 
 	// updating the use rm cache if there is change in plan

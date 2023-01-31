@@ -239,6 +239,36 @@ resource "powerflex_volume" "avengers-volume-create-01"{
 }
 `
 
+var createVolumeCompressionMethodNegTest = `
+resource "powerflex_volume" "avengers-volume-create-compression"{
+	name = "volume-create-compression"
+	protection_domain_name = "domain1"
+	storage_pool_name = "pool1"
+	size = 16
+	compression_method = "None"
+}
+`
+
+var createVolumeTypePosTest = `
+resource "powerflex_volume" "avengers-volume-create-volume-type"{
+	name = "volume-create-volume-type"
+	protection_domain_name = "domain1"
+	storage_pool_name = "pool1"
+	size = 16
+	volume_type = "ThinProvisioned"
+}
+`
+
+var updateVolumeTypeNegTest = `
+resource "powerflex_volume" "avengers-volume-create-volume-type"{
+	name = "volume-create-volume-type"
+	protection_domain_name = "domain1"
+	storage_pool_name = "pool1"
+	size = 16
+	volume_type = "ThickProvisioned"
+}
+`
+
 func TestAccVolumeResource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -312,6 +342,20 @@ func TestAccVolumeResource(t *testing.T) {
 			{
 				Config:      ProviderConfigForTesting + updateVolumeSizeNegTest,
 				ExpectError: regexp.MustCompile(`.*Error setting the volume size*.`),
+			},
+			{
+				Config: ProviderConfigForTesting + createVolumeCompressionMethodNegTest,
+				ExpectError: regexp.MustCompile(`.*error setting the compression method*.`),
+			},
+			{
+				Config: ProviderConfigForTesting + createVolumeTypePosTest,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create-volume-type","volume_type","ThinProvisioned"),
+				),
+			},
+			{
+				Config: ProviderConfigForTesting + updateVolumeTypeNegTest,
+				ExpectError: regexp.MustCompile(`.*volume type can't be update after volume creation*.`),
 			},
 		},
 	})
