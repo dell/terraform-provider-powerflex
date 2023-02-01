@@ -107,8 +107,8 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "use rm cache",
 		},
 		"compression_method": schema.StringAttribute{
-			Description: "Compression Method on the volume.",
-			// Optional:            true,
+			Description:         "Compression Method on the volume.",
+			Optional:            true,
 			Computed:            true,
 			MarkdownDescription: "Compression Method the volume.",
 			Validators: []validator.String{stringvalidator.OneOf(

@@ -196,6 +196,14 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 		)
 		return
 	}
+	// platform fails silently for compression method "None".
+	if (spr.StoragePool.DataLayout != "FineGranularity") && (plan.CompressionMethod.ValueString() != "") {
+		resp.Diagnostics.AddError(
+			"error setting the compression method",
+			"compression may only be set on volumes with Fine Granularity layout on storage pool. This storage pool has "+spr.StoragePool.DataLayout+" layout.",
+		)
+		return
+	}
 	volCreateResponse, err1 := spr.CreateVolume(volumeCreate)
 	if err1 != nil {
 		resp.Diagnostics.AddError(
@@ -290,15 +298,7 @@ func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, res
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	spr, err1 := getStoragePoolInstance(r.client, state.StoragePoolID.ValueString(), state.ProtectionDomainID.ValueString())
-	if err1 != nil {
-		resp.Diagnostics.AddError(
-			"Error getting storage pool",
-			"Could not get storage pool, unexpected err: "+err1.Error(),
-		)
-		return
-	}
-	volsResponse, err2 := spr.GetVolume("", state.ID.ValueString(), "", "", false)
+	volsResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
 			"Error getting volume",
@@ -333,15 +333,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	spr, err1 := getStoragePoolInstance(r.client, state.StoragePoolID.ValueString(), state.ProtectionDomainID.ValueString())
-	if err1 != nil {
-		resp.Diagnostics.AddError(
-			"Error getting storage pool",
-			"Could not get storage pool, unexpected err: "+err1.Error(),
-		)
-		return
-	}
-	volsplan, err2 := spr.GetVolume("", state.ID.ValueString(), "", "", false)
+	volsplan, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
 			"Error getting volume",
@@ -373,6 +365,14 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 				"unexpected error: "+err4.Error(),
 			)
 		}
+	}
+
+	// prompt error on change in volume type, as we can't update the volume type after the creation
+	if !plan.VolumeType.Equal(state.VolumeType) {
+		resp.Diagnostics.AddError(
+			"volume type cannot be update after volume creation.",
+			"unxpected error: volume type change is not supported",
+		)
 	}
 
 	// updating the use rm cache if there is change in plan
@@ -549,7 +549,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 		}
 	}
 
-	vols, err2 := spr.GetVolume("", state.ID.ValueString(), "", "", false)
+	vols, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
 			"Error getting volume",
@@ -574,15 +574,14 @@ func (r *volumeResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	var state VolumeResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	spr, err1 := getStoragePoolInstance(r.client, state.StoragePoolID.ValueString(), state.ProtectionDomainID.ValueString())
+	volsplan, err1 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err1 != nil {
 		resp.Diagnostics.AddError(
-			"Error getting storage pool",
-			"Could not get storage pool, unexpected err: "+err1.Error(),
+			"Error getting volume",
+			"Could not get volume, unexpected error: "+err1.Error(),
 		)
 		return
 	}
-	volsplan, _ := spr.GetVolume("", state.ID.ValueString(), "", "", false)
 	volresource := goscaleio.NewVolume(r.client)
 	volresource.Volume = volsplan[0]
 
