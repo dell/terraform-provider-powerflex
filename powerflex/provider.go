@@ -172,7 +172,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	tflog.Debug(ctx, "Creating powerflex client")
 
 	// Create a new powerflex client using the configuration values
-	Client, err := goscaleio.NewClientWithArgs(endpoint, "", true, true)
+	Client, err := goscaleio.NewClientWithArgs(endpoint, "", insecure, true)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Create powerflex API Client",
