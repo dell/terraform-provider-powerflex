@@ -355,7 +355,7 @@ func TestAccVolumeResource(t *testing.T) {
 			},
 			{
 				Config:      ProviderConfigForTesting + updateVolumeTypeNegTest,
-				ExpectError: regexp.MustCompile(`.*volume type can't be update after volume creation*.`),
+				ExpectError: regexp.MustCompile(`.*volume type cannot be update after volume creation*.`),
 			},
 		},
 	})
