@@ -149,6 +149,9 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
+	// set the protection domain name in the plan so that it gets propagated to the state
+	plan.ProtectionDomainName = types.StringValue(pdm.ProtectionDomain.Name)
+
 	sdsName := plan.Name.ValueString()
 	iplist := plan.getIPList(ctx)
 
@@ -241,34 +244,45 @@ func (r *sdsResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	pdm, err := getNewProtectionDomainEx(r.client, state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString(), "")
+	// Get the system on the PowerFlex cluster
+	system, err := getFirstSystem(r.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting Protection Domain",
+			"Error in getting system instance on the PowerFlex cluster",
 			err.Error(),
 		)
 		return
 	}
 
 	// Get SDS
-	var rsp *scaleiotypes.Sds
-	if rsp, err = pdm.FindSds("ID", state.ID.ValueString()); err != nil {
+	var rsp scaleiotypes.Sds
+	if rsp, err = system.GetSdsByID(state.ID.ValueString()); err != nil {
 		resp.Diagnostics.AddError(
-			"Could not get SDS",
+			fmt.Sprintf("Could not get SDS by ID %s", state.ID.ValueString()),
 			err.Error(),
 		)
 		return
 	}
 
+	// when SDS is imported, protection domain name is not known and this causes a non empty plan
+	if state.ProtectionDomainName.IsNull() {
+		protectionDomain, err := system.FindProtectionDomain(rsp.ProtectionDomainID, "", "")
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Unable to read name of protection domain of ID %s for SDS %s", rsp.ProtectionDomainID, rsp.Name),
+				err.Error(),
+			)
+		} else {
+			state.ProtectionDomainName = types.StringValue(protectionDomain.Name)
+		}
+	}
+
 	// Set refreshed state
-	state, dgs := updateSdsState(rsp, state)
+	state, dgs := updateSdsState(&rsp, state)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 // Update updates the resource and sets the updated Terraform state on success.
@@ -426,7 +440,7 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	}
 
 	// Set refreshed state
-	state, dgs := updateSdsState(rsp, plan)
+	state, dgs := updateSdsState(rsp, state)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state)
@@ -482,6 +496,7 @@ func updateSdsState(sds *scaleiotypes.Sds, plan sdsResourceModel) (sdsResourceMo
 	state := plan
 	state.ID = types.StringValue(sds.ID)
 	state.Name = types.StringValue(sds.Name)
+	state.ProtectionDomainID = types.StringValue(sds.ProtectionDomainID)
 	state.Port = types.Int64Value(int64(sds.Port))
 	state.SdsState = types.StringValue(sds.SdsState)
 	state.MembershipState = types.StringValue(sds.MembershipState)
