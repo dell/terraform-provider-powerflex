@@ -5,8 +5,9 @@ resource "powerflex_volume" "avengers-volume-create"{
 	size = "<size in int>"
 	capacity_unit = "<GB/TB capacity unit>"
 	use_rm_cache = "true/false for use rm cache" 
-	volume_type = "<ThickProvisioned/ThickProvisioned volume type>" 
+	volume_type = "<ThickProvisioned/ThinProvisioned volume type>" 
 	access_mode = "<ReadWrite/ReadOnly access mode>"
+	compression_method = "<None/Normal compression method>"
 	sdc_list = [
 	  		{
 			   sdc_name = "<sdc name>"
