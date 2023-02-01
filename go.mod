@@ -3,7 +3,7 @@ module terraform-provider-powerflex
 go 1.19
 
 require (
-	github.com/dell/goscaleio v1.9.1-0.20230131063113-4d374ee49277
+	github.com/dell/goscaleio v1.9.1-0.20230201103258-731c8425c7bc
 	github.com/hashicorp/terraform-plugin-docs v0.13.0
 	github.com/hashicorp/terraform-plugin-framework v1.0.1
 	github.com/hashicorp/terraform-plugin-framework-validators v0.9.0
@@ -17,7 +17,7 @@ require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
 	github.com/Masterminds/sprig/v3 v3.2.2 // indirect
-	github.com/agext/levenshtein v1.2.2 // indirect
+	github.com/agext/levenshtein v1.2.2 // indirect731c8425c7bcc68c4c793d0d053ec452ba2b5bb3
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
