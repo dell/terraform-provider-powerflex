@@ -225,18 +225,29 @@ func TestAccSnapshotResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create", "volume_id", "4577c84000000120"),
 				),
 			},
+			// check that import is working
+			{
+				ResourceName: "powerflex_snapshot.snapshots-create",
+				ImportState:  true,
+				// TODO // ImportStateVerify: true,
+			},
 			{
 				Config: ProviderConfigForTesting + updateSnapshotRenamePosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create", "name", "snapshots-create-1"),
 				),
 			},
-
 			{
 				Config: ProviderConfigForTesting + updateSnapshotResizePosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create", "size", "24"),
 				),
+			},
+			// check that import is working
+			{
+				ResourceName: "powerflex_snapshot.snapshots-create",
+				ImportState:  true,
+				// TODO // ImportStateVerify: true,
 			},
 			{
 				Config:      ProviderConfigForTesting + updateSnapshotResizeNegTest,
