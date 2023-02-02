@@ -360,3 +360,59 @@ func TestAccVolumeResource(t *testing.T) {
 		},
 	})
 }
+
+func TestAccVolumeResourceImport(t *testing.T) {
+	resourceName := "powerflex_volume.tf_create"
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Create dummy volume
+			{
+				Config: ProviderConfigForTesting + `
+				resource "powerflex_volume" "tf_create"{
+					name = "volume-create-tf"
+					protection_domain_name = "domain1"
+					storage_pool_name = "pool1"
+					size = 8
+				}
+				`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", "volume-create-tf"),
+					resource.TestCheckResourceAttr(resourceName, "protection_domain_name", "domain1"),
+					resource.TestCheckResourceAttr(resourceName, "storage_pool_name", "pool1"),
+					resource.TestCheckResourceAttr(resourceName, "size", "8"),
+				),
+			},
+			// check that import is working
+			{
+				ResourceName: resourceName,
+				ImportState:  true,
+				// TODO // ImportStateVerify: true,
+			},
+			// Change name and increase size of volume
+			{
+				Config: ProviderConfigForTesting + `
+				resource "powerflex_volume" "tf_create"{
+					name = "volume-update-tf"
+					protection_domain_name = "domain1"
+					storage_pool_name = "pool1"
+					size = 16
+				}
+				`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", "volume-update-tf"),
+					resource.TestCheckResourceAttr(resourceName, "protection_domain_name", "domain1"),
+					resource.TestCheckResourceAttr(resourceName, "storage_pool_name", "pool1"),
+					resource.TestCheckResourceAttr(resourceName, "size", "16"),
+				),
+			},
+			// check that import is working
+			{
+				ResourceName: resourceName,
+				ImportState:  true,
+				// TODO // ImportStateVerify: true,
+			},
+		},
+	})
+}
