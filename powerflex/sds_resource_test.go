@@ -7,11 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var (
-	resourceName = "powerflex_sds.sds"
-)
-
 func TestAccSDSResource(t *testing.T) {
+	resourceName := "powerflex_sds.sds"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -131,9 +128,9 @@ func TestAccSDSResourceDuplicateIP(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + createSDSTestMany,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "Tf_SDS_01"),
-					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "3"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "3"),
 				),
 			},
 		},
@@ -325,8 +322,8 @@ func TestSDSResourceCreateSpecialChar(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + createSDSSpecialChar,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "Terraform_SDS_!@#$%^&*"),
-					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS_!@#$%^&*"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 				),
 			},
 		},
@@ -340,9 +337,9 @@ func TestSDSResourceCreateMandatoryParams(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + createSDSMandatoryParams,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.232",
 						"role": "all",
 					}),
@@ -351,9 +348,9 @@ func TestSDSResourceCreateMandatoryParams(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + createSDSMandatoryParams,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.232",
 						"role": "all",
 					}),
@@ -370,13 +367,13 @@ func TestSDSResourceModifyRole(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + addSDSIP,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.232",
 						"role": "all",
 					}),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.231",
 						"role": "sdcOnly",
 					}),
@@ -393,13 +390,13 @@ func TestSDSResourceModifyRole(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + modifyRolefromalltosdsOnly,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.232",
 						"role": "sdsOnly",
 					}),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.231",
 						"role": "sdcOnly",
 					}),
@@ -412,13 +409,13 @@ func TestSDSResourceModifyRole(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + modifyRolefromsdsOnlytoall,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.232",
 						"role": "all",
 					}),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.231",
 						"role": "sdcOnly",
 					}),
@@ -435,9 +432,9 @@ func TestSDSResourceModifyRoleAddIP(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + addSDSSingleIP,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.232",
 						"role": "all",
 					}),
@@ -470,9 +467,9 @@ func TestSDSResourceAddIP(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + createSDSMandatoryParams,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.232",
 						"role": "all",
 					}),
@@ -481,13 +478,13 @@ func TestSDSResourceAddIP(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + addSDSIP,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "2"),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "2"),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.232",
 						"role": "all",
 					}),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.231",
 						"role": "sdcOnly",
 					}),
@@ -504,13 +501,13 @@ func TestSDSResourceAddIP(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + addNonexistingSDSIP,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "4"),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "4"),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.96.231",
 						"role": "sdcOnly",
 					}),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.244",
 						"role": "sdcOnly",
 					}),
@@ -535,13 +532,13 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + modifyRolefromalltosdsOnly,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.232",
 						"role": "sdsOnly",
 					}),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.231",
 						"role": "sdcOnly",
 					}),
@@ -558,13 +555,13 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + addSDSIP,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.232",
 						"role": "all",
 					}),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.231",
 						"role": "sdcOnly",
 					}),
@@ -573,10 +570,10 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + removesdcOnlyIP1,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "1"),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.232",
 						"role": "all",
 					}),
@@ -593,18 +590,18 @@ func TestSDSResourceModifyInvalid(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + createSDSTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "Tf_SDS_01"),
-					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "rmcache_size_in_mb", "156"),
-					resource.TestCheckResourceAttr(resourceName, "rmcache_enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "rfcache_enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "performance_profile", "Compact"),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "2"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_size_in_mb", "156"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "true"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rfcache_enabled", "true"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "performance_profile", "Compact"),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.232",
 						"role": "all",
 					}),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.10.10.1",
 						"role": "sdcOnly",
 					}),
@@ -645,9 +642,9 @@ func TestSDSResourceRename(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + createSDSMandatoryParams,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.232",
 						"role": "all",
 					}),
@@ -664,9 +661,9 @@ func TestSDSResourceRename(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + renameSDS,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "Terraform_SDS_renamed"),
-					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS_renamed"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   "10.247.100.232",
 						"role": "all",
 					}),
