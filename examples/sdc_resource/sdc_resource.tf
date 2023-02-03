@@ -1,4 +1,4 @@
-# terraform init && terraform plan && terraform apply
+# Commands to run this tf file : terraform init && terraform plan && terraform apply
 # Only importing the sdc resource or renaming of sdc resource is supported
 # For Renaming , id and name are required fields
 # For importing , please check sdc_resource_import.tf file for more details

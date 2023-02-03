@@ -1,4 +1,4 @@
-# terraform init && terraform plan && terraform apply
+# Command to run this tf file : terraform init && terraform plan && terraform apply
 # Create, Update, Delete is supported for this resource
 # To import , check volume_resource_import.tf for more info
 # To create / update, either storage_pool_id or storage_pool_name must be provided
@@ -25,16 +25,6 @@ resource "powerflex_volume" "avengers-volume-create"{
 		   },
 	]
   }
-
-
-
-
-
-
-
-
-
-
 
   
 # resource "powerflex_volume" "avengers-volume-create"{

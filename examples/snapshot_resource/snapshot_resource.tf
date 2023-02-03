@@ -1,4 +1,4 @@
-# terraform init && terraform plan && terraform apply
+# Commands to run this tf file : terraform init && terraform plan && terraform apply
 # Create, Update, Delete is supported for this resource
 # To import , check snapshot_resource_import.tf for more info
 # To create / update, either volume_id or volume_name must be provided

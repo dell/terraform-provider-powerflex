@@ -1,4 +1,4 @@
-# terraform init && terraform plan && terraform apply
+# Commands to run this tf file : terraform init && terraform plan && terraform apply
 # Create, Update, Delete is supported for this resource
 # To import , check sds_resource_import.tf for more info
 # To create / update, either protection_domain_name or protection_domain_id must be provided

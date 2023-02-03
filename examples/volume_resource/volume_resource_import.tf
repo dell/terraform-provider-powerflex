@@ -5,7 +5,7 @@
 # Example :
 # resource "powerflex_volume" "resource_block_name" {
 # }
-# Step 4 - execute the command: terraform import "powerflex_storagepool.resource_block_name" "id_of_the_volume" (resource_block_name must be taken from step 3 and id must be taken from step 2)
+# Step 4 - execute the command: terraform import "powerflex_volume.resource_block_name" "id_of_the_volume" (resource_block_name must be taken from step 3 and id must be taken from step 2)
 # Step 5 - After successful execution of the command , check the state file
 
 
