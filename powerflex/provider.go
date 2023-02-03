@@ -3,6 +3,7 @@ package powerflex
 import (
 	"context"
 	"os"
+	"strconv"
 
 	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -31,6 +32,7 @@ type powerflexProviderModel struct {
 	Username types.String `tfsdk:"username"`
 	Password types.String `tfsdk:"password"`
 	Insecure types.Bool   `tfsdk:"insecure"`
+	Timeout  types.Int64  `tfsdk:"timeout"`
 }
 
 // Metadata - provider metadata AKA name.
@@ -64,6 +66,11 @@ func (p *powerflexProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 				MarkdownDescription: "Specifies if the user wants to do SSL verification.",
 				Optional:            true,
 			},
+			"timeout": schema.Int64Attribute{
+				Description:         "HTTPS timeout.",
+				MarkdownDescription: "HTTPS timeout.",
+				Optional:            true,
+			},
 		},
 	}
 }
@@ -73,6 +80,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	tflog.Info(ctx, "Configuring powerflex client")
 
 	var config powerflexProviderModel
+	var timeout int
 	diags := req.Config.Get(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -114,6 +122,13 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	username := os.Getenv("POWERFLEX_USERNAME")
 	password := os.Getenv("POWERFLEX_PASSWORD")
 	insecure := os.Getenv("POWERFLEX_INSECURE") == "true"
+	if os.Getenv("POWERFLEX_TIMEOUT") != "" {
+		var err error
+		timeout, err = strconv.Atoi(os.Getenv("POWERFLEX_TIMEOUT"))
+		if err != nil {
+			resp.Diagnostics.AddError("Invalid POWERFLEX_TIMEOUT", err.Error())
+		}
+	}
 
 	if !config.EndPoint.IsNull() {
 		endpoint = config.EndPoint.ValueString()
@@ -128,6 +143,9 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	}
 	if !config.Insecure.IsNull() {
 		insecure = config.Insecure.ValueBool()
+	}
+	if !config.Timeout.IsNull() {
+		timeout = int(config.Timeout.ValueInt64())
 	}
 
 	if endpoint == "" {
@@ -169,10 +187,11 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	ctx = tflog.SetField(ctx, "powerflex_password", password)
 	ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "powerflex_password")
 	ctx = tflog.SetField(ctx, "insecure", insecure)
+	ctx = tflog.SetField(ctx, "timeout", timeout)
 	tflog.Debug(ctx, "Creating powerflex client")
 
 	// Create a new powerflex client using the configuration values
-	Client, err := goscaleio.NewClientWithArgs(endpoint, "", insecure, true)
+	Client, err := goscaleio.NewClientWithArgs(endpoint, "", int64(timeout), insecure, true)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Create powerflex API Client",

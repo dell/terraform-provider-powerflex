@@ -24,3 +24,4 @@ description: |-
 ### Optional
 
 - `insecure` (Boolean) Specifies if the user wants to do SSL verification.
+- `timeout` (Number) HTTPS timeout.
