@@ -13,6 +13,7 @@ provider "powerflex" {
     username = var.username
     password = var.password
     endpoint = var.endpoint
+    timeout = var.timeout
     insecure = true
 }
 
