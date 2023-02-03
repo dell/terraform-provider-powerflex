@@ -365,7 +365,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if !plan.VolumeType.Equal(state.VolumeType) {
 		resp.Diagnostics.AddError(
 			"volume type cannot be update after volume creation.",
-			"unxpected error: volume type change is not supported",
+			"unexpected error: volume type change is not supported",
 		)
 	}
 
