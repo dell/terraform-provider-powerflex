@@ -137,10 +137,10 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Mdm connection state of SDS",
 		},
 		"rmcache_size_in_mb": schema.Int64Attribute{
-			Description:         "Read Ram cache size in MB of SDS. Can be set only when rmcache_enabled is true.",
+			Description:         "Read RAM cache size in MB of SDS. Can be set only when rmcache_enabled is true.",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "Read Ram cache size in MB of SDS. Can be set only when rmcache_enabled is true.",
+			MarkdownDescription: "Read RAM cache size in MB of SDS. Can be set only when rmcache_enabled is true.",
 		},
 		"num_of_io_buffers": schema.Int64Attribute{
 			Description:         "Number of io buffers of SDS",

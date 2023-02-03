@@ -140,6 +140,18 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
+	// if rmcache size is provided but rmcache is not enabled
+	if !(plan.RmcacheSizeInMB.IsNull() || plan.RmcacheSizeInMB.IsUnknown()) && !plan.RmcacheEnabled.ValueBool() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("rmcache_size_in_mb"),
+			"rmcache_size_in_mb cannot be specified while rmcache_enabled is not set to true",
+			"Read Ram cache must be enabled in order to configure its size",
+		)
+	}
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	pdm, err := getNewProtectionDomainEx(r.client, plan.ProtectionDomainID.ValueString(), plan.ProtectionDomainName.ValueString(), "")
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -299,6 +311,25 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	var state sdsResourceModel
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// if rm cache size is provided
+	if !(plan.RmcacheSizeInMB.IsNull() || plan.RmcacheSizeInMB.IsUnknown()) {
+		if plan.RmcacheEnabled.ValueBool() {
+			// if plan has rmcache enabled, no issues
+		} else if (plan.RmcacheEnabled.IsNull() || plan.RmcacheEnabled.IsUnknown()) && state.RmcacheEnabled.ValueBool() {
+			// if plan does not have rmcache enabled field, but its enabled in state, again no problem
+		} else {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("rmcache_size_in_mb"),
+				"rmcache_size_in_mb cannot be specified while rmcache_enabled is not set to true",
+				"Read Ram cache must be enabled in order to configure its size",
+			)
+		}
+	}
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -536,23 +567,4 @@ func updateSdsState(sds *scaleiotypes.Sds, plan sdsResourceModel) (sdsResourceMo
 	state.IPList = setVal
 
 	return state, diags
-}
-
-func (r *sdsResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	var data sdsResourceModel
-
-	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	// A config is only considered valid if rmcache_size_in_mb is specified when rmcache_enabled is set to true in the config
-	if !data.RmcacheEnabled.ValueBool() && !data.RmcacheSizeInMB.IsNull() {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("rmcache_size_in_mb"),
-			"rmcache_size_in_mb cannot be specified while rmcache_enabled is not set to true",
-			"Read Ram cache must be enabled in order to configure its size",
-		)
-	}
 }

@@ -35,7 +35,7 @@ Warning: If the taint is not removed, terraform will destroy and recreate the re
 - `protection_domain_name` (String) Protection domain name
 - `rfcache_enabled` (Boolean) Rfcache enabled state of SDS
 - `rmcache_enabled` (Boolean) Rmcache enabled state of SDS
-- `rmcache_size_in_mb` (Number) Read Ram cache size in MB of SDS. Can be set only when rmcache_enabled is true.
+- `rmcache_size_in_mb` (Number) Read RAM cache size in MB of SDS. Can be set only when rmcache_enabled is true.
 
 ### Read-Only
 
