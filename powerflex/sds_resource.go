@@ -537,3 +537,22 @@ func updateSdsState(sds *scaleiotypes.Sds, plan sdsResourceModel) (sdsResourceMo
 
 	return state, diags
 }
+
+func (r *sdsResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data sdsResourceModel
+
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// A config is only considered valid if rmcache_size_in_mb is specified when rmcache_enabled is set to true in the config
+	if !data.RmcacheEnabled.ValueBool() && !data.RmcacheSizeInMB.IsNull() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("rmcache_size_in_mb"),
+			"rmcache_size_in_mb cannot be specified while rmcache_enabled is not set to true",
+			"Read Ram cache must be enabled in order to configure its size",
+		)
+	}
+}
