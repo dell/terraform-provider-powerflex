@@ -8,6 +8,7 @@ import (
 )
 
 func TestAccSDSResource(t *testing.T) {
+	resourceName := "powerflex_sds.sds"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -15,22 +16,28 @@ func TestAccSDSResource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + createSDSTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "2"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_size_in_mb", "156"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "true"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rfcache_enabled", "true"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "performance_profile", "Compact"),
-					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
+					resource.TestCheckResourceAttr(resourceName, "name", "Tf_SDS_01"),
+					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "rmcache_size_in_mb", "156"),
+					resource.TestCheckResourceAttr(resourceName, "rmcache_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "rfcache_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "performance_profile", "Compact"),
+					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
 						"ip":   "10.247.100.232",
 						"role": "all",
 					}),
-					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
+					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
 						"ip":   "10.10.10.1",
 						"role": "sdcOnly",
 					}),
 				),
+			},
+			// check that import is creating correct state
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			// update sds name
 			// update sds ips from all, sdcOnly to sdsOnly, all
@@ -40,22 +47,28 @@ func TestAccSDSResource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + updateSDSTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_02"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "2"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_size_in_mb", "256"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "true"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rfcache_enabled", "false"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "performance_profile", "HighPerformance"),
-					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
+					resource.TestCheckResourceAttr(resourceName, "name", "Tf_SDS_02"),
+					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "rmcache_size_in_mb", "256"),
+					resource.TestCheckResourceAttr(resourceName, "rmcache_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "rfcache_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "performance_profile", "HighPerformance"),
+					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
 						"ip":   "10.247.100.232",
 						"role": "sdsOnly",
 					}),
-					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
+					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
 						"ip":   "10.10.10.2",
 						"role": "sdcOnly",
 					}),
 				),
+			},
+			// check that import is creating correct state
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			// disable sds rmcache
 			// re-enable rfcache
@@ -63,15 +76,22 @@ func TestAccSDSResource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + updateSDSTest2,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_02"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "2"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_size_in_mb", "256"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "false"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rfcache_enabled", "true"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "performance_profile", "Compact"),
+					resource.TestCheckResourceAttr(resourceName, "name", "Tf_SDS_02"),
+					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "rmcache_size_in_mb", "256"),
+					resource.TestCheckResourceAttr(resourceName, "rmcache_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "rfcache_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "performance_profile", "Compact"),
 				),
 			},
+			// check that import is creating correct state
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// this threefold import state check more or less validates that import functionality works
 		},
 	})
 }

@@ -13,6 +13,7 @@ func TestAccStoragepoolResource(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
+	resourceName := "powerflex_storagepool.storagepool"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -27,6 +28,12 @@ func TestAccStoragepoolResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rfcache", "true"),
 				),
 			},
+			// check that import is creating correct state
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 			// Update Storagepool Test
 			{
 				Config: ProviderConfigForTesting + StoragePoolResourceUpdate,
@@ -37,6 +44,12 @@ func TestAccStoragepoolResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rmcache", "true"),
 					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rfcache", "true"),
 				),
+			},
+			// check that import is creating correct state
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
