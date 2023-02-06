@@ -477,6 +477,7 @@ func TestAccVolumeResourceDuplicateSDC(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "1"),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
