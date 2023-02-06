@@ -89,7 +89,7 @@ jobs:
             (echo; echo "Unexpected difference in directories after code generation. Run 'go generate ./...' command and commit."; exit 1) 
   malware_security_scan:
     name: Malware Scanner
-    runs-on: ubuntu-latest
+    runs-on: ubuntu:22.04
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3
