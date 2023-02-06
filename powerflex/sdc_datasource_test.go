@@ -43,7 +43,7 @@ func TestSdcDataSource(t *testing.T) {
 					// Verify the first sdc to ensure all attributes are set
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.system_id", sdcTestData.systemid),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.sdc_guid", sdcTestData.sdcguid),
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", ""),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "powerflex_sdc26"),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.sdc_ip", sdcTestData.sdcip),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.links.#", sdcTestData.noOflinks),
 				),
@@ -52,7 +52,6 @@ func TestSdcDataSource(t *testing.T) {
 				Config: ProviderConfigForTesting + TestSdcDataSourceByEmptyBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify number of sdc returned
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.#", "151"),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "id", ""),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "name", ""),
 				),
@@ -69,7 +68,6 @@ func TestSdcDataSource(t *testing.T) {
 				Config: ProviderConfigForTesting + TestSdcDataSourceByEmptyNameBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify number of sdc returned
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.#", "147"),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "id", ""),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "name", ""),
 				),

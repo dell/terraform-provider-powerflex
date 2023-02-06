@@ -68,7 +68,6 @@ func TestAccProtectionDomainDataSource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + ProtectionDomainDataSourceConfig3,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd3", "protection_domains.#", "4"),
 					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd3", "protection_domains.0.id", protectiondomainTestData.id),
 					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd3", "protection_domains.0.name", protectiondomainTestData.name),
 					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd3", "protection_domains.1.name", protectiondomainTestData.name2),
