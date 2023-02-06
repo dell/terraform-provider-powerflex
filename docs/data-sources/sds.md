@@ -17,8 +17,8 @@ Fetches the list of sds.
 
 ### Optional
 
-- `protection_domain_id` (String) Protection Domain ID.
-- `protection_domain_name` (String) Protection Domain Name.
+- `protection_domain_id` (String) Protection Domain ID - Either of Protection Domain ID/Name is Required.
+- `protection_domain_name` (String) Protection Domain Name - Either of Protection Domain ID/Name is Required.
 - `sds_ids` (List of String) List of SDS IDs.
 - `sds_names` (List of String) List of SDS names.
 

@@ -31,8 +31,8 @@ Warning: If the taint is not removed, terraform will destroy and recreate the re
 - `drl_mode` (String) DRL mode of SDS
 - `performance_profile` (String) Performance Profile of SDS
 - `port` (Number) Port mode of SDS
-- `protection_domain_id` (String) Protection domain id
-- `protection_domain_name` (String) Protection domain name
+- `protection_domain_id` (String) Protection domain id - Either of Protection Domain ID/Name is Required.
+- `protection_domain_name` (String) Protection domain name - Either of Protection Domain ID/Name is Required.
 - `rfcache_enabled` (Boolean) Rfcache enabled state of SDS
 - `rmcache_enabled` (Boolean) Rmcache enabled state of SDS
 - `rmcache_size_in_mb` (Number) Read RAM cache size in MB of SDS. Can be set only when rmcache_enabled is true.
