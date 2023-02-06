@@ -114,6 +114,11 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 		AttrTypes: SdcInfoAttrTypes,
 	}
 	objectSdcInfos := []attr.Value{}
+	type sdcCount struct {
+		name  string
+		count int
+	}
+	sdcMap := make(map[string]*sdcCount)
 	for _, si := range sdcList {
 		if si.SdcID == "" {
 			foundsdc, errA := sr.FindSdc("Name", si.SdcName)
@@ -137,6 +142,14 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 			}
 			si.SdcName = foundsdc.Sdc.Name
 		}
+
+		if _, ok := sdcMap[si.SdcID]; ok {
+			sdcMap[si.SdcID].count++
+			sdcMap[si.SdcID].name = si.SdcName
+		} else {
+			sdcMap[si.SdcID] = &sdcCount{name: si.SdcName, count: 1}
+		}
+
 		obj := map[string]attr.Value{
 			"sdc_id":           types.StringValue(si.SdcID),
 			"limit_iops":       types.Int64Value(int64(si.LimitIops)),
@@ -148,6 +161,18 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 		diags = append(diags, dgs1...)
 		objectSdcInfos = append(objectSdcInfos, objVal)
 	}
+
+	for id, sdc := range sdcMap {
+		if sdc.count == 1 {
+			continue
+		}
+		resp.Diagnostics.AddAttributeError(
+			path.Root("sdc_list"),
+			"Error: Duplicate SDC in list",
+			fmt.Sprintf("The SDC {name:%s, ID:%s} is found %d times in the list, but only 1 time expected.", id, sdc.name, sdc.count),
+		)
+	}
+
 	mappedSdcInfoVal, dgs2 := types.SetValue(sdcInfoElemType, objectSdcInfos)
 	diags = append(diags, dgs2...)
 	resp.Diagnostics.Append(diags...)
