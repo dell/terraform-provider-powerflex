@@ -40,6 +40,8 @@ resource "powerflex_snapshot" "snapshots-create-01" {
 	]
 }
 
+
+# General guidlines for furnishing this resource block 
 # resource "powerflex_snapshot" "snapshots-create-1" {
 # 	name = "<snapshot name>"
 # 	volume_name = "<volume name>"

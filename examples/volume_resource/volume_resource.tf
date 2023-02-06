@@ -26,7 +26,8 @@ resource "powerflex_volume" "avengers-volume-create"{
 	]
   }
 
-  
+
+# General guidlines for furnishing this resource block  
 # resource "powerflex_volume" "avengers-volume-create"{
 # 	name = "<volume-name>"
 # 	protection_domain_name = "<protection-domain-name>"
