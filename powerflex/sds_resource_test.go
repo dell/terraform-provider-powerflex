@@ -1,6 +1,7 @@
 package powerflex
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -131,6 +132,77 @@ func TestAccSDSResourceDuplicateIP(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "3"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccSDSResourceRmCache(t *testing.T) {
+	sdsConfig := `
+		resource "powerflex_sds" "sds" {
+			name = "Tf_SDS_01"
+			ip_list = [
+				{
+					ip = "10.247.100.232"
+					role = "all"
+				}
+			]
+			protection_domain_name = "domain1"
+			%s
+			%s
+		}
+		`
+	rcEnabled, rcDisabled, rcUnknown := "rmcache_enabled = \"true\"", "rmcache_enabled = \"false\"", ""
+	rcSize, rcSizeUnknown, rcSizeIncreased := "rmcache_size_in_mb = 200", "", "rmcache_size_in_mb = 300"
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Check that SDS cannot be created with wrong rmcache settings
+			{
+				Config:      ProviderConfigForTesting + fmt.Sprintf(sdsConfig, rcDisabled, rcSize),
+				ExpectError: regexp.MustCompile(".*Read Ram cache must be enabled in order to configure its size.*"),
+			},
+			{
+				Config:      ProviderConfigForTesting + fmt.Sprintf(sdsConfig, rcUnknown, rcSize),
+				ExpectError: regexp.MustCompile(".*Read Ram cache must be enabled in order to configure its size.*"),
+			},
+			// Check that SDS can be created with correct rmcache settings
+			{
+				Config: ProviderConfigForTesting + fmt.Sprintf(sdsConfig, rcEnabled, rcSize),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_size_in_mb", "200"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "true"),
+				),
+			},
+			// Check that SDS cannot be updated with wrong rmcache settings
+			{
+				Config:      ProviderConfigForTesting + fmt.Sprintf(sdsConfig, rcDisabled, rcSize),
+				ExpectError: regexp.MustCompile(".*Read Ram cache must be enabled in order to configure its size.*"),
+			},
+			// Check that SDS can be updated with correct rmcache settings
+			{
+				Config: ProviderConfigForTesting + fmt.Sprintf(sdsConfig, rcUnknown, rcSizeIncreased),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_size_in_mb", "300"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "true"),
+				),
+			},
+			{
+				Config: ProviderConfigForTesting + fmt.Sprintf(sdsConfig, rcDisabled, rcSizeUnknown),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "false"),
+				),
+			},
+			{
+				Config: ProviderConfigForTesting + fmt.Sprintf(sdsConfig, rcEnabled, rcSize),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_size_in_mb", "200"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "true"),
 				),
 			},
 		},
