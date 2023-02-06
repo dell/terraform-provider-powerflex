@@ -74,13 +74,13 @@ resource "powerflex_volume" "avengers-volume-create"{
 	size = 8
 	use_rm_cache = true 
 	volume_type = "ThickProvisioned" 
-	access_mode = "ReadWrite"
+	access_mode = "ReadOnly"
 	sdc_list = [
 	  		{
 			   sdc_name = "LGLW6092"
 			   limit_iops = 9
 			   limit_bw_in_mbps = 122
-			   access_mode = "ReadOnly"
+			   access_mode = "ReadWrite"
 		   },
 
 	]
@@ -112,7 +112,7 @@ resource "powerflex_volume" "avengers-volume----create"{
 			   sdc_name = "LGLW6092"
 			   limit_iops = 119
 			   limit_bw_in_mbps = 19
-			   access_mode = "ReadOnly"
+			   access_mode = "ReadWrite"
 		   },
 	]
   }

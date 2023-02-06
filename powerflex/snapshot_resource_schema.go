@@ -34,7 +34,7 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			Description:         "The volume id for which snapshot is created.",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "The volume id for which snapshot is created",
+			MarkdownDescription: "The volume id for which snapshot is created - Either of Volume ID/Name is Required.",
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("volume_name")),
@@ -44,7 +44,7 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			Description:         "The volume name for which snapshot is created.",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "The volume name for which snapshot is created",
+			MarkdownDescription: "The volume name for which snapshot is created - Either of Volume ID/Name is Required.",
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("volume_id")),

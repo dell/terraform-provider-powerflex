@@ -20,12 +20,12 @@ var DataSourceSchema schema.Schema = schema.Schema{
 		},
 		"protection_domain_id": schema.StringAttribute{
 			Description:         "Protection Domain ID.",
-			MarkdownDescription: "Protection Domain ID.",
+			MarkdownDescription: "Protection Domain ID - Either of Protection Domain ID/Name is Required.",
 			Optional:            true,
 		},
 		"protection_domain_name": schema.StringAttribute{
 			Description:         "Protection Domain Name.",
-			MarkdownDescription: "Protection Domain Name.",
+			MarkdownDescription: "Protection Domain Name - Either of Protection Domain ID/Name is Required.",
 			Optional:            true,
 			Validators: []validator.String{
 				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),

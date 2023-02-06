@@ -33,7 +33,7 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 			Description:         "storage pool id",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "storage pool id",
+			MarkdownDescription: "storage pool id - Either of Storage Pool ID/Name is Required.",
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("storage_pool_name")),
@@ -43,7 +43,7 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 			Description:         "Storage Pool Name",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "Storage Pool Name",
+			MarkdownDescription: "Storage Pool Name - Either of Storage Pool ID/Name is Required.",
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("storage_pool_id")),
@@ -51,7 +51,7 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 		},
 		"protection_domain_id": schema.StringAttribute{
 			Description:         "Protection Domain ID.",
-			MarkdownDescription: "Protection Domain ID.",
+			MarkdownDescription: "Protection Domain ID - Either of Protection Domain ID/Name is Required.",
 			Computed:            true,
 			Optional:            true,
 			Validators: []validator.String{
@@ -61,7 +61,7 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 		},
 		"protection_domain_name": schema.StringAttribute{
 			Description:         "Protection Domain Name.",
-			MarkdownDescription: "Protection Domain Name.",
+			MarkdownDescription: "Protection Domain Name - Either of Protection Domain ID/Name is Required.",
 			Optional:            true,
 			Computed:            true,
 			Validators: []validator.String{
