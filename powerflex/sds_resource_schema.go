@@ -29,13 +29,13 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 			Description:         "Protection domain id",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "Protection domain id",
+			MarkdownDescription: "Protection domain id - Either of Protection Domain ID/Name is Required.",
 		},
 		"protection_domain_name": schema.StringAttribute{
 			Description:         "Protection domain name",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "Protection domain name",
+			MarkdownDescription: "Protection domain name - Either of Protection Domain ID/Name is Required.",
 			Validators: []validator.String{
 				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),
 			},
@@ -137,10 +137,10 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Mdm connection state of SDS",
 		},
 		"rmcache_size_in_mb": schema.Int64Attribute{
-			Description:         "Rmcache size in MB of SDS",
+			Description:         "Read RAM cache size in MB of SDS. Can be set only when rmcache_enabled is true.",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "Rmcache size in MB of SDS",
+			MarkdownDescription: "Read RAM cache size in MB of SDS. Can be set only when rmcache_enabled is true.",
 		},
 		"num_of_io_buffers": schema.Int64Attribute{
 			Description:         "Number of io buffers of SDS",

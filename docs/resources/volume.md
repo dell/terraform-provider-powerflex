@@ -31,12 +31,12 @@ Warning: If the taint is not removed, terraform will destroy and recreate the re
 - `access_mode` (String) The Access mode of Volume
 - `capacity_unit` (String) capacity unit
 - `compression_method` (String) Compression Method the volume.
-- `protection_domain_id` (String) Protection Domain ID.
-- `protection_domain_name` (String) Protection Domain Name.
+- `protection_domain_id` (String) Protection Domain ID - Either of Protection Domain ID/Name is Required.
+- `protection_domain_name` (String) Protection Domain Name - Either of Protection Domain ID/Name is Required.
 - `remove_mode` (String) remove mode of Volume
 - `sdc_list` (Attributes Set) mapped sdc info (see [below for nested schema](#nestedatt--sdc_list))
-- `storage_pool_id` (String) storage pool id
-- `storage_pool_name` (String) Storage Pool Name
+- `storage_pool_id` (String) storage pool id - Either of Storage Pool ID/Name is Required.
+- `storage_pool_name` (String) Storage Pool Name - Either of Storage Pool ID/Name is Required.
 - `use_rm_cache` (Boolean) use rm cache
 - `volume_type` (String) volume type
 

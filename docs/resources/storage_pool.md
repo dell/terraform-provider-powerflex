@@ -22,8 +22,8 @@ Manages storage pool resource
 
 ### Optional
 
-- `protection_domain_id` (String) ID of the Protection domain
-- `protection_domain_name` (String) Name of the Protection domain.
+- `protection_domain_id` (String) ID of the Protection domain - Either of Protection Domain ID/Name is Required.
+- `protection_domain_name` (String) Name of the Protection domain - Either of Protection Domain ID/Name is Required.
 - `use_rfcache` (Boolean) Enable/Disable RFcache on a specific storage pool
 - `use_rmcache` (Boolean) Enable/Disable RMcache on a specific storage pool
 

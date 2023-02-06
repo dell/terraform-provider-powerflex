@@ -239,6 +239,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 		// Add mapped SDC
 		pfmvsp := pftypes.MapVolumeSdcParam{
 			SdcID:                 si.SdcID,
+			AccessMode:            si.AccessMode,
 			AllowMultipleMappings: "true",
 		}
 		// mapping the snapshot to sdc
@@ -259,13 +260,6 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 			if err4 != nil {
 				resp.Diagnostics.AddError(
 					"Error Setting Limits to mapped sdc: "+si.SdcID+" "+si.SdcName,
-					"unexpected error: "+err5.Error(),
-				)
-			}
-			err6 := vr.SetVolumeMappingAccessMode(si.AccessMode, si.SdcID)
-			if err6 != nil {
-				resp.Diagnostics.AddError(
-					"Error Setting access mode to mapped sdc: "+si.SdcID+" "+si.SdcName,
 					"unexpected error: "+err5.Error(),
 				)
 			}
@@ -371,7 +365,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if !plan.VolumeType.Equal(state.VolumeType) {
 		resp.Diagnostics.AddError(
 			"volume type cannot be update after volume creation.",
-			"unxpected error: volume type change is not supported",
+			"unexpected error: volume type change is not supported",
 		)
 	}
 
@@ -437,21 +431,21 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	// retervial of sdc id from mapping list and performing map operation.
-	for _, msi := range mapSdcIds {
-		pfmvsp := pftypes.MapVolumeSdcParam{
-			SdcID:                 msi,
-			AllowMultipleMappings: "true",
-		}
-		err8 := volresource.MapVolumeSdc(&pfmvsp)
-		if err8 != nil {
-			resp.Diagnostics.AddError(
-				"Error mapping volume to sdc: "+msi,
-				"unexpected error: "+err8.Error(),
-			)
-		} else {
-			// getting sdc parameter to set while mapping
-			for _, ssl := range planSdcList {
-				if ssl.SdcID == msi {
+	for _, ssl := range planSdcList {
+		for _, msi := range mapSdcIds {
+			if ssl.SdcID == msi {
+				pfmvsp := pftypes.MapVolumeSdcParam{
+					SdcID:                 ssl.SdcID,
+					AccessMode:            ssl.AccessMode,
+					AllowMultipleMappings: "true",
+				}
+				err8 := volresource.MapVolumeSdc(&pfmvsp)
+				if err8 != nil {
+					resp.Diagnostics.AddError(
+						"Error mapping volume to sdc: "+msi,
+						"unexpected error: "+err8.Error(),
+					)
+				} else {
 					smslp := pftypes.SetMappedSdcLimitsParam{
 						SdcID:                ssl.SdcID,
 						BandwidthLimitInKbps: strconv.FormatInt(int64(ssl.LimitBwInMbps*1024), 10),
@@ -462,13 +456,6 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 						resp.Diagnostics.AddError(
 							"Error setting limits to sdc: "+ssl.SdcID+" "+ssl.SdcName,
 							"unexpected error: "+err9.Error(),
-						)
-					}
-					err10 := volresource.SetVolumeMappingAccessMode(ssl.AccessMode, ssl.SdcID)
-					if err10 != nil {
-						resp.Diagnostics.AddError(
-							"Error setting access mode to sdc: "+ssl.SdcID+" "+ssl.SdcName,
-							"unexpected error: "+err10.Error(),
 						)
 					}
 				}

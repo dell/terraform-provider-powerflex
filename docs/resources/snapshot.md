@@ -35,8 +35,8 @@ Warning: If the taint is not removed, terraform will destroy and recreate the re
 - `retention_unit` (String) retention unit of snapshot
 - `sdc_list` (Attributes Set) mapped sdc info (see [below for nested schema](#nestedatt--sdc_list))
 - `size` (Number) snapshot size
-- `volume_id` (String) The volume id for which snapshot is created
-- `volume_name` (String) The volume name for which snapshot is created
+- `volume_id` (String) The volume id for which snapshot is created - Either of Volume ID/Name is Required.
+- `volume_name` (String) The volume name for which snapshot is created - Either of Volume ID/Name is Required.
 
 ### Read-Only
 

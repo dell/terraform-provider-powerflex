@@ -140,6 +140,18 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
+	// if rmcache size is provided but rmcache is not enabled
+	if !(plan.RmcacheSizeInMB.IsNull() || plan.RmcacheSizeInMB.IsUnknown()) && !plan.RmcacheEnabled.ValueBool() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("rmcache_size_in_mb"),
+			"rmcache_size_in_mb cannot be specified while rmcache_enabled is not set to true",
+			"Read Ram cache must be enabled in order to configure its size",
+		)
+	}
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	pdm, err := getNewProtectionDomainEx(r.client, plan.ProtectionDomainID.ValueString(), plan.ProtectionDomainName.ValueString(), "")
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -299,6 +311,26 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	var state sdsResourceModel
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// if rm cache size is provided
+	if !(plan.RmcacheSizeInMB.IsNull() || plan.RmcacheSizeInMB.IsUnknown()) {
+		if plan.RmcacheEnabled.ValueBool() ||
+			((plan.RmcacheEnabled.IsNull() || plan.RmcacheEnabled.IsUnknown()) && state.RmcacheEnabled.ValueBool()) {
+			// if plan has explicitly rmcache enabled, no issues
+			// if plan does not have explicitly rmcache enabled, but its enabled in state, again no problem
+		} else {
+			// else throw an error
+			resp.Diagnostics.AddAttributeError(
+				path.Root("rmcache_size_in_mb"),
+				"rmcache_size_in_mb cannot be specified while rmcache_enabled is not set to true",
+				"Read Ram cache must be enabled in order to configure its size",
+			)
+		}
+	}
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
