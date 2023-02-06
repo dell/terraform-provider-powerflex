@@ -6,7 +6,7 @@
 # Both protection_domain_name and protection_domain_id can't be provided together
 
 
-data "powerflex_storagepool" "example" {
+data "powerflex_storage_pool" "example" {
   //protection_domain_name = "domain1"
   protection_domain_id = "4eeb304600000000"
   //storage_pool_ids = ["7630a24600000000", "7630a24800000002"]
@@ -15,5 +15,5 @@ data "powerflex_storagepool" "example" {
 
 
 output "allsdcresult" {
-  value = data.powerflex_storagepool.example.storage_pools
+  value = data.powerflex_storage_pool.example.storage_pools
 }

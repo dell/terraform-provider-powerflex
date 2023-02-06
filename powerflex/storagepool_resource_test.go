@@ -241,7 +241,7 @@ func TestAccStoragepoolResourceNegativeCases(t *testing.T) {
 }
 
 var StoragePoolResourceCreate = `
-resource "powerflex_storagepool" "storagepool" {
+resource "powerflex_storage_pool" "storagepool" {
 	name = "storage_pool"
 	protection_domain_id = "4eeb304600000000"
 	media_type = "HDD"
@@ -250,7 +250,7 @@ resource "powerflex_storagepool" "storagepool" {
 }
 `
 var StoragePoolResourceCreateRMCacheFalse = `
-resource "powerflex_storagepool" "storagepool" {
+resource "powerflex_storage_pool" "storagepool" {
 	name = "storage_pool"
 	protection_domain_name = "domain1"
 	media_type = "HDD"
@@ -259,7 +259,7 @@ resource "powerflex_storagepool" "storagepool" {
 }
 `
 var StoragePoolResourceUpdate = `
-resource "powerflex_storagepool" "storagepool" {
+resource "powerflex_storage_pool" "storagepool" {
 	name = "storage_pool_new"
 	protection_domain_id = "4eeb304600000000"
 	media_type = "HDD"
@@ -268,7 +268,7 @@ resource "powerflex_storagepool" "storagepool" {
   }
 `
 var CreateInvalidMediaType = `
-  resource "powerflex_storagepool" "storagepool" {
+  resource "powerflex_storage_pool" "storagepool" {
 	name = "storage_pool"
 	protection_domain_id = "4eeb304600000000"
 	media_type = "HSD"
@@ -277,7 +277,7 @@ var CreateInvalidMediaType = `
 }
 `
 var CreateInvalidProtectionDomainID = `
-resource "powerflex_storagepool" "storagepool" {
+resource "powerflex_storage_pool" "storagepool" {
 	name = "storage_pool"
 	protection_domain_id = "123"
 	media_type = "HDD"
@@ -286,7 +286,7 @@ resource "powerflex_storagepool" "storagepool" {
   }
 `
 var CreateInvalidName = `
-resource "powerflex_storagepool" "storagepool" {
+resource "powerflex_storage_pool" "storagepool" {
 	name = "Terraform_POWERFLEX_storage_pool_33"
 	protection_domain_id = "4eeb304600000000"
 	media_type = "HDD"
@@ -296,7 +296,7 @@ resource "powerflex_storagepool" "storagepool" {
 `
 
 var CreateExistingStoragePoolName = `
-resource "powerflex_storagepool" "storagepool1" {
+resource "powerflex_storage_pool" "storagepool1" {
 	name = "pool1"
 	protection_domain_id = "4eeb304600000000"
 	media_type = "HDD"

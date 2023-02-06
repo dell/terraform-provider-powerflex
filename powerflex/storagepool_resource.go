@@ -39,7 +39,7 @@ type storagepoolResourceModel struct {
 }
 
 func (r *storagepoolResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_storagepool"
+	resp.TypeName = req.ProviderTypeName + "_storage_pool"
 }
 
 func (r *storagepoolResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {

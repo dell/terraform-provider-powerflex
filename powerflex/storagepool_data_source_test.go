@@ -59,33 +59,33 @@ func TestStoragePoolDataSource(t *testing.T) {
 }
 
 var StoragePoolDataSourceConfig1 = `
-data "powerflex_storagepool" "example1" {
+data "powerflex_storage_pool" "example1" {
 	protection_domain_id = "4eeb304600000000"
 	storage_pool_names = ["pool2", "pool1"]
 }
 `
 
 var StoragePoolDataSourceConfig2 = `
-data "powerflex_storagepool" "example2" {
+data "powerflex_storage_pool" "example2" {
 	protection_domain_id = "4eeb304600000000"
 	storage_pool_ids = ["7630a24600000000", "7630a24800000002"]
 }
 `
 
 var StoragePoolDataSourceConfig3 = `
-data "powerflex_storagepool" "example3" {
+data "powerflex_storage_pool" "example3" {
 	protection_domain_name = "domain1"
 	storage_pool_names = ["pool2", "pool1"]
 }
 `
 var StoragePoolDataSourceConfig4 = `
-data "powerflex_storagepool" "example4" {
+data "powerflex_storage_pool" "example4" {
 	protection_domain_name = "domain1"
 	storage_pool_ids = ["7630a24600000000", "7630a24800000002"]
 }
 `
 var StoragePoolDataSourceConfig5 = `
-data "powerflex_storagepool" "example5" {
+data "powerflex_storage_pool" "example5" {
 	protection_domain_name = "domain1"
 }
 `

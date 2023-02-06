@@ -125,7 +125,7 @@ type storagepoolDataSourceModel struct {
 
 // Metadata returns the data source type name.
 func (d *storagepoolDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_storagepool"
+	resp.TypeName = req.ProviderTypeName + "_storage_pool"
 }
 
 // Schema defines the schema for the data source.

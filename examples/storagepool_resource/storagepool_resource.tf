@@ -6,7 +6,7 @@
 # other  atrributes like : use_rmcache, use_rfcache are optional 
 # To check which attributes of the storage pool can be updated, please refer Product Guide in the documentation
 
-resource "powerflex_storagepool" "storagepool" {
+resource "powerflex_storage_pool" "sp" {
   name = "storagepool3"
   protection_domain_id = "4eeb304600000000"
   # protection_domain_name = "domain1"
@@ -16,5 +16,5 @@ resource "powerflex_storagepool" "storagepool" {
 }
 
 output "created_storagepool" {
-  value = powerflex_storagepool.storagepool
+  value = powerflex_storage_pool.sp
 }
