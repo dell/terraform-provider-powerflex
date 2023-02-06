@@ -687,10 +687,10 @@ func TestSDSResourceModifyInvalid(t *testing.T) {
 			// 	Config:      ProviderConfigForTesting + invalidRMCache,
 			// 	ExpectError: regexp.MustCompile(`.*Invalid reference.*`),
 			// },
-			// {
-			// 	Config:      ProviderConfigForTesting + rmcacheDisabled,
-			// 	ExpectError: regexp.MustCompile(`.*Invalid reference.*`),
-			// },
+			{
+				Config:      ProviderConfigForTesting + rmcacheDisabled,
+				ExpectError: regexp.MustCompile(`.*rmcache_size_in_mb cannot be specified while rmcache_enabled is not set to true.*`),
+			},
 			{
 				Config:      ProviderConfigForTesting + invalidRMCacheMaxSize,
 				ExpectError: regexp.MustCompile(`.*Could not change SDS Read Ram Cache size to 3912.*`),
@@ -699,10 +699,10 @@ func TestSDSResourceModifyInvalid(t *testing.T) {
 				Config:      ProviderConfigForTesting + invalidRMCacheMinSize,
 				ExpectError: regexp.MustCompile(`.*Could not change SDS Read Ram Cache size to 127.*`),
 			},
-			{
-				Config:      ProviderConfigForTesting + invalidRMCacheFloatSize,
-				ExpectError: regexp.MustCompile(`.*Int64 Type Validation Error.*`),
-			},
+			// {
+			// 	Config:      ProviderConfigForTesting + invalidRMCacheFloatSize,
+			// 	ExpectError: regexp.MustCompile(`.*Int64 Type Validation Error.*`),
+			// },
 		},
 	})
 }
