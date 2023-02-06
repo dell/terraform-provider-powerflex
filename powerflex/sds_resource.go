@@ -317,11 +317,12 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 	// if rm cache size is provided
 	if !(plan.RmcacheSizeInMB.IsNull() || plan.RmcacheSizeInMB.IsUnknown()) {
-		if plan.RmcacheEnabled.ValueBool() {
-			// if plan has rmcache enabled, no issues
-		} else if (plan.RmcacheEnabled.IsNull() || plan.RmcacheEnabled.IsUnknown()) && state.RmcacheEnabled.ValueBool() {
-			// if plan does not have rmcache enabled field, but its enabled in state, again no problem
+		if plan.RmcacheEnabled.ValueBool() ||
+			((plan.RmcacheEnabled.IsNull() || plan.RmcacheEnabled.IsUnknown()) && state.RmcacheEnabled.ValueBool()) {
+			// if plan has explicitly rmcache enabled, no issues
+			// if plan does not have explicitly rmcache enabled, but its enabled in state, again no problem
 		} else {
+			// else throw an error
 			resp.Diagnostics.AddAttributeError(
 				path.Root("rmcache_size_in_mb"),
 				"rmcache_size_in_mb cannot be specified while rmcache_enabled is not set to true",
