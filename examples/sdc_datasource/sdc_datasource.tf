@@ -6,7 +6,7 @@
 
 data "powerflex_sdc" "selected" {
      #id = "c423b09800000003"
-     name = "LGLW6092"
+     name = "sdc_01"
 }
 
 # # Returns all sdcs matching criteria

@@ -11,7 +11,7 @@ resource "powerflex_sds" "create" {
   protection_domain_name = "demo-sds-pd"
   ip_list = [
       {
-        ip = "10.247.100.231"
+        ip = "10.10.10.12"
         role = "sdsOnly"
       },
       {

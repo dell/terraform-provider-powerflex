@@ -18,7 +18,7 @@ resource "powerflex_volume" "avengers-volume-create"{
 	access_mode = "ReadWrite"
 	sdc_list = [
 	  {
-			   sdc_name = "LGLW6092"
+			   sdc_name = "sdc_01"
 			   limit_iops = 119
 			   limit_bw_in_mbps = 19
 			   access_mode = "ReadOnly"
