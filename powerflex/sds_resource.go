@@ -137,8 +137,10 @@ func (r *sdsResource) ValidateConfig(ctx context.Context, req resource.ValidateC
 		return
 	}
 
+	// validate that same IP is not added in the set multiple times with different roles
 	iplist := data.getIPList(ctx)
 	ipmap := make(map[string]int)
+	// count how many times an IP is used in the set
 	for _, ipObj := range iplist {
 		if _, ok := ipmap[ipObj.IP]; ok {
 			ipmap[ipObj.IP]++
@@ -146,7 +148,7 @@ func (r *sdsResource) ValidateConfig(ctx context.Context, req resource.ValidateC
 			ipmap[ipObj.IP] = 1
 		}
 	}
-
+	// raise errors for duplicate IP entries
 	for ip, count := range ipmap {
 		if count == 1 {
 			continue

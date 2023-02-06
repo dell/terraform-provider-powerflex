@@ -114,11 +114,14 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 		AttrTypes: SdcInfoAttrTypes,
 	}
 	objectSdcInfos := []attr.Value{}
+
+	// sdcMap is used for validating if multiple entries in the set of SDCs refer the same SDC
 	type sdcCount struct {
-		name  string
-		count int
+		name  string // name of SDC
+		count int    // number of times the SDC is found in the set
 	}
 	sdcMap := make(map[string]*sdcCount)
+
 	for _, si := range sdcList {
 		if si.SdcID == "" {
 			foundsdc, errA := sr.FindSdc("Name", si.SdcName)
@@ -143,6 +146,7 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 			si.SdcName = foundsdc.Sdc.Name
 		}
 
+		// add SDCs from the set to this map while updating count
 		if _, ok := sdcMap[si.SdcID]; ok {
 			sdcMap[si.SdcID].count++
 			sdcMap[si.SdcID].name = si.SdcName
@@ -162,6 +166,7 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 		objectSdcInfos = append(objectSdcInfos, objVal)
 	}
 
+	// raise errors for SDCs that have multiple entries in the set
 	for id, sdc := range sdcMap {
 		if sdc.count == 1 {
 			continue
