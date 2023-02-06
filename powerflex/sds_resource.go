@@ -128,6 +128,39 @@ func sdsIPListDiff(ctx context.Context, plan, state *sdsResourceModel) (toAdd, t
 	return toAdd, toRmv, changed, common
 }
 
+func (r *sdsResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data sdsResourceModel
+
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// validate that same IP is not added in the set multiple times with different roles
+	iplist := data.getIPList(ctx)
+	ipmap := make(map[string]int)
+	// count how many times an IP is used in the set
+	for _, ipObj := range iplist {
+		if _, ok := ipmap[ipObj.IP]; ok {
+			ipmap[ipObj.IP]++
+		} else {
+			ipmap[ipObj.IP] = 1
+		}
+	}
+	// raise errors for duplicate IP entries
+	for ip, count := range ipmap {
+		if count == 1 {
+			continue
+		}
+		resp.Diagnostics.AddAttributeError(
+			path.Root("ip_list"),
+			"IP Duplication Error",
+			fmt.Sprintf("The IP %s is configured with %d roles, but only 1 role expected.", ip, count),
+		)
+	}
+}
+
 // Create creates the resource and sets the initial Terraform state.
 func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan

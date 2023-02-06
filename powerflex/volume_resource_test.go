@@ -416,3 +416,69 @@ func TestAccVolumeResourceImport(t *testing.T) {
 		},
 	})
 }
+
+func TestAccVolumeResourceDuplicateSDC(t *testing.T) {
+	createDuplicateInv := `
+	resource "powerflex_volume" "avengers-volume-create"{
+		name = "avengers-volume-create"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 8
+		access_mode = "ReadWrite"
+		sdc_list = [
+			{
+				sdc_name = "LGLW6092"
+				limit_iops = 119
+				limit_bw_in_mbps = 19
+				access_mode = "ReadOnly"
+			},
+			{
+				sdc_name = "LGLW6092"
+				limit_iops = 119
+				limit_bw_in_mbps = 19
+				access_mode = "ReadWrite"
+			}
+		]
+	  }
+	`
+	createDuplicatePos := `
+	resource "powerflex_volume" "avengers-volume-create"{
+		name = "avengers-volume-create"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 8
+		access_mode = "ReadWrite"
+		sdc_list = [
+			{
+				sdc_name = "LGLW6092"
+				limit_iops = 119
+				limit_bw_in_mbps = 19
+				access_mode = "ReadOnly"
+			},
+			{
+				sdc_name = "LGLW6092"
+				limit_iops = 119
+				limit_bw_in_mbps = 19
+				access_mode = "ReadOnly"
+			}
+		]
+	  }
+	`
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      ProviderConfigForTesting + createDuplicateInv,
+				ExpectError: regexp.MustCompile(`.*Duplicate SDS*.`),
+			},
+			{
+				Config: ProviderConfigForTesting + createDuplicatePos,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "1"),
+				),
+				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}

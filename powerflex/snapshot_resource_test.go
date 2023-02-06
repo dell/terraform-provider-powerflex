@@ -304,3 +304,66 @@ func TestAccSnapshotResource(t *testing.T) {
 		},
 	})
 }
+
+func TestAccSnapshotResourceDuplicateSdc(t *testing.T) {
+	createSsDuplicateSdcPos := `
+	resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
+		name = "snapshots-create-epsilon"
+		volume_id = "4577c84000000120"
+		access_mode = "ReadWrite"
+		size = 16
+		sdc_list = [
+			{	
+				sdc_id = "c423b09800000003"
+				limit_iops = 200
+				limit_bw_in_mbps = 40
+				access_mode = "ReadWrite"
+			},
+			{	
+				sdc_id = "c423b09800000003"
+				limit_iops = 200
+				limit_bw_in_mbps = 40
+				access_mode = "ReadWrite"
+			}
+		]
+	}
+	`
+	createSsDuplicateSdcInv := `
+	resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
+		name = "snapshots-create-epsilon"
+		volume_id = "4577c84000000120"
+		access_mode = "ReadWrite"
+		size = 16
+		sdc_list = [
+			{	
+				sdc_id = "c423b09800000003"
+				limit_iops = 200
+				limit_bw_in_mbps = 40
+				access_mode = "ReadWrite"
+			},
+			{	
+				sdc_id = "c423b09800000003"
+				limit_iops = 200
+				limit_bw_in_mbps = 45
+				access_mode = "ReadWrite"
+			}
+		]
+	}
+	`
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      ProviderConfigForTesting + createSsDuplicateSdcInv,
+				ExpectError: regexp.MustCompile(`.*Error: Duplicate SDC in list*.`),
+			},
+			{
+				Config: ProviderConfigForTesting + createSsDuplicateSdcPos,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create-access-mode-sdc-map", "sdc_list.#", "1"),
+				),
+			},
+		},
+	})
+}

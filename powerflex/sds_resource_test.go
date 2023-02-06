@@ -98,7 +98,7 @@ func TestAccSDSResource(t *testing.T) {
 }
 
 func TestAccSDSResourceDuplicateIP(t *testing.T) {
-	createSDSTestMany := `
+	createSDSTestManyValid := `
 		resource "powerflex_sds" "sds" {
 			name = "Tf_SDS_01"
 			ip_list = [
@@ -122,12 +122,41 @@ func TestAccSDSResourceDuplicateIP(t *testing.T) {
 			protection_domain_id = "4eeb304600000000"
 		}
 		`
+	createSDSTestManyInValid := `
+		resource "powerflex_sds" "sds" {
+			name = "Tf_SDS_01"
+			ip_list = [
+				{
+					ip = "10.247.100.232"
+					role = "sdsOnly"
+				},
+				{
+					ip = "10.10.10.1"
+					role = "sdcOnly"
+				},
+				{
+					ip = "10.10.10.1"
+					role = "sdsOnly"
+				},
+				{
+					ip = "10.10.10.2"
+					role = "sdcOnly"
+				}
+			]
+			protection_domain_id = "4eeb304600000000"
+		}
+		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			// create sds test
+			// create sds test invalid
 			{
-				Config: ProviderConfigForTesting + createSDSTestMany,
+				Config:      ProviderConfigForTesting + createSDSTestManyInValid,
+				ExpectError: regexp.MustCompile(`.*The IP .* is configured with .*roles.*`),
+			},
+			// create sds test valid
+			{
+				Config: ProviderConfigForTesting + createSDSTestManyValid,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
@@ -687,10 +716,10 @@ func TestSDSResourceModifyInvalid(t *testing.T) {
 			// 	Config:      ProviderConfigForTesting + invalidRMCache,
 			// 	ExpectError: regexp.MustCompile(`.*Invalid reference.*`),
 			// },
-			// {
-			// 	Config:      ProviderConfigForTesting + rmcacheDisabled,
-			// 	ExpectError: regexp.MustCompile(`.*Invalid reference.*`),
-			// },
+			{
+				Config:      ProviderConfigForTesting + rmcacheDisabled,
+				ExpectError: regexp.MustCompile(`.*rmcache_size_in_mb cannot be specified while rmcache_enabled is not set to true.*`),
+			},
 			{
 				Config:      ProviderConfigForTesting + invalidRMCacheMaxSize,
 				ExpectError: regexp.MustCompile(`.*Could not change SDS Read Ram Cache size to 3912.*`),
