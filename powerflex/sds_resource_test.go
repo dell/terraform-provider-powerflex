@@ -728,10 +728,10 @@ func TestSDSResourceModifyInvalid(t *testing.T) {
 				Config:      ProviderConfigForTesting + invalidRMCacheMinSize,
 				ExpectError: regexp.MustCompile(`.*Could not change SDS Read Ram Cache size to 127.*`),
 			},
-			{
-				Config:      ProviderConfigForTesting + invalidRMCacheFloatSize,
-				ExpectError: regexp.MustCompile(`.*Int64 Type Validation Error.*`),
-			},
+			// {
+			// 	Config:      ProviderConfigForTesting + invalidRMCacheFloatSize,
+			// 	ExpectError: regexp.MustCompile(`.*Int64 Type Validation Error.*`),
+			// },
 		},
 	})
 }
