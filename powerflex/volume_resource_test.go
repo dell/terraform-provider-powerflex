@@ -77,7 +77,7 @@ resource "powerflex_volume" "avengers-volume-create"{
 	access_mode = "ReadOnly"
 	sdc_list = [
 	  		{
-			   sdc_name = "LGLW6092"
+			   sdc_name = "alpha_sdc"
 			   limit_iops = 9
 			   limit_bw_in_mbps = 122
 			   access_mode = "ReadWrite"
@@ -109,7 +109,7 @@ resource "powerflex_volume" "avengers-volume----create"{
 	access_mode = "ReadOnly" # sdc_can't be mapped to volume with access mode readonly
 	sdc_list = [
 	  {
-			   sdc_name = "LGLW6092"
+			   sdc_name = "alpha_sdc"
 			   limit_iops = 119
 			   limit_bw_in_mbps = 19
 			   access_mode = "ReadWrite"
@@ -129,7 +129,7 @@ resource "powerflex_volume" "avengers-volume-create"{
 	access_mode = "ReadWrite"
 	sdc_list = [
 	  {
-			   sdc_name = "LGLW6092"
+			   sdc_name = "alpha_sdc"
 			   limit_iops = 119
 			   limit_bw_in_mbps = 19
 			   access_mode = "ReadOnly"
@@ -149,13 +149,13 @@ resource "powerflex_volume" "avengers-volume-create"{
 	access_mode = "ReadWrite"
 	sdc_list = [
 	  		{
-			   sdc_name = "LGLW6092"
+			   sdc_name = "alpha_sdc"
 			   limit_iops = 328
 			   limit_bw_in_mbps = 28
 			   access_mode = "ReadOnly"
 		   },
 		   {
-			sdc_name = "Block_S34"
+			sdc_name = "alpha_sdc_2"
 			limit_iops = 129
 			limit_bw_in_mbps = 17
 			access_mode = "ReadWrite"
@@ -181,13 +181,13 @@ resource "powerflex_volume" "avengers-volume-create"{
 	access_mode = "ReadWrite"
 	sdc_list = [
 	  		{
-			   sdc_name = "LGLW6092"
+			   sdc_name = "alpha_sdc"
 			   limit_iops = 328
 			   limit_bw_in_mbps = 28
 			   access_mode = "ReadOnly"
 		   },
 		//    {
-		// 	sdc_name = "Block_S34"
+		// 	sdc_name = "alpha_sdc_2"
 		// 	limit_iops = 129
 		// 	limit_bw_in_mbps = 17
 		// 	access_mode = "ReadWrite"
@@ -427,13 +427,13 @@ func TestAccVolumeResourceDuplicateSDC(t *testing.T) {
 		access_mode = "ReadWrite"
 		sdc_list = [
 			{
-				sdc_name = "LGLW6092"
+				sdc_name = "alpha_sdc"
 				limit_iops = 119
 				limit_bw_in_mbps = 19
 				access_mode = "ReadOnly"
 			},
 			{
-				sdc_name = "LGLW6092"
+				sdc_name = "alpha_sdc"
 				limit_iops = 119
 				limit_bw_in_mbps = 19
 				access_mode = "ReadWrite"
@@ -450,13 +450,13 @@ func TestAccVolumeResourceDuplicateSDC(t *testing.T) {
 		access_mode = "ReadWrite"
 		sdc_list = [
 			{
-				sdc_name = "LGLW6092"
+				sdc_name = "alpha_sdc"
 				limit_iops = 119
 				limit_bw_in_mbps = 19
 				access_mode = "ReadOnly"
 			},
 			{
-				sdc_name = "LGLW6092"
+				sdc_name = "alpha_sdc"
 				limit_iops = 119
 				limit_bw_in_mbps = 19
 				access_mode = "ReadOnly"
