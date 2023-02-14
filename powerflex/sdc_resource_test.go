@@ -96,14 +96,14 @@ func TestSdcResourceCreateUpdate(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + TestSdcResourceCreateUpdateBlockS1,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", "Block_S33"),
+					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", "alpha_sdc_3"),
 				),
 			},
 			// // Update testing
 			{
 				Config: ProviderConfigForTesting + TestSdcResourceCreateUpdateBlockS2,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", "Block_S34"),
+					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", "alpha_sdc_2"),
 				),
 			},
 		},
@@ -141,13 +141,13 @@ var (
 	TestSdcResourceCreateUpdateBlockS1 = `
 	resource "powerflex_sdc" "sdc" {
 		id = "c423b09900000004"
-		name = "Block_S33"
+		name = "alpha_sdc_3"
 	  }
 	  `
 	TestSdcResourceCreateUpdateBlockS2 = `
 	resource "powerflex_sdc" "sdc" {
 		id = "c423b09900000004"
-		name = "Block_S34"
+		name = "alpha_sdc_2"
 	  }
 	  `
 )
