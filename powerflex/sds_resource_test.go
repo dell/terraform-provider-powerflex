@@ -25,7 +25,7 @@ func TestAccSDSResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "rfcache_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "performance_profile", "Compact"),
 					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
-						"ip":   "10.247.100.232",
+						"ip":   "10.10.10.6",
 						"role": "all",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
@@ -56,7 +56,7 @@ func TestAccSDSResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "rfcache_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "performance_profile", "HighPerformance"),
 					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
-						"ip":   "10.247.100.232",
+						"ip":   "10.10.10.6",
 						"role": "sdsOnly",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
@@ -103,7 +103,7 @@ func TestAccSDSResourceDuplicateIP(t *testing.T) {
 			name = "Tf_SDS_01"
 			ip_list = [
 				{
-					ip = "10.247.100.232"
+					ip = "10.10.10.6"
 					role = "sdsOnly"
 				},
 				{
@@ -127,7 +127,7 @@ func TestAccSDSResourceDuplicateIP(t *testing.T) {
 			name = "Tf_SDS_01"
 			ip_list = [
 				{
-					ip = "10.247.100.232"
+					ip = "10.10.10.6"
 					role = "sdsOnly"
 				},
 				{
@@ -173,7 +173,7 @@ func TestAccSDSResourceRmCache(t *testing.T) {
 			name = "Tf_SDS_01"
 			ip_list = [
 				{
-					ip = "10.247.100.232"
+					ip = "10.10.10.6"
 					role = "all"
 				}
 			]
@@ -289,7 +289,7 @@ func TestAccSDSResourceCreateWithBadPerformanceProfile(t *testing.T) {
 			protection_domain_id = "4eeb304600000000"
 			ip_list = [
 				{
-					ip = "10.247.100.232"
+					ip = "10.10.10.6"
 					role = "all"
 				}
 			]
@@ -314,7 +314,7 @@ func TestAccSDSResourceCreateWithoutPD(t *testing.T) {
 			name = "Sds123"
 			ip_list = [
 				{
-					ip = "10.247.100.232"
+					ip = "10.10.10.6"
 					role = "all"
 				},
 				{
@@ -342,7 +342,7 @@ func TestAccSDSResourceCreateWithoutName(t *testing.T) {
 			protection_domain_id = "4eeb304600000000"
 			ip_list = [
 				{
-					ip = "10.247.100.232"
+					ip = "10.10.10.6"
 					role = "all"
 				},
 				{
@@ -441,7 +441,7 @@ func TestSDSResourceCreateMandatoryParams(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.232",
+						"ip":   "10.10.10.6",
 						"role": "all",
 					}),
 				),
@@ -452,7 +452,7 @@ func TestSDSResourceCreateMandatoryParams(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.232",
+						"ip":   "10.10.10.6",
 						"role": "all",
 					}),
 				),
@@ -471,11 +471,11 @@ func TestSDSResourceModifyRole(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.232",
+						"ip":   "10.10.10.6",
 						"role": "all",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.231",
+						"ip":   "10.10.10.5",
 						"role": "sdcOnly",
 					}),
 				),
@@ -494,11 +494,11 @@ func TestSDSResourceModifyRole(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.232",
+						"ip":   "10.10.10.6",
 						"role": "sdsOnly",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.231",
+						"ip":   "10.10.10.5",
 						"role": "sdcOnly",
 					}),
 				),
@@ -513,11 +513,11 @@ func TestSDSResourceModifyRole(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.232",
+						"ip":   "10.10.10.6",
 						"role": "all",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.231",
+						"ip":   "10.10.10.5",
 						"role": "sdcOnly",
 					}),
 				),
@@ -536,7 +536,7 @@ func TestSDSResourceModifyRoleAddIP(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.232",
+						"ip":   "10.10.10.6",
 						"role": "all",
 					}),
 				),
@@ -571,7 +571,7 @@ func TestSDSResourceAddIP(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.232",
+						"ip":   "10.10.10.6",
 						"role": "all",
 					}),
 				),
@@ -582,11 +582,11 @@ func TestSDSResourceAddIP(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "2"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.232",
+						"ip":   "10.10.10.6",
 						"role": "all",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.231",
+						"ip":   "10.10.10.5",
 						"role": "sdcOnly",
 					}),
 				),
@@ -605,11 +605,11 @@ func TestSDSResourceAddIP(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "4"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.96.231",
+						"ip":   "10.10.10.7",
 						"role": "sdcOnly",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.244",
+						"ip":   "10.10.10.8",
 						"role": "sdcOnly",
 					}),
 				),
@@ -636,11 +636,11 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.232",
+						"ip":   "10.10.10.6",
 						"role": "sdsOnly",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.231",
+						"ip":   "10.10.10.5",
 						"role": "sdcOnly",
 					}),
 				),
@@ -659,11 +659,11 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.232",
+						"ip":   "10.10.10.6",
 						"role": "all",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.231",
+						"ip":   "10.10.10.5",
 						"role": "sdcOnly",
 					}),
 				),
@@ -675,7 +675,7 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.232",
+						"ip":   "10.10.10.6",
 						"role": "all",
 					}),
 				),
@@ -699,7 +699,7 @@ func TestSDSResourceModifyInvalid(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "rfcache_enabled", "true"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "performance_profile", "Compact"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.232",
+						"ip":   "10.10.10.6",
 						"role": "all",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
@@ -746,7 +746,7 @@ func TestSDSResourceRename(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.232",
+						"ip":   "10.10.10.6",
 						"role": "all",
 					}),
 				),
@@ -765,7 +765,7 @@ func TestSDSResourceRename(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS_renamed"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.247.100.232",
+						"ip":   "10.10.10.6",
 						"role": "all",
 					}),
 				),
@@ -778,7 +778,7 @@ var createWOName = `
 resource "powerflex_sds" "sds" {
 	ip_list = [
 		{
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "all"
 		}
 	]
@@ -790,7 +790,7 @@ resource "powerflex_sds" "sds" {
 	name = ""
 	ip_list = [
 		{
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "all"
 		}
 	]
@@ -802,7 +802,7 @@ resource "powerflex_sds" "sds" {
 	name = "Terraform_SDS 1"
 	ip_list = [
 		{
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "all"
 		}
 	]
@@ -814,7 +814,7 @@ resource "powerflex_sds" "sds" {
 	name = "Terraform_SDS_more_than_31_chars!!"
 	ip_list = [
 		{
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "all"
 		}
 	]
@@ -826,7 +826,7 @@ resource "powerflex_sds" "sds" {
 	name = "Terraform_SDS"
 	ip_list = [
 		{
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "all"
 		}
 	]
@@ -837,7 +837,7 @@ resource "powerflex_sds" "sds" {
 	name = "Terraform_SDS"
 	ip_list = [
 		{
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "all"
 		}
 	]
@@ -849,7 +849,7 @@ resource "powerflex_sds" "sds" {
 	name = "Terraform_SDS"
 	ip_list = [
 		{
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "all"
 		}
 	]
@@ -869,7 +869,7 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
       }
     ]
 }
@@ -880,7 +880,7 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "sdsOnly"
       }
     ]
@@ -892,7 +892,7 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "sdcOnly"
       }
     ]
@@ -904,7 +904,7 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "all"
       }
     ]
@@ -916,7 +916,7 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "all"
       }
     ]
@@ -928,7 +928,7 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "all"
       }
     ]
@@ -940,7 +940,7 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "all"
       }
     ]
@@ -952,7 +952,7 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "all"
       }
     ]
@@ -964,11 +964,11 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "all"
       },
 	  {
-		ip = "10.247.100.231"
+		ip = "10.10.10.5"
 		role = "sdcOnly"
 	  }
     ]
@@ -980,7 +980,7 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "all"
       },
     ]
@@ -992,7 +992,7 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "all"
       },
     ]
@@ -1004,11 +1004,11 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "all"
       },
 	  {
-		ip = "10.247.77.82"
+		ip = "10.10.10.14"
 		role = "all"
 	  }
     ]
@@ -1020,11 +1020,11 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "all"
       },
 	  {
-		ip = "10.247.77.82"
+		ip = "10.10.10.14"
 		role = "sdsOnly"
 	  }
     ]
@@ -1036,7 +1036,7 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "sdcOnly"
       },
     ]
@@ -1048,7 +1048,7 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "sdsOnly"
       },
     ]
@@ -1060,11 +1060,11 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "all"
       },
 	  {
-		ip = "10.247.100.231"
+		ip = "10.10.10.5"
 		role = "all"
 	  }
     ]
@@ -1076,11 +1076,11 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "all"
       },
 	  {
-		ip = "10.247.100.231"
+		ip = "10.10.10.5"
 		role = "sdsOnly"
 	  }
     ]
@@ -1092,11 +1092,11 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "sdsOnly"
       },
 	  {
-		ip = "10.247.100.231"
+		ip = "10.10.10.5"
 		role = "sdcOnly"
 	  }
     ]
@@ -1108,7 +1108,7 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.231"
+        ip = "10.10.10.5"
 		role = "sdcOnly"
       },
     ]
@@ -1120,7 +1120,7 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "sdsOnly"
       },
     ]
@@ -1132,11 +1132,11 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "all"
       },
 	  {
-		ip = "10.247.100.231"
+		ip = "10.10.10.5"
 		role = "sdcOnly"
 	  }
     ]
@@ -1148,11 +1148,11 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "sdcOnly"
       },
 	  {
-		ip = "10.247.100.231"
+		ip = "10.10.10.5"
 		role = "sdcOnly"
 	  }
     ]
@@ -1164,15 +1164,15 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "all"
       },
 	  {
-		ip = "10.247.100.231"
+		ip = "10.10.10.5"
 		role = "sdcOnly"
 	  },
 	  {
-		ip = "10.247.96.231"
+		ip = "10.10.10.7"
 		role = "inv"
 	  },
     ]
@@ -1184,15 +1184,15 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.247.100.232"
+        ip = "10.10.10.6"
 		role = "all"
       },
 	  {
-		ip = "10.247.100.231"
+		ip = "10.10.10.5"
 		role = "sdcOnly"
 	  },
 	  {
-		ip = "10.247.96.231"
+		ip = "10.10.10.7"
 	  },
     ]
 }
@@ -1203,19 +1203,19 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
 	  {
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "all"
 	  },
 	  {
-			ip = "10.247.100.231"
+			ip = "10.10.10.5"
 			role = "sdcOnly"
 	  },
 	  {
-			ip = "10.247.96.231"
+			ip = "10.10.10.7"
 			role = "sdcOnly"
 	  },
 	  {
-		ip = "10.247.100.244"
+		ip = "10.10.10.8"
 		role = "sdcOnly"
 	  }
     ]
@@ -1227,39 +1227,39 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
 	  {
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "all"
 	  },
 	  {
-			ip = "10.247.100.231"
+			ip = "10.10.10.5"
 			role = "sdcOnly"
 	  },
 	  {
-			ip = "10.247.96.231"
+			ip = "10.10.10.7"
 			role = "sdcOnly"
 	  },
 	  {
-			ip = "10.247.100.244"
+			ip = "10.10.10.8"
 			role = "sdcOnly"
 	  },
 	  {
-			ip = "10.247.100.245"
+			ip = "10.10.10.9"
 			role = "sdcOnly"
 	  },
 	  {
-			ip = "10.247.100.246"
+			ip = "10.10.10.10"
 			role = "sdcOnly"
 	  },
 	  {
-			ip = "10.247.100.247"
+			ip = "10.10.10.11"
 			role = "sdcOnly"
 	  },
 	  {
-			ip = "10.247.100.248"
+			ip = "10.10.10.12"
 			role = "sdcOnly"
 	  },
 	  {
-			ip = "10.247.100.249"
+			ip = "10.10.10.13"
 			role = "sdcOnly"
 	  }
     ]
@@ -1271,23 +1271,23 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
 	  {
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "all"
 	  },
 	  {
-			ip = "10.247.100.231"
+			ip = "10.10.10.5"
 			role = "sdcOnly"
 	  },
 	  {
-			ip = "10.247.96.231"
+			ip = "10.10.10.7"
 			role = "sdcOnly"
 	  },
 	  {
-		ip = "10.247.100.244"
+		ip = "10.10.10.8"
 		role = "sdcOnly"
 	  },
 	  {
-		ip = "10.247.101.60"
+		ip = "10.10.10.15"
 		role = "sdcOnly"
 	  }
     ]
@@ -1298,7 +1298,7 @@ resource "powerflex_sds" "sds" {
 	name = "Tf_SDS_01"
 	ip_list = [
 		{
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "all"
 		},
 		{
@@ -1319,7 +1319,7 @@ resource "powerflex_sds" "sds" {
 	name = "Tf_SDS_01"
 	ip_list = [
 		{
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "all"
 		},
 		{
@@ -1340,7 +1340,7 @@ resource "powerflex_sds" "sds" {
 	name = "Tf_SDS_01"
 	ip_list = [
 		{
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "all"
 		},
 		{
@@ -1361,7 +1361,7 @@ resource "powerflex_sds" "sds" {
 	name = "Tf_SDS_01"
 	ip_list = [
 		{
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "all"
 		},
 		{
@@ -1382,7 +1382,7 @@ resource "powerflex_sds" "sds" {
 	name = "Tf_SDS_01"
 	ip_list = [
 		{
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "all"
 		},
 		{
@@ -1403,7 +1403,7 @@ resource "powerflex_sds" "sds" {
 	name = "Tf_SDS_01"
 	ip_list = [
 		{
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "all"
 		},
 		{
@@ -1424,7 +1424,7 @@ resource "powerflex_sds" "sds" {
 	name = "Tf_SDS_01"
 	ip_list = [
 		{
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "all"
 		},
 		{
@@ -1445,7 +1445,7 @@ resource "powerflex_sds" "sds" {
 	name = "Tf_SDS_02"
 	ip_list = [
 		{
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "sdsOnly"
 		},
 		{
@@ -1467,7 +1467,7 @@ resource "powerflex_sds" "sds" {
 	name = "Tf_SDS_02"
 	ip_list = [
 		{
-			ip = "10.247.100.232"
+			ip = "10.10.10.6"
 			role = "sdsOnly"
 		},
 		{
