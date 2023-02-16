@@ -24,7 +24,7 @@ func init() {
 	sdcTestData.noOflinks = "4"
 	sdcTestData.name = ""
 	sdcTestData.sdcguid = "0877AE5E-BDBF-4E87-A002-218D9F883896"
-	sdcTestData.sdcip = "10.10.10.16"
+	sdcTestData.sdcip = SdsResourceTestData.SdcIp
 	sdcTestData.systemid = "0e7a082862fedf0f"
 }
 
@@ -77,6 +77,9 @@ func TestSdcDataSource(t *testing.T) {
 }
 
 func TestSdcDataSourceByName(t *testing.T) {
+	var TestSdcDataSourceByNameBlock = `data "powerflex_sdc" "selected" {
+		name = "` + SdsResourceTestData.volName + `"
+	}`
 	os.Setenv("TF_ACC", "1")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -87,8 +90,7 @@ func TestSdcDataSourceByName(t *testing.T) {
 				Config: ProviderConfigForTesting + TestSdcDataSourceByNameBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify number of sdc returned
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.#", "1"),
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "name", "alpha_sdc"),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "name",  SdsResourceTestData.volName),
 				),
 			},
 		},
@@ -106,9 +108,7 @@ var (
 		id = ""
 		name = ""
 	}`
-	TestSdcDataSourceByNameBlock = `data "powerflex_sdc" "selected" {
-		name = "alpha_sdc"
-	}`
+
 	TestSdcDataSourceByEmptyNameBlock = `data "powerflex_sdc" "selected" {
 		name = ""
 	}`

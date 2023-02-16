@@ -8,268 +8,263 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var modifyPlanProtectionDomainNegTest = `
-resource "powerflex_volume" "avengers-volume-protection-domain-name"{
-	name = "avengers-volume-protection-domain-name"
-	protection_domain_name = "invalid-domain-name"
-	storage_pool_id = "pool1"
-	size = 8
-}`
-
-var modifyPlanProtectionDomainIDNegTest = `
-resource "powerflex_volume" "avengers-volume-protection-domain-id"{
-	name = "avengers-volume-protection-domain-id"
-	protection_domain_id = "invalid-domain-id"
-	storage_pool_id = "pool1"
-	size = 8
-}`
-
-var modifyPlanStoragePoolNameNegTest = `
-resource "powerflex_volume" "avengers-volume-storage-pool-name"{
-	name = "avengers-volume-storage-pool-name"
-	protection_domain_name = "domain1"
-	storage_pool_name = "invalid-pool-name"
-	size = 8
-}`
-
-var modifyPlanStoragePoolIDNegTest = `
-resource "powerflex_volume" "avengers-volume-storage-pool-id"{
-	name = "avengers-volume-storage-pool-id"
-	protection_domain_name = "domain1"
-	storage_pool_id = "invalid-pool-id"
-	size = 8
-}`
-
-var modifyPlanSdcNameNegTest = `
-resource "powerflex_volume" "avengers-volume-sdc-map-name"{
-	name = "avengers-volume-sdc-map-name"
-	protection_domain_name = "domain1"
-	storage_pool_name = "pool1"
-	size = 8
-	sdc_list = [
-	  {
-		sdc_name = "invalid-sdc-name"
-	  }
-	]
-}`
-
-var modifyPlanSdcIDNegTest = `
-resource "powerflex_volume" "avengers-volume-sdc-map-id"{
-	name = "avengers-volume-sdc-map-id"
-	protection_domain_name = "domain1"
-	storage_pool_name = "pool1"
-	size = 8
-	sdc_list = [
-	  {
-		sdc_id = "invalid-sdc-id"
-	  }
-	]
-}`
-
-var modifyPlanVolumeInvalidMapLimit = `
-resource "powerflex_volume" "avengers-volume-create"{
-	name = "avengers-volume-create-lm"
-	protection_domain_name = "domain1"
-	storage_pool_name = "pool1" #pool1 have medium granularity
-	size = 8
-	use_rm_cache = true 
-	volume_type = "ThickProvisioned" 
-	access_mode = "ReadOnly"
-	sdc_list = [
-	  		{
-			   sdc_name = "alpha_sdc"
-			   limit_iops = 9
-			   limit_bw_in_mbps = 122
-			   access_mode = "ReadWrite"
-		   },
-
-	]
-  }
-`
-
-var createVolumeWithInvalidCompressionMethodNegTest = `
-resource "powerflex_volume" "avengers-volume---create"{
-	name = "avengers-volume---create0101010101010100101010101010101010101"
-	protection_domain_name = "domain1"
-	storage_pool_name = "pool1" #pool1 have medium granularity
-	size = 8
-	use_rm_cache = true 
-	volume_type = "ThickProvisioned"
-  }
-`
-
-var createVolumeWithSdcConfigNegTest = `
-resource "powerflex_volume" "avengers-volume----create"{
-	name = "avengers-volume----create"
-	protection_domain_name = "domain1"
-	storage_pool_name = "pool1" #pool1 have medium granularity
-	size = 8
-	use_rm_cache = true 
-	volume_type = "ThickProvisioned" 
-	access_mode = "ReadOnly" # sdc_can't be mapped to volume with access mode readonly
-	sdc_list = [
-	  {
-			   sdc_name = "alpha_sdc"
-			   limit_iops = 119
-			   limit_bw_in_mbps = 19
-			   access_mode = "ReadWrite"
-		   },
-	]
-  }
-`
-
-var createVolumePosTest = `
-resource "powerflex_volume" "avengers-volume-create"{
-	name = "avengers-volume-create"
-	protection_domain_name = "domain1"
-	storage_pool_name = "pool1" #pool1 have medium granularity
-	size = 8
-	use_rm_cache = true 
-	volume_type = "ThickProvisioned" 
-	access_mode = "ReadWrite"
-	sdc_list = [
-	  {
-			   sdc_name = "alpha_sdc"
-			   limit_iops = 119
-			   limit_bw_in_mbps = 19
-			   access_mode = "ReadOnly"
-		   },
-	]
-  }
-`
-
-var updateVolumePosTest = `
-resource "powerflex_volume" "avengers-volume-create"{
-	name = "avengers-volume-create"
-	protection_domain_name = "domain1"
-	storage_pool_name = "pool1" #pool1 have medium granularity
-	size = 8
-	use_rm_cache = true 
-	volume_type = "ThickProvisioned" 
-	access_mode = "ReadWrite"
-	sdc_list = [
-	  		{
-			   sdc_name = "alpha_sdc"
-			   limit_iops = 328
-			   limit_bw_in_mbps = 28
-			   access_mode = "ReadOnly"
-		   },
-		   {
-			sdc_name = "alpha_sdc_2"
-			limit_iops = 129
-			limit_bw_in_mbps = 17
-			access_mode = "ReadWrite"
-		   },
-		   {
-			sdc_id = "c423b09800000003"
-			limit_iops = 38
-			limit_bw_in_mbps = 28
-			access_mode = "NoAccess"
-		   }
-	]
-  }
-`
-
-var updateVolumeUnmapPosTest = `
-resource "powerflex_volume" "avengers-volume-create"{
-	name = "avengers-volume-create"
-	protection_domain_name = "domain1"
-	storage_pool_name = "pool1" #pool1 have medium granularity
-	size = 8
-	use_rm_cache = true 
-	volume_type = "ThickProvisioned" 
-	access_mode = "ReadWrite"
-	sdc_list = [
-	  		{
-			   sdc_name = "alpha_sdc"
-			   limit_iops = 328
-			   limit_bw_in_mbps = 28
-			   access_mode = "ReadOnly"
-		   },
-		//    {
-		// 	sdc_name = "alpha_sdc_2"
-		// 	limit_iops = 129
-		// 	limit_bw_in_mbps = 17
-		// 	access_mode = "ReadWrite"
-		//    },
-		   {
-			sdc_id = "c423b09800000003"
-			limit_iops = 38
-			limit_bw_in_mbps = 28
-			access_mode = "NoAccess"
-		   }
-	]
-  }
-`
-
-var createVolumePos01Test = `
-resource "powerflex_volume" "avengers-volume-create-01"{
-	name = "avengers-volume-create-01"
-	protection_domain_name = "domain1"
-	storage_pool_name = "pool1" #pool1 have medium granularity
-	size = 8
-	use_rm_cache = true 
-	volume_type = "ThickProvisioned"
-	access_mode = "ReadWrite"
-}
-`
-
-var updateVolumeRenameNegTest = `
-resource "powerflex_volume" "avengers-volume-create-01"{
-	name = "avengers-volume-create-101010101010101010101"
-	protection_domain_name = "domain1"
-	storage_pool_name = "pool1" #pool1 have medium granularity
-	size = 8
-	use_rm_cache = true 
-	volume_type = "ThickProvisioned"
-	access_mode = "ReadWrite"
-}
-`
-
-var updateVolumeSizeNegTest = `
-resource "powerflex_volume" "avengers-volume-create-01"{
-	name = "avengers-volume-create-01"
-	protection_domain_name = "domain1"
-	storage_pool_name = "pool1" #pool1 have medium granularity
-	size = 8
-	capacity_unit = "TB"
-	use_rm_cache = true 
-	volume_type = "ThickProvisioned"
-	access_mode = "ReadWrite"
-}
-`
-
-var createVolumeCompressionMethodNegTest = `
-resource "powerflex_volume" "avengers-volume-create-compression"{
-	name = "volume-create-compression"
-	protection_domain_name = "domain1"
-	storage_pool_name = "pool1"
-	size = 16
-	compression_method = "None"
-}
-`
-
-var createVolumeTypePosTest = `
-resource "powerflex_volume" "avengers-volume-create-volume-type"{
-	name = "volume-create-volume-type"
-	protection_domain_name = "domain1"
-	storage_pool_name = "pool1"
-	size = 16
-	volume_type = "ThinProvisioned"
-}
-`
-
-var updateVolumeTypeNegTest = `
-resource "powerflex_volume" "avengers-volume-create-volume-type"{
-	name = "volume-create-volume-type"
-	protection_domain_name = "domain1"
-	storage_pool_name = "pool1"
-	size = 16
-	volume_type = "ThickProvisioned"
-}
-`
 
 func TestAccVolumeResource(t *testing.T) {
+	var modifyPlanProtectionDomainNegTest = `
+	resource "powerflex_volume" "avengers-volume-protection-domain-name"{
+		name = "avengers-volume-protection-domain-name"
+		protection_domain_name = "invalid-domain-name"
+		storage_pool_id = "pool1"
+		size = 8
+	}`
+	
+	var modifyPlanProtectionDomainIDNegTest = `
+	resource "powerflex_volume" "avengers-volume-protection-domain-id"{
+		name = "avengers-volume-protection-domain-id"
+		protection_domain_id = "invalid-domain-id"
+		storage_pool_id = "pool1"
+		size = 8
+	}`
+	
+	var modifyPlanStoragePoolNameNegTest = `
+	resource "powerflex_volume" "avengers-volume-storage-pool-name"{
+		name = "avengers-volume-storage-pool-name"
+		protection_domain_name = "domain1"
+		storage_pool_name = "invalid-pool-name"
+		size = 8
+	}`
+	
+	var modifyPlanStoragePoolIDNegTest = `
+	resource "powerflex_volume" "avengers-volume-storage-pool-id"{
+		name = "avengers-volume-storage-pool-id"
+		protection_domain_name = "domain1"
+		storage_pool_id = "invalid-pool-id"
+		size = 8
+	}`
+	
+	var modifyPlanSdcNameNegTest = `
+	resource "powerflex_volume" "avengers-volume-sdc-map-name"{
+		name = "avengers-volume-sdc-map-name"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 8
+		sdc_list = [
+		  {
+			sdc_name = "invalid-sdc-name"
+		  }
+		]
+	}`
+	
+	var modifyPlanSdcIDNegTest = `
+	resource "powerflex_volume" "avengers-volume-sdc-map-id"{
+		name = "avengers-volume-sdc-map-id"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 8
+		sdc_list = [
+		  {
+			sdc_id = "invalid-sdc-id"
+		  }
+		]
+	}`
+	
+	var modifyPlanVolumeInvalidMapLimit = `
+	resource "powerflex_volume" "avengers-volume-create"{
+		name = "avengers-volume-create-lm"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1" #pool1 have medium granularity
+		size = 8
+		use_rm_cache = true 
+		volume_type = "ThickProvisioned" 
+		access_mode = "ReadOnly"
+		sdc_list = [
+				  {
+				   sdc_name = "` + SdsResourceTestData.volName + `"
+				   limit_iops = 9
+				   limit_bw_in_mbps = 122
+				   access_mode = "ReadWrite"
+			   },
+	
+		]
+	  }
+	`
+	
+	var createVolumeWithInvalidCompressionMethodNegTest = `
+	resource "powerflex_volume" "avengers-volume---create"{
+		name = "avengers-volume---create0101010101010100101010101010101010101"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1" #pool1 have medium granularity
+		size = 8
+		use_rm_cache = true 
+		volume_type = "ThickProvisioned"
+	  }
+	`
+	
+	var createVolumeWithSdcConfigNegTest = `
+	resource "powerflex_volume" "avengers-volume----create"{
+		name = "avengers-volume----create"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1" #pool1 have medium granularity
+		size = 8
+		use_rm_cache = true 
+		volume_type = "ThickProvisioned" 
+		access_mode = "ReadOnly" # sdc_can't be mapped to volume with access mode readonly
+		sdc_list = [
+		  {
+				   sdc_name = "` + SdsResourceTestData.volName + `"
+				   limit_iops = 119
+				   limit_bw_in_mbps = 19
+				   access_mode = "ReadWrite"
+			   },
+		]
+	  }
+	`
+	
+	var createVolumePosTest = `
+	resource "powerflex_volume" "avengers-volume-create"{
+		name = "avengers-volume-create"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1" #pool1 have medium granularity
+		size = 8
+		use_rm_cache = true 
+		volume_type = "ThickProvisioned" 
+		access_mode = "ReadWrite"
+		sdc_list = [
+		  {
+				   sdc_name = "` + SdsResourceTestData.volName + `"
+				   limit_iops = 119
+				   limit_bw_in_mbps = 19
+				   access_mode = "ReadOnly"
+			   },
+		]
+	  }
+	`
+	
+	var updateVolumePosTest = `
+	resource "powerflex_volume" "avengers-volume-create"{
+		name = "avengers-volume-create"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1" #pool1 have medium granularity
+		size = 8
+		use_rm_cache = true 
+		volume_type = "ThickProvisioned" 
+		access_mode = "ReadWrite"
+		sdc_list = [
+				  {
+				   sdc_name = "` + SdsResourceTestData.volName + `"
+				   limit_iops = 328
+				   limit_bw_in_mbps = 28
+				   access_mode = "ReadOnly"
+			   },
+			   {
+				sdc_name = "` + SdsResourceTestData.volName2 + `"
+				limit_iops = 129
+				limit_bw_in_mbps = 17
+				access_mode = "ReadWrite"
+			   },
+			   {
+				sdc_id = "c423b09800000003"
+				limit_iops = 38
+				limit_bw_in_mbps = 28
+				access_mode = "NoAccess"
+			   }
+		]
+	  }
+	`
+	
+	var updateVolumeUnmapPosTest = `
+	resource "powerflex_volume" "avengers-volume-create"{
+		name = "avengers-volume-create"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1" #pool1 have medium granularity
+		size = 8
+		use_rm_cache = true 
+		volume_type = "ThickProvisioned" 
+		access_mode = "ReadWrite"
+		sdc_list = [
+				  {
+				   sdc_name = "` + SdsResourceTestData.volName + `"
+				   limit_iops = 328
+				   limit_bw_in_mbps = 28
+				   access_mode = "ReadOnly"
+			   },
+	
+			   {
+				sdc_id = "c423b09800000003"
+				limit_iops = 38
+				limit_bw_in_mbps = 28
+				access_mode = "NoAccess"
+			   }
+		]
+	  }
+	`
+	
+	var createVolumePos01Test = `
+	resource "powerflex_volume" "avengers-volume-create-01"{
+		name = "avengers-volume-create-01"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1" #pool1 have medium granularity
+		size = 8
+		use_rm_cache = true 
+		volume_type = "ThickProvisioned"
+		access_mode = "ReadWrite"
+	}
+	`
+	
+	var updateVolumeRenameNegTest = `
+	resource "powerflex_volume" "avengers-volume-create-01"{
+		name = "avengers-volume-create-101010101010101010101"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1" #pool1 have medium granularity
+		size = 8
+		use_rm_cache = true 
+		volume_type = "ThickProvisioned"
+		access_mode = "ReadWrite"
+	}
+	`
+	
+	var updateVolumeSizeNegTest = `
+	resource "powerflex_volume" "avengers-volume-create-01"{
+		name = "avengers-volume-create-01"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1" #pool1 have medium granularity
+		size = 8
+		capacity_unit = "TB"
+		use_rm_cache = true 
+		volume_type = "ThickProvisioned"
+		access_mode = "ReadWrite"
+	}
+	`
+	
+	var createVolumeCompressionMethodNegTest = `
+	resource "powerflex_volume" "avengers-volume-create-compression"{
+		name = "volume-create-compression"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 16
+		compression_method = "None"
+	}
+	`
+	
+	var createVolumeTypePosTest = `
+	resource "powerflex_volume" "avengers-volume-create-volume-type"{
+		name = "volume-create-volume-type"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 16
+		volume_type = "ThinProvisioned"
+	}
+	`
+	
+	var updateVolumeTypeNegTest = `
+	resource "powerflex_volume" "avengers-volume-create-volume-type"{
+		name = "volume-create-volume-type"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 16
+		volume_type = "ThickProvisioned"
+	}
+	`	
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -427,13 +422,13 @@ func TestAccVolumeResourceDuplicateSDC(t *testing.T) {
 		access_mode = "ReadWrite"
 		sdc_list = [
 			{
-				sdc_name = "alpha_sdc"
+				sdc_name = "` + SdsResourceTestData.volName + `"
 				limit_iops = 119
 				limit_bw_in_mbps = 19
 				access_mode = "ReadOnly"
 			},
 			{
-				sdc_name = "alpha_sdc"
+				sdc_name = "` + SdsResourceTestData.volName + `"
 				limit_iops = 119
 				limit_bw_in_mbps = 19
 				access_mode = "ReadWrite"
@@ -450,13 +445,13 @@ func TestAccVolumeResourceDuplicateSDC(t *testing.T) {
 		access_mode = "ReadWrite"
 		sdc_list = [
 			{
-				sdc_name = "alpha_sdc"
+				sdc_name = "` + SdsResourceTestData.volName + `"
 				limit_iops = 119
 				limit_bw_in_mbps = 19
 				access_mode = "ReadOnly"
 			},
 			{
-				sdc_name = "alpha_sdc"
+				sdc_name = "` + SdsResourceTestData.volName + `"
 				limit_iops = 119
 				limit_bw_in_mbps = 19
 				access_mode = "ReadOnly"
