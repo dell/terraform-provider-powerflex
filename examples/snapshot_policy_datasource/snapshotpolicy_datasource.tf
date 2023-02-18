@@ -5,8 +5,8 @@
 
 data "powerflex_snapshot_policy" "sp" {
 
-    #name = "sample_snap_policy_1"
-    id = "15ad99b900000001"
+  #name = "sample_snap_policy_1"
+  id = "15ad99b900000001"
 }
 
 output "spResult" {

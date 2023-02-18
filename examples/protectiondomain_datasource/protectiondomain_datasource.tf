@@ -4,8 +4,8 @@
 # id and name can't be given together to fetch the protection domain .
 
 data "powerflex_protection_domain" "pd" {
-     name = "domain1"
-    # id = "4eeb304600000000"
+  name = "domain1"
+  # id = "4eeb304600000000"
 }
 
 output "inputPdID" {

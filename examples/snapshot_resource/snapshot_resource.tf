@@ -7,37 +7,37 @@
 # To check which attributes of the snapshot can be updated, please refer Product Guide in the documentation
 
 resource "powerflex_snapshot" "snapshots-create" {
-	name = "snapshots-create"
-	volume_id = "4577c84000000120"
+  name      = "snapshots-create"
+  volume_id = "4577c84000000120"
 }
 
 resource "powerflex_snapshot" "snapshots-create-01" {
-	name = "snapshots-create-epsilon"
-	volume_id = "4577c84000000120"
-	access_mode = "ReadWrite"
-  	size = 16
-  	capacity_unit = "GB"
-  	remove_mode = "INCLUDING_DESCENDANTS"
-	sdc_list = [
-    	{	
-			sdc_id = "c423b09800000003"
-			limit_iops = 200
-			limit_bw_in_mbps = 40
-			access_mode = "ReadWrite"
-		},
-		{	
-			sdc_id = "c423b09900000004"
-			limit_iops = 190
-			limit_bw_in_mbps = 70
-			access_mode = "NoAccess"
-		},
-    		{
-			sdc_id = "c423b09a00000005"
-			limit_iops = 82
-			limit_bw_in_mbps = 17
-			access_mode = "ReadOnly"
-		},
-	]
+  name          = "snapshots-create-epsilon"
+  volume_id     = "4577c84000000120"
+  access_mode   = "ReadWrite"
+  size          = 16
+  capacity_unit = "GB"
+  remove_mode   = "INCLUDING_DESCENDANTS"
+  sdc_list = [
+    {
+      sdc_id           = "c423b09800000003"
+      limit_iops       = 200
+      limit_bw_in_mbps = 40
+      access_mode      = "ReadWrite"
+    },
+    {
+      sdc_id           = "c423b09900000004"
+      limit_iops       = 190
+      limit_bw_in_mbps = 70
+      access_mode      = "NoAccess"
+    },
+    {
+      sdc_id           = "c423b09a00000005"
+      limit_iops       = 82
+      limit_bw_in_mbps = 17
+      access_mode      = "ReadOnly"
+    },
+  ]
 }
 
 

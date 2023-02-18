@@ -6,13 +6,13 @@
 
 
 resource "powerflex_sdc" "sdc" {
-  id = "c423b09800000003"
+  id   = "c423b09800000003"
   name = "powerflex_sdc26"
 }
 
 
- #output "changed_sdc" {
- # value = powerflex_sdc.sdc
+#output "changed_sdc" {
+# value = powerflex_sdc.sdc
 #}
 # # -----------------------------------------------------------------------------------
 

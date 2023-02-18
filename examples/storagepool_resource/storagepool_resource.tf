@@ -7,10 +7,10 @@
 # To check which attributes of the storage pool can be updated, please refer Product Guide in the documentation
 
 resource "powerflex_storage_pool" "sp" {
-  name = "storagepool3"
+  name                 = "storagepool3"
   protection_domain_id = "4eeb304600000000"
   # protection_domain_name = "domain1"
-  media_type = "HDD"
+  media_type  = "HDD"
   use_rmcache = true
   use_rfcache = false
 }

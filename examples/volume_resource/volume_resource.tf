@@ -8,23 +8,23 @@
 # To check which attributes of the snapshot can be updated, please refer Product Guide in the documentation
 
 
-resource "powerflex_volume" "avengers-volume-create"{
-	name = "avengers-volume-create"
-	protection_domain_name = "domain1"
-	storage_pool_name = "pool1" #pool1 have medium granularity
-	size = 8
-	use_rm_cache = true 
-	volume_type = "ThickProvisioned" 
-	access_mode = "ReadWrite"
-	sdc_list = [
-	  {
-			   sdc_name = "sdc_01"
-			   limit_iops = 119
-			   limit_bw_in_mbps = 19
-			   access_mode = "ReadOnly"
-		   },
-	]
-  }
+resource "powerflex_volume" "avengers-volume-create" {
+  name                   = "avengers-volume-create"
+  protection_domain_name = "domain1"
+  storage_pool_name      = "pool1" #pool1 have medium granularity
+  size                   = 8
+  use_rm_cache           = true
+  volume_type            = "ThickProvisioned"
+  access_mode            = "ReadWrite"
+  sdc_list = [
+    {
+      sdc_name         = "sdc_01"
+      limit_iops       = 119
+      limit_bw_in_mbps = 19
+      access_mode      = "ReadOnly"
+    },
+  ]
+}
 
 
 # General guidlines for furnishing this resource block  
