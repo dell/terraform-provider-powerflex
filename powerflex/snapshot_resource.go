@@ -114,6 +114,14 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 		AttrTypes: SdcInfoAttrTypes,
 	}
 	objectSdcInfos := []attr.Value{}
+
+	// sdcMap is used for validating if multiple entries in the set of SDCs refer the same SDC
+	type sdcCount struct {
+		name  string // name of SDC
+		count int    // number of times the SDC is found in the set
+	}
+	sdcMap := make(map[string]*sdcCount)
+
 	for _, si := range sdcList {
 		if si.SdcID == "" {
 			foundsdc, errA := sr.FindSdc("Name", si.SdcName)
@@ -137,6 +145,15 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 			}
 			si.SdcName = foundsdc.Sdc.Name
 		}
+
+		// add SDCs from the set to this map while updating count
+		if _, ok := sdcMap[si.SdcID]; ok {
+			sdcMap[si.SdcID].count++
+			sdcMap[si.SdcID].name = si.SdcName
+		} else {
+			sdcMap[si.SdcID] = &sdcCount{name: si.SdcName, count: 1}
+		}
+
 		obj := map[string]attr.Value{
 			"sdc_id":           types.StringValue(si.SdcID),
 			"limit_iops":       types.Int64Value(int64(si.LimitIops)),
@@ -148,6 +165,19 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 		diags = append(diags, dgs1...)
 		objectSdcInfos = append(objectSdcInfos, objVal)
 	}
+
+	// raise errors for SDCs that have multiple entries in the set
+	for id, sdc := range sdcMap {
+		if sdc.count == 1 {
+			continue
+		}
+		resp.Diagnostics.AddAttributeError(
+			path.Root("sdc_list"),
+			"Error: Duplicate SDC in list",
+			fmt.Sprintf("The SDC {name:%s, ID:%s} is found %d times in the list, but only 1 time expected.", id, sdc.name, sdc.count),
+		)
+	}
+
 	mappedSdcInfoVal, dgs2 := types.SetValue(sdcInfoElemType, objectSdcInfos)
 	diags = append(diags, dgs2...)
 	resp.Diagnostics.Append(diags...)

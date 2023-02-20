@@ -225,18 +225,29 @@ func TestAccSnapshotResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create", "volume_id", "4577c84000000120"),
 				),
 			},
+			// check that import is working
+			{
+				ResourceName: "powerflex_snapshot.snapshots-create",
+				ImportState:  true,
+				// TODO // ImportStateVerify: true,
+			},
 			{
 				Config: ProviderConfigForTesting + updateSnapshotRenamePosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create", "name", "snapshots-create-1"),
 				),
 			},
-
 			{
 				Config: ProviderConfigForTesting + updateSnapshotResizePosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create", "size", "24"),
 				),
+			},
+			// check that import is working
+			{
+				ResourceName: "powerflex_snapshot.snapshots-create",
+				ImportState:  true,
+				// TODO // ImportStateVerify: true,
 			},
 			{
 				Config:      ProviderConfigForTesting + updateSnapshotResizeNegTest,
@@ -255,25 +266,21 @@ func TestAccSnapshotResource(t *testing.T) {
 				ExpectError: regexp.MustCompile(`.*Requested volume size exceeds the volume allocation limit*.`),
 			},
 			{
-				ExpectNonEmptyPlan: true,
-				Config:             ProviderConfigForTesting + createSnapshotAccessModeMapSdcPosTest,
+				Config: ProviderConfigForTesting + createSnapshotAccessModeMapSdcPosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create-access-mode-sdc-map", "sdc_list.#", "1"),
 				),
 			},
 			{
-				ExpectNonEmptyPlan: true,
-				Config:             ProviderConfigForTesting + updateSnapshotInvalidAccessModePNegTest,
-				ExpectError:        regexp.MustCompile(`.*The command cannot be applied because the volume has read-write mappings*.`),
+				Config:      ProviderConfigForTesting + updateSnapshotInvalidAccessModePNegTest,
+				ExpectError: regexp.MustCompile(`.*The command cannot be applied because the volume has read-write mappings*.`),
 			},
 			{
-				ExpectNonEmptyPlan: true,
-				Config:             ProviderConfigForTesting + updateSnapshotInvalidLockNegTest,
-				ExpectError:        regexp.MustCompile(`.*The specified volume is not an auto-snapshot and hence cannot be locked*.`),
+				Config:      ProviderConfigForTesting + updateSnapshotInvalidLockNegTest,
+				ExpectError: regexp.MustCompile(`.*The specified volume is not an auto-snapshot and hence cannot be locked*.`),
 			},
 			{
-				ExpectNonEmptyPlan: true,
-				Config:             ProviderConfigForTesting + updateSnapshotMapSdcPosTest,
+				Config: ProviderConfigForTesting + updateSnapshotMapSdcPosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create-access-mode-sdc-map", "sdc_list.#", "3"),
 				),
@@ -293,6 +300,69 @@ func TestAccSnapshotResource(t *testing.T) {
 			{
 				Config:      ProviderConfigForTesting + createSnapshotWithInvalideVolumeName,
 				ExpectError: regexp.MustCompile(`.*Error getting volume by name*.`),
+			},
+		},
+	})
+}
+
+func TestAccSnapshotResourceDuplicateSdc(t *testing.T) {
+	createSsDuplicateSdcPos := `
+	resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
+		name = "snapshots-create-epsilon"
+		volume_id = "4577c84000000120"
+		access_mode = "ReadWrite"
+		size = 16
+		sdc_list = [
+			{	
+				sdc_id = "c423b09800000003"
+				limit_iops = 200
+				limit_bw_in_mbps = 40
+				access_mode = "ReadWrite"
+			},
+			{	
+				sdc_id = "c423b09800000003"
+				limit_iops = 200
+				limit_bw_in_mbps = 40
+				access_mode = "ReadWrite"
+			}
+		]
+	}
+	`
+	createSsDuplicateSdcInv := `
+	resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
+		name = "snapshots-create-epsilon"
+		volume_id = "4577c84000000120"
+		access_mode = "ReadWrite"
+		size = 16
+		sdc_list = [
+			{	
+				sdc_id = "c423b09800000003"
+				limit_iops = 200
+				limit_bw_in_mbps = 40
+				access_mode = "ReadWrite"
+			},
+			{	
+				sdc_id = "c423b09800000003"
+				limit_iops = 200
+				limit_bw_in_mbps = 45
+				access_mode = "ReadWrite"
+			}
+		]
+	}
+	`
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      ProviderConfigForTesting + createSsDuplicateSdcInv,
+				ExpectError: regexp.MustCompile(`.*Error: Duplicate SDC in list*.`),
+			},
+			{
+				Config: ProviderConfigForTesting + createSsDuplicateSdcPos,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create-access-mode-sdc-map", "sdc_list.#", "1"),
+				),
 			},
 		},
 	})

@@ -20,12 +20,12 @@ var DataSourceSchema schema.Schema = schema.Schema{
 		},
 		"protection_domain_id": schema.StringAttribute{
 			Description:         "Protection Domain ID.",
-			MarkdownDescription: "Protection Domain ID.",
+			MarkdownDescription: "Protection Domain ID - Either of Protection Domain ID/Name is Required.",
 			Optional:            true,
 		},
 		"protection_domain_name": schema.StringAttribute{
 			Description:         "Protection Domain Name.",
-			MarkdownDescription: "Protection Domain Name.",
+			MarkdownDescription: "Protection Domain Name - Either of Protection Domain ID/Name is Required.",
 			Optional:            true,
 			Validators: []validator.String{
 				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),
@@ -280,6 +280,86 @@ var DataSourceSchema schema.Schema = schema.Schema{
 					"media_type": schema.StringAttribute{
 						Description:         "Media type.",
 						MarkdownDescription: "Media type.",
+						Computed:            true,
+					},
+					"capacity_alert_high_threshold": schema.Int64Attribute{
+						Description:         "Capacity alert high threshold.",
+						MarkdownDescription: "Capacity alert high threshold.",
+						Computed:            true,
+					},
+					"capacity_alert_critical_threshold": schema.Int64Attribute{
+						Description:         "Capacity alert critical threshold.",
+						MarkdownDescription: "Capacity alert critical threshold.",
+						Computed:            true,
+					},
+					"vtree_migration_io_priority_app_iops_per_device_threshold": schema.Int64Attribute{
+						Description:         "VTree migration IO priority App IOPS per device threshold.",
+						MarkdownDescription: "VTree migration IO priority App IOPS per device threshold.",
+						Computed:            true,
+					},
+					"vtree_migration_io_priority_app_bw_per_device_threshold_kbps": schema.Int64Attribute{
+						Description:         "VTree migration IO priority App bandwidth per device threshold in Kbps.",
+						MarkdownDescription: "VTree migration IO priority App bandwidth per device threshold in Kbps.",
+						Computed:            true,
+					},
+					"vtree_migration_io_priority_quiet_period_msec": schema.Int64Attribute{
+						Description:         "VTree migration IO priority quiet period in Msec.",
+						MarkdownDescription: "VTree migration IO priority quiet period in Msec.",
+						Computed:            true,
+					},
+					"fgl_accp_id": schema.StringAttribute{
+						Description:         "FGL ID.",
+						MarkdownDescription: "FGL ID.",
+						Computed:            true,
+					},
+					"fgl_extra_capacity": schema.Int64Attribute{
+						Description:         "FGL extra capacity.",
+						MarkdownDescription: "FGL extra capacity.",
+						Computed:            true,
+					},
+					"fgl_overprovisioning_factor": schema.Int64Attribute{
+						Description:         "FGL overprovisioning factor.",
+						MarkdownDescription: "FGL overprovisioning factor.",
+						Computed:            true,
+					},
+					"fgl_write_atomicity_size": schema.Int64Attribute{
+						Description:         "FGL write atomicity size.",
+						MarkdownDescription: "FGL write atomicity size.",
+						Computed:            true,
+					},
+					"fgl_nvdimm_write_cache_size_mb": schema.Int64Attribute{
+						Description:         "FGL NVDIMM write cache size in Mb.",
+						MarkdownDescription: "FGL NVDIMM write cache size in Mb.",
+						Computed:            true,
+					},
+					"fgl_nvdimm_metadata_amotization_x100": schema.Int64Attribute{
+						Description:         "FGL NVDIMM metadata amortization.",
+						MarkdownDescription: "FGL NVDIMM metadata amortization.",
+						Computed:            true,
+					},
+					"fgl_perf_profile": schema.StringAttribute{
+						Description:         "FGL performance profile.",
+						MarkdownDescription: "FGL performance profile.",
+						Computed:            true,
+					},
+					"protected_maintenance_mode_io_priority_bw_limit_per_device_kbps": schema.Int64Attribute{
+						Description:         "Protected maintenance mode IO priority bandwidth limit per device in Kbps.",
+						MarkdownDescription: "Protected maintenance mode IO priority bandwidth limit per device in Kbps.",
+						Computed:            true,
+					},
+					"protected_maintenance_mode_io_priority_app_iops_per_device_threshold": schema.Int64Attribute{
+						Description:         "Protected maintenance mode IO priority app IOPS per device threshold.",
+						MarkdownDescription: "Protected maintenance mode IO priority app IOPS per device threshold.",
+						Computed:            true,
+					},
+					"protected_maintenance_mode_io_priority_app_bw_per_device_threshold_kbps": schema.Int64Attribute{
+						Description:         "Protected maintenance mode IO priority app bandwidth per device threshold in Kbps.",
+						MarkdownDescription: "Protected maintenance mode IO priority app bandwidth per device threshold in Kbps.",
+						Computed:            true,
+					},
+					"protected_maintenance_mode_io_priority_quiet_period_msec": schema.Int64Attribute{
+						Description:         "Protected maintenance mode IO priority quiet period in Msec.",
+						MarkdownDescription: "Protected maintenance mode IO priority quiet period in Msec.",
 						Computed:            true,
 					},
 					"volumes": schema.ListNestedAttribute{

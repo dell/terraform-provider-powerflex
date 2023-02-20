@@ -1,10 +1,10 @@
 package powerflex
 
 import (
-	"os"
-	"testing"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"os"
+	"regexp"
+	"testing"
 )
 
 type resourceDataPoints struct {
@@ -41,16 +41,48 @@ func TestSdcResourceUpdate(t *testing.T) {
 				ImportStateVerify: false,
 				ImportStateId:     "c423b09800000003",
 			},
-			// // Update testing
+			// Update testing
 			{
-				Config: ProviderConfigForTesting + TestSdcResourceUpdateBlock,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "system_id", sdcResourceTestData.systemid),
-					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "sdc_guid", sdcResourceTestData.sdcguid),
-					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", ""),
-					// resource.TestCheckResourceAttr("powerflex_sdc.sdc", "sdcip", sdcResourceTestData.sdcip),
-					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "links.#", sdcResourceTestData.noOflinks),
-				),
+				Config:      ProviderConfigForTesting + TestSdcResourceUpdateBlock,
+				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value Length*`),
+			},
+		},
+	})
+}
+
+func TestSdcResourceUpdateWrongID(t *testing.T) {
+	os.Setenv("TF_ACC", "1")
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:            ProviderConfigForTesting + TestSdcResourceUpdateImportBlock,
+				ResourceName:      "powerflex_sdc.test_import",
+				ImportState:       true,
+				ImportStateVerify: false,
+				ImportStateId:     "c423b098000000034343",
+				ExpectError:       regexp.MustCompile(`.*Unable to Read Powerflex systems-sdcs Read*`),
+			},
+		},
+	})
+}
+
+func TestSdcResourceUpdateSameName(t *testing.T) {
+	os.Setenv("TF_ACC", "1")
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:            ProviderConfigForTesting + TestSdcResourceUpdateImportBlock,
+				ResourceName:      "powerflex_sdc.test_import",
+				ImportState:       true,
+				ImportStateVerify: false,
+				ImportStateId:     "c423b09800000003",
+			},
+			// Update testing
+			{
+				Config:      ProviderConfigForTesting + TestSdcResourceUpdateBlockSameName,
+				ExpectError: regexp.MustCompile(`.*Unable to Change name Powerflex sdc*`),
 			},
 		},
 	})
@@ -64,14 +96,14 @@ func TestSdcResourceCreateUpdate(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + TestSdcResourceCreateUpdateBlockS1,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", "Block_S33"),
+					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", "alpha_sdc_3"),
 				),
 			},
 			// // Update testing
 			{
 				Config: ProviderConfigForTesting + TestSdcResourceCreateUpdateBlockS2,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", "Block_S34"),
+					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", "alpha_sdc_2"),
 				),
 			},
 		},
@@ -93,6 +125,13 @@ var (
 		}
 		`
 
+	TestSdcResourceUpdateBlockSameName = `
+	resource "powerflex_sdc" "sdc" {
+		id = "c423b09800000003"
+		name = "powerflex_sdc26"
+		}
+		`
+
 	TestSdcResourceUpdateImportBlock = `
 	resource "powerflex_sdc" "test_import" {
 		id = "c423b09800000003"
@@ -102,13 +141,13 @@ var (
 	TestSdcResourceCreateUpdateBlockS1 = `
 	resource "powerflex_sdc" "sdc" {
 		id = "c423b09900000004"
-		name = "Block_S33"
+		name = "alpha_sdc_3"
 	  }
 	  `
 	TestSdcResourceCreateUpdateBlockS2 = `
 	resource "powerflex_sdc" "sdc" {
 		id = "c423b09900000004"
-		name = "Block_S34"
+		name = "alpha_sdc_2"
 	  }
 	  `
 )

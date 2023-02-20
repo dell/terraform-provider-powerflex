@@ -128,6 +128,39 @@ func sdsIPListDiff(ctx context.Context, plan, state *sdsResourceModel) (toAdd, t
 	return toAdd, toRmv, changed, common
 }
 
+func (r *sdsResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data sdsResourceModel
+
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// validate that same IP is not added in the set multiple times with different roles
+	iplist := data.getIPList(ctx)
+	ipmap := make(map[string]int)
+	// count how many times an IP is used in the set
+	for _, ipObj := range iplist {
+		if _, ok := ipmap[ipObj.IP]; ok {
+			ipmap[ipObj.IP]++
+		} else {
+			ipmap[ipObj.IP] = 1
+		}
+	}
+	// raise errors for duplicate IP entries
+	for ip, count := range ipmap {
+		if count == 1 {
+			continue
+		}
+		resp.Diagnostics.AddAttributeError(
+			path.Root("ip_list"),
+			"IP Duplication Error",
+			fmt.Sprintf("The IP %s is configured with %d roles, but only 1 role expected.", ip, count),
+		)
+	}
+}
+
 // Create creates the resource and sets the initial Terraform state.
 func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
@@ -140,6 +173,18 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
+	// if rmcache size is provided but rmcache is not enabled
+	if !(plan.RmcacheSizeInMB.IsNull() || plan.RmcacheSizeInMB.IsUnknown()) && !plan.RmcacheEnabled.ValueBool() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("rmcache_size_in_mb"),
+			"rmcache_size_in_mb cannot be specified while rmcache_enabled is not set to true",
+			"Read Ram cache must be enabled in order to configure its size",
+		)
+	}
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	pdm, err := getNewProtectionDomainEx(r.client, plan.ProtectionDomainID.ValueString(), plan.ProtectionDomainName.ValueString(), "")
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -148,6 +193,9 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 		)
 		return
 	}
+
+	// set the protection domain name in the plan so that it gets propagated to the state
+	plan.ProtectionDomainName = types.StringValue(pdm.ProtectionDomain.Name)
 
 	sdsName := plan.Name.ValueString()
 	iplist := plan.getIPList(ctx)
@@ -241,34 +289,45 @@ func (r *sdsResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	pdm, err := getNewProtectionDomainEx(r.client, state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString(), "")
+	// Get the system on the PowerFlex cluster
+	system, err := getFirstSystem(r.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting Protection Domain",
+			"Error in getting system instance on the PowerFlex cluster",
 			err.Error(),
 		)
 		return
 	}
 
 	// Get SDS
-	var rsp *scaleiotypes.Sds
-	if rsp, err = pdm.FindSds("ID", state.ID.ValueString()); err != nil {
+	var rsp scaleiotypes.Sds
+	if rsp, err = system.GetSdsByID(state.ID.ValueString()); err != nil {
 		resp.Diagnostics.AddError(
-			"Could not get SDS",
+			fmt.Sprintf("Could not get SDS by ID %s", state.ID.ValueString()),
 			err.Error(),
 		)
 		return
 	}
 
+	// when SDS is imported, protection domain name is not known and this causes a non empty plan
+	if state.ProtectionDomainName.IsNull() {
+		protectionDomain, err := system.FindProtectionDomain(rsp.ProtectionDomainID, "", "")
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Unable to read name of protection domain of ID %s for SDS %s", rsp.ProtectionDomainID, rsp.Name),
+				err.Error(),
+			)
+		} else {
+			state.ProtectionDomainName = types.StringValue(protectionDomain.Name)
+		}
+	}
+
 	// Set refreshed state
-	state, dgs := updateSdsState(rsp, state)
+	state, dgs := updateSdsState(&rsp, state)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 // Update updates the resource and sets the updated Terraform state on success.
@@ -285,6 +344,26 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	var state sdsResourceModel
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// if rm cache size is provided
+	if !(plan.RmcacheSizeInMB.IsNull() || plan.RmcacheSizeInMB.IsUnknown()) {
+		if plan.RmcacheEnabled.ValueBool() ||
+			((plan.RmcacheEnabled.IsNull() || plan.RmcacheEnabled.IsUnknown()) && state.RmcacheEnabled.ValueBool()) {
+			// if plan has explicitly rmcache enabled, no issues
+			// if plan does not have explicitly rmcache enabled, but its enabled in state, again no problem
+		} else {
+			// else throw an error
+			resp.Diagnostics.AddAttributeError(
+				path.Root("rmcache_size_in_mb"),
+				"rmcache_size_in_mb cannot be specified while rmcache_enabled is not set to true",
+				"Read Ram cache must be enabled in order to configure its size",
+			)
+		}
+	}
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -426,7 +505,7 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	}
 
 	// Set refreshed state
-	state, dgs := updateSdsState(rsp, plan)
+	state, dgs := updateSdsState(rsp, state)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state)
@@ -482,6 +561,7 @@ func updateSdsState(sds *scaleiotypes.Sds, plan sdsResourceModel) (sdsResourceMo
 	state := plan
 	state.ID = types.StringValue(sds.ID)
 	state.Name = types.StringValue(sds.Name)
+	state.ProtectionDomainID = types.StringValue(sds.ProtectionDomainID)
 	state.Port = types.Int64Value(int64(sds.Port))
 	state.SdsState = types.StringValue(sds.SdsState)
 	state.MembershipState = types.StringValue(sds.MembershipState)

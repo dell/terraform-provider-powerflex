@@ -2,6 +2,7 @@ package powerflex
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/dell/goscaleio"
@@ -121,6 +122,14 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 		AttrTypes: SdcInfoAttrTypes,
 	}
 	objectSdcInfos := []attr.Value{}
+
+	// sdcMap is used for validating if multiple entries in the set of SDCs refer the same SDC
+	type sdcCount struct {
+		name  string // name of SDC
+		count int    // number of times the SDC is found in the set
+	}
+	sdcMap := make(map[string]*sdcCount)
+
 	for _, si := range sdcList {
 		if si.SdcID == "" {
 			foundsdc, errA := sr.FindSdc("Name", si.SdcName)
@@ -151,6 +160,15 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 			)
 			return
 		}
+
+		// add SDCs from the set to this map while updating count
+		if _, ok := sdcMap[si.SdcID]; ok {
+			sdcMap[si.SdcID].count++
+			sdcMap[si.SdcID].name = si.SdcName
+		} else {
+			sdcMap[si.SdcID] = &sdcCount{name: si.SdcName, count: 1}
+		}
+
 		obj := map[string]attr.Value{
 			"sdc_id":           types.StringValue(si.SdcID),
 			"limit_iops":       types.Int64Value(int64(si.LimitIops)),
@@ -162,6 +180,19 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 		diags = append(diags, dgs...)
 		objectSdcInfos = append(objectSdcInfos, objVal)
 	}
+
+	// raise errors for SDCs that have multiple entries in the set
+	for id, sdc := range sdcMap {
+		if sdc.count == 1 {
+			continue
+		}
+		resp.Diagnostics.AddAttributeError(
+			path.Root("sdc_list"),
+			"Error: Duplicate SDC in list",
+			fmt.Sprintf("The SDC {name:%s, ID:%s} is found %d times in the list, but only 1 time expected.", id, sdc.name, sdc.count),
+		)
+	}
+
 	mappedSdcInfoVal, dgs := types.SetValue(sdcInfoElemType, objectSdcInfos)
 	diags = append(diags, dgs...)
 	resp.Diagnostics.Append(diags...)
@@ -193,6 +224,14 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 		resp.Diagnostics.AddError(
 			"Error getting storage pool with id: "+volumeCreate.StoragePoolID+" or protection pool with id: "+volumeCreate.ProtectionDomainID,
 			"unexpected error: "+err0.Error(),
+		)
+		return
+	}
+	// platform fails silently for compression method "None".
+	if (spr.StoragePool.DataLayout != "FineGranularity") && (plan.CompressionMethod.ValueString() != "") {
+		resp.Diagnostics.AddError(
+			"error setting the compression method",
+			"compression may only be set on volumes with Fine Granularity layout on storage pool. This storage pool has "+spr.StoragePool.DataLayout+" layout.",
 		)
 		return
 	}
@@ -231,6 +270,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 		// Add mapped SDC
 		pfmvsp := pftypes.MapVolumeSdcParam{
 			SdcID:                 si.SdcID,
+			AccessMode:            si.AccessMode,
 			AllowMultipleMappings: "true",
 		}
 		// mapping the snapshot to sdc
@@ -251,13 +291,6 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 			if err4 != nil {
 				resp.Diagnostics.AddError(
 					"Error Setting Limits to mapped sdc: "+si.SdcID+" "+si.SdcName,
-					"unexpected error: "+err5.Error(),
-				)
-			}
-			err6 := vr.SetVolumeMappingAccessMode(si.AccessMode, si.SdcID)
-			if err6 != nil {
-				resp.Diagnostics.AddError(
-					"Error Setting access mode to mapped sdc: "+si.SdcID+" "+si.SdcName,
 					"unexpected error: "+err5.Error(),
 				)
 			}
@@ -290,15 +323,7 @@ func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, res
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	spr, err1 := getStoragePoolInstance(r.client, state.StoragePoolID.ValueString(), state.ProtectionDomainID.ValueString())
-	if err1 != nil {
-		resp.Diagnostics.AddError(
-			"Error getting storage pool",
-			"Could not get storage pool, unexpected err: "+err1.Error(),
-		)
-		return
-	}
-	volsResponse, err2 := spr.GetVolume("", state.ID.ValueString(), "", "", false)
+	volsResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
 			"Error getting volume",
@@ -333,15 +358,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	spr, err1 := getStoragePoolInstance(r.client, state.StoragePoolID.ValueString(), state.ProtectionDomainID.ValueString())
-	if err1 != nil {
-		resp.Diagnostics.AddError(
-			"Error getting storage pool",
-			"Could not get storage pool, unexpected err: "+err1.Error(),
-		)
-		return
-	}
-	volsplan, err2 := spr.GetVolume("", state.ID.ValueString(), "", "", false)
+	volsplan, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
 			"Error getting volume",
@@ -373,6 +390,14 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 				"unexpected error: "+err4.Error(),
 			)
 		}
+	}
+
+	// prompt error on change in volume type, as we can't update the volume type after the creation
+	if !plan.VolumeType.Equal(state.VolumeType) {
+		resp.Diagnostics.AddError(
+			"volume type cannot be update after volume creation.",
+			"unexpected error: volume type change is not supported",
+		)
 	}
 
 	// updating the use rm cache if there is change in plan
@@ -437,21 +462,21 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	// retervial of sdc id from mapping list and performing map operation.
-	for _, msi := range mapSdcIds {
-		pfmvsp := pftypes.MapVolumeSdcParam{
-			SdcID:                 msi,
-			AllowMultipleMappings: "true",
-		}
-		err8 := volresource.MapVolumeSdc(&pfmvsp)
-		if err8 != nil {
-			resp.Diagnostics.AddError(
-				"Error mapping volume to sdc: "+msi,
-				"unexpected error: "+err8.Error(),
-			)
-		} else {
-			// getting sdc parameter to set while mapping
-			for _, ssl := range planSdcList {
-				if ssl.SdcID == msi {
+	for _, ssl := range planSdcList {
+		for _, msi := range mapSdcIds {
+			if ssl.SdcID == msi {
+				pfmvsp := pftypes.MapVolumeSdcParam{
+					SdcID:                 ssl.SdcID,
+					AccessMode:            ssl.AccessMode,
+					AllowMultipleMappings: "true",
+				}
+				err8 := volresource.MapVolumeSdc(&pfmvsp)
+				if err8 != nil {
+					resp.Diagnostics.AddError(
+						"Error mapping volume to sdc: "+msi,
+						"unexpected error: "+err8.Error(),
+					)
+				} else {
 					smslp := pftypes.SetMappedSdcLimitsParam{
 						SdcID:                ssl.SdcID,
 						BandwidthLimitInKbps: strconv.FormatInt(int64(ssl.LimitBwInMbps*1024), 10),
@@ -462,13 +487,6 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 						resp.Diagnostics.AddError(
 							"Error setting limits to sdc: "+ssl.SdcID+" "+ssl.SdcName,
 							"unexpected error: "+err9.Error(),
-						)
-					}
-					err10 := volresource.SetVolumeMappingAccessMode(ssl.AccessMode, ssl.SdcID)
-					if err10 != nil {
-						resp.Diagnostics.AddError(
-							"Error setting access mode to sdc: "+ssl.SdcID+" "+ssl.SdcName,
-							"unexpected error: "+err10.Error(),
 						)
 					}
 				}
@@ -549,7 +567,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 		}
 	}
 
-	vols, err2 := spr.GetVolume("", state.ID.ValueString(), "", "", false)
+	vols, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
 			"Error getting volume",
@@ -574,15 +592,14 @@ func (r *volumeResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	var state VolumeResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	spr, err1 := getStoragePoolInstance(r.client, state.StoragePoolID.ValueString(), state.ProtectionDomainID.ValueString())
+	volsplan, err1 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err1 != nil {
 		resp.Diagnostics.AddError(
-			"Error getting storage pool",
-			"Could not get storage pool, unexpected err: "+err1.Error(),
+			"Error getting volume",
+			"Could not get volume, unexpected error: "+err1.Error(),
 		)
 		return
 	}
-	volsplan, _ := spr.GetVolume("", state.ID.ValueString(), "", "", false)
 	volresource := goscaleio.NewVolume(r.client)
 	volresource.Volume = volsplan[0]
 

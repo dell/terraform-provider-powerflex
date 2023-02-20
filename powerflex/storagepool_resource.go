@@ -2,6 +2,7 @@ package powerflex
 
 import (
 	"context"
+	"fmt"
 	"terraform-provider-powerflex/helper"
 
 	"github.com/dell/goscaleio"
@@ -38,7 +39,7 @@ type storagepoolResourceModel struct {
 }
 
 func (r *storagepoolResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_storagepool"
+	resp.TypeName = req.ProviderTypeName + "_storage_pool"
 }
 
 func (r *storagepoolResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
@@ -73,6 +74,7 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
+	plan.ProtectionDomainName = types.StringValue(pd.ProtectionDomain.Name)
 	payload := &scaleiotypes.StoragePoolParam{
 		Name:      plan.Name.ValueString(),
 		MediaType: plan.MediaType.ValueString(),
@@ -129,24 +131,36 @@ func (r *storagepoolResource) Read(ctx context.Context, req resource.ReadRequest
 		return
 	}
 
-	pd, err := getNewProtectionDomainEx(r.client, state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString(), "")
+	system, err := getFirstSystem(r.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting Protection Domain",
-			"Could not get Protection Domain, unexpected err: "+err.Error(),
+			"Error in getting system instance on the PowerFlex cluster", err.Error(),
 		)
 		return
 	}
 
-	spr, err := pd.FindStoragePool(state.ID.ValueString(), "", "")
+	spr, err := system.GetStoragePoolByID(state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex Storagepool",
+			fmt.Sprintf("Could not get storagepool by ID %s", state.ID.ValueString()),
 			err.Error(),
 		)
 		return
 	}
 	spResponse := updateStoragepoolState(spr, state)
+
+	if state.ProtectionDomainName.IsNull() {
+		protectionDomain, err := system.FindProtectionDomain(spr.ProtectionDomainID, "", "")
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Unable to read name of protection domain of ID %s for Storagepool %s", spr.ProtectionDomainID, spr.Name),
+				err.Error(),
+			)
+		} else {
+			spResponse.ProtectionDomainName = types.StringValue(protectionDomain.Name)
+		}
+	}
+
 	tflog.Debug(ctx, "Read Storagepool :-- "+helper.PrettyJSON(spr))
 	diags = resp.State.Set(ctx, spResponse)
 	resp.Diagnostics.Append(diags...)
@@ -244,7 +258,7 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
-	state1 := updateStoragepoolState(spResponse, plan)
+	state1 := updateStoragepoolState(spResponse, state)
 	tflog.Debug(ctx, "Update Storagepool :-- "+helper.PrettyJSON(spResponse))
 	diags = resp.State.Set(ctx, state1)
 	resp.Diagnostics.Append(diags...)
@@ -295,9 +309,9 @@ func (r *storagepoolResource) ImportState(ctx context.Context, req resource.Impo
 }
 
 // Function to update the State for Storagepool Resource
-func updateStoragepoolState(storagepool *scaleiotypes.StoragePool, plan storagepoolResourceModel) (state storagepoolResourceModel) {
-	state.ProtectionDomainID = plan.ProtectionDomainID
-	state.ProtectionDomainName = plan.ProtectionDomainName
+func updateStoragepoolState(storagepool *scaleiotypes.StoragePool, plan storagepoolResourceModel) storagepoolResourceModel {
+	state := plan
+	state.ProtectionDomainID = types.StringValue(storagepool.ProtectionDomainID)
 	state.ID = types.StringValue(storagepool.ID)
 	state.Name = types.StringValue(storagepool.Name)
 	state.MediaType = types.StringValue(storagepool.MediaType)

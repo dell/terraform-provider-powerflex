@@ -46,55 +46,71 @@ type linkModel struct {
 
 // storagePoolModel maps the storagepool schema data
 type storagePoolModel struct {
-	ID                                                            types.String `tfsdk:"id"`
-	Name                                                          types.String `tfsdk:"name"`
-	RebalanceioPriorityPolicy                                     types.String `tfsdk:"rebalance_io_priority_policy"`
-	RebuildioPriorityPolicy                                       types.String `tfsdk:"rebuild_io_priority_policy"`
-	RebuildioPriorityBwLimitPerDeviceInKbps                       types.Int64  `tfsdk:"rebuild_io_priority_bw_limit_per_device_in_kbps"`
-	RebuildioPriorityNumOfConcurrentIosPerDevice                  types.Int64  `tfsdk:"rebuild_io_priority_num_of_concurrent_ios_per_device"`
-	RebalanceioPriorityNumOfConcurrentIosPerDevice                types.Int64  `tfsdk:"rebalance_io_priority_num_of_concurrent_ios_per_device"`
-	RebalanceioPriorityBwLimitPerDeviceInKbps                     types.Int64  `tfsdk:"rebalance_io_priority_bw_limit_per_device_kbps"`
-	RebuildioPriorityAppIopsPerDeviceThreshold                    types.Int64  `tfsdk:"rebuild_io_priority_app_iops_per_device_threshold"`
-	RebalanceioPriorityAppIopsPerDeviceThreshold                  types.Int64  `tfsdk:"rebalance_io_priority_app_iops_per_device_threshold"`
-	RebuildioPriorityAppBwPerDeviceThresholdInKbps                types.Int64  `tfsdk:"rebuild_io_priority_app_bw_per_device_threshold_kbps"`
-	RebalanceioPriorityAppBwPerDeviceThresholdInKbps              types.Int64  `tfsdk:"rebalance_io_priority_app_bw_per_device_threshold_kbps"`
-	RebuildioPriorityQuietPeriodInMsec                            types.Int64  `tfsdk:"rebuild_io_priority_quiet_period_msec"`
-	RebalanceioPriorityQuietPeriodInMsec                          types.Int64  `tfsdk:"rebalance_io_priority_quiet_period_msec"`
-	ZeroPaddingEnabled                                            types.Bool   `tfsdk:"zero_padding_enabled"`
-	UseRmcache                                                    types.Bool   `tfsdk:"use_rm_cache"`
-	SparePercentage                                               types.Int64  `tfsdk:"spare_percentage"`
-	RmCacheWriteHandlingMode                                      types.String `tfsdk:"rm_cache_write_handling_mode"`
-	RebuildEnabled                                                types.Bool   `tfsdk:"rebuild_enabled"`
-	RebalanceEnabled                                              types.Bool   `tfsdk:"rebalance_enabled"`
-	NumofParallelRebuildRebalanceJobsPerDevice                    types.Int64  `tfsdk:"num_of_parallel_rebuild_rebalance_jobs_per_device"`
-	BackgroundScannerBWLimitKBps                                  types.Int64  `tfsdk:"background_scanner_bw_limit_kbps"`
-	ProtectedMaintenanceModeIoPriorityNumOfConcurrentIosPerDevice types.Int64  `tfsdk:"protected_maintenance_mode_io_priority_num_of_concurrent_ios_per_device"`
-	DataLayout                                                    types.String `tfsdk:"data_layout"`
-	VtreeMigrationIoPriorityBwLimitPerDeviceInKbps                types.Int64  `tfsdk:"vtree_migration_io_priority_bw_limit_per_device_kbps"`
-	VtreeMigrationIoPriorityPolicy                                types.String `tfsdk:"vtree_migration_io_priority_policy"`
-	AddressSpaceUsage                                             types.String `tfsdk:"address_space_usage"`
-	ExternalAccelerationType                                      types.String `tfsdk:"external_acceleration_type"`
-	PersistentChecksumState                                       types.String `tfsdk:"persistent_checksum_state"`
-	UseRfcache                                                    types.Bool   `tfsdk:"use_rf_cache"`
-	ChecksumEnabled                                               types.Bool   `tfsdk:"checksum_enabled"`
-	CompressionMethod                                             types.String `tfsdk:"compression_method"`
-	FragmentationEnabled                                          types.Bool   `tfsdk:"fragmentation_enabled"`
-	CapacityUsageState                                            types.String `tfsdk:"capacity_usage_state"`
-	CapacityUsageType                                             types.String `tfsdk:"capacity_usage_type"`
-	AddressSpaceUsageType                                         types.String `tfsdk:"address_space_usage_type"`
-	BgScannerCompareErrorAction                                   types.String `tfsdk:"bg_scanner_compare_error_action"`
-	BgScannerReadErrorAction                                      types.String `tfsdk:"bg_scanner_read_error_action"`
-	ReplicationCapacityMaxRatio                                   types.Int64  `tfsdk:"replication_capacity_max_ratio"`
-	PersistentChecksumEnabled                                     types.Bool   `tfsdk:"persistent_checksum_enabled"`
-	PersistentChecksumBuilderLimitKb                              types.Int64  `tfsdk:"persistent_checksum_builder_limit_kb"`
-	PersistentChecksumValidateOnRead                              types.Bool   `tfsdk:"persistent_checksum_validate_on_read"`
-	VtreeMigrationIoPriorityNumOfConcurrentIosPerDevice           types.Int64  `tfsdk:"vtree_migration_io_priority_num_of_concurrent_ios_per_device"`
-	ProtectedMaintenanceModeIoPriorityPolicy                      types.String `tfsdk:"protected_maintenance_mode_io_priority_policy"`
-	BackgroundScannerMode                                         types.String `tfsdk:"background_scanner_mode"`
-	MediaType                                                     types.String `tfsdk:"media_type"`
-	Volumes                                                       []volume     `tfsdk:"volumes"`
-	SDS                                                           []sdsData    `tfsdk:"sds"`
-	Links                                                         []linkModel  `tfsdk:"links"`
+	ID                                                              types.String `tfsdk:"id"`
+	Name                                                            types.String `tfsdk:"name"`
+	RebalanceioPriorityPolicy                                       types.String `tfsdk:"rebalance_io_priority_policy"`
+	RebuildioPriorityPolicy                                         types.String `tfsdk:"rebuild_io_priority_policy"`
+	RebuildioPriorityBwLimitPerDeviceInKbps                         types.Int64  `tfsdk:"rebuild_io_priority_bw_limit_per_device_in_kbps"`
+	RebuildioPriorityNumOfConcurrentIosPerDevice                    types.Int64  `tfsdk:"rebuild_io_priority_num_of_concurrent_ios_per_device"`
+	RebalanceioPriorityNumOfConcurrentIosPerDevice                  types.Int64  `tfsdk:"rebalance_io_priority_num_of_concurrent_ios_per_device"`
+	RebalanceioPriorityBwLimitPerDeviceInKbps                       types.Int64  `tfsdk:"rebalance_io_priority_bw_limit_per_device_kbps"`
+	RebuildioPriorityAppIopsPerDeviceThreshold                      types.Int64  `tfsdk:"rebuild_io_priority_app_iops_per_device_threshold"`
+	RebalanceioPriorityAppIopsPerDeviceThreshold                    types.Int64  `tfsdk:"rebalance_io_priority_app_iops_per_device_threshold"`
+	RebuildioPriorityAppBwPerDeviceThresholdInKbps                  types.Int64  `tfsdk:"rebuild_io_priority_app_bw_per_device_threshold_kbps"`
+	RebalanceioPriorityAppBwPerDeviceThresholdInKbps                types.Int64  `tfsdk:"rebalance_io_priority_app_bw_per_device_threshold_kbps"`
+	RebuildioPriorityQuietPeriodInMsec                              types.Int64  `tfsdk:"rebuild_io_priority_quiet_period_msec"`
+	RebalanceioPriorityQuietPeriodInMsec                            types.Int64  `tfsdk:"rebalance_io_priority_quiet_period_msec"`
+	ZeroPaddingEnabled                                              types.Bool   `tfsdk:"zero_padding_enabled"`
+	UseRmcache                                                      types.Bool   `tfsdk:"use_rm_cache"`
+	SparePercentage                                                 types.Int64  `tfsdk:"spare_percentage"`
+	RmCacheWriteHandlingMode                                        types.String `tfsdk:"rm_cache_write_handling_mode"`
+	RebuildEnabled                                                  types.Bool   `tfsdk:"rebuild_enabled"`
+	RebalanceEnabled                                                types.Bool   `tfsdk:"rebalance_enabled"`
+	NumofParallelRebuildRebalanceJobsPerDevice                      types.Int64  `tfsdk:"num_of_parallel_rebuild_rebalance_jobs_per_device"`
+	BackgroundScannerBWLimitKBps                                    types.Int64  `tfsdk:"background_scanner_bw_limit_kbps"`
+	ProtectedMaintenanceModeIoPriorityNumOfConcurrentIosPerDevice   types.Int64  `tfsdk:"protected_maintenance_mode_io_priority_num_of_concurrent_ios_per_device"`
+	DataLayout                                                      types.String `tfsdk:"data_layout"`
+	VtreeMigrationIoPriorityBwLimitPerDeviceInKbps                  types.Int64  `tfsdk:"vtree_migration_io_priority_bw_limit_per_device_kbps"`
+	VtreeMigrationIoPriorityPolicy                                  types.String `tfsdk:"vtree_migration_io_priority_policy"`
+	AddressSpaceUsage                                               types.String `tfsdk:"address_space_usage"`
+	ExternalAccelerationType                                        types.String `tfsdk:"external_acceleration_type"`
+	PersistentChecksumState                                         types.String `tfsdk:"persistent_checksum_state"`
+	UseRfcache                                                      types.Bool   `tfsdk:"use_rf_cache"`
+	ChecksumEnabled                                                 types.Bool   `tfsdk:"checksum_enabled"`
+	CompressionMethod                                               types.String `tfsdk:"compression_method"`
+	FragmentationEnabled                                            types.Bool   `tfsdk:"fragmentation_enabled"`
+	CapacityUsageState                                              types.String `tfsdk:"capacity_usage_state"`
+	CapacityUsageType                                               types.String `tfsdk:"capacity_usage_type"`
+	AddressSpaceUsageType                                           types.String `tfsdk:"address_space_usage_type"`
+	BgScannerCompareErrorAction                                     types.String `tfsdk:"bg_scanner_compare_error_action"`
+	BgScannerReadErrorAction                                        types.String `tfsdk:"bg_scanner_read_error_action"`
+	ReplicationCapacityMaxRatio                                     types.Int64  `tfsdk:"replication_capacity_max_ratio"`
+	PersistentChecksumEnabled                                       types.Bool   `tfsdk:"persistent_checksum_enabled"`
+	PersistentChecksumBuilderLimitKb                                types.Int64  `tfsdk:"persistent_checksum_builder_limit_kb"`
+	PersistentChecksumValidateOnRead                                types.Bool   `tfsdk:"persistent_checksum_validate_on_read"`
+	VtreeMigrationIoPriorityNumOfConcurrentIosPerDevice             types.Int64  `tfsdk:"vtree_migration_io_priority_num_of_concurrent_ios_per_device"`
+	ProtectedMaintenanceModeIoPriorityPolicy                        types.String `tfsdk:"protected_maintenance_mode_io_priority_policy"`
+	BackgroundScannerMode                                           types.String `tfsdk:"background_scanner_mode"`
+	MediaType                                                       types.String `tfsdk:"media_type"`
+	CapacityAlertHighThreshold                                      types.Int64  `tfsdk:"capacity_alert_high_threshold"`
+	CapacityAlertCriticalThreshold                                  types.Int64  `tfsdk:"capacity_alert_critical_threshold"`
+	VtreeMigrationIoPriorityAppIopsPerDeviceThreshold               types.Int64  `tfsdk:"vtree_migration_io_priority_app_iops_per_device_threshold"`
+	VtreeMigrationIoPriorityAppBwPerDeviceThresholdInKbps           types.Int64  `tfsdk:"vtree_migration_io_priority_app_bw_per_device_threshold_kbps"`
+	VtreeMigrationIoPriorityQuietPeriodInMsec                       types.Int64  `tfsdk:"vtree_migration_io_priority_quiet_period_msec"`
+	FglAccpID                                                       types.String `tfsdk:"fgl_accp_id"`
+	FglExtraCapacity                                                types.Int64  `tfsdk:"fgl_extra_capacity"`
+	FglOverProvisioningFactor                                       types.Int64  `tfsdk:"fgl_overprovisioning_factor"`
+	FglWriteAtomicitySize                                           types.Int64  `tfsdk:"fgl_write_atomicity_size"`
+	FglNvdimmWriteCacheSizeInMb                                     types.Int64  `tfsdk:"fgl_nvdimm_write_cache_size_mb"`
+	FglNvdimmMetadataAmortizationX100                               types.Int64  `tfsdk:"fgl_nvdimm_metadata_amotization_x100"`
+	FglPerfProfile                                                  types.String `tfsdk:"fgl_perf_profile"`
+	ProtectedMaintenanceModeIoPriorityBwLimitPerDeviceInKbps        types.Int64  `tfsdk:"protected_maintenance_mode_io_priority_bw_limit_per_device_kbps"`
+	ProtectedMaintenanceModeIoPriorityAppIopsPerDeviceThreshold     types.Int64  `tfsdk:"protected_maintenance_mode_io_priority_app_iops_per_device_threshold"`
+	ProtectedMaintenanceModeIoPriorityAppBwPerDeviceThresholdInKbps types.Int64  `tfsdk:"protected_maintenance_mode_io_priority_app_bw_per_device_threshold_kbps"`
+	ProtectedMaintenanceModeIoPriorityQuietPeriodInMsec             types.Int64  `tfsdk:"protected_maintenance_mode_io_priority_quiet_period_msec"`
+	Volumes                                                         []volume     `tfsdk:"volumes"`
+	SDS                                                             []sdsData    `tfsdk:"sds"`
+	Links                                                           []linkModel  `tfsdk:"links"`
 }
 
 // storagepoolDataSourceModel maps the storage pool data source schema data
@@ -109,7 +125,7 @@ type storagepoolDataSourceModel struct {
 
 // Metadata returns the data source type name.
 func (d *storagepoolDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_storagepool"
+	resp.TypeName = req.ProviderTypeName + "_storage_pool"
 }
 
 // Schema defines the schema for the data source.
@@ -318,5 +334,21 @@ func getStoragePoolState(volList []*scaleio_types.Volume, sdsList []scaleio_type
 	storagePool.ProtectedMaintenanceModeIoPriorityPolicy = types.StringValue(s1.ProtectedMaintenanceModeIoPriorityPolicy)
 	storagePool.BackgroundScannerMode = types.StringValue(s1.BackgroundScannerMode)
 	storagePool.MediaType = types.StringValue(s1.MediaType)
+	storagePool.CapacityAlertHighThreshold = types.Int64Value(int64(s1.CapacityAlertHighThreshold))
+	storagePool.CapacityAlertHighThreshold = types.Int64Value(int64(s1.CapacityAlertCriticalThreshold))
+	storagePool.VtreeMigrationIoPriorityAppBwPerDeviceThresholdInKbps = types.Int64Value(int64(s1.VtreeMigrationIoPriorityAppBwPerDeviceThresholdInKbps))
+	storagePool.VtreeMigrationIoPriorityAppIopsPerDeviceThreshold = types.Int64Value(int64(s1.VtreeMigrationIoPriorityAppBwPerDeviceThresholdInKbps))
+	storagePool.VtreeMigrationIoPriorityQuietPeriodInMsec = types.Int64Value(int64(s1.VtreeMigrationIoPriorityQuietPeriodInMsec))
+	storagePool.FglAccpID = types.StringValue(s1.FglAccpID)
+	storagePool.FglExtraCapacity = types.Int64Value(int64(s1.FglExtraCapacity))
+	storagePool.FglOverProvisioningFactor = types.Int64Value(int64(s1.FglOverProvisioningFactor))
+	storagePool.FglWriteAtomicitySize = types.Int64Value(int64(s1.FglWriteAtomicitySize))
+	storagePool.FglNvdimmWriteCacheSizeInMb = types.Int64Value(int64(s1.FglNvdimmWriteCacheSizeInMb))
+	storagePool.FglNvdimmMetadataAmortizationX100 = types.Int64Value(int64(s1.FglNvdimmMetadataAmortizationX100))
+	storagePool.FglPerfProfile = types.StringValue(s1.FglPerfProfile)
+	storagePool.ProtectedMaintenanceModeIoPriorityAppBwPerDeviceThresholdInKbps = types.Int64Value(int64(s1.ProtectedMaintenanceModeIoPriorityAppBwPerDeviceThresholdInKbps))
+	storagePool.ProtectedMaintenanceModeIoPriorityAppIopsPerDeviceThreshold = types.Int64Value(int64(s1.ProtectedMaintenanceModeIoPriorityAppIopsPerDeviceThreshold))
+	storagePool.ProtectedMaintenanceModeIoPriorityBwLimitPerDeviceInKbps = types.Int64Value(int64(s1.ProtectedMaintenanceModeIoPriorityBwLimitPerDeviceInKbps))
+	storagePool.ProtectedMaintenanceModeIoPriorityQuietPeriodInMsec = types.Int64Value(int64(s1.ProtectedMaintenanceModeIoPriorityQuietPeriodInMsec))
 	return
 }

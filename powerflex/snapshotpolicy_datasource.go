@@ -58,7 +58,7 @@ type snapshotPolicyLinkModel struct {
 }
 
 func (d *snapshotPolicyDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_snapshotpolicy"
+	resp.TypeName = req.ProviderTypeName + "_snapshot_policy"
 }
 
 func (d *snapshotPolicyDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {

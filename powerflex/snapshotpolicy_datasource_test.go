@@ -20,9 +20,9 @@ func TestAccSnapshotPolicyDataSource(t *testing.T) {
 				Config: ProviderConfigForTesting + SnapshotPolicyDataSourceConfig1,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify the first snapshot policy to ensure attributes are correctly set
-					resource.TestCheckResourceAttr("data.powerflex_snapshotpolicy.sp1", "snapshotpolicies.0.id", "15ad99b900000001"),
-					resource.TestCheckResourceAttr("data.powerflex_snapshotpolicy.sp1", "snapshotpolicies.0.name", "sample_snap_policy_1"),
-					resource.TestCheckResourceAttr("data.powerflex_snapshotpolicy.sp1", "snapshotpolicies.#", "1"),
+					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp1", "snapshotpolicies.0.id", "15ad99b900000001"),
+					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp1", "snapshotpolicies.0.name", "sample_snap_policy_1"),
+					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp1", "snapshotpolicies.#", "1"),
 				),
 			},
 			//retrieving snapshot policy based on name
@@ -30,9 +30,9 @@ func TestAccSnapshotPolicyDataSource(t *testing.T) {
 				Config: ProviderConfigForTesting + SnapshotPolicyDataSourceConfig2,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify the first snapshot policy to ensure attributes are correctly set
-					resource.TestCheckResourceAttr("data.powerflex_snapshotpolicy.sp2", "snapshotpolicies.0.id", "15ad99b900000001"),
-					resource.TestCheckResourceAttr("data.powerflex_snapshotpolicy.sp2", "snapshotpolicies.0.name", "sample_snap_policy_1"),
-					resource.TestCheckResourceAttr("data.powerflex_snapshotpolicy.sp2", "snapshotpolicies.#", "1"),
+					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp2", "snapshotpolicies.0.id", "15ad99b900000001"),
+					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp2", "snapshotpolicies.0.name", "sample_snap_policy_1"),
+					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp2", "snapshotpolicies.#", "1"),
 				),
 			},
 			//retrieving all snapshot policies
@@ -40,9 +40,9 @@ func TestAccSnapshotPolicyDataSource(t *testing.T) {
 				Config: ProviderConfigForTesting + SnapshotPolicyDataSourceConfig3,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify the first snapshot policy to ensure attributes are correctly set
-					resource.TestCheckResourceAttr("data.powerflex_snapshotpolicy.sp3", "snapshotpolicies.0.id", "15ad99b800000000"),
-					resource.TestCheckResourceAttr("data.powerflex_snapshotpolicy.sp3", "snapshotpolicies.#", "4"),
-					resource.TestCheckResourceAttr("data.powerflex_snapshotpolicy.sp3", "snapshotpolicies.0.name", "sample_snap_policy"),
+					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp3", "snapshotpolicies.0.id", "15ad99b800000000"),
+					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp3", "snapshotpolicies.#", "4"),
+					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp3", "snapshotpolicies.0.name", "sample_snap_policy"),
 				),
 			},
 			//retrieving snapshot policy with empty snapshot policy id
@@ -60,30 +60,30 @@ func TestAccSnapshotPolicyDataSource(t *testing.T) {
 }
 
 var SnapshotPolicyDataSourceConfig1 = `
-data "powerflex_snapshotpolicy" "sp1" {						
+data "powerflex_snapshot_policy" "sp1" {						
 	id = "15ad99b900000001"
 }
 `
 
 var SnapshotPolicyDataSourceConfig2 = `
-data "powerflex_snapshotpolicy" "sp2" {						
+data "powerflex_snapshot_policy" "sp2" {						
 	name = "sample_snap_policy_1"
 }
 `
 
 var SnapshotPolicyDataSourceConfig3 = `
-data "powerflex_snapshotpolicy" "sp3" {						
+data "powerflex_snapshot_policy" "sp3" {						
 }
 `
 
 var SnapshotPolicyDataSourceConfig4 = `
-data "powerflex_snapshotpolicy" "sp4" {						
+data "powerflex_snapshot_policy" "sp4" {						
 	id = ""
 }
 `
 
 var SnapshotPolicyDataSourceConfig5 = `
-data "powerflex_snapshotpolicy" "sp5" {	
+data "powerflex_snapshot_policy" "sp5" {	
 	id = "15ad99b9000"					
 }
 `

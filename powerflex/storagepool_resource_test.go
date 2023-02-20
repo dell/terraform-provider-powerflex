@@ -13,6 +13,7 @@ func TestAccStoragepoolResource(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
+	resourceName := "powerflex_storage_pool.storagepool"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -20,23 +21,35 @@ func TestAccStoragepoolResource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + StoragePoolResourceCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "storage_pool"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "media_type", "HDD"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rmcache", "true"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rfcache", "true"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "name", "storage_pool"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "media_type", "HDD"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rmcache", "true"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rfcache", "true"),
 				),
+			},
+			// check that import is creating correct state
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			// Update Storagepool Test
 			{
 				Config: ProviderConfigForTesting + StoragePoolResourceUpdate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "storage_pool_new"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "media_type", "HDD"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rmcache", "true"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rfcache", "true"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "name", "storage_pool_new"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "media_type", "HDD"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rmcache", "true"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rfcache", "true"),
 				),
+			},
+			// check that import is creating correct state
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -52,22 +65,22 @@ func TestAccStoragepoolResourceUpdateRMCache(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + StoragePoolResourceCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "storage_pool"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "media_type", "HDD"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rmcache", "true"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rfcache", "true"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "name", "storage_pool"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "media_type", "HDD"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rmcache", "true"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rfcache", "true"),
 				),
 			},
 			// Update Storagepool Test
 			{
 				Config: ProviderConfigForTesting + StoragePoolResourceCreateRMCacheFalse,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "storage_pool"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "protection_domain_name", "domain1"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "media_type", "HDD"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rmcache", "false"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rfcache", "false"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "name", "storage_pool"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "protection_domain_name", "domain1"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "media_type", "HDD"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rmcache", "false"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rfcache", "false"),
 				),
 			},
 		},
@@ -114,11 +127,11 @@ func TestAccStoragepoolResourceVariousCases(t *testing.T) {
 		{
 			Config: ProviderConfigForTesting + StoragePoolResourceCreateRMCacheFalse,
 			Check: resource.ComposeAggregateTestCheckFunc(
-				resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "storage_pool"),
-				resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "protection_domain_name", "domain1"),
-				resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "media_type", "HDD"),
-				resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rmcache", "false"),
-				resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rfcache", "false"),
+				resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "name", "storage_pool"),
+				resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "protection_domain_name", "domain1"),
+				resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "media_type", "HDD"),
+				resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rmcache", "false"),
+				resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rfcache", "false"),
 			),
 		},
 	}
@@ -142,11 +155,11 @@ func TestAccStoragepoolResourceInvalidUpdateProtectionDomainID(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + StoragePoolResourceCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "storage_pool"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "media_type", "HDD"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rmcache", "true"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rfcache", "true"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "name", "storage_pool"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "media_type", "HDD"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rmcache", "true"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rfcache", "true"),
 				),
 			},
 			// Update Storagepool Test
@@ -168,43 +181,17 @@ func TestAccStoragepoolResourceInvalidUpdateName(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + StoragePoolResourceCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "storage_pool"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "media_type", "HDD"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rmcache", "true"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rfcache", "true"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "name", "storage_pool"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "protection_domain_id", "4eeb304600000000"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "media_type", "HDD"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rmcache", "true"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rfcache", "true"),
 				),
 			},
 			// Update Storagepool Test
 			{
 				Config:      ProviderConfigForTesting + CreateInvalidName,
 				ExpectError: regexp.MustCompile(`.*Error while updating name of Storagepool.*`),
-			},
-		},
-	})
-}
-func TestAccStoragepoolResourceInvalidUpdateMediaType(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Create Storagepool Test
-			{
-				Config: ProviderConfigForTesting + StoragePoolResourceCreate,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "name", "storage_pool"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "protection_domain_id", "4eeb304600000000"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "media_type", "HDD"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rmcache", "true"),
-					resource.TestCheckResourceAttr("powerflex_storagepool.storagepool", "use_rfcache", "true"),
-				),
-			},
-			// Update Storagepool Test
-			{
-				Config:      ProviderConfigForTesting + CreateInvalidMediaType,
-				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value Match.*`),
 			},
 		},
 	})
@@ -228,7 +215,7 @@ func TestAccStoragepoolResourceNegativeCases(t *testing.T) {
 }
 
 var StoragePoolResourceCreate = `
-resource "powerflex_storagepool" "storagepool" {
+resource "powerflex_storage_pool" "storagepool" {
 	name = "storage_pool"
 	protection_domain_id = "4eeb304600000000"
 	media_type = "HDD"
@@ -237,7 +224,7 @@ resource "powerflex_storagepool" "storagepool" {
 }
 `
 var StoragePoolResourceCreateRMCacheFalse = `
-resource "powerflex_storagepool" "storagepool" {
+resource "powerflex_storage_pool" "storagepool" {
 	name = "storage_pool"
 	protection_domain_name = "domain1"
 	media_type = "HDD"
@@ -246,7 +233,7 @@ resource "powerflex_storagepool" "storagepool" {
 }
 `
 var StoragePoolResourceUpdate = `
-resource "powerflex_storagepool" "storagepool" {
+resource "powerflex_storage_pool" "storagepool" {
 	name = "storage_pool_new"
 	protection_domain_id = "4eeb304600000000"
 	media_type = "HDD"
@@ -255,7 +242,7 @@ resource "powerflex_storagepool" "storagepool" {
   }
 `
 var CreateInvalidMediaType = `
-  resource "powerflex_storagepool" "storagepool" {
+  resource "powerflex_storage_pool" "storagepool" {
 	name = "storage_pool"
 	protection_domain_id = "4eeb304600000000"
 	media_type = "HSD"
@@ -264,7 +251,7 @@ var CreateInvalidMediaType = `
 }
 `
 var CreateInvalidProtectionDomainID = `
-resource "powerflex_storagepool" "storagepool" {
+resource "powerflex_storage_pool" "storagepool" {
 	name = "storage_pool"
 	protection_domain_id = "123"
 	media_type = "HDD"
@@ -273,7 +260,7 @@ resource "powerflex_storagepool" "storagepool" {
   }
 `
 var CreateInvalidName = `
-resource "powerflex_storagepool" "storagepool" {
+resource "powerflex_storage_pool" "storagepool" {
 	name = "Terraform_POWERFLEX_storage_pool_33"
 	protection_domain_id = "4eeb304600000000"
 	media_type = "HDD"
@@ -283,7 +270,7 @@ resource "powerflex_storagepool" "storagepool" {
 `
 
 var CreateExistingStoragePoolName = `
-resource "powerflex_storagepool" "storagepool1" {
+resource "powerflex_storage_pool" "storagepool1" {
 	name = "pool1"
 	protection_domain_id = "4eeb304600000000"
 	media_type = "HDD"

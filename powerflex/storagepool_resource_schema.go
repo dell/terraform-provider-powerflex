@@ -18,16 +18,18 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 		},
 		"protection_domain_id": schema.StringAttribute{
 			Description:         "ID of the Protection domain",
-			MarkdownDescription: "ID of the Protection domain",
+			MarkdownDescription: "ID of the Protection domain - Either of Protection Domain ID/Name is Required.",
 			Optional:            true,
+			Computed:            true,
 			Validators: []validator.String{
 				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_name")),
 			},
 		},
 		"protection_domain_name": schema.StringAttribute{
 			Description:         "Name of the Protection domain.",
-			MarkdownDescription: "Name of the Protection domain.",
+			MarkdownDescription: "Name of the Protection domain - Either of Protection Domain ID/Name is Required.",
 			Optional:            true,
+			Computed:            true,
 		},
 		"name": schema.StringAttribute{
 			Description:         "Name of the Storage pool",

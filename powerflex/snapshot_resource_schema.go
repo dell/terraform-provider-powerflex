@@ -4,7 +4,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
@@ -32,7 +34,7 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			Description:         "The volume id for which snapshot is created.",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "The volume id for which snapshot is created",
+			MarkdownDescription: "The volume id for which snapshot is created - Either of Volume ID/Name is Required.",
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("volume_name")),
@@ -42,7 +44,7 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			Description:         "The volume name for which snapshot is created.",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "The volume name for which snapshot is created",
+			MarkdownDescription: "The volume name for which snapshot is created - Either of Volume ID/Name is Required.",
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("volume_id")),
@@ -65,6 +67,9 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			Description:         "The ID of the snapshot.",
 			Computed:            true,
 			MarkdownDescription: "The ID of the snapshot.",
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.UseStateForUnknown(),
+			},
 		},
 		"size": schema.Int64Attribute{
 			Description:         "snapshot size",
@@ -80,7 +85,9 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			Validators: []validator.String{stringvalidator.OneOf(
 				"GB",
 				"TB",
-			)},
+			),
+				stringvalidator.AlsoRequires(path.MatchRoot("size")),
+			},
 			PlanModifiers: []planmodifier.String{
 				stringDefault("GB"),
 			},
@@ -95,6 +102,9 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			Optional:            true,
 			Computed:            true,
 			MarkdownDescription: "lock auto snapshot",
+			PlanModifiers: []planmodifier.Bool{
+				boolplanmodifier.UseStateForUnknown(),
+			},
 		},
 		"desired_retention": schema.Int64Attribute{
 			Description:         "desired retention of snapshot",
@@ -109,7 +119,9 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			Validators: []validator.String{stringvalidator.OneOf(
 				"hours",
 				"days",
-			)},
+			),
+				stringvalidator.AlsoRequires(path.MatchRoot("desired_retention")),
+			},
 			PlanModifiers: []planmodifier.String{
 				stringDefault("hours"),
 			},
