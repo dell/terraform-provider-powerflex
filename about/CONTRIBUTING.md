@@ -6,6 +6,13 @@ you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
     http://mozilla.org/MPL/2.0/
+
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 -->
 
 # How to contribute
@@ -36,15 +43,15 @@ You can contribute to this project in several ways. Here are some examples:
 
 ## Submitting issues
 
-All issues related to Terraform provider for Dell PowerFlex, regardless of the service/repository the issue belongs to (see table above), should be submitted [here](https://github.com/dell/terraform-provider-powerflex/issues). Issues will be triaged and labels will be used to indicate the type of issue. This section outlines the types of issues that can be submitted.  
+All issues related to Terraform provider for Dell PowerFlex, regardless of the service/repository the issue belongs to (see table above), should be submitted [here](https://github.com/dell/dell-terraform-providers/issues). Issues will be triaged and labels will be used to indicate the type of issue. This section outlines the types of issues that can be submitted.  
 
 ### Report bugs
 
 We aim to track and document everything related to Terraform provider for Dell PowerFlex via the Issues page. The code and documentation are released with no warranties or SLAs and are intended to be supported through a community driven process.
 
-Before submitting a new issue, make sure someone hasn't already reported the problem. Look through the [existing issues](https://github.com/dell/terraform-provider-powerflex/issues) for similar issues.
+Before submitting a new issue, make sure someone hasn't already reported the problem. Look through the [existing issues](https://github.com/dell/dell-terraform-providers/issues) for similar issues.
 
-Report a bug by submitting a [bug report](https://github.com/dell/terraform-provider-powerflex/issues/new?labels=type%2Fbug%2C+needs-triage&template=bug_report.md&title=%5BBUG%5D%3A). Make sure that you provide as much information as possible on how to reproduce the bug.
+Report a bug by submitting a [bug report](https://github.com/dell/dell-terraform-providers/issues/new?labels=type%2Fbug%2C+needs-triage&template=bug_report.md&title=%5BBUG%5D%3A). Make sure that you provide as much information as possible on how to reproduce the bug.
 
 When opening a Bug please include this information to help with debugging:
 
@@ -57,11 +64,11 @@ An Issue __must__ be created before submitting any pull request. Any pull reques
 
 ### Feature request
 
-If you have an idea of how to improve this project, submit a [feature request](https://github.com/dell/terraform-provider-powerflex/issues/new?labels=type%2Ffeature-request%2C+needs-triage&template=feature_request.md&title=%5BFEATURE%5D%3A).
+If you have an idea of how to improve this project, submit a [feature request](https://github.com/dell/dell-terraform-providers/issues/new?labels=type%2Ffeature-request%2C+needs-triage&template=feature_request.md&title=%5BFEATURE%5D%3A).
 
 ### Answering questions
 
-If you have a question and you can't find the answer in the documentation or issues, the next step is to submit a [question.](https://github.com/dell/terraform-provider-powerflex/issues/new?labels=type%2Fquestion&template=ask-a-question.md&title=%5BQUESTION%5D%3A)
+If you have a question and you can't find the answer in the documentation or issues, the next step is to submit a [question.](https://github.com/dell/dell-terraform-providers/issues/new?labels=type%2Fquestion&template=ask-a-question.md&title=%5BQUESTION%5D%3A)
 
 We'd love your help answering questions being asked by other Terraform provider for Dell PowerFlex users.
 
@@ -76,14 +83,14 @@ Triage helps ensure that issues resolve quickly by:
 
 If you don't have the knowledge or time to code, consider helping with _issue triage_. The Terraform provider for Dell PowerFlex community will thank you for saving them time by spending some of yours.
 
-Read more about the ways you can [Triage issues](https://github.com/dell/terraform-provider-powerflex/blob/main/ISSUE_TRIAGE.md).
+Read more about the ways you can [Triage issues](ISSUE_TRIAGE.md).
 
 ## Your first contribution
 
 Unsure where to begin contributing? Start by browsing issues labeled `beginner friendly` or `help wanted`.
 
-* [Beginner-friendly](https://github.com/dell/terraform-provider-powerflex/issues?q=is%3Aopen+is%3Aissue+label%3A%22beginner+friendly%22) issues are generally straightforward to complete.
-* [Help wanted](https://github.com/dell/terraform-provider-powerflex/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) issues are problems we would like the community to help us with regardless of complexity.
+* [Beginner-friendly](https://github.com/dell/dell-terraform-providers/issues?q=is%3Aopen+is%3Aissue+label%3A%22beginner+friendly%22) issues are generally straightforward to complete.
+* [Help wanted](https://github.com/dell/dell-terraform-providers/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) issues are problems we would like the community to help us with regardless of complexity.
 
 When you're ready to contribute, it's time to create a pull request.
 
@@ -140,7 +147,7 @@ Make sure that the title for your pull request uses the same format as the subje
 
 ### Quality gates for pull requests
 
-GitHub Actions are used to enforce quality gates when a pull request is created or when any commit is made to the pull request. These GitHub Actions enforce our minimum code quality requirement for any code that get checked into the repository. If any of the quality gates fail, it is expected that the contributor will look into the check log, understand the problem and resolve the issue. If help is needed, please feel free to reach out the maintainers of the project for [support](https://github.com/dell/terraform-provider-powerflex/blob/main/SUPPORT.md).
+GitHub Actions are used to enforce quality gates when a pull request is created or when any commit is made to the pull request. These GitHub Actions enforce our minimum code quality requirement for any code that get checked into the repository. If any of the quality gates fail, it is expected that the contributor will look into the check log, understand the problem and resolve the issue. If help is needed, please feel free to reach out the maintainers of the project for [support](SUPPORT.md).
 
 #### Code sanitization
 

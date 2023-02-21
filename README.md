@@ -1,4 +1,23 @@
+<!--
+Copyright (c) 2022 Dell Inc., or its subsidiaries. All Rights Reserved.
+
+Licensed under the Mozilla Public License Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://mozilla.org/MPL/2.0/
+
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
 # Terraform Provider for Dell Technologies PowerFlex
+
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](about/CODE_OF_CONDUCT.md)
+[![License](https://img.shields.io/badge/License-MPL_2.0-blue.svg)](LICENSE)
 
 The Terraform Provider for Dell Technologies (Dell) PowerFlex allows Data Center and IT administrators to use Hashicorp Terraform to automate and orchestrate the provisioning and management of Dell PowerFlex storage systems.
 
@@ -6,7 +25,7 @@ The Terraform Provider can be used to manage SDCs, volumes, snapshots, snapshot-
 
 ## Table of contents
 
-* [Support](https://github.com/dell/terraform-provider-powerflex/blob/main/about/SUPPORT.md)
+* [Support](about/SUPPORT.md)
 * [License](#license)
 * [Prerequisites](#prerequisites)
 * [List of DataSources in Terraform Provider for Dell PowerFlex](#list-of-datasources-in-terraform-provider-for-dell-powerflex)
@@ -14,7 +33,7 @@ The Terraform Provider can be used to manage SDCs, volumes, snapshots, snapshot-
 * [Releasing, Maintenance and Deprecation](#releasing-maintenance-and-deprecation)
 
 ## License
-The Terraform Provide for PowerFlex is released and licensed under the MPL-2.0 license. See [LICENSE](https://github.com/dell/terraform-provider-powerflex/blob/main/LICENSE) for the full terms.
+The Terraform Provide for PowerFlex is released and licensed under the MPL-2.0 license. See [LICENSE](LICENSE) for the full terms.
 
 ## Prerequisites
 
@@ -23,22 +42,22 @@ The Terraform Provide for PowerFlex is released and licensed under the MPL-2.0 l
 | v1.0.0 | 3.6 | ubuntu22.04 <br> rhel8.x <br> rhel7.x | 1.3.2 <br> 1.2.9 <br> | 1.19.x
 
 ## List of DataSources in Terraform Provider for Dell PowerFlex
-  * [SDC](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/data-sources/sdc.md)
-  * [Storage pool](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/data-sources/storagepool.md)
-  * [Volume](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/data-sources/volume.md)
-  * [SDS](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/data-sources/sds.md)
-  * [Protection Domain](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/data-sources/protection_domain.md)
-  * [Snapshot Policy](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/data-sources/protection_domain.md)
+  * [SDC](docs/data-sources/sdc.md)
+  * [Storage pool](docs/data-sources/storagepool.md)
+  * [Volume](docs/data-sources/volume.md)
+  * [SDS](docs/data-sources/sds.md)
+  * [Protection Domain](docs/data-sources/protection_domain.md)
+  * [Snapshot Policy](docs/data-sources/protection_domain.md)
 
 ## List of Resources in Terraform Provider for Dell PowerFlex
-  * [SDC](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/resources/sdc.md)
-  * [Storage pool](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/resources/storagepool.md)
-  * [Volume](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/resources/volume.md)
-  * [SDS](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/resources/sds.md)
-  * [Snapshot](https://github.com/dell/terraform-provider-powerflex/blob/main/docs/resources/snapshot.md)
+  * [SDC](docs/resources/sdc.md)
+  * [Storage pool](docs/resources/storagepool.md)
+  * [Volume](docs/resources/volume.md)
+  * [SDS](docs/resources/sds.md)
+  * [Snapshot](docs/resources/snapshot.md)
 
 ## Installation and execution of Terraform Provider for Dell PowerFlex
-The installation and execution steps of Terraform Provider for Dell PowerFlex can be found [here](https://github.com/dell/terraform-provider-powerflex/blob/main/about/INSTALLATION.md).
+The installation and execution steps of Terraform Provider for Dell PowerFlex can be found [here](about/INSTALLATION.md).
 
 ## Releasing, Maintenance and Deprecation
 
