@@ -36,7 +36,7 @@ You can contribute to this project in several ways. Here are some examples:
 
 ## Submitting issues
 
-All issues related to Terraform provider for Dell PowerFlex, regardless of the service/repository the issue belongs to (see table above), should be submitted [here](https://github.com/dell/terraform-provider-powerflex/issues). Issues will be triaged and labels will be used to indicate the type of issue. This section outlines the types of issues that can be submitted.  
+All issues related to Terraform provider for Dell PowerFlex, regardless of the service/repository the issue belongs to (see table above), should be submitted [here](../issues). Issues will be triaged and labels will be used to indicate the type of issue. This section outlines the types of issues that can be submitted.  
 
 ### Report bugs
 
