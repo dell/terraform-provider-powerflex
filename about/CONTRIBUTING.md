@@ -10,7 +10,7 @@ You may obtain a copy of the License at
 
 # How to contribute
 
-Become one of the contributors to this project! We thrive to build a welcoming and open community for anyone who wants to use the project or contribute to it. There are just a few small guidelines you need to follow. To help us create a safe and positive community experience for all, we require all participants to adhere to the [Code of Conduct](https://github.com/dell/terraform-provider-powerflex/blob/main/CODE_OF_CONDUCT.md).
+Become one of the contributors to this project! We thrive to build a welcoming and open community for anyone who wants to use the project or contribute to it. There are just a few small guidelines you need to follow. To help us create a safe and positive community experience for all, we require all participants to adhere to the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Table of contents
 
