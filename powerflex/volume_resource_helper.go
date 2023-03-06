@@ -85,11 +85,11 @@ func validateSdcSet(sl []SDCItem) []error {
 
 func (si *SDCItem) GetValue() (basetypes.ObjectValue, diag.Diagnostics) {
 	return types.ObjectValue(si.GetType(), map[string]attr.Value{
-		"sdc_id":           types.StringValue(si.SdcID.ValueString()),
-		"sdc_name":         types.StringValue(si.SdcName.ValueString()),
-		"access_mode":      types.StringValue(si.AccessMode.ValueString()),
-		"limit_iops":       types.Int64Value(si.LimitIops.ValueInt64()),
-		"limit_bw_in_mbps": types.Int64Value(si.LimitBwInMbps.ValueInt64()),
+		"sdc_id":           si.SdcID,
+		"sdc_name":         si.SdcName,
+		"access_mode":      si.AccessMode,
+		"limit_iops":       si.LimitIops,
+		"limit_bw_in_mbps": si.LimitBwInMbps,
 	})
 }
 

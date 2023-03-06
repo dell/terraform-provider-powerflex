@@ -2,6 +2,7 @@ package powerflex
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/dell/goscaleio"
@@ -9,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -137,6 +139,7 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 
 	for i, si := range sdcList {
 		if !si.SdcName.IsUnknown() {
+			tflog.Info(ctx, fmt.Sprintf("SDC name is provided: %s", si.SdcName.ValueString()))
 			foundsdc, errA := sr.FindSdc("Name", si.SdcName.ValueString())
 			if errA != nil {
 				resp.Diagnostics.AddError(
@@ -145,8 +148,10 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 				)
 				return
 			}
+			tflog.Info(ctx, fmt.Sprintf("SDC id found: %s", foundsdc.Sdc.ID))
 			sdcList[i].SdcID = types.StringValue(foundsdc.Sdc.ID)
 		} else if !si.SdcID.IsUnknown() {
+			tflog.Info(ctx, fmt.Sprintf("SDC id is provided: %s", si.SdcID.ValueString()))
 			foundsdc, errA := sr.FindSdc("ID", si.SdcID.ValueString())
 			if errA != nil {
 				resp.Diagnostics.AddError(
@@ -155,7 +160,10 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 				)
 				return
 			}
+			tflog.Info(ctx, fmt.Sprintf("SDC name found: %s", foundsdc.Sdc.Name))
 			sdcList[i].SdcName = types.StringValue(foundsdc.Sdc.Name)
+		} else {
+			tflog.Trace(ctx, "Both SDC name and id are unknown")
 		}
 
 		if !si.LimitIops.IsUnknown() && si.LimitIops.ValueInt64() <= 10 && si.LimitIops.ValueInt64() > 0 {
