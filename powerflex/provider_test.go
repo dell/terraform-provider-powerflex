@@ -24,7 +24,7 @@ type sdsDataPoints struct {
 	SdsIp9   string
 	SdsIp10  string
 	SdsIp11  string
-	SdcIp    string
+	SdcIP    string
 	volName  string
 	volName2 string
 	volName3 string
@@ -49,7 +49,7 @@ func init() {
 	SdsResourceTestData.SdsIp9 = os.Getenv("POWERFLEX_SDS_IP_9")
 	SdsResourceTestData.SdsIp10 = os.Getenv("POWERFLEX_SDS_IP_10")
 	SdsResourceTestData.SdsIp11 = os.Getenv("POWERFLEX_SDS_IP_11")
-	SdsResourceTestData.SdcIp = os.Getenv("POWERFLEX_SDC_IP")
+	SdsResourceTestData.SdcIP = os.Getenv("POWERFLEX_SDC_IP")
 	SdsResourceTestData.volName = os.Getenv("POWERFLEX_VOLUME_NAME")
 	SdsResourceTestData.volName2 = os.Getenv("POWERFLEX_VOLUME_NAME_2")
 	SdsResourceTestData.volName3 = os.Getenv("POWERFLEX_VOLUME_NAME_3")

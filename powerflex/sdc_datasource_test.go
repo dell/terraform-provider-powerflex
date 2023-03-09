@@ -24,7 +24,7 @@ func init() {
 	sdcTestData.noOflinks = "4"
 	sdcTestData.name = ""
 	sdcTestData.sdcguid = "0877AE5E-BDBF-4E87-A002-218D9F883896"
-	sdcTestData.sdcip = SdsResourceTestData.SdcIp
+	sdcTestData.sdcip = SdsResourceTestData.SdcIP
 	sdcTestData.systemid = "0e7a082862fedf0f"
 }
 
