@@ -13,19 +13,19 @@ import (
 var ProviderConfigForTesting = ``
 
 type sdsDataPoints struct {
-	SdsIp1  string
-	SdsIp2  string
-	SdsIp3  string
-	SdsIp4  string
-	SdsIp5  string
-	SdsIp6  string
-	SdsIp7  string
-	SdsIp8  string
-	SdsIp9  string
-	SdsIp10 string
-	SdsIp11 string
-	SdcIp string
-	volName string
+	SdsIp1   string
+	SdsIp2   string
+	SdsIp3   string
+	SdsIp4   string
+	SdsIp5   string
+	SdsIp6   string
+	SdsIp7   string
+	SdsIp8   string
+	SdsIp9   string
+	SdsIp10  string
+	SdsIp11  string
+	SdcIp    string
+	volName  string
 	volName2 string
 	volName3 string
 }
@@ -53,7 +53,6 @@ func init() {
 	SdsResourceTestData.volName = os.Getenv("POWERFLEX_VOLUME_NAME")
 	SdsResourceTestData.volName2 = os.Getenv("POWERFLEX_VOLUME_NAME_2")
 	SdsResourceTestData.volName3 = os.Getenv("POWERFLEX_VOLUME_NAME_3")
-	
 
 	ProviderConfigForTesting = fmt.Sprintf(`
 		provider "powerflex" {

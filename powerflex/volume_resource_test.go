@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-
 func TestAccVolumeResource(t *testing.T) {
 	var modifyPlanProtectionDomainNegTest = `
 	resource "powerflex_volume" "avengers-volume-protection-domain-name"{
@@ -17,7 +16,7 @@ func TestAccVolumeResource(t *testing.T) {
 		storage_pool_id = "pool1"
 		size = 8
 	}`
-	
+
 	var modifyPlanProtectionDomainIDNegTest = `
 	resource "powerflex_volume" "avengers-volume-protection-domain-id"{
 		name = "avengers-volume-protection-domain-id"
@@ -25,7 +24,7 @@ func TestAccVolumeResource(t *testing.T) {
 		storage_pool_id = "pool1"
 		size = 8
 	}`
-	
+
 	var modifyPlanStoragePoolNameNegTest = `
 	resource "powerflex_volume" "avengers-volume-storage-pool-name"{
 		name = "avengers-volume-storage-pool-name"
@@ -33,7 +32,7 @@ func TestAccVolumeResource(t *testing.T) {
 		storage_pool_name = "invalid-pool-name"
 		size = 8
 	}`
-	
+
 	var modifyPlanStoragePoolIDNegTest = `
 	resource "powerflex_volume" "avengers-volume-storage-pool-id"{
 		name = "avengers-volume-storage-pool-id"
@@ -41,7 +40,7 @@ func TestAccVolumeResource(t *testing.T) {
 		storage_pool_id = "invalid-pool-id"
 		size = 8
 	}`
-	
+
 	var modifyPlanSdcNameNegTest = `
 	resource "powerflex_volume" "avengers-volume-sdc-map-name"{
 		name = "avengers-volume-sdc-map-name"
@@ -54,7 +53,7 @@ func TestAccVolumeResource(t *testing.T) {
 		  }
 		]
 	}`
-	
+
 	var modifyPlanSdcIDNegTest = `
 	resource "powerflex_volume" "avengers-volume-sdc-map-id"{
 		name = "avengers-volume-sdc-map-id"
@@ -67,7 +66,7 @@ func TestAccVolumeResource(t *testing.T) {
 		  }
 		]
 	}`
-	
+
 	var modifyPlanVolumeInvalidMapLimit = `
 	resource "powerflex_volume" "avengers-volume-create"{
 		name = "avengers-volume-create-lm"
@@ -88,7 +87,7 @@ func TestAccVolumeResource(t *testing.T) {
 		]
 	  }
 	`
-	
+
 	var createVolumeWithInvalidCompressionMethodNegTest = `
 	resource "powerflex_volume" "avengers-volume---create"{
 		name = "avengers-volume---create0101010101010100101010101010101010101"
@@ -99,7 +98,7 @@ func TestAccVolumeResource(t *testing.T) {
 		volume_type = "ThickProvisioned"
 	  }
 	`
-	
+
 	var createVolumeWithSdcConfigNegTest = `
 	resource "powerflex_volume" "avengers-volume----create"{
 		name = "avengers-volume----create"
@@ -119,7 +118,7 @@ func TestAccVolumeResource(t *testing.T) {
 		]
 	  }
 	`
-	
+
 	var createVolumePosTest = `
 	resource "powerflex_volume" "avengers-volume-create"{
 		name = "avengers-volume-create"
@@ -139,7 +138,7 @@ func TestAccVolumeResource(t *testing.T) {
 		]
 	  }
 	`
-	
+
 	var updateVolumePosTest = `
 	resource "powerflex_volume" "avengers-volume-create"{
 		name = "avengers-volume-create"
@@ -171,7 +170,7 @@ func TestAccVolumeResource(t *testing.T) {
 		]
 	  }
 	`
-	
+
 	var updateVolumeUnmapPosTest = `
 	resource "powerflex_volume" "avengers-volume-create"{
 		name = "avengers-volume-create"
@@ -198,7 +197,7 @@ func TestAccVolumeResource(t *testing.T) {
 		]
 	  }
 	`
-	
+
 	var createVolumePos01Test = `
 	resource "powerflex_volume" "avengers-volume-create-01"{
 		name = "avengers-volume-create-01"
@@ -210,7 +209,7 @@ func TestAccVolumeResource(t *testing.T) {
 		access_mode = "ReadWrite"
 	}
 	`
-	
+
 	var updateVolumeRenameNegTest = `
 	resource "powerflex_volume" "avengers-volume-create-01"{
 		name = "avengers-volume-create-101010101010101010101"
@@ -222,7 +221,7 @@ func TestAccVolumeResource(t *testing.T) {
 		access_mode = "ReadWrite"
 	}
 	`
-	
+
 	var updateVolumeSizeNegTest = `
 	resource "powerflex_volume" "avengers-volume-create-01"{
 		name = "avengers-volume-create-01"
@@ -235,7 +234,7 @@ func TestAccVolumeResource(t *testing.T) {
 		access_mode = "ReadWrite"
 	}
 	`
-	
+
 	var createVolumeCompressionMethodNegTest = `
 	resource "powerflex_volume" "avengers-volume-create-compression"{
 		name = "volume-create-compression"
@@ -245,7 +244,7 @@ func TestAccVolumeResource(t *testing.T) {
 		compression_method = "None"
 	}
 	`
-	
+
 	var createVolumeTypePosTest = `
 	resource "powerflex_volume" "avengers-volume-create-volume-type"{
 		name = "volume-create-volume-type"
@@ -255,7 +254,7 @@ func TestAccVolumeResource(t *testing.T) {
 		volume_type = "ThinProvisioned"
 	}
 	`
-	
+
 	var updateVolumeTypeNegTest = `
 	resource "powerflex_volume" "avengers-volume-create-volume-type"{
 		name = "volume-create-volume-type"
@@ -264,7 +263,7 @@ func TestAccVolumeResource(t *testing.T) {
 		size = 16
 		volume_type = "ThickProvisioned"
 	}
-	`	
+	`
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

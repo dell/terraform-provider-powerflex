@@ -90,7 +90,7 @@ func TestSdcDataSourceByName(t *testing.T) {
 				Config: ProviderConfigForTesting + TestSdcDataSourceByNameBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify number of sdc returned
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "name",  SdsResourceTestData.volName),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "name", SdsResourceTestData.volName),
 				),
 			},
 		},

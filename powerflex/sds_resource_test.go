@@ -752,7 +752,7 @@ func TestSDSResourceModifyRole(t *testing.T) {
 			]
 		}
 		`
-		var modifyRolefromsdsOnlytoall = `
+	var modifyRolefromsdsOnlytoall = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
 			protection_domain_id = "4eeb304600000000"
@@ -767,7 +767,7 @@ func TestSDSResourceModifyRole(t *testing.T) {
 			  }
 			]
 		}
-		`				
+		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -856,7 +856,7 @@ func TestSDSResourceModifyRoleAddIP(t *testing.T) {
 			  },
 			]
 		}	
-		`	
+		`
 	var modifyRolefromalltosdsOnlySingleIP = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
@@ -900,7 +900,7 @@ func TestSDSResourceModifyRoleAddIP(t *testing.T) {
 			  }
 			]
 		}
-		`		
+		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -963,7 +963,7 @@ func TestSDSResourceAddIP(t *testing.T) {
 			}
 			]
 		}
-		`		
+		`
 	var addNonexistingSDSIP = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
@@ -1059,7 +1059,7 @@ func TestSDSResourceAddIP(t *testing.T) {
 			  }
 			]
 		}
-		`	
+		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -1192,7 +1192,7 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 			  },
 			]
 		}
-		`						
+		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -1334,7 +1334,7 @@ func TestSDSResourceModifyInvalid(t *testing.T) {
 			drl_mode = "NonVolatile"
 			protection_domain_id = "4eeb304600000000"
 		}
-		`					
+		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -1434,7 +1434,7 @@ func TestSDSResourceRename(t *testing.T) {
 			  }
 			]
 		}
-		`		
+		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -1471,18 +1471,6 @@ func TestSDSResourceRename(t *testing.T) {
 		},
 	})
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 var addSDSInvalidRole = `
 resource "powerflex_sds" "sds" {
@@ -1523,7 +1511,6 @@ resource "powerflex_sds" "sds" {
     ]
 }
 `
-
 
 var invalidRMCacheFloatSize = `
 resource "powerflex_sds" "sds" {

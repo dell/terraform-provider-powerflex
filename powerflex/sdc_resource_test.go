@@ -92,13 +92,13 @@ func TestSdcResourceCreateUpdate(t *testing.T) {
 	var TestSdcResourceCreateUpdateBlockS1 = `
 	resource "powerflex_sdc" "sdc" {
 		id = "c423b09900000004"
-		name = "` + SdsResourceTestData.volName3 +`"
+		name = "` + SdsResourceTestData.volName3 + `"
 	  }
 	  `
 	var TestSdcResourceCreateUpdateBlockS2 = `
 	resource "powerflex_sdc" "sdc" {
 		id = "c423b09900000004"
-		name = "` + SdsResourceTestData.volName2 +`"
+		name = "` + SdsResourceTestData.volName2 + `"
 	  }
 	  `
 	os.Setenv("TF_ACC", "1")
@@ -150,6 +150,4 @@ var (
 		name = "powerflex_sdc26"
 	  }
 	  `
-
-
 )
