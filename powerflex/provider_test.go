@@ -12,12 +12,47 @@ import (
 
 var ProviderConfigForTesting = ``
 
+type sdsDataPoints struct {
+	SdsIP1   string
+	SdsIP2   string
+	SdsIP3   string
+	SdsIP4   string
+	SdsIP5   string
+	SdsIP6   string
+	SdsIP7   string
+	SdsIP8   string
+	SdsIP9   string
+	SdsIP10  string
+	SdsIP11  string
+	SdcIP    string
+	volName  string
+	volName2 string
+	volName3 string
+}
+
+var SdsResourceTestData sdsDataPoints
+
 func init() {
 	godotenv.Load("POWERFLEX_TERRAFORM_TEST.env")
 
 	username := os.Getenv("POWERFLEX_USERNAME")
 	password := os.Getenv("POWERFLEX_PASSWORD")
 	endpoint := os.Getenv("POWERFLEX_ENDPOINT")
+	SdsResourceTestData.SdsIP1 = os.Getenv("POWERFLEX_SDS_IP_1")
+	SdsResourceTestData.SdsIP2 = os.Getenv("POWERFLEX_SDS_IP_2")
+	SdsResourceTestData.SdsIP3 = os.Getenv("POWERFLEX_SDS_IP_3")
+	SdsResourceTestData.SdsIP4 = os.Getenv("POWERFLEX_SDS_IP_4")
+	SdsResourceTestData.SdsIP5 = os.Getenv("POWERFLEX_SDS_IP_5")
+	SdsResourceTestData.SdsIP6 = os.Getenv("POWERFLEX_SDS_IP_6")
+	SdsResourceTestData.SdsIP7 = os.Getenv("POWERFLEX_SDS_IP_7")
+	SdsResourceTestData.SdsIP8 = os.Getenv("POWERFLEX_SDS_IP_8")
+	SdsResourceTestData.SdsIP9 = os.Getenv("POWERFLEX_SDS_IP_9")
+	SdsResourceTestData.SdsIP10 = os.Getenv("POWERFLEX_SDS_IP_10")
+	SdsResourceTestData.SdsIP11 = os.Getenv("POWERFLEX_SDS_IP_11")
+	SdsResourceTestData.SdcIP = os.Getenv("POWERFLEX_SDC_IP")
+	SdsResourceTestData.volName = os.Getenv("POWERFLEX_VOLUME_NAME")
+	SdsResourceTestData.volName2 = os.Getenv("POWERFLEX_VOLUME_NAME_2")
+	SdsResourceTestData.volName3 = os.Getenv("POWERFLEX_VOLUME_NAME_3")
 
 	ProviderConfigForTesting = fmt.Sprintf(`
 		provider "powerflex" {
