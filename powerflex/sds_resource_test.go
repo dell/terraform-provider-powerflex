@@ -2,13 +2,75 @@ package powerflex
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"regexp"
 	"testing"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccSDSResource(t *testing.T) {
+	var createSDSTest = `
+	resource "powerflex_sds" "sds" {
+		name = "Tf_SDS_01"
+		ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			},
+			{
+				ip = "10.10.10.1"
+				role = "sdcOnly"
+			}
+		]
+		performance_profile = "Compact"
+		rmcache_enabled = true
+		rmcache_size_in_mb = 156
+		rfcache_enabled = true
+		drl_mode = "NonVolatile"
+		protection_domain_id = "4eeb304600000000"
+	}
+	`
+	var updateSDSTest = `
+	resource "powerflex_sds" "sds" {
+		name = "Tf_SDS_02"
+		ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "sdsOnly"
+			},
+			{
+				ip = "10.10.10.2"
+				role = "sdcOnly"
+			}
+		]
+		drl_mode = "Volatile"
+		performance_profile = "HighPerformance"
+		rmcache_size_in_mb = 256
+		rmcache_enabled = true
+		rfcache_enabled = false
+		protection_domain_id = "4eeb304600000000"
+	}
+	`
+
+	var updateSDSTest2 = `
+	resource "powerflex_sds" "sds" {
+		name = "Tf_SDS_02"
+		ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "sdsOnly"
+			},
+			{
+				ip = "10.10.10.2"
+				role = "sdcOnly"
+			}
+		]
+		performance_profile = "Compact"
+		rmcache_enabled = false
+		rfcache_enabled = true
+		protection_domain_id = "4eeb304600000000"
+	}
+	`
+
 	resourceName := "powerflex_sds.sds"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -25,7 +87,7 @@ func TestAccSDSResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "rfcache_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "performance_profile", "Compact"),
 					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
-						"ip":   "10.10.10.6",
+						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
@@ -56,7 +118,7 @@ func TestAccSDSResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "rfcache_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "performance_profile", "HighPerformance"),
 					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
-						"ip":   "10.10.10.6",
+						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "sdsOnly",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
@@ -103,7 +165,7 @@ func TestAccSDSResourceDuplicateIP(t *testing.T) {
 			name = "Tf_SDS_01"
 			ip_list = [
 				{
-					ip = "10.10.10.6"
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
 					role = "sdsOnly"
 				},
 				{
@@ -127,7 +189,7 @@ func TestAccSDSResourceDuplicateIP(t *testing.T) {
 			name = "Tf_SDS_01"
 			ip_list = [
 				{
-					ip = "10.10.10.6"
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
 					role = "sdsOnly"
 				},
 				{
@@ -173,7 +235,7 @@ func TestAccSDSResourceRmCache(t *testing.T) {
 			name = "Tf_SDS_01"
 			ip_list = [
 				{
-					ip = "10.10.10.6"
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
 					role = "all"
 				}
 			]
@@ -289,7 +351,7 @@ func TestAccSDSResourceCreateWithBadPerformanceProfile(t *testing.T) {
 			protection_domain_id = "4eeb304600000000"
 			ip_list = [
 				{
-					ip = "10.10.10.6"
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
 					role = "all"
 				}
 			]
@@ -314,7 +376,7 @@ func TestAccSDSResourceCreateWithoutPD(t *testing.T) {
 			name = "Sds123"
 			ip_list = [
 				{
-					ip = "10.10.10.6"
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
 					role = "all"
 				},
 				{
@@ -342,7 +404,7 @@ func TestAccSDSResourceCreateWithoutName(t *testing.T) {
 			protection_domain_id = "4eeb304600000000"
 			ip_list = [
 				{
-					ip = "10.10.10.6"
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
 					role = "all"
 				},
 				{
@@ -365,6 +427,130 @@ func TestAccSDSResourceCreateWithoutName(t *testing.T) {
 }
 
 func TestSDSResourceCreateNegative(t *testing.T) {
+	var createWOName = `
+		resource "powerflex_sds" "sds" {
+			ip_list = [
+				{
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
+					role = "all"
+				}
+			]
+			protection_domain_id = "4eeb304600000000"
+		}
+		`
+	var createEmptyName = `
+		resource "powerflex_sds" "sds" {
+			name = ""
+			ip_list = [
+				{
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
+					role = "all"
+				}
+			]
+			protection_domain_id = "4eeb304600000000"
+		}
+		`
+	var createInvalidCharName = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS 1"
+			ip_list = [
+				{
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
+					role = "all"
+				}
+			]
+			protection_domain_id = "4eeb304600000000"
+		}
+		`
+	var createInvalidCharName1 = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS_more_than_31_chars!!"
+			ip_list = [
+				{
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
+					role = "all"
+				}
+			]
+			protection_domain_id = "4eeb304600000000"
+		}
+		`
+	var createWOPD = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			ip_list = [
+				{
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
+					role = "all"
+				}
+			]
+		}
+		`
+	var createInvalidPD = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			ip_list = [
+				{
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
+					role = "all"
+				}
+			]
+			protection_domain_id = "4eeb304600000011"
+		}
+		`
+	var createPDNameID = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			ip_list = [
+				{
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
+					role = "all"
+				}
+			]
+			protection_domain_id = "4eeb304600000000"
+			protection_domain_name = "domain1"
+		}
+		`
+	var createWOIP = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+		}
+		`
+	var createWOIPRole = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+			}
+			]
+		}
+		`
+	var createWithSDSOnlyRole = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "sdsOnly"
+			}
+			]
+		}
+		`
+	var createWithSDCOnlyRole = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "sdcOnly"
+			}
+			]
+		}
+		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -417,6 +603,18 @@ func TestSDSResourceCreateNegative(t *testing.T) {
 }
 
 func TestSDSResourceCreateSpecialChar(t *testing.T) {
+	var createSDSSpecialChar = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS_!@#$%^&*"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			}
+			]
+		}
+		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -432,6 +630,18 @@ func TestSDSResourceCreateSpecialChar(t *testing.T) {
 }
 
 func TestSDSResourceCreateMandatoryParams(t *testing.T) {
+	var createSDSMandatoryParams = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			}
+			]
+		}
+		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -441,7 +651,7 @@ func TestSDSResourceCreateMandatoryParams(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.6",
+						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
 					}),
 				),
@@ -452,7 +662,7 @@ func TestSDSResourceCreateMandatoryParams(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.6",
+						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
 					}),
 				),
@@ -462,6 +672,102 @@ func TestSDSResourceCreateMandatoryParams(t *testing.T) {
 }
 
 func TestSDSResourceModifyRole(t *testing.T) {
+	var addSDSIP = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			},
+			{
+				ip = "` + SdsResourceTestData.SdsIP1 + `"
+				role = "sdcOnly"
+			}
+			]
+		}
+		`
+	var modifyRolefromsdcOnlytoall = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			  {
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			  },
+			  {
+				ip = "` + SdsResourceTestData.SdsIP1 + `"
+				role = "all"
+			  }
+			]
+		}
+		`
+	var modifyRolefromsdcOnlytosdsOnly = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			  {
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			  },
+			  {
+				ip = "` + SdsResourceTestData.SdsIP1 + `"
+				role = "sdsOnly"
+			  }
+			]
+		}
+		`
+	var modifyRolefromalltosdsOnly = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			  {
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "sdsOnly"
+			  },
+			  {
+				ip = "` + SdsResourceTestData.SdsIP1 + `"
+				role = "sdcOnly"
+			  }
+			]
+		}
+		`
+	var modifyRolefromsdsOnlytosdcOnly = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "sdcOnly"
+			},
+			{
+				ip = "` + SdsResourceTestData.SdsIP1 + `"
+				role = "sdcOnly"
+			}
+			]
+		}
+		`
+	var modifyRolefromsdsOnlytoall = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			  {
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			  },
+			  {
+				ip = "` + SdsResourceTestData.SdsIP1 + `"
+				role = "sdcOnly"
+			  }
+			]
+		}
+		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -471,11 +777,11 @@ func TestSDSResourceModifyRole(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.6",
+						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.5",
+						"ip":   SdsResourceTestData.SdsIP1,
 						"role": "sdcOnly",
 					}),
 				),
@@ -494,11 +800,11 @@ func TestSDSResourceModifyRole(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.6",
+						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "sdsOnly",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.5",
+						"ip":   SdsResourceTestData.SdsIP1,
 						"role": "sdcOnly",
 					}),
 				),
@@ -513,11 +819,11 @@ func TestSDSResourceModifyRole(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.6",
+						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.5",
+						"ip":   SdsResourceTestData.SdsIP1,
 						"role": "sdcOnly",
 					}),
 				),
@@ -527,6 +833,74 @@ func TestSDSResourceModifyRole(t *testing.T) {
 }
 
 func TestSDSResourceModifyRoleAddIP(t *testing.T) {
+	var addSDSSingleIP = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			},
+			]
+		}	
+		`
+	var modifyRolefromalltosdcOnlySingleIP = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			  {
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "sdcOnly"
+			  },
+			]
+		}	
+		`
+	var modifyRolefromalltosdsOnlySingleIP = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			  {
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "sdsOnly"
+			  },
+			]
+		}
+		`
+	var addSDSIPWithRoleAll = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			  {
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			  },
+			  {
+				ip = "` + SdsResourceTestData.SdsIP10 + `"
+				role = "all"
+			  }
+			]
+		}
+		`
+	var addSDSIPWithRolesdsOnly = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			  {
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			  },
+			  {
+				ip = "` + SdsResourceTestData.SdsIP10 + `"
+				role = "sdsOnly"
+			  }
+			]
+		}
+		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -536,7 +910,7 @@ func TestSDSResourceModifyRoleAddIP(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.6",
+						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
 					}),
 				),
@@ -562,6 +936,130 @@ func TestSDSResourceModifyRoleAddIP(t *testing.T) {
 }
 
 func TestSDSResourceAddIP(t *testing.T) {
+	var createSDSMandatoryParams = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			}
+			]
+		}
+		`
+	var addSDSIP = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			},
+			{
+				ip = "` + SdsResourceTestData.SdsIP1 + `"
+				role = "sdcOnly"
+			}
+			]
+		}
+		`
+	var addNonexistingSDSIP = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			  {
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
+					role = "all"
+			  },
+			  {
+					ip = "` + SdsResourceTestData.SdsIP1 + `"
+					role = "sdcOnly"
+			  },
+			  {
+					ip = "` + SdsResourceTestData.SdsIP3 + `"
+					role = "sdcOnly"
+			  },
+			  {
+				ip = "` + SdsResourceTestData.SdsIP4 + `"
+				role = "sdcOnly"
+			  }
+			]
+		}
+		`
+	var addMoreThan8IP = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			  {
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
+					role = "all"
+			  },
+			  {
+					ip = "` + SdsResourceTestData.SdsIP1 + `"
+					role = "sdcOnly"
+			  },
+			  {
+					ip = "` + SdsResourceTestData.SdsIP3 + `"
+					role = "sdcOnly"
+			  },
+			  {
+					ip = "` + SdsResourceTestData.SdsIP4 + `"
+					role = "sdcOnly"
+			  },
+			  {
+					ip = "` + SdsResourceTestData.SdsIP5 + `"
+					role = "sdcOnly"
+			  },
+			  {
+					ip = "` + SdsResourceTestData.SdsIP6 + `"
+					role = "sdcOnly"
+			  },
+			  {
+					ip = "` + SdsResourceTestData.SdsIP7 + `"
+					role = "sdcOnly"
+			  },
+			  {
+					ip = "` + SdsResourceTestData.SdsIP8 + `"
+					role = "sdcOnly"
+			  },
+			  {
+					ip = "` + SdsResourceTestData.SdsIP9 + `"
+					role = "sdcOnly"
+			  }
+			]
+		}
+		`
+	var addOccupiedSDSIP = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			  {
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
+					role = "all"
+			  },
+			  {
+					ip = "` + SdsResourceTestData.SdsIP1 + `"
+					role = "sdcOnly"
+			  },
+			  {
+					ip = "` + SdsResourceTestData.SdsIP3 + `"
+					role = "sdcOnly"
+			  },
+			  {
+				ip = "` + SdsResourceTestData.SdsIP4 + `"
+				role = "sdcOnly"
+			  },
+			  {
+				ip = "` + SdsResourceTestData.SdsIP11 + `"
+				role = "sdcOnly"
+			  }
+			]
+		}
+		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -571,7 +1069,7 @@ func TestSDSResourceAddIP(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.6",
+						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
 					}),
 				),
@@ -582,11 +1080,11 @@ func TestSDSResourceAddIP(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "2"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.6",
+						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.5",
+						"ip":   SdsResourceTestData.SdsIP1,
 						"role": "sdcOnly",
 					}),
 				),
@@ -605,11 +1103,11 @@ func TestSDSResourceAddIP(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "4"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.7",
+						"ip":   SdsResourceTestData.SdsIP3,
 						"role": "sdcOnly",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.8",
+						"ip":   SdsResourceTestData.SdsIP4,
 						"role": "sdcOnly",
 					}),
 				),
@@ -627,6 +1125,74 @@ func TestSDSResourceAddIP(t *testing.T) {
 }
 
 func TestSDSResourceRemoveIP(t *testing.T) {
+	var addSDSIP = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			},
+			{
+				ip = "` + SdsResourceTestData.SdsIP1 + `"
+				role = "sdcOnly"
+			}
+			]
+		}
+		`
+	var modifyRolefromalltosdsOnly = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "sdsOnly"
+			},
+			{
+				ip = "` + SdsResourceTestData.SdsIP1 + `"
+				role = "sdcOnly"
+			}
+			]
+		}
+		`
+	var removesdcOnlyIP = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			  {
+				ip = "` + SdsResourceTestData.SdsIP1 + `"
+				role = "sdcOnly"
+			  },
+			]
+		}
+		`
+	var removesdsOnlyIP = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			  {
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "sdsOnly"
+			  },
+			]
+		}
+		`
+	var removesdcOnlyIP1 = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			  {
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			  },
+			]
+		}
+		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -636,11 +1202,11 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.6",
+						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "sdsOnly",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.5",
+						"ip":   SdsResourceTestData.SdsIP1,
 						"role": "sdcOnly",
 					}),
 				),
@@ -659,11 +1225,11 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.6",
+						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.5",
+						"ip":   SdsResourceTestData.SdsIP1,
 						"role": "sdcOnly",
 					}),
 				),
@@ -675,7 +1241,7 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.6",
+						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
 					}),
 				),
@@ -685,6 +1251,90 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 }
 
 func TestSDSResourceModifyInvalid(t *testing.T) {
+	var createSDSTest = `
+	resource "powerflex_sds" "sds" {
+		name = "Tf_SDS_01"
+		ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			},
+			{
+				ip = "10.10.10.1"
+				role = "sdcOnly"
+			}			
+		]
+		performance_profile = "Compact"
+		rmcache_enabled = true
+		rmcache_size_in_mb = 156
+		rfcache_enabled = true
+		drl_mode = "NonVolatile"
+		protection_domain_id = "4eeb304600000000"
+	}
+	`
+	var rmcacheDisabled = `
+		resource "powerflex_sds" "sds" {
+			name = "Tf_SDS_01"
+			ip_list = [
+				{
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
+					role = "all"
+				},
+				{
+					ip = "10.10.10.1"
+					role = "sdcOnly"
+				}
+			]
+			performance_profile = "Compact"
+			rmcache_enabled = false
+			rmcache_size_in_mb = 128
+			rfcache_enabled = true
+			drl_mode = "NonVolatile"
+			protection_domain_id = "4eeb304600000000"
+		}
+		`
+	var invalidRMCacheMaxSize = `
+		resource "powerflex_sds" "sds" {
+			name = "Tf_SDS_01"
+			ip_list = [
+				{
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
+					role = "all"
+				},
+				{
+					ip = "10.10.10.1"
+					role = "sdcOnly"
+				}
+			]
+			performance_profile = "Compact"
+			rmcache_enabled = true
+			rmcache_size_in_mb = 3912
+			rfcache_enabled = true
+			drl_mode = "NonVolatile"
+			protection_domain_id = "4eeb304600000000"
+		}
+		`
+	var invalidRMCacheMinSize = `
+		resource "powerflex_sds" "sds" {
+			name = "Tf_SDS_01"
+			ip_list = [
+				{
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
+					role = "all"
+				},
+				{
+					ip = "10.10.10.1"
+					role = "sdcOnly"
+				}
+			]
+			performance_profile = "Compact"
+			rmcache_enabled = true
+			rmcache_size_in_mb = 127
+			rfcache_enabled = true
+			drl_mode = "NonVolatile"
+			protection_domain_id = "4eeb304600000000"
+		}
+		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -699,7 +1349,7 @@ func TestSDSResourceModifyInvalid(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "rfcache_enabled", "true"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "performance_profile", "Compact"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.6",
+						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
@@ -737,6 +1387,54 @@ func TestSDSResourceModifyInvalid(t *testing.T) {
 }
 
 func TestSDSResourceRename(t *testing.T) {
+	var createSDSMandatoryParams = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			}
+			]
+		}
+		`
+	var renameSDSExistingName = `
+		resource "powerflex_sds" "sds" {
+			name = "node1"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			  {
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			  }
+			]
+		}
+		`
+	var renameSDSInvalidName = `
+		resource "powerflex_sds" "sds" {
+			name = "node 1"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			  {
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			  }
+			]
+		}
+		`
+	var renameSDS = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS_renamed"
+			protection_domain_id = "4eeb304600000000"
+			ip_list = [
+			  {
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			  }
+			]
+		}
+		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -746,7 +1444,7 @@ func TestSDSResourceRename(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.6",
+						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
 					}),
 				),
@@ -765,7 +1463,7 @@ func TestSDSResourceRename(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS_renamed"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "4eeb304600000000"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.6",
+						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
 					}),
 				),
@@ -774,405 +1472,21 @@ func TestSDSResourceRename(t *testing.T) {
 	})
 }
 
-var createWOName = `
-resource "powerflex_sds" "sds" {
-	ip_list = [
-		{
-			ip = "10.10.10.6"
-			role = "all"
-		}
-	]
-	protection_domain_id = "4eeb304600000000"
-}
-`
-var createEmptyName = `
-resource "powerflex_sds" "sds" {
-	name = ""
-	ip_list = [
-		{
-			ip = "10.10.10.6"
-			role = "all"
-		}
-	]
-	protection_domain_id = "4eeb304600000000"
-}
-`
-var createInvalidCharName = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS 1"
-	ip_list = [
-		{
-			ip = "10.10.10.6"
-			role = "all"
-		}
-	]
-	protection_domain_id = "4eeb304600000000"
-}
-`
-var createInvalidCharName1 = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS_more_than_31_chars!!"
-	ip_list = [
-		{
-			ip = "10.10.10.6"
-			role = "all"
-		}
-	]
-	protection_domain_id = "4eeb304600000000"
-}
-`
-var createWOPD = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	ip_list = [
-		{
-			ip = "10.10.10.6"
-			role = "all"
-		}
-	]
-}
-`
-var createInvalidPD = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	ip_list = [
-		{
-			ip = "10.10.10.6"
-			role = "all"
-		}
-	]
-	protection_domain_id = "4eeb304600000011"
-}
-`
-var createPDNameID = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	ip_list = [
-		{
-			ip = "10.10.10.6"
-			role = "all"
-		}
-	]
-	protection_domain_id = "4eeb304600000000"
-	protection_domain_name = "domain1"
-}
-`
-var createWOIP = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-}
-`
-var createWOIPRole = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-      }
-    ]
-}
-`
-var createWithSDSOnlyRole = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "sdsOnly"
-      }
-    ]
-}
-`
-var createWithSDCOnlyRole = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "sdcOnly"
-      }
-    ]
-}
-`
-var createSDSSpecialChar = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS_!@#$%^&*"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "all"
-      }
-    ]
-}
-`
-var createSDSMandatoryParams = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "all"
-      }
-    ]
-}
-`
-var renameSDSExistingName = `
-resource "powerflex_sds" "sds" {
-	name = "node1"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "all"
-      }
-    ]
-}
-`
-var renameSDSInvalidName = `
-resource "powerflex_sds" "sds" {
-	name = "node 1"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "all"
-      }
-    ]
-}
-`
-var renameSDS = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS_renamed"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "all"
-      }
-    ]
-}
-`
-var addSDSIP = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "all"
-      },
-	  {
-		ip = "10.10.10.5"
-		role = "sdcOnly"
-	  }
-    ]
-}
-`
-var removesdcOnlyIP1 = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "all"
-      },
-    ]
-}
-`
-var addSDSSingleIP = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "all"
-      },
-    ]
-}
-`
-var addSDSIPWithRoleAll = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "all"
-      },
-	  {
-		ip = "10.10.10.14"
-		role = "all"
-	  }
-    ]
-}
-`
-var addSDSIPWithRolesdsOnly = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "all"
-      },
-	  {
-		ip = "10.10.10.14"
-		role = "sdsOnly"
-	  }
-    ]
-}
-`
-var modifyRolefromalltosdcOnlySingleIP = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "sdcOnly"
-      },
-    ]
-}
-`
-var modifyRolefromalltosdsOnlySingleIP = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "sdsOnly"
-      },
-    ]
-}
-`
-var modifyRolefromsdcOnlytoall = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "all"
-      },
-	  {
-		ip = "10.10.10.5"
-		role = "all"
-	  }
-    ]
-}
-`
-var modifyRolefromsdcOnlytosdsOnly = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "all"
-      },
-	  {
-		ip = "10.10.10.5"
-		role = "sdsOnly"
-	  }
-    ]
-}
-`
-var modifyRolefromalltosdsOnly = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "sdsOnly"
-      },
-	  {
-		ip = "10.10.10.5"
-		role = "sdcOnly"
-	  }
-    ]
-}
-`
-var removesdcOnlyIP = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.5"
-		role = "sdcOnly"
-      },
-    ]
-}
-`
-var removesdsOnlyIP = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "sdsOnly"
-      },
-    ]
-}
-`
-var modifyRolefromsdsOnlytoall = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "all"
-      },
-	  {
-		ip = "10.10.10.5"
-		role = "sdcOnly"
-	  }
-    ]
-}
-`
-var modifyRolefromsdsOnlytosdcOnly = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-      {
-        ip = "10.10.10.6"
-		role = "sdcOnly"
-      },
-	  {
-		ip = "10.10.10.5"
-		role = "sdcOnly"
-	  }
-    ]
-}
-`
 var addSDSInvalidRole = `
 resource "powerflex_sds" "sds" {
 	name = "Terraform_SDS"
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.10.10.6"
+        ip = "` + SdsResourceTestData.SdsIP2 + `"
 		role = "all"
       },
 	  {
-		ip = "10.10.10.5"
+		ip = "` + SdsResourceTestData.SdsIP1 + `"
 		role = "sdcOnly"
 	  },
 	  {
-		ip = "10.10.10.7"
+		ip = "` + SdsResourceTestData.SdsIP3 + `"
 		role = "inv"
 	  },
     ]
@@ -1184,184 +1498,26 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 	ip_list = [
       {
-        ip = "10.10.10.6"
+        ip = "` + SdsResourceTestData.SdsIP2 + `"
 		role = "all"
       },
 	  {
-		ip = "10.10.10.5"
+		ip = "` + SdsResourceTestData.SdsIP1 + `"
 		role = "sdcOnly"
 	  },
 	  {
-		ip = "10.10.10.7"
+		ip = "` + SdsResourceTestData.SdsIP3 + `"
 	  },
     ]
 }
 `
-var addNonexistingSDSIP = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-	  {
-			ip = "10.10.10.6"
-			role = "all"
-	  },
-	  {
-			ip = "10.10.10.5"
-			role = "sdcOnly"
-	  },
-	  {
-			ip = "10.10.10.7"
-			role = "sdcOnly"
-	  },
-	  {
-		ip = "10.10.10.8"
-		role = "sdcOnly"
-	  }
-    ]
-}
-`
-var addMoreThan8IP = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-	  {
-			ip = "10.10.10.6"
-			role = "all"
-	  },
-	  {
-			ip = "10.10.10.5"
-			role = "sdcOnly"
-	  },
-	  {
-			ip = "10.10.10.7"
-			role = "sdcOnly"
-	  },
-	  {
-			ip = "10.10.10.8"
-			role = "sdcOnly"
-	  },
-	  {
-			ip = "10.10.10.9"
-			role = "sdcOnly"
-	  },
-	  {
-			ip = "10.10.10.10"
-			role = "sdcOnly"
-	  },
-	  {
-			ip = "10.10.10.11"
-			role = "sdcOnly"
-	  },
-	  {
-			ip = "10.10.10.12"
-			role = "sdcOnly"
-	  },
-	  {
-			ip = "10.10.10.13"
-			role = "sdcOnly"
-	  }
-    ]
-}
-`
-var addOccupiedSDSIP = `
-resource "powerflex_sds" "sds" {
-	name = "Terraform_SDS"
-	protection_domain_id = "4eeb304600000000"
-	ip_list = [
-	  {
-			ip = "10.10.10.6"
-			role = "all"
-	  },
-	  {
-			ip = "10.10.10.5"
-			role = "sdcOnly"
-	  },
-	  {
-			ip = "10.10.10.7"
-			role = "sdcOnly"
-	  },
-	  {
-		ip = "10.10.10.8"
-		role = "sdcOnly"
-	  },
-	  {
-		ip = "10.10.10.15"
-		role = "sdcOnly"
-	  }
-    ]
-}
-`
-var createSDSTest = `
-resource "powerflex_sds" "sds" {
-	name = "Tf_SDS_01"
-	ip_list = [
-		{
-			ip = "10.10.10.6"
-			role = "all"
-		},
-		{
-			ip = "10.10.10.1"
-			role = "sdcOnly"
-		}
-	]
-	performance_profile = "Compact"
-	rmcache_enabled = true
-	rmcache_size_in_mb = 156
-	rfcache_enabled = true
-	drl_mode = "NonVolatile"
-	protection_domain_id = "4eeb304600000000"
-}
-`
-var invalidRMCacheMaxSize = `
-resource "powerflex_sds" "sds" {
-	name = "Tf_SDS_01"
-	ip_list = [
-		{
-			ip = "10.10.10.6"
-			role = "all"
-		},
-		{
-			ip = "10.10.10.1"
-			role = "sdcOnly"
-		}
-	]
-	performance_profile = "Compact"
-	rmcache_enabled = true
-	rmcache_size_in_mb = 3912
-	rfcache_enabled = true
-	drl_mode = "NonVolatile"
-	protection_domain_id = "4eeb304600000000"
-}
-`
-var invalidRMCacheMinSize = `
-resource "powerflex_sds" "sds" {
-	name = "Tf_SDS_01"
-	ip_list = [
-		{
-			ip = "10.10.10.6"
-			role = "all"
-		},
-		{
-			ip = "10.10.10.1"
-			role = "sdcOnly"
-		}
-	]
-	performance_profile = "Compact"
-	rmcache_enabled = true
-	rmcache_size_in_mb = 127
-	rfcache_enabled = true
-	drl_mode = "NonVolatile"
-	protection_domain_id = "4eeb304600000000"
-}
-`
+
 var invalidRMCacheFloatSize = `
 resource "powerflex_sds" "sds" {
 	name = "Tf_SDS_01"
 	ip_list = [
 		{
-			ip = "10.10.10.6"
+			ip = "` + SdsResourceTestData.SdsIP2 + `"
 			role = "all"
 		},
 		{
@@ -1377,33 +1533,13 @@ resource "powerflex_sds" "sds" {
 	protection_domain_id = "4eeb304600000000"
 }
 `
-var rmcacheDisabled = `
-resource "powerflex_sds" "sds" {
-	name = "Tf_SDS_01"
-	ip_list = [
-		{
-			ip = "10.10.10.6"
-			role = "all"
-		},
-		{
-			ip = "10.10.10.1"
-			role = "sdcOnly"
-		}
-	]
-	performance_profile = "Compact"
-	rmcache_enabled = false
-	rmcache_size_in_mb = 128
-	rfcache_enabled = true
-	drl_mode = "NonVolatile"
-	protection_domain_id = "4eeb304600000000"
-}
-`
+
 var invalidRFCache = `
 resource "powerflex_sds" "sds" {
 	name = "Tf_SDS_01"
 	ip_list = [
 		{
-			ip = "10.10.10.6"
+			ip = "` + SdsResourceTestData.SdsIP2 + `"
 			role = "all"
 		},
 		{
@@ -1424,7 +1560,7 @@ resource "powerflex_sds" "sds" {
 	name = "Tf_SDS_01"
 	ip_list = [
 		{
-			ip = "10.10.10.6"
+			ip = "` + SdsResourceTestData.SdsIP2 + `"
 			role = "all"
 		},
 		{
@@ -1437,47 +1573,6 @@ resource "powerflex_sds" "sds" {
 	rmcache_size_in_mb = 156
 	rfcache_enabled = true
 	drl_mode = "NonVolatile"
-	protection_domain_id = "4eeb304600000000"
-}
-`
-var updateSDSTest = `
-resource "powerflex_sds" "sds" {
-	name = "Tf_SDS_02"
-	ip_list = [
-		{
-			ip = "10.10.10.6"
-			role = "sdsOnly"
-		},
-		{
-			ip = "10.10.10.2"
-			role = "sdcOnly"
-		}
-	]
-	drl_mode = "Volatile"
-	performance_profile = "HighPerformance"
-	rmcache_size_in_mb = 256
-	rmcache_enabled = true
-	rfcache_enabled = false
-	protection_domain_id = "4eeb304600000000"
-}
-`
-
-var updateSDSTest2 = `
-resource "powerflex_sds" "sds" {
-	name = "Tf_SDS_02"
-	ip_list = [
-		{
-			ip = "10.10.10.6"
-			role = "sdsOnly"
-		},
-		{
-			ip = "10.10.10.2"
-			role = "sdcOnly"
-		}
-	]
-	performance_profile = "Compact"
-	rmcache_enabled = false
-	rfcache_enabled = true
 	protection_domain_id = "4eeb304600000000"
 }
 `
