@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 const (
@@ -49,6 +50,94 @@ type SDCItemize struct {
 	AccessMode    string `tfsdk:"access_mode"`
 }
 
+// SDCItem maps the sdc_list schema data
+type SDCItem struct {
+	SdcID         types.String `tfsdk:"sdc_id"`
+	LimitIops     types.Int64  `tfsdk:"limit_iops"`
+	LimitBwInMbps types.Int64  `tfsdk:"limit_bw_in_mbps"`
+	SdcName       types.String `tfsdk:"sdc_name"`
+	AccessMode    types.String `tfsdk:"access_mode"`
+}
+
+func (si SDCItem) GetType() map[string]attr.Type {
+	return SdcInfoAttrTypes
+}
+
+func validateSdcSet(sl []SDCItem) []error {
+	errs := make([]error, 0)
+	sm := make(map[string]int)
+	for _, si := range sl {
+		if si.SdcID.IsUnknown() && si.SdcName.IsUnknown() {
+			continue
+		}
+		id := fmt.Sprintf("{id:%s, name:%s}", si.SdcID.ValueString(), si.SdcName.ValueString())
+		sm[id]++
+	}
+	// raise errors for SDCs that have multiple entries in the set
+	for id, count := range sm {
+		if count == 1 {
+			continue
+		}
+		errs = append(errs, fmt.Errorf("the SDC %s is found %d times in the list, but only 1 time expected", id, count))
+	}
+	return errs
+}
+
+func (si *SDCItem) GetValue() (basetypes.ObjectValue, diag.Diagnostics) {
+	return types.ObjectValue(si.GetType(), map[string]attr.Value{
+		"sdc_id":           si.SdcID,
+		"sdc_name":         si.SdcName,
+		"access_mode":      si.AccessMode,
+		"limit_iops":       si.LimitIops,
+		"limit_bw_in_mbps": si.LimitBwInMbps,
+	})
+}
+
+func GetSdcSetValueFromItems(sl []SDCItem) (basetypes.SetValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	sdcInfoElemType := types.ObjectType{
+		AttrTypes: SDCItem{}.GetType(),
+	}
+	if len(sl) == 0 {
+		return types.SetNull(sdcInfoElemType), diags
+	}
+	objectSdcInfos := []attr.Value{}
+	for _, si := range sl {
+		objVal, dgs := si.GetValue()
+		diags = append(diags, dgs...)
+		objectSdcInfos = append(objectSdcInfos, objVal)
+	}
+	mappedSdcInfoVal, dgs := types.SetValue(sdcInfoElemType, objectSdcInfos)
+	diags = append(diags, dgs...)
+	return mappedSdcInfoVal, diags
+}
+
+func GetSdcSetValueFromInfo(sl []*pftypes.MappedSdcInfo) (basetypes.SetValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	sdcInfoElemType := types.ObjectType{
+		AttrTypes: SDCItem{}.GetType(),
+	}
+	if len(sl) == 0 {
+		return types.SetNull(sdcInfoElemType), diags
+	}
+	objectSdcInfos := []attr.Value{}
+	for _, msi := range sl {
+		si := SDCItem{
+			SdcID:         types.StringValue(msi.SdcID),
+			LimitIops:     types.Int64Value(int64(msi.LimitIops)),
+			LimitBwInMbps: types.Int64Value(int64(msi.LimitBwInMbps)),
+			SdcName:       types.StringValue(msi.SdcName),
+			AccessMode:    types.StringValue(msi.AccessMode),
+		}
+		objVal, dgs := si.GetValue()
+		diags = append(diags, dgs...)
+		objectSdcInfos = append(objectSdcInfos, objVal)
+	}
+	mappedSdcInfoVal, dgs := types.SetValue(sdcInfoElemType, objectSdcInfos)
+	diags = append(diags, dgs...)
+	return mappedSdcInfoVal, diags
+}
+
 // covertToKB fucntion to convert size into kb
 func convertToKB(capacityUnit string, size int64) int64 {
 	var valInKiB int64
@@ -73,26 +162,10 @@ func refreshVolumeState(vol *pftypes.Volume, state *VolumeResourceModel) (diags 
 	state.ID = types.StringValue(vol.ID)
 	state.AccessMode = types.StringValue(vol.AccessModeLimit)
 	state.CompressionMethod = types.StringValue(vol.CompressionMethod)
-	sdcInfoElemType := types.ObjectType{
-		AttrTypes: SdcInfoAttrTypes,
-	}
-	objectSdcInfos := []attr.Value{}
-	for _, msi := range vol.MappedSdcInfo {
-		obj := map[string]attr.Value{
-			"sdc_id":           types.StringValue(msi.SdcID),
-			"limit_iops":       types.Int64Value(int64(msi.LimitIops)),
-			"limit_bw_in_mbps": types.Int64Value(int64(msi.LimitBwInMbps)),
-			"sdc_name":         types.StringValue(msi.SdcName),
-			"access_mode":      types.StringValue(msi.AccessMode),
-		}
-		objVal, diag1 := types.ObjectValue(SdcInfoAttrTypes, obj)
-		diags = append(diags, diag1...)
-		objectSdcInfos = append(objectSdcInfos, objVal)
-	}
-	mappedSdcInfoVal, diag2 := types.SetValue(sdcInfoElemType, objectSdcInfos)
+	mappedSdcInfoVal, diag2 := GetSdcSetValueFromInfo(vol.MappedSdcInfo)
 	diags = append(diags, diag2...)
 	state.SdcList = mappedSdcInfoVal
-	return
+	return diags
 }
 
 // getStoragePoolInstance function to get storage pool from storage pool id and protection domain id

@@ -1,6 +1,8 @@
 package powerflex
 
 import (
+	"fmt"
+	"os"
 	"regexp"
 	"testing"
 
@@ -471,6 +473,63 @@ func TestAccVolumeResourceDuplicateSDC(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "1"),
 				),
+				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}
+
+func TestAccVolumeResourceUnknown(t *testing.T) {
+	var sdc_ip string
+	if sdc_ip = os.Getenv("SDC_IP_1"); sdc_ip == "" {
+		t.Fatal("SDC_IP_1 must be set for TestAccVolumeResourceUnknown")
+	}
+	tfVars := fmt.Sprintf(`
+	locals {
+		sdc_ip = "%s"
+	}
+	`, sdc_ip)
+	createVolUnk := tfVars + `
+	data "powerflex_sdc" "all" {
+	}
+	
+	data "powerflex_protection_domain" "pd" {
+		 name = "domain1"
+		# id = "4eeb304600000000"
+	}
+	
+	# find SDC ID corresponding to given IP
+	locals {
+	  matching_sdc = [for sdc in data.powerflex_sdc.all.sdcs : sdc if sdc.sdc_ip == local.sdc_ip]
+	}
+	
+	resource "powerflex_volume" "avengers-volume-create"{
+	  name = "tf-volume-create"
+	  protection_domain_name = data.powerflex_protection_domain.pd.protection_domains[0].name
+	  storage_pool_name = "pool1"
+	  size = 8
+	  access_mode = "ReadWrite"
+	  sdc_list = [
+		{
+		  sdc_id = local.matching_sdc[0].id
+		  limit_iops = 119
+		  limit_bw_in_mbps = 19
+		  access_mode = "ReadOnly"
+		}
+	  ]
+	}
+	`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + createVolUnk,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "1"),
+				),
+				// TODO
 				ExpectNonEmptyPlan: true,
 			},
 		},
