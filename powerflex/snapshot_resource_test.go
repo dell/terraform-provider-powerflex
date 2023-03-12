@@ -4,7 +4,6 @@ import (
 	"regexp"
 	"testing"
 
-	// "github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -14,6 +13,13 @@ resource "powerflex_volume" "ss-ref-vol"{
 	protection_domain_name = "domain1"
 	storage_pool_name = "pool1"
 	size = 8
+}
+
+resource "powerflex_volume" "ss-16gb-ref-vol"{
+	name = "tfaccp-16gb-ssvol-test"
+	protection_domain_name = "domain1"
+	storage_pool_name = "pool1"
+	size = 16
 }
 `
 
@@ -48,7 +54,6 @@ resource "powerflex_snapshot" "snapshots-create" {
 }
 `
 
-// snapshot-create-invalid is already created using UI on powerflex. so if we try to rename this to an existing snapshot name, it will throw an error.
 var updateSnapshotRenameNegTest = createVolForSs + `
 resource "powerflex_snapshot" "snapshots-create" {
 	name = "snapshot-create-invalid"
@@ -60,8 +65,7 @@ resource "powerflex_snapshot" "snapshots-create" {
 var createSnapshotWithlowSizeNegTest = createVolForSs + `
 resource "powerflex_snapshot" "snapshots-create-with-low-size" {
 	name = "snapshots-create-gamma"
-	volume_name = "volume-ses" 
-	// volume-ses has size of 16GB, so below 8 GB config of snapshot will be failing
+	volume_name = resource.powerflex_volume.ss-16gb-ref-vol.name 
 	size = 8
 	capacity_unit="GB"
 }
@@ -232,7 +236,6 @@ func TestAccSnapshotResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create", "name", "snapshots-create-alpha"),
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create", "access_mode", "ReadOnly"),
 					resource.TestCheckResourceAttrPair("powerflex_snapshot.snapshots-create", "volume_id", "powerflex_volume.ss-ref-vol", "id"),
-				//),
 				),
 			},
 			// check that import is working

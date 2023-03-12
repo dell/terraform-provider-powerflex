@@ -6,9 +6,13 @@ import (
 
 	"github.com/dell/goscaleio"
 	pftypes "github.com/dell/goscaleio/types/v1"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
@@ -241,4 +245,61 @@ func stringDefault(defaultValue string) planmodifier.String {
 	return stringDefaultModifier{
 		Default: defaultValue,
 	}
+}
+
+var sdcListSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
+	Description:         "mapped sdc info",
+	Computed:            true,
+	Optional:            true,
+	MarkdownDescription: "mapped sdc info",
+	NestedObject: schema.NestedAttributeObject{
+		Attributes: map[string]schema.Attribute{
+			"sdc_id": schema.StringAttribute{
+				Description:         "The ID of the SDC",
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the SDC",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+					stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("sdc_name")),
+				},
+			},
+			"sdc_name": schema.StringAttribute{
+				Description:         "The Name of the SDC",
+				Computed:            true,
+				Optional:            true,
+				MarkdownDescription: "The Name of the SDC",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+					stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("sdc_id")),
+				},
+			},
+			"limit_iops": schema.Int64Attribute{
+				Description:         "limit iops",
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "limit iops",
+			},
+			"limit_bw_in_mbps": schema.Int64Attribute{
+				Description:         "limit bw in mbps",
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "limit bw in mbps",
+			},
+			"access_mode": schema.StringAttribute{
+				Description:         "The Access Mode of the SDC",
+				Computed:            true,
+				Optional:            true,
+				MarkdownDescription: "The Access Mode of the SDC",
+				Validators: []validator.String{stringvalidator.OneOf(
+					"ReadOnly",
+					"ReadWrite",
+					"NoAccess",
+				)},
+				PlanModifiers: []planmodifier.String{
+					stringDefault("ReadOnly"),
+				},
+			},
+		},
+	},
 }

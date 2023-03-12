@@ -82,27 +82,12 @@ func refreshState(snap *pftypes.Volume, prestate *SnapshotResourceModel) (diags 
 	if diff1 > 0 && drift > SecondsThreshold && drift < -SecondsThreshold {
 		prestate.RetentionInMin = types.StringValue(strconv.FormatInt(diff1/60, 10))
 	}
-	sdcInfoElemType := types.ObjectType{
-		AttrTypes: SdcInfoAttrTypes,
-	}
-	objectSdcInfos := []attr.Value{}
-	for _, msi := range snap.MappedSdcInfo {
-		// refreshing state for drift outside terraform
-		obj := map[string]attr.Value{
-			"sdc_id":           types.StringValue(msi.SdcID),
-			"limit_iops":       types.Int64Value(int64(msi.LimitIops)),
-			"limit_bw_in_mbps": types.Int64Value(int64(msi.LimitBwInMbps)),
-			"sdc_name":         types.StringValue(msi.SdcName),
-			"access_mode":      types.StringValue(msi.AccessMode),
-		}
-		objVal, diag1 := types.ObjectValue(SdcInfoAttrTypes, obj)
-		diags = append(diags, diag1...)
-		objectSdcInfos = append(objectSdcInfos, objVal)
-	}
-	mappedSdcInfoVal, diag2 := types.SetValue(sdcInfoElemType, objectSdcInfos)
+
+	mappedSdcInfoVal, diag2 := GetSdcSetValueFromInfo(snap.MappedSdcInfo)
 	diags = append(diags, diag2...)
 	prestate.SdcList = mappedSdcInfoVal
-	return
+
+	return diags
 }
 
 func convertToMin(desireRetention int64, retentionUnit string) string {
