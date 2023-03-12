@@ -495,12 +495,19 @@ func TestAccVolumeResourceUnknown(t *testing.T) {
 	
 	data "powerflex_protection_domain" "pd" {
 		 name = "domain1"
-		# id = "4eeb304600000000"
+	}
+
+	provider "random" {
 	}
 	
-	# find SDC ID corresponding to given IP
+	resource "random_integer" "sdc_ind" {
+	  min = 0
+	  max = 1
+	}
+
 	locals {
-	  matching_sdc = [for sdc in data.powerflex_sdc.all.sdcs : sdc if sdc.sdc_ip == local.sdc_ip]
+		ips = [local.sdc_ip]
+		matching_sdc = [for sdc in data.powerflex_sdc.all.sdcs : sdc if sdc.sdc_ip == local.ips[random_integer.sdc_ind.result]]
 	}
 	
 	resource "powerflex_volume" "avengers-volume-create"{
@@ -523,6 +530,12 @@ func TestAccVolumeResourceUnknown(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				VersionConstraint: "3.4.3",
+				Source:            "hashicorp/random",
+			},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + createVolUnk,
