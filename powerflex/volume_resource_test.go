@@ -480,15 +480,15 @@ func TestAccVolumeResourceDuplicateSDC(t *testing.T) {
 }
 
 func TestAccVolumeResourceUnknown(t *testing.T) {
-	var sdc_ip string
-	if sdc_ip = os.Getenv("SDC_IP_1"); sdc_ip == "" {
+	var sdcIP string
+	if sdcIP = os.Getenv("SDC_IP_1"); sdcIP == "" {
 		t.Fatal("SDC_IP_1 must be set for TestAccVolumeResourceUnknown")
 	}
 	tfVars := fmt.Sprintf(`
 	locals {
 		sdc_ip = "%s"
 	}
-	`, sdc_ip)
+	`, sdcIP)
 	createVolUnk := tfVars + `
 	data "powerflex_sdc" "all" {
 	}

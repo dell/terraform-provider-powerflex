@@ -63,6 +63,7 @@ type SDCItem struct {
 	AccessMode    types.String `tfsdk:"access_mode"`
 }
 
+// GetType returns the terraform Type of SDCItem
 func (si SDCItem) GetType() map[string]attr.Type {
 	return SdcInfoAttrTypes
 }
@@ -87,6 +88,7 @@ func validateSdcSet(sl []SDCItem) []error {
 	return errs
 }
 
+// GetValue returns the terraform Value of SDCItem
 func (si *SDCItem) GetValue() (basetypes.ObjectValue, diag.Diagnostics) {
 	return types.ObjectValue(si.GetType(), map[string]attr.Value{
 		"sdc_id":           si.SdcID,
@@ -97,6 +99,7 @@ func (si *SDCItem) GetValue() (basetypes.ObjectValue, diag.Diagnostics) {
 	})
 }
 
+// GetSdcSetValueFromItems marshalls list of SDCItem to a terraform set
 func GetSdcSetValueFromItems(sl []SDCItem) (basetypes.SetValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	sdcInfoElemType := types.ObjectType{
@@ -116,6 +119,7 @@ func GetSdcSetValueFromItems(sl []SDCItem) (basetypes.SetValue, diag.Diagnostics
 	return mappedSdcInfoVal, diags
 }
 
+// GetSdcSetValueFromInfo marshalls list of *pftypes.MappedSdcInfo to a terraform set
 func GetSdcSetValueFromInfo(sl []*pftypes.MappedSdcInfo) (basetypes.SetValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	sdcInfoElemType := types.ObjectType{
