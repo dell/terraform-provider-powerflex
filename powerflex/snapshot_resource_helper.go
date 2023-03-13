@@ -4,7 +4,6 @@ import (
 	"strconv"
 
 	pftypes "github.com/dell/goscaleio/types/v1"
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -49,15 +48,6 @@ type SdcList struct {
 	LimitBwInMbps int    `tfsdk:"limit_bw_in_mbps"`
 	SdcName       string `tfsdk:"sdc_name"`
 	AccessMode    string `tfsdk:"access_mode"`
-}
-
-// SdcInfoAttrTypes for defining sdc list struct into terraform type
-var SdcInfoAttrTypes = map[string]attr.Type{
-	"sdc_id":           types.StringType,
-	"limit_iops":       types.Int64Type,
-	"limit_bw_in_mbps": types.Int64Type,
-	"sdc_name":         types.StringType,
-	"access_mode":      types.StringType,
 }
 
 func refreshState(snap *pftypes.Volume, prestate *SnapshotResourceModel) (diags diag.Diagnostics) {
