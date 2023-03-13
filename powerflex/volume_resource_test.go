@@ -2,11 +2,9 @@ package powerflex
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"testing"
 
-	// "github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -480,15 +478,14 @@ func TestAccVolumeResourceDuplicateSDC(t *testing.T) {
 }
 
 func TestAccVolumeResourceUnknown(t *testing.T) {
-	var sdcIP string
-	if sdcIP = os.Getenv("SDC_IP_1"); sdcIP == "" {
-		t.Fatal("SDC_IP_1 must be set for TestAccVolumeResourceUnknown")
+	if SdsResourceTestData.SdcIP == "" {
+		t.Fatal("POWERFLEX_SDC_IP must be set for TestAccVolumeResourceUnknown")
 	}
 	tfVars := fmt.Sprintf(`
 	locals {
 		sdc_ip = "%s"
 	}
-	`, sdcIP)
+	`, SdsResourceTestData.SdcIP)
 	createVolUnk := tfVars + `
 	data "powerflex_sdc" "all" {
 	}
@@ -502,7 +499,7 @@ func TestAccVolumeResourceUnknown(t *testing.T) {
 	
 	resource "random_integer" "sdc_ind" {
 	  min = 0
-	  max = 1
+	  max = 0
 	}
 
 	locals {
