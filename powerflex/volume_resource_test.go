@@ -1,10 +1,10 @@
 package powerflex
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
-	// "github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -471,6 +471,75 @@ func TestAccVolumeResourceDuplicateSDC(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "1"),
 				),
+				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}
+
+func TestAccVolumeResourceUnknown(t *testing.T) {
+	if SdsResourceTestData.SdcIP == "" {
+		t.Fatal("POWERFLEX_SDC_IP must be set for TestAccVolumeResourceUnknown")
+	}
+	tfVars := fmt.Sprintf(`
+	locals {
+		sdc_ip = "%s"
+	}
+	`, SdsResourceTestData.SdcIP)
+	createVolUnk := tfVars + `
+	data "powerflex_sdc" "all" {
+	}
+	
+	data "powerflex_protection_domain" "pd" {
+		 name = "domain1"
+	}
+
+	provider "random" {
+	}
+	
+	resource "random_integer" "sdc_ind" {
+	  min = 0
+	  max = 0
+	}
+
+	locals {
+		ips = [local.sdc_ip]
+		matching_sdc = [for sdc in data.powerflex_sdc.all.sdcs : sdc if sdc.sdc_ip == local.ips[random_integer.sdc_ind.result]]
+	}
+	
+	resource "powerflex_volume" "avengers-volume-create"{
+	  name = "tf-volume-create"
+	  protection_domain_name = data.powerflex_protection_domain.pd.protection_domains[0].name
+	  storage_pool_name = "pool1"
+	  size = 8
+	  access_mode = "ReadWrite"
+	  sdc_list = [
+		{
+		  sdc_id = local.matching_sdc[0].id
+		  limit_iops = 119
+		  limit_bw_in_mbps = 19
+		  access_mode = "ReadOnly"
+		}
+	  ]
+	}
+	`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				VersionConstraint: "3.4.3",
+				Source:            "hashicorp/random",
+			},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + createVolUnk,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "1"),
+				),
+				// TODO
 				ExpectNonEmptyPlan: true,
 			},
 		},

@@ -158,61 +158,6 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 				stringDefault("ONLY_ME"),
 			},
 		},
-		"sdc_list": schema.SetNestedAttribute{
-			Description:         "mapped sdc info",
-			Computed:            true,
-			Optional:            true,
-			MarkdownDescription: "mapped sdc info",
-			NestedObject: schema.NestedAttributeObject{
-				Attributes: map[string]schema.Attribute{
-					"sdc_id": schema.StringAttribute{
-						Description:         "The ID of the SDC",
-						Optional:            true,
-						Computed:            true,
-						MarkdownDescription: "The ID of the SDC",
-						Validators: []validator.String{
-							stringvalidator.LengthAtLeast(1),
-							stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("sdc_name")),
-						},
-					},
-					"sdc_name": schema.StringAttribute{
-						Description:         "The Name of the SDC",
-						Computed:            true,
-						Optional:            true,
-						MarkdownDescription: "The Name of the SDC",
-						Validators: []validator.String{
-							stringvalidator.LengthAtLeast(1),
-							stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("sdc_id")),
-						},
-					},
-					"limit_iops": schema.Int64Attribute{
-						Description:         "limit iops",
-						Optional:            true,
-						Computed:            true,
-						MarkdownDescription: "limit iops",
-					},
-					"limit_bw_in_mbps": schema.Int64Attribute{
-						Description:         "limit bw in mbps",
-						Optional:            true,
-						Computed:            true,
-						MarkdownDescription: "limit bw in mbps",
-					},
-					"access_mode": schema.StringAttribute{
-						Description:         "The Access Mode of the SDC",
-						Computed:            true,
-						Optional:            true,
-						MarkdownDescription: "The Access Mode of the SDC",
-						Validators: []validator.String{stringvalidator.OneOf(
-							"ReadOnly",
-							"ReadWrite",
-							"NoAccess",
-						)},
-						PlanModifiers: []planmodifier.String{
-							stringDefault("ReadOnly"),
-						},
-					},
-				},
-			},
-		},
+		"sdc_list": sdcListSchema,
 	},
 }
