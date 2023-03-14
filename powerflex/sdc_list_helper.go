@@ -141,16 +141,16 @@ var sdcListSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 				},
 			},
 			"limit_iops": schema.Int64Attribute{
-				Description:         "limit iops",
+				Description:         "IOPS limit",
 				Optional:            true,
 				Computed:            true,
-				MarkdownDescription: "limit iops",
+				MarkdownDescription: "IOPS limit",
 			},
 			"limit_bw_in_mbps": schema.Int64Attribute{
-				Description:         "limit bw in mbps",
+				Description:         "Bandwidth limit in MBPS",
 				Optional:            true,
 				Computed:            true,
-				MarkdownDescription: "limit bw in mbps",
+				MarkdownDescription: "Bandwidth limit in MBPS",
 			},
 			"access_mode": schema.StringAttribute{
 				Description:         "The Access Mode of the SDC",
