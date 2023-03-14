@@ -7,15 +7,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var createVolForSs = `
-resource "powerflex_volume" "ss-ref-vol"{
+var create8gbVol = `
+resource "powerflex_volume" "ref-vol"{
 	name = "tfaccp-ssvol-test"
 	protection_domain_name = "domain1"
 	storage_pool_name = "pool1"
 	size = 8
 }
+`
 
-resource "powerflex_volume" "ss-16gb-ref-vol"{
+var create16gbVol = `
+resource "powerflex_volume" "ref-vol-16gb"{
 	name = "tfaccp-16gb-ssvol-test"
 	protection_domain_name = "domain1"
 	storage_pool_name = "pool1"
@@ -23,23 +25,25 @@ resource "powerflex_volume" "ss-16gb-ref-vol"{
 }
 `
 
+var createVolForSs = create8gbVol + create16gbVol
+
 var createSnapshotPosTest = createVolForSs + `
 resource "powerflex_snapshot" "snapshots-create" {
 	name = "snapshots-create-alpha"
-	volume_id = resource.powerflex_volume.ss-ref-vol.id
+	volume_id = resource.powerflex_volume.ref-vol.id
 }
 `
 var updateSnapshotRenamePosTest = createVolForSs + `
 resource "powerflex_snapshot" "snapshots-create" {
 	name = "snapshots-create-1"
-	volume_id = resource.powerflex_volume.ss-ref-vol.id
+	volume_id = resource.powerflex_volume.ref-vol.id
 }
 `
 
 var updateSnapshotResizePosTest = createVolForSs + `
 resource "powerflex_snapshot" "snapshots-create" {
 	name = "snapshots-create-1"
-	volume_id = resource.powerflex_volume.ss-ref-vol.id
+	volume_id = resource.powerflex_volume.ref-vol.id
 	size = 24
 	capacity_unit="GB"
 }
@@ -48,7 +52,7 @@ resource "powerflex_snapshot" "snapshots-create" {
 var updateSnapshotResizeNegTest = createVolForSs + `
 resource "powerflex_snapshot" "snapshots-create" {
 	name = "snapshots-create-1"
-	volume_id = resource.powerflex_volume.ss-ref-vol.id
+	volume_id = resource.powerflex_volume.ref-vol.id
 	size = 24
 	capacity_unit="TB"
 }
@@ -58,14 +62,14 @@ var updateSnapshotRenameNegTest = createVolForSs + `
 resource "powerflex_snapshot" "snapshots-create" {
 	name = "snapshot-create-invalid"
 	// snapshot with name snapshot-create-invalid already exist  
-	volume_id = resource.powerflex_volume.ss-ref-vol.id
+	volume_id = resource.powerflex_volume.ref-vol.id
 }
 `
 
 var createSnapshotWithlowSizeNegTest = createVolForSs + `
 resource "powerflex_snapshot" "snapshots-create-with-low-size" {
 	name = "snapshots-create-gamma"
-	volume_name = resource.powerflex_volume.ss-16gb-ref-vol.name 
+	volume_name = resource.powerflex_volume.ref-vol-16gb.name 
 	size = 8
 	capacity_unit="GB"
 }
@@ -74,7 +78,7 @@ resource "powerflex_snapshot" "snapshots-create-with-low-size" {
 var createSnapshotWithhighSizeNegTest = createVolForSs + `
 resource "powerflex_snapshot" "snapshots-create-with-high-size" {
 	name = "snapshots-create-delta"
-	volume_id = resource.powerflex_volume.ss-ref-vol.id
+	volume_id = resource.powerflex_volume.ref-vol.id
 	size = 5
 	capacity_unit="TB"
 }
@@ -83,7 +87,7 @@ resource "powerflex_snapshot" "snapshots-create-with-high-size" {
 var createSnapshotAccessModeMapSdcPosTest = createVolForSs + `
 resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
 	name = "snapshots-create-epsilon"
-	volume_id = resource.powerflex_volume.ss-ref-vol.id
+	volume_id = resource.powerflex_volume.ref-vol.id
 	access_mode = "ReadWrite"
   	size = 16
   	capacity_unit = "GB"
@@ -102,7 +106,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
 var updateSnapshotInvalidAccessModePNegTest = createVolForSs + `
 resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
 	name = "snapshots-create-epsilon"
-	volume_id = resource.powerflex_volume.ss-ref-vol.id
+	volume_id = resource.powerflex_volume.ref-vol.id
 	access_mode = "ReadOnly"
 	sdc_list = [
 		{	
@@ -118,7 +122,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
 var updateSnapshotInvalidLockNegTest = createVolForSs + `
 resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
 	name = "snapshots-create-epsilon"
-	volume_id = resource.powerflex_volume.ss-ref-vol.id
+	volume_id = resource.powerflex_volume.ref-vol.id
 	access_mode = "ReadWrite"
   	size = 16
   	capacity_unit = "GB"
@@ -138,7 +142,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
 var updateSnapshotMapSdcPosTest = createVolForSs + `
 resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
 	name = "snapshots-create-epsilon"
-	volume_id = resource.powerflex_volume.ss-ref-vol.id
+	volume_id = resource.powerflex_volume.ref-vol.id
 	access_mode = "ReadWrite"
   size = 16
   capacity_unit = "GB"
@@ -169,7 +173,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
 var createSnapshotAccessModeMapSdcNegTest = createVolForSs + `
 resource "powerflex_snapshot" "snapshots-create-access-mode-invalid-sdc-map" {
 	name = "snapshots-create-zeta"
-	volume_id = resource.powerflex_volume.ss-ref-vol.id
+	volume_id = resource.powerflex_volume.ref-vol.id
 	access_mode = "ReadWrite"
 	sdc_list = [
 		{	
@@ -191,7 +195,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-invalid-sdc-map" {
 var createSnapshotLockedAutoSnapshotNegTest = createVolForSs + `
 resource "powerflex_snapshot" "snapshots-create-locked-auto-invalid" {
 	name = "snapshots-create-eta"
-	volume_id = resource.powerflex_volume.ss-ref-vol.id
+	volume_id = resource.powerflex_volume.ref-vol.id
 	access_mode = "ReadWrite"
 	lock_auto_snapshot = true
 	sdc_list = [
@@ -235,7 +239,7 @@ func TestAccSnapshotResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create", "name", "snapshots-create-alpha"),
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create", "access_mode", "ReadOnly"),
-					resource.TestCheckResourceAttrPair("powerflex_snapshot.snapshots-create", "volume_id", "powerflex_volume.ss-ref-vol", "id"),
+					resource.TestCheckResourceAttrPair("powerflex_snapshot.snapshots-create", "volume_id", "powerflex_volume.ref-vol", "id"),
 				),
 			},
 			// check that import is working
@@ -322,7 +326,7 @@ func TestAccSnapshotResourceDuplicateSdc(t *testing.T) {
 	createSsDuplicateSdcPos := createVolForSs + `
 	resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
 		name = "snapshots-create-epsilon"
-		volume_id = resource.powerflex_volume.ss-ref-vol.id
+		volume_id = resource.powerflex_volume.ref-vol.id
 		access_mode = "ReadWrite"
 		size = 16
 		sdc_list = [
@@ -344,7 +348,7 @@ func TestAccSnapshotResourceDuplicateSdc(t *testing.T) {
 	createSsDuplicateSdcInv := createVolForSs + `
 	resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
 		name = "snapshots-create-epsilon"
-		volume_id = resource.powerflex_volume.ss-ref-vol.id
+		volume_id = resource.powerflex_volume.ref-vol.id
 		access_mode = "ReadWrite"
 		size = 16
 		sdc_list = [
