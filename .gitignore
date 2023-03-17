@@ -10,5 +10,5 @@ powerflex/trace.txt
 examples/trace.txt
 cover*
 test*
-
+bin/*
 
