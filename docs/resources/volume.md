@@ -116,8 +116,8 @@ resource "powerflex_volume" "avengers-volume-create" {
 Optional:
 
 - `access_mode` (String) The Access Mode of the SDC
-- `limit_bw_in_mbps` (Number) limit bw in mbps
-- `limit_iops` (Number) limit iops
+- `limit_bw_in_mbps` (Number) Bandwidth limit in MBPS
+- `limit_iops` (Number) IOPS limit
 - `sdc_id` (String) The ID of the SDC
 - `sdc_name` (String) The Name of the SDC
 

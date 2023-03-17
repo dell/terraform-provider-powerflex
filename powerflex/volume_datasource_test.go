@@ -1,14 +1,13 @@
 package powerflex
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"os"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 type dataPoints struct {
-	name          string
-	id            string
 	storagePoolID string
 	volumeType    string
 	dataLayout    string
@@ -17,8 +16,6 @@ type dataPoints struct {
 var volumeTestData dataPoints
 
 func init() {
-	volumeTestData.name = "cicd-dbc5a5909d"
-	volumeTestData.id = "457752ff000000c7"
 	volumeTestData.storagePoolID = "7630a24600000000"
 	volumeTestData.volumeType = "ThinProvisioned"
 	volumeTestData.dataLayout = "MediumGranularity"
@@ -37,8 +34,8 @@ func TestAccVolumeDataSource(t *testing.T) {
 				Config: ProviderConfigForTesting + VolumeDataSourceConfig1,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify the first volume to ensure attributes are correctly set
-					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.id", volumeTestData.id),
-					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.name", volumeTestData.name),
+					resource.TestCheckResourceAttrPair("data.powerflex_volume.all", "volumes.0.id", "powerflex_volume.ref-vol", "id"),
+					resource.TestCheckResourceAttrPair("data.powerflex_volume.all", "volumes.0.name", "powerflex_volume.ref-vol", "name"),
 					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.storage_pool_id", volumeTestData.storagePoolID),
 					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.volume_type", volumeTestData.volumeType),
 					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.data_layout", volumeTestData.dataLayout),
@@ -49,8 +46,8 @@ func TestAccVolumeDataSource(t *testing.T) {
 				Config: ProviderConfigForTesting + VolumeDataSourceConfig2,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify the first volume to ensure attributes are correctly set
-					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.id", volumeTestData.id),
-					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.name", volumeTestData.name),
+					resource.TestCheckResourceAttrPair("data.powerflex_volume.all", "volumes.0.id", "powerflex_volume.ref-vol", "id"),
+					resource.TestCheckResourceAttrPair("data.powerflex_volume.all", "volumes.0.name", "powerflex_volume.ref-vol", "name"),
 					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.storage_pool_id", volumeTestData.storagePoolID),
 					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.volume_type", volumeTestData.volumeType),
 					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.data_layout", volumeTestData.dataLayout),
@@ -84,31 +81,31 @@ func TestAccVolumeDataSource(t *testing.T) {
 	})
 }
 
-var VolumeDataSourceConfig1 = `
+var VolumeDataSourceConfig1 = create8gbVol + `
 data "powerflex_volume" "all" {						
-	id = "457752ff000000c7"
+	id = resource.powerflex_volume.ref-vol.id
 }
 `
 
-var VolumeDataSourceConfig2 = `
+var VolumeDataSourceConfig2 = create8gbVol + `
 data "powerflex_volume" "all" {						
-	name = "cicd-dbc5a5909d"
+	name = resource.powerflex_volume.ref-vol.name
 }
 `
 
-var VolumeDataSourceConfig3 = `
+var VolumeDataSourceConfig3 = create8gbVol + `
 data "powerflex_volume" "all" {						
 	storage_pool_id = "7630a24600000000"
 }
 `
 
-var VolumeDataSourceConfig4 = `
+var VolumeDataSourceConfig4 = create8gbVol + `
 data "powerflex_volume" "all" {						
 	storage_pool_name = "pool1"
 }
 `
 
-var VolumeDataSourceConfig5 = `
+var VolumeDataSourceConfig5 = create8gbVol + `
 data "powerflex_volume" "all" {						
 }
 `

@@ -7,10 +7,10 @@ import (
 
 	"github.com/dell/goscaleio"
 	pftypes "github.com/dell/goscaleio/types/v1"
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -57,6 +57,14 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	var plan VolumeResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+
+	if !plan.Size.IsNull() && !plan.Size.IsUnknown() {
+		VSIKB := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
+		plan.SizeInKb = types.Int64Value(VSIKB)
+		diags = resp.Plan.Set(ctx, &plan)
+		resp.Diagnostics.Append(diags...)
+	}
+
 	sr, err := getFirstSystem(r.client)
 	pdr := goscaleio.NewProtectionDomain(r.client)
 	if err != nil {
@@ -77,7 +85,7 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 		}
 		pdr.ProtectionDomain = protectionDomain
 		plan.ProtectionDomainID = types.StringValue(protectionDomain.ID)
-	} else {
+	} else if !plan.ProtectionDomainID.IsUnknown() {
 		protectionDomain, err := sr.FindProtectionDomain(plan.ProtectionDomainID.ValueString(), "", "")
 		if err != nil {
 			resp.Diagnostics.AddError(
@@ -88,6 +96,13 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 		}
 		pdr.ProtectionDomain = protectionDomain
 		plan.ProtectionDomainName = types.StringValue(protectionDomain.Name)
+	} else {
+		return
+	}
+	diags = resp.Plan.Set(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 	if !plan.StoragePoolName.IsUnknown() {
 		storagePool, err := pdr.FindStoragePool("", plan.StoragePoolName.ValueString(), "")
@@ -99,7 +114,7 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 			return
 		}
 		plan.StoragePoolID = types.StringValue(storagePool.ID)
-	} else {
+	} else if !plan.StoragePoolID.IsUnknown() {
 		storagePool, err := pdr.FindStoragePool(plan.StoragePoolID.ValueString(), "", "")
 		if err != nil {
 			resp.Diagnostics.AddError(
@@ -109,99 +124,71 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 			return
 		}
 		plan.StoragePoolName = types.StringValue(storagePool.Name)
+	} else {
+		return
 	}
-
-	if !plan.Size.IsNull() {
-		VSIKB := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
-		plan.SizeInKb = types.Int64Value(VSIKB)
-	}
-	sdcList := []SDCItemize{}
-	diags = plan.SdcList.ElementsAs(ctx, &sdcList, true)
-	resp.Diagnostics.Append(diags...)
-	sdcInfoElemType := types.ObjectType{
-		AttrTypes: SdcInfoAttrTypes,
-	}
-	objectSdcInfos := []attr.Value{}
-
-	// sdcMap is used for validating if multiple entries in the set of SDCs refer the same SDC
-	type sdcCount struct {
-		name  string // name of SDC
-		count int    // number of times the SDC is found in the set
-	}
-	sdcMap := make(map[string]*sdcCount)
-
-	for _, si := range sdcList {
-		if si.SdcID == "" {
-			foundsdc, errA := sr.FindSdc("Name", si.SdcName)
-			if errA != nil {
-				resp.Diagnostics.AddError(
-					"Error getting sdc with the name: "+si.SdcName,
-					"unexpected error: "+errA.Error(),
-				)
-				return
-			}
-			si.SdcID = foundsdc.Sdc.ID
-		}
-		if si.SdcName == "" {
-			foundsdc, errA := sr.FindSdc("ID", si.SdcID)
-			if errA != nil {
-				resp.Diagnostics.AddError(
-					"Error getting sdc name from sdc id: "+si.SdcID,
-					"unexpected error: "+errA.Error(),
-				)
-				return
-			}
-			si.SdcName = foundsdc.Sdc.Name
-		}
-		if si.LimitIops <= 10 && si.LimitIops > 0 {
-			resp.Diagnostics.AddError(
-				"Error setting the limit iops",
-				"sdc  "+si.SdcID+" "+si.SdcName+" limit iops must be a number larger than 10 or 0.",
-			)
-			return
-		}
-
-		// add SDCs from the set to this map while updating count
-		if _, ok := sdcMap[si.SdcID]; ok {
-			sdcMap[si.SdcID].count++
-			sdcMap[si.SdcID].name = si.SdcName
-		} else {
-			sdcMap[si.SdcID] = &sdcCount{name: si.SdcName, count: 1}
-		}
-
-		obj := map[string]attr.Value{
-			"sdc_id":           types.StringValue(si.SdcID),
-			"limit_iops":       types.Int64Value(int64(si.LimitIops)),
-			"limit_bw_in_mbps": types.Int64Value(int64(si.LimitBwInMbps)),
-			"sdc_name":         types.StringValue(si.SdcName),
-			"access_mode":      types.StringValue(si.AccessMode),
-		}
-		objVal, dgs := types.ObjectValue(SdcInfoAttrTypes, obj)
-		diags = append(diags, dgs...)
-		objectSdcInfos = append(objectSdcInfos, objVal)
-	}
-
-	// raise errors for SDCs that have multiple entries in the set
-	for id, sdc := range sdcMap {
-		if sdc.count == 1 {
-			continue
-		}
-		resp.Diagnostics.AddAttributeError(
-			path.Root("sdc_list"),
-			"Error: Duplicate SDC in list",
-			fmt.Sprintf("The SDC {name:%s, ID:%s} is found %d times in the list, but only 1 time expected.", id, sdc.name, sdc.count),
-		)
-	}
-
-	mappedSdcInfoVal, dgs := types.SetValue(sdcInfoElemType, objectSdcInfos)
-	diags = append(diags, dgs...)
-	resp.Diagnostics.Append(diags...)
-	plan.SdcList = mappedSdcInfoVal
 	diags = resp.Plan.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	sdcList := []SDCItem{}
+	diags = plan.SdcList.ElementsAs(ctx, &sdcList, true)
+	resp.Diagnostics.Append(diags...)
+
+	for i, si := range sdcList {
+		if !si.SdcName.IsUnknown() {
+			tflog.Info(ctx, fmt.Sprintf("SDC name is provided: %s", si.SdcName.ValueString()))
+			foundsdc, errA := sr.FindSdc("Name", si.SdcName.ValueString())
+			if errA != nil {
+				resp.Diagnostics.AddError(
+					"Error getting sdc with the name: "+si.SdcName.ValueString(),
+					"unexpected error: "+errA.Error(),
+				)
+				return
+			}
+			tflog.Info(ctx, fmt.Sprintf("SDC id found: %s", foundsdc.Sdc.ID))
+			sdcList[i].SdcID = types.StringValue(foundsdc.Sdc.ID)
+		} else if !si.SdcID.IsUnknown() {
+			tflog.Info(ctx, fmt.Sprintf("SDC id is provided: %s", si.SdcID.ValueString()))
+			foundsdc, errA := sr.FindSdc("ID", si.SdcID.ValueString())
+			if errA != nil {
+				resp.Diagnostics.AddError(
+					"Error getting sdc name from sdc id: "+si.SdcID.ValueString(),
+					"unexpected error: "+errA.Error(),
+				)
+				return
+			}
+			tflog.Info(ctx, fmt.Sprintf("SDC name found: %s", foundsdc.Sdc.Name))
+			sdcList[i].SdcName = types.StringValue(foundsdc.Sdc.Name)
+		} else {
+			tflog.Trace(ctx, "Both SDC name and id are unknown")
+		}
+
+		if !si.LimitIops.IsUnknown() && si.LimitIops.ValueInt64() <= 10 && si.LimitIops.ValueInt64() > 0 {
+			resp.Diagnostics.AddError(
+				"Error setting the limit iops",
+				"sdc  "+si.SdcID.ValueString()+" "+si.SdcName.ValueString()+" limit iops must be a number larger than 10 or 0.",
+			)
+			return
+		}
+	}
+
+	// raise errors for SDCs that have multiple entries in the set
+	for _, err := range validateSdcSet(sdcList) {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("sdc_list"),
+			"Error: Duplicate SDC in list",
+			err.Error(),
+		)
+	}
+
+	mappedSdcInfoVal, dgs := GetSdcSetValueFromItems(sdcList)
+	resp.Diagnostics.Append(dgs...)
+	plan.SdcList = mappedSdcInfoVal
+	diags = resp.Plan.Set(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
 }
 
 // Create creates the resource and sets the initial Terraform state.

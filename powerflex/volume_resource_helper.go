@@ -6,7 +6,6 @@ import (
 
 	"github.com/dell/goscaleio"
 	pftypes "github.com/dell/goscaleio/types/v1"
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -73,26 +72,10 @@ func refreshVolumeState(vol *pftypes.Volume, state *VolumeResourceModel) (diags 
 	state.ID = types.StringValue(vol.ID)
 	state.AccessMode = types.StringValue(vol.AccessModeLimit)
 	state.CompressionMethod = types.StringValue(vol.CompressionMethod)
-	sdcInfoElemType := types.ObjectType{
-		AttrTypes: SdcInfoAttrTypes,
-	}
-	objectSdcInfos := []attr.Value{}
-	for _, msi := range vol.MappedSdcInfo {
-		obj := map[string]attr.Value{
-			"sdc_id":           types.StringValue(msi.SdcID),
-			"limit_iops":       types.Int64Value(int64(msi.LimitIops)),
-			"limit_bw_in_mbps": types.Int64Value(int64(msi.LimitBwInMbps)),
-			"sdc_name":         types.StringValue(msi.SdcName),
-			"access_mode":      types.StringValue(msi.AccessMode),
-		}
-		objVal, diag1 := types.ObjectValue(SdcInfoAttrTypes, obj)
-		diags = append(diags, diag1...)
-		objectSdcInfos = append(objectSdcInfos, objVal)
-	}
-	mappedSdcInfoVal, diag2 := types.SetValue(sdcInfoElemType, objectSdcInfos)
+	mappedSdcInfoVal, diag2 := GetSdcSetValueFromInfo(vol.MappedSdcInfo)
 	diags = append(diags, diag2...)
 	state.SdcList = mappedSdcInfoVal
-	return
+	return diags
 }
 
 // getStoragePoolInstance function to get storage pool from storage pool id and protection domain id

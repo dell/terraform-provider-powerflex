@@ -135,7 +135,7 @@ resource "powerflex_snapshot" "snapshots-create-01" {
 Optional:
 
 - `access_mode` (String) The Access Mode of the SDC
-- `limit_bw_in_mbps` (Number) Bandwidth limit in mbps
+- `limit_bw_in_mbps` (Number) Bandwidth limit in MBPS
 - `limit_iops` (Number) IOPS limit
 - `sdc_id` (String) The ID of the SDC
 - `sdc_name` (String) The Name of the SDC
