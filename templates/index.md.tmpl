@@ -20,7 +20,8 @@ title: "{{.ProviderShortName}} provider"
 linkTitle: "Provider"
 page_title: "{{.ProviderShortName}} Provider"
 subcategory: ""
-description: "{{.ProviderShortName}} provider"
+description: |-
+{{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
 ---
 
 # {{.ProviderShortName}} Provider

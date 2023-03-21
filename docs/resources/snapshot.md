@@ -20,7 +20,11 @@ title: "powerflex_snapshot resource"
 linkTitle: "powerflex_snapshot"
 page_title: "powerflex_snapshot Resource - powerflex"
 subcategory: ""
-description: "powerflex_snapshot resource"
+description: |-
+  Manages Snapshot in powerflex.
+  Note: Snapshot creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
+  One can manually remove the taint and try applying the configuration (after making necessary adjustments).
+  Warning: If the taint is not removed, terraform will destroy and recreate the resource.
 ---
 
 # powerflex_snapshot (Resource)

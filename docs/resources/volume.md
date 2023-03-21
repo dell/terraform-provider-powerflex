@@ -20,7 +20,11 @@ title: "powerflex_volume resource"
 linkTitle: "powerflex_volume"
 page_title: "powerflex_volume Resource - powerflex"
 subcategory: ""
-description: "powerflex_volume resource"
+description: |-
+  Manages Volume in powerflex.
+  Note: Volume creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
+  One can manually remove the taint and try applying the configuration (after making necessary adjustments).
+  Warning: If the taint is not removed, terraform will destroy and recreate the resource.
 ---
 
 # powerflex_volume (Resource)

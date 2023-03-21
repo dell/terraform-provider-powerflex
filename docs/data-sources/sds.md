@@ -20,7 +20,8 @@ title: "powerflex_sds data source"
 linkTitle: "powerflex_sds"
 page_title: "powerflex_sds Data Source - powerflex"
 subcategory: ""
-description: "powerflex_sds data source"
+description: |-
+  Fetches the list of sds.
 ---
 
 # powerflex_sds (Data Source)

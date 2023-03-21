@@ -20,7 +20,8 @@ title: "powerflex_storage_pool data source"
 linkTitle: "powerflex_storage_pool"
 page_title: "powerflex_storage_pool Data Source - powerflex"
 subcategory: ""
-description: "powerflex_storage_pool data source"
+description: |-
+  Fetches the list of storage pools.
 ---
 
 # powerflex_storage_pool (Data Source)

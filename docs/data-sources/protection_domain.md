@@ -20,7 +20,8 @@ title: "powerflex_protection_domain data source"
 linkTitle: "powerflex_protection_domain"
 page_title: "powerflex_protection_domain Data Source - powerflex"
 subcategory: ""
-description: "powerflex_protection_domain data source"
+description: |-
+  Datasource for powerflex manager protection domains.
 ---
 
 # powerflex_protection_domain (Data Source)

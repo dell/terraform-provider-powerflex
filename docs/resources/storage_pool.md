@@ -20,7 +20,8 @@ title: "powerflex_storage_pool resource"
 linkTitle: "powerflex_storage_pool"
 page_title: "powerflex_storage_pool Resource - powerflex"
 subcategory: ""
-description: "powerflex_storage_pool resource"
+description: |-
+  Manages storage pool resource
 ---
 
 # powerflex_storage_pool (Resource)

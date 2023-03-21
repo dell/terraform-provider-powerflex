@@ -20,7 +20,8 @@ title: "powerflex_sdc resource"
 linkTitle: "powerflex_sdc"
 page_title: "powerflex_sdc Resource - powerflex"
 subcategory: ""
-description: "powerflex_sdc resource"
+description: |-
+  
 ---
 
 # powerflex_sdc (Resource)

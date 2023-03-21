@@ -20,7 +20,8 @@ title: "{{.Name }} {{.Type | lower}}"
 linkTitle: "{{.Name}}"
 page_title: "{{.Name}} {{.Type}} - {{.ProviderName}}"
 subcategory: ""
-description: "{{.Name }} {{.Type | lower}}"
+description: |-
+{{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
 ---
 
 # {{.Name }} ({{.Type}})

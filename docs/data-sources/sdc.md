@@ -20,7 +20,8 @@ title: "powerflex_sdc data source"
 linkTitle: "powerflex_sdc"
 page_title: "powerflex_sdc Data Source - powerflex"
 subcategory: ""
-description: "powerflex_sdc data source"
+description: |-
+  
 ---
 
 # powerflex_sdc (Data Source)

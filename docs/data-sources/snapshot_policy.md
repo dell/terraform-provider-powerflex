@@ -20,7 +20,8 @@ title: "powerflex_snapshot_policy data source"
 linkTitle: "powerflex_snapshot_policy"
 page_title: "powerflex_snapshot_policy Data Source - powerflex"
 subcategory: ""
-description: "powerflex_snapshot_policy data source"
+description: |-
+  .
 ---
 
 # powerflex_snapshot_policy (Data Source)
