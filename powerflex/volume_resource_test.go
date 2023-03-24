@@ -264,6 +264,15 @@ func TestAccVolumeResource(t *testing.T) {
 		volume_type = "ThickProvisioned"
 	}
 	`
+	var createVolumeWithInvalidSizeNegTest = `
+	resource "powerflex_volume" "volume-size-invalid"{
+		name = "volume-with-invalid-size"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 9
+		volume_type = "ThinProvisioned"
+	}
+	`
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -350,6 +359,10 @@ func TestAccVolumeResource(t *testing.T) {
 			{
 				Config:      ProviderConfigForTesting + updateVolumeTypeNegTest,
 				ExpectError: regexp.MustCompile(`.*volume type cannot be update after volume creation*.`),
+			},
+			{
+				Config:      ProviderConfigForTesting + createVolumeWithInvalidSizeNegTest,
+				ExpectError: regexp.MustCompile(`.*Size Must be in granularity of 8GB*.`),
 			},
 		},
 	})
