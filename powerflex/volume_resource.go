@@ -58,7 +58,14 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 
-	if !plan.Size.IsNull() && !plan.Size.IsUnknown() {
+	if !plan.Size.IsNull() && !plan.Size.IsUnknown() && !plan.CapacityUnit.IsUnknown() {
+		// check if size is in granularity of 8 or not
+		if plan.Size.ValueInt64()%8 != 0 && plan.CapacityUnit.ValueString() == "GB" {
+			resp.Diagnostics.AddError(
+				"Error: Size Must be in granularity of 8GB",
+				"Could not assign volume with size. sizeInGb ("+strconv.FormatInt(plan.Size.ValueInt64(), 10)+") must be a positive number in granularity of 8 GB.",
+			)
+		}
 		VSIKB := convertToKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 		plan.SizeInKb = types.Int64Value(VSIKB)
 		diags = resp.Plan.Set(ctx, &plan)
