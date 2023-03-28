@@ -138,12 +138,12 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 		},
 		"performance_profile": schema.StringAttribute{
 			Description: "Performance Profile of SDS. " +
-				fmt.Sprintf("Valid values are '%s' and '%s'.", types.PerformanceProfileCompact, types.PerformanceProfileHigh)+
+				fmt.Sprintf("Valid values are '%s' and '%s'.", types.PerformanceProfileCompact, types.PerformanceProfileHigh) +
 				" Default value is determined by array settings.",
 			Optional: true,
 			Computed: true,
 			MarkdownDescription: "Performance Profile of SDS. " +
-				fmt.Sprintf("Valid values are `%s` and `%s`.", types.PerformanceProfileCompact, types.PerformanceProfileHigh)+
+				fmt.Sprintf("Valid values are `%s` and `%s`.", types.PerformanceProfileCompact, types.PerformanceProfileHigh) +
 				" Default value is determined by array settings.",
 			Validators: []validator.String{stringvalidator.OneOf(
 				types.PerformanceProfileHigh,
