@@ -117,11 +117,11 @@ resource "powerflex_snapshot" "snapshots-create-01" {
 ### Optional
 
 - `access_mode` (String) The Access mode of snapshot. Valid values are `ReadOnly` and `ReadWrite`. Default value is `ReadOnly`.
-- `capacity_unit` (String) capacity unit
+- `capacity_unit` (String) Unit of capacity of the volume. Must be one of `GB` and `TB`. Default value is `GB`.
 - `desired_retention` (Number) The minimum amount of time that the snapshot should be retained on the array starting at the time of apply. The unit is defined by `retention_unit`. Cannot be decreased.
 - `lock_auto_snapshot` (Boolean) lock auto snapshot
 - `remove_mode` (String) Remove mode of the snapshot. Valid values are `ONLY_ME` and `INCLUDING_DESCENDANTS`. Default value is `ONLY_ME`.
-- `retention_unit` (String) Retention unit of the snapshot. Valid values are 'hours' and 'days'. Default value is 'hours'.
+- `retention_unit` (String) Retention unit of the snapshot. Valid values are `hours` and `days`. Default value is `hours`.
 - `sdc_list` (Attributes Set) List of SDCs to be mapped to the volume. (see [below for nested schema](#nestedatt--sdc_list))
 - `size` (Number) Size of the snapshot. The unit of size is defined by `capacity_unit`. The storage capacity of a snapshot cannot be decreased.
 - `volume_id` (String) The ID of the volume from which snapshot is to be created. Must be provided if and only if `volume_name` is not provided. Cannot be updated.

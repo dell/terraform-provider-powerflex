@@ -80,16 +80,18 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			},
 		},
 		"size": schema.Int64Attribute{
-			Description:         "Size of the snapshot. The unit of size is defined by 'capacity_unit'. The storage capacity of a snapshot cannot be decreased.",
-			Optional:            true,
-			Computed:            true,
-			MarkdownDescription: "Size of the snapshot. The unit of size is defined by `capacity_unit`. The storage capacity of a snapshot cannot be decreased.",
+			Description: "Size of the snapshot. The unit of size is defined by 'capacity_unit'." +
+				" The storage capacity of a snapshot cannot be decreased.",
+			Optional: true,
+			Computed: true,
+			MarkdownDescription: "Size of the snapshot. The unit of size is defined by `capacity_unit`." +
+				" The storage capacity of a snapshot cannot be decreased.",
 		},
 		"capacity_unit": schema.StringAttribute{
-			Description:         "capacity unit",
+			Description:         "Unit of capacity of the volume. Must be one of 'GB' and 'TB'. Default value is 'GB'.",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "capacity unit",
+			MarkdownDescription: "Unit of capacity of the volume. Must be one of `GB` and `TB`. Default value is `GB`.",
 			Validators: []validator.String{stringvalidator.OneOf(
 				"GB",
 				"TB",
@@ -127,7 +129,7 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			Description:         "Retention unit of the snapshot. Valid values are 'hours' and 'days'. Default value is 'hours'.",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "Retention unit of the snapshot. Valid values are 'hours' and 'days'. Default value is 'hours'.",
+			MarkdownDescription: "Retention unit of the snapshot. Valid values are `hours` and `days`. Default value is `hours`.",
 			Validators: []validator.String{stringvalidator.OneOf(
 				"hours",
 				"days",
