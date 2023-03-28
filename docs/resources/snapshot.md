@@ -19,7 +19,7 @@ linkTitle: "powerflex_snapshot"
 page_title: "powerflex_snapshot Resource - powerflex"
 subcategory: ""
 description: |-
-  Manages Snapshot in powerflex.
+  This resource can be used to manage snapshots of volumes on a PowerFlex array.
   Note: Snapshot creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
   One can manually remove the taint and try applying the configuration (after making necessary adjustments).
   Warning: If the taint is not removed, terraform will destroy and recreate the resource.
@@ -27,7 +27,7 @@ description: |-
 
 # powerflex_snapshot (Resource)
 
-Manages Snapshot in powerflex.
+This resource can be used to manage snapshots of volumes on a PowerFlex array.
 Note: Snapshot creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 Warning: If the taint is not removed, terraform will destroy and recreate the resource.
@@ -116,16 +116,16 @@ resource "powerflex_snapshot" "snapshots-create-01" {
 
 ### Optional
 
-- `access_mode` (String) The Access mode of snapshot
+- `access_mode` (String) The Access mode of snapshot. Valid values are `ReadOnly` and `ReadWrite`. Default value is `ReadOnly`.
 - `capacity_unit` (String) capacity unit
-- `desired_retention` (Number) desired retention of snapshot
+- `desired_retention` (Number) The minimum amount of time that the snapshot should be retained on the array starting at the time of apply. The unit is defined by `retention_unit`. Cannot be decreased.
 - `lock_auto_snapshot` (Boolean) lock auto snapshot
-- `remove_mode` (String) remove mode of snapshot
-- `retention_unit` (String) retention unit of snapshot
-- `sdc_list` (Attributes Set) mapped sdc info (see [below for nested schema](#nestedatt--sdc_list))
-- `size` (Number) snapshot size
-- `volume_id` (String) The volume id for which snapshot is created - Either of Volume ID/Name is Required.
-- `volume_name` (String) The volume name for which snapshot is created - Either of Volume ID/Name is Required.
+- `remove_mode` (String) Remove mode of the snapshot. Valid values are `ONLY_ME` and `INCLUDING_DESCENDANTS`. Default value is `ONLY_ME`.
+- `retention_unit` (String) Retention unit of the snapshot. Valid values are 'hours' and 'days'. Default value is 'hours'.
+- `sdc_list` (Attributes Set) List of SDCs to be mapped to the volume. (see [below for nested schema](#nestedatt--sdc_list))
+- `size` (Number) Size of the snapshot. The unit of size is defined by `capacity_unit`. The storage capacity of a snapshot cannot be decreased.
+- `volume_id` (String) The ID of the volume from which snapshot is to be created. Must be provided if and only if `volume_name` is not provided. Cannot be updated.
+- `volume_name` (String) The volume name for which snapshot is created. Must be provided if and only if `volume_id` is not provided. Cannot be updated.
 
 ### Read-Only
 
@@ -138,11 +138,11 @@ resource "powerflex_snapshot" "snapshots-create-01" {
 
 Optional:
 
-- `access_mode` (String) The Access Mode of the SDC
-- `limit_bw_in_mbps` (Number) Bandwidth limit in MBPS
-- `limit_iops` (Number) IOPS limit
-- `sdc_id` (String) The ID of the SDC
-- `sdc_name` (String) The Name of the SDC
+- `access_mode` (String) The Access Mode of the SDC. Valid values are `ReadOnly`, `ReadWrite` and `NoAccess`. Default value is `ReadOnly`
+- `limit_bw_in_mbps` (Number) Bandwidth limit in MBPS of the SDC.
+- `limit_iops` (Number) IOPS limit of the SDC.
+- `sdc_id` (String) The ID of the SDC. Must be specified if and only if `sdc_name` is not specified. Cannot be updated.
+- `sdc_name` (String) The Name of the SDC. Must be specified if and only if `sdc_id` is not specified. Cannot be updated.
 
 ## Import
 

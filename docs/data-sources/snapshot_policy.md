@@ -19,12 +19,12 @@ linkTitle: "powerflex_snapshot_policy"
 page_title: "powerflex_snapshot_policy Data Source - powerflex"
 subcategory: ""
 description: |-
-  .
+  This data-source can be used to fetch information related to the snapshot policies from a PowerFlex array.
 ---
 
 # powerflex_snapshot_policy (Data Source)
 
-.
+This data-source can be used to fetch information related to the snapshot policies from a PowerFlex array.
 
 ## Example Usage
 
@@ -50,8 +50,8 @@ output "spResult" {
 
 ### Optional
 
-- `id` (String) Unique identifier of the snapshot policy instance.
-- `name` (String) Name of the snapshot policy.
+- `id` (String) Unique identifier of the snapshot policy instance to fetch. Can be provided only if `name` is not provided.
+- `name` (String) Name of the snapshot policy to fetch. Can be provided only if `id` is not provided.
 
 ### Read-Only
 

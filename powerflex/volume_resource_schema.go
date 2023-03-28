@@ -10,7 +10,7 @@ import (
 )
 
 // VolumeMarkdownDescription add notes for resource
-const VolumeMarkdownDescription = `Manages Volume in powerflex.
+const VolumeMarkdownDescription = `This resource can be used to manage volumes on a PowerFlex array.
 Note: Volume creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 Warning: If the taint is not removed, terraform will destroy and recreate the resource.
@@ -18,7 +18,7 @@ Warning: If the taint is not removed, terraform will destroy and recreate the re
 
 // VolumeResourceSchema variable to define schema for the volume resource
 var VolumeResourceSchema schema.Schema = schema.Schema{
-	Description:         "Manages volume resource.",
+	Description:         "This resource can be used to manage volumes on a PowerFlex array.",
 	MarkdownDescription: VolumeMarkdownDescription,
 	Attributes: map[string]schema.Attribute{
 		"name": schema.StringAttribute{
@@ -30,55 +30,71 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 			},
 		},
 		"storage_pool_id": schema.StringAttribute{
-			Description:         "storage pool id",
-			Optional:            true,
-			Computed:            true,
-			MarkdownDescription: "storage pool id - Either of Storage Pool ID/Name is Required.",
+			Description: "ID of the Storage Pool under which the volume will be created." +
+				" Must be provided if and only if 'storage_pool_name' is not provided." +
+				" Cannot be updated.",
+			Optional: true,
+			Computed: true,
+			MarkdownDescription: "ID of the Storage Pool under which the volume will be created." +
+				" Must be provided if and only if `storage_pool_name` is not provided." +
+				" Cannot be updated.",
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("storage_pool_name")),
 			},
 		},
 		"storage_pool_name": schema.StringAttribute{
-			Description:         "Storage Pool Name",
-			Optional:            true,
-			Computed:            true,
-			MarkdownDescription: "Storage Pool Name - Either of Storage Pool ID/Name is Required.",
+			Description: "Name of the Storage Pool under which the volume will be created." +
+				" Must be provided if and only if 'storage_pool_id' is not provided." +
+				" Cannot be updated.",
+			Optional: true,
+			Computed: true,
+			MarkdownDescription: "Name of the Storage Pool under which the volume will be created." +
+				" Must be provided if and only if `storage_pool_id` is not provided." +
+				" Cannot be updated.",
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("storage_pool_id")),
 			},
 		},
 		"protection_domain_id": schema.StringAttribute{
-			Description:         "Protection Domain ID.",
-			MarkdownDescription: "Protection Domain ID - Either of Protection Domain ID/Name is Required.",
-			Computed:            true,
-			Optional:            true,
+			Description: "ID of the Protection Domain under which the volume will be created." +
+				" Must be provided if and only if 'protection_domain_name' is not provided." +
+				" Cannot be updated.",
+			MarkdownDescription: "ID of the Protection Domain under which the volume will be created." +
+				" Must be provided if and only if `protection_domain_name` is not provided." +
+				" Cannot be updated.",
+			Computed: true,
+			Optional: true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_name")),
 			},
 		},
 		"protection_domain_name": schema.StringAttribute{
-			Description:         "Protection Domain Name.",
-			MarkdownDescription: "Protection Domain Name - Either of Protection Domain ID/Name is Required.",
-			Optional:            true,
-			Computed:            true,
+			Description: "Name of the Protection Domain under which the volume will be created." +
+				" Must be provided if and only if 'protection_domain_id' is not provided." +
+				" Cannot be updated.",
+			MarkdownDescription: "Name of the Protection Domain under which the volume will be created." +
+				" Must be provided if and only if `protection_domain_id` is not provided." +
+				" Cannot be updated.",
+			Optional: true,
+			Computed: true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),
 			},
 		},
 		"size": schema.Int64Attribute{
-			Description:         "volume size",
+			Description:         "Size of the volume. The unit of size is defined by 'capacity_unit'. The storage capacity of a volume cannot be decreased.",
 			Required:            true,
-			MarkdownDescription: "volume size",
+			MarkdownDescription: "Size of the volume. The unit of size is defined by `capacity_unit`. The storage capacity of a volume cannot be decreased.",
 		},
 		"capacity_unit": schema.StringAttribute{
-			Description:         "capacity unit",
+			Description:         "Unit of capacity of the volume. Must be one of 'GB' and 'TB'. Default value is 'GB'.",
 			Computed:            true,
 			Optional:            true,
-			MarkdownDescription: "capacity unit",
+			MarkdownDescription: "Unit of capacity of the volume. Must be one of `GB` and `TB`. Default value is `GB`.",
 			Validators: []validator.String{stringvalidator.OneOf(
 				"GB",
 				"TB",
@@ -88,10 +104,10 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 			},
 		},
 		"volume_type": schema.StringAttribute{
-			Description:         "volume type",
+			Description:         "Volume type. Valid values are 'ThickProvisioned' and 'ThinProvisioned'. Default value is 'ThinProvisioned'.",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "volume type",
+			MarkdownDescription: "Volume type. Valid values are `ThickProvisioned` and `ThinProvisioned`. Default value is `ThinProvisioned`.",
 			Validators: []validator.String{stringvalidator.OneOf(
 				"ThickProvisioned",
 				"ThinProvisioned",
@@ -107,10 +123,10 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "use rm cache",
 		},
 		"compression_method": schema.StringAttribute{
-			Description:         "Compression Method on the volume.",
+			Description:         "Compression Method of the volume. Valid values are 'None' and 'Normal'.",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "Compression Method the volume.",
+			MarkdownDescription: "Compression Method of the volume. Valid values are `None` and `Normal`.",
 			Validators: []validator.String{stringvalidator.OneOf(
 				"None",
 				"Normal",
@@ -133,10 +149,10 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Size in KB",
 		},
 		"access_mode": schema.StringAttribute{
-			Description:         "The Access mode of Volume",
+			Description:         "The Access mode of the volume. Valid values are 'ReadOnly' and 'ReadWrite'. Default value is 'ReadOnly'.",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "The Access mode of Volume",
+			MarkdownDescription: "The Access mode of the volume. Valid values are `ReadOnly` and `ReadWrite`. Default value is `ReadOnly`.",
 			Validators: []validator.String{stringvalidator.OneOf(
 				"ReadOnly",
 				"ReadWrite",
@@ -146,10 +162,10 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 			},
 		},
 		"remove_mode": schema.StringAttribute{
-			Description:         "remove mode of Volume",
+			Description:         "Remove mode of the volume. Valid values are 'ONLY_ME' and 'INCLUDING_DESCENDANTS'. Default value is 'ONLY_ME'.",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "remove mode of Volume",
+			MarkdownDescription: "Remove mode of the volume. Valid values are `ONLY_ME` and `INCLUDING_DESCENDANTS`. Default value is `ONLY_ME`.",
 			Validators: []validator.String{stringvalidator.OneOf(
 				"ONLY_ME",
 				"INCLUDING_DESCENDANTS",

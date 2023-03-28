@@ -19,12 +19,12 @@ linkTitle: "powerflex_protection_domain"
 page_title: "powerflex_protection_domain Data Source - powerflex"
 subcategory: ""
 description: |-
-  Datasource for powerflex manager protection domains.
+  This datasource can be used to fetch information related to protection domains from a PowerFlex array.
 ---
 
 # powerflex_protection_domain (Data Source)
 
-Datasource for powerflex manager protection domains.
+This datasource can be used to fetch information related to protection domains from a PowerFlex array.
 
 ## Example Usage
 
@@ -57,8 +57,8 @@ output "pdResult" {
 
 ### Optional
 
-- `id` (String) Unique identifier of the protection domain instance.
-- `name` (String) Unique name of the protection domain instance.
+- `id` (String) Unique identifier of the protection domain instance. Can be provided if and only if `name` is not provided.
+- `name` (String) Unique name of the protection domain instance. Can be provided if and only if `id` is not provided.
 
 ### Read-Only
 
@@ -85,7 +85,7 @@ Read-Only:
 - `rebuild_network_throttling_enabled` (Boolean) Whether network throttling is enabled for rebuilding.
 - `rebuild_network_throttling_in_kbps` (Number) Maximum allowed io for rebuilding in KBps.
 - `replication_capacity_max_ratio` (Number) Maximum Replication Capacity Ratio.
-- `rf_cache_accp_id` (String) Rf Cache  Acceleration Pool ID.
+- `rf_cache_accp_id` (String) ID of the Rf Cache Acceleration Pool attached to the PD.
 - `rf_cache_enabled` (Boolean) Whether SDS Rf Cache is enabled or not.
 - `rf_cache_max_io_size_kb` (Number) Maximum io of the SDS RF Cache in KB.
 - `rf_cache_opertional_mode` (String) Operational Mode of the SDS RF Cache.
@@ -95,7 +95,7 @@ Read-Only:
 - `sds_decoupled_counter` (Attributes) SDS Decoupled Counter windows. (see [below for nested schema](#nestedatt--protection_domains--sds_decoupled_counter))
 - `sds_receive_buffer_allocation_failures_counter` (Attributes) SDS receive Buffer Allocation Failure Counter windows. (see [below for nested schema](#nestedatt--protection_domains--sds_receive_buffer_allocation_failures_counter))
 - `sds_sds_network_disconnections_counter` (Attributes) SDS-SDS Network Disconnection Counter windows. (see [below for nested schema](#nestedatt--protection_domains--sds_sds_network_disconnections_counter))
-- `state` (String) State of a PD, which can be Active, ActivePending, Inactive or InactivePending.
+- `state` (String) State of a PD. Valid values are `Active`, `ActivePending`, `Inactive` or `InactivePending`.
 - `system_id` (String) System ID of the PD.
 - `vtree_migration_network_throttling_enabled` (Boolean) Whether network throttling is enabled for vtree migration.
 - `vtree_migration_network_throttling_in_kbps` (Number) Maximum allowed io for vtree migration in KBps.

@@ -19,7 +19,7 @@ linkTitle: "powerflex_volume"
 page_title: "powerflex_volume Resource - powerflex"
 subcategory: ""
 description: |-
-  Manages Volume in powerflex.
+  This resource can be used to manage volumes on a PowerFlex array.
   Note: Volume creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
   One can manually remove the taint and try applying the configuration (after making necessary adjustments).
   Warning: If the taint is not removed, terraform will destroy and recreate the resource.
@@ -27,7 +27,7 @@ description: |-
 
 # powerflex_volume (Resource)
 
-Manages Volume in powerflex.
+This resource can be used to manage volumes on a PowerFlex array.
 Note: Volume creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 Warning: If the taint is not removed, terraform will destroy and recreate the resource.
@@ -93,21 +93,21 @@ resource "powerflex_volume" "avengers-volume-create" {
 ### Required
 
 - `name` (String) The name of the volume.
-- `size` (Number) volume size
+- `size` (Number) Size of the volume. The unit of size is defined by `capacity_unit`. The storage capacity of a volume cannot be decreased.
 
 ### Optional
 
-- `access_mode` (String) The Access mode of Volume
-- `capacity_unit` (String) capacity unit
-- `compression_method` (String) Compression Method the volume.
-- `protection_domain_id` (String) Protection Domain ID - Either of Protection Domain ID/Name is Required.
-- `protection_domain_name` (String) Protection Domain Name - Either of Protection Domain ID/Name is Required.
-- `remove_mode` (String) remove mode of Volume
-- `sdc_list` (Attributes Set) mapped sdc info (see [below for nested schema](#nestedatt--sdc_list))
-- `storage_pool_id` (String) storage pool id - Either of Storage Pool ID/Name is Required.
-- `storage_pool_name` (String) Storage Pool Name - Either of Storage Pool ID/Name is Required.
+- `access_mode` (String) The Access mode of the volume. Valid values are `ReadOnly` and `ReadWrite`. Default value is `ReadOnly`.
+- `capacity_unit` (String) Unit of capacity of the volume. Must be one of `GB` and `TB`. Default value is `GB`.
+- `compression_method` (String) Compression Method of the volume. Valid values are `None` and `Normal`.
+- `protection_domain_id` (String) ID of the Protection Domain under which the volume will be created. Must be provided if and only if `protection_domain_name` is not provided. Cannot be updated.
+- `protection_domain_name` (String) Name of the Protection Domain under which the volume will be created. Must be provided if and only if `protection_domain_id` is not provided. Cannot be updated.
+- `remove_mode` (String) Remove mode of the volume. Valid values are `ONLY_ME` and `INCLUDING_DESCENDANTS`. Default value is `ONLY_ME`.
+- `sdc_list` (Attributes Set) List of SDCs to be mapped to the volume. (see [below for nested schema](#nestedatt--sdc_list))
+- `storage_pool_id` (String) ID of the Storage Pool under which the volume will be created. Must be provided if and only if `storage_pool_name` is not provided. Cannot be updated.
+- `storage_pool_name` (String) Name of the Storage Pool under which the volume will be created. Must be provided if and only if `storage_pool_id` is not provided. Cannot be updated.
 - `use_rm_cache` (Boolean) use rm cache
-- `volume_type` (String) volume type
+- `volume_type` (String) Volume type. Valid values are `ThickProvisioned` and `ThinProvisioned`. Default value is `ThinProvisioned`.
 
 ### Read-Only
 
@@ -119,11 +119,11 @@ resource "powerflex_volume" "avengers-volume-create" {
 
 Optional:
 
-- `access_mode` (String) The Access Mode of the SDC
-- `limit_bw_in_mbps` (Number) Bandwidth limit in MBPS
-- `limit_iops` (Number) IOPS limit
-- `sdc_id` (String) The ID of the SDC
-- `sdc_name` (String) The Name of the SDC
+- `access_mode` (String) The Access Mode of the SDC. Valid values are `ReadOnly`, `ReadWrite` and `NoAccess`. Default value is `ReadOnly`
+- `limit_bw_in_mbps` (Number) Bandwidth limit in MBPS of the SDC.
+- `limit_iops` (Number) IOPS limit of the SDC.
+- `sdc_id` (String) The ID of the SDC. Must be specified if and only if `sdc_name` is not specified. Cannot be updated.
+- `sdc_name` (String) The Name of the SDC. Must be specified if and only if `sdc_id` is not specified. Cannot be updated.
 
 ## Import
 

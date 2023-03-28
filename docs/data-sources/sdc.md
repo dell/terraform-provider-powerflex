@@ -19,12 +19,12 @@ linkTitle: "powerflex_sdc"
 page_title: "powerflex_sdc Data Source - powerflex"
 subcategory: ""
 description: |-
-  
+  This data-source can be used to fetch information related to Storage Device Clients from a PowerFlex array.
 ---
 
 # powerflex_sdc (Data Source)
 
-
+This data-source can be used to fetch information related to Storage Device Clients from a PowerFlex array.
 
 ## Example Usage
 
@@ -52,34 +52,34 @@ output "allsdcresult" {
 
 ### Optional
 
-- `id` (String) Input SDC id to search for.
-- `name` (String) SDC input sdc name to search for.
+- `id` (String) ID of the SDC to fetch. Can be provided if and only if `name` is not provided.
+- `name` (String) Name of the SDC to fetch. Can be provided if and only if `id` is not provided.
 
 ### Read-Only
 
-- `sdcs` (Attributes List) result SDCs. (see [below for nested schema](#nestedatt--sdcs))
+- `sdcs` (Attributes List) List of fetched SDCs. (see [below for nested schema](#nestedatt--sdcs))
 
 <a id="nestedatt--sdcs"></a>
 ### Nested Schema for `sdcs`
 
 Read-Only:
 
-- `id` (String) SDC ID.
-- `links` (Attributes List) SDC Links. (see [below for nested schema](#nestedatt--sdcs--links))
-- `mdm_connection_state` (String) SDC MDM connection status.
-- `name` (String) SDC name.
-- `on_vmware` (Boolean) SDC is onvmware.
-- `sdc_approved` (Boolean) SDC is approved.
-- `sdc_guid` (String) SDC GUID.
-- `sdc_ip` (String) SDC IP.
-- `system_id` (String) SDC System ID.
+- `id` (String) The ID of the fetched SDC.
+- `links` (Attributes List) The Links of the fetched SDC. (see [below for nested schema](#nestedatt--sdcs--links))
+- `mdm_connection_state` (String) The MDM connection status of the fetched SDC.
+- `name` (String) The name of the fetched SDC.
+- `on_vmware` (Boolean) If the fetched SDC is on vmware.
+- `sdc_approved` (Boolean) If the fetched SDC is approved.
+- `sdc_guid` (String) The GUID of the fetched SDC.
+- `sdc_ip` (String) The IP of the fetched SDC.
+- `system_id` (String) The System ID of the fetched SDC.
 
 <a id="nestedatt--sdcs--links"></a>
 ### Nested Schema for `sdcs.links`
 
 Read-Only:
 
-- `href` (String) SDC Links-HREF.
-- `rel` (String) SDC Links-Rel.
+- `href` (String) The Links-HREF of the fetched SDC.
+- `rel` (String) The Links-Rel of the fetched SDC.
 
 

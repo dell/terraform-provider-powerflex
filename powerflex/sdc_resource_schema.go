@@ -21,19 +21,19 @@ var sdcResourceSchemaDescriptions = struct {
 	LinksRel           string
 	LinksHref          string
 }{
-	SdcResourceSchema:  "",
-	LastUpdated:        "last updated timestamp.",
-	ID:                 "SDC ID.",
-	SystemID:           "System ID.",
-	Name:               "SDC Name.",
-	SdcIP:              "SDC IP.",
-	SdcApproved:        "SDC Approved.",
-	OnVMWare:           "On VMware.",
-	SdcGUID:            "SDC GUID.",
-	MdmConnectionState: "MDM Connection state.",
-	Links:              "Links.",
-	LinksRel:           "Links Rel.",
-	LinksHref:          "Links HREF.",
+	SdcResourceSchema:  "This resource can be used to manage Storage Device Clients on a PowerFlex array.",
+	LastUpdated:        "The Last updated timestamp of the SDC.",
+	ID:                 "ID of the SDC to manage. This can be retrieved from the PowerFlex website. Cannot be updated.",
+	SystemID:           "The System ID of the fetched SDC.",
+	Name:               "Name of the SDC to manage.",
+	SdcIP:              "The IP of the fetched SDC.",
+	SdcApproved:        "If the fetched SDC is approved.",
+	OnVMWare:           "If the fetched SDC is on vmware.",
+	SdcGUID:            "The GUID of the fetched SDC.",
+	MdmConnectionState: "The MDM connection status of the fetched SDC.",
+	Links:              "The Links of the fetched SDC.",
+	LinksRel:           "The Links-Rel of the fetched SDC.",
+	LinksHref:          "The Links-HREF of the fetched SDC.",
 }
 
 // SDCReourceSchema - varible holds schema for SDC resource

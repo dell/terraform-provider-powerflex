@@ -10,21 +10,25 @@ import (
 
 // SnapshotPolicyDataSourceSchema is the schema for reading the snapshot policy data
 var SnapshotPolicyDataSourceSchema schema.Schema = schema.Schema{
-	Description: ".",
+	Description: "This data-source can be used to fetch information related to the snapshot policies from a PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
-			Description:         "Unique identifier of the snapshot policy instance.",
-			MarkdownDescription: "Unique identifier of the snapshot policy instance.",
-			Optional:            true,
-			Computed:            true,
+			Description: "Unique identifier of the snapshot policy instance to fetch." +
+				" Can be provided only if 'name' is not provided.",
+			MarkdownDescription: "Unique identifier of the snapshot policy instance to fetch." +
+				" Can be provided only if `name` is not provided.",
+			Optional: true,
+			Computed: true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 			},
 		},
 		"name": schema.StringAttribute{
-			Description:         "Name of the snapshot policy.",
-			MarkdownDescription: "Name of the snapshot policy.",
-			Optional:            true,
+			Description: "Name of the snapshot policy to fetch." +
+				" Can be provided only if 'id' is not provided.",
+			MarkdownDescription: "Name of the snapshot policy to fetch." +
+				" Can be provided only if `id` is not provided.",
+			Optional: true,
 			Validators: []validator.String{
 				stringvalidator.ConflictsWith(path.MatchRoot("id")),
 				stringvalidator.LengthAtLeast(1),

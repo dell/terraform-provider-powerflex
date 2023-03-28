@@ -19,12 +19,12 @@ linkTitle: "powerflex_sds"
 page_title: "powerflex_sds Data Source - powerflex"
 subcategory: ""
 description: |-
-  Fetches the list of sds.
+  This data-source can be used to fetch information related to Storage Device Servers from a PowerFlex array.
 ---
 
 # powerflex_sds (Data Source)
 
-Fetches the list of sds.
+This data-source can be used to fetch information related to Storage Device Servers from a PowerFlex array.
 
 ## Example Usage
 
@@ -56,15 +56,15 @@ output "allsdcresult" {
 
 ### Optional
 
-- `protection_domain_id` (String) Protection Domain ID - Either of Protection Domain ID/Name is Required.
-- `protection_domain_name` (String) Protection Domain Name - Either of Protection Domain ID/Name is Required.
-- `sds_ids` (List of String) List of SDS IDs.
-- `sds_names` (List of String) List of SDS names.
+- `protection_domain_id` (String) Protection Domain ID. Must be provided if and only if `protection_domain_name` is not provided.
+- `protection_domain_name` (String) Protection Domain Name. Must be provided if and only if `protection_domain_id` is not provided.
+- `sds_ids` (List of String) List of SDS IDs. Can be provided only if `sds_names` is not provided.
+- `sds_names` (List of String) List of SDS names. Can be provided only if `sds_ids` is not provided.
 
 ### Read-Only
 
 - `id` (String) Placeholder identifier attribute.
-- `sds_details` (Attributes List) List of SDS. (see [below for nested schema](#nestedatt--sds_details))
+- `sds_details` (Attributes List) List of fetched SDS. (see [below for nested schema](#nestedatt--sds_details))
 
 <a id="nestedatt--sds_details"></a>
 ### Nested Schema for `sds_details`
@@ -103,7 +103,7 @@ Read-Only:
 - `rfcache_error_low_resources` (Boolean) RF cache error for low resources.
 - `rmcache_enabled` (Boolean) Whether RM cache is enabled or not.
 - `rmcache_frozen` (Boolean) Indicates whether the Read RAM Cache is currently temporarily not in use.
-- `rmcache_memory_allocation_state` (String) Indicates the state of the memory allocation process (in progress/done).
+- `rmcache_memory_allocation_state` (String) Indicates the state of the memory allocation process. Can be one of `in progress` and `done`.
 - `rmcache_size` (Number) Indicates the size of Read RAM Cache on the specified SDS in KB.
 - `sds_configuration_failure` (Attributes) SDS configuration failure windows. (see [below for nested schema](#nestedatt--sds_details--sds_configuration_failure))
 - `sds_decoupled` (Attributes) SDS decoupled windows. (see [below for nested schema](#nestedatt--sds_details--sds_decoupled))

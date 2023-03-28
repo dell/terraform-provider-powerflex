@@ -8,15 +8,6 @@ import (
 )
 
 var sdcDatasourceSchemaDescriptions = struct {
-	SdcDatasourceSchema string
-
-	InputID    string
-	InputSdcID string
-	// InputSystemid string
-	InputName string
-
-	Sdcs string // outpur slice
-
 	LastUpdated        string
 	ID                 string
 	SystemID           string
@@ -30,52 +21,49 @@ var sdcDatasourceSchemaDescriptions = struct {
 	LinksRel           string
 	LinksHref          string
 }{
-	SdcDatasourceSchema: "",
-
-	InputID:    "Input ID required only for testing.",
-	InputSdcID: "Input SDC id to search for.",
-	// InputSystemid: "",
-	InputName: "SDC input sdc name to search for.",
-
-	Sdcs: "result SDCs.", // outpur slice
-
-	LastUpdated:        "SDC result last updated timestamp.",
-	ID:                 "SDC ID.",
-	SystemID:           "SDC System ID.",
-	Name:               "SDC name.",
-	SdcIP:              "SDC IP.",
-	SdcApproved:        "SDC is approved.",
-	OnVMWare:           "SDC is onvmware.",
-	SdcGUID:            "SDC GUID.",
-	MdmConnectionState: "SDC MDM connection status.",
-	Links:              "SDC Links.",
-	LinksRel:           "SDC Links-Rel.",
-	LinksHref:          "SDC Links-HREF.",
+	LastUpdated:        "The Last updated timestamp of the fetched SDC.",
+	ID:                 "The ID of the fetched SDC.",
+	SystemID:           "The System ID of the fetched SDC.",
+	Name:               "The name of the fetched SDC.",
+	SdcIP:              "The IP of the fetched SDC.",
+	SdcApproved:        "If the fetched SDC is approved.",
+	OnVMWare:           "If the fetched SDC is on vmware.",
+	SdcGUID:            "The GUID of the fetched SDC.",
+	MdmConnectionState: "The MDM connection status of the fetched SDC.",
+	Links:              "The Links of the fetched SDC.",
+	LinksRel:           "The Links-Rel of the fetched SDC.",
+	LinksHref:          "The Links-HREF of the fetched SDC.",
 }
 
 // SDCDataSourceScheme is variable for schematic for SDC Data Source
 var SDCDataSourceScheme schema.Schema = schema.Schema{
-	Description: sdcDatasourceSchemaDescriptions.SdcDatasourceSchema,
+	Description: "This data-source can be used to fetch information related to Storage Device Clients from a PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
-			Description: sdcDatasourceSchemaDescriptions.InputSdcID,
-			Optional:    true,
-			Computed:    true,
+			Description: "ID of the SDC to fetch." +
+				" Can be provided if and only if 'name' is not provided.",
+			MarkdownDescription: "ID of the SDC to fetch." +
+				" Can be provided if and only if `name` is not provided.",
+			Optional: true,
+			Computed: true,
 			Validators: []validator.String{
 				stringvalidator.ConflictsWith(path.MatchRoot("name")),
 				stringvalidator.LengthAtLeast(1),
 			},
 		},
 		"name": schema.StringAttribute{
-			Description: sdcDatasourceSchemaDescriptions.InputName,
-			Optional:    true,
-			Computed:    true,
+			Description: "Name of the SDC to fetch." +
+				" Can be provided if and only if 'id' is not provided.",
+			MarkdownDescription: "Name of the SDC to fetch." +
+				" Can be provided if and only if `id` is not provided.",
+			Optional: true,
+			Computed: true,
 			Validators: []validator.String{
 				stringvalidator.ConflictsWith(path.MatchRoot("id")),
 			},
 		},
 		"sdcs": schema.ListNestedAttribute{
-			Description: sdcDatasourceSchemaDescriptions.Sdcs,
+			Description: "List of fetched SDCs.",
 			Computed:    true,
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: map[string]schema.Attribute{

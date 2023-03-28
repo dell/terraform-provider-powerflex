@@ -19,12 +19,12 @@ linkTitle: "powerflex_storage_pool"
 page_title: "powerflex_storage_pool Resource - powerflex"
 subcategory: ""
 description: |-
-  Manages storage pool resource
+  This resource can be used to manage Storage Pools on a PowerFlex array.
 ---
 
 # powerflex_storage_pool (Resource)
 
-Manages storage pool resource
+This resource can be used to manage Storage Pools on a PowerFlex array.
 
 
 ## Example Usage
@@ -57,13 +57,13 @@ output "created_storagepool" {
 
 ### Required
 
-- `media_type` (String) Media Type
+- `media_type` (String) Media Type of the storage pool. Valid values are `HDD`, `SSD` and `Transitional`
 - `name` (String) Name of the Storage pool
 
 ### Optional
 
-- `protection_domain_id` (String) ID of the Protection domain - Either of Protection Domain ID/Name is Required.
-- `protection_domain_name` (String) Name of the Protection domain - Either of Protection Domain ID/Name is Required.
+- `protection_domain_id` (String) ID of the Protection Domain under which the storage pool will be created. Must be provided if and only if `protection_domain_name` is not provided. Cannot be updated.
+- `protection_domain_name` (String) Name of the Protection Domain under which the storage pool will be created. Must be provided if and only if `protection_domain_id` is not provided. Cannot be updated.
 - `use_rfcache` (Boolean) Enable/Disable RFcache on a specific storage pool
 - `use_rmcache` (Boolean) Enable/Disable RMcache on a specific storage pool
 

@@ -11,7 +11,7 @@ import (
 
 // SdsDataSourceSchema is the schema for reading the sds data
 var SdsDataSourceSchema schema.Schema = schema.Schema{
-	Description: "Fetches the list of sds.",
+	Description: "This data-source can be used to fetch information related to Storage Device Servers from a PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "Placeholder identifier attribute.",
@@ -19,40 +19,48 @@ var SdsDataSourceSchema schema.Schema = schema.Schema{
 			Computed:            true,
 		},
 		"protection_domain_id": schema.StringAttribute{
-			Description:         "Protection Domain ID.",
-			MarkdownDescription: "Protection Domain ID - Either of Protection Domain ID/Name is Required.",
-			Optional:            true,
+			Description: "Protection Domain ID." +
+				" Must be provided if and only if 'protection_domain_name' is not provided.",
+			MarkdownDescription: "Protection Domain ID." +
+				" Must be provided if and only if `protection_domain_name` is not provided.",
+			Optional: true,
 		},
 		"protection_domain_name": schema.StringAttribute{
-			Description:         "Protection Domain Name.",
-			MarkdownDescription: "Protection Domain Name - Either of Protection Domain ID/Name is Required.",
-			Optional:            true,
+			Description: "Protection Domain Name." +
+				" Must be provided if and only if 'protection_domain_id' is not provided.",
+			MarkdownDescription: "Protection Domain Name." +
+				" Must be provided if and only if `protection_domain_id` is not provided.",
+			Optional: true,
 			Validators: []validator.String{
 				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),
 			},
 		},
 		"sds_ids": schema.ListAttribute{
-			Description:         "List of SDS IDs.",
-			MarkdownDescription: "List of SDS IDs.",
-			ElementType:         types.StringType,
-			Optional:            true,
+			Description: "List of SDS IDs." +
+				" Can be provided only if 'sds_names' is not provided.",
+			MarkdownDescription: "List of SDS IDs." +
+				" Can be provided only if `sds_names` is not provided.",
+			ElementType: types.StringType,
+			Optional:    true,
 			Validators: []validator.List{
 				listvalidator.SizeAtLeast(1),
 			},
 		},
 		"sds_names": schema.ListAttribute{
-			Description:         "List of SDS names.",
-			MarkdownDescription: "List of SDS names.",
-			ElementType:         types.StringType,
-			Optional:            true,
+			Description: "List of SDS names." +
+				" Can be provided only if 'sds_ids' is not provided.",
+			MarkdownDescription: "List of SDS names." +
+				" Can be provided only if `sds_ids` is not provided.",
+			ElementType: types.StringType,
+			Optional:    true,
 			Validators: []validator.List{
 				listvalidator.ConflictsWith(path.MatchRoot("sds_ids")),
 				listvalidator.SizeAtLeast(1),
 			},
 		},
 		"sds_details": schema.ListNestedAttribute{
-			Description:         "List of SDS.",
-			MarkdownDescription: "List of SDS.",
+			Description:         "List of fetched SDS.",
+			MarkdownDescription: "List of fetched SDS.",
 			Computed:            true,
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: map[string]schema.Attribute{
@@ -141,8 +149,8 @@ var SdsDataSourceSchema schema.Schema = schema.Schema{
 						Computed:            true,
 					},
 					"rmcache_memory_allocation_state": schema.StringAttribute{
-						Description:         "Indicates the state of the memory allocation process (in progress/done).",
-						MarkdownDescription: "Indicates the state of the memory allocation process (in progress/done).",
+						Description:         "Indicates the state of the memory allocation process. Can be one of 'in progress' and 'done'.",
+						MarkdownDescription: "Indicates the state of the memory allocation process. Can be one of `in progress` and `done`.",
 						Computed:            true,
 					},
 					"performance_profile": schema.StringAttribute{

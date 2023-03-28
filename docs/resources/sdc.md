@@ -19,12 +19,12 @@ linkTitle: "powerflex_sdc"
 page_title: "powerflex_sdc Resource - powerflex"
 subcategory: ""
 description: |-
-  
+  This resource can be used to manage Storage Device Clients on a PowerFlex array.
 ---
 
 # powerflex_sdc (Resource)
 
-
+This resource can be used to manage Storage Device Clients on a PowerFlex array.
 
 
 ## Example Usage
@@ -54,27 +54,27 @@ resource "powerflex_sdc" "sdc" {
 
 ### Required
 
-- `id` (String) SDC ID.
-- `name` (String) SDC Name.
+- `id` (String) ID of the SDC to manage. This can be retrieved from the PowerFlex website. Cannot be updated.
+- `name` (String) Name of the SDC to manage.
 
 ### Read-Only
 
-- `last_updated` (String) last updated timestamp.
-- `links` (Attributes List) Links. (see [below for nested schema](#nestedatt--links))
-- `mdm_connection_state` (String) MDM Connection state.
-- `on_vmware` (Boolean) On VMware.
-- `sdc_approved` (Boolean) SDC Approved.
-- `sdc_guid` (String) SDC GUID.
-- `sdc_ip` (String) SDC IP.
-- `system_id` (String) System ID.
+- `last_updated` (String) The Last updated timestamp of the SDC.
+- `links` (Attributes List) The Links of the fetched SDC. (see [below for nested schema](#nestedatt--links))
+- `mdm_connection_state` (String) The MDM connection status of the fetched SDC.
+- `on_vmware` (Boolean) If the fetched SDC is on vmware.
+- `sdc_approved` (Boolean) If the fetched SDC is approved.
+- `sdc_guid` (String) The GUID of the fetched SDC.
+- `sdc_ip` (String) The IP of the fetched SDC.
+- `system_id` (String) The System ID of the fetched SDC.
 
 <a id="nestedatt--links"></a>
 ### Nested Schema for `links`
 
 Read-Only:
 
-- `href` (String) Links HREF.
-- `rel` (String) Links Rel.
+- `href` (String) The Links-HREF of the fetched SDC.
+- `rel` (String) The Links-Rel of the fetched SDC.
 
 ## Import
 

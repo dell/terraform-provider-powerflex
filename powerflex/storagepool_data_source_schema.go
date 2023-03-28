@@ -11,7 +11,7 @@ import (
 
 // DataSourceSchema is the schema for reading the storage pool data
 var DataSourceSchema schema.Schema = schema.Schema{
-	Description: "Fetches the list of storage pools.",
+	Description: "This data-source can be used to fetch information related to the storage pools from a PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "Placeholder identifier attribute.",
@@ -19,36 +19,44 @@ var DataSourceSchema schema.Schema = schema.Schema{
 			Computed:            true,
 		},
 		"protection_domain_id": schema.StringAttribute{
-			Description:         "Protection Domain ID.",
-			MarkdownDescription: "Protection Domain ID - Either of Protection Domain ID/Name is Required.",
-			Optional:            true,
+			Description: "ID of the Protection Domain from which storage pools will be fetched." +
+				" Must be provided if and only if 'protection_domain_name' is not provided.",
+			MarkdownDescription: "ID of the Protection Domain from which storage pools will be fetched." +
+				" Must be provided if and only if `protection_domain_name` is not provided.",
+			Optional: true,
 		},
 		"protection_domain_name": schema.StringAttribute{
-			Description:         "Protection Domain Name.",
-			MarkdownDescription: "Protection Domain Name - Either of Protection Domain ID/Name is Required.",
-			Optional:            true,
+			Description: "Name of the Protection Domain from which storage pools will be fetched." +
+				" Must be provided if and only if 'protection_domain_id' is not provided.",
+			MarkdownDescription: "Name of the Protection Domain from which storage pools will be fetched." +
+				" Must be provided if and only if `protection_domain_id` is not provided.",
+			Optional: true,
 			Validators: []validator.String{
 				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),
 			},
 		},
 		"storage_pool_ids": schema.ListAttribute{
-			Description:         "List of storage pool IDs.",
-			MarkdownDescription: "List of storage pool IDs.",
-			ElementType:         types.StringType,
-			Optional:            true,
+			Description: "List of storage pool IDs." +
+				" Can be provided only if 'storage_pool_names' is not provided.",
+			MarkdownDescription: "List of storage pool IDs." +
+				" Can be provided only if `storage_pool_names` is not provided.",
+			ElementType: types.StringType,
+			Optional:    true,
 		},
 		"storage_pool_names": schema.ListAttribute{
-			Description:         "List of storage pool names.",
-			MarkdownDescription: "List of storage pool names.",
-			ElementType:         types.StringType,
-			Optional:            true,
+			Description: "List of storage pool names." +
+				" Can be provided only if 'storage_pool_ids' is not provided.",
+			MarkdownDescription: "List of storage pool names." +
+				" Can be provided only if `storage_pool_ids` is not provided.",
+			ElementType: types.StringType,
+			Optional:    true,
 			Validators: []validator.List{
 				listvalidator.ConflictsWith(path.MatchRoot("storage_pool_ids")),
 			},
 		},
 		"storage_pools": schema.ListNestedAttribute{
-			Description:         "List of storage pools.",
-			MarkdownDescription: "List of storage pools.",
+			Description:         "List of fetched storage pools.",
+			MarkdownDescription: "List of fetched storage pools.",
 			Computed:            true,
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: map[string]schema.Attribute{

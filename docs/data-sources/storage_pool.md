@@ -19,12 +19,12 @@ linkTitle: "powerflex_storage_pool"
 page_title: "powerflex_storage_pool Data Source - powerflex"
 subcategory: ""
 description: |-
-  Fetches the list of storage pools.
+  This data-source can be used to fetch information related to the storage pools from a PowerFlex array.
 ---
 
 # powerflex_storage_pool (Data Source)
 
-Fetches the list of storage pools.
+This data-source can be used to fetch information related to the storage pools from a PowerFlex array.
 
 ## Example Usage
 
@@ -55,15 +55,15 @@ output "allsdcresult" {
 
 ### Optional
 
-- `protection_domain_id` (String) Protection Domain ID - Either of Protection Domain ID/Name is Required.
-- `protection_domain_name` (String) Protection Domain Name - Either of Protection Domain ID/Name is Required.
-- `storage_pool_ids` (List of String) List of storage pool IDs.
-- `storage_pool_names` (List of String) List of storage pool names.
+- `protection_domain_id` (String) ID of the Protection Domain from which storage pools will be fetched. Must be provided if and only if `protection_domain_name` is not provided.
+- `protection_domain_name` (String) Name of the Protection Domain from which storage pools will be fetched. Must be provided if and only if `protection_domain_id` is not provided.
+- `storage_pool_ids` (List of String) List of storage pool IDs. Can be provided only if `storage_pool_names` is not provided.
+- `storage_pool_names` (List of String) List of storage pool names. Can be provided only if `storage_pool_ids` is not provided.
 
 ### Read-Only
 
 - `id` (String) Placeholder identifier attribute.
-- `storage_pools` (Attributes List) List of storage pools. (see [below for nested schema](#nestedatt--storage_pools))
+- `storage_pools` (Attributes List) List of fetched storage pools. (see [below for nested schema](#nestedatt--storage_pools))
 
 <a id="nestedatt--storage_pools"></a>
 ### Nested Schema for `storage_pools`

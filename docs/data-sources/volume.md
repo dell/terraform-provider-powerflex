@@ -19,12 +19,12 @@ linkTitle: "powerflex_volume"
 page_title: "powerflex_volume Data Source - powerflex"
 subcategory: ""
 description: |-
-  .
+  This data-source can be used to fetch information related to volumes from a PowerFlex array.
 ---
 
 # powerflex_volume (Data Source)
 
-.
+This data-source can be used to fetch information related to volumes from a PowerFlex array.
 
 ## Example Usage
 
@@ -54,10 +54,10 @@ output "volumeResult" {
 
 ### Optional
 
-- `id` (String) Unique identifier of the volume instance.
-- `name` (String) Name of the volume.
-- `storage_pool_id` (String) Specifies the unique identifier of the storage pool.
-- `storage_pool_name` (String) Specifies the unique identifier of the storage pool.
+- `id` (String) Unique identifier of the volume instance. Can be provided only if `name`, `storage_pool_id` and  `storage_pool_name` are not provided.
+- `name` (String) Name of the volume. Can be provided only if `id`, `storage_pool_id` and  `storage_pool_name` are not provided.
+- `storage_pool_id` (String) Specifies the unique identifier of the storage pool. Can be provided only if `id`, `name` and  `storage_pool_name` are not provided.
+- `storage_pool_name` (String) Specifies the unique identifier of the storage pool. Can be provided only if `id`, `name` and `storage_pool_id` are not provided.
 
 ### Read-Only
 

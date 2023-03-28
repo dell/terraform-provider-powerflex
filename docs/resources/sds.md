@@ -19,7 +19,7 @@ linkTitle: "powerflex_sds"
 page_title: "powerflex_sds Resource - powerflex"
 subcategory: ""
 description: |-
-  Manages SDSs in powerflex.
+  This resource can be used to manage Storage Device Servers on a PowerFlex array.
   Note: SDS creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
   One can manually remove the taint and try applying the configuration (after making necessary adjustments).
   Warning: If the taint is not removed, terraform will destroy and recreate the resource.
@@ -27,7 +27,7 @@ description: |-
 
 # powerflex_sds (Resource)
 
-Manages SDSs in powerflex.
+This resource can be used to manage Storage Device Servers on a PowerFlex array.
 Note: SDS creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 Warning: If the taint is not removed, terraform will destroy and recreate the resource.
@@ -69,19 +69,19 @@ output "changed_sds" {
 
 ### Required
 
-- `ip_list` (Attributes Set) IP list of SDS (see [below for nested schema](#nestedatt--ip_list))
-- `name` (String) Name of SDS
+- `ip_list` (Attributes Set) List of IPs to be assigned to the SDS. There must be atleast one IP with `all` role or atleast two IPs, one with role `sdcOnly` and the other with role `sdsOnly`. (see [below for nested schema](#nestedatt--ip_list))
+- `name` (String) Name of SDS.
 
 ### Optional
 
 - `drl_mode` (String) DRL mode of SDS
-- `performance_profile` (String) Performance Profile of SDS
-- `port` (Number) Port mode of SDS
-- `protection_domain_id` (String) Protection domain id - Either of Protection Domain ID/Name is Required.
-- `protection_domain_name` (String) Protection domain name - Either of Protection Domain ID/Name is Required.
+- `performance_profile` (String) Performance Profile of SDS. Valid values are `Compact` and `HighPerformance`. Default value is determined by array settings.
+- `port` (Number) Port of SDS
+- `protection_domain_id` (String) ID of the Protection Domain under which the SDS will be created. Must be provided if and only if `protection_domain_name` is not provided. Cannot be updated.
+- `protection_domain_name` (String) Name of the Protection Domain under which the SDS will be created. Must be provided if and only if `protection_domain_id` is not provided. Cannot be updated.
 - `rfcache_enabled` (Boolean) Rfcache enabled state of SDS
 - `rmcache_enabled` (Boolean) Rmcache enabled state of SDS
-- `rmcache_size_in_mb` (Number) Read RAM cache size in MB of SDS. Can be set only when rmcache_enabled is true.
+- `rmcache_size_in_mb` (Number) Read RAM cache size in MB of SDS. Can be set only when `rmcache_enabled` is true.
 
 ### Read-Only
 
@@ -92,7 +92,7 @@ output "changed_sds" {
 - `membership_state` (String) Membership state of SDS
 - `num_of_io_buffers` (Number) Number of io buffers of SDS
 - `rmcache_frozen` (Boolean) RMcache frozen state of SDS
-- `rmcache_memory_allocation_state` (String) Rmcache memory allocation state of SDS
+- `rmcache_memory_allocation_state` (String) Rmcache memory allocation state of SDS.
 - `sds_state` (String) State of SDS
 
 <a id="nestedatt--ip_list"></a>
@@ -100,8 +100,8 @@ output "changed_sds" {
 
 Required:
 
-- `ip` (String) IP address to be assigned to the SDS
-- `role` (String) Role to be assigned to the IP address
+- `ip` (String) IP address to be assigned to the SDS.
+- `role` (String) Role to be assigned to the IP address. Valid values are `all`, `sdcOnly` and `sdsOnly`.
 
 ## Import
 
