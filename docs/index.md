@@ -15,6 +15,7 @@
 # limitations under the License.
 
 listIgnoreTitle: true
+weight: 1
 title: "powerflex provider"
 linkTitle: "Provider"
 page_title: "powerflex Provider"
