@@ -26,6 +26,7 @@ description: |-
 
 This resource can be used to manage Storage Pools on a PowerFlex array.
 
+~> **Note:** Exactly one of `protection_domain_name` and `protection_domain_id` is required.
 
 ## Example Usage
 

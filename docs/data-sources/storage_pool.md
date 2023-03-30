@@ -26,6 +26,10 @@ description: |-
 
 This data-source can be used to fetch information related to the storage pools from a PowerFlex array.
 
+~> **Note:** Exactly one of `protection_domain_name` and `protection_domain_id` is required.
+
+~> **Note:** Only one of `storage_pool_names` and `storage_pool_ids` can be provided at a time.
+
 ## Example Usage
 
 ```terraform

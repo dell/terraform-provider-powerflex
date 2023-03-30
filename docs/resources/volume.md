@@ -32,6 +32,7 @@ Note: Volume creation or update is not atomic. In case of partially completed op
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 Warning: If the taint is not removed, terraform will destroy and recreate the resource.
 
+~> **Note:** Exactly one of `protection_domain_name` and `protection_domain_id` and exactly one of `storage_pool_name` and `storage_pool_id` are required.
 
 ## Example Usage
 

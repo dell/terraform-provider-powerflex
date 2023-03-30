@@ -32,6 +32,7 @@ Note: Snapshot creation or update is not atomic. In case of partially completed 
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 Warning: If the taint is not removed, terraform will destroy and recreate the resource.
 
+~> **Note:** Exactly one of `volume_name` and `volume_id` is required.
 
 ## Example Usage
 

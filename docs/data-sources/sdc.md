@@ -26,6 +26,8 @@ description: |-
 
 This data-source can be used to fetch information related to Storage Device Clients from a PowerFlex array.
 
+~> **Note:** Only one of `name` and `id` can be provided at a time.
+
 ## Example Usage
 
 ```terraform

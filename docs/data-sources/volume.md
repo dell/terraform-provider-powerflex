@@ -26,6 +26,8 @@ description: |-
 
 This data-source can be used to fetch information related to volumes from a PowerFlex array.
 
+~> **Note:** Only one of `names`, `id`, `storage_pool_id` and  `storage_pool_name` can be provided at a time.
+
 ## Example Usage
 
 ```terraform

@@ -26,6 +26,10 @@ description: |-
 
 This data-source can be used to fetch information related to Storage Device Servers from a PowerFlex array.
 
+~> **Note:** Exactly one of `protection_domain_name` and `protection_domain_id` is required.
+
+~> **Note:** Only one of `sds_names` and `sds_ids` can be provided at a time.
+
 ## Example Usage
 
 ```terraform
