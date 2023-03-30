@@ -14,16 +14,16 @@ var ProtectionDomainDataSourceSchema schema.Schema = schema.Schema{
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description: "Unique identifier of the protection domain instance." +
-				" Can be provided if and only if 'name' is not provided.",
+				" Conflicts with 'name'.",
 			MarkdownDescription: "Unique identifier of the protection domain instance." +
-				" Can be provided if and only if `name` is not provided.",
+				" Conflicts with `name`.",
 			Optional: true,
 		},
 		"name": schema.StringAttribute{
 			Description: "Unique name of the protection domain instance." +
-				" Can be provided if and only if 'id' is not provided.",
+				" Conflicts with 'id'.",
 			MarkdownDescription: "Unique name of the protection domain instance." +
-				" Can be provided if and only if `id` is not provided.",
+				" Conflicts with `id`.",
 			Optional: true,
 			Validators: []validator.String{
 				stringvalidator.ConflictsWith(path.MatchRoot("id")),

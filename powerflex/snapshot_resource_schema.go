@@ -32,12 +32,12 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 		},
 		"volume_id": schema.StringAttribute{
 			Description: "The ID of the volume from which snapshot is to be created." +
-				" Must be provided if and only if 'volume_name' is not provided." +
+				" Conflicts with 'volume_name'." +
 				" Cannot be updated.",
 			Optional: true,
 			Computed: true,
 			MarkdownDescription: "The ID of the volume from which snapshot is to be created." +
-				" Must be provided if and only if `volume_name` is not provided." +
+				" Conflicts with `volume_name`." +
 				" Cannot be updated.",
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
@@ -46,12 +46,12 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 		},
 		"volume_name": schema.StringAttribute{
 			Description: "The volume name for which snapshot is created." +
-				" Must be provided if and only if 'volume_id' is not provided." +
+				" Conflicts with 'volume_id'." +
 				" Cannot be updated.",
 			Optional: true,
 			Computed: true,
 			MarkdownDescription: "The volume name for which snapshot is created." +
-				" Must be provided if and only if `volume_id` is not provided." +
+				" Conflicts with `volume_id`." +
 				" Cannot be updated.",
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),

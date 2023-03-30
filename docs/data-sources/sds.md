@@ -56,10 +56,10 @@ output "allsdcresult" {
 
 ### Optional
 
-- `protection_domain_id` (String) Protection Domain ID. Must be provided if and only if `protection_domain_name` is not provided.
-- `protection_domain_name` (String) Protection Domain Name. Must be provided if and only if `protection_domain_id` is not provided.
-- `sds_ids` (List of String) List of SDS IDs. Can be provided only if `sds_names` is not provided.
-- `sds_names` (List of String) List of SDS names. Can be provided only if `sds_ids` is not provided.
+- `protection_domain_id` (String) Protection Domain ID. Conflicts with `protection_domain_name`.
+- `protection_domain_name` (String) Protection Domain Name. Conflicts with `protection_domain_id`.
+- `sds_ids` (List of String) List of SDS IDs. Conflicts with `sds_names`.
+- `sds_names` (List of String) List of SDS names. Conflicts with `sds_ids`.
 
 ### Read-Only
 

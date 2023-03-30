@@ -18,10 +18,10 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 		},
 		"protection_domain_id": schema.StringAttribute{
 			Description: "ID of the Protection Domain under which the storage pool will be created." +
-				" Must be provided if and only if 'protection_domain_name' is not provided." +
+				" Conflicts with 'protection_domain_name'." +
 				" Cannot be updated.",
 			MarkdownDescription: "ID of the Protection Domain under which the storage pool will be created." +
-				" Must be provided if and only if `protection_domain_name` is not provided." +
+				" Conflicts with `protection_domain_name`." +
 				" Cannot be updated.",
 			Optional: true,
 			Computed: true,
@@ -31,10 +31,10 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 		},
 		"protection_domain_name": schema.StringAttribute{
 			Description: "Name of the Protection Domain under which the storage pool will be created." +
-				" Must be provided if and only if 'protection_domain_id' is not provided." +
+				" Conflicts with 'protection_domain_id'." +
 				" Cannot be updated.",
 			MarkdownDescription: "Name of the Protection Domain under which the storage pool will be created." +
-				" Must be provided if and only if `protection_domain_id` is not provided." +
+				" Conflicts with `protection_domain_id`." +
 				" Cannot be updated.",
 			Optional: true,
 			Computed: true,

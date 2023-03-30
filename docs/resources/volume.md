@@ -100,12 +100,12 @@ resource "powerflex_volume" "avengers-volume-create" {
 - `access_mode` (String) The Access mode of the volume. Valid values are `ReadOnly` and `ReadWrite`. Default value is `ReadOnly`.
 - `capacity_unit` (String) Unit of capacity of the volume. Must be one of `GB` and `TB`. Default value is `GB`.
 - `compression_method` (String) Compression Method of the volume. Valid values are `None` and `Normal`.
-- `protection_domain_id` (String) ID of the Protection Domain under which the volume will be created. Must be provided if and only if `protection_domain_name` is not provided. Cannot be updated.
-- `protection_domain_name` (String) Name of the Protection Domain under which the volume will be created. Must be provided if and only if `protection_domain_id` is not provided. Cannot be updated.
+- `protection_domain_id` (String) ID of the Protection Domain under which the volume will be created. Conflicts with `protection_domain_name`. Cannot be updated.
+- `protection_domain_name` (String) Name of the Protection Domain under which the volume will be created. Conflicts with `protection_domain_id`. Cannot be updated.
 - `remove_mode` (String) Remove mode of the volume. Valid values are `ONLY_ME` and `INCLUDING_DESCENDANTS`. Default value is `ONLY_ME`.
 - `sdc_list` (Attributes Set) List of SDCs to be mapped to the volume. (see [below for nested schema](#nestedatt--sdc_list))
-- `storage_pool_id` (String) ID of the Storage Pool under which the volume will be created. Must be provided if and only if `storage_pool_name` is not provided. Cannot be updated.
-- `storage_pool_name` (String) Name of the Storage Pool under which the volume will be created. Must be provided if and only if `storage_pool_id` is not provided. Cannot be updated.
+- `storage_pool_id` (String) ID of the Storage Pool under which the volume will be created. Conflicts with `storage_pool_name`. Cannot be updated.
+- `storage_pool_name` (String) Name of the Storage Pool under which the volume will be created. Conflicts with `storage_pool_id`. Cannot be updated.
 - `use_rm_cache` (Boolean) use rm cache
 - `volume_type` (String) Volume type. Valid values are `ThickProvisioned` and `ThinProvisioned`. Default value is `ThinProvisioned`.
 

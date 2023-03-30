@@ -54,10 +54,10 @@ output "volumeResult" {
 
 ### Optional
 
-- `id` (String) Unique identifier of the volume instance. Can be provided only if `name`, `storage_pool_id` and  `storage_pool_name` are not provided.
-- `name` (String) Name of the volume. Can be provided only if `id`, `storage_pool_id` and  `storage_pool_name` are not provided.
-- `storage_pool_id` (String) Specifies the unique identifier of the storage pool. Can be provided only if `id`, `name` and  `storage_pool_name` are not provided.
-- `storage_pool_name` (String) Specifies the unique identifier of the storage pool. Can be provided only if `id`, `name` and `storage_pool_id` are not provided.
+- `id` (String) Unique identifier of the volume instance.  Conflicts with `name`, `storage_pool_id` and  `storage_pool_name`.
+- `name` (String) Name of the volume.  Conflicts with `id`, `storage_pool_id` and  `storage_pool_name`.
+- `storage_pool_id` (String) Specifies the unique identifier of the storage pool.  Conflicts with `id`, `name` and  `storage_pool_name`.
+- `storage_pool_name` (String) Specifies the unique identifier of the storage pool.  Conflicts with `id`, `name` and `storage_pool_id`.
 
 ### Read-Only
 

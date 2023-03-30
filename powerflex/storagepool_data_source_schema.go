@@ -20,16 +20,16 @@ var DataSourceSchema schema.Schema = schema.Schema{
 		},
 		"protection_domain_id": schema.StringAttribute{
 			Description: "ID of the Protection Domain from which storage pools will be fetched." +
-				" Must be provided if and only if 'protection_domain_name' is not provided.",
+				" Conflicts with 'protection_domain_name'.",
 			MarkdownDescription: "ID of the Protection Domain from which storage pools will be fetched." +
-				" Must be provided if and only if `protection_domain_name` is not provided.",
+				" Conflicts with `protection_domain_name`.",
 			Optional: true,
 		},
 		"protection_domain_name": schema.StringAttribute{
 			Description: "Name of the Protection Domain from which storage pools will be fetched." +
-				" Must be provided if and only if 'protection_domain_id' is not provided.",
+				" Conflicts with 'protection_domain_id'.",
 			MarkdownDescription: "Name of the Protection Domain from which storage pools will be fetched." +
-				" Must be provided if and only if `protection_domain_id` is not provided.",
+				" Conflicts with `protection_domain_id`.",
 			Optional: true,
 			Validators: []validator.String{
 				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),
@@ -37,17 +37,17 @@ var DataSourceSchema schema.Schema = schema.Schema{
 		},
 		"storage_pool_ids": schema.ListAttribute{
 			Description: "List of storage pool IDs." +
-				" Can be provided only if 'storage_pool_names' is not provided.",
+				" Conflicts with 'storage_pool_names'.",
 			MarkdownDescription: "List of storage pool IDs." +
-				" Can be provided only if `storage_pool_names` is not provided.",
+				" Conflicts with `storage_pool_names`.",
 			ElementType: types.StringType,
 			Optional:    true,
 		},
 		"storage_pool_names": schema.ListAttribute{
 			Description: "List of storage pool names." +
-				" Can be provided only if 'storage_pool_ids' is not provided.",
+				" Conflicts with 'storage_pool_ids'.",
 			MarkdownDescription: "List of storage pool names." +
-				" Can be provided only if `storage_pool_ids` is not provided.",
+				" Conflicts with `storage_pool_ids`.",
 			ElementType: types.StringType,
 			Optional:    true,
 			Validators: []validator.List{

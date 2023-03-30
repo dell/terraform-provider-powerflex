@@ -31,12 +31,12 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 		},
 		"storage_pool_id": schema.StringAttribute{
 			Description: "ID of the Storage Pool under which the volume will be created." +
-				" Must be provided if and only if 'storage_pool_name' is not provided." +
+				" Conflicts with 'storage_pool_name'." +
 				" Cannot be updated.",
 			Optional: true,
 			Computed: true,
 			MarkdownDescription: "ID of the Storage Pool under which the volume will be created." +
-				" Must be provided if and only if `storage_pool_name` is not provided." +
+				" Conflicts with `storage_pool_name`." +
 				" Cannot be updated.",
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
@@ -45,12 +45,12 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 		},
 		"storage_pool_name": schema.StringAttribute{
 			Description: "Name of the Storage Pool under which the volume will be created." +
-				" Must be provided if and only if 'storage_pool_id' is not provided." +
+				" Conflicts with 'storage_pool_id'." +
 				" Cannot be updated.",
 			Optional: true,
 			Computed: true,
 			MarkdownDescription: "Name of the Storage Pool under which the volume will be created." +
-				" Must be provided if and only if `storage_pool_id` is not provided." +
+				" Conflicts with `storage_pool_id`." +
 				" Cannot be updated.",
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
@@ -59,10 +59,10 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 		},
 		"protection_domain_id": schema.StringAttribute{
 			Description: "ID of the Protection Domain under which the volume will be created." +
-				" Must be provided if and only if 'protection_domain_name' is not provided." +
+				" Conflicts with 'protection_domain_name'." +
 				" Cannot be updated.",
 			MarkdownDescription: "ID of the Protection Domain under which the volume will be created." +
-				" Must be provided if and only if `protection_domain_name` is not provided." +
+				" Conflicts with `protection_domain_name`." +
 				" Cannot be updated.",
 			Computed: true,
 			Optional: true,
@@ -73,10 +73,10 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 		},
 		"protection_domain_name": schema.StringAttribute{
 			Description: "Name of the Protection Domain under which the volume will be created." +
-				" Must be provided if and only if 'protection_domain_id' is not provided." +
+				" Conflicts with 'protection_domain_id'." +
 				" Cannot be updated.",
 			MarkdownDescription: "Name of the Protection Domain under which the volume will be created." +
-				" Must be provided if and only if `protection_domain_id` is not provided." +
+				" Conflicts with `protection_domain_id`." +
 				" Cannot be updated.",
 			Optional: true,
 			Computed: true,

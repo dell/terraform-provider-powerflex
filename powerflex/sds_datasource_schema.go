@@ -20,16 +20,16 @@ var SdsDataSourceSchema schema.Schema = schema.Schema{
 		},
 		"protection_domain_id": schema.StringAttribute{
 			Description: "Protection Domain ID." +
-				" Must be provided if and only if 'protection_domain_name' is not provided.",
+				" Conflicts with 'protection_domain_name'.",
 			MarkdownDescription: "Protection Domain ID." +
-				" Must be provided if and only if `protection_domain_name` is not provided.",
+				" Conflicts with `protection_domain_name`.",
 			Optional: true,
 		},
 		"protection_domain_name": schema.StringAttribute{
 			Description: "Protection Domain Name." +
-				" Must be provided if and only if 'protection_domain_id' is not provided.",
+				" Conflicts with 'protection_domain_id'.",
 			MarkdownDescription: "Protection Domain Name." +
-				" Must be provided if and only if `protection_domain_id` is not provided.",
+				" Conflicts with `protection_domain_id`.",
 			Optional: true,
 			Validators: []validator.String{
 				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),
@@ -37,9 +37,9 @@ var SdsDataSourceSchema schema.Schema = schema.Schema{
 		},
 		"sds_ids": schema.ListAttribute{
 			Description: "List of SDS IDs." +
-				" Can be provided only if 'sds_names' is not provided.",
+				" Conflicts with 'sds_names'.",
 			MarkdownDescription: "List of SDS IDs." +
-				" Can be provided only if `sds_names` is not provided.",
+				" Conflicts with `sds_names`.",
 			ElementType: types.StringType,
 			Optional:    true,
 			Validators: []validator.List{
@@ -48,9 +48,9 @@ var SdsDataSourceSchema schema.Schema = schema.Schema{
 		},
 		"sds_names": schema.ListAttribute{
 			Description: "List of SDS names." +
-				" Can be provided only if 'sds_ids' is not provided.",
+				" Conflicts with 'sds_ids'.",
 			MarkdownDescription: "List of SDS names." +
-				" Can be provided only if `sds_ids` is not provided.",
+				" Conflicts with `sds_ids`.",
 			ElementType: types.StringType,
 			Optional:    true,
 			Validators: []validator.List{

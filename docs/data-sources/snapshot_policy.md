@@ -50,8 +50,8 @@ output "spResult" {
 
 ### Optional
 
-- `id` (String) Unique identifier of the snapshot policy instance to fetch. Can be provided only if `name` is not provided.
-- `name` (String) Name of the snapshot policy to fetch. Can be provided only if `id` is not provided.
+- `id` (String) Unique identifier of the snapshot policy instance to fetch. Conflicts with `name`.
+- `name` (String) Name of the snapshot policy to fetch. Conflicts with `id`.
 
 ### Read-Only
 

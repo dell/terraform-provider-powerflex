@@ -52,8 +52,8 @@ output "allsdcresult" {
 
 ### Optional
 
-- `id` (String) ID of the SDC to fetch. Can be provided if and only if `name` is not provided.
-- `name` (String) Name of the SDC to fetch. Can be provided if and only if `id` is not provided.
+- `id` (String) ID of the SDC to fetch. Conflicts with `name`
+- `name` (String) Name of the SDC to fetch. Conflicts with `id`
 
 ### Read-Only
 

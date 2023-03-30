@@ -62,8 +62,8 @@ output "created_storagepool" {
 
 ### Optional
 
-- `protection_domain_id` (String) ID of the Protection Domain under which the storage pool will be created. Must be provided if and only if `protection_domain_name` is not provided. Cannot be updated.
-- `protection_domain_name` (String) Name of the Protection Domain under which the storage pool will be created. Must be provided if and only if `protection_domain_id` is not provided. Cannot be updated.
+- `protection_domain_id` (String) ID of the Protection Domain under which the storage pool will be created. Conflicts with `protection_domain_name`. Cannot be updated.
+- `protection_domain_name` (String) Name of the Protection Domain under which the storage pool will be created. Conflicts with `protection_domain_id`. Cannot be updated.
 - `use_rfcache` (Boolean) Enable/Disable RFcache on a specific storage pool
 - `use_rmcache` (Boolean) Enable/Disable RMcache on a specific storage pool
 

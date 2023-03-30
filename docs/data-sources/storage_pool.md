@@ -55,10 +55,10 @@ output "allsdcresult" {
 
 ### Optional
 
-- `protection_domain_id` (String) ID of the Protection Domain from which storage pools will be fetched. Must be provided if and only if `protection_domain_name` is not provided.
-- `protection_domain_name` (String) Name of the Protection Domain from which storage pools will be fetched. Must be provided if and only if `protection_domain_id` is not provided.
-- `storage_pool_ids` (List of String) List of storage pool IDs. Can be provided only if `storage_pool_names` is not provided.
-- `storage_pool_names` (List of String) List of storage pool names. Can be provided only if `storage_pool_ids` is not provided.
+- `protection_domain_id` (String) ID of the Protection Domain from which storage pools will be fetched. Conflicts with `protection_domain_name`.
+- `protection_domain_name` (String) Name of the Protection Domain from which storage pools will be fetched. Conflicts with `protection_domain_id`.
+- `storage_pool_ids` (List of String) List of storage pool IDs. Conflicts with `storage_pool_names`.
+- `storage_pool_names` (List of String) List of storage pool names. Conflicts with `storage_pool_ids`.
 
 ### Read-Only
 

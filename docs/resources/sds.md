@@ -77,8 +77,8 @@ output "changed_sds" {
 - `drl_mode` (String) DRL mode of SDS
 - `performance_profile` (String) Performance Profile of SDS. Valid values are `Compact` and `HighPerformance`. Default value is determined by array settings.
 - `port` (Number) Port of SDS
-- `protection_domain_id` (String) ID of the Protection Domain under which the SDS will be created. Must be provided if and only if `protection_domain_name` is not provided. Cannot be updated.
-- `protection_domain_name` (String) Name of the Protection Domain under which the SDS will be created. Must be provided if and only if `protection_domain_id` is not provided. Cannot be updated.
+- `protection_domain_id` (String) ID of the Protection Domain under which the SDS will be created. Conflicts with `protection_domain_name`. Cannot be updated.
+- `protection_domain_name` (String) Name of the Protection Domain under which the SDS will be created. Conflicts with `protection_domain_id`. Cannot be updated.
 - `rfcache_enabled` (Boolean) Rfcache enabled state of SDS
 - `rmcache_enabled` (Boolean) Rmcache enabled state of SDS
 - `rmcache_size_in_mb` (Number) Read RAM cache size in MB of SDS. Can be set only when `rmcache_enabled` is true.

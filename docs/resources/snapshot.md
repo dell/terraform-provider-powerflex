@@ -124,8 +124,8 @@ resource "powerflex_snapshot" "snapshots-create-01" {
 - `retention_unit` (String) Retention unit of the snapshot. Valid values are `hours` and `days`. Default value is `hours`.
 - `sdc_list` (Attributes Set) List of SDCs to be mapped to the volume. (see [below for nested schema](#nestedatt--sdc_list))
 - `size` (Number) Size of the snapshot. The unit of size is defined by `capacity_unit`. The storage capacity of a snapshot cannot be decreased.
-- `volume_id` (String) The ID of the volume from which snapshot is to be created. Must be provided if and only if `volume_name` is not provided. Cannot be updated.
-- `volume_name` (String) The volume name for which snapshot is created. Must be provided if and only if `volume_id` is not provided. Cannot be updated.
+- `volume_id` (String) The ID of the volume from which snapshot is to be created. Conflicts with `volume_name`. Cannot be updated.
+- `volume_name` (String) The volume name for which snapshot is created. Conflicts with `volume_id`. Cannot be updated.
 
 ### Read-Only
 

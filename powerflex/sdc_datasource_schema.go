@@ -41,9 +41,9 @@ var SDCDataSourceScheme schema.Schema = schema.Schema{
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description: "ID of the SDC to fetch." +
-				" Can be provided if and only if 'name' is not provided.",
+				" Conflicts with 'name'",
 			MarkdownDescription: "ID of the SDC to fetch." +
-				" Can be provided if and only if `name` is not provided.",
+				" Conflicts with `name`",
 			Optional: true,
 			Computed: true,
 			Validators: []validator.String{
@@ -53,9 +53,9 @@ var SDCDataSourceScheme schema.Schema = schema.Schema{
 		},
 		"name": schema.StringAttribute{
 			Description: "Name of the SDC to fetch." +
-				" Can be provided if and only if 'id' is not provided.",
+				" Conflicts with 'id'",
 			MarkdownDescription: "Name of the SDC to fetch." +
-				" Can be provided if and only if `id` is not provided.",
+				" Conflicts with `id`",
 			Optional: true,
 			Computed: true,
 			Validators: []validator.String{

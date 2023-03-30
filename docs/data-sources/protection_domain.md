@@ -57,8 +57,8 @@ output "pdResult" {
 
 ### Optional
 
-- `id` (String) Unique identifier of the protection domain instance. Can be provided if and only if `name` is not provided.
-- `name` (String) Unique name of the protection domain instance. Can be provided if and only if `id` is not provided.
+- `id` (String) Unique identifier of the protection domain instance. Conflicts with `name`.
+- `name` (String) Unique name of the protection domain instance. Conflicts with `id`.
 
 ### Read-Only
 

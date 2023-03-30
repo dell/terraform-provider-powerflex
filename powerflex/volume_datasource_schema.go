@@ -14,11 +14,9 @@ var VolumeDataSourceSchema schema.Schema = schema.Schema{
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description: "Unique identifier of the volume instance." +
-				" Can be provided only if " +
-				"'name', 'storage_pool_id' and  'storage_pool_name' are not provided.",
+				"  Conflicts with 'name', 'storage_pool_id' and  'storage_pool_name'.",
 			MarkdownDescription: "Unique identifier of the volume instance." +
-				" Can be provided only if " +
-				"`name`, `storage_pool_id` and  `storage_pool_name` are not provided.",
+				"  Conflicts with `name`, `storage_pool_id` and  `storage_pool_name`.",
 			Optional: true,
 			Computed: true,
 			Validators: []validator.String{
@@ -28,11 +26,9 @@ var VolumeDataSourceSchema schema.Schema = schema.Schema{
 		},
 		"name": schema.StringAttribute{
 			Description: "Name of the volume." +
-				" Can be provided only if 'id', " +
-				"'storage_pool_id' and  'storage_pool_name' are not provided.",
+				"  Conflicts with 'id', 'storage_pool_id' and  'storage_pool_name'.",
 			MarkdownDescription: "Name of the volume." +
-				" Can be provided only if `id`, " +
-				"`storage_pool_id` and  `storage_pool_name` are not provided.",
+				"  Conflicts with `id`, `storage_pool_id` and  `storage_pool_name`.",
 			Optional: true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
@@ -41,11 +37,9 @@ var VolumeDataSourceSchema schema.Schema = schema.Schema{
 		},
 		"storage_pool_id": schema.StringAttribute{
 			Description: "Specifies the unique identifier of the storage pool." +
-				" Can be provided only if 'id', " +
-				"'name' and  'storage_pool_name' are not provided.",
+				"  Conflicts with 'id', 'name' and  'storage_pool_name'.",
 			MarkdownDescription: "Specifies the unique identifier of the storage pool." +
-				" Can be provided only if `id`, " +
-				"`name` and  `storage_pool_name` are not provided.",
+				"  Conflicts with `id`, `name` and  `storage_pool_name`.",
 			Optional: true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
@@ -54,11 +48,9 @@ var VolumeDataSourceSchema schema.Schema = schema.Schema{
 		},
 		"storage_pool_name": schema.StringAttribute{
 			Description: "Specifies the unique identifier of the storage pool." +
-				" Can be provided only if 'id', " +
-				"'name' and 'storage_pool_id' are not provided.",
+				"  Conflicts with 'id', 'name' and 'storage_pool_id'.",
 			MarkdownDescription: "Specifies the unique identifier of the storage pool." +
-				" Can be provided only if `id`, " +
-				"`name` and `storage_pool_id` are not provided.",
+				"  Conflicts with `id`, `name` and `storage_pool_id`.",
 			Optional: true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),

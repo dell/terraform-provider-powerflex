@@ -14,9 +14,9 @@ var SnapshotPolicyDataSourceSchema schema.Schema = schema.Schema{
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description: "Unique identifier of the snapshot policy instance to fetch." +
-				" Can be provided only if 'name' is not provided.",
+				" Conflicts with 'name'.",
 			MarkdownDescription: "Unique identifier of the snapshot policy instance to fetch." +
-				" Can be provided only if `name` is not provided.",
+				" Conflicts with `name`.",
 			Optional: true,
 			Computed: true,
 			Validators: []validator.String{
@@ -25,9 +25,9 @@ var SnapshotPolicyDataSourceSchema schema.Schema = schema.Schema{
 		},
 		"name": schema.StringAttribute{
 			Description: "Name of the snapshot policy to fetch." +
-				" Can be provided only if 'id' is not provided.",
+				" Conflicts with 'id'.",
 			MarkdownDescription: "Name of the snapshot policy to fetch." +
-				" Can be provided only if `id` is not provided.",
+				" Conflicts with `id`.",
 			Optional: true,
 			Validators: []validator.String{
 				stringvalidator.ConflictsWith(path.MatchRoot("id")),
