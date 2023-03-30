@@ -19,12 +19,12 @@ linkTitle: "powerflex_sdc"
 page_title: "powerflex_sdc Data Source - powerflex"
 subcategory: ""
 description: |-
-  This data-source can be used to fetch information related to Storage Device Clients from a PowerFlex array.
+  This data-source can be used to fetch information related to Storage Data Clients from a PowerFlex array.
 ---
 
 # powerflex_sdc (Data Source)
 
-This data-source can be used to fetch information related to Storage Device Clients from a PowerFlex array.
+This data-source can be used to fetch information related to Storage Data Clients from a PowerFlex array.
 
 ~> **Note:** Only one of `name` and `id` can be provided at a time.
 

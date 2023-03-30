@@ -37,7 +37,7 @@ var sdcDatasourceSchemaDescriptions = struct {
 
 // SDCDataSourceScheme is variable for schematic for SDC Data Source
 var SDCDataSourceScheme schema.Schema = schema.Schema{
-	Description: "This data-source can be used to fetch information related to Storage Device Clients from a PowerFlex array.",
+	Description: "This data-source can be used to fetch information related to Storage Data Clients from a PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description: "ID of the SDC to fetch." +

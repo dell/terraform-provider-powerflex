@@ -11,7 +11,7 @@ import (
 
 // SdsDataSourceSchema is the schema for reading the sds data
 var SdsDataSourceSchema schema.Schema = schema.Schema{
-	Description: "This data-source can be used to fetch information related to Storage Device Servers from a PowerFlex array.",
+	Description: "This data-source can be used to fetch information related to Storage Data Servers from a PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "Placeholder identifier attribute.",

@@ -19,12 +19,12 @@ linkTitle: "powerflex_sds"
 page_title: "powerflex_sds Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource can be used to manage Storage Device Servers on a PowerFlex array.
+  This resource can be used to manage Storage Data Servers on a PowerFlex array.
 ---
 
 # powerflex_sds (Resource)
 
-This resource can be used to manage Storage Device Servers on a PowerFlex array.
+This resource can be used to manage Storage Data Servers on a PowerFlex array.
 
 ~> **Note:** Exactly one of `protection_domain_name` and `protection_domain_id` is required.
 

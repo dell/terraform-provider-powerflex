@@ -19,12 +19,12 @@ linkTitle: "powerflex_sdc"
 page_title: "powerflex_sdc Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource can be used to manage Storage Device Clients on a PowerFlex array.
+  This resource can be used to manage Storage Data Clients on a PowerFlex array.
 ---
 
 # powerflex_sdc (Resource)
 
-This resource can be used to manage Storage Device Clients on a PowerFlex array.
+This resource can be used to manage Storage Data Clients on a PowerFlex array.
 
 
 ## Example Usage

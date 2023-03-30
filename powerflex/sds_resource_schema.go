@@ -13,8 +13,8 @@ import (
 
 // SDSResourceSchema variable to define schema for the SDS resource
 var SDSResourceSchema schema.Schema = schema.Schema{
-	Description:         "This resource can be used to manage Storage Device Servers on a PowerFlex array.",
-	MarkdownDescription: "This resource can be used to manage Storage Device Servers on a PowerFlex array.",
+	Description:         "This resource can be used to manage Storage Data Servers on a PowerFlex array.",
+	MarkdownDescription: "This resource can be used to manage Storage Data Servers on a PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "The id of the SDS",
