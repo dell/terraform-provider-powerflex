@@ -11,16 +11,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
-const sdsResourceSchemaDescription = `This resource can be used to manage Storage Device Servers on a PowerFlex array.
-Note: SDS creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
-One can manually remove the taint and try applying the configuration (after making necessary adjustments).
-Warning: If the taint is not removed, terraform will destroy and recreate the resource.
-`
-
 // SDSResourceSchema variable to define schema for the SDS resource
 var SDSResourceSchema schema.Schema = schema.Schema{
 	Description:         "This resource can be used to manage Storage Device Servers on a PowerFlex array.",
-	MarkdownDescription: sdsResourceSchemaDescription,
+	MarkdownDescription: "This resource can be used to manage Storage Device Servers on a PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "The id of the SDS",

@@ -20,17 +20,11 @@ page_title: "powerflex_sds Resource - powerflex"
 subcategory: ""
 description: |-
   This resource can be used to manage Storage Device Servers on a PowerFlex array.
-  Note: SDS creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
-  One can manually remove the taint and try applying the configuration (after making necessary adjustments).
-  Warning: If the taint is not removed, terraform will destroy and recreate the resource.
 ---
 
 # powerflex_sds (Resource)
 
 This resource can be used to manage Storage Device Servers on a PowerFlex array.
-Note: SDS creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
-One can manually remove the taint and try applying the configuration (after making necessary adjustments).
-Warning: If the taint is not removed, terraform will destroy and recreate the resource.
 
 ~> **Note:** Exactly one of `protection_domain_name` and `protection_domain_id` is required.
 

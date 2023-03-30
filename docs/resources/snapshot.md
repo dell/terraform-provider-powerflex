@@ -20,17 +20,15 @@ page_title: "powerflex_snapshot Resource - powerflex"
 subcategory: ""
 description: |-
   This resource can be used to manage snapshots of volumes on a PowerFlex array.
-  Note: Snapshot creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
-  One can manually remove the taint and try applying the configuration (after making necessary adjustments).
-  Warning: If the taint is not removed, terraform will destroy and recreate the resource.
 ---
 
 # powerflex_snapshot (Resource)
 
 This resource can be used to manage snapshots of volumes on a PowerFlex array.
-Note: Snapshot creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
+
+!> **Warning:** Snapshot creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
-Warning: If the taint is not removed, terraform will destroy and recreate the resource.
+If the taint is not removed, terraform will destroy and recreate the resource.
 
 ~> **Note:** Exactly one of `volume_name` and `volume_id` is required.
 

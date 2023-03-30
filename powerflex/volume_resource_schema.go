@@ -9,17 +9,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
-// VolumeMarkdownDescription add notes for resource
-const VolumeMarkdownDescription = `This resource can be used to manage volumes on a PowerFlex array.
-Note: Volume creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
-One can manually remove the taint and try applying the configuration (after making necessary adjustments).
-Warning: If the taint is not removed, terraform will destroy and recreate the resource.
-`
-
 // VolumeResourceSchema variable to define schema for the volume resource
 var VolumeResourceSchema schema.Schema = schema.Schema{
 	Description:         "This resource can be used to manage volumes on a PowerFlex array.",
-	MarkdownDescription: VolumeMarkdownDescription,
+	MarkdownDescription: "This resource can be used to manage volumes on a PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"name": schema.StringAttribute{
 			Description:         "The name of the volume.",

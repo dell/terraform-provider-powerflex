@@ -10,17 +10,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
-// SnapshotMarkdownDescription add notes for resource
-const SnapshotMarkdownDescription = `This resource can be used to manage snapshots of volumes on a PowerFlex array.
-Note: Snapshot creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
-One can manually remove the taint and try applying the configuration (after making necessary adjustments).
-Warning: If the taint is not removed, terraform will destroy and recreate the resource.
-`
-
 // SnapshotResourceSchema variable to define schema for the snapshot resource
 var SnapshotResourceSchema schema.Schema = schema.Schema{
 	Description:         "This resource can be used to manage snapshots of volumes on a PowerFlex array.",
-	MarkdownDescription: SnapshotMarkdownDescription,
+	MarkdownDescription: "This resource can be used to manage snapshots of volumes on a PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"name": schema.StringAttribute{
 			Description:         "The name of the snapshot.",
