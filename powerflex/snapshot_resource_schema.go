@@ -74,11 +74,11 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 		},
 		"size": schema.Int64Attribute{
 			Description: "Size of the snapshot. The unit of size is defined by 'capacity_unit'." +
-				" The storage capacity of a snapshot cannot be decreased.",
+				" The storage capacity of a snapshot must be a multiple of 8GB and cannot be decreased.",
 			Optional: true,
 			Computed: true,
 			MarkdownDescription: "Size of the snapshot. The unit of size is defined by `capacity_unit`." +
-				" The storage capacity of a snapshot cannot be decreased.",
+				" The storage capacity of a snapshot must be a multiple of 8GB and cannot be decreased.",
 		},
 		"capacity_unit": schema.StringAttribute{
 			Description:         "Unit of capacity of the volume. Must be one of 'GB' and 'TB'. Default value is 'GB'.",

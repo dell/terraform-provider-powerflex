@@ -121,8 +121,8 @@ resource "powerflex_snapshot" "snapshots-create-01" {
 - `lock_auto_snapshot` (Boolean) lock auto snapshot
 - `remove_mode` (String) Remove mode of the snapshot. Valid values are `ONLY_ME` and `INCLUDING_DESCENDANTS`. Default value is `ONLY_ME`.
 - `retention_unit` (String) Retention unit of the snapshot. Valid values are `hours` and `days`. Default value is `hours`.
-- `sdc_list` (Attributes Set) List of SDCs to be mapped to the volume. (see [below for nested schema](#nestedatt--sdc_list))
-- `size` (Number) Size of the snapshot. The unit of size is defined by `capacity_unit`. The storage capacity of a snapshot cannot be decreased.
+- `sdc_list` (Attributes Set) List of SDCs to be mapped to the volume. Exactly one of `sdc_id` or `sdc_name` must be specified. (see [below for nested schema](#nestedatt--sdc_list))
+- `size` (Number) Size of the snapshot. The unit of size is defined by `capacity_unit`. The storage capacity of a snapshot must be a multiple of 8GB and cannot be decreased.
 - `volume_id` (String) The ID of the volume from which snapshot is to be created. Conflicts with `volume_name`. Cannot be updated.
 - `volume_name` (String) The volume name for which snapshot is created. Conflicts with `volume_id`. Cannot be updated.
 
@@ -138,10 +138,10 @@ resource "powerflex_snapshot" "snapshots-create-01" {
 Optional:
 
 - `access_mode` (String) The Access Mode of the SDC. Valid values are `ReadOnly`, `ReadWrite` and `NoAccess`. Default value is `ReadOnly`
-- `limit_bw_in_mbps` (Number) Bandwidth limit in MBPS of the SDC.
-- `limit_iops` (Number) IOPS limit of the SDC.
-- `sdc_id` (String) The ID of the SDC. Must be specified if and only if `sdc_name` is not specified. Cannot be updated.
-- `sdc_name` (String) The Name of the SDC. Must be specified if and only if `sdc_id` is not specified. Cannot be updated.
+- `limit_bw_in_mbps` (Number) Bandwidth limit in MBPS of the SDC. `0` represents unlimited IOPS. Default value is `0`.
+- `limit_iops` (Number) IOPS limit of the SDC. Valid values are `0` or integers greater than `10`. `0` represents unlimited IOPS. Default value is `0`.
+- `sdc_id` (String) The ID of the SDC. Conflicts with `sdc_name`. Cannot be updated.
+- `sdc_name` (String) The Name of the SDC. Conflicts with `sdc_id`. Cannot be updated.
 
 ## Import
 

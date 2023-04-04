@@ -114,20 +114,20 @@ func GetSdcSetValueFromInfo(sl []*pftypes.MappedSdcInfo) (basetypes.SetValue, di
 }
 
 var sdcListSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
-	Description:         "List of SDCs to be mapped to the volume.",
+	Description:         "List of SDCs to be mapped to the volume. Exactly one of `sdc_id` or `sdc_name` must be specified.",
 	Computed:            true,
 	Optional:            true,
-	MarkdownDescription: "List of SDCs to be mapped to the volume.",
+	MarkdownDescription: "List of SDCs to be mapped to the volume. Exactly one of `sdc_id` or `sdc_name` must be specified.",
 	NestedObject: schema.NestedAttributeObject{
 		Attributes: map[string]schema.Attribute{
 			"sdc_id": schema.StringAttribute{
 				Description: "The ID of the SDC." +
-					" Must be specified if and only if 'sdc_name' is not specified." +
+					" Conflicts with 'sdc_name'." +
 					" Cannot be updated.",
 				Optional: true,
 				Computed: true,
 				MarkdownDescription: "The ID of the SDC." +
-					" Must be specified if and only if `sdc_name` is not specified." +
+					" Conflicts with `sdc_name`." +
 					" Cannot be updated.",
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
@@ -136,12 +136,12 @@ var sdcListSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 			},
 			"sdc_name": schema.StringAttribute{
 				Description: "The Name of the SDC." +
-					" Must be specified if and only if 'sdc_id' is not specified." +
+					" Conflicts with 'sdc_id'." +
 					" Cannot be updated.",
 				Computed: true,
 				Optional: true,
 				MarkdownDescription: "The Name of the SDC." +
-					" Must be specified if and only if `sdc_id` is not specified." +
+					" Conflicts with `sdc_id`." +
 					" Cannot be updated.",
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
@@ -149,16 +149,26 @@ var sdcListSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 				},
 			},
 			"limit_iops": schema.Int64Attribute{
-				Description:         "IOPS limit of the SDC.",
-				Optional:            true,
-				Computed:            true,
-				MarkdownDescription: "IOPS limit of the SDC.",
+				Description: "IOPS limit of the SDC." +
+					" Valid values are 0 or integers greater than 10." +
+					" 0 represents unlimited IOPS." +
+					" Default value is 0.",
+				Optional: true,
+				Computed: true,
+				MarkdownDescription: "IOPS limit of the SDC." +
+					" Valid values are `0` or integers greater than `10`." +
+					" `0` represents unlimited IOPS." +
+					" Default value is `0`.",
 			},
 			"limit_bw_in_mbps": schema.Int64Attribute{
-				Description:         "Bandwidth limit in MBPS of the SDC.",
-				Optional:            true,
-				Computed:            true,
-				MarkdownDescription: "Bandwidth limit in MBPS of the SDC.",
+				Description: "Bandwidth limit in MBPS of the SDC." +
+					" 0 represents unlimited IOPS." +
+					" Default value is 0.",
+				Optional: true,
+				Computed: true,
+				MarkdownDescription: "Bandwidth limit in MBPS of the SDC." +
+					" `0` represents unlimited IOPS." +
+					" Default value is `0`.",
 			},
 			"access_mode": schema.StringAttribute{
 				Description: "The Access Mode of the SDC." +
