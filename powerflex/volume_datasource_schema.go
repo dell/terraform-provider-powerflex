@@ -9,40 +9,49 @@ import (
 
 // VolumeDataSourceSchema is the schema for reading the volume data
 var VolumeDataSourceSchema schema.Schema = schema.Schema{
-	Description: ".",
+	Description:         "This data-source can be used to fetch information related to volumes from a PowerFlex array.",
+	MarkdownDescription: "This data-source can be used to fetch information related to volumes from a PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
-			Description:         "Unique identifier of the volume instance.",
-			MarkdownDescription: "Unique identifier of the volume instance.",
-			Optional:            true,
-			Computed:            true,
+			Description: "Unique identifier of the volume instance." +
+				"  Conflicts with 'name', 'storage_pool_id' and  'storage_pool_name'.",
+			MarkdownDescription: "Unique identifier of the volume instance." +
+				"  Conflicts with `name`, `storage_pool_id` and  `storage_pool_name`.",
+			Optional: true,
+			Computed: true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id"), path.MatchRoot("name"), path.MatchRoot("storage_pool_name")),
 			},
 		},
 		"name": schema.StringAttribute{
-			Description:         "Name of the volume.",
-			MarkdownDescription: "Name of the volume.",
-			Optional:            true,
+			Description: "Name of the volume." +
+				"  Conflicts with 'id', 'storage_pool_id' and  'storage_pool_name'.",
+			MarkdownDescription: "Name of the volume." +
+				"  Conflicts with `id`, `storage_pool_id` and  `storage_pool_name`.",
+			Optional: true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id"), path.MatchRoot("id"), path.MatchRoot("storage_pool_name")),
 			},
 		},
 		"storage_pool_id": schema.StringAttribute{
-			Description:         "Specifies the unique identifier of the storage pool.",
-			MarkdownDescription: "Specifies the unique identifier of the storage pool.",
-			Optional:            true,
+			Description: "Specifies the unique identifier of the storage pool." +
+				"  Conflicts with 'id', 'name' and  'storage_pool_name'.",
+			MarkdownDescription: "Specifies the unique identifier of the storage pool." +
+				"  Conflicts with `id`, `name` and  `storage_pool_name`.",
+			Optional: true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_name"), path.MatchRoot("id"), path.MatchRoot("name")),
 			},
 		},
 		"storage_pool_name": schema.StringAttribute{
-			Description:         "Specifies the unique identifier of the storage pool.",
-			MarkdownDescription: "Specifies the unique identifier of the storage pool.",
-			Optional:            true,
+			Description: "Specifies the unique identifier of the storage pool." +
+				"  Conflicts with 'id', 'name' and 'storage_pool_id'.",
+			MarkdownDescription: "Specifies the unique identifier of the storage pool." +
+				"  Conflicts with `id`, `name` and `storage_pool_id`.",
+			Optional: true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id"), path.MatchRoot("id"), path.MatchRoot("name")),

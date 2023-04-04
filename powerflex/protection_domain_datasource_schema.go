@@ -9,18 +9,22 @@ import (
 
 // ProtectionDomainDataSourceSchema defines the schema for Protection Domain datasource
 var ProtectionDomainDataSourceSchema schema.Schema = schema.Schema{
-	Description:         "Datasource for powerflex manager protection domains.",
-	MarkdownDescription: "Datasource for powerflex manager protection domains.",
+	Description:         "This datasource can be used to fetch information related to protection domains from a PowerFlex array.",
+	MarkdownDescription: "This datasource can be used to fetch information related to protection domains from a PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
-			Description:         "Unique identifier of the protection domain instance.",
-			MarkdownDescription: "Unique identifier of the protection domain instance.",
-			Optional:            true,
+			Description: "Unique identifier of the protection domain instance." +
+				" Conflicts with 'name'.",
+			MarkdownDescription: "Unique identifier of the protection domain instance." +
+				" Conflicts with `name`.",
+			Optional: true,
 		},
 		"name": schema.StringAttribute{
-			Description:         "Unique name of the protection domain instance.",
-			MarkdownDescription: "Unique name of the protection domain instance.",
-			Optional:            true,
+			Description: "Unique name of the protection domain instance." +
+				" Conflicts with 'id'.",
+			MarkdownDescription: "Unique name of the protection domain instance." +
+				" Conflicts with `id`.",
+			Optional: true,
 			Validators: []validator.String{
 				stringvalidator.ConflictsWith(path.MatchRoot("id")),
 			},
@@ -48,8 +52,8 @@ var protectionDomainDataAttributes map[string]schema.Attribute = map[string]sche
 		Computed:            true,
 	},
 	"state": schema.StringAttribute{
-		Description:         "State of a PD, which can be Active, ActivePending, Inactive or InactivePending.",
-		MarkdownDescription: "State of a PD, which can be Active, ActivePending, Inactive or InactivePending.",
+		Description:         "State of a PD. Valid values are Active, ActivePending, Inactive or InactivePending.",
+		MarkdownDescription: "State of a PD. Valid values are `Active`, `ActivePending`, `Inactive` or `InactivePending`.",
 		Computed:            true,
 	},
 	"system_id": schema.StringAttribute{
@@ -58,8 +62,8 @@ var protectionDomainDataAttributes map[string]schema.Attribute = map[string]sche
 		Computed:            true,
 	},
 	"rf_cache_accp_id": schema.StringAttribute{
-		Description:         "Rf Cache  Acceleration Pool ID.",
-		MarkdownDescription: "Rf Cache  Acceleration Pool ID.",
+		Description:         "ID of the Rf Cache Acceleration Pool attached to the PD.",
+		MarkdownDescription: "ID of the Rf Cache Acceleration Pool attached to the PD.",
 		Computed:            true,
 	},
 	"rf_cache_enabled": schema.BoolAttribute{

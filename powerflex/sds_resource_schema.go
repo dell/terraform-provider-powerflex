@@ -1,6 +1,8 @@
 package powerflex
 
 import (
+	"fmt"
+
 	"github.com/dell/goscaleio"
 	types "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -9,16 +11,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
-const sdsResourceSchemaDescription = `Manages SDSs in powerflex.
-Note: SDS creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
-One can manually remove the taint and try applying the configuration (after making necessary adjustments).
-Warning: If the taint is not removed, terraform will destroy and recreate the resource.
-`
-
 // SDSResourceSchema variable to define schema for the SDS resource
 var SDSResourceSchema schema.Schema = schema.Schema{
-	Description:         "Manages SDS resource",
-	MarkdownDescription: sdsResourceSchemaDescription,
+	Description:         "This resource can be used to manage Storage Data Servers on a PowerFlex array.",
+	MarkdownDescription: "This resource can be used to manage Storage Data Servers on a PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "The id of the SDS",
@@ -26,43 +22,67 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "The id of the SDS",
 		},
 		"protection_domain_id": schema.StringAttribute{
-			Description:         "Protection domain id",
-			Optional:            true,
-			Computed:            true,
-			MarkdownDescription: "Protection domain id - Either of Protection Domain ID/Name is Required.",
+			Description: "ID of the Protection Domain under which the SDS will be created." +
+				" Conflicts with 'protection_domain_name'." +
+				" Cannot be updated.",
+			Optional: true,
+			Computed: true,
+			MarkdownDescription: "ID of the Protection Domain under which the SDS will be created." +
+				" Conflicts with `protection_domain_name`." +
+				" Cannot be updated.",
 		},
 		"protection_domain_name": schema.StringAttribute{
-			Description:         "Protection domain name",
-			Optional:            true,
-			Computed:            true,
-			MarkdownDescription: "Protection domain name - Either of Protection Domain ID/Name is Required.",
+			Description: "Name of the Protection Domain under which the SDS will be created." +
+				" Conflicts with 'protection_domain_id'." +
+				" Cannot be updated.",
+			Optional: true,
+			Computed: true,
+			MarkdownDescription: "Name of the Protection Domain under which the SDS will be created." +
+				" Conflicts with `protection_domain_id`." +
+				" Cannot be updated.",
 			Validators: []validator.String{
 				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),
 			},
 		},
 		"name": schema.StringAttribute{
-			Description:         "Name of SDS",
+			Description:         "Name of SDS.",
 			Required:            true,
-			MarkdownDescription: "Name of SDS",
+			MarkdownDescription: "Name of SDS.",
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 			},
 		},
 		"ip_list": schema.SetNestedAttribute{
-			Description:         "IP list of SDS",
-			MarkdownDescription: "IP list of SDS",
-			Required:            true,
+			Description: "List of IPs to be assigned to the SDS." +
+				fmt.Sprintf(" There must be atleast one IP with '%s' role or ", goscaleio.RoleAll) +
+				fmt.Sprintf("atleast two IPs, one with role '%s' ", goscaleio.RoleSdcOnly) +
+				fmt.Sprintf("and the other with role '%s'.", goscaleio.RoleSdsOnly),
+			MarkdownDescription: "List of IPs to be assigned to the SDS." +
+				fmt.Sprintf(" There must be atleast one IP with `%s` role or ", goscaleio.RoleAll) +
+				fmt.Sprintf("atleast two IPs, one with role `%s` ", goscaleio.RoleSdcOnly) +
+				fmt.Sprintf("and the other with role `%s`.", goscaleio.RoleSdsOnly),
+			Required: true,
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: map[string]schema.Attribute{
 					"ip": schema.StringAttribute{
-						Description:         "IP address to be assigned to the SDS",
-						MarkdownDescription: "IP address to be assigned to the SDS",
+						Description:         "IP address to be assigned to the SDS.",
+						MarkdownDescription: "IP address to be assigned to the SDS.",
 						Required:            true,
 					},
 					"role": schema.StringAttribute{
-						Description:         "Role to be assigned to the IP address",
-						MarkdownDescription: "Role to be assigned to the IP address",
-						Required:            true,
+						Description: "Role to be assigned to the IP address." +
+							fmt.Sprintf(" Valid values are '%s', '%s' and '%s'.",
+								goscaleio.RoleAll,
+								goscaleio.RoleSdcOnly,
+								goscaleio.RoleSdsOnly,
+							),
+						MarkdownDescription: "Role to be assigned to the IP address." +
+							fmt.Sprintf(" Valid values are `%s`, `%s` and `%s`.",
+								goscaleio.RoleAll,
+								goscaleio.RoleSdcOnly,
+								goscaleio.RoleSdsOnly,
+							),
+						Required: true,
 						Validators: []validator.String{stringvalidator.OneOf(
 							goscaleio.RoleAll,
 							goscaleio.RoleSdcOnly,
@@ -89,15 +109,15 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Fault set id of SDS",
 		},
 		"rmcache_memory_allocation_state": schema.StringAttribute{
-			Description:         "Rmcache memory allocation state of SDS",
+			Description:         "Rmcache memory allocation state of SDS.",
 			Computed:            true,
-			MarkdownDescription: "Rmcache memory allocation state of SDS",
+			MarkdownDescription: "Rmcache memory allocation state of SDS.",
 		},
 		"port": schema.Int64Attribute{
 			Description:         "Port of SDS",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "Port mode of SDS",
+			MarkdownDescription: "Port of SDS",
 		},
 		"membership_state": schema.StringAttribute{
 			Description:         "Membership state of SDS",
@@ -111,10 +131,14 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Rmcache enabled state of SDS",
 		},
 		"performance_profile": schema.StringAttribute{
-			Description:         "Performance Profile of SDS",
-			Optional:            true,
-			Computed:            true,
-			MarkdownDescription: "Performance Profile of SDS",
+			Description: "Performance Profile of SDS. " +
+				fmt.Sprintf("Valid values are '%s' and '%s'.", types.PerformanceProfileCompact, types.PerformanceProfileHigh) +
+				" Default value is determined by array settings.",
+			Optional: true,
+			Computed: true,
+			MarkdownDescription: "Performance Profile of SDS. " +
+				fmt.Sprintf("Valid values are `%s` and `%s`.", types.PerformanceProfileCompact, types.PerformanceProfileHigh) +
+				" Default value is determined by array settings.",
 			Validators: []validator.String{stringvalidator.OneOf(
 				types.PerformanceProfileHigh,
 				types.PerformanceProfileCompact,
@@ -137,10 +161,10 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Mdm connection state of SDS",
 		},
 		"rmcache_size_in_mb": schema.Int64Attribute{
-			Description:         "Read RAM cache size in MB of SDS. Can be set only when rmcache_enabled is true.",
+			Description:         "Read RAM cache size in MB of SDS. Can be set only when 'rmcache_enabled' is true.",
 			Optional:            true,
 			Computed:            true,
-			MarkdownDescription: "Read RAM cache size in MB of SDS. Can be set only when rmcache_enabled is true.",
+			MarkdownDescription: "Read RAM cache size in MB of SDS. Can be set only when `rmcache_enabled` is true.",
 		},
 		"num_of_io_buffers": schema.Int64Attribute{
 			Description:         "Number of io buffers of SDS",
