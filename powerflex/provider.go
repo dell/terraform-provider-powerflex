@@ -46,8 +46,8 @@ func (p *powerflexProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 		Description: "",
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
-				Description:         "the endpoint to which it needs to be connected.",
-				MarkdownDescription: "the endpoint to which it needs to be connected.",
+				Description:         "The PowerFlex Gateway server URL (inclusive of the port).",
+				MarkdownDescription: "The PowerFlex Gateway server URL (inclusive of the port).",
 				Required:            true,
 			},
 			"username": schema.StringAttribute{
@@ -62,8 +62,8 @@ func (p *powerflexProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 				Sensitive:           true,
 			},
 			"insecure": schema.BoolAttribute{
-				Description:         "Specifies if the user wants to do SSL verification.",
-				MarkdownDescription: "Specifies if the user wants to do SSL verification.",
+				Description:         "Specifies if the user wants to skip SSL verification.",
+				MarkdownDescription: "Specifies if the user wants to skip SSL verification.",
 				Optional:            true,
 			},
 			"timeout": schema.Int64Attribute{
