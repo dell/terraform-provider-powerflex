@@ -339,7 +339,7 @@ func getVolType() map[string]attr.Type {
 	}
 }
 
-func GetVolValue(vol *goscaleio_types.Volume) (basetypes.ObjectValue, diag.Diagnostics) {
+func getVolValue(vol *goscaleio_types.Volume) (basetypes.ObjectValue, diag.Diagnostics) {
 	return types.ObjectValue(getVolType(), map[string]attr.Value{
 		"volume_id":        types.StringValue(vol.ID),
 		"volume_name":      types.StringValue(vol.Name),
@@ -361,7 +361,7 @@ func updateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan sdcVolum
 	objectSDCs := []attr.Value{}
 	var diags diag.Diagnostics
 	for _, vol := range mappedVolumes {
-		objVal, dgs := GetVolValue(vol)
+		objVal, dgs := getVolValue(vol)
 		diags = append(diags, dgs...)
 		objectSDCs = append(objectSDCs, objVal)
 		state.Name = types.StringValue(vol.MappedSdcInfo[0].SdcName)
