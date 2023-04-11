@@ -72,11 +72,11 @@ variable "endpoint" {
 
 ### Required
 
-- `endpoint` (String) the endpoint to which it needs to be connected.
+- `endpoint` (String) The PowerFlex Gateway server URL (inclusive of the port).
 - `password` (String, Sensitive) The password required for the authentication.
 - `username` (String) The username required for authentication.
 
 ### Optional
 
-- `insecure` (Boolean) Specifies if the user wants to do SSL verification.
+- `insecure` (Boolean) Specifies if the user wants to skip SSL verification.
 - `timeout` (Number) HTTPS timeout.
