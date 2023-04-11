@@ -43,14 +43,11 @@ func (p *powerflexProvider) Metadata(_ context.Context, _ provider.MetadataReque
 // GetSchema - provider schema.
 func (p *powerflexProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "The Terraform provider for Dell PowerFlex " +
-			"can be used to interact with a Dell PowerFlex array in order to manage the array resources.",
-		MarkdownDescription: "The Terraform provider for Dell PowerFlex " +
-			"can be used to interact with a Dell PowerFlex array in order to manage the array resources.",
+		Description: "",
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
-				Description:         "The PowerFlex Gateway server URL (inclusive of the port).",
-				MarkdownDescription: "The PowerFlex Gateway server URL (inclusive of the port).",
+				Description:         "the endpoint to which it needs to be connected.",
+				MarkdownDescription: "the endpoint to which it needs to be connected.",
 				Required:            true,
 			},
 			"username": schema.StringAttribute{
@@ -65,8 +62,8 @@ func (p *powerflexProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 				Sensitive:           true,
 			},
 			"insecure": schema.BoolAttribute{
-				Description:         "Specifies if the user wants to skip SSL verification.",
-				MarkdownDescription: "Specifies if the user wants to skip SSL verification.",
+				Description:         "Specifies if the user wants to do SSL verification.",
+				MarkdownDescription: "Specifies if the user wants to do SSL verification.",
 				Optional:            true,
 			},
 			"timeout": schema.Int64Attribute{
@@ -249,5 +246,6 @@ func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resou
 		NewSnapshotResource,
 		SDCResource,
 		StoragepoolResource,
+		NewSDCVolumesMappingResource,
 	}
 }
