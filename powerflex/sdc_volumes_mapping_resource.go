@@ -32,7 +32,7 @@ type sdcVolumeModel struct {
 	AccessMode types.String `tfsdk:"access_mode"`
 }
 
-// NewSDSResource is a helper function to simplify the provider implementation.
+// NewSDCVolumesMappingResource is a helper function to simplify the provider implementation.
 func NewSDCVolumesMappingResource() resource.Resource {
 	return &sdcVolumeMappingResource{}
 }
@@ -218,11 +218,11 @@ func (r *sdcVolumeMappingResource) ModifyPlan(ctx context.Context, req resource.
 	resp.Diagnostics.Append(diags...)
 }
 
-// Return the type for volume list
+// GetVolSetValueFromItems return the type for volume list
 func GetVolSetValueFromItems(volumes []sdcVolumeModel) (basetypes.SetValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	volInfoElemType := types.ObjectType{
-		AttrTypes: GetVolType(),
+		AttrTypes: getVolType(),
 	}
 
 	if len(volumes) == 0 {
@@ -238,7 +238,7 @@ func GetVolSetValueFromItems(volumes []sdcVolumeModel) (basetypes.SetValue, diag
 			"limit_bw_in_mbps": vol.BWLimit,
 			"access_mode":      vol.AccessMode,
 		}
-		objVal, dgs := types.ObjectValue(GetVolType(), obj)
+		objVal, dgs := types.ObjectValue(getVolType(), obj)
 		diags = append(diags, dgs...)
 		objectVolInfos = append(objectVolInfos, objVal)
 	}
@@ -329,7 +329,7 @@ func (r *sdcVolumeMappingResource) Create(ctx context.Context, req resource.Crea
 	resp.Diagnostics.Append(diags...)
 }
 
-func GetVolType() map[string]attr.Type {
+func getVolType() map[string]attr.Type {
 	return map[string]attr.Type{
 		"volume_id":        types.StringType,
 		"volume_name":      types.StringType,
@@ -340,7 +340,7 @@ func GetVolType() map[string]attr.Type {
 }
 
 func GetVolValue(vol *goscaleio_types.Volume) (basetypes.ObjectValue, diag.Diagnostics) {
-	return types.ObjectValue(GetVolType(), map[string]attr.Value{
+	return types.ObjectValue(getVolType(), map[string]attr.Value{
 		"volume_id":        types.StringValue(vol.ID),
 		"volume_name":      types.StringValue(vol.Name),
 		"limit_iops":       types.Int64Value(int64(vol.MappedSdcInfo[0].LimitIops)),
@@ -352,7 +352,7 @@ func GetVolValue(vol *goscaleio_types.Volume) (basetypes.ObjectValue, diag.Diagn
 func updateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan sdcVolumeMappingResourceModel) (sdcVolumeMappingResourceModel, diag.Diagnostics) {
 	var state sdcVolumeMappingResourceModel
 	state = plan
-	SDCAttrTypes := GetVolType()
+	SDCAttrTypes := getVolType()
 
 	SDCElemType := types.ObjectType{
 		AttrTypes: SDCAttrTypes,
