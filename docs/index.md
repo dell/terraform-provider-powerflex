@@ -21,12 +21,12 @@ linkTitle: "Provider"
 page_title: "powerflex Provider"
 subcategory: ""
 description: |-
-  The Terraform provider for Dell PowerFlex can be used to interact with a Dell PowerFlex array in order to manage the array resources.
+  
 ---
 
 # powerflex Provider
 
-The Terraform provider for Dell PowerFlex can be used to interact with a Dell PowerFlex array in order to manage the array resources.
+
 
 ## Example Usage
 
@@ -72,11 +72,11 @@ variable "endpoint" {
 
 ### Required
 
-- `endpoint` (String) The PowerFlex Gateway server URL (inclusive of the port).
+- `endpoint` (String) the endpoint to which it needs to be connected.
 - `password` (String, Sensitive) The password required for the authentication.
 - `username` (String) The username required for authentication.
 
 ### Optional
 
-- `insecure` (Boolean) Specifies if the user wants to skip SSL verification.
+- `insecure` (Boolean) Specifies if the user wants to do SSL verification.
 - `timeout` (Number) HTTPS timeout.
