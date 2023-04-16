@@ -121,7 +121,7 @@ resource "powerflex_snapshot" "snapshots-create-01" {
 - `lock_auto_snapshot` (Boolean) lock auto snapshot
 - `remove_mode` (String) Remove mode of the snapshot. Valid values are `ONLY_ME` and `INCLUDING_DESCENDANTS`. Default value is `ONLY_ME`.
 - `retention_unit` (String) Retention unit of the snapshot. Valid values are `hours` and `days`. Default value is `hours`.
-- `sdc_list` (Attributes Set) List of SDCs to be mapped to the volume. Exactly one of `sdc_id` or `sdc_name` must be specified. (see [below for nested schema](#nestedatt--sdc_list))
+- `sdc_list` (Attributes Set, Deprecated) List of SDCs to be mapped to the volume. Exactly one of `sdc_id` or `sdc_name` must be specified. (see [below for nested schema](#nestedatt--sdc_list))
 - `size` (Number) Size of the snapshot. The unit of size is defined by `capacity_unit`. The storage capacity of a snapshot must be a multiple of 8GB and cannot be decreased.
 - `volume_id` (String) The ID of the volume from which snapshot is to be created. Conflicts with `volume_name`. Cannot be updated.
 - `volume_name` (String) The volume name for which snapshot is created. Conflicts with `volume_id`. Cannot be updated.

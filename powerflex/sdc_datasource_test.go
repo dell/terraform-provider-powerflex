@@ -23,9 +23,7 @@ func init() {
 	sdcTestData.noOfSdc = "1"
 	sdcTestData.noOflinks = "4"
 	sdcTestData.name = ""
-	sdcTestData.sdcguid = "0877AE5E-BDBF-4E87-A002-218D9F883896"
 	sdcTestData.sdcip = SdsResourceTestData.SdcIP
-	sdcTestData.systemid = "0e7a082862fedf0f"
 }
 
 func TestSdcDataSource(t *testing.T) {
@@ -33,65 +31,63 @@ func TestSdcDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			// Read testing
-			// Error here = https://github.com/hashicorp/terraform-plugin-sdk/pull/1077
 			{
 				Config: ProviderConfigForTesting + TestSdcDataSourceBlockOnlyID,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify number of sdc returned
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.#", sdcTestData.noOfSdc),
 					// Verify the first sdc to ensure all attributes are set
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.system_id", sdcTestData.systemid),
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.sdc_guid", sdcTestData.sdcguid),
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "powerflex_sdc26"),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "Terraform_sdc1"),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.sdc_ip", sdcTestData.sdcip),
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.links.#", sdcTestData.noOflinks),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + TestSdcDataSourceByEmptyBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify number of sdc returned
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "id", ""),
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "name", ""),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.#", "2"),
+					resource.TestCheckTypeSetElemNestedAttrs("data.powerflex_sdc.selected", "sdcs.*", map[string]string{
+						"id":   "e3ce1fb500000000",
+						"name": "Terraform_sdc",
+					}),
+					resource.TestCheckTypeSetElemNestedAttrs("data.powerflex_sdc.selected", "sdcs.*", map[string]string{
+						"id":   "e3ce1fb600000001",
+						"name": "Terraform_sdc1",
+					}),
 				),
 			},
 			{
-				Config:      ProviderConfigForTesting + TestSdcDataSourceByEmptyIDNeg,
-				ExpectError: regexp.MustCompile(".*id.*"),
-			},
-			{
-				Config:      ProviderConfigForTesting + TestSdcDataSourceBlockBothNeg,
-				ExpectError: regexp.MustCompile(".*Invalid Attribute Combination.*"),
-			},
-			{
-				Config: ProviderConfigForTesting + TestSdcDataSourceByEmptyNameBlock,
+				Config: ProviderConfigForTesting + TestSdcDataSourceByNameBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify number of sdc returned
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "id", ""),
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "name", ""),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "Terraform_sdc"),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.id", "e3ce1fb500000000"),
 				),
 			},
 		},
 	})
 }
 
-func TestSdcDataSourceByName(t *testing.T) {
-	var TestSdcDataSourceByNameBlock = `data "powerflex_sdc" "selected" {
-		name = "` + SdsResourceTestData.volName + `"
-	}`
-	os.Setenv("TF_ACC", "1")
+func TestSdcDataSourceNegative(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// Read testing
 			// Error here = https://github.com/hashicorp/terraform-plugin-sdk/pull/1077
 			{
-				Config: ProviderConfigForTesting + TestSdcDataSourceByNameBlock,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify number of sdc returned
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "name", SdsResourceTestData.volName),
-				),
+				Config:      ProviderConfigForTesting + TestSdcDataSourceByEmptyIDNeg,
+				ExpectError: regexp.MustCompile(".*Invalid Attribute Value Length.*"),
+			},
+			{
+				Config:      ProviderConfigForTesting + TestSdcDataSourceBlockBothNeg,
+				ExpectError: regexp.MustCompile(".*Invalid Attribute Combination.*"),
+			},
+			{
+				Config:      ProviderConfigForTesting + TestSdcDataSourceByEmptyNameBlock,
+				ExpectError: regexp.MustCompile(".*Invalid Attribute Value Length.*"),
+			},
+			{
+				Config:      ProviderConfigForTesting + TestSdcDataSourceInvalidName,
+				ExpectError: regexp.MustCompile(".*Couldn't find SDC.*"),
 			},
 		},
 	})
@@ -99,19 +95,30 @@ func TestSdcDataSourceByName(t *testing.T) {
 
 var (
 	TestSdcDataSourceBlockOnlyID = `data "powerflex_sdc" "selected" {
-		id = "c423b09800000003"
+		id = "e3ce1fb600000001"
 	}`
+
 	TestSdcDataSourceByEmptyIDNeg = `data "powerflex_sdc" "selected" {
 		id = ""
 	}`
+
 	TestSdcDataSourceBlockBothNeg = `data "powerflex_sdc" "selected" {
-		id = ""
-		name = ""
+		id = "e3ce1fb600000001"
+		name = "Terraform_sdc1"
 	}`
 
 	TestSdcDataSourceByEmptyNameBlock = `data "powerflex_sdc" "selected" {
 		name = ""
 	}`
+
 	TestSdcDataSourceByEmptyBlock = `data "powerflex_sdc" "selected" {
+	}`
+
+	TestSdcDataSourceByNameBlock = `data "powerflex_sdc" "selected" {
+		name = "Terraform_sdc"
+	}`
+
+	TestSdcDataSourceInvalidName = `data "powerflex_sdc" "selected" {
+		name = "Terraform_sdc11"
 	}`
 )
