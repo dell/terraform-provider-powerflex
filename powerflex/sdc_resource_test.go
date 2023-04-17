@@ -22,11 +22,11 @@ var sdcResourceTestData resourceDataPoints
 func init() {
 	sdcResourceTestData.noOfSdc = "1"
 	sdcResourceTestData.noOflinks = "4"
-	sdcResourceTestData.name = "powerflex_sdc26"
+	sdcResourceTestData.name = "terraform_sdc"
 	sdcResourceTestData.newname = ""
-	sdcResourceTestData.sdcguid = "0877AE5E-BDBF-4E87-A002-218D9F883896"
+	sdcResourceTestData.sdcguid = "C87ACC43-298B-4AD3-A95F-344FE83192C6"
 	sdcResourceTestData.sdcip = ""
-	sdcResourceTestData.systemid = "0e7a082862fedf0f"
+	sdcResourceTestData.systemid = "09a186f8167ebe0f"
 }
 
 func TestSdcResourceUpdate(t *testing.T) {
@@ -140,14 +140,14 @@ var (
 	TestSdcResourceUpdateBlockSameName = `
 	resource "powerflex_sdc" "sdc" {
 		id = "e3ce1fb500000000"
-		name = "powerflex_sdc26"
+		name = "terraform_sdc"
 		}
 		`
 
 	TestSdcResourceUpdateImportBlock = `
 	resource "powerflex_sdc" "test_import" {
 		id = "e3ce1fb500000000"
-		name = "powerflex_sdc26"
+		name = "terraform_sdc"
 	  }
 	  `
 )

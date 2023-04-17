@@ -7,7 +7,7 @@
 
 resource "powerflex_sdc" "sdc" {
   id   = "e3ce1fb500000000"
-  name = "powerflex_sdc26"
+  name = "terraform_sdc"
 }
 
 

@@ -23,9 +23,9 @@ func init() {
 	sdcTestData.noOfSdc = "1"
 	sdcTestData.noOflinks = "4"
 	sdcTestData.name = ""
-	sdcTestData.sdcguid = "0877AE5E-BDBF-4E87-A002-218D9F883896"
+	sdcTestData.sdcguid = "C87ACC43-298B-4AD3-A95F-344FE83192C6"
 	sdcTestData.sdcip = SdsResourceTestData.SdcIP
-	sdcTestData.systemid = "0e7a082862fedf0f"
+	sdcTestData.systemid = "09a186f8167ebe0f"
 }
 
 func TestSdcDataSource(t *testing.T) {
@@ -43,7 +43,7 @@ func TestSdcDataSource(t *testing.T) {
 					// Verify the first sdc to ensure all attributes are set
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.system_id", sdcTestData.systemid),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.sdc_guid", sdcTestData.sdcguid),
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "powerflex_sdc26"),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "terraform_sdc"),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.sdc_ip", sdcTestData.sdcip),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.links.#", sdcTestData.noOflinks),
 				),
