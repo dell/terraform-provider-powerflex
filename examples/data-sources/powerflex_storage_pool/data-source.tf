@@ -9,7 +9,7 @@
 data "powerflex_storage_pool" "example" {
   //protection_domain_name = "domain1"
   protection_domain_id = "202a046600000000"
-  //storage_pool_ids = ["c98e26e500000000", "7630a24800000002"]
+  //storage_pool_ids = ["c98ec35000000002", "c98e26e500000000"]
   storage_pool_names = ["pool2", "pool1"]
 }
 
