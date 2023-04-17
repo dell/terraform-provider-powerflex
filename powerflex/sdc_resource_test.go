@@ -23,9 +23,9 @@ func init() {
 	sdcResourceTestData.noOfSdc = "1"
 	sdcResourceTestData.noOflinks = "4"
 	sdcResourceTestData.name = "terraform_sdc"
-	sdcResourceTestData.newname = ""
+	sdcResourceTestData.newname = "terraform_rename"
 	sdcResourceTestData.sdcguid = "C87ACC43-298B-4AD3-A95F-344FE83192C6"
-	sdcResourceTestData.sdcip = ""
+	sdcResourceTestData.sdcip = "10.247.66.67"
 	sdcResourceTestData.systemid = "09a186f8167ebe0f"
 }
 
