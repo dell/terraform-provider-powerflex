@@ -20,7 +20,7 @@ resource "powerflex_snapshot" "snapshots-create-01" {
   remove_mode   = "INCLUDING_DESCENDANTS"
   sdc_list = [
     {
-      sdc_id           = "c423b09800000003"
+      sdc_id           = "e3ce1fb500000000"
       limit_iops       = 200
       limit_bw_in_mbps = 40
       access_mode      = "ReadWrite"

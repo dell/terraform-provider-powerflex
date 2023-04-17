@@ -39,7 +39,7 @@ func TestSdcResourceUpdate(t *testing.T) {
 				ResourceName:      "powerflex_sdc.test_import",
 				ImportState:       true,
 				ImportStateVerify: false,
-				ImportStateId:     "c423b09800000003",
+				ImportStateId:     "e3ce1fb500000000",
 			},
 			// Update testing
 			{
@@ -60,7 +60,7 @@ func TestSdcResourceUpdateWrongID(t *testing.T) {
 				ResourceName:      "powerflex_sdc.test_import",
 				ImportState:       true,
 				ImportStateVerify: false,
-				ImportStateId:     "c423b098000000034343",
+				ImportStateId:     "e3ce1fb5000000004343",
 				ExpectError:       regexp.MustCompile(`.*Unable to Read Powerflex systems-sdcs Read*`),
 			},
 		},
@@ -77,7 +77,7 @@ func TestSdcResourceUpdateSameName(t *testing.T) {
 				ResourceName:      "powerflex_sdc.test_import",
 				ImportState:       true,
 				ImportStateVerify: false,
-				ImportStateId:     "c423b09800000003",
+				ImportStateId:     "e3ce1fb500000000",
 			},
 			// Update testing
 			{
@@ -125,28 +125,28 @@ func TestSdcResourceCreateUpdate(t *testing.T) {
 var (
 	TestSdcResourceCreateBlock = `
 	resource "powerflex_sdc" "sdc" {
-		id = "c423b09800000003"
+		id = "e3ce1fb500000000"
 		name = "` + sdcResourceTestData.name + `"
 	  }
 	  `
 
 	TestSdcResourceUpdateBlock = `
 	  resource "powerflex_sdc" "sdc" {
-		  id = "c423b09800000003"
+		  id = "e3ce1fb500000000"
 		  name = "` + sdcResourceTestData.newname + `"
 		}
 		`
 
 	TestSdcResourceUpdateBlockSameName = `
 	resource "powerflex_sdc" "sdc" {
-		id = "c423b09800000003"
+		id = "e3ce1fb500000000"
 		name = "powerflex_sdc26"
 		}
 		`
 
 	TestSdcResourceUpdateImportBlock = `
 	resource "powerflex_sdc" "test_import" {
-		id = "c423b09800000003"
+		id = "e3ce1fb500000000"
 		name = "powerflex_sdc26"
 	  }
 	  `

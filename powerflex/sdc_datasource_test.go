@@ -99,7 +99,7 @@ func TestSdcDataSourceByName(t *testing.T) {
 
 var (
 	TestSdcDataSourceBlockOnlyID = `data "powerflex_sdc" "selected" {
-		id = "c423b09800000003"
+		id = "e3ce1fb500000000"
 	}`
 	TestSdcDataSourceByEmptyIDNeg = `data "powerflex_sdc" "selected" {
 		id = ""

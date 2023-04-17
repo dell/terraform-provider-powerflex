@@ -149,7 +149,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
   remove_mode = "INCLUDING_DESCENDANTS"
 	sdc_list = [
     {	
-			sdc_id = "c423b09800000003"
+			sdc_id = "e3ce1fb500000000"
 			limit_iops = 200
 			limit_bw_in_mbps = 40
 			access_mode = "ReadWrite"
@@ -331,13 +331,13 @@ func TestAccSnapshotResourceDuplicateSdc(t *testing.T) {
 		size = 16
 		sdc_list = [
 			{	
-				sdc_id = "c423b09800000003"
+				sdc_id = "e3ce1fb500000000"
 				limit_iops = 200
 				limit_bw_in_mbps = 40
 				access_mode = "ReadWrite"
 			},
 			{	
-				sdc_id = "c423b09800000003"
+				sdc_id = "e3ce1fb500000000"
 				limit_iops = 200
 				limit_bw_in_mbps = 40
 				access_mode = "ReadWrite"
@@ -353,13 +353,13 @@ func TestAccSnapshotResourceDuplicateSdc(t *testing.T) {
 		size = 16
 		sdc_list = [
 			{	
-				sdc_id = "c423b09800000003"
+				sdc_id = "e3ce1fb500000000"
 				limit_iops = 200
 				limit_bw_in_mbps = 40
 				access_mode = "ReadWrite"
 			},
 			{	
-				sdc_id = "c423b09800000003"
+				sdc_id = "e3ce1fb500000000"
 				limit_iops = 200
 				limit_bw_in_mbps = 45
 				access_mode = "ReadWrite"

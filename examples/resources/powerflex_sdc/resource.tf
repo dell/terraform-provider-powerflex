@@ -6,7 +6,7 @@
 
 
 resource "powerflex_sdc" "sdc" {
-  id   = "c423b09800000003"
+  id   = "e3ce1fb500000000"
   name = "powerflex_sdc26"
 }
 

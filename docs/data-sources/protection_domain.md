@@ -38,7 +38,7 @@ This datasource can be used to fetch information related to protection domains f
 
 data "powerflex_protection_domain" "pd" {
   name = "domain1"
-  # id = "4eeb304600000000"
+  # id = "202a046600000000"
 }
 
 output "inputPdID" {
