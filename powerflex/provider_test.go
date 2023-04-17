@@ -50,9 +50,9 @@ func init() {
 	SdsResourceTestData.SdsIP10 = os.Getenv("POWERFLEX_SDS_IP_10")
 	SdsResourceTestData.SdsIP11 = os.Getenv("POWERFLEX_SDS_IP_11")
 	SdsResourceTestData.SdcIP = os.Getenv("POWERFLEX_SDC_IP")
-	SdsResourceTestData.volName = os.Getenv("POWERFLEX_VOLUME_NAME")
-	SdsResourceTestData.volName2 = os.Getenv("POWERFLEX_VOLUME_NAME_2")
-	SdsResourceTestData.volName3 = os.Getenv("POWERFLEX_VOLUME_NAME_3")
+	SdsResourceTestData.sdcName = os.Getenv("POWERFLEX_SDC_NAME")
+	SdsResourceTestData.sdcName2 = os.Getenv("POWERFLEX_SDC_NAME_2")
+	SdsResourceTestData.sdcName3 = os.Getenv("POWERFLEX_SDC_NAME_3")
 
 	ProviderConfigForTesting = fmt.Sprintf(`
 		provider "powerflex" {
