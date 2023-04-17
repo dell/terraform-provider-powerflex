@@ -56,9 +56,9 @@ func getSdcType(c *goscaleio.Client, sdcID string) (*goscaleio.Sdc, error) {
 	}
 
 	var sdcType *types.Sdc
-	for sdc := range sdcs {
-		if sdcs[sdc].ID == sdcID {
-			sdcType = &sdcs[sdc]
+	for _, sdc := range sdcs {
+		if sdc.ID == sdcID {
+			sdcType = &sdc
 		}
 	}
 

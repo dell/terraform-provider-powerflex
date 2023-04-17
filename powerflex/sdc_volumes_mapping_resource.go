@@ -6,6 +6,7 @@ import (
 
 	"github.com/dell/goscaleio"
 	goscaleio_types "github.com/dell/goscaleio/types/v1"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -48,8 +49,8 @@ func (r *sdcVolumeMappingResource) Metadata(_ context.Context, req resource.Meta
 
 func (r *sdcVolumeMappingResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description:         "Manage SDC-Volume mapping resource.",
-		MarkdownDescription: "Manage SDC-Volume mapping resource.",
+		Description:         "This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array. Atleast one of `id` and `name` is required.",
+		MarkdownDescription: "This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array. Atleast one of `id` and `name` is required.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Description:         "The ID of the SDC.",
@@ -71,10 +72,13 @@ func (r *sdcVolumeMappingResource) Schema(_ context.Context, _ resource.SchemaRe
 				},
 			},
 			"volume_list": schema.SetNestedAttribute{
-				Description:         "List of volumes mapped to SDC.",
+				Description:         "List of volumes mapped to SDC. Atleast one of `volume_id` and `volume_name` is required.",
 				Computed:            true,
 				Optional:            true,
-				MarkdownDescription: "List of volumes mapped to SDC.",
+				MarkdownDescription: "List of volumes mapped to SDC. Atleast one of `volume_id` and `volume_name` is required.",
+				Validators: []validator.Set{
+					setvalidator.SizeAtLeast(1),
+				},
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"volume_id": schema.StringAttribute{
@@ -97,22 +101,22 @@ func (r *sdcVolumeMappingResource) Schema(_ context.Context, _ resource.SchemaRe
 							},
 						},
 						"limit_iops": schema.Int64Attribute{
-							Description:         "IOPS limit",
+							Description:         "IOPS limit. Valid values are 0 or integers greater than 10. 0 represents unlimited IOPS. Default value is 0.",
 							Optional:            true,
 							Computed:            true,
-							MarkdownDescription: "IOPS limit",
+							MarkdownDescription: "IOPS limit. Valid values are 0 or integers greater than 10. 0 represents unlimited IOPS. Default value is 0.",
 						},
 						"limit_bw_in_mbps": schema.Int64Attribute{
-							Description:         "Bandwidth limit in MBPS",
+							Description:         "Bandwidth limit in MBPS. `0` represents unlimited bandwith. Default value is `0`.",
 							Optional:            true,
 							Computed:            true,
-							MarkdownDescription: "Bandwidth limit in MBPS",
+							MarkdownDescription: "Bandwidth limit in MBPS. `0` represents unlimited bandwith. Default value is `0`.",
 						},
 						"access_mode": schema.StringAttribute{
-							Description:         "The Access Mode of the SDC",
+							Description:         "The Access Mode of the SDC. Valid values are `ReadOnly`, `ReadWrite` and `NoAccess`. Default value is `ReadOnly`.",
 							Computed:            true,
 							Optional:            true,
-							MarkdownDescription: "The Access Mode of the SDC",
+							MarkdownDescription: "The Access Mode of the SDC. Valid values are `ReadOnly`, `ReadWrite` and `NoAccess`. Default value is `ReadOnly`.",
 							Validators: []validator.String{stringvalidator.OneOf(
 								"ReadOnly",
 								"ReadWrite",
@@ -438,73 +442,71 @@ func (r *sdcVolumeMappingResource) Update(ctx context.Context, req resource.Upda
 	diags = state.VolumeList.ElementsAs(ctx, &stateVolList, true)
 	resp.Diagnostics.Append(diags...)
 
-	planVolIds := []string{}
-	stateVolIds := []string{}
+	planVolIds := make(map[string]string)
+	stateVolIds := make(map[string]string)
 
 	// Populate planVolIds with the volume IDs defined in plan
 	for _, vol := range planVolList {
-		planVolIds = append(planVolIds, vol.VolumeID.ValueString())
+		planVolIds[vol.VolumeID.ValueString()] = vol.VolumeID.ValueString()
 	}
 
-	// Populate stateVolIds with the volume IDs stored in plan
+	// Populate stateVolIds with the volume IDs stored in state
 	for _, vol := range stateVolList {
-		stateVolIds = append(stateVolIds, vol.VolumeID.ValueString())
+		stateVolIds[vol.VolumeID.ValueString()] = vol.VolumeID.ValueString()
 	}
 
 	// mapVolIds will be storing the volume ids for which mapping needs to be performed
-	mapVolIds := Difference(planVolIds, stateVolIds)
+	mapVolIds := DifferenceMap(planVolIds, stateVolIds)
 
 	// unmapVolIds will be storing the volume id for which unmapping needs to be performed
-	unmapVolIds := Difference(stateVolIds, planVolIds)
+	unmapVolIds := DifferenceMap(stateVolIds, planVolIds)
 
 	// nonchangeVolIds will be storing the volume id for which limits/access mode needs to be performed
-	nonchangeVolIds := Difference(planVolIds, mapVolIds)
+	nonchangeVolIds := DifferenceMap(planVolIds, mapVolIds)
 
 	// Perform mapping and setting limits operation
 	for _, planVol := range planVolList {
-		for _, volID := range mapVolIds {
-			if planVol.VolumeID.ValueString() == volID {
-				volType, err := getVolumeType(r.client, planVol.VolumeID.ValueString())
+		if _, ok := mapVolIds[planVol.VolumeID.ValueString()]; ok {
+			volType, err := getVolumeType(r.client, planVol.VolumeID.ValueString())
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"Error getting volume",
+					"unexpected error: "+err.Error(),
+				)
+				return
+			}
+
+			pfmvsp := goscaleio_types.MapVolumeSdcParam{
+				SdcID:                 plan.ID.ValueString(),
+				AccessMode:            planVol.AccessMode.ValueString(),
+				AllowMultipleMappings: "true",
+			}
+
+			err = volType.MapVolumeSdc(&pfmvsp)
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"Error mapping volume to sdc: "+planVol.VolumeID.ValueString(),
+					"unexpected error: "+err.Error(),
+				)
+			} else {
+				smslp := goscaleio_types.SetMappedSdcLimitsParam{
+					SdcID:                plan.ID.ValueString(),
+					BandwidthLimitInKbps: strconv.FormatInt(planVol.BWLimit.ValueInt64()*1024, 10),
+					IopsLimit:            strconv.FormatInt(planVol.IOPSLimit.ValueInt64(), 10),
+				}
+				err := volType.SetMappedSdcLimits(&smslp)
 				if err != nil {
 					resp.Diagnostics.AddError(
-						"Error getting volume",
+						"Error setting limits to sdc: "+plan.ID.ValueString(),
 						"unexpected error: "+err.Error(),
 					)
-					return
-				}
-
-				pfmvsp := goscaleio_types.MapVolumeSdcParam{
-					SdcID:                 plan.ID.ValueString(),
-					AccessMode:            planVol.AccessMode.ValueString(),
-					AllowMultipleMappings: "true",
-				}
-
-				err = volType.MapVolumeSdc(&pfmvsp)
-				if err != nil {
-					resp.Diagnostics.AddError(
-						"Error mapping volume to sdc: "+volID,
-						"unexpected error: "+err.Error(),
-					)
-				} else {
-					smslp := goscaleio_types.SetMappedSdcLimitsParam{
-						SdcID:                plan.ID.ValueString(),
-						BandwidthLimitInKbps: strconv.FormatInt(planVol.BWLimit.ValueInt64()*1024, 10),
-						IopsLimit:            strconv.FormatInt(planVol.IOPSLimit.ValueInt64(), 10),
-					}
-					err := volType.SetMappedSdcLimits(&smslp)
-					if err != nil {
-						resp.Diagnostics.AddError(
-							"Error setting limits to sdc: "+plan.ID.ValueString(),
-							"unexpected error: "+err.Error(),
-						)
-					}
 				}
 			}
 		}
 	}
 
 	// Perform unmap operation
-	for _, volID := range unmapVolIds {
+	for volID := range unmapVolIds {
 		volType, err := getVolumeType(r.client, volID)
 		if err != nil {
 			resp.Diagnostics.AddError(
@@ -528,7 +530,7 @@ func (r *sdcVolumeMappingResource) Update(ctx context.Context, req resource.Upda
 	}
 
 	// retrieval of volume id from nonchangeVolIds and perform change operation
-	for _, volID := range nonchangeVolIds {
+	for volID := range nonchangeVolIds {
 		var planObj sdcVolumeModel
 		var stateObj sdcVolumeModel
 
@@ -644,7 +646,6 @@ func (r *sdcVolumeMappingResource) Delete(ctx context.Context, req resource.Dele
 					"Error getting volume",
 					"unexpected error: "+err.Error(),
 				)
-				return
 			}
 
 			err = volType.UnmapVolumeSdc(
@@ -658,7 +659,6 @@ func (r *sdcVolumeMappingResource) Delete(ctx context.Context, req resource.Dele
 					"Error Unmapping Volume to SDCs",
 					"Couldn't unmap volume to SDC with id: "+state.ID.ValueString()+", unexpected error: "+err.Error(),
 				)
-				return
 			}
 		}
 	}

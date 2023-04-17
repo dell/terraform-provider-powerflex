@@ -19,12 +19,12 @@ linkTitle: "powerflex_sdc_volumes_mapping"
 page_title: "powerflex_sdc_volumes_mapping Resource - powerflex"
 subcategory: ""
 description: |-
-  Manage SDC-Volume mapping resource.
+  This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array. Atleast one of id and name is required.
 ---
 
 # powerflex_sdc_volumes_mapping (Resource)
 
-Manage SDC-Volume mapping resource.
+This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array. Atleast one of `id` and `name` is required.
 
 
 
@@ -36,16 +36,16 @@ Manage SDC-Volume mapping resource.
 
 - `id` (String) The ID of the SDC.
 - `name` (String) The name of the SDC.
-- `volume_list` (Attributes Set) List of volumes mapped to SDC. (see [below for nested schema](#nestedatt--volume_list))
+- `volume_list` (Attributes Set) List of volumes mapped to SDC. Atleast one of `volume_id` and `volume_name` is required. (see [below for nested schema](#nestedatt--volume_list))
 
 <a id="nestedatt--volume_list"></a>
 ### Nested Schema for `volume_list`
 
 Optional:
 
-- `access_mode` (String) The Access Mode of the SDC
-- `limit_bw_in_mbps` (Number) Bandwidth limit in MBPS
-- `limit_iops` (Number) IOPS limit
+- `access_mode` (String) The Access Mode of the SDC. Valid values are `ReadOnly`, `ReadWrite` and `NoAccess`. Default value is `ReadOnly`.
+- `limit_bw_in_mbps` (Number) Bandwidth limit in MBPS. `0` represents unlimited bandwith. Default value is `0`.
+- `limit_iops` (Number) IOPS limit. Valid values are 0 or integers greater than 10. 0 represents unlimited IOPS. Default value is 0.
 - `volume_id` (String) The ID of the volume.
 - `volume_name` (String) The name of the volume.
 
