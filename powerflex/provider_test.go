@@ -25,9 +25,9 @@ type sdsDataPoints struct {
 	SdsIP10  string
 	SdsIP11  string
 	SdcIP    string
-	volName  string
-	volName2 string
-	volName3 string
+	sdcName  string
+	sdcName2 string
+	sdcName3 string
 }
 
 var SdsResourceTestData sdsDataPoints
