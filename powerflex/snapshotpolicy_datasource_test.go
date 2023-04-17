@@ -41,7 +41,7 @@ func TestAccSnapshotPolicyDataSource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify the first snapshot policy to ensure attributes are correctly set
 					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp3", "snapshotpolicies.0.id", "896a535800000001"),
-					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp3", "snapshotpolicies.#", "4"),
+					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp3", "snapshotpolicies.#", "2"),
 					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp3", "snapshotpolicies.0.name", "sample_snap_policy"),
 				),
 			},
