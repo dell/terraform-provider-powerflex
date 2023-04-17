@@ -1401,7 +1401,7 @@ func TestSDSResourceRename(t *testing.T) {
 		`
 	var renameSDSExistingName = `
 		resource "powerflex_sds" "sds" {
-			name = "node1"
+			name = "SDS_10.247.100.214"
 			protection_domain_id = "202a046600000000"
 			ip_list = [
 			  {
