@@ -102,7 +102,7 @@ resource "powerflex_volume" "avengers-volume-create" {
 - `protection_domain_id` (String) ID of the Protection Domain under which the volume will be created. Conflicts with `protection_domain_name`. Cannot be updated.
 - `protection_domain_name` (String) Name of the Protection Domain under which the volume will be created. Conflicts with `protection_domain_id`. Cannot be updated.
 - `remove_mode` (String) Remove mode of the volume. Valid values are `ONLY_ME` and `INCLUDING_DESCENDANTS`. Default value is `ONLY_ME`.
-- `sdc_list` (Attributes Set) List of SDCs to be mapped to the volume. Exactly one of `sdc_id` or `sdc_name` must be specified. (see [below for nested schema](#nestedatt--sdc_list))
+- `sdc_list` (Attributes Set, Deprecated) List of SDCs to be mapped to the volume. Exactly one of `sdc_id` or `sdc_name` must be specified. (see [below for nested schema](#nestedatt--sdc_list))
 - `storage_pool_id` (String) ID of the Storage Pool under which the volume will be created. Conflicts with `storage_pool_name`. Cannot be updated.
 - `storage_pool_name` (String) Name of the Storage Pool under which the volume will be created. Conflicts with `storage_pool_id`. Cannot be updated.
 - `use_rm_cache` (Boolean) use rm cache

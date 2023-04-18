@@ -59,7 +59,7 @@ var SDCDataSourceScheme schema.Schema = schema.Schema{
 			Optional: true,
 			Computed: true,
 			Validators: []validator.String{
-				stringvalidator.ConflictsWith(path.MatchRoot("id")),
+				stringvalidator.LengthAtLeast(1),
 			},
 		},
 		"sdcs": schema.ListNestedAttribute{

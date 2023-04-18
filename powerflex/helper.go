@@ -5,6 +5,7 @@ import (
 
 	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
+	types "github.com/dell/goscaleio/types/v1"
 )
 
 // getFirstSystem - finds available first system and returns it.
@@ -41,4 +42,40 @@ func getNewProtectionDomainEx(c *goscaleio.Client, pdID string, pdName string, h
 		}
 	}
 	return pdr, nil
+}
+
+// getSdcType function returns SDC type
+func getSdcType(c *goscaleio.Client, sdcID string) (*goscaleio.Sdc, error) {
+	system, err := getFirstSystem(c)
+	if err != nil {
+		return nil, err
+	}
+
+	sdcs, err1 := system.GetSdc()
+	if err1 != nil {
+		return nil, err1
+	}
+
+	var sdcType *types.Sdc
+	for _, sdc := range sdcs {
+		if sdc.ID == sdcID {
+			sdcType = &sdc
+		}
+	}
+
+	c4 := goscaleio.NewSdc(c, sdcType)
+	return c4, nil
+}
+
+// getVolumeType function returns volume type
+func getVolumeType(c *goscaleio.Client, volID string) (*goscaleio.Volume, error) {
+	volumes, err := c.GetVolume("", volID, "", "", false)
+	if err != nil {
+		return nil, err
+	}
+
+	volume := volumes[0]
+	volType := goscaleio.NewVolume(c)
+	volType.Volume = volume
+	return volType, nil
 }

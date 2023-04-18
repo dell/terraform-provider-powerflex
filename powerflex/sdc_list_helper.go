@@ -118,6 +118,7 @@ var sdcListSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 	Computed:            true,
 	Optional:            true,
 	MarkdownDescription: "List of SDCs to be mapped to the volume. Exactly one of `sdc_id` or `sdc_name` must be specified.",
+	DeprecationMessage:  "Please use sdc_volumes_mapping resource for mapping SDCs to the volumes/snapshots. This attribute will be removed in future release.",
 	NestedObject: schema.NestedAttributeObject{
 		Attributes: map[string]schema.Attribute{
 			"sdc_id": schema.StringAttribute{

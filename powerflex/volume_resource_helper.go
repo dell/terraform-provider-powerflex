@@ -114,6 +114,23 @@ func Difference(a, b []string) (diff []string) {
 	return
 }
 
+// DifferenceMap function to find the state difference b/w sdcs
+func DifferenceMap(a, b map[string]string) map[string]string {
+	m := make(map[string]bool)
+	diff := make(map[string]string)
+
+	for item := range b {
+		m[item] = true
+	}
+
+	for item := range a {
+		if _, ok := m[item]; !ok {
+			diff[item] = item
+		}
+	}
+	return diff
+}
+
 // stringDefaultModifier is a plan modifier that sets a default value for a
 // types.StringType attribute when it is not configured. The attribute must be
 // marked as Optional and Computed. When setting the state during the resource

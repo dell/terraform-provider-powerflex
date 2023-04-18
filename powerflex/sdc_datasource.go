@@ -75,10 +75,23 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 
 	allSdcWithStats := getAllSdcState(ctx, *d.client, sdcs)
 
+	if len(*allSdcWithStats) == 0 {
+		resp.Diagnostics.AddError("SDCs are not installed on the PowerFlex cluster.",
+			"SDCs are not installed on the PowerFlex cluster.",
+		)
+		return
+	}
+
 	if searchFilter == sdcFilterType.All {
 		state.Sdcs = *allSdcWithStats
 	} else {
 		filterResult := getFilteredSdcState(allSdcWithStats, searchFilter, state.Name.ValueString(), state.ID.ValueString())
+		if len(*filterResult) == 0 {
+			resp.Diagnostics.AddError("Couldn't find SDC.",
+				"Couldn't find SDC.",
+			)
+			return
+		}
 		state.Sdcs = *filterResult
 	}
 
