@@ -59,8 +59,12 @@ resource "powerflex_snapshot" "snapshots-create" {
 `
 
 var updateSnapshotRenameNegTest = createVolForSs + `
-resource "powerflex_snapshot" "snapshots-create" {
+resource "powerflex_snapshot" "snapshots-create-before" {
 	name = "snapshot-create-invalid"
+	volume_id = resource.powerflex_volume.ref-vol.id
+}
+resource "powerflex_snapshot" "snapshots-create" {
+	name = resource.powerflex_snapshot.snapshots-create-before.name
 	// snapshot with name snapshot-create-invalid already exist  
 	volume_id = resource.powerflex_volume.ref-vol.id
 }

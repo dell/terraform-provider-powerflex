@@ -1033,7 +1033,20 @@ func TestSDSResourceAddIP(t *testing.T) {
 		}
 		`
 	var addOccupiedSDSIP = `
+		resource "powerflex_sds" "sds_1" {
+			name = "Terraform_SDS_1"
+			protection_domain_id = "202a046600000000"
+			ip_list = [
+			  {
+					ip = "` + SdsResourceTestData.SdsIP2 + `"
+					role = "all"
+			  } 
+			]
+		}
 		resource "powerflex_sds" "sds" {
+			depends_on = [
+				powerflex_sds.sds_1
+			]
 			name = "Terraform_SDS"
 			protection_domain_id = "202a046600000000"
 			ip_list = [

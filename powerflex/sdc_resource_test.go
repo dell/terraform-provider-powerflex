@@ -92,7 +92,7 @@ func TestSdcResourceCreateUpdate(t *testing.T) {
 	var TestSdcResourceCreateUpdateBlockS1 = `
 	resource "powerflex_sdc" "sdc" {
 		id = "c423b09900000004"
-		name = "` + SdsResourceTestData.sdcName3 + `"
+		name = "` + SdsResourceTestData.sdcName1 + `"
 	  }
 	  `
 	var TestSdcResourceCreateUpdateBlockS2 = `
@@ -108,7 +108,7 @@ func TestSdcResourceCreateUpdate(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + TestSdcResourceCreateUpdateBlockS1,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", SdsResourceTestData.sdcName3),
+					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", SdsResourceTestData.sdcName1),
 				),
 			},
 			// // Update testing
