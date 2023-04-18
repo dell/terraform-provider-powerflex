@@ -333,6 +333,7 @@ func (r *sdcVolumeMappingResource) Create(ctx context.Context, req resource.Crea
 	resp.Diagnostics.Append(diags...)
 }
 
+// getVolType returns the volume type required for mapping
 func getVolType() map[string]attr.Type {
 	return map[string]attr.Type{
 		"volume_id":        types.StringType,
@@ -343,6 +344,7 @@ func getVolType() map[string]attr.Type {
 	}
 }
 
+// getVolType returns the volume object required for mapping
 func getVolValue(vol *goscaleio_types.Volume) (basetypes.ObjectValue, diag.Diagnostics) {
 	return types.ObjectValue(getVolType(), map[string]attr.Value{
 		"volume_id":        types.StringValue(vol.ID),
@@ -353,6 +355,7 @@ func getVolValue(vol *goscaleio_types.Volume) (basetypes.ObjectValue, diag.Diagn
 	})
 }
 
+// updateSDCVolMapState updates the state
 func updateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan sdcVolumeMappingResourceModel) (sdcVolumeMappingResourceModel, diag.Diagnostics) {
 	var state sdcVolumeMappingResourceModel
 	state = plan
@@ -669,6 +672,7 @@ func (r *sdcVolumeMappingResource) Delete(ctx context.Context, req resource.Dele
 	resp.State.RemoveResource(ctx)
 }
 
+// ImportState imports the resource
 func (r *sdcVolumeMappingResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)

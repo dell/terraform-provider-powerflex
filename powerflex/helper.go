@@ -44,6 +44,7 @@ func getNewProtectionDomainEx(c *goscaleio.Client, pdID string, pdName string, h
 	return pdr, nil
 }
 
+// getSdcType function returns SDC type
 func getSdcType(c *goscaleio.Client, sdcID string) (*goscaleio.Sdc, error) {
 	system, err := getFirstSystem(c)
 	if err != nil {
@@ -66,6 +67,7 @@ func getSdcType(c *goscaleio.Client, sdcID string) (*goscaleio.Sdc, error) {
 	return c4, nil
 }
 
+// getVolumeType function returns volume type
 func getVolumeType(c *goscaleio.Client, volID string) (*goscaleio.Volume, error) {
 	volumes, err := c.GetVolume("", volID, "", "", false)
 	if err != nil {
