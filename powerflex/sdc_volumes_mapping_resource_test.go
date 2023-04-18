@@ -1,6 +1,7 @@
 package powerflex
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -361,4 +362,87 @@ func TestAccSDCVolumesResourceUpdate(t *testing.T) {
 				ExpectError: regexp.MustCompile("Error setting limits to sdc"),
 			},
 		}})
+}
+
+func TestAccSDCResourceUnknown(t *testing.T) {
+	if SdsResourceTestData.SdcIP == "" {
+		t.Fatal("POWERFLEX_SDC_IP must be set for TestAccSDCResourceUnknown")
+	}
+
+	if SDCVolName == "" {
+		t.Fatal("POWERFLEX_SDC_VOLUMES_MAPPING_NAME must be set for TestAccSDCResourceUnknown")
+	}
+
+	tfVars := fmt.Sprintf(`
+	locals {
+		sdc_ip = "%s"
+	}
+	`, SdsResourceTestData.SdcIP)
+
+	tfVars1 := fmt.Sprintf(`
+	locals {
+		volume_name = "%s"
+	}
+	`, SDCVolName)
+
+	createSDCVolMapUnk := tfVars + tfVars1 + `
+	data "powerflex_sdc" "all" {
+	}
+
+	data "powerflex_volume" "all_vol" {
+	}
+
+	provider "random" {
+	}
+	
+	resource "random_integer" "sdc_ind" {
+	  min = 0
+	  max = 0
+	}
+	locals {
+		ips = [local.sdc_ip]
+		vols = [local.volume_name]
+		matching_sdc = [for sdc in data.powerflex_sdc.all.sdcs : sdc if sdc.sdc_ip == local.ips[random_integer.sdc_ind.result]]
+		matching_vol = [for vol in data.powerflex_volume.all_vol.volumes : vol if vol.name == local.vols[random_integer.sdc_ind.result]]
+	}
+
+	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
+		id = local.matching_sdc[0].id
+		volume_list = [
+		{
+			volume_id = local.matching_vol[0].id
+			limit_iops = 120
+			limit_bw_in_mbps = 20
+			access_mode = "ReadOnly"
+		}
+		]
+ 	}
+	`
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				VersionConstraint: "3.4.3",
+				Source:            "hashicorp/random",
+			},
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + createSDCVolMapUnk,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "name", "Terraform_sdc1"),
+					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3ce1fb600000001"),
+					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.*", map[string]string{
+						"volume_id":        "edb2a2cb00000002",
+						"volume_name":      "terraform-vol",
+						"access_mode":      "ReadOnly",
+						"limit_iops":       "120",
+						"limit_bw_in_mbps": "20",
+					}),
+				),
+			},
+		},
+	})
 }

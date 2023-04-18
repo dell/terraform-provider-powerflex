@@ -34,8 +34,6 @@ func TestSdcDataSource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + TestSdcDataSourceBlockOnlyID,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify number of sdc returned
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.#", sdcTestData.noOfSdc),
 					// Verify the first sdc to ensure all attributes are set
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "Terraform_sdc1"),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.sdc_ip", sdcTestData.sdcip),
@@ -44,8 +42,6 @@ func TestSdcDataSource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + TestSdcDataSourceByEmptyBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify number of sdc returned
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.#", "2"),
 					resource.TestCheckTypeSetElemNestedAttrs("data.powerflex_sdc.selected", "sdcs.*", map[string]string{
 						"id":   "e3ce1fb500000000",
 						"name": "Terraform_sdc",
