@@ -588,10 +588,9 @@ func (r *snapshotResource) Delete(ctx context.Context, req resource.DeleteReques
 	}
 	snapshot := goscaleio.NewVolume(r.client)
 	snapshot.Volume = snapResponse[0]
-	sdcsToUnmap := []SdcList{}
-	diags = state.SdcList.ElementsAs(ctx, &sdcsToUnmap, true)
-	resp.Diagnostics.Append(diags...)
-	for _, stu := range sdcsToUnmap {
+
+	// performing unmap operation
+	for _, stu := range snapResponse[0].MappedSdcInfo {
 		err := snapshot.UnmapVolumeSdc(
 			&pftypes.UnmapVolumeSdcParam{
 				SdcID: stu.SdcID,
@@ -600,7 +599,7 @@ func (r *snapshotResource) Delete(ctx context.Context, req resource.DeleteReques
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error Unmapping Volume to SDCs",
-				"Couldn't unmap volume to scs with id: "+stu.SdcID+", unexpected error: "+err.Error(),
+				"Couldn't unmap volume to SDC with id: "+stu.SdcID+", unexpected error: "+err.Error(),
 			)
 			return
 		}
