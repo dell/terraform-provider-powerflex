@@ -78,7 +78,7 @@ func TestAccVolumeResource(t *testing.T) {
 		access_mode = "ReadOnly"
 		sdc_list = [
 				  {
-				   sdc_name = "` + SdsResourceTestData.sdcName + `"
+				   sdc_name = "` + SdsResourceTestData.sdcName2 + `"
 				   limit_iops = 9
 				   limit_bw_in_mbps = 122
 				   access_mode = "ReadWrite"
@@ -434,13 +434,13 @@ func TestAccVolumeResourceDuplicateSDC(t *testing.T) {
 		access_mode = "ReadWrite"
 		sdc_list = [
 			{
-				sdc_name = "` + SdsResourceTestData.sdcName + `"
+				sdc_name = "` + SdsResourceTestData.sdcName2 + `"
 				limit_iops = 119
 				limit_bw_in_mbps = 19
 				access_mode = "ReadOnly"
 			},
 			{
-				sdc_name = "` + SdsResourceTestData.sdcName + `"
+				sdc_name = "` + SdsResourceTestData.sdcName2 + `"
 				limit_iops = 119
 				limit_bw_in_mbps = 19
 				access_mode = "ReadWrite"
