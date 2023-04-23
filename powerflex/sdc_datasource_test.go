@@ -78,7 +78,7 @@ func TestSdcDataSource(t *testing.T) {
 
 func TestSdcDataSourceByName(t *testing.T) {
 	var TestSdcDataSourceByNameBlock = `data "powerflex_sdc" "selected" {
-		name = "` + SdsResourceTestData.sdcName + `"
+		name = "` + SdsResourceTestData.sdcName3 + `"
 	}`
 	os.Setenv("TF_ACC", "1")
 	resource.Test(t, resource.TestCase{
@@ -90,7 +90,7 @@ func TestSdcDataSourceByName(t *testing.T) {
 				Config: ProviderConfigForTesting + TestSdcDataSourceByNameBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify number of sdc returned
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "name", SdsResourceTestData.sdcName),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "id", SdsResourceTestData.sdcName3),
 				),
 			},
 		},
