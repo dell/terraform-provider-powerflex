@@ -108,7 +108,7 @@ func TestSdcResourceCreateUpdate(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + TestSdcResourceCreateUpdateBlockS1,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", SdsResourceTestData.sdcName + "-create"),
+					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", SdsResourceTestData.sdcName+"-create"),
 				),
 			},
 			// // Update testing
