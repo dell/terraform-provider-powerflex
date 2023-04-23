@@ -23,7 +23,7 @@ func init() {
 	sdcTestData.noOfSdc = "1"
 	sdcTestData.noOflinks = "4"
 	sdcTestData.name = ""
-	sdcTestData.sdcip = SdsResourceTestData.SdcIP
+	sdcTestData.sdcip = "10.247.66.194"
 }
 
 func TestSdcDataSource(t *testing.T) {

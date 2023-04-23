@@ -8,6 +8,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+func init() {
+	SDCMappingResourceID2 = "e3ce1fb600000001"
+}
+
 func TestAccSDCVolumesResource(t *testing.T) {
 	var MapSDCVolumesResource = `
 	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
