@@ -22,7 +22,7 @@ var sdcResourceTestData resourceDataPoints
 func init() {
 	sdcResourceTestData.noOfSdc = "1"
 	sdcResourceTestData.noOflinks = "4"
-	sdcResourceTestData.name = "terraform_sdc"
+	sdcResourceTestData.name = "terraform_sdc_create"
 	sdcResourceTestData.newname = "terraform_rename"
 	sdcResourceTestData.sdcguid = "C87ACC43-298B-4AD3-A95F-344FE83192C6"
 	sdcResourceTestData.sdcip = "10.247.66.67"

@@ -165,7 +165,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
 			access_mode = "NoAccess"
 		},
     		{
-			sdc_id = "c423b09a00000005"
+			sdc_id = "e3ce46c600000003"
 			limit_iops = 82
 			limit_bw_in_mbps = 17
 			access_mode = "ReadOnly"
@@ -210,7 +210,7 @@ resource "powerflex_snapshot" "snapshots-create-locked-auto-invalid" {
 			access_mode = "ReadWrite"
 		},
 		{
-			sdc_id = "c423b09a00000005"
+			sdc_id = "e3ce46c600000003"
 			limit_iops = 90
 			limit_bw_in_mbps = 9
 			access_mode = "ReadOnly"

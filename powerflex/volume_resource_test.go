@@ -189,7 +189,7 @@ func TestAccVolumeResource(t *testing.T) {
 			   },
 	
 			   {
-				sdc_id = "e3ce1fb500000000"
+				sdc_id = "e3ce46c600000003"
 				limit_iops = 38
 				limit_bw_in_mbps = 28
 				access_mode = "NoAccess"
