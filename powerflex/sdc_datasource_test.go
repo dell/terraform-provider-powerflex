@@ -23,7 +23,9 @@ func init() {
 	sdcTestData.noOfSdc = "1"
 	sdcTestData.noOflinks = "4"
 	sdcTestData.name = ""
+	sdcTestData.sdcguid = "C87ACC43-298B-4AD3-A95F-344FE83192C6"
 	sdcTestData.sdcip = SdsResourceTestData.SdcIP
+	sdcTestData.systemid = "09a186f8167ebe0f"
 }
 
 func TestSdcDataSource(t *testing.T) {
@@ -35,7 +37,9 @@ func TestSdcDataSource(t *testing.T) {
 				Config: ProviderConfigForTesting + TestSdcDataSourceBlockOnlyID,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify the first sdc to ensure all attributes are set
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "Terraform_sdc1"),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.system_id", sdcTestData.systemid),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.sdc_guid", sdcTestData.sdcguid),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "terraform_sdc"),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.sdc_ip", sdcTestData.sdcip),
 				),
 			},
@@ -64,6 +68,11 @@ func TestSdcDataSource(t *testing.T) {
 }
 
 func TestSdcDataSourceNegative(t *testing.T) {
+func TestSdcDataSourceByName(t *testing.T) {
+	var TestSdcDataSourceByNameBlock = `data "powerflex_sdc" "selected" {
+		name = "` + SdsResourceTestData.sdcName3 + `"
+	}`
+	os.Setenv("TF_ACC", "1")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -84,6 +93,11 @@ func TestSdcDataSourceNegative(t *testing.T) {
 			{
 				Config:      ProviderConfigForTesting + TestSdcDataSourceInvalidName,
 				ExpectError: regexp.MustCompile(".*Couldn't find SDC.*"),
+				Config: ProviderConfigForTesting + TestSdcDataSourceByNameBlock,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					// Verify number of sdc returned
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "name", SdsResourceTestData.sdcName3),
+				),
 			},
 		},
 	})
@@ -91,7 +105,7 @@ func TestSdcDataSourceNegative(t *testing.T) {
 
 var (
 	TestSdcDataSourceBlockOnlyID = `data "powerflex_sdc" "selected" {
-		id = "e3ce1fb600000001"
+		id = "e3ce1fb500000000"
 	}`
 
 	TestSdcDataSourceByEmptyIDNeg = `data "powerflex_sdc" "selected" {
