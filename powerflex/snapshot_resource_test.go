@@ -159,7 +159,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
 			access_mode = "ReadWrite"
 		},
 		{	
-			sdc_id = "e3ce1fb600000001"
+			sdc_id = "e3ce1fb500000000"
 			limit_iops = 190
 			limit_bw_in_mbps = 70
 			access_mode = "NoAccess"
