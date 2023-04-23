@@ -92,7 +92,7 @@ func TestSdcResourceCreateUpdate(t *testing.T) {
 	var TestSdcResourceCreateUpdateBlockS1 = `
 	resource "powerflex_sdc" "sdc" {
 		id = "e3ce1fb500000000"
-		name = "` + SdsResourceTestData.sdcName + "-create" `"
+		name = "` + SdsResourceTestData.sdcName + "-create" + `"
 	  }
 	  `
 	var TestSdcResourceCreateUpdateBlockS2 = `
