@@ -98,7 +98,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
   	remove_mode = "INCLUDING_DESCENDANTS"
 	sdc_list = [
 		{	
-			sdc_id = "c423b09900000004"
+			sdc_id = "e3ce1fb500000000"
 			limit_iops = 150
 			limit_bw_in_mbps = 20
 			access_mode = "ReadWrite"
@@ -114,7 +114,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
 	access_mode = "ReadOnly"
 	sdc_list = [
 		{	
-			sdc_id = "c423b09900000004"
+			sdc_id = "e3ce1fb500000000"
 			limit_iops = 150
 			limit_bw_in_mbps = 20
 			access_mode = "ReadWrite"
@@ -134,7 +134,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
   	remove_mode = "INCLUDING_DESCENDANTS"
 	sdc_list = [
 		{	
-			sdc_id = "c423b09900000004"
+			sdc_id = "e3ce1fb500000000"
 			limit_iops = 150
 			limit_bw_in_mbps = 20
 			access_mode = "ReadWrite"
@@ -159,7 +159,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
 			access_mode = "ReadWrite"
 		},
 		{	
-			sdc_id = "c423b09900000004"
+			sdc_id = "e3ce1fb500000000"
 			limit_iops = 190
 			limit_bw_in_mbps = 70
 			access_mode = "NoAccess"
@@ -181,7 +181,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-invalid-sdc-map" {
 	access_mode = "ReadWrite"
 	sdc_list = [
 		{	
-			sdc_id = "c423b09900000004"
+			sdc_id = "e3ce1fb500000000"
 			limit_iops = 200
 			limit_bw_in_mbps = 40
 			access_mode = "ReadWrite"
@@ -204,7 +204,7 @@ resource "powerflex_snapshot" "snapshots-create-locked-auto-invalid" {
 	lock_auto_snapshot = true
 	sdc_list = [
 		{	
-			sdc_id = "c423b09900000004"
+			sdc_id = "e3ce1fb500000000"
 			limit_iops = 200
 			limit_bw_in_mbps = 40
 			access_mode = "ReadWrite"

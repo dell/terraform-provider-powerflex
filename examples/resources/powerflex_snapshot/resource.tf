@@ -26,7 +26,7 @@ resource "powerflex_snapshot" "snapshots-create-01" {
       access_mode      = "ReadWrite"
     },
     {
-      sdc_id           = "c423b09900000004"
+      sdc_id           = "e3ce1fb500000000"
       limit_iops       = 190
       limit_bw_in_mbps = 70
       access_mode      = "NoAccess"

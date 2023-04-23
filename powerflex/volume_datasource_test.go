@@ -16,7 +16,7 @@ type dataPoints struct {
 var volumeTestData dataPoints
 
 func init() {
-	volumeTestData.storagePoolID = "c98ec35000000002"
+	volumeTestData.storagePoolID = "c98e26e500000000"
 	volumeTestData.volumeType = "ThinProvisioned"
 	volumeTestData.dataLayout = "MediumGranularity"
 }
@@ -95,7 +95,7 @@ data "powerflex_volume" "all" {
 
 var VolumeDataSourceConfig3 = create8gbVol + `
 data "powerflex_volume" "all" {						
-	storage_pool_id = "c98ec35000000002"
+	storage_pool_id = "c98e26e500000000"
 }
 `
 
