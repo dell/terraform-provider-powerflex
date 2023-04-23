@@ -92,13 +92,13 @@ func TestSdcResourceCreateUpdate(t *testing.T) {
 	var TestSdcResourceCreateUpdateBlockS1 = `
 	resource "powerflex_sdc" "sdc" {
 		id = "e3ce1fb500000000"
-		name = "` + SdsResourceTestData.sdcName + `"
+		name = "` + SdsResourceTestData.sdcName + "-1" +`"
 	  }
 	  `
 	var TestSdcResourceCreateUpdateBlockS2 = `
 	resource "powerflex_sdc" "sdc" {
 		id = "e3ce1fb600000001"
-		name = "` + SdsResourceTestData.sdcName2 + `"
+		name = "` + SdsResourceTestData.sdcName2 + "-2" + `"
 	  }
 	  `
 	os.Setenv("TF_ACC", "1")
@@ -108,14 +108,14 @@ func TestSdcResourceCreateUpdate(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + TestSdcResourceCreateUpdateBlockS1,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", SdsResourceTestData.sdcName),
+					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", SdsResourceTestData.sdcName + "-1"),
 				),
 			},
 			// // Update testing
 			{
 				Config: ProviderConfigForTesting + TestSdcResourceCreateUpdateBlockS2,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", SdsResourceTestData.sdcName2),
+					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", SdsResourceTestData.sdcName2 + "-2"),
 				),
 			},
 		},
