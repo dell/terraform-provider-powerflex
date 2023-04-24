@@ -325,6 +325,7 @@ func (r *sdcVolumeMappingResource) Create(ctx context.Context, req resource.Crea
 		)
 		return
 	}
+
 	if len(mappedVolumes) == 0 {
 		resp.Diagnostics.AddError("Goscaleio returned no mapped volumes", fmt.Sprintf("The response was %v", mappedVolumes))
 	}
