@@ -10,6 +10,8 @@ import (
 
 func init() {
 	SDCMappingResourceID2 = "e3ce1fb600000001"
+	SDCMappingResourceName2 = "Terraform_sdc1"
+	
 }
 
 func TestAccSDCVolumesResource(t *testing.T) {
