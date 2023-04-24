@@ -138,7 +138,7 @@ var (
 		`
 
 	TestSdcResourceUpdateBlockSameName = `
-	resource "powerflex_sdc" "sdc" {
+	resource "powerflex_sdc" "test_import" {
 		id = "e3ce1fb500000000"
 		name = "terraform_sdc"
 		}
