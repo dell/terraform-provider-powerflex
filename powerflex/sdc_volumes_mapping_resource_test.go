@@ -8,13 +8,33 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+var createVolRO = `
+	resource "powerflex_volume" "pre-req1"{
+		name = "terraform-vol"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 8
+		access_mode = "ReadOnly"
+	}
+`
+
+var createVolRW = `
+	resource "powerflex_volume" "pre-req2"{
+		name = "terraform-vol1"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 8
+		access_mode = "ReadWrite"
+	}
+`
+
 func TestAccSDCVolumesResource(t *testing.T) {
-	var MapSDCVolumesResource = `
+	var MapSDCVolumesResource = createVolRO + createVolRW + `
 	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
 			id = "` + SDCMappingResourceID2 + `"
 			volume_list = [
 			{
-				volume_id = "edb2a2cb00000002"
+				volume_id = resource.powerflex_volume.pre-req1.id
 				limit_iops = 140
 				limit_bw_in_mbps = 19
 				access_mode = "ReadOnly"
@@ -23,18 +43,18 @@ func TestAccSDCVolumesResource(t *testing.T) {
 	 }
 	`
 
-	var AddVolumesToSDC = `
+	var AddVolumesToSDC = createVolRO + createVolRW + `
 	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
 			name = "` + SDCMappingResourceName2 + `"
 			volume_list = [
 			{
-				volume_id = "edb2a2cb00000002"
+				volume_id = resource.powerflex_volume.pre-req1.id
 				limit_iops = 140
 				limit_bw_in_mbps = 19
 				access_mode = "ReadOnly"
 			},
 			{
-				volume_name = "terraform-vol1"
+				volume_id = resource.powerflex_volume.pre-req2.id
 				limit_iops = 140
 				limit_bw_in_mbps = 19
 				access_mode = "ReadWrite"
@@ -43,15 +63,15 @@ func TestAccSDCVolumesResource(t *testing.T) {
 	 }
 	`
 
-	var ChangeSDCVolumesResource = `
+	var ChangeSDCVolumesResource = createVolRO + `
 	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
 			id = "` + SDCMappingResourceID2 + `"
 			volume_list = [
 			{
-				volume_name = "terraform-vol1"
+				volume_id = resource.powerflex_volume.pre-req1.id
 				limit_iops = 120
 				limit_bw_in_mbps = 20
-				access_mode = "ReadWrite"
+				access_mode = "ReadOnly"
 			}
 		]
 	 }
@@ -68,7 +88,6 @@ func TestAccSDCVolumesResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3ce1fb600000001"),
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.*", map[string]string{
-						"volume_id":        "edb2a2cb00000002",
 						"volume_name":      "terraform-vol",
 						"access_mode":      "ReadOnly",
 						"limit_iops":       "140",
@@ -84,14 +103,12 @@ func TestAccSDCVolumesResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3ce1fb600000001"),
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.#", "2"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.*", map[string]string{
-						"volume_id":        "edb2a2cb00000002",
 						"volume_name":      "terraform-vol",
 						"access_mode":      "ReadOnly",
 						"limit_iops":       "140",
 						"limit_bw_in_mbps": "19",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.*", map[string]string{
-						"volume_id":        "edb2a2ca00000003",
 						"volume_name":      "terraform-vol1",
 						"access_mode":      "ReadWrite",
 						"limit_iops":       "140",
@@ -113,7 +130,6 @@ func TestAccSDCVolumesResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3ce1fb600000001"),
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.*", map[string]string{
-						"volume_id":        "edb2a2cb00000002",
 						"volume_name":      "terraform-vol",
 						"access_mode":      "ReadOnly",
 						"limit_iops":       "140",
@@ -129,9 +145,8 @@ func TestAccSDCVolumesResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3ce1fb600000001"),
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.*", map[string]string{
-						"volume_id":        "edb2a2ca00000003",
-						"volume_name":      "terraform-vol1",
-						"access_mode":      "ReadWrite",
+						"volume_name":      "terraform-vol",
+						"access_mode":      "ReadOnly",
 						"limit_iops":       "120",
 						"limit_bw_in_mbps": "20",
 					}),
@@ -194,12 +209,12 @@ func TestAccSDCVolumesResourceNegative(t *testing.T) {
 		]
 	 }
 	`
-	var InvalidLimits = `
+	var InvalidLimits = createVolRO + `
 	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
 			id = "` + SDCMappingResourceID2 + `"
 			volume_list = [
 			{
-				volume_id = "edb2a2cb00000002"
+				volume_id = resource.powerflex_volume.pre-req1.id
 				limit_iops = 10
 				limit_bw_in_mbps = 20
 				access_mode = "ReadOnly"
@@ -207,12 +222,12 @@ func TestAccSDCVolumesResourceNegative(t *testing.T) {
 		]
 	 }
 	`
-	var IncorrectAccessMode = `
+	var IncorrectAccessMode = createVolRO + `
 	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
 		id = "` + SDCMappingResourceID2 + `"
 		volume_list = [
 		{
-			volume_name = "terraform-vol"
+			volume_id = resource.powerflex_volume.pre-req1.id
 			limit_iops = 120
 			limit_bw_in_mbps = 20
 			access_mode = "ReadWrite"
@@ -251,12 +266,12 @@ func TestAccSDCVolumesResourceNegative(t *testing.T) {
 }
 
 func TestAccSDCVolumesResourceUpdate(t *testing.T) {
-	var CreateSDCVolumesResource = `
+	var CreateSDCVolumesResource = createVolRW + `
 	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
 			id = "` + SDCMappingResourceID2 + `"
 			volume_list = [
 			{
-				volume_name = "terraform-vol1"
+				volume_id = resource.powerflex_volume.pre-req2.id
 				limit_iops = 120
 				limit_bw_in_mbps = 20
 				access_mode = "ReadOnly"
@@ -264,12 +279,12 @@ func TestAccSDCVolumesResourceUpdate(t *testing.T) {
 		]
 	 }
 	`
-	var UpdateAccessMode = `
+	var UpdateAccessMode = createVolRW + `
 	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
 			id = "` + SDCMappingResourceID2 + `"
 			volume_list = [
 			{
-				volume_name = "terraform-vol1"
+				volume_id = resource.powerflex_volume.pre-req2.id
 				limit_iops = 120
 				limit_bw_in_mbps = 20
 				access_mode = "ReadWrite"
@@ -277,18 +292,18 @@ func TestAccSDCVolumesResourceUpdate(t *testing.T) {
 		]
 	 }
 	`
-	var UpdateMapNegative = `
+	var UpdateMapNegative = createVolRW + createVolRO + `
 	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
 			id = "` + SDCMappingResourceID2 + `"
 			volume_list = [
 			{
-				volume_name = "terraform-vol1"
+				volume_id = resource.powerflex_volume.pre-req2.id
 				limit_iops = 120
 				limit_bw_in_mbps = 20
 				access_mode = "ReadOnly"
 			},
 			{
-				volume_name = "terraform-vol"
+				volume_id = resource.powerflex_volume.pre-req1.id
 				limit_iops = 120
 				limit_bw_in_mbps = 20
 				access_mode = "ReadWrite"
@@ -296,18 +311,18 @@ func TestAccSDCVolumesResourceUpdate(t *testing.T) {
 		]
 	 }
 	`
-	var UpdateLimitsNegative = `
+	var UpdateLimitsNegative = createVolRW + createVolRO + `
 	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
 			id = "` + SDCMappingResourceID2 + `"
 			volume_list = [
 			{
-				volume_name = "terraform-vol1"
+				volume_id = resource.powerflex_volume.pre-req2.id
 				limit_iops = 120
 				limit_bw_in_mbps = 20
 				access_mode = "ReadOnly"
 			},
 			{
-				volume_name = "terraform-vol"
+				volume_id = resource.powerflex_volume.pre-req1.id
 				limit_iops = 10
 				limit_bw_in_mbps = 20
 				access_mode = "ReadOnly"
@@ -315,12 +330,12 @@ func TestAccSDCVolumesResourceUpdate(t *testing.T) {
 		]
 	 }
 	`
-	var UpdateExistingLimitsNegative = `
+	var UpdateExistingLimitsNegative = createVolRW + createVolRO + `
 	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
 			id = "` + SDCMappingResourceID2 + `"
 			volume_list = [
 			{
-				volume_name = "terraform-vol1"
+				volume_id = resource.powerflex_volume.pre-req2.id
 				limit_iops = 10
 				limit_bw_in_mbps = 20
 				access_mode = "ReadOnly"
@@ -341,7 +356,6 @@ func TestAccSDCVolumesResourceUpdate(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3ce1fb600000001"),
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.*", map[string]string{
-						"volume_id":        "edb2a2ca00000003",
 						"volume_name":      "terraform-vol1",
 						"access_mode":      "ReadWrite",
 						"limit_iops":       "120",
@@ -365,8 +379,8 @@ func TestAccSDCVolumesResourceUpdate(t *testing.T) {
 }
 
 func TestAccSDCResourceUnknown(t *testing.T) {
-	if SdsResourceTestData.SdcIP == "" {
-		t.Fatal("POWERFLEX_SDC_IP must be set for TestAccSDCResourceUnknown")
+	if SdsResourceTestData.SdcIP1 == "" {
+		t.Fatal("POWERFLEX_SDC_IP1 must be set for TestAccSDCResourceUnknown")
 	}
 
 	if SDCVolName == "" {
@@ -377,7 +391,7 @@ func TestAccSDCResourceUnknown(t *testing.T) {
 	locals {
 		sdc_ip = "%s"
 	}
-	`, SdsResourceTestData.SdcIP)
+	`, SdsResourceTestData.SdcIP1)
 
 	tfVars1 := fmt.Sprintf(`
 	locals {
@@ -435,8 +449,7 @@ func TestAccSDCResourceUnknown(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3ce1fb600000001"),
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.*", map[string]string{
-						"volume_id":        "edb2a2cb00000002",
-						"volume_name":      "terraform-vol",
+						"volume_name":      "terraform-unknown-test",
 						"access_mode":      "ReadOnly",
 						"limit_iops":       "120",
 						"limit_bw_in_mbps": "20",
