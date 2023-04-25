@@ -379,8 +379,8 @@ func TestAccSDCVolumesResourceUpdate(t *testing.T) {
 }
 
 func TestAccSDCResourceUnknown(t *testing.T) {
-	if SdsResourceTestData.SdcIP == "" {
-		t.Fatal("POWERFLEX_SDC_IP must be set for TestAccSDCResourceUnknown")
+	if SdsResourceTestData.SdcIP1 == "" {
+		t.Fatal("POWERFLEX_SDC_IP1 must be set for TestAccSDCResourceUnknown")
 	}
 
 	if SDCVolName == "" {
@@ -391,7 +391,7 @@ func TestAccSDCResourceUnknown(t *testing.T) {
 	locals {
 		sdc_ip = "%s"
 	}
-	`, SdsResourceTestData.SdcIP)
+	`, SdsResourceTestData.SdcIP1)
 
 	tfVars1 := fmt.Sprintf(`
 	locals {
