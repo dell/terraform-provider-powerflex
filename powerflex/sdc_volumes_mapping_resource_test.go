@@ -8,6 +8,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+func init() {
+	SDCMappingResourceID2 = "e3ce1fb600000001"
+	SDCMappingResourceName2 = "Terraform_sdc1"
+	SDCVolName = "terraform-vol"
+
+}
+
 var createVolRO = `
 	resource "powerflex_volume" "pre-req1"{
 		name = "terraform-vol"

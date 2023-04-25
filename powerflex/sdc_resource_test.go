@@ -22,11 +22,11 @@ var sdcResourceTestData resourceDataPoints
 func init() {
 	sdcResourceTestData.noOfSdc = "1"
 	sdcResourceTestData.noOflinks = "4"
-	sdcResourceTestData.name = "powerflex_sdc26"
-	sdcResourceTestData.newname = ""
-	sdcResourceTestData.sdcguid = "0877AE5E-BDBF-4E87-A002-218D9F883896"
-	sdcResourceTestData.sdcip = ""
-	sdcResourceTestData.systemid = "0e7a082862fedf0f"
+	sdcResourceTestData.name = "terraform_sdc_create"
+	sdcResourceTestData.newname = "terraform_rename"
+	sdcResourceTestData.sdcguid = "C87ACC43-298B-4AD3-A95F-344FE83192C6"
+	sdcResourceTestData.sdcip = "10.247.66.67"
+	sdcResourceTestData.systemid = "09a186f8167ebe0f"
 }
 
 func TestSdcResourceUpdate(t *testing.T) {
@@ -39,7 +39,7 @@ func TestSdcResourceUpdate(t *testing.T) {
 				ResourceName:      "powerflex_sdc.test_import",
 				ImportState:       true,
 				ImportStateVerify: false,
-				ImportStateId:     "c423b09800000003",
+				ImportStateId:     "e3ce1fb500000000",
 			},
 			// Update testing
 			{
@@ -60,7 +60,7 @@ func TestSdcResourceUpdateWrongID(t *testing.T) {
 				ResourceName:      "powerflex_sdc.test_import",
 				ImportState:       true,
 				ImportStateVerify: false,
-				ImportStateId:     "c423b098000000034343",
+				ImportStateId:     "e3ce1fb5000000004343",
 				ExpectError:       regexp.MustCompile(`.*Unable to Read Powerflex systems-sdcs Read*`),
 			},
 		},
@@ -77,7 +77,7 @@ func TestSdcResourceUpdateSameName(t *testing.T) {
 				ResourceName:      "powerflex_sdc.test_import",
 				ImportState:       true,
 				ImportStateVerify: false,
-				ImportStateId:     "c423b09800000003",
+				ImportStateId:     "e3ce1fb500000000",
 			},
 			// Update testing
 			{
@@ -91,14 +91,14 @@ func TestSdcResourceUpdateSameName(t *testing.T) {
 func TestSdcResourceCreateUpdate(t *testing.T) {
 	var TestSdcResourceCreateUpdateBlockS1 = `
 	resource "powerflex_sdc" "sdc" {
-		id = "c423b09900000004"
-		name = "` + SdsResourceTestData.volName3 + `"
+		id = "e3ce1fb500000000"
+		name = "` + SdsResourceTestData.sdcName + "-create" + `"
 	  }
 	  `
 	var TestSdcResourceCreateUpdateBlockS2 = `
 	resource "powerflex_sdc" "sdc" {
-		id = "c423b09900000004"
-		name = "` + SdsResourceTestData.volName2 + `"
+		id = "e3ce1fb500000000"
+		name = "` + SdsResourceTestData.sdcName + `"
 	  }
 	  `
 	os.Setenv("TF_ACC", "1")
@@ -108,14 +108,14 @@ func TestSdcResourceCreateUpdate(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + TestSdcResourceCreateUpdateBlockS1,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", SdsResourceTestData.volName3),
+					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", SdsResourceTestData.sdcName+"-create"),
 				),
 			},
 			// // Update testing
 			{
 				Config: ProviderConfigForTesting + TestSdcResourceCreateUpdateBlockS2,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", SdsResourceTestData.volName2),
+					resource.TestCheckResourceAttr("powerflex_sdc.sdc", "name", SdsResourceTestData.sdcName),
 				),
 			},
 		},
@@ -125,29 +125,29 @@ func TestSdcResourceCreateUpdate(t *testing.T) {
 var (
 	TestSdcResourceCreateBlock = `
 	resource "powerflex_sdc" "sdc" {
-		id = "c423b09800000003"
+		id = "e3ce1fb500000000"
 		name = "` + sdcResourceTestData.name + `"
 	  }
 	  `
 
 	TestSdcResourceUpdateBlock = `
 	  resource "powerflex_sdc" "sdc" {
-		  id = "c423b09800000003"
+		  id = "e3ce1fb500000000"
 		  name = "` + sdcResourceTestData.newname + `"
 		}
 		`
 
 	TestSdcResourceUpdateBlockSameName = `
-	resource "powerflex_sdc" "sdc" {
-		id = "c423b09800000003"
-		name = "powerflex_sdc26"
+	resource "powerflex_sdc" "test_import" {
+		id = "e3ce1fb500000000"
+		name = "terraform_sdc"
 		}
 		`
 
 	TestSdcResourceUpdateImportBlock = `
 	resource "powerflex_sdc" "test_import" {
-		id = "c423b09800000003"
-		name = "powerflex_sdc26"
+		id = "e3ce1fb500000000"
+		name = "terraform_sdc"
 	  }
 	  `
 )

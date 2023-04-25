@@ -45,7 +45,7 @@ This data-source can be used to fetch information related to Storage Data Server
 data "powerflex_sds" "example2" {
   # require field is either of protection_domain_name or protection_domain_id
   protection_domain_name = "domain1"
-  # protection_domain_id = "4eeb304600000000"
+  # protection_domain_id = "202a046600000000"
   sds_names = ["SDS_01_MOD", "sds_1", "node4"]
   # sds_ids = ["6adfec1000000000", "6ae14ba900000006", "6ad58bd200000002"]
 }
