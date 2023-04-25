@@ -43,12 +43,12 @@ func TestSdcDataSource(t *testing.T) {
 				Config: ProviderConfigForTesting + TestSdcDataSourceByEmptyBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckTypeSetElemNestedAttrs("data.powerflex_sdc.selected", "sdcs.*", map[string]string{
-						"id":   "e3ce1fb500000000",
-						"name": "Terraform_sdc",
+						"sdcs.0.id":   "e3ce1fb500000000",
+						"sdcs.0.name": "terraform_sdc",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("data.powerflex_sdc.selected", "sdcs.*", map[string]string{
-						"id":   "e3ce1fb600000001",
-						"name": "Terraform_sdc1",
+						"sdcs.1.id":   "e3ce1fb600000001",
+						"sdcs.1.name": "Terraform_sdc1",
 					}),
 				),
 			},
