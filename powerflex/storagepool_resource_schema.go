@@ -1,11 +1,11 @@
 package powerflex
 
 import (
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
 // StoragepoolReourceSchema - varible holds schema for Storagepool
@@ -70,31 +70,31 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 			Optional:            true,
 			Computed:            true,
 		},
-		"zero_padding_enabled":schema.BoolAttribute{
+		"zero_padding_enabled": schema.BoolAttribute{
 			Description:         "Enable/Disable padding policy on a specific storage pool",
 			MarkdownDescription: "Enable/Disable padding policy on a specific storage pool",
 			Optional:            true,
 			Computed:            true,
 		},
-		"replication_journal_capacity":schema.Int64Attribute{
+		"replication_journal_capacity": schema.Int64Attribute{
 			Description:         "This defines the maximum percentage of Storage Pool capacity that can be used by replication for the journal.",
 			MarkdownDescription: "This defines the maximum percentage of Storage Pool capacity that can be used by replication for the journal.",
 			Optional:            true,
 			Computed:            true,
 		},
-		"capacity_alert_high_threshold":schema.Int64Attribute{
+		"capacity_alert_high_threshold": schema.Int64Attribute{
 			Description:         "Set the threshold for triggering capacity usage high-priority alert.",
 			MarkdownDescription: "Set the threshold for triggering capacity usage high-priority alert.",
 			Optional:            true,
 			Computed:            true,
 		},
-		"capacity_alert_critical_threshold":schema.Int64Attribute{
+		"capacity_alert_critical_threshold": schema.Int64Attribute{
 			Description:         "Set the threshold for triggering capacity usage critical-priority alert.",
 			MarkdownDescription: "Set the threshold for triggering capacity usage critical-priority alert.",
 			Optional:            true,
 			Computed:            true,
 		},
-		"protected_maintenance_mode_io_priority_policy":schema.StringAttribute{
+		"protected_maintenance_mode_io_priority_policy": schema.StringAttribute{
 			Description:         "Set the I/O priority policy for protected maintenance mode for a specific Storage Pool. Valid values are `unlimited`, `limitNumOfConcurrentIos` and `favorAppIos`",
 			MarkdownDescription: "Set the I/O priority policy for protected maintenance mode for a specific Storage Pool. Valid values are `unlimited`, `limitNumOfConcurrentIos` and `favorAppIos`",
 			Optional:            true,
@@ -105,20 +105,17 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 				"favorAppIos",
 			)},
 		},
-		"protected_maintenance_mode_num_of_concurrent_ios_per_device":schema.Int64Attribute{
+		"protected_maintenance_mode_num_of_concurrent_ios_per_device": schema.Int64Attribute{
 			Description:         "The maximum number of concurrent protected maintenance mode migration I/Os per device",
 			MarkdownDescription: "The maximum number of concurrent protected maintenance mode migration I/Os per device",
 			Optional:            true,
 			Computed:            true,
-			//I've not tested the min and max value from Postman. Putting the value from documentation
-			//Comment : check in the api whether we're getting proper errors when the value in not in defined range
-			//Reply:Api gives the error as Invalid throttle parameters  when the value in not in defined range
 			Validators: []validator.Int64{
 				int64validator.AtLeast(1),
 				int64validator.AtMost(20),
 			},
 		},
-		"protected_maintenance_mode_bw_limit_per_device_in_kbps":schema.Int64Attribute{
+		"protected_maintenance_mode_bw_limit_per_device_in_kbps": schema.Int64Attribute{
 			Description:         "The maximum bandwidth of protected maintenance mode migration I/Os, in KB per second, per device",
 			MarkdownDescription: "The maximum bandwidth of protected maintenance mode migration I/Os, in KB per second, per device",
 			Optional:            true,
@@ -128,13 +125,13 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 				int64validator.AtMost(1048576),
 			},
 		},
-		"rebalance_enabled":schema.BoolAttribute{
+		"rebalance_enabled": schema.BoolAttribute{
 			Description:         "Enable or disable rebalancing in the specified Storage Pool",
 			MarkdownDescription: "Enable or disable rebalancing in the specified Storage Pool",
 			Optional:            true,
 			Computed:            true,
 		},
-		"rebalance_io_priority_policy":schema.StringAttribute{
+		"rebalance_io_priority_policy": schema.StringAttribute{
 			Description:         "Policy to use for rebalance I/O priority. Valid values are `unlimited`, `limitNumOfConcurrentIos` and `favorAppIos`",
 			MarkdownDescription: "Policy to use for rebalance I/O priority. Valid values are `unlimited`, `limitNumOfConcurrentIos` and `favorAppIos`",
 			Optional:            true,
@@ -145,20 +142,17 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 				"favorAppIos",
 			)},
 		},
-		"rebalance_num_of_concurrent_ios_per_device":schema.Int64Attribute{
+		"rebalance_num_of_concurrent_ios_per_device": schema.Int64Attribute{
 			Description:         "The maximum number of concurrent rebalance I/Os per device",
 			MarkdownDescription: "The maximum number of concurrent rebalance I/Os per device",
 			Optional:            true,
 			Computed:            true,
-			//I've not tested the min and max value from Postman. Putting the value from documentation
-			//Comment : check in the api whether we're getting proper errors when the value in not in defined range
-			//Reply:Api gives the error as Invalid throttle parameters  when the value in not in defined range
 			Validators: []validator.Int64{
 				int64validator.AtLeast(1),
 				int64validator.AtMost(20),
 			},
 		},
-		"rebalance_bw_limit_per_device_in_kbps":schema.Int64Attribute{
+		"rebalance_bw_limit_per_device_in_kbps": schema.Int64Attribute{
 			Description:         "The maximum bandwidth of rebalance I/Os, in KB/s, per device",
 			MarkdownDescription: "The maximum bandwidth of rebalance I/Os, in KB/s, per device",
 			Optional:            true,
@@ -168,7 +162,7 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 				int64validator.AtMost(1048576),
 			},
 		},
-		"vtree_migration_io_priority_policy":schema.StringAttribute{
+		"vtree_migration_io_priority_policy": schema.StringAttribute{
 			Description:         "Set the I/O priority policy for V-Tree migration for a specific Storage Pool. Valid values are `limitNumOfConcurrentIos` and `favorAppIos`",
 			MarkdownDescription: "Set the I/O priority policy for V-Tree migration for a specific Storage Pool. Valid values are `limitNumOfConcurrentIos` and `favorAppIos`",
 			Optional:            true,
@@ -178,20 +172,17 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 				"favorAppIos",
 			)},
 		},
-		"vtree_migration_num_of_concurrent_ios_per_device":schema.Int64Attribute{
+		"vtree_migration_num_of_concurrent_ios_per_device": schema.Int64Attribute{
 			Description:         "The maximum number of concurrent V-Tree migration I/Os per device",
 			MarkdownDescription: "The maximum number of concurrent V-Tree migration I/Os per device",
 			Optional:            true,
 			Computed:            true,
-			//I've not tested the min and max value from Postman. Putting the value from documentation
-			//Comment : check in the api whether we're getting proper errors when the value in not in defined range
-			//Reply:Api gives the error as Invalid throttle parameters  when the value in not in defined range
 			Validators: []validator.Int64{
 				int64validator.AtLeast(1),
 				int64validator.AtMost(20),
 			},
 		},
-		"vtree_migration_bw_limit_per_device_in_kbps":schema.Int64Attribute{
+		"vtree_migration_bw_limit_per_device_in_kbps": schema.Int64Attribute{
 			Description:         "The maximum bandwidth of V-Tree migration IOs, in KB per second, per device",
 			MarkdownDescription: "The maximum bandwidth of V-Tree migration IOs, in KB per second, per device",
 			Optional:            true,
@@ -201,13 +192,13 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 				int64validator.AtMost(25600),
 			},
 		},
-		"spare_percentage":schema.Int64Attribute{
+		"spare_percentage": schema.Int64Attribute{
 			Description:         "Sets the spare capacity reservation policy",
 			MarkdownDescription: "Sets the spare capacity reservation policy",
 			Optional:            true,
 			Computed:            true,
 		},
-		"rm_cache_write_handling_mode":schema.StringAttribute{
+		"rm_cache_write_handling_mode": schema.StringAttribute{
 			Description:         "Sets the Read RAM Cache write handling mode of the specified Storage Pool",
 			MarkdownDescription: "Sets the Read RAM Cache write handling mode of the specified Storage Pool",
 			Optional:            true,
@@ -217,32 +208,27 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 				"Passthrough",
 			)},
 		},
-		"rebuild_enabled":schema.BoolAttribute{
+		"rebuild_enabled": schema.BoolAttribute{
 			Description:         "Enable or disable rebuilds in the specified Storage Pool",
 			MarkdownDescription: "Enable or disable rebuilds in the specified Storage Pool",
 			Optional:            true,
 			Computed:            true,
 		},
-		"rebuild_rebalance_parallelism":schema.Int64Attribute{
+		"rebuild_rebalance_parallelism": schema.Int64Attribute{
 			Description:         "Maximum number of concurrent rebuild and rebalance activities on SDSs in the Storage Pool",
 			MarkdownDescription: "Maximum number of concurrent rebuild and rebalance activities on SDSs in the Storage Pool",
 			Optional:            true,
 			Computed:            true,
-			//I've not tested the min and max value from Postman. Putting the value from documentation
 			Validators: []validator.Int64{
 				int64validator.AtLeast(1),
 				int64validator.AtMost(10),
 			},
 		},
-		"fragmentation":schema.BoolAttribute{
+		"fragmentation": schema.BoolAttribute{
 			Description:         "Enable or disable fragmentation in the Storage Pool",
 			MarkdownDescription: "Enable or disable fragmentation in the Storage Pool",
 			Optional:            true,
 			Computed:            true,
 		},
-		//Comment : check for the default values in the api while creating storage pool.
-		//Reply : all the attributes has some default value when we create a storage pool.
-		//Validate config for policy and rmCache write handling mode.
-
 	},
 }

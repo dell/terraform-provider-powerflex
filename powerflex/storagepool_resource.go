@@ -3,6 +3,7 @@ package powerflex
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"terraform-provider-powerflex/helper"
 
 	"github.com/dell/goscaleio"
@@ -29,32 +30,32 @@ type storagepoolResource struct {
 }
 
 type storagepoolResourceModel struct {
-	ID                   types.String `tfsdk:"id"`
-	ProtectionDomainID   types.String `tfsdk:"protection_domain_id"`
-	ProtectionDomainName types.String `tfsdk:"protection_domain_name"`
-	Name                 types.String `tfsdk:"name"`
-	MediaType            types.String `tfsdk:"media_type"`
-	UseRmcache           types.Bool   `tfsdk:"use_rmcache"`
-	UseRfcache           types.Bool   `tfsdk:"use_rfcache"`
-	ZeroPaddingEnabled	 types.Bool	  `tfsdk:"zero_padding_enabled"`
-	ReplicationJournalCapacity types.Int64	`tfsdk:"replication_journal_capacity"`
-	CapacityAlertHighThreshold types.Int64 `tfsdk:"capacity_alert_high_threshold"`
-	CapacityAlertCriticalThreshold types.Int64 `tfsdk:"capacity_alert_critical_threshold"`
-	ProtectedMaintenanceModeIoPriorityPolicy  types.String `tfsdk:"protected_maintenance_mode_io_priority_policy"`
-	ProtectedMaintenanceModeNumOfConcurrentIosPerDevice  types.Int64 `tfsdk:"protected_maintenance_mode_num_of_concurrent_ios_per_device"`
-	ProtectedMaintenanceModeBwLimitPerDeviceInKbps  types.Int64 `tfsdk:"protected_maintenance_mode_bw_limit_per_device_in_kbps"`
-	RebalanceEnabled  types.Bool `tfsdk:"rebalance_enabled"`
-	RebalanceIoPriorityPolicy  types.String `tfsdk:"rebalance_io_priority_policy"`
-	RebalanceNumOfConcurrentIosPerDevice  types.Int64 `tfsdk:"rebalance_num_of_concurrent_ios_per_device"`
-	RebalanceBwLimitPerDeviceInKbps  types.Int64 `tfsdk:"rebalance_bw_limit_per_device_in_kbps"`
-	VtreeMigrationIoPriorityPolicy  types.String `tfsdk:"vtree_migration_io_priority_policy"`
-	VtreeMigrationNumOfConcurrentIosPerDevice  types.Int64 `tfsdk:"vtree_migration_num_of_concurrent_ios_per_device"`
-	VtreeMigrationBwLimitPerDeviceInKbps  types.Int64 `tfsdk:"vtree_migration_bw_limit_per_device_in_kbps"`
-	SparePercentage types.Int64 `tfsdk:"spare_percentage"`
-	RmCacheWriteHandlingMode types.String `tfsdk:"rm_cache_write_handling_mode"`
-	RebuildEnabled types.Bool `tfsdk:"rebuild_enabled"`
-	RebuildRebalanceParallelism types.Int64 `tfsdk:"rebuild_rebalance_parallelism"`
-	Fragmentation types.Bool `tfsdk:"fragmentation"`
+	ID                                                  types.String `tfsdk:"id"`
+	ProtectionDomainID                                  types.String `tfsdk:"protection_domain_id"`
+	ProtectionDomainName                                types.String `tfsdk:"protection_domain_name"`
+	Name                                                types.String `tfsdk:"name"`
+	MediaType                                           types.String `tfsdk:"media_type"`
+	UseRmcache                                          types.Bool   `tfsdk:"use_rmcache"`
+	UseRfcache                                          types.Bool   `tfsdk:"use_rfcache"`
+	ZeroPaddingEnabled                                  types.Bool   `tfsdk:"zero_padding_enabled"`
+	ReplicationJournalCapacity                          types.Int64  `tfsdk:"replication_journal_capacity"`
+	CapacityAlertHighThreshold                          types.Int64  `tfsdk:"capacity_alert_high_threshold"`
+	CapacityAlertCriticalThreshold                      types.Int64  `tfsdk:"capacity_alert_critical_threshold"`
+	ProtectedMaintenanceModeIoPriorityPolicy            types.String `tfsdk:"protected_maintenance_mode_io_priority_policy"`
+	ProtectedMaintenanceModeNumOfConcurrentIosPerDevice types.Int64  `tfsdk:"protected_maintenance_mode_num_of_concurrent_ios_per_device"`
+	ProtectedMaintenanceModeBwLimitPerDeviceInKbps      types.Int64  `tfsdk:"protected_maintenance_mode_bw_limit_per_device_in_kbps"`
+	RebalanceEnabled                                    types.Bool   `tfsdk:"rebalance_enabled"`
+	RebalanceIoPriorityPolicy                           types.String `tfsdk:"rebalance_io_priority_policy"`
+	RebalanceNumOfConcurrentIosPerDevice                types.Int64  `tfsdk:"rebalance_num_of_concurrent_ios_per_device"`
+	RebalanceBwLimitPerDeviceInKbps                     types.Int64  `tfsdk:"rebalance_bw_limit_per_device_in_kbps"`
+	VtreeMigrationIoPriorityPolicy                      types.String `tfsdk:"vtree_migration_io_priority_policy"`
+	VtreeMigrationNumOfConcurrentIosPerDevice           types.Int64  `tfsdk:"vtree_migration_num_of_concurrent_ios_per_device"`
+	VtreeMigrationBwLimitPerDeviceInKbps                types.Int64  `tfsdk:"vtree_migration_bw_limit_per_device_in_kbps"`
+	SparePercentage                                     types.Int64  `tfsdk:"spare_percentage"`
+	RmCacheWriteHandlingMode                            types.String `tfsdk:"rm_cache_write_handling_mode"`
+	RebuildEnabled                                      types.Bool   `tfsdk:"rebuild_enabled"`
+	RebuildRebalanceParallelism                         types.Int64  `tfsdk:"rebuild_rebalance_parallelism"`
+	Fragmentation                                       types.Bool   `tfsdk:"fragmentation"`
 }
 
 func (r *storagepoolResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -70,6 +71,78 @@ func (r *storagepoolResource) Configure(_ context.Context, req resource.Configur
 		return
 	}
 	r.client = req.ProviderData.(*goscaleio.Client)
+}
+
+func (r *storagepoolResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data storagepoolResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// validate that if the policy is unlimited then the user can't provide values to num of concurrent IOs per device and bandwidth limit per device in Kbps
+	if data.ProtectedMaintenanceModeIoPriorityPolicy.ValueString() == "unlimited" {
+		if !data.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.IsNull() || !data.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("protected_maintenance_mode_io_priority_policy"),
+				"Attribute Error",
+				"With policy as unlimited, it can't add values to num of concurrent IOs per device and bandwidth limit per device in Kbps",
+			)
+		}
+	}
+
+	// validate that if the policy is limitNumOfConcurrentIos then the user can't provide values to bandwidth limit per device in Kbps
+	if data.ProtectedMaintenanceModeIoPriorityPolicy.ValueString() == "limitNumOfConcurrentIos" {
+		if !data.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("protected_maintenance_mode_io_priority_policy"),
+				"Attribute Error",
+				"With policy as limitNumOfConcurrentIos, it can't add values to bandwidth limit per device in Kbps",
+			)
+		}
+	}
+
+	// validate that if the policy is unlimited then the user can't provide values to num of concurrent IOs per device and bandwidth limit per device in Kbps
+	if data.RebalanceIoPriorityPolicy.ValueString() == "unlimited" {
+		if !data.RebalanceNumOfConcurrentIosPerDevice.IsNull() || !data.RebalanceBwLimitPerDeviceInKbps.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("rebalance_io_priority_policy"),
+				"Attribute Error",
+				"With policy as unlimited, it can't add values to num of concurrent IOs per device and bandwidth limit per device in Kbps",
+			)
+		}
+	}
+
+	// validate that if the policy is limitNumOfConcurrentIos then the user can't provide values to bandwidth limit per device in Kbps
+	if data.RebalanceIoPriorityPolicy.ValueString() == "limitNumOfConcurrentIos" {
+		if !data.RebalanceBwLimitPerDeviceInKbps.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("rebalance_io_priority_policy"),
+				"Attribute Error",
+				"With policy as limitNumOfConcurrentIos, it can't add values to bandwidth limit per device in Kbps",
+			)
+		}
+	}
+
+	// validate that if the policy is limitNumOfConcurrentIos then the user can't provide values to bandwidth limit per device in Kbps
+	if data.VtreeMigrationIoPriorityPolicy.ValueString() == "limitNumOfConcurrentIos" {
+		if !data.VtreeMigrationBwLimitPerDeviceInKbps.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("vtree_migration_io_priority_policy"),
+				"Attribute Error",
+				"With policy as limitNumOfConcurrentIos, it can't add values to bandwidth limit per device in Kbps",
+			)
+		}
+	}
+
+	// The write handling mode selection comes into play if rm_cache is enabled
+	if !(data.RmCacheWriteHandlingMode.IsNull() || data.RmCacheWriteHandlingMode.IsUnknown()) && !data.UseRmcache.ValueBool() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("rm_cache_write_handling_mode"),
+			"rm_cache_write_handling_mode cannot be specified while use_rmcache is not set to true",
+			"Read Ram cache must be enabled in order to configure its write handling mode",
+		)
+	}
 }
 
 // Function used to Create Storagepool Resource
@@ -99,32 +172,38 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		MediaType: plan.MediaType.ValueString(),
 	}
 
-	if plan.UseRmcache.String() == "true" {
+	// enable/disable RmCache
+	if plan.UseRmcache.ValueBool() {
 		payload.UseRmcache = "true"
 	} else {
 		payload.UseRmcache = "false"
 	}
 
-	if plan.UseRfcache.String() == "true" {
+	// enable/disable RfCache
+	if plan.UseRfcache.ValueBool() {
 		payload.UseRfcache = "true"
 	} else {
 		payload.UseRfcache = "false"
 	}
 
-	if plan.ZeroPaddingEnabled.String() == "false" {
+	// enable/disable zero padding
+	if !plan.ZeroPaddingEnabled.ValueBool() {
 		payload.ZeroPaddingEnabled = "false"
 	} else {
 		payload.ZeroPaddingEnabled = "true"
 	}
 
-	if !plan.SparePercentage.IsUnknown() && !plan.SparePercentage.IsNull() {
-		payload.SparePercentage = plan.SparePercentage.String()
+	// set the spare percentage
+	if !plan.SparePercentage.IsNull() && !plan.SparePercentage.IsUnknown() {
+		payload.SparePercentage = strconv.FormatInt(plan.SparePercentage.ValueInt64(), 10)
 	}
 
+	// set the Rmcache write handling mode when rm_cache is enabled
 	if !plan.RmCacheWriteHandlingMode.IsUnknown() && !plan.RmCacheWriteHandlingMode.IsNull() {
 		payload.RmcacheWriteHandlingMode = plan.RmCacheWriteHandlingMode.ValueString()
 	}
 
+	// create the storage pool
 	sp, err := pd.CreateStoragePool(payload)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -134,8 +213,9 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	if !plan.ReplicationJournalCapacity.IsUnknown() && !plan.ReplicationJournalCapacity.IsNull(){
-		err := pd.SetReplicationJournalCapacity(sp,plan.ReplicationJournalCapacity.String())
+	// set the replication journal capacity
+	if !plan.ReplicationJournalCapacity.IsUnknown() && !plan.ReplicationJournalCapacity.IsNull() {
+		err := pd.SetReplicationJournalCapacity(sp, plan.ReplicationJournalCapacity.String())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("Could not set replication Journal capacity to %s", plan.ReplicationJournalCapacity.String()),
@@ -144,47 +224,14 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		}
 	}
 
-	if !plan.CapacityAlertHighThreshold.IsUnknown() && plan.CapacityAlertCriticalThreshold.IsUnknown(){
+	// set the capacity alert threshold - high or critical
+	if (!plan.CapacityAlertHighThreshold.IsUnknown() && !plan.CapacityAlertHighThreshold.IsNull()) ||
+		(!plan.CapacityAlertCriticalThreshold.IsUnknown() && !plan.CapacityAlertCriticalThreshold.IsNull()) {
 		capacityAlertThreshold := &scaleiotypes.CapacityAlertThresholdParam{
-			CapacityAlertHighThresholdPercent:      plan.CapacityAlertHighThreshold.String(),
+			CapacityAlertHighThresholdPercent:     strconv.FormatInt(plan.CapacityAlertHighThreshold.ValueInt64(), 10),
+			CapacityAlertCriticalThresholdPercent: strconv.FormatInt(plan.CapacityAlertCriticalThreshold.ValueInt64(), 10),
 		}
-		err := pd.SetCapacityAlertThreshold(sp,capacityAlertThreshold)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set capacity alert high threshold to %s", plan.CapacityAlertHighThreshold.String()),
-				err.Error(),
-			)
-		}
-	} else if !plan.CapacityAlertCriticalThreshold.IsUnknown() && plan.CapacityAlertHighThreshold.IsUnknown() {
-		capacityAlertThreshold := &scaleiotypes.CapacityAlertThresholdParam{
-			CapacityAlertCriticalThresholdPercent:      plan.CapacityAlertCriticalThreshold.String(),
-		}
-		err := pd.SetCapacityAlertThreshold(sp,capacityAlertThreshold)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set capacity alert critical threshold to %s", plan.CapacityAlertCriticalThreshold.String()),
-				err.Error(),
-			)
-		}
-	} else if !plan.CapacityAlertCriticalThreshold.IsUnknown() && !plan.CapacityAlertCriticalThreshold.IsNull() && !plan.CapacityAlertHighThreshold.IsUnknown() && !plan.CapacityAlertHighThreshold.IsNull(){
-		capacityAlertThreshold := &scaleiotypes.CapacityAlertThresholdParam{
-			CapacityAlertCriticalThresholdPercent:      plan.CapacityAlertCriticalThreshold.String(),
-			CapacityAlertHighThresholdPercent:      plan.CapacityAlertHighThreshold.String(),
-		}
-		err := pd.SetCapacityAlertThreshold(sp,capacityAlertThreshold)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set capacity alert high threshold to %s and critical threshold to %s", plan.CapacityAlertHighThreshold.String(),plan.CapacityAlertCriticalThreshold.String()),
-				err.Error(),
-			)
-		}
-	}
-
-	if !plan.CapacityAlertHighThreshold.IsUnknown() && plan.CapacityAlertCriticalThreshold.IsUnknown(){
-		capacityAlertThreshold := &scaleiotypes.CapacityAlertThresholdParam{
-			CapacityAlertHighThresholdPercent:      plan.CapacityAlertHighThreshold.String(),
-		}
-		err := pd.SetCapacityAlertThreshold(sp,capacityAlertThreshold)
+		err := pd.SetCapacityAlertThreshold(sp, capacityAlertThreshold)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("Could not set capacity alert high threshold to %s", plan.CapacityAlertHighThreshold.String()),
@@ -193,46 +240,32 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		}
 	}
 
-	if !plan.ProtectedMaintenanceModeIoPriorityPolicy.IsUnknown() && plan.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.IsUnknown() && plan.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.IsUnknown(){
+	// set the protected maintenance mode IO priority policy
+	if (!plan.ProtectedMaintenanceModeIoPriorityPolicy.IsUnknown() && !plan.ProtectedMaintenanceModeIoPriorityPolicy.IsNull()) ||
+		(!plan.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.IsUnknown() && !plan.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.IsNull()) ||
+		(!plan.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.IsUnknown() && !plan.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.IsNull()) {
 		protectedMaintenance := &scaleiotypes.ProtectedMaintenanceModeParam{
-			Policy:      plan.ProtectedMaintenanceModeIoPriorityPolicy.ValueString(),
+			Policy: plan.ProtectedMaintenanceModeIoPriorityPolicy.ValueString(),
 		}
-		err := pd.SetProtectedMaintenanceModeIoPriorityPolicy(sp,protectedMaintenance)
+		// when the value is null or unknown the below line will return 0 and if it's 0 then we don't need to add it to the payload
+		if strconv.FormatInt(plan.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.ValueInt64(), 10) != "0" {
+			protectedMaintenance.NumOfConcurrentIosPerDevice = strconv.FormatInt(plan.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.ValueInt64(), 10)
+		}
+		if strconv.FormatInt(plan.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.ValueInt64(), 10) != "0" {
+			protectedMaintenance.BwLimitPerDeviceInKbps = strconv.FormatInt(plan.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.ValueInt64(), 10)
+		}
+		err := pd.SetProtectedMaintenanceModeIoPriorityPolicy(sp, protectedMaintenance)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("Could not set protected maintenance mode Io priority policy  to %s", plan.ProtectedMaintenanceModeIoPriorityPolicy.String()),
 				err.Error(),
 			)
 		}
-	} else if !plan.ProtectedMaintenanceModeIoPriorityPolicy.IsUnknown() && !plan.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.IsUnknown() && plan.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.IsUnknown(){
-		protectedMaintenance := &scaleiotypes.ProtectedMaintenanceModeParam{
-			Policy:      plan.ProtectedMaintenanceModeIoPriorityPolicy.ValueString(),
-			NumOfConcurrentIosPerDevice : plan.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.String(),
-		}
-		err := pd.SetProtectedMaintenanceModeIoPriorityPolicy(sp,protectedMaintenance)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set protected maintenance mode Io priority policy  to %s and num of concurrent IOs oer device to %s", plan.ProtectedMaintenanceModeIoPriorityPolicy.String(),plan.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.String()),
-				err.Error(),
-			)
-		}
-	} else if !plan.ProtectedMaintenanceModeIoPriorityPolicy.IsUnknown() && !plan.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.IsUnknown() && !plan.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.IsUnknown(){
-		protectedMaintenance := &scaleiotypes.ProtectedMaintenanceModeParam{
-			Policy:      plan.ProtectedMaintenanceModeIoPriorityPolicy.ValueString(),
-			NumOfConcurrentIosPerDevice : plan.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.String(),
-			BwLimitPerDeviceInKbps: plan.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.String(),
-		}
-		err := pd.SetProtectedMaintenanceModeIoPriorityPolicy(sp,protectedMaintenance)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set protected maintenance mode Io priority policy  to %s , num of concurrent IOs oer device to %s and bandwidth limit to %s", plan.ProtectedMaintenanceModeIoPriorityPolicy.String(),plan.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.String(),plan.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.String()),
-				err.Error(),
-			)
-		}
 	}
 
-	if !plan.RebalanceEnabled.IsUnknown() && !plan.RebalanceEnabled.IsNull(){
-		err := pd.SetRebalanceEnabled(sp,plan.RebalanceEnabled.String())
+	// set rebalance enabled
+	if !plan.RebalanceEnabled.IsUnknown() && !plan.RebalanceEnabled.IsNull() {
+		err := pd.SetRebalanceEnabled(sp, plan.RebalanceEnabled.String())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("Could not set rebalnace enabled to %s", plan.RebalanceEnabled.String()),
@@ -241,84 +274,53 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		}
 	}
 
-	if !plan.RebalanceIoPriorityPolicy.IsUnknown() && plan.RebalanceNumOfConcurrentIosPerDevice.IsUnknown() && plan.RebalanceBwLimitPerDeviceInKbps.IsUnknown(){
+	// set the rebalance IO priority policy
+	if (!plan.RebalanceIoPriorityPolicy.IsUnknown() && !plan.RebalanceIoPriorityPolicy.IsNull()) ||
+		(!plan.RebalanceNumOfConcurrentIosPerDevice.IsUnknown() && !plan.RebalanceNumOfConcurrentIosPerDevice.IsNull()) ||
+		(!plan.RebalanceBwLimitPerDeviceInKbps.IsUnknown() && !plan.RebalanceBwLimitPerDeviceInKbps.IsNull()) {
 		rebalanceIoPriorityPolicy := &scaleiotypes.ProtectedMaintenanceModeParam{
-			Policy:      plan.RebalanceIoPriorityPolicy.ValueString(),
+			Policy: plan.RebalanceIoPriorityPolicy.ValueString(),
 		}
-		err := pd.SetRebalanceIoPriorityPolicy(sp,rebalanceIoPriorityPolicy)
+		if strconv.FormatInt(plan.RebalanceNumOfConcurrentIosPerDevice.ValueInt64(), 10) != "0" {
+			rebalanceIoPriorityPolicy.NumOfConcurrentIosPerDevice = strconv.FormatInt(plan.RebalanceNumOfConcurrentIosPerDevice.ValueInt64(), 10)
+		}
+		if strconv.FormatInt(plan.RebalanceBwLimitPerDeviceInKbps.ValueInt64(), 10) != "0" {
+			rebalanceIoPriorityPolicy.BwLimitPerDeviceInKbps = strconv.FormatInt(plan.RebalanceBwLimitPerDeviceInKbps.ValueInt64(), 10)
+		}
+		err := pd.SetRebalanceIoPriorityPolicy(sp, rebalanceIoPriorityPolicy)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("Could not set rebalance Io priority policy  to %s", plan.RebalanceIoPriorityPolicy.String()),
 				err.Error(),
 			)
 		}
-	} else if !plan.RebalanceIoPriorityPolicy.IsUnknown() && !plan.RebalanceNumOfConcurrentIosPerDevice.IsUnknown() && plan.RebalanceBwLimitPerDeviceInKbps.IsUnknown(){
-		rebalanceIoPriorityPolicy := &scaleiotypes.ProtectedMaintenanceModeParam{
-			Policy:      plan.RebalanceIoPriorityPolicy.ValueString(),
-			NumOfConcurrentIosPerDevice : plan.RebalanceNumOfConcurrentIosPerDevice.String(),
-		}
-		err := pd.SetRebalanceIoPriorityPolicy(sp,rebalanceIoPriorityPolicy)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set rebalance Io priority policy  to %s and num of concurrent IOs oer device to %s", plan.RebalanceIoPriorityPolicy.String(),plan.RebalanceNumOfConcurrentIosPerDevice.String()),
-				err.Error(),
-			)
-		}
-	} else if !plan.RebalanceIoPriorityPolicy.IsUnknown() && !plan.RebalanceNumOfConcurrentIosPerDevice.IsUnknown() && !plan.RebalanceBwLimitPerDeviceInKbps.IsUnknown(){
-		rebalanceIoPriorityPolicy := &scaleiotypes.ProtectedMaintenanceModeParam{
-			Policy:      plan.RebalanceIoPriorityPolicy.ValueString(),
-			NumOfConcurrentIosPerDevice : plan.RebalanceNumOfConcurrentIosPerDevice.String(),
-			BwLimitPerDeviceInKbps: plan.RebalanceBwLimitPerDeviceInKbps.String(),
-		}
-		err := pd.SetRebalanceIoPriorityPolicy(sp,rebalanceIoPriorityPolicy)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set rebalance Io priority policy  to %s , num of concurrent IOs oer device to %s and bandwidth limit to %s", plan.RebalanceIoPriorityPolicy.String(),plan.RebalanceNumOfConcurrentIosPerDevice.String(),plan.RebalanceBwLimitPerDeviceInKbps.String()),
-				err.Error(),
-			)
-		}
 	}
 
-	if !plan.VtreeMigrationIoPriorityPolicy.IsUnknown() && plan.VtreeMigrationNumOfConcurrentIosPerDevice.IsUnknown() && plan.VtreeMigrationBwLimitPerDeviceInKbps.IsUnknown(){
+	// set vtree migration IO priority policy
+	if (!plan.VtreeMigrationIoPriorityPolicy.IsUnknown() && !plan.VtreeMigrationIoPriorityPolicy.IsNull()) ||
+		(!plan.VtreeMigrationNumOfConcurrentIosPerDevice.IsUnknown() && !plan.VtreeMigrationNumOfConcurrentIosPerDevice.IsNull()) ||
+		(!plan.VtreeMigrationBwLimitPerDeviceInKbps.IsUnknown() && !plan.VtreeMigrationBwLimitPerDeviceInKbps.IsNull()) {
 		vtreeMigrationPolicy := &scaleiotypes.ProtectedMaintenanceModeParam{
-			Policy:      plan.VtreeMigrationIoPriorityPolicy.ValueString(),
+			Policy: plan.VtreeMigrationIoPriorityPolicy.ValueString(),
 		}
-		err := pd.SetVTreeMigrationIOPriorityPolicy(sp,vtreeMigrationPolicy)
+		if strconv.FormatInt(plan.VtreeMigrationNumOfConcurrentIosPerDevice.ValueInt64(), 10) != "0" {
+			vtreeMigrationPolicy.NumOfConcurrentIosPerDevice = strconv.FormatInt(plan.VtreeMigrationNumOfConcurrentIosPerDevice.ValueInt64(), 10)
+		}
+		if strconv.FormatInt(plan.VtreeMigrationBwLimitPerDeviceInKbps.ValueInt64(), 10) != "0" {
+			vtreeMigrationPolicy.BwLimitPerDeviceInKbps = strconv.FormatInt(plan.VtreeMigrationBwLimitPerDeviceInKbps.ValueInt64(), 10)
+		}
+		err := pd.SetVTreeMigrationIOPriorityPolicy(sp, vtreeMigrationPolicy)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("Could not set Vtree migration Io priority policy  to %s", plan.VtreeMigrationIoPriorityPolicy.String()),
 				err.Error(),
 			)
 		}
-	} else if !plan.VtreeMigrationIoPriorityPolicy.IsUnknown() && !plan.VtreeMigrationNumOfConcurrentIosPerDevice.IsUnknown() && plan.VtreeMigrationBwLimitPerDeviceInKbps.IsUnknown(){
-		vtreeMigrationPolicy := &scaleiotypes.ProtectedMaintenanceModeParam{
-			Policy:      plan.VtreeMigrationIoPriorityPolicy.ValueString(),
-			NumOfConcurrentIosPerDevice : plan.VtreeMigrationNumOfConcurrentIosPerDevice.String(),
-		}
-		err := pd.SetVTreeMigrationIOPriorityPolicy(sp,vtreeMigrationPolicy)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set Vtree migration Io priority policy  to %s and num of concurrent IOs oer device to %s", plan.VtreeMigrationIoPriorityPolicy.String(),plan.VtreeMigrationNumOfConcurrentIosPerDevice.String()),
-				err.Error(),
-			)
-		}
-	} else if !plan.VtreeMigrationIoPriorityPolicy.IsUnknown() && !plan.VtreeMigrationNumOfConcurrentIosPerDevice.IsUnknown() && !plan.VtreeMigrationBwLimitPerDeviceInKbps.IsUnknown(){
-		vtreeMigrationPolicy := &scaleiotypes.ProtectedMaintenanceModeParam{
-			Policy:      plan.VtreeMigrationIoPriorityPolicy.ValueString(),
-			NumOfConcurrentIosPerDevice : plan.VtreeMigrationNumOfConcurrentIosPerDevice.String(),
-			BwLimitPerDeviceInKbps: plan.VtreeMigrationBwLimitPerDeviceInKbps.String(),
-		}
-		err := pd.SetVTreeMigrationIOPriorityPolicy(sp,vtreeMigrationPolicy)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set Vtree migration Io priority policy  to %s , num of concurrent IOs oer device to %s and bandwidth limit to %s", plan.VtreeMigrationIoPriorityPolicy.String(),plan.VtreeMigrationNumOfConcurrentIosPerDevice.String(),plan.VtreeMigrationBwLimitPerDeviceInKbps.String()),
-				err.Error(),
-			)
-		}
 	}
 
-	if !plan.RebuildEnabled.IsUnknown() && !plan.RebuildEnabled.IsNull(){
-		err := pd.SetRebuildEnabled(sp,plan.RebuildEnabled.String())
+	// set rebuild enabled
+	if !plan.RebuildEnabled.IsUnknown() && !plan.RebuildEnabled.IsNull() {
+		err := pd.SetRebuildEnabled(sp, plan.RebuildEnabled.String())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("Could not set rebuild enabled to %s", plan.RebalanceEnabled.String()),
@@ -327,8 +329,9 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		}
 	}
 
-	if !plan.RebuildRebalanceParallelism.IsUnknown() && !plan.RebuildRebalanceParallelism.IsNull(){
-		err := pd.SetRebuildRebalanceParallelismParam(sp,plan.RebuildRebalanceParallelism.String())
+	// set rebuild rebalance parallelism
+	if !plan.RebuildRebalanceParallelism.IsUnknown() && !plan.RebuildRebalanceParallelism.IsNull() {
+		err := pd.SetRebuildRebalanceParallelismParam(sp, plan.RebuildRebalanceParallelism.String())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("Could not set rebuild rebalance parallelism to %s", plan.RebuildRebalanceParallelism.String()),
@@ -337,26 +340,9 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		}
 	}
 
-	if !plan.RebuildRebalanceParallelism.IsUnknown() && !plan.RebuildRebalanceParallelism.IsNull(){
-		err := pd.SetRebuildRebalanceParallelismParam(sp,plan.RebuildRebalanceParallelism.String())
-		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set rebuild rebalance parallelism to %s", plan.RebuildRebalanceParallelism.String()),
-				err.Error(),
-			)
-		}
-	}
-
-	if plan.Fragmentation.String() == "true" {
-		err := pd.EnableFragmentation(sp)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set fragmentation to %s", plan.Fragmentation.String()),
-				err.Error(),
-			)
-		}
-	} else if plan.Fragmentation.String() == "false" {
-		err := pd.DisableFragmentation(sp)
+	// set the fragmentation
+	if !plan.Fragmentation.IsUnknown() {
+		err := pd.Fragmentation(sp, plan.Fragmentation.ValueBool())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("Could not set fragmentation to %s", plan.Fragmentation.String()),
@@ -364,7 +350,6 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 			)
 		}
 	}
-
 
 	spResponse, err := pd.FindStoragePool(sp, "", "")
 	if err != nil {
@@ -582,24 +567,24 @@ func updateStoragepoolState(storagepool *scaleiotypes.StoragePool, plan storagep
 	state.MediaType = types.StringValue(storagepool.MediaType)
 	state.UseRmcache = types.BoolValue(storagepool.UseRmcache)
 	state.UseRfcache = types.BoolValue(storagepool.UseRfcache)
-	state.ZeroPaddingEnabled= types.BoolValue(storagepool.ZeroPaddingEnabled)
-	state.ReplicationJournalCapacity= types.Int64Value(int64(storagepool.ReplicationCapacityMaxRatio))
-	state.CapacityAlertHighThreshold= types.Int64Value(int64(storagepool.CapacityAlertHighThreshold))
-	state.CapacityAlertCriticalThreshold= types.Int64Value(int64(storagepool.CapacityAlertCriticalThreshold))
-	state.ProtectedMaintenanceModeIoPriorityPolicy=types.StringValue(storagepool.ProtectedMaintenanceModeIoPriorityPolicy)
-	state.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice=types.Int64Value(int64(storagepool.ProtectedMaintenanceModeIoPriorityNumOfConcurrentIosPerDevice))
-	state.ProtectedMaintenanceModeBwLimitPerDeviceInKbps=types.Int64Value(int64(storagepool.ProtectedMaintenanceModeIoPriorityBwLimitPerDeviceInKbps))
-	state.RebalanceEnabled=types.BoolValue(storagepool.RebalanceEnabled)
-	state.RebalanceIoPriorityPolicy=types.StringValue(storagepool.RebalanceioPriorityPolicy)
-	state.RebalanceNumOfConcurrentIosPerDevice=types.Int64Value(int64(storagepool.RebalanceioPriorityNumOfConcurrentIosPerDevice))
-	state.RebalanceBwLimitPerDeviceInKbps=types.Int64Value(int64(storagepool.RebalanceioPriorityBwLimitPerDeviceInKbps))
-	state.VtreeMigrationIoPriorityPolicy=types.StringValue(storagepool.VtreeMigrationIoPriorityPolicy)
-	state.VtreeMigrationNumOfConcurrentIosPerDevice=types.Int64Value(int64(storagepool.VtreeMigrationIoPriorityNumOfConcurrentIosPerDevice))
-	state.VtreeMigrationBwLimitPerDeviceInKbps=types.Int64Value(int64(storagepool.VtreeMigrationIoPriorityBwLimitPerDeviceInKbps))
-	state.SparePercentage=types.Int64Value(int64(storagepool.SparePercentage))
-	state.RmCacheWriteHandlingMode=types.StringValue(storagepool.RmCacheWriteHandlingMode)
-	state.RebuildEnabled=types.BoolValue(storagepool.RebuildEnabled)
-	state.RebuildRebalanceParallelism=types.Int64Value(int64(storagepool.NumofParallelRebuildRebalanceJobsPerDevice))
-	state.Fragmentation=types.BoolValue(storagepool.FragmentationEnabled)
+	state.ZeroPaddingEnabled = types.BoolValue(storagepool.ZeroPaddingEnabled)
+	state.ReplicationJournalCapacity = types.Int64Value(int64(storagepool.ReplicationCapacityMaxRatio))
+	state.CapacityAlertHighThreshold = types.Int64Value(int64(storagepool.CapacityAlertHighThreshold))
+	state.CapacityAlertCriticalThreshold = types.Int64Value(int64(storagepool.CapacityAlertCriticalThreshold))
+	state.ProtectedMaintenanceModeIoPriorityPolicy = types.StringValue(storagepool.ProtectedMaintenanceModeIoPriorityPolicy)
+	state.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice = types.Int64Value(int64(storagepool.ProtectedMaintenanceModeIoPriorityNumOfConcurrentIosPerDevice))
+	state.ProtectedMaintenanceModeBwLimitPerDeviceInKbps = types.Int64Value(int64(storagepool.ProtectedMaintenanceModeIoPriorityBwLimitPerDeviceInKbps))
+	state.RebalanceEnabled = types.BoolValue(storagepool.RebalanceEnabled)
+	state.RebalanceIoPriorityPolicy = types.StringValue(storagepool.RebalanceioPriorityPolicy)
+	state.RebalanceNumOfConcurrentIosPerDevice = types.Int64Value(int64(storagepool.RebalanceioPriorityNumOfConcurrentIosPerDevice))
+	state.RebalanceBwLimitPerDeviceInKbps = types.Int64Value(int64(storagepool.RebalanceioPriorityBwLimitPerDeviceInKbps))
+	state.VtreeMigrationIoPriorityPolicy = types.StringValue(storagepool.VtreeMigrationIoPriorityPolicy)
+	state.VtreeMigrationNumOfConcurrentIosPerDevice = types.Int64Value(int64(storagepool.VtreeMigrationIoPriorityNumOfConcurrentIosPerDevice))
+	state.VtreeMigrationBwLimitPerDeviceInKbps = types.Int64Value(int64(storagepool.VtreeMigrationIoPriorityBwLimitPerDeviceInKbps))
+	state.SparePercentage = types.Int64Value(int64(storagepool.SparePercentage))
+	state.RmCacheWriteHandlingMode = types.StringValue(storagepool.RmCacheWriteHandlingMode)
+	state.RebuildEnabled = types.BoolValue(storagepool.RebuildEnabled)
+	state.RebuildRebalanceParallelism = types.Int64Value(int64(storagepool.NumofParallelRebuildRebalanceJobsPerDevice))
+	state.Fragmentation = types.BoolValue(storagepool.FragmentationEnabled)
 	return state
 }

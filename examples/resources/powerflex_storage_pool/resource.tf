@@ -69,6 +69,7 @@ resource "powerflex_storage_pool" "sp3" {
   use_rmcache = true
   use_rfcache = false
   rebalance_io_priority_policy = "unlimited"
+  vtree_migration_io_priority_policy = "limitNumOfConcurrentIos"
   spare_percentage = 68
   rm_cache_write_handling_mode = "Cached"
   rebuild_enabled = true
@@ -76,6 +77,78 @@ resource "powerflex_storage_pool" "sp3" {
 
 }
 
+resource "powerflex_storage_pool" "sp4" {
+  name                 = "storagepool6"
+  #protection_domain_id = "4eeb304600000000"
+  protection_domain_name = "domain1"
+  media_type  = "HDD"
+}
+
+resource "powerflex_storage_pool" "sp5" {
+  name                 = "storagepool7"
+  #protection_domain_id = "4eeb304600000000"
+  protection_domain_name = "domain1"
+  media_type  = "HDD"
+  protected_maintenance_mode_io_priority_policy = "favorAppIos"
+  protected_maintenance_mode_bw_limit_per_device_in_kbps = 1028
+  rebalance_io_priority_policy = "favorAppIos"
+  rebalance_bw_limit_per_device_in_kbps = 1032
+  vtree_migration_io_priority_policy = "favorAppIos"
+  vtree_migration_bw_limit_per_device_in_kbps = 1030
+  
+}
+
+resource "powerflex_storage_pool" "sp6" {
+  name                 = "storagepool8"
+  #protection_domain_id = "4eeb304600000000"
+  protection_domain_name = "domain1"
+  media_type  = "HDD"
+  protected_maintenance_mode_num_of_concurrent_ios_per_device = 7
+  protected_maintenance_mode_bw_limit_per_device_in_kbps = 1028
+  rebalance_num_of_concurrent_ios_per_device = 7
+  rebalance_bw_limit_per_device_in_kbps = 1032
+  vtree_migration_num_of_concurrent_ios_per_device = 7
+  vtree_migration_bw_limit_per_device_in_kbps = 1030
+}
+
+resource "powerflex_storage_pool" "sp7" {
+  name                 = "storagepool9"
+  #protection_domain_id = "4eeb304600000000"
+  protection_domain_name = "domain1"
+  media_type  = "HDD"
+  protected_maintenance_mode_num_of_concurrent_ios_per_device = 7
+  rebalance_num_of_concurrent_ios_per_device = 7
+  vtree_migration_num_of_concurrent_ios_per_device = 7
+}
+
+resource "powerflex_storage_pool" "sp8" {
+  name                 = "storagepool10"
+  #protection_domain_id = "4eeb304600000000"
+  protection_domain_name = "domain1"
+  media_type  = "HDD"
+  protected_maintenance_mode_bw_limit_per_device_in_kbps = 1028
+  rebalance_bw_limit_per_device_in_kbps = 1032
+  vtree_migration_bw_limit_per_device_in_kbps = 1030
+}
+
+
+resource "powerflex_storage_pool" "sp9" {
+  name                 = "storagepool11"
+  #protection_domain_id = "4eeb304600000000"
+  protection_domain_name = "domain1"
+  media_type  = "HDD"
+  protected_maintenance_mode_io_priority_policy = "limitNumOfConcurrentIos"
+  protected_maintenance_mode_num_of_concurrent_ios_per_device = 7
+  protected_maintenance_mode_bw_limit_per_device_in_kbps = 1028
+  use_rmcache = false
+  rebalance_io_priority_policy = "limitNumOfConcurrentIos"
+  rebalance_num_of_concurrent_ios_per_device = 7
+  rebalance_bw_limit_per_device_in_kbps = 1032
+  vtree_migration_io_priority_policy = "limitNumOfConcurrentIos"
+  vtree_migration_num_of_concurrent_ios_per_device = 7
+  vtree_migration_bw_limit_per_device_in_kbps = 1030
+  rm_cache_write_handling_mode = "Passthrough"
+}
 
 output "created_storagepool" {
   value = powerflex_storage_pool.sp
