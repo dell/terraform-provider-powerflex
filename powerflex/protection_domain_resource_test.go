@@ -23,6 +23,58 @@ func TestAccPDResource(t *testing.T) {
 	}
 	`
 
+	updatePDFGLM1 := `
+	resource "powerflex_protection_domain" "pd" {
+		name = "test_acc_pd_1"
+		fgl_metadata_cache_enabled = true
+		fgl_default_metadata_cache_size = 1024
+	}
+	`
+	updatePDFGLM2 := `
+	resource "powerflex_protection_domain" "pd" {
+		name = "test_acc_pd_1"
+		fgl_metadata_cache_enabled = false
+	}
+	`
+	updatePDFGLM3 := `
+	resource "powerflex_protection_domain" "pd" {
+		name = "test_acc_pd_1"
+		fgl_metadata_cache_enabled = true
+		fgl_default_metadata_cache_size = 5*1024
+	}
+	`
+
+	// fgl_default_metadata_cache_size must be multiple of 1024
+	updatePDFGLMNeg := `
+	resource "powerflex_protection_domain" "pd" {
+		name = "test_acc_pd_1"
+		fgl_metadata_cache_enabled = true
+		fgl_default_metadata_cache_size = 1025
+	}
+	`
+	// fgl_default_metadata_cache_size cannot be set when fgl_metadata_cache_enabled is false
+	updatePDFGLMNeg2 := `
+	resource "powerflex_protection_domain" "pd" {
+		name = "test_acc_pd_1"
+		fgl_metadata_cache_enabled = false
+		fgl_default_metadata_cache_size = 1024
+	}
+	`
+
+	updatePDdeactivate := `
+	resource "powerflex_protection_domain" "pd" {
+		name = "test_acc_pd_1"
+		active = false
+	}
+	`
+
+	updatePDreactivate := `
+	resource "powerflex_protection_domain" "pd" {
+		name = "test_acc_pd_1"
+		active = true
+	}
+	`
+
 	updatePDIopsTest := `
 	resource "powerflex_protection_domain" "pd" {
 		name = "test_acc_pd_1"
@@ -98,55 +150,6 @@ func TestAccPDResource(t *testing.T) {
 	resource "powerflex_protection_domain" "pd" {
 		name = "test_acc_pd_1"
 		rf_cache_enabled = false
-	}
-	`
-
-	updatePDdeactivate := `
-	resource "powerflex_protection_domain" "pd" {
-		name = "test_acc_pd_1"
-		active = false
-	}
-	`
-
-	updatePDreactivate := `
-	resource "powerflex_protection_domain" "pd" {
-		name = "test_acc_pd_1"
-		active = true
-	}
-	`
-
-	updatePDFGLM1 := `
-	resource "powerflex_protection_domain" "pd" {
-		name = "test_acc_pd_1"
-		fgl_metadata_cache_enabled = true
-		fgl_default_metadata_cache_size = 1024
-	}
-	`
-	updatePDFGLM2 := `
-	resource "powerflex_protection_domain" "pd" {
-		name = "test_acc_pd_1"
-		fgl_metadata_cache_enabled = false
-	}
-	`
-	updatePDFGLM3 := `
-	resource "powerflex_protection_domain" "pd" {
-		name = "test_acc_pd_1"
-		fgl_metadata_cache_enabled = true
-		fgl_default_metadata_cache_size = 5*1024
-	}
-	`
-	updatePDFGLMNeg := `
-	resource "powerflex_protection_domain" "pd" {
-		name = "test_acc_pd_1"
-		fgl_metadata_cache_enabled = true
-		fgl_default_metadata_cache_size = 1025
-	}
-	`
-	updatePDFGLMNeg2 := `
-	resource "powerflex_protection_domain" "pd" {
-		name = "test_acc_pd_1"
-		fgl_metadata_cache_enabled = false
-		fgl_default_metadata_cache_size = 1024
 	}
 	`
 

@@ -1,11 +1,14 @@
 package powerflex
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	types "github.com/dell/goscaleio/types/v1"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	frameworkTypes "github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // getFirstSystem - finds available first system and returns it.
@@ -78,4 +81,40 @@ func getVolumeType(c *goscaleio.Client, volID string) (*goscaleio.Volume, error)
 	volType := goscaleio.NewVolume(c)
 	volType.Volume = volume
 	return volType, nil
+}
+
+// boolDefaultModifier is a plan modifier that sets a default value for a
+// types.BoolType attribute when it is not configured. The attribute must be
+// marked as Optional and Computed. When setting the state during the resource
+// Create, Read, or Update methods, this default value must also be included or
+// the Terraform CLI will generate an error.
+type boolDefaultModifier struct {
+	Default bool
+}
+
+// Description returns a plain text description of the validator's behavior, suitable for a practitioner to understand its impact.
+func (m boolDefaultModifier) Description(ctx context.Context) string {
+	return fmt.Sprintf("If value is not configured, defaults to %t", m.Default)
+}
+
+// MarkdownDescription returns a markdown formatted description of the validator's behavior, suitable for a practitioner to understand its impact.
+func (m boolDefaultModifier) MarkdownDescription(ctx context.Context) string {
+	return fmt.Sprintf("If value is not configured, defaults to `%t`", m.Default)
+}
+
+// PlanModifyBool runs the logic of the plan modifier.
+// Access to the configuration, plan, and state is available in `req`, while
+// `resp` contains fields for updating the planned value, triggering resource
+// replacement, and returning diagnostics.
+func (m boolDefaultModifier) PlanModifyBool(ctx context.Context, req planmodifier.BoolRequest, resp *planmodifier.BoolResponse) {
+	// If the value is unknown or known, do not set default value.
+	if req.PlanValue.IsNull() || req.PlanValue.IsUnknown() {
+		resp.PlanValue = frameworkTypes.BoolValue(m.Default)
+	}
+}
+
+func boolDefault(defaultValue bool) planmodifier.Bool {
+	return boolDefaultModifier{
+		Default: defaultValue,
+	}
 }

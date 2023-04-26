@@ -182,6 +182,7 @@ func (d *protectionDomainResource) Configure(_ context.Context, req resource.Con
 	d.system = system
 }
 
+// ConfigurePdState receives the previous state and builds the protection domain client internally
 func (d *protectionDomainResource) ConfigurePdState(ctx context.Context, state protectionDomainResourceModel) diag.Diagnostics {
 	// for now it only reinstates the links and id fields
 	d.pdClient = goscaleio.NewProtectionDomain(d.client)
@@ -202,7 +203,7 @@ func (d *protectionDomainResource) Read(ctx context.Context, req resource.ReadRe
 	// Fetch protection domain of given id
 	// d.ConfigurePdClient(state.ID.ValueString())
 	resp.Diagnostics.Append(d.ConfigurePdState(ctx, state)...)
-	newState, err := d.ReadById()
+	newState, err := d.ReadByID()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("Unable to Read Powerflex ProtectionDomain of ID %s", state.ID.ValueString()),
@@ -243,7 +244,7 @@ func (d *protectionDomainResource) Create(ctx context.Context, req resource.Crea
 	}
 	tflog.Info(ctx, "Protection domain created with name "+plan.Name.ValueString()+" and id "+id)
 
-	state, err := d.ReadById()
+	state, err := d.ReadByID()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error fetching protection domain by id after initial create.",
@@ -263,7 +264,7 @@ func (d *protectionDomainResource) Create(ctx context.Context, req resource.Crea
 		return
 	}
 
-	state, err = d.ReadById()
+	state, err = d.ReadByID()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error fetching protection domain by id after full create.",
@@ -298,7 +299,7 @@ func (d *protectionDomainResource) Update(ctx context.Context, req resource.Upda
 		return
 	}
 
-	state, err := d.ReadById()
+	state, err := d.ReadByID()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error fetching protection domain by id after full create.",
@@ -340,17 +341,18 @@ func (d *protectionDomainResource) Delete(ctx context.Context, req resource.Dele
 	resp.State.RemoveResource(ctx)
 }
 
-func (d *protectionDomainResource) ReadById() (protectionDomainResourceModel, error) {
+// ReadByID is a helper function that refreshes the protection domain client and marshalls it into protectionDomainResourceModel
+func (d *protectionDomainResource) ReadByID() (protectionDomainResourceModel, error) {
 	// Fetch protection domain of given id
 	err := d.pdClient.Refresh()
 	if err != nil {
-		// dia = diag.Errorf("Unable to Read Powerflex ProtectionDomain of ID %s: %s", id, err.Error())
 		return protectionDomainResourceModel{}, err
 	}
 	response := getPDResState(d.pdClient.ProtectionDomain)
 	return response, nil
 }
 
+// getPDResState is a helper function that marshalls API response into protectionDomainResourceModel
 func getPDResState(protectionDomain *scaleiotypes.ProtectionDomain) protectionDomainResourceModel {
 	return protectionDomainResourceModel{
 		Name:   types.StringValue(protectionDomain.Name),
@@ -382,6 +384,7 @@ func getPDResState(protectionDomain *scaleiotypes.ProtectionDomain) protectionDo
 	}
 }
 
+// getLinkTfList is a helper function that marshalls goscaleio links into types.List
 func getLinkTfList(links []*scaleiotypes.Link) types.List {
 	sourceKeywordAttrTypes := map[string]attr.Type{
 		"rel":  types.StringType,
@@ -402,6 +405,7 @@ func getLinkTfList(links []*scaleiotypes.Link) types.List {
 	return listVal
 }
 
+// getLinksFromTfList is a helper function that unmarshalls goscaleio links from types.List
 func getLinksFromTfList(ctx context.Context, links types.List) ([]*scaleiotypes.Link, diag.Diagnostics) {
 	var d diag.Diagnostics
 	listVal := make([]*scaleiotypes.Link, 0)
@@ -425,6 +429,7 @@ func getLinksFromTfList(ctx context.Context, links types.List) ([]*scaleiotypes.
 	return listVal, d
 }
 
+// UpdateResource is a common function called on create and update of pd to update all of its params
 func (d *protectionDomainResource) UpdateResource(ctx context.Context, plan, state protectionDomainResourceModel) (dia diag.Diagnostics) {
 	pd := d.pdClient
 	if name := plan.Name.ValueString(); name != state.Name.ValueString() {
@@ -482,6 +487,7 @@ func (d *protectionDomainResource) UpdateResource(ctx context.Context, plan, sta
 	return dia
 }
 
+// UpdateRfCache is a common function called on create and update of pd to update its Rf cache params
 func (d *protectionDomainResource) UpdateRfCache(ctx context.Context, plan, state protectionDomainResourceModel) (dia diag.Diagnostics) {
 	pd := d.pdClient
 	// Rfcache enable / disable
@@ -526,6 +532,7 @@ func (d *protectionDomainResource) UpdateRfCache(ctx context.Context, plan, stat
 	return dia
 }
 
+// UpdateResource is a common function called on create and update of pd to update its IOPS params
 func (d *protectionDomainResource) UpdateIopsLimits(ctx context.Context, plan, state protectionDomainResourceModel) (dia diag.Diagnostics) {
 	pd := d.pdClient
 	// SDS IOPS params
