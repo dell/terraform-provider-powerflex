@@ -36,16 +36,35 @@ This resource can be used to manage Storage Pools on a PowerFlex array.
 # To import , check storagepool_resource_import.tf for more info
 # To create / update, either protection_domain_id or protection_domain_name must be provided
 # name and media_type is the required parameter to create or update
-# other  atrributes like : use_rmcache, use_rfcache are optional 
+# other  atrributes like : use_rmcache, use_rfcache, replication_journal_capacity, capacity_alert_high_threshold, capacity_alert_critical_threshold etc. are optional 
 # To check which attributes of the storage pool can be updated, please refer Product Guide in the documentation
 
 resource "powerflex_storage_pool" "sp" {
   name                 = "storagepool3"
-  protection_domain_id = "4eeb304600000000"
-  # protection_domain_name = "domain1"
+  #protection_domain_id = "4eeb304600000000"
+  protection_domain_name = "domain1"
   media_type  = "HDD"
-  use_rmcache = true
-  use_rfcache = false
+  use_rmcache = false
+  use_rfcache = true
+  #replication_journal_capacity = 34
+  capacity_alert_high_threshold = 66
+  capacity_alert_critical_threshold = 77
+  zero_padding_enabled = false
+  protected_maintenance_mode_io_priority_policy = "favorAppIos"
+  protected_maintenance_mode_num_of_concurrent_ios_per_device = 7
+  protected_maintenance_mode_bw_limit_per_device_in_kbps = 1028
+  rebalance_enabled = false
+  rebalance_io_priority_policy = "favorAppIos"
+  rebalance_num_of_concurrent_ios_per_device = 7
+  rebalance_bw_limit_per_device_in_kbps = 1032
+  vtree_migration_io_priority_policy = "favorAppIos"
+  vtree_migration_num_of_concurrent_ios_per_device = 7
+  vtree_migration_bw_limit_per_device_in_kbps = 1030
+  spare_percentage = 66
+  rm_cache_write_handling_mode = "Passthrough"
+  rebuild_enabled = true
+  rebuild_rebalance_parallelism = 5
+  fragmentation = false
 }
 
 output "created_storagepool" {
@@ -63,10 +82,29 @@ output "created_storagepool" {
 
 ### Optional
 
+- `capacity_alert_critical_threshold` (Number) Set the threshold for triggering capacity usage critical-priority alert.
+- `capacity_alert_high_threshold` (Number) Set the threshold for triggering capacity usage high-priority alert.
+- `fragmentation` (Boolean) Enable or disable fragmentation in the Storage Pool
+- `protected_maintenance_mode_bw_limit_per_device_in_kbps` (Number) The maximum bandwidth of protected maintenance mode migration I/Os, in KB per second, per device
+- `protected_maintenance_mode_io_priority_policy` (String) Set the I/O priority policy for protected maintenance mode for a specific Storage Pool. Valid values are `unlimited`, `limitNumOfConcurrentIos` and `favorAppIos`
+- `protected_maintenance_mode_num_of_concurrent_ios_per_device` (Number) The maximum number of concurrent protected maintenance mode migration I/Os per device
 - `protection_domain_id` (String) ID of the Protection Domain under which the storage pool will be created. Conflicts with `protection_domain_name`. Cannot be updated.
 - `protection_domain_name` (String) Name of the Protection Domain under which the storage pool will be created. Conflicts with `protection_domain_id`. Cannot be updated.
+- `rebalance_bw_limit_per_device_in_kbps` (Number) The maximum bandwidth of rebalance I/Os, in KB/s, per device
+- `rebalance_enabled` (Boolean) Enable or disable rebalancing in the specified Storage Pool
+- `rebalance_io_priority_policy` (String) Policy to use for rebalance I/O priority. Valid values are `unlimited`, `limitNumOfConcurrentIos` and `favorAppIos`
+- `rebalance_num_of_concurrent_ios_per_device` (Number) The maximum number of concurrent rebalance I/Os per device
+- `rebuild_enabled` (Boolean) Enable or disable rebuilds in the specified Storage Pool
+- `rebuild_rebalance_parallelism` (Number) Maximum number of concurrent rebuild and rebalance activities on SDSs in the Storage Pool
+- `replication_journal_capacity` (Number) This defines the maximum percentage of Storage Pool capacity that can be used by replication for the journal.
+- `rm_cache_write_handling_mode` (String) Sets the Read RAM Cache write handling mode of the specified Storage Pool
+- `spare_percentage` (Number) Sets the spare capacity reservation policy
 - `use_rfcache` (Boolean) Enable/Disable RFcache on a specific storage pool
 - `use_rmcache` (Boolean) Enable/Disable RMcache on a specific storage pool
+- `vtree_migration_bw_limit_per_device_in_kbps` (Number) The maximum bandwidth of V-Tree migration IOs, in KB per second, per device
+- `vtree_migration_io_priority_policy` (String) Set the I/O priority policy for V-Tree migration for a specific Storage Pool. Valid values are `limitNumOfConcurrentIos` and `favorAppIos`
+- `vtree_migration_num_of_concurrent_ios_per_device` (Number) The maximum number of concurrent V-Tree migration I/Os per device
+- `zero_padding_enabled` (Boolean) Enable/Disable padding policy on a specific storage pool
 
 ### Read-Only
 
