@@ -102,6 +102,23 @@ func (r *storagepoolResource) ValidateConfig(ctx context.Context, req resource.V
 		}
 	}
 
+	// Validate that the policy must be provided in the config in order to configure num of concurrent IOS or bandwidth limit.
+	if !data.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.IsNull() && data.ProtectedMaintenanceModeIoPriorityPolicy.IsNull() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("protected_maintenance_mode_bw_limit_per_device_in_kbps"),
+			"Attribute Error",
+			"protected_maintenance_mode_io_priority_policy must be provided with a valid value to configure bandwidth limit",
+		)
+	}
+
+	if !data.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.IsNull() && data.ProtectedMaintenanceModeIoPriorityPolicy.IsNull() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("protected_maintenance_mode_num_of_concurrent_ios_per_device"),
+			"Attribute Error",
+			"protected_maintenance_mode_io_priority_policy must be provided with a valid value to configure num of concurrent IOS per device",
+		)
+	}
+
 	// validate that if the policy is unlimited then the user can't provide values to num of concurrent IOs per device and bandwidth limit per device in Kbps
 	if data.RebalanceIoPriorityPolicy.ValueString() == "unlimited" {
 		if !data.RebalanceNumOfConcurrentIosPerDevice.IsNull() || !data.RebalanceBwLimitPerDeviceInKbps.IsNull() {
@@ -124,6 +141,23 @@ func (r *storagepoolResource) ValidateConfig(ctx context.Context, req resource.V
 		}
 	}
 
+	// Validate that the policy must be provided in the config in order to configure num of concurrent IOS or bandwidth limit.
+	if !data.RebalanceNumOfConcurrentIosPerDevice.IsNull() && data.RebalanceIoPriorityPolicy.IsNull() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("rebalance_num_of_concurrent_ios_per_device"),
+			"Attribute Error",
+			"rebalance_io_priority_policy must be provided with a valid value to configure bandwidth limit",
+		)
+	}
+
+	if !data.RebalanceBwLimitPerDeviceInKbps.IsNull() && data.RebalanceIoPriorityPolicy.IsNull() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("rebalance_bw_limit_per_device_in_kbps"),
+			"Attribute Error",
+			"rebalance_io_priority_policy must be provided with a valid value to configure num of concurrent IOS per device",
+		)
+	}
+
 	// validate that if the policy is limitNumOfConcurrentIos then the user can't provide values to bandwidth limit per device in Kbps
 	if data.VtreeMigrationIoPriorityPolicy.ValueString() == "limitNumOfConcurrentIos" {
 		if !data.VtreeMigrationBwLimitPerDeviceInKbps.IsNull() {
@@ -135,6 +169,23 @@ func (r *storagepoolResource) ValidateConfig(ctx context.Context, req resource.V
 		}
 	}
 
+	// Validate that the policy must be provided in the config in order to configure num of concurrent IOS or bandwidth limit.
+	if !data.VtreeMigrationBwLimitPerDeviceInKbps.IsNull() && data.VtreeMigrationIoPriorityPolicy.IsNull() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("vtree_migration_bw_limit_per_device_in_kbps"),
+			"Attribute Error",
+			"vtree_migration_io_priority_policy must be provided with a valid value to configure bandwidth limit",
+		)
+	}
+
+	if !data.VtreeMigrationNumOfConcurrentIosPerDevice.IsNull() && data.VtreeMigrationIoPriorityPolicy.IsNull() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("vtree_migration_num_of_concurrent_ios_per_device"),
+			"Attribute Error",
+			"vtree_migration_io_priority_policy must be provided with a valid value to configure num of concurrent IOS per device",
+		)
+	}
+
 	// The write handling mode selection comes into play if rm_cache is enabled
 	if !(data.RmCacheWriteHandlingMode.IsNull() || data.RmCacheWriteHandlingMode.IsUnknown()) && !data.UseRmcache.ValueBool() {
 		resp.Diagnostics.AddAttributeError(
@@ -143,6 +194,7 @@ func (r *storagepoolResource) ValidateConfig(ctx context.Context, req resource.V
 			"Read Ram cache must be enabled in order to configure its write handling mode",
 		)
 	}
+	// Do I need to add the validation that policy must be present
 }
 
 // Function used to Create Storagepool Resource

@@ -308,11 +308,10 @@ func TestAccStoragepoolResourceManyAttributes(t *testing.T) {
 	})
 }
 
-func TestAccStoragepoolResourceInvalidAttributesValue(t *testing.T) {
+func TestAccStoragepoolResourceCapacityAlertInvalidValue(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
-
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -321,17 +320,29 @@ func TestAccStoragepoolResourceInvalidAttributesValue(t *testing.T) {
 				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidAttributesValue1,
 				ExpectError: regexp.MustCompile(`.*Could not set capacity alert high threshold.*`),
 			},
+		},
+	})
+}
+
+func TestAccStoragepoolResourceInvalidAttributesValue(t *testing.T) {
+	if os.Getenv("TF_ACC") == "" {
+		t.Skip("Dont run with units tests because it will try to create the context")
+	}
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Create Storagepool Test Negative
 			{
 				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidAttributesValue2,
-				ExpectError: regexp.MustCompile(`.*Could not set protected maintenance mode Io priority policy  to <unknown>.*`),
+				ExpectError: regexp.MustCompile(`.*Attribute Error.*`),
 			},
 			{
 				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidAttributesValue3,
-				ExpectError: regexp.MustCompile(`.*Could not set rebalance Io priority policy  to <unknown>.*`),
+				ExpectError: regexp.MustCompile(`.*Attribute Error.*`),
 			},
 			{
 				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidAttributesValue4,
-				ExpectError: regexp.MustCompile(`.*Could not set Vtree migration Io priority policy  to <unknown>.*`),
+				ExpectError: regexp.MustCompile(`.*Attribute Error.*`),
 			},
 		},
 	})
