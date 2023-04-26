@@ -341,6 +341,11 @@ func (d *protectionDomainResource) Delete(ctx context.Context, req resource.Dele
 	resp.State.RemoveResource(ctx)
 }
 
+func (d *protectionDomainResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	// Retrieve import ID and save to id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
 // ReadByID is a helper function that refreshes the protection domain client and marshalls it into protectionDomainResourceModel
 func (d *protectionDomainResource) ReadByID() (protectionDomainResourceModel, error) {
 	// Fetch protection domain of given id

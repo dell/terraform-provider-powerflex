@@ -182,6 +182,12 @@ func TestAccPDResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "fgl_default_metadata_cache_size", "1024"),
 				),
 			},
+			// check that import is working
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 			{
 				Config: ProviderConfigForTesting + updatePDFGLM2,
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -203,6 +209,12 @@ func TestAccPDResource(t *testing.T) {
 				Config:      ProviderConfigForTesting + updatePDFGLMNeg,
 				ExpectError: regexp.MustCompile(".*The metadata cache size is out of range, or uses a wrong granularity.*"),
 			},
+			// check that import is working
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 			{
 				Config:      ProviderConfigForTesting + updatePDFGLMNeg2,
 				ExpectError: regexp.MustCompile(".*can be set only when fgl_metadata_cache_enabled is set to true.*"),
@@ -214,6 +226,12 @@ func TestAccPDResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "active", "false"),
 					resource.TestCheckResourceAttr(resourceName, "state", "Inactive"),
 				),
+			},
+			// check that import is working
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: ProviderConfigForTesting + updatePDreactivate,
@@ -234,6 +252,12 @@ func TestAccPDResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "protected_maintenance_mode_network_throttling_in_kbps", "10240"),
 				),
 			},
+			// check that import is working
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 			{
 				Config:      ProviderConfigForTesting + updatePDIopsTestNeg1,
 				ExpectError: regexp.MustCompile(".*must be set to a value less than.*"),
@@ -252,6 +276,12 @@ func TestAccPDResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "rf_cache_max_io_size_kb", "32"),
 					resource.TestCheckResourceAttr(resourceName, "rf_cache_enabled", "true"),
 				),
+			},
+			// check that import is working
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config:      ProviderConfigForTesting + updatePDRfCacheTestNeg1,
@@ -275,6 +305,12 @@ func TestAccPDResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "rf_cache_max_io_size_kb", "32"),
 					resource.TestCheckResourceAttr(resourceName, "rf_cache_enabled", "false"),
 				),
+			},
+			// check that import is working
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -339,6 +375,12 @@ func TestAccPDResource2(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "active", "false"),
 					resource.TestCheckResourceAttr(resourceName, "state", "Inactive"),
 				),
+			},
+			// check that import is working
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config:  ProviderConfigForTesting + updatePDname,
