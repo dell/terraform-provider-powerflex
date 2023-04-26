@@ -16,6 +16,7 @@ import (
 	// "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 )
 
 var (
@@ -69,6 +70,83 @@ func (d *protectionDomainResource) Metadata(_ context.Context, req resource.Meta
 
 func (d *protectionDomainResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = ProtectionDomainResourceSchema
+}
+
+func (d *protectionDomainResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data protectionDomainResourceModel
+
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// IOPS Limits validation
+	if k := data.OverallIoNetworkThrottlingInKbps.ValueInt64(); k != 0 {
+		if v := data.ProtectedMaintenanceModeNetworkThrottlingInKbps.ValueInt64(); v == 0 || v > k {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("protected_maintenance_mode_network_throttling_in_kbps"),
+				"protected_maintenance_mode_network_throttling_in_kbps must be set to a value less than overall_io_network_throttling_in_kbps",
+				"",
+			)
+		}
+		if v := data.RebalanceNetworkThrottlingInKbps.ValueInt64(); v == 0 || v > k {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("rebalance_network_throttling_in_kbps"),
+				"rebalance_network_throttling_in_kbps must be set to a value less than overall_io_network_throttling_in_kbps",
+				"",
+			)
+		}
+		if v := data.RebuildNetworkThrottlingInKbps.ValueInt64(); v == 0 || v > k {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("rebuild_network_throttling_in_kbps"),
+				"rebuild_network_throttling_in_kbps must be set to a value less than overall_io_network_throttling_in_kbps",
+				"",
+			)
+		}
+		if v := data.VTreeMigrationNetworkThrottlingInKbps.ValueInt64(); v == 0 || v > k {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("vtree_migration_network_throttling_in_kbps"),
+				"vtree_migration_network_throttling_in_kbps must be set to a value less than overall_io_network_throttling_in_kbps",
+				"",
+			)
+		}
+	}
+
+	// RF cache validation
+	if !data.RfCacheEnabled.ValueBool() {
+		if !data.RfCacheOperationalMode.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("rf_cache_operational_mode"),
+				"rf_cache_operational_mode can be set only when rf_cache_enabled is set to true",
+				"",
+			)
+		}
+		if !data.RfCachePageSizeKb.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("rf_cache_page_size_kb"),
+				"rf_cache_page_size_kb can be set only when rf_cache_enabled is set to true",
+				"",
+			)
+		}
+		if !data.RfCacheMaxIoSizeKb.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("rf_cache_max_io_size_kb"),
+				"rf_cache_max_io_size_kb can be set only when rf_cache_enabled is set to true",
+				"",
+			)
+		}
+	}
+
+	// FGL Metadata caching validation
+	if !data.FglMetadataCacheEnabled.ValueBool() {
+		if !data.FglDefaultMetadataCacheSize.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("fgl_default_metadata_cache_size"),
+				"fgl_default_metadata_cache_size can be set only when fgl_metadata_cache_enabled is set to true",
+				"",
+			)
+		}
+	}
 }
 
 func (d *protectionDomainResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {

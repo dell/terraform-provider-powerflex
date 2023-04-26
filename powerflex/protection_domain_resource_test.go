@@ -33,14 +33,10 @@ func TestAccPDResource(t *testing.T) {
 	}
 	`
 
-	// we are setting vtree_migration_network_throttling_in_kbps as unlimited while overall_io_network_throttling_in_kbps is limited
+	// we are setting all throttling as unlimited while overall_io_network_throttling_in_kbps is limited
 	updatePDIopsTestNeg1 := `
 	resource "powerflex_protection_domain" "pd" {
 		name = "test_acc_pd_1"
-		protected_maintenance_mode_network_throttling_in_kbps = 10*1024
-		rebuild_network_throttling_in_kbps = 10*1024
-		rebalance_network_throttling_in_kbps = 10*1024
-		vtree_migration_network_throttling_in_kbps = 0
 		overall_io_network_throttling_in_kbps = 100*1024
 	}
 	`
@@ -88,13 +84,20 @@ func TestAccPDResource(t *testing.T) {
 	}
 	`
 
-	updatePDRfCacheDisableTest := `
+	updatePDRfCacheDisableTestNeg := `
 	resource "powerflex_protection_domain" "pd" {
 		name = "test_acc_pd_1"
 		rf_cache_enabled = false
 		rf_cache_operational_mode = "ReadAndWrite"
 		rf_cache_page_size_kb = 16
 		rf_cache_max_io_size_kb = 32
+	}
+	`
+
+	updatePDRfCacheDisableTest := `
+	resource "powerflex_protection_domain" "pd" {
+		name = "test_acc_pd_1"
+		rf_cache_enabled = false
 	}
 	`
 
@@ -102,10 +105,6 @@ func TestAccPDResource(t *testing.T) {
 	resource "powerflex_protection_domain" "pd" {
 		name = "test_acc_pd_1"
 		active = false
-		rf_cache_enabled = false
-		rf_cache_operational_mode = "ReadAndWrite"
-		rf_cache_page_size_kb = 16
-		rf_cache_max_io_size_kb = 32
 	}
 	`
 
@@ -113,10 +112,6 @@ func TestAccPDResource(t *testing.T) {
 	resource "powerflex_protection_domain" "pd" {
 		name = "test_acc_pd_1"
 		active = true
-		rf_cache_enabled = false
-		rf_cache_operational_mode = "ReadAndWrite"
-		rf_cache_page_size_kb = 16
-		rf_cache_max_io_size_kb = 32
 	}
 	`
 
@@ -131,6 +126,12 @@ func TestAccPDResource(t *testing.T) {
 	resource "powerflex_protection_domain" "pd" {
 		name = "test_acc_pd_1"
 		fgl_metadata_cache_enabled = false
+	}
+	`
+	updatePDFGLM3 := `
+	resource "powerflex_protection_domain" "pd" {
+		name = "test_acc_pd_1"
+		fgl_metadata_cache_enabled = true
 		fgl_default_metadata_cache_size = 5*1024
 	}
 	`
@@ -139,6 +140,13 @@ func TestAccPDResource(t *testing.T) {
 		name = "test_acc_pd_1"
 		fgl_metadata_cache_enabled = true
 		fgl_default_metadata_cache_size = 1025
+	}
+	`
+	updatePDFGLMNeg2 := `
+	resource "powerflex_protection_domain" "pd" {
+		name = "test_acc_pd_1"
+		fgl_metadata_cache_enabled = false
+		fgl_default_metadata_cache_size = 1024
 	}
 	`
 
@@ -176,21 +184,25 @@ func TestAccPDResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", "test_acc_pd_1"),
 					resource.TestCheckResourceAttr(resourceName, "fgl_metadata_cache_enabled", "false"),
-					resource.TestCheckResourceAttr(resourceName, "fgl_default_metadata_cache_size", "5120"),
+					resource.TestCheckResourceAttr(resourceName, "fgl_default_metadata_cache_size", "1024"),
 				),
 			},
 			{
 				// this is just to check that update of caching from false to true works
-				Config: ProviderConfigForTesting + updatePDFGLM1,
+				Config: ProviderConfigForTesting + updatePDFGLM3,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", "test_acc_pd_1"),
 					resource.TestCheckResourceAttr(resourceName, "fgl_metadata_cache_enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "fgl_default_metadata_cache_size", "1024"),
+					resource.TestCheckResourceAttr(resourceName, "fgl_default_metadata_cache_size", "5120"),
 				),
 			},
 			{
 				Config:      ProviderConfigForTesting + updatePDFGLMNeg,
 				ExpectError: regexp.MustCompile(".*The metadata cache size is out of range, or uses a wrong granularity.*"),
+			},
+			{
+				Config:      ProviderConfigForTesting + updatePDFGLMNeg2,
+				ExpectError: regexp.MustCompile(".*can be set only when fgl_metadata_cache_enabled is set to true.*"),
 			},
 			{
 				Config: ProviderConfigForTesting + updatePDdeactivate,
@@ -221,7 +233,7 @@ func TestAccPDResource(t *testing.T) {
 			},
 			{
 				Config:      ProviderConfigForTesting + updatePDIopsTestNeg1,
-				ExpectError: regexp.MustCompile(".*The overall limit must be higher.*"),
+				ExpectError: regexp.MustCompile(".*must be set to a value less than.*"),
 			},
 			{
 				Config:      ProviderConfigForTesting + updatePDIopsTestNeg2,
@@ -240,11 +252,15 @@ func TestAccPDResource(t *testing.T) {
 			},
 			{
 				Config:      ProviderConfigForTesting + updatePDRfCacheTestNeg1,
-				ExpectError: regexp.MustCompile(".*must be a power of 2.*"),
+				ExpectError: regexp.MustCompile(".*Invalid RFcache page size. Valid values are powers of 2 between 4KB and 64KB.*"),
 			},
 			{
 				Config:      ProviderConfigForTesting + updatePDRfCacheTestNeg2,
-				ExpectError: regexp.MustCompile(".*must be a power of 2 in range.*"),
+				ExpectError: regexp.MustCompile(".*Invalid RFcache page size. Valid values are powers of 2 between 4KB and 64KB.*"),
+			},
+			{
+				Config:      ProviderConfigForTesting + updatePDRfCacheDisableTestNeg,
+				ExpectError: regexp.MustCompile(".*can be set only when rf_cache_enabled is set to true.*"),
 			},
 			{
 				Config: ProviderConfigForTesting + updatePDRfCacheDisableTest,
@@ -303,7 +319,7 @@ func TestAccPDResource2(t *testing.T) {
 			},
 			{
 				Config:      ProviderConfigForTesting + createPDTestNeg2,
-				ExpectError: regexp.MustCompile(".*RfCachePageSizeKb must be a power of 2.*"),
+				ExpectError: regexp.MustCompile(".*can be set only when rf_cache_enabled is set to true.*"),
 			},
 			{
 				Config: ProviderConfigForTesting + createPDdeactive,
