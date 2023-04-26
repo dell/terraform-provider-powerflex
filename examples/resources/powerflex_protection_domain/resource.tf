@@ -14,8 +14,8 @@ resource "powerflex_protection_domain" "pd" {
   protected_maintenance_mode_network_throttling_in_kbps = 10 * 1024
   rebuild_network_throttling_in_kbps                    = 10 * 1024
   rebalance_network_throttling_in_kbps                  = 10 * 1024
-  vtree_migration_network_throttling_in_kbps            = 4 * 1024
-  overall_io_network_throttling_in_kbps                 = 100 * 1024
+  vtree_migration_network_throttling_in_kbps            = 10 * 1024
+  overall_io_network_throttling_in_kbps                 = 20 * 1024
 
   # Fine granularity metadata caching
   fgl_metadata_cache_enabled      = true
