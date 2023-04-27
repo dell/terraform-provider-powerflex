@@ -36,12 +36,8 @@ github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ3
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/dell/goscaleio v1.9.1-0.20230203060730-3a6ee08939d7 h1:9QOONC6DCn7p1LFWjCj3bZEABK4ch3y6hGiT5qh4JeU=
-github.com/dell/goscaleio v1.9.1-0.20230203060730-3a6ee08939d7/go.mod h1:f+OsYKdKJc8j/a0uHI6nJZpiMfx7wDd6yq78dAeBHsg=
-github.com/dell/goscaleio v1.9.1-0.20230203103445-769298746b37 h1:N+6guUoY26CMAmzGUTotjPwqueZXATP0Vx0XHSK/UDU=
-github.com/dell/goscaleio v1.9.1-0.20230203103445-769298746b37/go.mod h1:f+OsYKdKJc8j/a0uHI6nJZpiMfx7wDd6yq78dAeBHsg=
-github.com/dell/goscaleio v1.9.1-0.20230203130415-4484a6d0eaef h1:16ArpQKe24VGb+LuFaWF2OxzudhrDuutf+qbFb2PH8I=
-github.com/dell/goscaleio v1.9.1-0.20230203130415-4484a6d0eaef/go.mod h1:f+OsYKdKJc8j/a0uHI6nJZpiMfx7wDd6yq78dAeBHsg=
+github.com/dell/goscaleio v1.10.1-0.20230425105152-3468c1df396b h1:rA0BxjthqiGF349Fw/F6x1S443Xg8VMHtfHq6HWieJ0=
+github.com/dell/goscaleio v1.10.1-0.20230425105152-3468c1df396b/go.mod h1:dMTrHnXSsPus+Kd9mrs0JuyrCndoKvFP/bbEdc21Bi8=
 github.com/emirpasic/gods v1.12.0 h1:QAUIPSaCu4G+POclxeqb3F+WPpdKqFGlw36+yOzGlrg=
 github.com/emirpasic/gods v1.12.0/go.mod h1:YfzfFFoVP/catgzJb4IKIqXjX78Ha8FMSDh3ymbK86o=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
