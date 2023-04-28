@@ -2,9 +2,10 @@ package powerflex
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"regexp"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccSDSResource(t *testing.T) {
@@ -1414,7 +1415,7 @@ func TestSDSResourceRename(t *testing.T) {
 		`
 	var renameSDSExistingName = `
 		resource "powerflex_sds" "sds" {
-			name = "SDS_10.247.100.214"
+			name = "SDS_1"
 			protection_domain_id = "202a046600000000"
 			ip_list = [
 			  {

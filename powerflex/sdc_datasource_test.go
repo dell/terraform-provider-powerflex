@@ -23,7 +23,7 @@ func init() {
 	sdcTestData.noOfSdc = "1"
 	sdcTestData.noOflinks = "4"
 	sdcTestData.name = ""
-	sdcTestData.sdcip = "10.247.66.194"
+	sdcTestData.sdcip = os.Getenv("POWERFLEX_SDC_IP1")
 }
 
 func TestSdcDataSource(t *testing.T) {
