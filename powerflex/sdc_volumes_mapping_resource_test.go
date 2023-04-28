@@ -399,7 +399,7 @@ func TestAccSDCResourceUnknown(t *testing.T) {
 	}
 	`
 
-	createSDCVolMapUnk := createVolRW + tfVars +`
+	createSDCVolMapUnk := createVolRW + tfVars + `
 	data "powerflex_sdc" "all" {
 	}
 	provider "random" {
