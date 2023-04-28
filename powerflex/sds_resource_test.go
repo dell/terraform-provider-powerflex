@@ -1128,7 +1128,7 @@ func TestSDSResourceAddIP(t *testing.T) {
 			},
 			{
 				Config:      ProviderConfigForTesting + addOccupiedSDSIP,
-				ExpectError: regexp.MustCompile(`.*Error adding IP.*`),
+				ExpectError: regexp.MustCompile(`.*The SDS IP address and port already in use.*`),
 			},
 			{
 				Config:      ProviderConfigForTesting + addMoreThan8IP,

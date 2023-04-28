@@ -43,19 +43,19 @@ func TestSdcDataSource(t *testing.T) {
 				Config: ProviderConfigForTesting + TestSdcDataSourceByEmptyBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckTypeSetElemNestedAttrs("data.powerflex_sdc.selected", "sdcs.*", map[string]string{
-						"sdcs.0.id":   "e3ce1fb500000000",
-						"sdcs.0.name": "terraform_sdc",
+						"id":   "e3ce1fb500000000",
+						"name": "terraform_sdc",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("data.powerflex_sdc.selected", "sdcs.*", map[string]string{
-						"sdcs.1.id":   "e3ce1fb600000001",
-						"sdcs.1.name": "Terraform_sdc1",
+						"id":   "e3ce1fb600000001",
+						"name": "Terraform_sdc1",
 					}),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + TestSdcDataSourceByNameBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "Terraform_sdc"),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "terraform_sdc"),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.id", "e3ce1fb500000000"),
 				),
 			},
@@ -111,7 +111,7 @@ var (
 	}`
 
 	TestSdcDataSourceByNameBlock = `data "powerflex_sdc" "selected" {
-		name = "Terraform_sdc"
+		name = "terraform_sdc"
 	}`
 
 	TestSdcDataSourceInvalidName = `data "powerflex_sdc" "selected" {
