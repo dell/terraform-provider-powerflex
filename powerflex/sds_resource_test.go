@@ -2,9 +2,10 @@ package powerflex
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"regexp"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccSDSResource(t *testing.T) {
@@ -26,7 +27,7 @@ func TestAccSDSResource(t *testing.T) {
 		rmcache_size_in_mb = 156
 		rfcache_enabled = true
 		drl_mode = "NonVolatile"
-		protection_domain_id = "202a046600000000"
+		protection_domain_id = " + ProtectionDomainID + "
 	}
 	`
 	var updateSDSTest = `
@@ -47,7 +48,7 @@ func TestAccSDSResource(t *testing.T) {
 		rmcache_size_in_mb = 256
 		rmcache_enabled = true
 		rfcache_enabled = false
-		protection_domain_id = "202a046600000000"
+		protection_domain_id = " + ProtectionDomainID + "
 	}
 	`
 
@@ -67,7 +68,7 @@ func TestAccSDSResource(t *testing.T) {
 		performance_profile = "Compact"
 		rmcache_enabled = false
 		rfcache_enabled = true
-		protection_domain_id = "202a046600000000"
+		protection_domain_id = " + ProtectionDomainID + "
 	}
 	`
 
@@ -80,7 +81,7 @@ func TestAccSDSResource(t *testing.T) {
 				Config: ProviderConfigForTesting + createSDSTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", "Tf_SDS_01"),
-					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", " + ProtectionDomainID + "),
 					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "rmcache_size_in_mb", "156"),
 					resource.TestCheckResourceAttr(resourceName, "rmcache_enabled", "true"),
@@ -111,7 +112,7 @@ func TestAccSDSResource(t *testing.T) {
 				Config: ProviderConfigForTesting + updateSDSTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", "Tf_SDS_02"),
-					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", " + ProtectionDomainID + "),
 					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "rmcache_size_in_mb", "256"),
 					resource.TestCheckResourceAttr(resourceName, "rmcache_enabled", "true"),
@@ -140,7 +141,7 @@ func TestAccSDSResource(t *testing.T) {
 				Config: ProviderConfigForTesting + updateSDSTest2,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", "Tf_SDS_02"),
-					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", " + ProtectionDomainID + "),
 					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "rmcache_size_in_mb", "256"),
 					resource.TestCheckResourceAttr(resourceName, "rmcache_enabled", "false"),
@@ -181,7 +182,7 @@ func TestAccSDSResourceDuplicateIP(t *testing.T) {
 					role = "sdcOnly"
 				}
 			]
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 		}
 		`
 	createSDSTestManyInValid := `
@@ -205,7 +206,7 @@ func TestAccSDSResourceDuplicateIP(t *testing.T) {
 					role = "sdcOnly"
 				}
 			]
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 		}
 		`
 	resource.Test(t, resource.TestCase{
@@ -221,7 +222,7 @@ func TestAccSDSResourceDuplicateIP(t *testing.T) {
 				Config: ProviderConfigForTesting + createSDSTestManyValid,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", " + ProtectionDomainID + "),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "3"),
 				),
 			},
@@ -304,7 +305,7 @@ func TestAccSDSResourceCreateWithoutIP(t *testing.T) {
 	createInvalidConfig := `
 		resource "powerflex_sds" "invalid" {
 			name = "Sds123"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 		}
 		`
 	resource.Test(t, resource.TestCase{
@@ -323,7 +324,7 @@ func TestAccSDSResourceCreateWithBadRole(t *testing.T) {
 	createInvalidConfig := `
 		resource "powerflex_sds" "invalid" {
 			name = "Sds123"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 				{
 					ip = "10.10.10.1"
@@ -348,7 +349,7 @@ func TestAccSDSResourceCreateWithBadPerformanceProfile(t *testing.T) {
 	createInvalidConfig := `
 		resource "powerflex_sds" "invalid" {
 			name = "Sds123"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 				{
 					ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -401,7 +402,7 @@ func TestAccSDSResourceCreateWithoutPD(t *testing.T) {
 func TestAccSDSResourceCreateWithoutName(t *testing.T) {
 	createInvalidConfig := `
 		resource "powerflex_sds" "invalid" {
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 				{
 					ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -435,7 +436,7 @@ func TestSDSResourceCreateNegative(t *testing.T) {
 					role = "all"
 				}
 			]
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 		}
 		`
 	var createEmptyName = `
@@ -447,7 +448,7 @@ func TestSDSResourceCreateNegative(t *testing.T) {
 					role = "all"
 				}
 			]
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 		}
 		`
 	var createInvalidCharName = `
@@ -459,7 +460,7 @@ func TestSDSResourceCreateNegative(t *testing.T) {
 					role = "all"
 				}
 			]
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 		}
 		`
 	var createInvalidCharName1 = `
@@ -471,7 +472,7 @@ func TestSDSResourceCreateNegative(t *testing.T) {
 					role = "all"
 				}
 			]
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 		}
 		`
 	var createWOPD = `
@@ -506,20 +507,20 @@ func TestSDSResourceCreateNegative(t *testing.T) {
 					role = "all"
 				}
 			]
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			protection_domain_name = "domain1"
 		}
 		`
 	var createWOIP = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 		}
 		`
 	var createWOIPRole = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			{
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -530,7 +531,7 @@ func TestSDSResourceCreateNegative(t *testing.T) {
 	var createWithSDSOnlyRole = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			{
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -542,7 +543,7 @@ func TestSDSResourceCreateNegative(t *testing.T) {
 	var createWithSDCOnlyRole = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			{
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -606,7 +607,7 @@ func TestSDSResourceCreateSpecialChar(t *testing.T) {
 	var createSDSSpecialChar = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS_!@#$%^&*"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			{
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -622,7 +623,7 @@ func TestSDSResourceCreateSpecialChar(t *testing.T) {
 				Config: ProviderConfigForTesting + createSDSSpecialChar,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS_!@#$%^&*"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", " + ProtectionDomainID + "),
 				),
 			},
 		},
@@ -633,7 +634,7 @@ func TestSDSResourceCreateMandatoryParams(t *testing.T) {
 	var createSDSMandatoryParams = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			{
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -649,7 +650,7 @@ func TestSDSResourceCreateMandatoryParams(t *testing.T) {
 				Config: ProviderConfigForTesting + createSDSMandatoryParams,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", " + ProtectionDomainID + "),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
@@ -660,7 +661,7 @@ func TestSDSResourceCreateMandatoryParams(t *testing.T) {
 				Config: ProviderConfigForTesting + createSDSMandatoryParams,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", " + ProtectionDomainID + "),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
@@ -675,7 +676,7 @@ func TestSDSResourceModifyRole(t *testing.T) {
 	var addSDSIP = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			{
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -691,7 +692,7 @@ func TestSDSResourceModifyRole(t *testing.T) {
 	var modifyRolefromsdcOnlytoall = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			  {
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -707,7 +708,7 @@ func TestSDSResourceModifyRole(t *testing.T) {
 	var modifyRolefromsdcOnlytosdsOnly = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			  {
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -723,7 +724,7 @@ func TestSDSResourceModifyRole(t *testing.T) {
 	var modifyRolefromalltosdsOnly = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			  {
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -739,7 +740,7 @@ func TestSDSResourceModifyRole(t *testing.T) {
 	var modifyRolefromsdsOnlytosdcOnly = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			{
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -755,7 +756,7 @@ func TestSDSResourceModifyRole(t *testing.T) {
 	var modifyRolefromsdsOnlytoall = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			  {
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -775,7 +776,7 @@ func TestSDSResourceModifyRole(t *testing.T) {
 				Config: ProviderConfigForTesting + addSDSIP,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", " + ProtectionDomainID + "),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
@@ -798,7 +799,7 @@ func TestSDSResourceModifyRole(t *testing.T) {
 				Config: ProviderConfigForTesting + modifyRolefromalltosdsOnly,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", " + ProtectionDomainID + "),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "sdsOnly",
@@ -817,7 +818,7 @@ func TestSDSResourceModifyRole(t *testing.T) {
 				Config: ProviderConfigForTesting + modifyRolefromsdsOnlytoall,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", " + ProtectionDomainID + "),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
@@ -836,7 +837,7 @@ func TestSDSResourceModifyRoleAddIP(t *testing.T) {
 	var addSDSSingleIP = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			{
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -848,7 +849,7 @@ func TestSDSResourceModifyRoleAddIP(t *testing.T) {
 	var modifyRolefromalltosdcOnlySingleIP = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			  {
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -860,7 +861,7 @@ func TestSDSResourceModifyRoleAddIP(t *testing.T) {
 	var modifyRolefromalltosdsOnlySingleIP = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			  {
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -872,7 +873,7 @@ func TestSDSResourceModifyRoleAddIP(t *testing.T) {
 	var addSDSIPWithRoleAll = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			  {
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -888,7 +889,7 @@ func TestSDSResourceModifyRoleAddIP(t *testing.T) {
 	var addSDSIPWithRolesdsOnly = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			  {
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -908,7 +909,7 @@ func TestSDSResourceModifyRoleAddIP(t *testing.T) {
 				Config: ProviderConfigForTesting + addSDSSingleIP,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", " + ProtectionDomainID + "),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
@@ -939,7 +940,7 @@ func TestSDSResourceAddIP(t *testing.T) {
 	var createSDSMandatoryParams = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			{
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -951,7 +952,7 @@ func TestSDSResourceAddIP(t *testing.T) {
 	var addSDSIP = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			{
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -967,7 +968,7 @@ func TestSDSResourceAddIP(t *testing.T) {
 	var addNonexistingSDSIP = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			  {
 					ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -991,7 +992,7 @@ func TestSDSResourceAddIP(t *testing.T) {
 	var addMoreThan8IP = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			  {
 					ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -1035,7 +1036,7 @@ func TestSDSResourceAddIP(t *testing.T) {
 	var addOccupiedSDSIP = `
 		resource "powerflex_sds" "sds_1" {
 			name = "Terraform_SDS_1"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			  {
 					ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -1048,7 +1049,7 @@ func TestSDSResourceAddIP(t *testing.T) {
 				powerflex_sds.sds_1
 			]
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			  {
 					ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -1080,7 +1081,7 @@ func TestSDSResourceAddIP(t *testing.T) {
 				Config: ProviderConfigForTesting + createSDSMandatoryParams,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", " + ProtectionDomainID + "),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
@@ -1141,7 +1142,7 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 	var addSDSIP = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			{
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -1157,7 +1158,7 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 	var modifyRolefromalltosdsOnly = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			{
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -1173,7 +1174,7 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 	var removesdcOnlyIP = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			  {
 				ip = "` + SdsResourceTestData.SdsIP1 + `"
@@ -1185,7 +1186,7 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 	var removesdsOnlyIP = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			  {
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -1197,7 +1198,7 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 	var removesdcOnlyIP1 = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			  {
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -1213,7 +1214,7 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 				Config: ProviderConfigForTesting + modifyRolefromalltosdsOnly,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", " + ProtectionDomainID + "),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "sdsOnly",
@@ -1236,7 +1237,7 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 				Config: ProviderConfigForTesting + addSDSIP,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", " + ProtectionDomainID + "),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
@@ -1251,7 +1252,7 @@ func TestSDSResourceRemoveIP(t *testing.T) {
 				Config: ProviderConfigForTesting + removesdcOnlyIP1,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", " + ProtectionDomainID + "),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   SdsResourceTestData.SdsIP2,
@@ -1282,7 +1283,7 @@ func TestSDSResourceModifyInvalid(t *testing.T) {
 		rmcache_size_in_mb = 156
 		rfcache_enabled = true
 		drl_mode = "NonVolatile"
-		protection_domain_id = "202a046600000000"
+		protection_domain_id = " + ProtectionDomainID + "
 	}
 	`
 	var rmcacheDisabled = `
@@ -1303,7 +1304,7 @@ func TestSDSResourceModifyInvalid(t *testing.T) {
 			rmcache_size_in_mb = 128
 			rfcache_enabled = true
 			drl_mode = "NonVolatile"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 		}
 		`
 	var invalidRMCacheMaxSize = `
@@ -1324,7 +1325,7 @@ func TestSDSResourceModifyInvalid(t *testing.T) {
 			rmcache_size_in_mb = 3912
 			rfcache_enabled = true
 			drl_mode = "NonVolatile"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 		}
 		`
 	var invalidRMCacheMinSize = `
@@ -1345,7 +1346,7 @@ func TestSDSResourceModifyInvalid(t *testing.T) {
 			rmcache_size_in_mb = 127
 			rfcache_enabled = true
 			drl_mode = "NonVolatile"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 		}
 		`
 	resource.Test(t, resource.TestCase{
@@ -1355,7 +1356,7 @@ func TestSDSResourceModifyInvalid(t *testing.T) {
 				Config: ProviderConfigForTesting + createSDSTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", " + ProtectionDomainID + "),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "2"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_size_in_mb", "156"),
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "true"),
@@ -1403,7 +1404,7 @@ func TestSDSResourceRename(t *testing.T) {
 	var createSDSMandatoryParams = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			{
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -1414,8 +1415,8 @@ func TestSDSResourceRename(t *testing.T) {
 		`
 	var renameSDSExistingName = `
 		resource "powerflex_sds" "sds" {
-			name = "SDS_10.247.100.214"
-			protection_domain_id = "202a046600000000"
+			name = "SDS_1"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			  {
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -1427,7 +1428,7 @@ func TestSDSResourceRename(t *testing.T) {
 	var renameSDSInvalidName = `
 		resource "powerflex_sds" "sds" {
 			name = "node 1"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			  {
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -1439,7 +1440,7 @@ func TestSDSResourceRename(t *testing.T) {
 	var renameSDS = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS_renamed"
-			protection_domain_id = "202a046600000000"
+			protection_domain_id = " + ProtectionDomainID + "
 			ip_list = [
 			  {
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -1455,7 +1456,7 @@ func TestSDSResourceRename(t *testing.T) {
 				Config: ProviderConfigForTesting + createSDSMandatoryParams,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", " + ProtectionDomainID + "),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
@@ -1474,7 +1475,7 @@ func TestSDSResourceRename(t *testing.T) {
 				Config: ProviderConfigForTesting + renameSDS,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS_renamed"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", " + ProtectionDomainID + "),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
 						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",
@@ -1488,7 +1489,7 @@ func TestSDSResourceRename(t *testing.T) {
 var addSDSInvalidRole = `
 resource "powerflex_sds" "sds" {
 	name = "Terraform_SDS"
-	protection_domain_id = "202a046600000000"
+	protection_domain_id = " + ProtectionDomainID + "
 	ip_list = [
       {
         ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -1508,7 +1509,7 @@ resource "powerflex_sds" "sds" {
 var addSDSWORole = `
 resource "powerflex_sds" "sds" {
 	name = "Terraform_SDS"
-	protection_domain_id = "202a046600000000"
+	protection_domain_id = " + ProtectionDomainID + "
 	ip_list = [
       {
         ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -1543,7 +1544,7 @@ resource "powerflex_sds" "sds" {
 	rmcache_size_in_mb = 128.2
 	rfcache_enabled = true
 	drl_mode = "NonVolatile"
-	protection_domain_id = "202a046600000000"
+	protection_domain_id = " + ProtectionDomainID + "
 }
 `
 
@@ -1565,7 +1566,7 @@ resource "powerflex_sds" "sds" {
 	rmcache_size_in_mb = 156
 	rfcache_enabled = Yess
 	drl_mode = "NonVolatile"
-	protection_domain_id = "202a046600000000"
+	protection_domain_id = " + ProtectionDomainID + "
 }
 `
 var invalidRMCache = `
@@ -1586,6 +1587,6 @@ resource "powerflex_sds" "sds" {
 	rmcache_size_in_mb = 156
 	rfcache_enabled = true
 	drl_mode = "NonVolatile"
-	protection_domain_id = "202a046600000000"
+	protection_domain_id = " + ProtectionDomainID + "
 }
 `
