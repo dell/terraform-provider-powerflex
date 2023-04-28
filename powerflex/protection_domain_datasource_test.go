@@ -158,7 +158,7 @@ func init() {
 	// retrieve protection domain by id
 	ProtectionDomainDataSourceConfig1 = `
 	data "powerflex_protection_domain" "pd1" {						
-		id = "` + protectiondomainTestData.id +`"
+		id = "` + protectiondomainTestData.id + `"
 	}
 	`
 	// retrieve protection domain by name
@@ -177,7 +177,7 @@ func init() {
 	ProtectionDomainDataSourceConfig4 = `
 	data "powerflex_protection_domain" "pd4" {
 		name = "domain1"
-		id = "` + protectiondomainTestData.id +`"
+		id = "` + protectiondomainTestData.id + `"
 	}
 	`
 
