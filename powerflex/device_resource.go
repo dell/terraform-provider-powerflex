@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+// DeviceModel defines the struct for device resource
 type DeviceModel struct {
 	ID                       types.String `tfsdk:"id"`
 	Name                     types.String `tfsdk:"name"`
