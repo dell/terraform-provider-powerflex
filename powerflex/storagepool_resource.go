@@ -579,7 +579,7 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 		errProtectedMaintenanceModeIoPriorityPolicy := pd.SetProtectedMaintenanceModeIoPriorityPolicy(spResponse.ID, protectedMaintenanceModeParam)
 		if errProtectedMaintenanceModeIoPriorityPolicy != nil {
 			resp.Diagnostics.AddError(
-				"Error while updating Protect Maintance Policy/NumOfConcurrentIosPerDevice/BwLimitPerDeviceInKbps of Storagepool", errProtectedMaintenanceModeIoPriorityPolicy.Error(),
+				"Error while updating Protect Maintenance Policy/NumOfConcurrentIosPerDevice/BwLimitPerDeviceInKbps of Storagepool", errProtectedMaintenanceModeIoPriorityPolicy.Error(),
 			)
 		}
 	}
