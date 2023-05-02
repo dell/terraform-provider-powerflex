@@ -164,6 +164,8 @@ func TestAccPDResource(t *testing.T) {
 				Config: ProviderConfigForTesting + createPDTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", "test_acc_pd_1"),
+					resource.TestCheckResourceAttr(resourceName, "active", "true"),
+					resource.TestCheckResourceAttr(resourceName, "rf_cache_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "rebuild_network_throttling_in_kbps", "0"),
 					resource.TestCheckResourceAttr(resourceName, "rebalance_network_throttling_in_kbps", "0"),
 					resource.TestCheckResourceAttr(resourceName, "vtree_migration_network_throttling_in_kbps", "0"),
