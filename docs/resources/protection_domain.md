@@ -76,7 +76,7 @@ resource "powerflex_protection_domain" "pd" {
 - `protected_maintenance_mode_network_throttling_in_kbps` (Number) Maximum allowed IO for protected maintenance mode in KBps. The value `0` represents unlimited bandwidth. The default value is `0`.
 - `rebalance_network_throttling_in_kbps` (Number) Maximum allowed IO for rebalancing in KBps. The value `0` represents unlimited bandwidth. The default value is `0`.
 - `rebuild_network_throttling_in_kbps` (Number) Maximum allowed IO for rebuilding in KBps. The value `0` represents unlimited bandwidth. The default value is `0`.
-- `rf_cache_enabled` (Boolean) Whether SDS Rf Cache is enabled or not.
+- `rf_cache_enabled` (Boolean) Whether SDS Rf Cache is enabled or not. Default value is `true`.
 - `rf_cache_max_io_size_kb` (Number) Maximum IO of the SDS RF Cache in KB. Can be set only when `rf_cache_enabled` is set to `true`.
 - `rf_cache_operational_mode` (String) Operational Mode of the SDS RF Cache. Accepted values are `Read`, `Write`, `ReadAndWrite` and `WriteMiss`. Can be set only when `rf_cache_enabled` is set to `true`.
 - `rf_cache_page_size_kb` (Number) Page size of the SDS RF Cache in KB. Can be set only when `rf_cache_enabled` is set to `true`.

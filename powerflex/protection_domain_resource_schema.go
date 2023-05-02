@@ -50,11 +50,12 @@ var ProtectionDomainResourceSchema schema.Schema = schema.Schema{
 			Computed:            true,
 		},
 		"rf_cache_enabled": schema.BoolAttribute{
-			Description:         "Whether SDS Rf Cache is enabled or not.",
-			MarkdownDescription: "Whether SDS Rf Cache is enabled or not.",
+			Description:         "Whether SDS Rf Cache is enabled or not. Default value is 'true'.",
+			MarkdownDescription: "Whether SDS Rf Cache is enabled or not. Default value is `true`.",
 			Computed:            true,
 			Optional:            true,
 			PlanModifiers: []planmodifier.Bool{
+				boolDefault(true),
 				boolplanmodifier.UseStateForUnknown(),
 			},
 		},
