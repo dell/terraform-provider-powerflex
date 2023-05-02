@@ -378,12 +378,12 @@ func TestAccStoragePoolResourceUpdate(t *testing.T) {
 	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps:                    []resource.TestStep{
+		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + CreateUpdateStoragePoolWithAllAttributesConfig1,
 			},
 			{
-				Config:      ProviderConfigForTesting + UpdateStoragePoolWithAllAttributesConfig1,
+				Config: ProviderConfigForTesting + UpdateStoragePoolWithAllAttributesConfig1,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "name", "storagepool3"),
 					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "media_type", "HDD"),
