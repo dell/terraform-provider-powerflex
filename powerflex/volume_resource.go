@@ -597,13 +597,8 @@ func (r *volumeResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	volresource := goscaleio.NewVolume(r.client)
 	volresource.Volume = volsplan[0]
 
-	sdcsToUnmap := []SDCItemize{}
-	//unmarshall the tfsdk sdclist type to go sdclist type
-	diags = state.SdcList.ElementsAs(ctx, &sdcsToUnmap, true)
-	resp.Diagnostics.Append(diags...)
-
-	// reterival of sdc id from sdcsToUnmap slice of struct SDCItemize and performing unmap operation.
-	for _, stu := range sdcsToUnmap {
+	// performing unmap operation
+	for _, stu := range volsplan[0].MappedSdcInfo {
 		err := volresource.UnmapVolumeSdc(
 			&pftypes.UnmapVolumeSdcParam{
 				SdcID: stu.SdcID,
@@ -612,7 +607,7 @@ func (r *volumeResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error Unmapping Volume to SDCs",
-				"Couldn't unmap volume to scs with id: "+stu.SdcID+", unexpected error: "+err.Error(),
+				"Couldn't unmap volume to SDC with id: "+stu.SdcID+", unexpected error: "+err.Error(),
 			)
 			return
 		}
