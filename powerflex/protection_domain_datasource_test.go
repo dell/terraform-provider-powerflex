@@ -20,7 +20,7 @@ type pdDataPoints struct {
 }
 
 var protectiondomainTestData pdDataPoints = pdDataPoints{
-	id:    "4eeb304600000000",
+	id:    "202a046600000000",
 	name:  "domain1",
 	name2: "domain2",
 	name3: "domain_1",
@@ -158,7 +158,7 @@ func init() {
 	// retrieve protection domain by id
 	ProtectionDomainDataSourceConfig1 = `
 	data "powerflex_protection_domain" "pd1" {						
-		id = "4eeb304600000000"
+		id = "202a046600000000"
 	}
 	`
 	// retrieve protection domain by name
@@ -177,7 +177,7 @@ func init() {
 	ProtectionDomainDataSourceConfig4 = `
 	data "powerflex_protection_domain" "pd4" {
 		name = "domain1"
-		id = "4eeb304600000000"
+		id = "202a046600000000"
 	}
 	`
 

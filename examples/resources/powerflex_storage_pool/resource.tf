@@ -8,7 +8,7 @@
 
 resource "powerflex_storage_pool" "sp" {
   name = "storagepool3"
-  #protection_domain_id = "4eeb304600000000"
+  #protection_domain_id = "202a046600000000"
   protection_domain_name = "domain1"
   media_type             = "HDD"
   use_rmcache            = false
