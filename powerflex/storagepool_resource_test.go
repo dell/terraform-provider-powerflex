@@ -823,7 +823,7 @@ resource "powerflex_storage_pool" "sp3cache" {
 	media_type  = "HDD"
 	use_rfcache = true 
 	use_rmcache = true
-	replication_journal_capacity = 8
+	// replication_journal_capacity = 8
 	rebuild_enabled = true
 }
 `

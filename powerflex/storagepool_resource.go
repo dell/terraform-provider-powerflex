@@ -552,7 +552,7 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 		errZeroPaddingEnabled := pd.EnableOrDisableZeroPadding(spResponse.ID, plan.ZeroPaddingEnabled.String())
 		if errZeroPaddingEnabled != nil {
 			resp.Diagnostics.AddError(
-				"Error while updating ZeroPaddingEnabled of Storagepool", errZeroPaddingEnabled.Error(),
+				"Error while updating ZeroPadding settings of Storagepool", errZeroPaddingEnabled.Error(),
 			)
 		}
 	}
@@ -579,7 +579,7 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 		errSetCapacityAlertThreshold := pd.SetCapacityAlertThreshold(spResponse.ID, capacityAlertThresholdParam)
 		if errSetCapacityAlertThreshold != nil {
 			resp.Diagnostics.AddError(
-				"Error while updating SetCapacityAlertThreshold[High/Critical] of Storagepool", errSetCapacityAlertThreshold.Error(),
+				"Error while updating Capacity Alert Thresholds of Storagepool", errSetCapacityAlertThreshold.Error(),
 			)
 		}
 	}
@@ -638,7 +638,7 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 		errRebalanceIoPrioritypolicy := pd.SetRebalanceIoPriorityPolicy(spResponse.ID, rebalanceIoPriorityPolicy)
 		if errRebalanceIoPrioritypolicy != nil {
 			resp.Diagnostics.AddError(
-				"Error while updating Reblance Policy/NumOfConcurrentIosPerDevice/BwLimitPerDeviceInKbps of Storagepool", errRebalanceIoPrioritypolicy.Error(),
+				"Error while updating Rebalance Policy/NumOfConcurrentIosPerDevice/BwLimitPerDeviceInKbps of Storagepool", errRebalanceIoPrioritypolicy.Error(),
 			)
 		}
 	}
@@ -672,7 +672,7 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 		errSparePercentage := pd.SetSparePercentage(spResponse.ID, strconv.FormatInt(plan.SparePercentage.ValueInt64(), 10))
 		if errSparePercentage != nil {
 			resp.Diagnostics.AddError(
-				"Error while Update SparePercentage of Storagepool", errSparePercentage.Error(),
+				"Error while updating SparePercentage of Storagepool", errSparePercentage.Error(),
 			)
 		}
 	}
@@ -683,7 +683,7 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 		errRmCacheWriteHandlingMode := pd.SetRMcacheWriteHandlingMode(spResponse.ID, plan.RmCacheWriteHandlingMode.ValueString())
 		if errRmCacheWriteHandlingMode != nil {
 			resp.Diagnostics.AddError(
-				"Error while Update RmCacheWriteHandlingMode of Storagepool", errRmCacheWriteHandlingMode.Error(),
+				"Error while updating RmCacheWriteHandlingMode of Storagepool", errRmCacheWriteHandlingMode.Error(),
 			)
 		}
 	}
@@ -694,7 +694,7 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 		errRebuildEnabled := pd.SetRebuildEnabled(spResponse.ID, plan.RebuildEnabled.String())
 		if errRebuildEnabled != nil {
 			resp.Diagnostics.AddError(
-				"Error while Update errRebuildEnabled of Storagepool", errRebuildEnabled.Error(),
+				"Error while updating RebuildEnabled of Storagepool", errRebuildEnabled.Error(),
 			)
 		}
 	}
@@ -705,7 +705,7 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 		errRebuildRebalanceParallelism := pd.SetRebuildRebalanceParallelismParam(spResponse.ID, strconv.FormatInt(plan.RebuildRebalanceParallelism.ValueInt64(), 10))
 		if errRebuildRebalanceParallelism != nil {
 			resp.Diagnostics.AddError(
-				"Error while Update RebuildRebalanceParallelism of Storagepool", errRebuildRebalanceParallelism.Error(),
+				"Error updating RebuildRebalanceParallelism settings of Storagepool", errRebuildRebalanceParallelism.Error(),
 			)
 		}
 	}
@@ -716,7 +716,7 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 		errFragmentation := pd.Fragmentation(spResponse.ID, plan.Fragmentation.ValueBool())
 		if errFragmentation != nil {
 			resp.Diagnostics.AddError(
-				"Error while Update errFragmentation of Storagepool", errFragmentation.Error(),
+				"Error updating Fragmentation settings of Storagepool", errFragmentation.Error(),
 			)
 		}
 	}
