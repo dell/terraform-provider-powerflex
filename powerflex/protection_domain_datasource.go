@@ -172,25 +172,10 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 	resp.Diagnostics.Append(diags...)
 	tflog.Info(ctx, "[POWERFLEX] protectionDomainDataSourceModel"+helper.PrettyJSON((state)))
 
-	systems, err := d.client.GetSystems()
+	system, err := getFirstSystem(d.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex Systems",
-			err.Error(),
-		)
-		return
-	}
-	if numSys := len((systems)); numSys == 0 {
-		resp.Diagnostics.AddError("No systems found", "")
-		return
-	} else if numSys > 1 {
-		resp.Diagnostics.AddError("More than one system found", "")
-		return
-	}
-	system, err := d.client.FindSystem(systems[0].ID, "", "")
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex Protection Domains",
+			"Unable to Read Powerflex System",
 			err.Error(),
 		)
 		return
