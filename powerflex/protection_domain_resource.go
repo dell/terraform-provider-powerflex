@@ -182,7 +182,6 @@ func (d *protectionDomainResource) Read(ctx context.Context, req resource.ReadRe
 	}
 
 	// Fetch protection domain of given id
-	// d.ConfigurePdClient(state.ID.ValueString())
 	resp.Diagnostics.Append(d.ConfigurePdState(ctx, state)...)
 	newState, err := d.ReadByID()
 	if err != nil {
@@ -216,7 +215,7 @@ func (d *protectionDomainResource) Create(ctx context.Context, req resource.Crea
 		)
 		return
 	}
-	// d.ConfigurePdClient(id)
+
 	resp.Diagnostics.Append(d.ConfigurePdState(ctx, protectionDomainResourceModel{
 		ID: types.StringValue(id),
 	})...)
@@ -300,11 +299,7 @@ func (d *protectionDomainResource) Delete(ctx context.Context, req resource.Dele
 		return
 	}
 
-	// id := state.ID.ValueString()
-	// d.ConfigurePdClient(id)
 	resp.Diagnostics.Append(d.ConfigurePdState(ctx, state)...)
-	// d.pdClient.ProtectionDomain.Links, diags = getLinksFromTfList(ctx, state.Links)
-	// resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -518,7 +513,7 @@ func (d *protectionDomainResource) UpdateRfCache(ctx context.Context, plan, stat
 	return dia
 }
 
-// UpdateResource is a common function called on create and update of pd to update its IOPS params
+// UpdateIopsLimits is a common function called on create and update of pd to update its IOPS params
 func (d *protectionDomainResource) UpdateIopsLimits(ctx context.Context, plan, state protectionDomainResourceModel) (dia diag.Diagnostics) {
 	pd := d.pdClient
 	// SDS IOPS params

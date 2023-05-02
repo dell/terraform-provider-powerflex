@@ -17,6 +17,7 @@ func TestAccPDResource(t *testing.T) {
 		name = "test_acc_pd_1"
 	}
 	`
+	// too many characters in the name
 	updatePDNameTestNeg := `
 	resource "powerflex_protection_domain" "pd" {
 		name = "test_acc_pd**********%^$()@!#$%~5555555555555555555555555555555555555555555555"
@@ -136,6 +137,7 @@ func TestAccPDResource(t *testing.T) {
 	}
 	`
 
+	// rf cache params cannot be set when rf cache is not enabled
 	updatePDRfCacheDisableTestNeg := `
 	resource "powerflex_protection_domain" "pd" {
 		name = "test_acc_pd_1"
