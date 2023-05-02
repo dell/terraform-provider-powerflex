@@ -320,7 +320,7 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		err := pd.SetRebalanceEnabled(sp, plan.RebalanceEnabled.String())
 		if err != nil {
 			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set rebalnace enabled to %s", plan.RebalanceEnabled.String()),
+				fmt.Sprintf("Could not set rebalance enabled to %s", plan.RebalanceEnabled.String()),
 				err.Error(),
 			)
 		}
@@ -546,6 +546,181 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 		}
 	}
 
+	if !plan.ZeroPaddingEnabled.IsNull() && 
+	!plan.ZeroPaddingEnabled.IsUnknown() && 
+	!state.ZeroPaddingEnabled.Equal(plan.ZeroPaddingEnabled) {
+		errZeroPaddingEnabled := pd.EnableOrDisableZeroPadding(spResponse.ID, plan.ZeroPaddingEnabled.String())
+		if errZeroPaddingEnabled != nil {
+			resp.Diagnostics.AddError(
+				"Error while updating ZeroPaddingEnabled of Storagepool", errZeroPaddingEnabled.Error(),
+			)
+		}
+	}
+
+	if !plan.ReplicationJournalCapacity.IsNull() && 
+	!plan.ReplicationJournalCapacity.IsUnknown() && 
+	!state.ReplicationJournalCapacity.Equal(plan.ReplicationJournalCapacity) {
+		errReplicationJournalCapacity := pd.SetReplicationJournalCapacity(spResponse.ID, strconv.FormatInt(plan.ReplicationJournalCapacity.ValueInt64(), 10))
+		if errReplicationJournalCapacity != nil {
+			resp.Diagnostics.AddError(
+				"Error while updating ReplicationJournalCapacity of Storagepool", errReplicationJournalCapacity.Error(),
+			)
+		}
+	}
+
+	if((!plan.CapacityAlertHighThreshold.IsUnknown() && !plan.CapacityAlertHighThreshold.IsNull()) ||
+	(!plan.CapacityAlertCriticalThreshold.IsUnknown() && !plan.CapacityAlertCriticalThreshold.IsNull())) &&
+	(!state.CapacityAlertHighThreshold.Equal(plan.CapacityAlertHighThreshold) ||
+	!state.CapacityAlertCriticalThreshold.Equal(plan.CapacityAlertCriticalThreshold)) {
+		capacityAlertThresholdParam := &scaleiotypes.CapacityAlertThresholdParam{
+			CapacityAlertHighThresholdPercent:     strconv.FormatInt(plan.CapacityAlertHighThreshold.ValueInt64(), 10),
+			CapacityAlertCriticalThresholdPercent: strconv.FormatInt(plan.CapacityAlertCriticalThreshold.ValueInt64(), 10),
+		}
+		errSetCapacityAlertThreshold := pd.SetCapacityAlertThreshold(spResponse.ID, capacityAlertThresholdParam)
+		if errSetCapacityAlertThreshold != nil {
+			resp.Diagnostics.AddError(
+				"Error while updating SetCapacityAlertThreshold[High/Critical] of Storagepool", errSetCapacityAlertThreshold.Error(),
+			)
+		}
+	}
+
+	if ((!plan.ProtectedMaintenanceModeIoPriorityPolicy.IsUnknown() && !plan.ProtectedMaintenanceModeIoPriorityPolicy.IsNull()) ||
+	(!plan.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.IsUnknown() && !plan.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.IsNull()) ||
+	(!plan.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.IsUnknown() && !plan.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.IsNull())) &&
+	(!state.ProtectedMaintenanceModeIoPriorityPolicy.Equal(plan.ProtectedMaintenanceModeIoPriorityPolicy) ||
+		!state.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.Equal(plan.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice) ||
+		!state.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.Equal(plan.ProtectedMaintenanceModeBwLimitPerDeviceInKbps)) {
+		protectedMaintenanceModeParam := &scaleiotypes.ProtectedMaintenanceModeParam{
+			Policy: plan.ProtectedMaintenanceModeIoPriorityPolicy.ValueString(),
+		}
+		// when the value is null or unknown the below line will return 0 and if it's 0 then we don't need to add it to the payload
+		if strconv.FormatInt(plan.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.ValueInt64(), 10) != "0" {
+			protectedMaintenanceModeParam.NumOfConcurrentIosPerDevice = strconv.FormatInt(plan.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.ValueInt64(), 10)
+		}
+		if strconv.FormatInt(plan.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.ValueInt64(), 10) != "0" {
+			protectedMaintenanceModeParam.BwLimitPerDeviceInKbps = strconv.FormatInt(plan.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.ValueInt64(), 10)
+		}
+		errProtectedMaintenanceModeIoPriorityPolicy := pd.SetProtectedMaintenanceModeIoPriorityPolicy(spResponse.ID, protectedMaintenanceModeParam)
+		if errProtectedMaintenanceModeIoPriorityPolicy != nil {
+			resp.Diagnostics.AddError(
+				"Error while updating Protect Maintance Policy/NumOfConcurrentIosPerDevice/BwLimitPerDeviceInKbps of Storagepool", errProtectedMaintenanceModeIoPriorityPolicy.Error(),
+			)
+		}
+	}
+
+	if !plan.RebalanceEnabled.IsUnknown() && 
+	!plan.RebalanceEnabled.IsNull() &&
+	!state.RebalanceEnabled.Equal(plan.RebalanceEnabled) {
+		err := pd.SetRebalanceEnabled(spResponse.ID, plan.RebalanceEnabled.String())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Error while updating rebalance enabled to %s", plan.RebalanceEnabled.String()),
+				err.Error(),
+			)
+		}
+	}
+
+	if ((!plan.RebalanceIoPriorityPolicy.IsUnknown() && !plan.RebalanceIoPriorityPolicy.IsNull()) ||
+	(!plan.RebalanceNumOfConcurrentIosPerDevice.IsUnknown() && !plan.RebalanceNumOfConcurrentIosPerDevice.IsNull()) ||
+	(!plan.RebalanceBwLimitPerDeviceInKbps.IsUnknown() && !plan.RebalanceBwLimitPerDeviceInKbps.IsNull())) &&
+	(!state.RebalanceIoPriorityPolicy.Equal(plan.RebalanceIoPriorityPolicy) ||
+		!state.RebalanceNumOfConcurrentIosPerDevice.Equal(plan.RebalanceNumOfConcurrentIosPerDevice) ||
+		!state.RebalanceBwLimitPerDeviceInKbps.Equal(plan.RebalanceBwLimitPerDeviceInKbps)) {
+		rebalanceIoPriorityPolicy := &scaleiotypes.ProtectedMaintenanceModeParam{
+			Policy: plan.RebalanceIoPriorityPolicy.ValueString(),
+		}
+		if strconv.FormatInt(plan.RebalanceNumOfConcurrentIosPerDevice.ValueInt64(), 10) != "0" {
+			rebalanceIoPriorityPolicy.NumOfConcurrentIosPerDevice = strconv.FormatInt(plan.RebalanceNumOfConcurrentIosPerDevice.ValueInt64(), 10)
+		}
+		if strconv.FormatInt(plan.RebalanceBwLimitPerDeviceInKbps.ValueInt64(), 10) != "0" {
+			rebalanceIoPriorityPolicy.BwLimitPerDeviceInKbps = strconv.FormatInt(plan.RebalanceBwLimitPerDeviceInKbps.ValueInt64(), 10)
+		}
+		errRebalanceIoPrioritypolicy := pd.SetRebalanceIoPriorityPolicy(spResponse.ID, rebalanceIoPriorityPolicy)
+		if errRebalanceIoPrioritypolicy != nil {
+			resp.Diagnostics.AddError(
+				"Error while updating Reblance Policy/NumOfConcurrentIosPerDevice/BwLimitPerDeviceInKbps of Storagepool", errRebalanceIoPrioritypolicy.Error(),
+			)
+		}
+	}
+
+	if ((!plan.VtreeMigrationIoPriorityPolicy.IsUnknown() && !plan.VtreeMigrationIoPriorityPolicy.IsNull()) ||
+	(!plan.VtreeMigrationNumOfConcurrentIosPerDevice.IsUnknown() && !plan.VtreeMigrationNumOfConcurrentIosPerDevice.IsNull()) ||
+	(!plan.VtreeMigrationBwLimitPerDeviceInKbps.IsUnknown() && !plan.VtreeMigrationBwLimitPerDeviceInKbps.IsNull())) &&
+	(!state.VtreeMigrationIoPriorityPolicy.Equal(plan.VtreeMigrationIoPriorityPolicy) ||
+		!state.VtreeMigrationNumOfConcurrentIosPerDevice.Equal(plan.VtreeMigrationNumOfConcurrentIosPerDevice) ||
+		!state.VtreeMigrationBwLimitPerDeviceInKbps.Equal(plan.VtreeMigrationBwLimitPerDeviceInKbps)) {
+		vtreeMigrationPolicy := &scaleiotypes.ProtectedMaintenanceModeParam{
+			Policy: plan.VtreeMigrationIoPriorityPolicy.ValueString(),
+		}
+		if strconv.FormatInt(plan.VtreeMigrationNumOfConcurrentIosPerDevice.ValueInt64(), 10) != "0" {
+			vtreeMigrationPolicy.NumOfConcurrentIosPerDevice = strconv.FormatInt(plan.VtreeMigrationNumOfConcurrentIosPerDevice.ValueInt64(), 10)
+		}
+		if strconv.FormatInt(plan.VtreeMigrationBwLimitPerDeviceInKbps.ValueInt64(), 10) != "0" {
+			vtreeMigrationPolicy.BwLimitPerDeviceInKbps = strconv.FormatInt(plan.VtreeMigrationBwLimitPerDeviceInKbps.ValueInt64(), 10)
+		}
+		errVtreeMigrationIoPriorityPolicy := pd.SetVTreeMigrationIOPriorityPolicy(spResponse.ID, vtreeMigrationPolicy)
+		if errVtreeMigrationIoPriorityPolicy != nil {
+			resp.Diagnostics.AddError(
+				"Error while updating Vtree Migration Policy/NumOfConcurrentIosPerDevice/BwLimitPerDeviceInKbps of Storagepool", errVtreeMigrationIoPriorityPolicy.Error(),
+			)
+		}
+	}
+
+	if !plan.SparePercentage.IsUnknown() && 
+	!plan.SparePercentage.IsNull() &&
+	!state.SparePercentage.Equal(plan.SparePercentage) {
+		errSparePercentage := pd.SetSparePercentage(spResponse.ID, strconv.FormatInt(plan.SparePercentage.ValueInt64(), 10))
+		if errSparePercentage != nil {
+			resp.Diagnostics.AddError(
+				"Error while Update SparePercentage of Storagepool", errSparePercentage.Error(),
+			)
+		}
+	}
+
+	if !plan.RmCacheWriteHandlingMode.IsUnknown() && 
+	!plan.RmCacheWriteHandlingMode.IsNull() &&
+	 !state.RmCacheWriteHandlingMode.Equal(plan.RmCacheWriteHandlingMode) {
+		errRmCacheWriteHandlingMode := pd.SetRMcacheWriteHandlingMode(spResponse.ID, plan.RmCacheWriteHandlingMode.ValueString())
+		if errRmCacheWriteHandlingMode != nil {
+			resp.Diagnostics.AddError(
+				"Error while Update RmCacheWriteHandlingMode of Storagepool", errRmCacheWriteHandlingMode.Error(),
+			)
+		}
+	}
+
+	if !plan.RebuildEnabled.IsUnknown() && 
+	!plan.RebuildEnabled.IsNull() &&
+	!state.RebuildEnabled.Equal(plan.RebuildEnabled) {
+		errRebuildEnabled := pd.SetRebuildEnabled(spResponse.ID, plan.RebuildEnabled.String())
+		if errRebuildEnabled != nil {
+			resp.Diagnostics.AddError(
+				"Error while Update errRebuildEnabled of Storagepool", errRebuildEnabled.Error(),
+			)
+		}
+	}
+
+	if !plan.RebuildRebalanceParallelism.IsUnknown() && 
+	!plan.RebuildRebalanceParallelism.IsNull() &&
+	!state.RebuildRebalanceParallelism.Equal(plan.RebuildRebalanceParallelism) {
+		errRebuildRebalanceParallelism := pd.SetRebuildRebalanceParallelismParam(spResponse.ID, strconv.FormatInt(plan.RebuildRebalanceParallelism.ValueInt64(), 10))
+		if errRebuildRebalanceParallelism != nil {
+			resp.Diagnostics.AddError(
+				"Error while Update RebuildRebalanceParallelism of Storagepool", errRebuildRebalanceParallelism.Error(),
+			)
+		}
+	}
+
+	if !plan.Fragmentation.IsUnknown() && 
+	!plan.Fragmentation.IsNull() &&
+	!state.Fragmentation.Equal(plan.Fragmentation) {
+		errFragmentation := pd.Fragmentation(spResponse.ID, plan.Fragmentation.ValueBool())
+		if errFragmentation != nil {
+			resp.Diagnostics.AddError(
+				"Error while Update errFragmentation of Storagepool", errFragmentation.Error(),
+			)
+		}
+	}
+
 	if err1 != nil {
 		resp.Diagnostics.AddError(
 			"Error while updating rf_cache of Storagepool", err.Error(),
@@ -588,6 +763,23 @@ func (r *storagepoolResource) Delete(ctx context.Context, req resource.DeleteReq
 			"Could not get Protection Domain, unexpected err: "+err.Error(),
 		)
 		return
+	}
+
+	spResponse, err := pd.FindStoragePool(state.ID.ValueString(), "", "")
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error while getting Storagepool", err.Error(),
+		)
+		return
+	}
+
+	if state.ReplicationJournalCapacity.IsNull() || state.ReplicationJournalCapacity.ValueInt64() != 0 {
+		errReplicationJournalCapacity := pd.SetReplicationJournalCapacity(spResponse.ID, strconv.FormatInt(0, 10))
+		if errReplicationJournalCapacity != nil {
+			resp.Diagnostics.AddError(
+				"Error while setting ReplicationJournalCapacity of Storagepool to 0", errReplicationJournalCapacity.Error(),
+			)
+		}
 	}
 
 	err = pd.DeleteStoragePool(state.Name.ValueString())

@@ -239,6 +239,30 @@ func TestAccStoragepoolResourceInvalidConfig(t *testing.T) {
 				Config:      ProviderConfigForTesting + CreateStoragePoolWithInvalidConfig4,
 				ExpectError: regexp.MustCompile(`.*rm_cache_write_handling_mode cannot be specified.*`),
 			},
+			{
+				Config:      ProviderConfigForTesting + CreateStoragePoolWithInvalidConfig5,
+				ExpectError: regexp.MustCompile(`.*Attribute Error.*`),
+			},
+			{
+				Config:      ProviderConfigForTesting + CreateStoragePoolWithInvalidConfig6,
+				ExpectError: regexp.MustCompile(`.*Attribute Error.*`),
+			},
+			{
+				Config:      ProviderConfigForTesting + CreateStoragePoolWithInvalidConfig7,
+				ExpectError: regexp.MustCompile(`.*Attribute Error.*`),
+			},
+			{
+				Config:      ProviderConfigForTesting + CreateStoragePoolWithInvalidConfig8,
+				ExpectError: regexp.MustCompile(`.*Attribute Error.*`),
+			},
+			{
+				Config:      ProviderConfigForTesting + CreateStoragePoolWithInvalidConfig9,
+				ExpectError: regexp.MustCompile(`.*Attribute Error.*`),
+			},
+			{
+				Config:      ProviderConfigForTesting + CreateStoragePoolWithInvalidConfig10,
+				ExpectError: regexp.MustCompile(`.*Attribute Error.*`),
+			},
 		},
 	})
 }
@@ -346,6 +370,84 @@ func TestAccStoragepoolResourceInvalidAttributesValue(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccStoragePoolResourceUpdate(t *testing.T) {
+	if os.Getenv("TF_ACC") == "" {
+		t.Skip("Dont run with units tests because it will try to create the context")
+	}
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps:                    []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + CreateUpdateStoragePoolWithAllAttributesConfig1,
+			},
+			{
+				Config:      ProviderConfigForTesting + UpdateStoragePoolWithAllAttributesConfig1,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "name", "storagepool3"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "media_type", "HDD"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "use_rmcache", "true"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "use_rfcache", "false"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "zero_padding_enabled", "true"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "capacity_alert_high_threshold", "69"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "capacity_alert_critical_threshold", "72"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "protected_maintenance_mode_io_priority_policy", "favorAppIos"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "protected_maintenance_mode_num_of_concurrent_ios_per_device", "9"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "protected_maintenance_mode_bw_limit_per_device_in_kbps", "2042"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "rebalance_enabled", "true"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "rebalance_io_priority_policy", "favorAppIos"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "rebalance_num_of_concurrent_ios_per_device", "9"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "rebalance_bw_limit_per_device_in_kbps", "2047"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "vtree_migration_io_priority_policy", "favorAppIos"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "vtree_migration_num_of_concurrent_ios_per_device", "7"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "vtree_migration_bw_limit_per_device_in_kbps", "1803"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "spare_percentage", "77"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "rm_cache_write_handling_mode", "Cached"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "rebuild_rebalance_parallelism", "10"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "fragmentation", "true"),
+				),
+			},
+			{
+				Config: ProviderConfigForTesting + UpdateateStoragePoolWithAllAttributesConfig2,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "name", "storagepool5"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "media_type", "SSD"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "use_rmcache", "true"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "use_rfcache", "false"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "zero_padding_enabled", "true"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "capacity_alert_high_threshold", "66"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "capacity_alert_critical_threshold", "77"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "protected_maintenance_mode_io_priority_policy", "limitNumOfConcurrentIos"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "protected_maintenance_mode_num_of_concurrent_ios_per_device", "9"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "rebalance_enabled", "true"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "rebalance_io_priority_policy", "limitNumOfConcurrentIos"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "rebalance_num_of_concurrent_ios_per_device", "8"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "vtree_migration_io_priority_policy", "limitNumOfConcurrentIos"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "vtree_migration_num_of_concurrent_ios_per_device", "10"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "spare_percentage", "66"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "rm_cache_write_handling_mode", "Cached"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "rebuild_rebalance_parallelism", "6"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3", "fragmentation", "true"),
+				),
+			},
+			{
+				Config: ProviderConfigForTesting + CreateUpdateStoragePoolCacheAttribute,
+			},
+			{
+				Config: ProviderConfigForTesting + UpdateStoragePoolCacheAttribute,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3cache", "name", "storagepool6"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3cache", "media_type", "HDD"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3cache", "use_rmcache", "true"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3cache", "use_rfcache", "true"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3cache", "replication_journal_capacity", "8"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3cache", "rebuild_enabled", "true"),
+				),
+			},
+		},
+	},
+	)
 }
 
 var StoragePoolResourceCreate = `
@@ -460,6 +562,69 @@ resource "powerflex_storage_pool" "sp4" {
   }
 `
 
+var CreateStoragePoolWithInvalidConfig5 = `
+resource "powerflex_storage_pool" "sp5" {
+	name                 = "storagepool5"
+	protection_domain_name = "domain1"
+	media_type  = "HDD"
+	protected_maintenance_mode_io_priority_policy = "unlimited"
+	protected_maintenance_mode_num_of_concurrent_ios_per_device = 7
+	protected_maintenance_mode_bw_limit_per_device_in_kbps = 1028
+  }
+`
+
+var CreateStoragePoolWithInvalidConfig6 = `
+resource "powerflex_storage_pool" "sp6" {
+	name                 = "storagepool6"
+	protection_domain_name = "domain1"
+	media_type  = "HDD"
+	rebalance_io_priority_policy = "unlimited"
+  	rebalance_num_of_concurrent_ios_per_device = 7
+  	rebalance_bw_limit_per_device_in_kbps = 1032
+  }
+`
+
+var CreateStoragePoolWithInvalidConfig7 = `
+resource "powerflex_storage_pool" "sp7" {
+	name                 = "storagepool7"
+	protection_domain_name = "domain1"
+	media_type  = "HDD"
+	vtree_migration_io_priority_policy = "unlimited"
+  	vtree_migration_num_of_concurrent_ios_per_device = 7
+  	vtree_migration_bw_limit_per_device_in_kbps = 1030
+  }
+`
+
+var CreateStoragePoolWithInvalidConfig8 = `
+resource "powerflex_storage_pool" "sp8" {
+	name                 = "storagepool8"
+	protection_domain_name = "domain1"
+	media_type  = "HDD"
+	protected_maintenance_mode_num_of_concurrent_ios_per_device = 7
+	protected_maintenance_mode_bw_limit_per_device_in_kbps = 1028
+  }
+`
+
+var CreateStoragePoolWithInvalidConfig9 = `
+resource "powerflex_storage_pool" "sp9" {
+	name                 = "storagepool9"
+	protection_domain_name = "domain1"
+	media_type  = "HDD"
+	rebalance_num_of_concurrent_ios_per_device = 7
+	rebalance_bw_limit_per_device_in_kbps = 1032
+  }
+`
+
+var CreateStoragePoolWithInvalidConfig10 = `
+resource "powerflex_storage_pool" "sp10" {
+	name                 = "storagepool10"
+	protection_domain_name = "domain1"
+	media_type  = "HDD"
+	vtree_migration_num_of_concurrent_ios_per_device = 7
+	vtree_migration_bw_limit_per_device_in_kbps = 1030
+  }
+`
+
 // Note: I'm not testing replication_journal_capacity because it needs some changes in the delete functionality
 var CreateStoragePoolWithAllAttributesConfig1 = `
 resource "powerflex_storage_pool" "sp1" {
@@ -557,4 +722,108 @@ resource "powerflex_storage_pool" "sp4" {
 	vtree_migration_num_of_concurrent_ios_per_device = 7
 	vtree_migration_bw_limit_per_device_in_kbps = 1030
   }
+`
+
+var CreateUpdateStoragePoolWithAllAttributesConfig1 = `
+resource "powerflex_storage_pool" "sp3" {
+	name                 = "storagepool3"
+	protection_domain_name = "domain1"
+	media_type  = "HDD"
+	capacity_alert_high_threshold = 66
+	capacity_alert_critical_threshold = 77
+	zero_padding_enabled = false
+	protected_maintenance_mode_io_priority_policy = "favorAppIos"
+	protected_maintenance_mode_num_of_concurrent_ios_per_device = 7
+	protected_maintenance_mode_bw_limit_per_device_in_kbps = 1028
+	rebalance_enabled = false
+	use_rmcache = true
+	use_rfcache = true
+	rebalance_io_priority_policy = "favorAppIos"
+	rebalance_num_of_concurrent_ios_per_device = 7
+	rebalance_bw_limit_per_device_in_kbps = 1032
+	vtree_migration_io_priority_policy = "favorAppIos"
+	vtree_migration_num_of_concurrent_ios_per_device = 7
+	vtree_migration_bw_limit_per_device_in_kbps = 1030
+	spare_percentage = 66
+	rm_cache_write_handling_mode = "Passthrough"
+	rebuild_enabled = true
+	rebuild_rebalance_parallelism = 5
+	fragmentation = false
+  }
+`
+
+var UpdateStoragePoolWithAllAttributesConfig1 = `
+resource "powerflex_storage_pool" "sp3" {
+	name                 = "storagepool3"
+	protection_domain_name = "domain1"
+	media_type  = "HDD"
+	capacity_alert_high_threshold = 69
+	capacity_alert_critical_threshold = 72
+	zero_padding_enabled = true
+	protected_maintenance_mode_io_priority_policy = "favorAppIos"
+	protected_maintenance_mode_num_of_concurrent_ios_per_device = 9
+	protected_maintenance_mode_bw_limit_per_device_in_kbps = 2042
+	rebalance_enabled = true
+	use_rmcache = true
+	use_rfcache = false
+	rebalance_io_priority_policy = "favorAppIos"
+	rebalance_num_of_concurrent_ios_per_device = 9
+	rebalance_bw_limit_per_device_in_kbps = 2047
+	vtree_migration_io_priority_policy = "favorAppIos"
+	vtree_migration_num_of_concurrent_ios_per_device = 7
+	vtree_migration_bw_limit_per_device_in_kbps = 1803
+	spare_percentage = 77
+	rm_cache_write_handling_mode = "Cached"
+	rebuild_rebalance_parallelism = 10
+	fragmentation = true
+  }
+`
+
+// Note: I'm not testing replication_journal_capacity attribute because it needs some changes in the delete functionality
+var UpdateateStoragePoolWithAllAttributesConfig2 = `
+resource "powerflex_storage_pool" "sp3" {
+	name                 = "storagepool5"
+	protection_domain_name = "domain1"
+	media_type  = "SSD"
+	capacity_alert_high_threshold = 66
+	capacity_alert_critical_threshold = 77
+	zero_padding_enabled = true
+	protected_maintenance_mode_io_priority_policy = "limitNumOfConcurrentIos"
+	protected_maintenance_mode_num_of_concurrent_ios_per_device = 9
+	rebalance_enabled = true
+	use_rmcache = true
+	use_rfcache = false
+	rebalance_io_priority_policy = "limitNumOfConcurrentIos"
+	rebalance_num_of_concurrent_ios_per_device = 8
+	vtree_migration_io_priority_policy = "limitNumOfConcurrentIos"
+	vtree_migration_num_of_concurrent_ios_per_device = 10
+	spare_percentage = 66
+	rm_cache_write_handling_mode = "Cached"
+	rebuild_rebalance_parallelism = 6
+	fragmentation = true
+  }
+`
+
+var CreateUpdateStoragePoolCacheAttribute = `
+resource "powerflex_storage_pool" "sp3cache" {
+	name                 = "storagepool6"
+	protection_domain_name = "domain1"
+	media_type  = "HDD"
+	use_rmcache = false
+	replication_journal_capacity = 12
+	rebuild_enabled = false
+	zero_padding_enabled = true
+}
+`
+
+var UpdateStoragePoolCacheAttribute = `
+resource "powerflex_storage_pool" "sp3cache" {
+	name                 = "storagepool6"
+	protection_domain_name = "domain1"
+	media_type  = "HDD"
+	use_rfcache = true 
+	use_rmcache = true
+	replication_journal_capacity = 8
+	rebuild_enabled = true
+}
 `
