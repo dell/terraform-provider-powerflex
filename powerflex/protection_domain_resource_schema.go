@@ -45,8 +45,8 @@ var ProtectionDomainResourceSchema schema.Schema = schema.Schema{
 			Computed:            true,
 		},
 		"rf_cache_accp_id": schema.StringAttribute{
-			Description:         "ID of the Rf Cache Acceleration Pool attached to the PD.",
-			MarkdownDescription: "ID of the Rf Cache Acceleration Pool attached to the PD.",
+			Description:         "ID of the RF Cache Acceleration Pool attached to the PD.",
+			MarkdownDescription: "ID of the RF Cache Acceleration Pool attached to the PD.",
 			Computed:            true,
 		},
 		"rf_cache_enabled": schema.BoolAttribute{

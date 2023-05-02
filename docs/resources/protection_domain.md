@@ -88,7 +88,7 @@ resource "powerflex_protection_domain" "pd" {
 - `id` (String) Unique identifier of the protection domain instance.
 - `links` (Attributes List) Underlying REST API links. (see [below for nested schema](#nestedatt--links))
 - `replication_capacity_max_ratio` (Number) Maximum Replication Capacity Ratio.
-- `rf_cache_accp_id` (String) ID of the Rf Cache Acceleration Pool attached to the PD.
+- `rf_cache_accp_id` (String) ID of the RF Cache Acceleration Pool attached to the PD.
 - `state` (String) State of the PD.
 
 <a id="nestedatt--links"></a>

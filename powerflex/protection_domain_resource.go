@@ -4,16 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	// "terraform-provider-powerflex/helper"
-
 	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	// "github.com/hashicorp/terraform-plugin-log/tflog"
-	// "github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -156,25 +152,10 @@ func (d *protectionDomainResource) Configure(_ context.Context, req resource.Con
 
 	d.client = req.ProviderData.(*goscaleio.Client)
 
-	systems, err := d.client.GetSystems()
+	system, err := getFirstSystem(d.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex Systems",
-			err.Error(),
-		)
-		return
-	}
-	if numSys := len((systems)); numSys == 0 {
-		resp.Diagnostics.AddError("No systems found", "")
-		return
-	} else if numSys > 1 {
-		resp.Diagnostics.AddError("More than one system found", "")
-		return
-	}
-	system, err := d.client.FindSystem(systems[0].ID, "", "")
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex Protection Domains",
+			"Unable to Read Powerflex System",
 			err.Error(),
 		)
 		return
