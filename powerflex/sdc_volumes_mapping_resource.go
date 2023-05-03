@@ -186,39 +186,6 @@ func (r *sdcVolumeMappingResource) ModifyPlan(ctx context.Context, req resource.
 		plan.ID = types.StringValue(sdc.Sdc.ID)
 	}
 
-	volList := []sdcVolumeModel{}
-	diags = plan.VolumeList.ElementsAs(ctx, &volList, true)
-	resp.Diagnostics.Append(diags...)
-
-	for index, vol := range volList {
-		// Populate volume name in the plan if volume ID is provided in the config
-		if !vol.VolumeID.IsUnknown() {
-			volume, err := r.client.GetVolume("", vol.VolumeID.ValueString(), "", "", false)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					"Error getting volume with ID: ",
-					"unexpected error: "+err.Error(),
-				)
-				return
-			}
-			volList[index].VolumeName = types.StringValue(volume[0].Name)
-		} else if !vol.VolumeName.IsUnknown() {
-			volume, err := r.client.GetVolume("", "", "", vol.VolumeName.ValueString(), false)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					"Error getting volume with name: ",
-					"unexpected error: "+err.Error(),
-				)
-				return
-			}
-			volList[index].VolumeID = types.StringValue(volume[0].ID)
-		}
-	}
-
-	// Modify the plan to populate volume list
-	mappedVolumeList, dgs := GetVolSetValueFromItems(volList)
-	resp.Diagnostics.Append(dgs...)
-	plan.VolumeList = mappedVolumeList
 	diags = resp.Plan.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
@@ -259,6 +226,12 @@ func (r *sdcVolumeMappingResource) Create(ctx context.Context, req resource.Crea
 
 	diags := req.Plan.Get(ctx, &plan)
 
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	diags = r.VerifyVolumes(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -425,6 +398,12 @@ func (r *sdcVolumeMappingResource) Update(ctx context.Context, req resource.Upda
 	// Get plan values
 	var plan sdcVolumeMappingResourceModel
 	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	diags = r.VerifyVolumes(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -680,4 +659,41 @@ func (r *sdcVolumeMappingResource) Delete(ctx context.Context, req resource.Dele
 func (r *sdcVolumeMappingResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+func (r *sdcVolumeMappingResource) VerifyVolumes(ctx context.Context, plan *sdcVolumeMappingResourceModel) (diags diag.Diagnostics) {
+	volList := []sdcVolumeModel{}
+	diag := plan.VolumeList.ElementsAs(ctx, &volList, true)
+	diags.Append(diag...)
+
+	for index, vol := range volList {
+		// Populate volume name in the plan if volume ID is provided in the config
+		if !vol.VolumeID.IsUnknown() {
+			volume, err := r.client.GetVolume("", vol.VolumeID.ValueString(), "", "", false)
+			if err != nil {
+				diags.AddError(
+					"Error getting volume with ID: ",
+					"unexpected error: "+err.Error(),
+				)
+				return
+			}
+			volList[index].VolumeName = types.StringValue(volume[0].Name)
+		} else if !vol.VolumeName.IsUnknown() {
+			volume, err := r.client.GetVolume("", "", "", vol.VolumeName.ValueString(), false)
+			if err != nil {
+				diags.AddError(
+					"Error getting volume with name: ",
+					"unexpected error: "+err.Error(),
+				)
+				return
+			}
+			volList[index].VolumeID = types.StringValue(volume[0].ID)
+		}
+	}
+
+	// Modify the plan to populate volume list
+	mappedVolumeList, dgs := GetVolSetValueFromItems(volList)
+	diags.Append(dgs...)
+	plan.VolumeList = mappedVolumeList
+	return diags
 }
