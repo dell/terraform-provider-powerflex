@@ -19,13 +19,14 @@ linkTitle: "powerflex_sdc_volumes_mapping"
 page_title: "powerflex_sdc_volumes_mapping Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array. Atleast one of id and name is required.
+  This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array.
 ---
 
 # powerflex_sdc_volumes_mapping (Resource)
 
-This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array. Atleast one of `id` and `name` is required.
+This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array.
 
+~> **Note:** Exactly one of `id` and `name` is required. Exactly one of `volume_id` and `volume_name` is required.
 
 
 
@@ -45,7 +46,7 @@ Optional:
 
 - `access_mode` (String) The Access Mode of the SDC. Valid values are `ReadOnly`, `ReadWrite` and `NoAccess`. Default value is `ReadOnly`.
 - `limit_bw_in_mbps` (Number) Bandwidth limit in MBPS. `0` represents unlimited bandwith. Default value is `0`.
-- `limit_iops` (Number) IOPS limit. Valid values are 0 or integers greater than 10. 0 represents unlimited IOPS. Default value is 0.
+- `limit_iops` (Number) IOPS limit. Valid values are 0 or integers greater than 10. `0` represents unlimited IOPS. Default value is `0`.
 - `volume_id` (String) The ID of the volume.
 - `volume_name` (String) The name of the volume.
 

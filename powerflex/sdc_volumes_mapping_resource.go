@@ -14,7 +14,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -50,8 +52,8 @@ func (r *sdcVolumeMappingResource) Metadata(_ context.Context, req resource.Meta
 
 func (r *sdcVolumeMappingResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description:         "This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array. Atleast one of `id` and `name` is required.",
-		MarkdownDescription: "This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array. Atleast one of `id` and `name` is required.",
+		Description:         "This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array.",
+		MarkdownDescription: "This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Description:         "The ID of the SDC.",
@@ -73,7 +75,7 @@ func (r *sdcVolumeMappingResource) Schema(_ context.Context, _ resource.SchemaRe
 				},
 			},
 			"volume_list": schema.SetNestedAttribute{
-				Description:         "List of volumes mapped to SDC. Atleast one of `volume_id` and `volume_name` is required.",
+				Description:         "List of volumes mapped to SDC. Atleast one of 'volume_id' and 'volume_name' is required.",
 				Computed:            true,
 				Optional:            true,
 				MarkdownDescription: "List of volumes mapped to SDC. Atleast one of `volume_id` and `volume_name` is required.",
@@ -87,6 +89,9 @@ func (r *sdcVolumeMappingResource) Schema(_ context.Context, _ resource.SchemaRe
 							Optional:            true,
 							Computed:            true,
 							MarkdownDescription: "The ID of the volume.",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
 							Validators: []validator.String{
 								stringvalidator.LengthAtLeast(1),
 							},
@@ -96,25 +101,34 @@ func (r *sdcVolumeMappingResource) Schema(_ context.Context, _ resource.SchemaRe
 							Computed:            true,
 							Optional:            true,
 							MarkdownDescription: "The name of the volume.",
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
 							Validators: []validator.String{
 								stringvalidator.LengthAtLeast(1),
 								stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("volume_id")),
 							},
 						},
 						"limit_iops": schema.Int64Attribute{
-							Description:         "IOPS limit. Valid values are 0 or integers greater than 10. 0 represents unlimited IOPS. Default value is 0.",
+							Description:         "IOPS limit. Valid values are 0 or integers greater than 10. '0' represents unlimited IOPS. Default value is '0'.",
 							Optional:            true,
 							Computed:            true,
-							MarkdownDescription: "IOPS limit. Valid values are 0 or integers greater than 10. 0 represents unlimited IOPS. Default value is 0.",
+							MarkdownDescription: "IOPS limit. Valid values are 0 or integers greater than 10. `0` represents unlimited IOPS. Default value is `0`.",
+							PlanModifiers: []planmodifier.Int64{
+								int64planmodifier.UseStateForUnknown(),
+							},
 						},
 						"limit_bw_in_mbps": schema.Int64Attribute{
-							Description:         "Bandwidth limit in MBPS. `0` represents unlimited bandwith. Default value is `0`.",
+							Description:         "Bandwidth limit in MBPS. '0' represents unlimited bandwith. Default value is '0'.",
 							Optional:            true,
 							Computed:            true,
 							MarkdownDescription: "Bandwidth limit in MBPS. `0` represents unlimited bandwith. Default value is `0`.",
+							PlanModifiers: []planmodifier.Int64{
+								int64planmodifier.UseStateForUnknown(),
+							},
 						},
 						"access_mode": schema.StringAttribute{
-							Description:         "The Access Mode of the SDC. Valid values are `ReadOnly`, `ReadWrite` and `NoAccess`. Default value is `ReadOnly`.",
+							Description:         "The Access Mode of the SDC. Valid values are 'ReadOnly', 'ReadWrite' and 'NoAccess'. Default value is 'ReadOnly'.",
 							Computed:            true,
 							Optional:            true,
 							MarkdownDescription: "The Access Mode of the SDC. Valid values are `ReadOnly`, `ReadWrite` and `NoAccess`. Default value is `ReadOnly`.",
@@ -125,6 +139,7 @@ func (r *sdcVolumeMappingResource) Schema(_ context.Context, _ resource.SchemaRe
 							)},
 							PlanModifiers: []planmodifier.String{
 								stringDefault("ReadOnly"),
+								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
 					},
@@ -537,7 +552,7 @@ func (r *sdcVolumeMappingResource) Update(ctx context.Context, req resource.Upda
 		}
 
 		// update the volume mapping parameters: limit iops and bandwidth limits if plan and state differs
-		if (planObj.IOPSLimit != stateObj.IOPSLimit) || (planObj.BWLimit != stateObj.BWLimit) {
+		if (!planObj.IOPSLimit.IsUnknown() && planObj.IOPSLimit != stateObj.IOPSLimit) || (!planObj.BWLimit.IsUnknown() && planObj.BWLimit != stateObj.BWLimit) {
 			smslp := goscaleio_types.SetMappedSdcLimitsParam{
 				SdcID:                plan.ID.ValueString(),
 				BandwidthLimitInKbps: strconv.FormatInt(int64(planObj.BWLimit.ValueInt64()*1024), 10),
@@ -563,7 +578,7 @@ func (r *sdcVolumeMappingResource) Update(ctx context.Context, req resource.Upda
 		}
 
 		// update the access mode for volume mapping if plan and state differs
-		if planObj.AccessMode != stateObj.AccessMode {
+		if !planObj.AccessMode.IsUnknown() && planObj.AccessMode != stateObj.AccessMode {
 			volType, err := getVolumeType(r.client, planObj.VolumeID.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
@@ -661,6 +676,7 @@ func (r *sdcVolumeMappingResource) ImportState(ctx context.Context, req resource
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
+// VerifyVolumes checks if volume exists or not before mapping
 func (r *sdcVolumeMappingResource) VerifyVolumes(ctx context.Context, plan *sdcVolumeMappingResourceModel) (diags diag.Diagnostics) {
 	volList := []sdcVolumeModel{}
 	diag := plan.VolumeList.ElementsAs(ctx, &volList, true)
