@@ -558,3 +558,55 @@ func TestAccVolumeResourceUnknown(t *testing.T) {
 		},
 	})
 }
+
+func TestAccVolumeResourceUnMapAll(t *testing.T) {
+	create := `
+	resource "powerflex_volume" "avengers-volume-create"{
+		name = "avengers-volume-create"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 8
+		access_mode = "ReadWrite"
+		sdc_list = [
+			{
+				sdc_name = "` + SdsResourceTestData.sdcName2 + `"
+				limit_iops = 119
+				limit_bw_in_mbps = 19
+				access_mode = "ReadOnly"
+			}
+		]
+	  }
+	`
+
+	update := `
+	resource "powerflex_volume" "avengers-volume-create"{
+		name = "avengers-volume-create"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 8
+		access_mode = "ReadWrite"
+		sdc_list = []
+	  }
+	`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + create,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "1"),
+				),
+				// TODO
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				Config: ProviderConfigForTesting + update,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "0"),
+				),
+			},
+		},
+	})
+}

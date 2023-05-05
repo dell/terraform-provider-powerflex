@@ -371,6 +371,17 @@ func TestAccSnapshotResourceDuplicateSdc(t *testing.T) {
 		]
 	}
 	`
+
+	createSsNoSdc := createVolForSs + `
+	resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
+		name = "snapshots-create-epsilon"
+		volume_id = resource.powerflex_volume.ref-vol.id
+		access_mode = "ReadWrite"
+		size = 16
+		sdc_list = []
+	}
+	`
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -383,6 +394,12 @@ func TestAccSnapshotResourceDuplicateSdc(t *testing.T) {
 				Config: ProviderConfigForTesting + createSsDuplicateSdcPos,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create-access-mode-sdc-map", "sdc_list.#", "1"),
+				),
+			},
+			{
+				Config: ProviderConfigForTesting + createSsNoSdc,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create-access-mode-sdc-map", "sdc_list.#", "0"),
 				),
 			},
 		},
