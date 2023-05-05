@@ -98,7 +98,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
   	remove_mode = "INCLUDING_DESCENDANTS"
 	sdc_list = [
 		{	
-			sdc_id = "e3ce1fb500000000"
+			sdc_name = "terraform_sdc"
 			limit_iops = 150
 			limit_bw_in_mbps = 20
 			access_mode = "ReadWrite"
