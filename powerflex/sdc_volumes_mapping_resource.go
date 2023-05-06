@@ -2,12 +2,10 @@ package powerflex
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	"github.com/dell/goscaleio"
 	goscaleio_types "github.com/dell/goscaleio/types/v1"
-	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -79,9 +77,6 @@ func (r *sdcVolumeMappingResource) Schema(_ context.Context, _ resource.SchemaRe
 				Computed:            true,
 				Optional:            true,
 				MarkdownDescription: "List of volumes mapped to SDC. Atleast one of `volume_id` and `volume_name` is required.",
-				Validators: []validator.Set{
-					setvalidator.SizeAtLeast(1),
-				},
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"volume_id": schema.StringAttribute{
@@ -89,9 +84,6 @@ func (r *sdcVolumeMappingResource) Schema(_ context.Context, _ resource.SchemaRe
 							Optional:            true,
 							Computed:            true,
 							MarkdownDescription: "The ID of the volume.",
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
 							Validators: []validator.String{
 								stringvalidator.LengthAtLeast(1),
 							},
@@ -101,9 +93,6 @@ func (r *sdcVolumeMappingResource) Schema(_ context.Context, _ resource.SchemaRe
 							Computed:            true,
 							Optional:            true,
 							MarkdownDescription: "The name of the volume.",
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
 							Validators: []validator.String{
 								stringvalidator.LengthAtLeast(1),
 								stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("volume_id")),
@@ -200,6 +189,8 @@ func (r *sdcVolumeMappingResource) ModifyPlan(ctx context.Context, req resource.
 		}
 		plan.ID = types.StringValue(sdc.Sdc.ID)
 	}
+
+	_ = r.VerifyVolumes(ctx, &plan)
 
 	diags = resp.Plan.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -312,10 +303,6 @@ func (r *sdcVolumeMappingResource) Create(ctx context.Context, req resource.Crea
 			"unexpected error: "+err2.Error(),
 		)
 		return
-	}
-
-	if len(mappedVolumes) == 0 {
-		resp.Diagnostics.AddError("Goscaleio returned no mapped volumes", fmt.Sprintf("The response was %v", mappedVolumes))
 	}
 
 	// Set refreshed state
@@ -708,8 +695,10 @@ func (r *sdcVolumeMappingResource) VerifyVolumes(ctx context.Context, plan *sdcV
 	}
 
 	// Modify the plan to populate volume list
-	mappedVolumeList, dgs := GetVolSetValueFromItems(volList)
-	diags.Append(dgs...)
-	plan.VolumeList = mappedVolumeList
+	if len(volList) > 0 {
+		mappedVolumeList, dgs := GetVolSetValueFromItems(volList)
+		diags.Append(dgs...)
+		plan.VolumeList = mappedVolumeList
+	}
 	return diags
 }
