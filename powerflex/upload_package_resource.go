@@ -2,6 +2,7 @@ package powerflex
 
 import (
 	"context"
+	"os"
 	"strings"
 
 	"github.com/dell/goscaleio"
@@ -18,9 +19,9 @@ import (
 
 // UploadPackageModel defines the struct for device resource
 type UploadPackageModel struct {
-	FilePath      types.String `tfsdk:"file_path"`
-	PackageName   types.String `tfsdk:"package_name"`
-	PackageParams types.Set    `tfsdk:"package_params"`
+	FilePath       types.String `tfsdk:"file_path"`
+	PackageName    types.String `tfsdk:"package_name"`
+	PackageDetails types.Set    `tfsdk:"package_details"`
 }
 
 // NewUploadPackageResource is a helper function to simplify the provider implementation.
@@ -43,93 +44,83 @@ func (r *uploadPackageResource) Schema(_ context.Context, _ resource.SchemaReque
 		MarkdownDescription: "This resource can be used to upload packages on a PowerFlex Gateway.",
 		Attributes: map[string]schema.Attribute{
 			"file_path": schema.StringAttribute{
-				Description:         "The File Path of the package.",
+				Description:         "The Path of the directory of packages or package file ",
 				Required:            true,
-				MarkdownDescription: "The File Path of the package.",
+				MarkdownDescription: "The Path of the directory of packages or package file",
 			},
 			"package_name": schema.StringAttribute{
 				Description:         "The name of package.",
 				Optional:            true,
 				MarkdownDescription: "The name of package.",
 			},
-			"package_params": schema.SetNestedAttribute{
-				Description:         "The name of package.",
-				Optional:            true,
+			"package_details": schema.SetNestedAttribute{
+				Description:         "Uploaded Packages details.",
 				Computed:            true,
-				MarkdownDescription: "The name of package.",
+				MarkdownDescription: "Uploaded Packages details.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"file_name": schema.StringAttribute{
-							Description:         "The ID of the volume.",
-							Optional:            true,
+							Description:         "The Name of package.",
 							Computed:            true,
-							MarkdownDescription: "The ID of the volume.",
+							MarkdownDescription: "The Name of package.",
 							Validators: []validator.String{
 								stringvalidator.LengthAtLeast(1),
 							},
 						},
 						"operating_system": schema.StringAttribute{
-							Description:         "The name of the volume.",
+							Description:         "Supported OS.",
 							Computed:            true,
-							Optional:            true,
-							MarkdownDescription: "The name of the volume.",
+							MarkdownDescription: "Supported OS.",
 							Validators: []validator.String{
 								stringvalidator.LengthAtLeast(1),
 							},
 						},
 						"linux_flavour": schema.StringAttribute{
-							Description:         "The name of the volume.",
+							Description:         "Type of Linux OS",
 							Computed:            true,
-							Optional:            true,
-							MarkdownDescription: "The name of the volume.",
+							MarkdownDescription: "Type of Linux OS",
 							Validators: []validator.String{
 								stringvalidator.LengthAtLeast(1),
 							},
 						},
 						"version": schema.StringAttribute{
-							Description:         "The name of the volume.",
+							Description:         "Uploaded Package Version.",
 							Computed:            true,
-							Optional:            true,
-							MarkdownDescription: "The name of the volume.",
+							MarkdownDescription: "Uploaded Package Version.",
 							Validators: []validator.String{
 								stringvalidator.LengthAtLeast(1),
 							},
 						},
 						"label": schema.StringAttribute{
-							Description:         "The name of the volume.",
+							Description:         "Uploaded Package Minor Version with OS Combination.",
 							Computed:            true,
-							Optional:            true,
-							MarkdownDescription: "The name of the volume.",
+							MarkdownDescription: "Uploaded Package Minor Version with OS Combination.",
 							Validators: []validator.String{
 								stringvalidator.LengthAtLeast(1),
 							},
 						},
 						"type": schema.StringAttribute{
-							Description:         "The name of the volume.",
+							Description:         "Type of Package.",
 							Computed:            true,
-							Optional:            true,
-							MarkdownDescription: "The name of the volume.",
+							MarkdownDescription: "Type of Package. Like. MDM, LIA, SDS, SDC, etc.",
 							Validators: []validator.String{
 								stringvalidator.LengthAtLeast(1),
 							},
 						},
 						"sio_patch_number": schema.Int64Attribute{
-							Description:         "IOPS limit. Valid values are 0 or integers greater than 10. 0 represents unlimited IOPS. Default value is 0.",
-							Optional:            true,
+							Description:         "Package Patch Number.",
 							Computed:            true,
-							MarkdownDescription: "IOPS limit. Valid values are 0 or integers greater than 10. 0 represents unlimited IOPS. Default value is 0.",
+							MarkdownDescription: "Package Patch Number.",
 						},
 						"size": schema.Int64Attribute{
-							Description:         "IOPS limit. Valid values are 0 or integers greater than 10. 0 represents unlimited IOPS. Default value is 0.",
-							Optional:            true,
+							Description:         "Size of Package.",
 							Computed:            true,
-							MarkdownDescription: "IOPS limit. Valid values are 0 or integers greater than 10. 0 represents unlimited IOPS. Default value is 0.",
+							MarkdownDescription: "Size of Package.",
 						},
 						"latest": schema.BoolAttribute{
-							Description:         "IOPS limit. Valid values are 0 or integers greater than 10. 0 represents unlimited IOPS. Default value is 0.",
-							Optional:            true,
+							Description:         "Package Version is latest or not.",
 							Computed:            true,
-							MarkdownDescription: "IOPS limit. Valid values are 0 or integers greater than 10. 0 represents unlimited IOPS. Default value is 0.",
+							MarkdownDescription: "Package Version is latest or not",
 						},
 					},
 				},
@@ -184,7 +175,7 @@ func (r *uploadPackageResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	_, err3 := r.gatewayClient.UploadPackages(plan.FilePath.ValueString())
+	response, err3 := r.gatewayClient.UploadPackages(plan.FilePath.ValueString())
 	if err3 != nil {
 		resp.Diagnostics.AddError(
 			"Error getting with file path: "+plan.FilePath.ValueString(),
@@ -193,24 +184,26 @@ func (r *uploadPackageResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	res, err3 := r.gatewayClient.GetPackgeDetails()
-	if err3 != nil {
-		resp.Diagnostics.AddError(
-			"Error getting pacckage details:",
-			"unexpected error: "+err3.Error(),
-		)
-		return
+	if response.StatusCode == 200 {
+		res, err3 := r.gatewayClient.GetPackgeDetails()
+		if err3 != nil {
+			resp.Diagnostics.AddError(
+				"Error getting pacckage details:",
+				"unexpected error: "+err3.Error(),
+			)
+			return
+		}
+
+		// Set refreshed state
+		data, dgs := updateUploadPackageState(res, plan)
+		resp.Diagnostics.Append(dgs...)
+
+		diags = resp.State.Set(ctx, data)
+		resp.Diagnostics.Append(diags...)
 	}
-
-	// Set refreshed state
-	data, dgs := updateUploadPackageState(res, plan)
-	resp.Diagnostics.Append(dgs...)
-
-	diags = resp.State.Set(ctx, data)
-	resp.Diagnostics.Append(diags...)
 }
 
-func updateUploadPackageState(packageDetails []*goscaleio_types.PackageParam, plan UploadPackageModel) (UploadPackageModel, diag.Diagnostics) {
+func updateUploadPackageState(packageDetails []*goscaleio_types.PackageDetails, plan UploadPackageModel) (UploadPackageModel, diag.Diagnostics) {
 	var state UploadPackageModel
 	state = plan
 	var diags diag.Diagnostics
@@ -222,16 +215,15 @@ func updateUploadPackageState(packageDetails []*goscaleio_types.PackageParam, pl
 	}
 
 	objectPackages := []attr.Value{}
+
 	for _, vol := range packageDetails {
 		objVal, dgs := getPackageValue(vol)
 		diags = append(diags, dgs...)
 		objectPackages = append(objectPackages, objVal)
-		// state.Name = types.StringValue(vol.MappedSdcInfo[0].SdcName)
-		// state.ID = types.StringValue(vol.MappedSdcInfo[0].SdcID)
 	}
 	setVal, dgs := types.SetValue(PackageElemType, objectPackages)
 	diags = append(diags, dgs...)
-	state.PackageParams = setVal
+	state.PackageDetails = setVal
 
 	return state, diags
 }
@@ -252,17 +244,17 @@ func getPackageType() map[string]attr.Type {
 }
 
 // getPackageValue returns the Package object required for mapping
-func getPackageValue(packageParam *goscaleio_types.PackageParam) (basetypes.ObjectValue, diag.Diagnostics) {
+func getPackageValue(packageDetails *goscaleio_types.PackageDetails) (basetypes.ObjectValue, diag.Diagnostics) {
 	return types.ObjectValue(getPackageType(), map[string]attr.Value{
-		"file_name":        types.StringValue(packageParam.Filename),
-		"operating_system": types.StringValue(packageParam.OperatingSystem),
-		"linux_flavour":    types.StringValue(packageParam.LinuxFlavour),
-		"version":          types.StringValue(packageParam.Version),
-		"label":            types.StringValue(packageParam.Label),
-		"type":             types.StringValue(packageParam.Type),
-		"sio_patch_number": types.Int64Value(int64(packageParam.SioPatchNumber)),
-		"size":             types.Int64Value(int64(packageParam.Size)),
-		"latest":           types.BoolValue(bool(packageParam.Latest)),
+		"file_name":        types.StringValue(packageDetails.Filename),
+		"operating_system": types.StringValue(packageDetails.OperatingSystem),
+		"linux_flavour":    types.StringValue(packageDetails.LinuxFlavour),
+		"version":          types.StringValue(packageDetails.Version),
+		"label":            types.StringValue(packageDetails.Label),
+		"type":             types.StringValue(packageDetails.Type),
+		"sio_patch_number": types.Int64Value(int64(packageDetails.SioPatchNumber)),
+		"size":             types.Int64Value(int64(packageDetails.Size)),
+		"latest":           types.BoolValue(bool(packageDetails.Latest)),
 	})
 }
 
@@ -296,6 +288,7 @@ func (r *uploadPackageResource) Read(ctx context.Context, req resource.ReadReque
 
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *uploadPackageResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	// Retrieve values from plan
 	var plan UploadPackageModel
 
 	diags := req.Plan.Get(ctx, &plan)
@@ -305,17 +298,31 @@ func (r *uploadPackageResource) Update(ctx context.Context, req resource.UpdateR
 		return
 	}
 
-	// uploadPackageParam := &goscaleio_types.UploadPackageParam{
-	// 	FilePath: plan.FilePath.ValueString(),
-	// }
-
-	_, err3 := r.gatewayClient.UploadPackages(plan.FilePath.ValueString())
+	response, err3 := r.gatewayClient.UploadPackages(plan.FilePath.ValueString())
 	if err3 != nil {
 		resp.Diagnostics.AddError(
 			"Error getting with file path: "+plan.FilePath.ValueString(),
 			"unexpected error: "+err3.Error(),
 		)
 		return
+	}
+
+	if response.StatusCode == 200 {
+		res, err3 := r.gatewayClient.GetPackgeDetails()
+		if err3 != nil {
+			resp.Diagnostics.AddError(
+				"Error getting pacckage details:",
+				"unexpected error: "+err3.Error(),
+			)
+			return
+		}
+
+		// Set refreshed state
+		data, dgs := updateUploadPackageState(res, plan)
+		resp.Diagnostics.Append(dgs...)
+
+		diags = resp.State.Set(ctx, data)
+		resp.Diagnostics.Append(diags...)
 	}
 }
 
@@ -329,18 +336,38 @@ func (r *uploadPackageResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	packageName := state.FilePath.ValueString()[strings.LastIndex(state.FilePath.ValueString(), "/")+1:]
+	var packageName string
 
-	_, err := r.gatewayClient.DeletePackge(packageName)
-	if err != nil {
+	if state.PackageName.IsNull() || state.PackageName.ValueString() == "" {
+
+		info, _ := os.Stat(state.FilePath.ValueString())
+
+		if !info.IsDir() {
+			packageName = state.FilePath.ValueString()[strings.LastIndex(state.FilePath.ValueString(), "/")+1:]
+		}
+	} else {
+		packageName = state.PackageName.ValueString()
+	}
+
+	if packageName != "" {
+		_, err := r.gatewayClient.DeletePackge(packageName)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error removing device with ID: "+packageName,
+				"unexpected error: "+err.Error(),
+			)
+			return
+		}
+
+		resp.State.RemoveResource(ctx)
+	} else {
 		resp.Diagnostics.AddError(
-			"Error removing device with ID: "+packageName,
-			"unexpected error: "+err.Error(),
+			"PackageName is required to destroy",
+			"",
 		)
 		return
 	}
 
-	resp.State.RemoveResource(ctx)
 }
 
 // ImportState imports the resource
