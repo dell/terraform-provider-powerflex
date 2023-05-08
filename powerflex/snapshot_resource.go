@@ -58,11 +58,9 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 		return
 	}
 	var plan SnapshotResourceModel
-	// var state SnapshotResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
-	// diags = req.State.Get(ctx, &state)
-	// resp.Diagnostics.Append(diags...)
+
 	sr, err := getFirstSystem(r.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -91,7 +89,12 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 			plan.RetentionInMin = basetypes.NewStringUnknown()
 		}
 	}
+	diags = resp.Plan.Set(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
 
+	if plan.SdcList.IsUnknown() {
+		return
+	}
 	sdcList := []SDCItem{}
 	diags = plan.SdcList.ElementsAs(ctx, &sdcList, true)
 	resp.Diagnostics.Append(diags...)
@@ -333,6 +336,12 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	errMsg := make(map[string]string, 0)
+
+	// in case of update, if sdc_list plan is unknown, we go for idempotency, ie. we shall make no changes
+	if plan.SdcList.IsUnknown() {
+		plan.SdcList = state.SdcList
+	}
+
 	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
