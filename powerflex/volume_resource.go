@@ -7,6 +7,7 @@ import (
 
 	"github.com/dell/goscaleio"
 	pftypes "github.com/dell/goscaleio/types/v1"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -73,70 +74,11 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	}
 
 	sr, err := getFirstSystem(r.client)
-	pdr := goscaleio.NewProtectionDomain(r.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error getting first system",
-			"Could not get first system, unexpected error: "+err.Error(),
+			"Error in getting system instance on the PowerFlex cluster",
+			err.Error(),
 		)
-		return
-	}
-	if !plan.ProtectionDomainName.IsUnknown() {
-		protectionDomain, err := sr.FindProtectionDomain("", plan.ProtectionDomainName.ValueString(), "")
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error getting protection domain",
-				"Could not get protection domain with name: "+plan.ProtectionDomainName.String()+", \n unexpected error: "+err.Error(),
-			)
-			return
-		}
-		pdr.ProtectionDomain = protectionDomain
-		plan.ProtectionDomainID = types.StringValue(protectionDomain.ID)
-	} else if !plan.ProtectionDomainID.IsUnknown() {
-		protectionDomain, err := sr.FindProtectionDomain(plan.ProtectionDomainID.ValueString(), "", "")
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error getting protection domain with id",
-				"Could not get protection domain with id: "+plan.ProtectionDomainName.ValueString()+", \n unexpected error: "+err.Error(),
-			)
-			return
-		}
-		pdr.ProtectionDomain = protectionDomain
-		plan.ProtectionDomainName = types.StringValue(protectionDomain.Name)
-	} else {
-		return
-	}
-	diags = resp.Plan.Set(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-	if !plan.StoragePoolName.IsUnknown() {
-		storagePool, err := pdr.FindStoragePool("", plan.StoragePoolName.ValueString(), "")
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error getting storage pool",
-				"Could not get storage pool with name: "+plan.StoragePoolName.ValueString()+", \n unexpected error: "+err.Error(),
-			)
-			return
-		}
-		plan.StoragePoolID = types.StringValue(storagePool.ID)
-	} else if !plan.StoragePoolID.IsUnknown() {
-		storagePool, err := pdr.FindStoragePool(plan.StoragePoolID.ValueString(), "", "")
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error getting storage pool with id",
-				"Could not get storage pool with with id: "+plan.StoragePoolID.ValueString()+", \n unexpected error: "+err.Error(),
-			)
-			return
-		}
-		plan.StoragePoolName = types.StringValue(storagePool.Name)
-	} else {
-		return
-	}
-	diags = resp.Plan.Set(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -202,8 +144,25 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
 	var plan VolumeResourceModel
+	var pdr *goscaleio.ProtectionDomain
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	pdr, diags = r.getProtectionDomainID(&plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	diags = r.getStoragePoolID(pdr, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	volumeCreate := &pftypes.VolumeParam{
 		ProtectionDomainID: plan.ProtectionDomainID.ValueString(),
 		StoragePoolID:      plan.StoragePoolID.ValueString(),
@@ -263,28 +222,28 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 	for _, si := range sdcItems {
 		// Add mapped SDC
 		pfmvsp := pftypes.MapVolumeSdcParam{
-			SdcID:                 si.SdcID,
-			AccessMode:            si.AccessMode,
+			SdcID:                 si.SdcID.ValueString(),
+			AccessMode:            si.AccessMode.ValueString(),
 			AllowMultipleMappings: "true",
 		}
 		// mapping the snapshot to sdc
 		err4 := vr.MapVolumeSdc(&pfmvsp)
 		if err4 != nil {
 			resp.Diagnostics.AddError(
-				"Error mapping sdc: "+si.SdcID+" "+si.SdcName,
+				"Error mapping sdc: "+si.SdcID.ValueString()+" "+si.SdcName.ValueString(),
 				"unexpected error: "+err4.Error(),
 			)
 		} else {
 			// setting limits on mapped sdc
 			smslp := pftypes.SetMappedSdcLimitsParam{
-				SdcID:                si.SdcID,
-				BandwidthLimitInKbps: strconv.FormatInt(int64(si.LimitBwInMbps*1024), 10),
-				IopsLimit:            strconv.FormatInt(int64(si.LimitIops), 10),
+				SdcID:                si.SdcID.ValueString(),
+				BandwidthLimitInKbps: strconv.FormatInt(int64(si.LimitBwInMbps.ValueInt64()*1024), 10),
+				IopsLimit:            strconv.FormatInt(int64(si.LimitIops.ValueInt64()), 10),
 			}
 			err5 := vr.SetMappedSdcLimits(&smslp)
 			if err4 != nil {
 				resp.Diagnostics.AddError(
-					"Error Setting Limits to mapped sdc: "+si.SdcID+" "+si.SdcName,
+					"Error Setting Limits to mapped sdc: "+si.SdcID.ValueString()+" "+si.SdcName.ValueString(),
 					"unexpected error: "+err5.Error(),
 				)
 			}
@@ -429,10 +388,10 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	planSdcIds := []string{}
 	stateSdcIds := []string{}
 	for _, psl := range planSdcList {
-		planSdcIds = append(planSdcIds, psl.SdcID)
+		planSdcIds = append(planSdcIds, psl.SdcID.ValueString())
 	}
 	for _, ssl := range stateSdcList {
-		stateSdcIds = append(stateSdcIds, ssl.SdcID)
+		stateSdcIds = append(stateSdcIds, ssl.SdcID.ValueString())
 	}
 
 	// mapSdcIds will be storing the sdc id for which mapping action need to perform.
@@ -458,10 +417,10 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	// retervial of sdc id from mapping list and performing map operation.
 	for _, ssl := range planSdcList {
 		for _, msi := range mapSdcIds {
-			if ssl.SdcID == msi {
+			if ssl.SdcID.ValueString() == msi {
 				pfmvsp := pftypes.MapVolumeSdcParam{
-					SdcID:                 ssl.SdcID,
-					AccessMode:            ssl.AccessMode,
+					SdcID:                 ssl.SdcID.ValueString(),
+					AccessMode:            ssl.AccessMode.ValueString(),
 					AllowMultipleMappings: "true",
 				}
 				err8 := volresource.MapVolumeSdc(&pfmvsp)
@@ -472,14 +431,14 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 					)
 				} else {
 					smslp := pftypes.SetMappedSdcLimitsParam{
-						SdcID:                ssl.SdcID,
-						BandwidthLimitInKbps: strconv.FormatInt(int64(ssl.LimitBwInMbps*1024), 10),
-						IopsLimit:            strconv.FormatInt(int64(ssl.LimitIops), 10),
+						SdcID:                ssl.SdcID.ValueString(),
+						BandwidthLimitInKbps: strconv.FormatInt(int64(ssl.LimitBwInMbps.ValueInt64()*1024), 10),
+						IopsLimit:            strconv.FormatInt(int64(ssl.LimitIops.ValueInt64()), 10),
 					}
 					err9 := volresource.SetMappedSdcLimits(&smslp)
 					if err9 != nil {
 						resp.Diagnostics.AddError(
-							"Error setting limits to sdc: "+ssl.SdcID+" "+ssl.SdcName,
+							"Error setting limits to sdc: "+ssl.SdcID.ValueString()+" "+ssl.SdcName.ValueString(),
 							"unexpected error: "+err9.Error(),
 						)
 					}
@@ -507,7 +466,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 		// getting the plan sdc obj for comparision with state
 		for _, psl := range planSdcList {
-			if ncsi == psl.SdcID {
+			if ncsi == psl.SdcID.ValueString() {
 				planObj = psl
 				break
 			}
@@ -515,34 +474,34 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 		// getting the state sdc obj for comparision with plan
 		for _, ssl := range stateSdcList {
-			if ncsi == ssl.SdcID {
+			if ncsi == ssl.SdcID.ValueString() {
 				stateObj = ssl
 				break
 			}
 		}
 
 		// updating the sdc mapping parameters: limit iops and bandwidth limits if there is change in plan and state
-		if (planObj.LimitIops != stateObj.LimitIops) || (planObj.LimitBwInMbps != stateObj.LimitBwInMbps) {
+		if (!planObj.LimitIops.IsUnknown() && planObj.LimitIops != stateObj.LimitIops) || (!planObj.LimitBwInMbps.IsUnknown() && planObj.LimitBwInMbps != stateObj.LimitBwInMbps) {
 			smslp := pftypes.SetMappedSdcLimitsParam{
-				SdcID:                planObj.SdcID,
-				BandwidthLimitInKbps: strconv.FormatInt(int64(planObj.LimitBwInMbps*1024), 10),
-				IopsLimit:            strconv.FormatInt(int64(planObj.LimitIops), 10),
+				SdcID:                planObj.SdcID.ValueString(),
+				BandwidthLimitInKbps: strconv.FormatInt(int64(planObj.LimitBwInMbps.ValueInt64()*1024), 10),
+				IopsLimit:            strconv.FormatInt(int64(planObj.LimitIops.ValueInt64()), 10),
 			}
 			err11 := volresource.SetMappedSdcLimits(&smslp)
 			if err11 != nil {
 				resp.Diagnostics.AddError(
-					"Error setting access mode to sdc: "+planObj.SdcID+" "+planObj.SdcName,
+					"Error setting access mode to sdc: "+planObj.SdcID.ValueString()+" "+planObj.SdcName.ValueString(),
 					"unexpected error: "+err11.Error(),
 				)
 			}
 		}
 
 		// updating the access mode for sdc mapping if there is change in plan and state
-		if planObj.AccessMode != stateObj.AccessMode {
-			err12 := volresource.SetVolumeMappingAccessMode(planObj.AccessMode, planObj.SdcID)
+		if !planObj.AccessMode.IsUnknown() && planObj.AccessMode != stateObj.AccessMode {
+			err12 := volresource.SetVolumeMappingAccessMode(planObj.AccessMode.ValueString(), planObj.SdcID.ValueString())
 			if err12 != nil {
 				resp.Diagnostics.AddError(
-					"Error setting access mode to sdc: "+planObj.SdcID+" "+planObj.SdcName,
+					"Error setting access mode to sdc: "+planObj.SdcID.ValueString()+" "+planObj.SdcName.ValueString(),
 					"unexpected error: "+err12.Error(),
 				)
 			}
@@ -631,4 +590,70 @@ func (r *volumeResource) Delete(ctx context.Context, req resource.DeleteRequest,
 func (r *volumeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+// getProtectionDomainID updates the protection domain ID in the plan
+func (r *volumeResource) getProtectionDomainID(plan *VolumeResourceModel) (*goscaleio.ProtectionDomain, diag.Diagnostics) {
+	sr, err := getFirstSystem(r.client)
+	var diags diag.Diagnostics
+	if err != nil {
+		diags.AddError(
+			"Error in getting system instance on the PowerFlex cluster",
+			err.Error(),
+		)
+		return nil, diags
+	}
+
+	pdr := goscaleio.NewProtectionDomain(r.client)
+
+	if !plan.ProtectionDomainName.IsUnknown() {
+		protectionDomain, err := sr.FindProtectionDomain("", plan.ProtectionDomainName.ValueString(), "")
+		if err != nil {
+			diags.AddError(
+				"Error getting protection domain",
+				"Could not get protection domain with name: "+plan.ProtectionDomainName.String()+", \n unexpected error: "+err.Error(),
+			)
+			return nil, diags
+		}
+		pdr.ProtectionDomain = protectionDomain
+		plan.ProtectionDomainID = types.StringValue(protectionDomain.ID)
+	} else if !plan.ProtectionDomainID.IsUnknown() {
+		protectionDomain, err := sr.FindProtectionDomain(plan.ProtectionDomainID.ValueString(), "", "")
+		if err != nil {
+			diags.AddError(
+				"Error getting protection domain with id",
+				"Could not get protection domain with id: "+plan.ProtectionDomainName.ValueString()+", \n unexpected error: "+err.Error(),
+			)
+			return nil, diags
+		}
+		pdr.ProtectionDomain = protectionDomain
+		plan.ProtectionDomainName = types.StringValue(protectionDomain.Name)
+	}
+	return pdr, diags
+}
+
+// getStoragePoolID updates the storage pool ID in the plan
+func (r *volumeResource) getStoragePoolID(pdr *goscaleio.ProtectionDomain, plan *VolumeResourceModel) (diags diag.Diagnostics) {
+	if !plan.StoragePoolName.IsUnknown() {
+		storagePool, err := pdr.FindStoragePool("", plan.StoragePoolName.ValueString(), "")
+		if err != nil {
+			diags.AddError(
+				"Error getting storage pool",
+				"Could not get storage pool with name: "+plan.StoragePoolName.ValueString()+", \n unexpected error: "+err.Error(),
+			)
+			return
+		}
+		plan.StoragePoolID = types.StringValue(storagePool.ID)
+	} else if !plan.StoragePoolID.IsUnknown() {
+		storagePool, err := pdr.FindStoragePool(plan.StoragePoolID.ValueString(), "", "")
+		if err != nil {
+			diags.AddError(
+				"Error getting storage pool with id",
+				"Could not get storage pool with with id: "+plan.StoragePoolID.ValueString()+", \n unexpected error: "+err.Error(),
+			)
+			return
+		}
+		plan.StoragePoolName = types.StringValue(storagePool.Name)
+	}
+	return
 }

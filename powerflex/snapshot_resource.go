@@ -8,6 +8,7 @@ import (
 
 	"github.com/dell/goscaleio"
 	pftypes "github.com/dell/goscaleio/types/v1"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -70,31 +71,7 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 		)
 		return
 	}
-	if !plan.VolumeName.IsUnknown() {
-		tflog.Info(ctx, fmt.Sprintf("Volume name is provided: %s", plan.VolumeName.ValueString()))
-		snapResponse, err2 := r.client.GetVolume("", "", "", plan.VolumeName.ValueString(), false)
-		if err2 != nil {
-			resp.Diagnostics.AddError(
-				"Error getting volume by name",
-				"unexpected error: "+err2.Error(),
-			)
-			return
-		}
-		plan.VolumeID = types.StringValue(snapResponse[0].ID)
-	} else if !plan.VolumeID.IsUnknown() {
-		tflog.Info(ctx, fmt.Sprintf("Volume id is provided: %s", plan.VolumeID.ValueString()))
-		snapResponse, err2 := r.client.GetVolume("", plan.VolumeID.ValueString(), "", "", false)
-		if err2 != nil {
-			resp.Diagnostics.AddError(
-				"Error getting volume by id",
-				"unexpected error: "+err2.Error(),
-			)
-			return
-		}
-		plan.VolumeName = types.StringValue(snapResponse[0].Name)
-	} else {
-		tflog.Trace(ctx, "Both volume name and id are unknown")
-	}
+
 	if !plan.Size.IsNull() && !plan.Size.IsUnknown() {
 		VSIKB := converterKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 		plan.SizeInKb = types.Int64Value(int64(VSIKB))
@@ -179,6 +156,13 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		)
 		return
 	}
+
+	diags = r.getVolumeID(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	snapshotReqs := make([]*pftypes.SnapshotDef, 0)
 
 	snapReq := &pftypes.SnapshotDef{
@@ -247,27 +231,27 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	for _, si := range sdcList {
 		// Add mapped SDC
 		pfmvsp := pftypes.MapVolumeSdcParam{
-			SdcID:                 si.SdcID,
+			SdcID:                 si.SdcID.ValueString(),
 			AllowMultipleMappings: "true",
 		}
 		// mapping the snapshot to sdc
 		err3 := snapResource.MapVolumeSdc(&pfmvsp)
 		if err3 != nil {
-			errMsg["sdc_map_err_"+si.SdcID] += "\n" + err3.Error()
+			errMsg["sdc_map_err_"+si.SdcID.ValueString()] += "\n" + err3.Error()
 		}
 		// setting limits on mapped sdc
 		smslp := pftypes.SetMappedSdcLimitsParam{
-			SdcID:                si.SdcID,
-			BandwidthLimitInKbps: strconv.FormatInt(int64(si.LimitBwInMbps*1024), 10),
-			IopsLimit:            strconv.FormatInt(int64(si.LimitIops), 10),
+			SdcID:                si.SdcID.ValueString(),
+			BandwidthLimitInKbps: strconv.FormatInt(int64(si.LimitBwInMbps.ValueInt64()*1024), 10),
+			IopsLimit:            strconv.FormatInt(int64(si.LimitIops.ValueInt64()), 10),
 		}
 		err4 := snapResource.SetMappedSdcLimits(&smslp)
 		if err4 != nil {
-			errMsg["sdc_map_err_"+si.SdcID] += "\n" + err4.Error()
+			errMsg["sdc_map_err_"+si.SdcID.ValueString()] += "\n" + err4.Error()
 		}
-		err5 := snapResource.SetVolumeMappingAccessMode(si.AccessMode, si.SdcID)
+		err5 := snapResource.SetVolumeMappingAccessMode(si.AccessMode.ValueString(), si.SdcID.ValueString())
 		if err5 != nil {
-			errMsg["sdc_map_err_"+si.SdcID] += "\n" + err5.Error()
+			errMsg["sdc_map_err_"+si.SdcID.ValueString()] += "\n" + err5.Error()
 		}
 	}
 	// disabling retention in case of error with update
@@ -408,10 +392,10 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	planSdcIds := []string{}
 	stateSdcIds := []string{}
 	for _, psl := range planSdcList {
-		planSdcIds = append(planSdcIds, psl.SdcID)
+		planSdcIds = append(planSdcIds, psl.SdcID.ValueString())
 	}
 	for _, ssl := range stateSdcList {
-		stateSdcIds = append(stateSdcIds, ssl.SdcID)
+		stateSdcIds = append(stateSdcIds, ssl.SdcID.ValueString())
 	}
 
 	// mapSdcIds will be storing the sdc id for which mapping action need to perform.
@@ -444,17 +428,17 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 
 		// getting sdc parameter to set while mapping
 		for _, ssl := range planSdcList {
-			if ssl.SdcID == msi {
+			if ssl.SdcID.ValueString() == msi {
 				smslp := pftypes.SetMappedSdcLimitsParam{
-					SdcID:                ssl.SdcID,
-					BandwidthLimitInKbps: strconv.FormatInt(int64(ssl.LimitBwInMbps*1024), 10),
-					IopsLimit:            strconv.FormatInt(int64(ssl.LimitIops), 10),
+					SdcID:                ssl.SdcID.ValueString(),
+					BandwidthLimitInKbps: strconv.FormatInt(int64(ssl.LimitBwInMbps.ValueInt64()*1024), 10),
+					IopsLimit:            strconv.FormatInt(int64(ssl.LimitIops.ValueInt64()), 10),
 				}
 				err4 := snapResource.SetMappedSdcLimits(&smslp)
 				if err4 != nil {
 					errMsg["sdc_map_err_"+msi] += "\n" + err4.Error()
 				}
-				err5 := snapResource.SetVolumeMappingAccessMode(ssl.AccessMode, ssl.SdcID)
+				err5 := snapResource.SetVolumeMappingAccessMode(ssl.AccessMode.ValueString(), ssl.SdcID.ValueString())
 				if err5 != nil {
 					errMsg["sdc_map_err_"+msi] += "\n" + err5.Error()
 				}
@@ -481,7 +465,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 
 		// getting the plan sdc obj for comparision with state
 		for _, psl := range planSdcList {
-			if ncsi == psl.SdcID {
+			if ncsi == psl.SdcID.ValueString() {
 				planObj = psl
 				break
 			}
@@ -489,7 +473,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 
 		// getting the state sdc obj for comparision with plan
 		for _, ssl := range stateSdcList {
-			if ncsi == ssl.SdcID {
+			if ncsi == ssl.SdcID.ValueString() {
 				stateObj = ssl
 				break
 			}
@@ -498,21 +482,21 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 		// updating the sdc mapping parameters: limit iops and bandwidth limits if there is change in plan and state
 		if (planObj.LimitIops != stateObj.LimitIops) || (planObj.LimitBwInMbps != stateObj.LimitBwInMbps) {
 			smslp := pftypes.SetMappedSdcLimitsParam{
-				SdcID:                planObj.SdcID,
-				BandwidthLimitInKbps: strconv.FormatInt(int64(planObj.LimitBwInMbps*1024), 10),
-				IopsLimit:            strconv.FormatInt(int64(planObj.LimitIops), 10),
+				SdcID:                planObj.SdcID.ValueString(),
+				BandwidthLimitInKbps: strconv.FormatInt(int64(planObj.LimitBwInMbps.ValueInt64()*1024), 10),
+				IopsLimit:            strconv.FormatInt(int64(planObj.LimitIops.ValueInt64()), 10),
 			}
 			err4 := snapResource.SetMappedSdcLimits(&smslp)
 			if err4 != nil {
-				errMsg["sdc_map_err_"+planObj.SdcID] += "\n" + err4.Error()
+				errMsg["sdc_map_err_"+planObj.SdcID.ValueString()] += "\n" + err4.Error()
 			}
 		}
 
 		// updating the access mode for sdc mapping if there is change in plan and state
 		if planObj.AccessMode != stateObj.AccessMode {
-			err5 := snapResource.SetVolumeMappingAccessMode(planObj.AccessMode, planObj.SdcID)
+			err5 := snapResource.SetVolumeMappingAccessMode(planObj.AccessMode.ValueString(), planObj.SdcID.ValueString())
 			if err5 != nil {
-				errMsg["sdc_map_err_"+planObj.SdcID] += "\n" + err5.Error()
+				errMsg["sdc_map_err_"+planObj.SdcID.ValueString()] += "\n" + err5.Error()
 			}
 		}
 
@@ -621,4 +605,32 @@ func (r *snapshotResource) Delete(ctx context.Context, req resource.DeleteReques
 func (r *snapshotResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+// getVolumeID updates the volume ID in the plan
+func (r *snapshotResource) getVolumeID(ctx context.Context, plan *SnapshotResourceModel) (diags diag.Diagnostics) {
+	if !plan.VolumeName.IsUnknown() {
+		tflog.Info(ctx, fmt.Sprintf("Volume name is provided: %s", plan.VolumeName.ValueString()))
+		snapResponse, err2 := r.client.GetVolume("", "", "", plan.VolumeName.ValueString(), false)
+		if err2 != nil {
+			diags.AddError(
+				"Error getting volume by name",
+				"unexpected error: "+err2.Error(),
+			)
+			return
+		}
+		plan.VolumeID = types.StringValue(snapResponse[0].ID)
+	} else if !plan.VolumeID.IsUnknown() {
+		tflog.Info(ctx, fmt.Sprintf("Volume id is provided: %s", plan.VolumeID.ValueString()))
+		snapResponse, err2 := r.client.GetVolume("", plan.VolumeID.ValueString(), "", "", false)
+		if err2 != nil {
+			diags.AddError(
+				"Error getting volume by id",
+				"unexpected error: "+err2.Error(),
+			)
+			return
+		}
+		plan.VolumeName = types.StringValue(snapResponse[0].Name)
+	}
+	return
 }

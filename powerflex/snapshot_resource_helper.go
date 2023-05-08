@@ -43,11 +43,11 @@ type SnapshotResourceModel struct {
 
 // SdcList struct for sdc info response mapping to terrafrom
 type SdcList struct {
-	SdcID         string `tfsdk:"sdc_id"`
-	LimitIops     int    `tfsdk:"limit_iops"`
-	LimitBwInMbps int    `tfsdk:"limit_bw_in_mbps"`
-	SdcName       string `tfsdk:"sdc_name"`
-	AccessMode    string `tfsdk:"access_mode"`
+	SdcID         types.String `tfsdk:"sdc_id"`
+	LimitIops     types.Int64  `tfsdk:"limit_iops"`
+	LimitBwInMbps types.Int64  `tfsdk:"limit_bw_in_mbps"`
+	SdcName       types.String `tfsdk:"sdc_name"`
+	AccessMode    types.String `tfsdk:"access_mode"`
 }
 
 func refreshState(snap *pftypes.Volume, prestate *SnapshotResourceModel) (diags diag.Diagnostics) {
