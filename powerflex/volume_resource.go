@@ -73,6 +73,10 @@ func (r *volumeResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 		resp.Diagnostics.Append(diags...)
 	}
 
+	if plan.SdcList.IsUnknown() {
+		return
+	}
+
 	sr, err := getFirstSystem(r.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -311,6 +315,12 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	// in case of update, if sdc_list plan is unknown, we go for idempotency, ie. we shall make no changes
+	if plan.SdcList.IsUnknown() {
+		plan.SdcList = state.SdcList
+	}
+
 	volsplan, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(

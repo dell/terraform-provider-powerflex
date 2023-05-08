@@ -578,6 +578,16 @@ func TestAccVolumeResourceUnMapAll(t *testing.T) {
 	  }
 	`
 
+	updateIdemp := `
+	resource "powerflex_volume" "avengers-volume-create"{
+		name = "avengers-volume-create"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 8
+		access_mode = "ReadWrite"
+	  }
+	`
+
 	update := `
 	resource "powerflex_volume" "avengers-volume-create"{
 		name = "avengers-volume-create"
@@ -600,6 +610,12 @@ func TestAccVolumeResourceUnMapAll(t *testing.T) {
 				),
 				// TODO
 				ExpectNonEmptyPlan: true,
+			},
+			{
+				Config: ProviderConfigForTesting + updateIdemp,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "1"),
+				),
 			},
 			{
 				Config: ProviderConfigForTesting + update,
