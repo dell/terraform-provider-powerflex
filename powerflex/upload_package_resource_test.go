@@ -10,17 +10,16 @@ import (
 func TestAccUploadPackageResource(t *testing.T) {
 	var uploadPackageTest = `
 	resource "powerflex_uploadPackage" "upload-test" {
-		file_path = ["/home/krunal/Work/Software/EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
+		file_path = ["/root/powerflex_packages/EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
 	 }
 	`
 
 	var uploadPackageUpdateTest = `
 	resource "powerflex_uploadPackage" "upload-test" {
-		file_path = ["/home/krunal/Work/Software/PowerFlex_3.6.700.103_Ubuntu22.04/EMC-ScaleIO-mdm-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
+		file_path = ["/root/powerflex_packages/PowerFlex_3.6.700.103_Ubuntu22.04/EMC-ScaleIO-mdm-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
 	 }
 	`
 
-	// /root/powerflex_packages/EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -46,13 +45,13 @@ func TestAccUploadPackageNegative(t *testing.T) {
 
 	var InvalidFile = `
 	resource "powerflex_uploadPackage" "upload-test" {
-		file_path = ["/home/krunal/Work/Software/abc.txt"]
+		file_path = ["/root/powerflex_packages/abc.txt"]
 	 }
 	`
 
 	var InvalidNameFile = `
 	resource "powerflex_uploadPackage" "upload-test" {
-		file_path = ["/home/krunal/Work/Software/abc.rpm"]
+		file_path = ["/root/powerflex_packages/abc.rpm"]
 	 }
 	`
 
