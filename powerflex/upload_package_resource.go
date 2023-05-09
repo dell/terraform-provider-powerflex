@@ -2,11 +2,12 @@ package powerflex
 
 import (
 	"context"
-	"os"
+	"strconv"
 	"strings"
 
 	"github.com/dell/goscaleio"
 	goscaleio_types "github.com/dell/goscaleio/types/v1"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -19,9 +20,21 @@ import (
 
 // UploadPackageModel defines the struct for device resource
 type UploadPackageModel struct {
-	FilePath       types.String `tfsdk:"file_path"`
+	FilePath       types.List   `tfsdk:"file_path"`
 	PackageName    types.String `tfsdk:"package_name"`
 	PackageDetails types.Set    `tfsdk:"package_details"`
+}
+
+type packageDetailsModel struct {
+	FileName        types.String `tfsdk:"file_name"`
+	OperatingSystem types.String `tfsdk:"operating_system"`
+	LinuxFlavour    types.String `tfsdk:"linux_flavour"`
+	Version         types.String `tfsdk:"version"`
+	Label           types.String `tfsdk:"label"`
+	Type            types.String `tfsdk:"type"`
+	SioPatchNumber  types.Int64  `tfsdk:"sio_patch_number"`
+	Size            types.Int64  `tfsdk:"size"`
+	Latest          types.Bool   `tfsdk:"latest"`
 }
 
 // NewUploadPackageResource is a helper function to simplify the provider implementation.
@@ -43,10 +56,14 @@ func (r *uploadPackageResource) Schema(_ context.Context, _ resource.SchemaReque
 		Description:         "This resource can be used to upload packages on a PowerFlex Gateway.",
 		MarkdownDescription: "This resource can be used to upload packages on a PowerFlex Gateway.",
 		Attributes: map[string]schema.Attribute{
-			"file_path": schema.StringAttribute{
+			"file_path": schema.ListAttribute{
 				Description:         "The Path of the directory of packages or package file ",
 				Required:            true,
+				ElementType:         types.StringType,
 				MarkdownDescription: "The Path of the directory of packages or package file",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"package_name": schema.StringAttribute{
 				Description:         "The name of package.",
@@ -175,10 +192,13 @@ func (r *uploadPackageResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	response, err3 := r.gatewayClient.UploadPackages(plan.FilePath.ValueString())
+	filePaths := []string{}
+	diags = plan.FilePath.ElementsAs(ctx, &filePaths, true)
+
+	response, err3 := r.gatewayClient.UploadPackages(filePaths)
 	if err3 != nil {
 		resp.Diagnostics.AddError(
-			"Error getting with file path: "+plan.FilePath.ValueString(),
+			"Error getting with file path",
 			"unexpected error: "+err3.Error(),
 		)
 		return
@@ -200,6 +220,11 @@ func (r *uploadPackageResource) Create(ctx context.Context, req resource.CreateR
 
 		diags = resp.State.Set(ctx, data)
 		resp.Diagnostics.Append(diags...)
+	} else {
+		resp.Diagnostics.AddError(
+			"Error while uploading package :"+response.Message+" & Error Code :"+strconv.Itoa(response.ErrorCode),
+			"Status Code:"+strconv.Itoa(response.StatusCode),
+		)
 	}
 }
 
@@ -272,7 +297,7 @@ func (r *uploadPackageResource) Read(ctx context.Context, req resource.ReadReque
 	res, err3 := r.gatewayClient.GetPackgeDetails()
 	if err3 != nil {
 		resp.Diagnostics.AddError(
-			"Error getting with file path: "+state.FilePath.ValueString(),
+			"Error getting with file path",
 			"unexpected error: "+err3.Error(),
 		)
 		return
@@ -290,18 +315,54 @@ func (r *uploadPackageResource) Read(ctx context.Context, req resource.ReadReque
 func (r *uploadPackageResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Retrieve values from plan
 	var plan UploadPackageModel
-
 	diags := req.Plan.Get(ctx, &plan)
-
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	response, err3 := r.gatewayClient.UploadPackages(plan.FilePath.ValueString())
+	var state UploadPackageModel
+	diags = req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	planFilePaths := []string{}
+	diags = plan.FilePath.ElementsAs(ctx, &planFilePaths, true)
+
+	stateFilePaths := []string{}
+	diags = state.FilePath.ElementsAs(ctx, &stateFilePaths, true)
+
+	removePackages := make([]string, 0)
+
+	for _, s := range stateFilePaths {
+		if !inslice(s, planFilePaths) {
+			removePackages = append(removePackages, s)
+		}
+	}
+
+	if len(removePackages) > 0 {
+		for _, packageData := range removePackages {
+
+			packageName := packageData[strings.LastIndex(packageData, "/")+1:]
+
+			_, err := r.gatewayClient.DeletePackge(packageName)
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"Error removing device with ID: "+packageName,
+					"unexpected error: "+err.Error(),
+				)
+				return
+			}
+
+		}
+	}
+
+	response, err3 := r.gatewayClient.UploadPackages(planFilePaths)
 	if err3 != nil {
 		resp.Diagnostics.AddError(
-			"Error getting with file path: "+plan.FilePath.ValueString(),
+			"Error getting with file path",
 			"unexpected error: "+err3.Error(),
 		)
 		return
@@ -323,6 +384,11 @@ func (r *uploadPackageResource) Update(ctx context.Context, req resource.UpdateR
 
 		diags = resp.State.Set(ctx, data)
 		resp.Diagnostics.Append(diags...)
+	} else {
+		resp.Diagnostics.AddError(
+			"Error while uploading package :"+response.Message+" & Error Code :"+strconv.Itoa(response.ErrorCode),
+			"Status Code:"+strconv.Itoa(response.StatusCode),
+		)
 	}
 }
 
@@ -336,20 +402,13 @@ func (r *uploadPackageResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	var packageName string
+	stateFilePaths := []string{}
+	diags = state.FilePath.ElementsAs(ctx, &stateFilePaths, true)
 
-	if state.PackageName.IsNull() || state.PackageName.ValueString() == "" {
+	for _, packageData := range stateFilePaths {
 
-		info, _ := os.Stat(state.FilePath.ValueString())
+		packageName := packageData[strings.LastIndex(packageData, "/")+1:]
 
-		if !info.IsDir() {
-			packageName = state.FilePath.ValueString()[strings.LastIndex(state.FilePath.ValueString(), "/")+1:]
-		}
-	} else {
-		packageName = state.PackageName.ValueString()
-	}
-
-	if packageName != "" {
 		_, err := r.gatewayClient.DeletePackge(packageName)
 		if err != nil {
 			resp.Diagnostics.AddError(
@@ -359,17 +418,19 @@ func (r *uploadPackageResource) Delete(ctx context.Context, req resource.DeleteR
 			return
 		}
 
-		resp.State.RemoveResource(ctx)
-	} else {
-		resp.Diagnostics.AddError(
-			"PackageName is required to destroy",
-			"",
-		)
-		return
 	}
 
 }
 
 // ImportState imports the resource
 func (r *uploadPackageResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+}
+
+func inslice(n string, h []string) bool {
+	for _, v := range h {
+		if v == n {
+			return true
+		}
+	}
+	return false
 }
