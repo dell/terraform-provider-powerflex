@@ -20,21 +20,8 @@ import (
 
 // UploadPackageModel defines the struct for device resource
 type UploadPackageModel struct {
-	FilePath       types.List   `tfsdk:"file_path"`
-	PackageName    types.String `tfsdk:"package_name"`
-	PackageDetails types.Set    `tfsdk:"package_details"`
-}
-
-type packageDetailsModel struct {
-	FileName        types.String `tfsdk:"file_name"`
-	OperatingSystem types.String `tfsdk:"operating_system"`
-	LinuxFlavour    types.String `tfsdk:"linux_flavour"`
-	Version         types.String `tfsdk:"version"`
-	Label           types.String `tfsdk:"label"`
-	Type            types.String `tfsdk:"type"`
-	SioPatchNumber  types.Int64  `tfsdk:"sio_patch_number"`
-	Size            types.Int64  `tfsdk:"size"`
-	Latest          types.Bool   `tfsdk:"latest"`
+	FilePath       types.List `tfsdk:"file_path"`
+	PackageDetails types.Set  `tfsdk:"package_details"`
 }
 
 // NewUploadPackageResource is a helper function to simplify the provider implementation.
@@ -64,11 +51,6 @@ func (r *uploadPackageResource) Schema(_ context.Context, _ resource.SchemaReque
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
-			},
-			"package_name": schema.StringAttribute{
-				Description:         "The name of package.",
-				Optional:            true,
-				MarkdownDescription: "The name of package.",
 			},
 			"package_details": schema.SetNestedAttribute{
 				Description:         "Uploaded Packages details.",
@@ -184,69 +166,64 @@ func (r *uploadPackageResource) ModifyPlan(ctx context.Context, req resource.Mod
 func (r *uploadPackageResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
 	var plan UploadPackageModel
-
 	diags := req.Plan.Get(ctx, &plan)
-
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	filePaths := []string{}
-	diags = plan.FilePath.ElementsAs(ctx, &filePaths, true)
+	plan.FilePath.ElementsAs(ctx, &filePaths, true)
 
-	response, err3 := r.gatewayClient.UploadPackages(filePaths)
-	if err3 != nil {
+	uploadPackageResponse, uploadPackageError := r.gatewayClient.UploadPackages(filePaths)
+	if uploadPackageError != nil {
 		resp.Diagnostics.AddError(
 			"Error getting with file path",
-			"unexpected error: "+err3.Error(),
+			"unexpected error: "+uploadPackageError.Error(),
 		)
 		return
 	}
 
-	if response.StatusCode == 200 {
-		res, err3 := r.gatewayClient.GetPackgeDetails()
-		if err3 != nil {
+	if uploadPackageResponse.StatusCode == 200 {
+		packageDetailResponse, packageDetailError := r.gatewayClient.GetPackgeDetails()
+		if packageDetailError != nil {
 			resp.Diagnostics.AddError(
-				"Error getting pacckage details:",
-				"unexpected error: "+err3.Error(),
+				"Error for getting package details.",
+				"unexpected error: "+packageDetailError.Error(),
 			)
 			return
 		}
 
 		// Set refreshed state
-		data, dgs := updateUploadPackageState(res, plan)
+		data, dgs := updateUploadPackageState(packageDetailResponse, plan)
 		resp.Diagnostics.Append(dgs...)
 
 		diags = resp.State.Set(ctx, data)
 		resp.Diagnostics.Append(diags...)
 	} else {
 		resp.Diagnostics.AddError(
-			"Error while uploading package :"+response.Message+" & Error Code :"+strconv.Itoa(response.ErrorCode),
-			"Status Code:"+strconv.Itoa(response.StatusCode),
+			"Error while uploading package :"+uploadPackageResponse.Message+" & Error Code :"+strconv.Itoa(uploadPackageResponse.ErrorCode),
+			"Status Code:"+strconv.Itoa(uploadPackageResponse.StatusCode),
 		)
 	}
 }
 
 func updateUploadPackageState(packageDetails []*goscaleio_types.PackageDetails, plan UploadPackageModel) (UploadPackageModel, diag.Diagnostics) {
-	var state UploadPackageModel
-	state = plan
+	state := plan
 	var diags diag.Diagnostics
 
 	PackageAttrTypes := getPackageType()
-
 	PackageElemType := types.ObjectType{
 		AttrTypes: PackageAttrTypes,
 	}
 
-	objectPackages := []attr.Value{}
-
+	packages := []attr.Value{}
 	for _, vol := range packageDetails {
 		objVal, dgs := getPackageValue(vol)
 		diags = append(diags, dgs...)
-		objectPackages = append(objectPackages, objVal)
+		packages = append(packages, objVal)
 	}
-	setVal, dgs := types.SetValue(PackageElemType, objectPackages)
+	setVal, dgs := types.SetValue(PackageElemType, packages)
 	diags = append(diags, dgs...)
 	state.PackageDetails = setVal
 
@@ -294,17 +271,17 @@ func (r *uploadPackageResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
-	res, err3 := r.gatewayClient.GetPackgeDetails()
-	if err3 != nil {
+	packageDetailResponse, packageDetailError := r.gatewayClient.GetPackgeDetails()
+	if packageDetailError != nil {
 		resp.Diagnostics.AddError(
-			"Error getting with file path",
-			"unexpected error: "+err3.Error(),
+			"Error for getting package details.",
+			"unexpected error: "+packageDetailError.Error(),
 		)
 		return
 	}
 
 	// Set refreshed state
-	data, dgs := updateUploadPackageState(res, state)
+	data, dgs := updateUploadPackageState(packageDetailResponse, state)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, data)
@@ -329,28 +306,26 @@ func (r *uploadPackageResource) Update(ctx context.Context, req resource.UpdateR
 	}
 
 	planFilePaths := []string{}
-	diags = plan.FilePath.ElementsAs(ctx, &planFilePaths, true)
+	plan.FilePath.ElementsAs(ctx, &planFilePaths, true)
 
 	stateFilePaths := []string{}
-	diags = state.FilePath.ElementsAs(ctx, &stateFilePaths, true)
+	state.FilePath.ElementsAs(ctx, &stateFilePaths, true)
 
 	removePackages := make([]string, 0)
 
-	for _, s := range stateFilePaths {
-		if !inslice(s, planFilePaths) {
-			removePackages = append(removePackages, s)
+	for _, path := range stateFilePaths {
+		if !inslice(path, planFilePaths) {
+			removePackages = append(removePackages, path)
 		}
 	}
 
 	if len(removePackages) > 0 {
 		for _, packageData := range removePackages {
-
 			packageName := packageData[strings.LastIndex(packageData, "/")+1:]
-
 			_, err := r.gatewayClient.DeletePackge(packageName)
 			if err != nil {
 				resp.Diagnostics.AddError(
-					"Error removing device with ID: "+packageName,
+					"Error removing package with Name: "+packageName,
 					"unexpected error: "+err.Error(),
 				)
 				return
@@ -359,35 +334,35 @@ func (r *uploadPackageResource) Update(ctx context.Context, req resource.UpdateR
 		}
 	}
 
-	response, err3 := r.gatewayClient.UploadPackages(planFilePaths)
-	if err3 != nil {
+	uploadPackageResponse, uploadPackageError := r.gatewayClient.UploadPackages(planFilePaths)
+	if uploadPackageError != nil {
 		resp.Diagnostics.AddError(
-			"Error getting with file path",
-			"unexpected error: "+err3.Error(),
+			"Error getting with upload package.",
+			"unexpected error: "+uploadPackageError.Error(),
 		)
 		return
 	}
 
-	if response.StatusCode == 200 {
-		res, err3 := r.gatewayClient.GetPackgeDetails()
-		if err3 != nil {
+	if uploadPackageResponse.StatusCode == 200 {
+		packgeDetailResponse, packgeDetailError := r.gatewayClient.GetPackgeDetails()
+		if packgeDetailError != nil {
 			resp.Diagnostics.AddError(
-				"Error getting pacckage details:",
-				"unexpected error: "+err3.Error(),
+				"Error for getting package details.",
+				"unexpected error: "+packgeDetailError.Error(),
 			)
 			return
 		}
 
 		// Set refreshed state
-		data, dgs := updateUploadPackageState(res, plan)
+		data, dgs := updateUploadPackageState(packgeDetailResponse, plan)
 		resp.Diagnostics.Append(dgs...)
 
 		diags = resp.State.Set(ctx, data)
 		resp.Diagnostics.Append(diags...)
 	} else {
 		resp.Diagnostics.AddError(
-			"Error while uploading package :"+response.Message+" & Error Code :"+strconv.Itoa(response.ErrorCode),
-			"Status Code:"+strconv.Itoa(response.StatusCode),
+			"Error while uploading package :"+uploadPackageResponse.Message+" & Error Code :"+strconv.Itoa(uploadPackageResponse.ErrorCode),
+			"Status Code:"+strconv.Itoa(uploadPackageResponse.StatusCode),
 		)
 	}
 }
@@ -403,23 +378,20 @@ func (r *uploadPackageResource) Delete(ctx context.Context, req resource.DeleteR
 	}
 
 	stateFilePaths := []string{}
-	diags = state.FilePath.ElementsAs(ctx, &stateFilePaths, true)
+	state.FilePath.ElementsAs(ctx, &stateFilePaths, true)
 
 	for _, packageData := range stateFilePaths {
-
 		packageName := packageData[strings.LastIndex(packageData, "/")+1:]
 
 		_, err := r.gatewayClient.DeletePackge(packageName)
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error removing device with ID: "+packageName,
+				"Error removing package with Name: "+packageName,
 				"unexpected error: "+err.Error(),
 			)
 			return
 		}
-
 	}
-
 }
 
 // ImportState imports the resource
