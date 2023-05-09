@@ -20,8 +20,9 @@ import (
 
 // UploadPackageModel defines the struct for device resource
 type UploadPackageModel struct {
-	FilePath       types.List `tfsdk:"file_path"`
-	PackageDetails types.Set  `tfsdk:"package_details"`
+	ID             types.String `tfsdk:"id"`
+	FilePath       types.List   `tfsdk:"file_path"`
+	PackageDetails types.Set    `tfsdk:"package_details"`
 }
 
 // NewUploadPackageResource is a helper function to simplify the provider implementation.
@@ -51,6 +52,11 @@ func (r *uploadPackageResource) Schema(_ context.Context, _ resource.SchemaReque
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
+			},
+			"id": schema.StringAttribute{
+				Description:         "The ID of the package.",
+				Computed:            true,
+				MarkdownDescription: "The ID of the package.",
 			},
 			"package_details": schema.SetNestedAttribute{
 				Description:         "Uploaded Packages details.",
@@ -226,6 +232,7 @@ func updateUploadPackageState(packageDetails []*goscaleio_types.PackageDetails, 
 	setVal, dgs := types.SetValue(PackageElemType, packages)
 	diags = append(diags, dgs...)
 	state.PackageDetails = setVal
+	state.ID = types.StringValue("placeholder")
 
 	return state, diags
 }
