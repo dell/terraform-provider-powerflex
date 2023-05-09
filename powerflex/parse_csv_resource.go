@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"encoding/csv"
 	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"os"
-	"encoding/csv"
 	//goscaleio_types "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -22,9 +22,8 @@ type parsecsvResource struct {
 }
 
 type CsvListModel struct {
-	CsvDetail              types.Set    `tfsdk:"csv_detail"`
+	CsvDetail types.Set `tfsdk:"csv_detail"`
 }
-
 
 // UploadPackageModel defines the struct for device resource
 type ParseCSVModel struct {
@@ -66,8 +65,8 @@ var csvSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 	NestedObject: schema.NestedAttributeObject{
 		Attributes: map[string]schema.Attribute{
 			"ip": schema.StringAttribute{
-				Description: "ip of the node",
-				Required: true,
+				Description:         "ip of the node",
+				Required:            true,
 				MarkdownDescription: "ip of the node",
 			},
 			"password": schema.StringAttribute{
@@ -111,7 +110,7 @@ func (r *parsecsvResource) Create(ctx context.Context, req resource.CreateReques
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	
+
 	// Create a csv writer
 	file, err := os.Create("Minimal.csv")
 	if err != nil {
@@ -122,7 +121,7 @@ func (r *parsecsvResource) Create(ctx context.Context, req resource.CreateReques
 	defer writer.Flush()
 
 	// Write the header row
-	header := []string{"IPs","Password","Operating System","Is MDM/TB","Is SDC"}
+	header := []string{"IPs", "Password", "Operating System", "Is MDM/TB", "Is SDC"}
 	err = writer.Write(header)
 	if err != nil {
 		panic(err)
@@ -133,15 +132,14 @@ func (r *parsecsvResource) Create(ctx context.Context, req resource.CreateReques
 	for _, si := range csvItems {
 		// Add mapped SDC
 		csvStruct := CsvRow{
-			Ip: fmt.Sprintf("%v",si.Ip),
-			Password: fmt.Sprintf("%v",si.Password),
-			IsMdmOrTb: fmt.Sprintf("%v",si.IsMdmOrTb),
-			OperatingSystem: fmt.Sprintf("%v",si.OperatingSystem),
-			IsSdc: fmt.Sprintf("%v",si.IsSdc),
-
+			Ip:              fmt.Sprintf("%v", si.Ip),
+			Password:        fmt.Sprintf("%v", si.Password),
+			IsMdmOrTb:       fmt.Sprintf("%v", si.IsMdmOrTb),
+			OperatingSystem: fmt.Sprintf("%v", si.OperatingSystem),
+			IsSdc:           fmt.Sprintf("%v", si.IsSdc),
 		}
 		//Write the data row
-		data := []string{csvStruct.Ip,csvStruct.Password,csvStruct.OperatingSystem,csvStruct.IsMdmOrTb,csvStruct.IsSdc}
+		data := []string{csvStruct.Ip, csvStruct.Password, csvStruct.OperatingSystem, csvStruct.IsMdmOrTb, csvStruct.IsSdc}
 		err = writer.Write(data)
 		if err != nil {
 			panic(err)
@@ -149,31 +147,14 @@ func (r *parsecsvResource) Create(ctx context.Context, req resource.CreateReques
 	}
 
 	err3 := r.gatewayClient.ParseCSV("Minimal.csv")
-	// if err3 != nil {
-	// 	resp.Diagnostics.AddError(
-	// 		"Error getting with file path: "+plan.FilePath.ValueString(),
-	// 		"unexpected error: "+err3.Error(),
-	// 	)
-	// 	return
-	// }
+	if err3 != nil {
+		resp.Diagnostics.AddError(
+			"Error parsing csv: ",
+			"unexpected error: "+err3.Error(),
+		)
+		return
+	}
 
-	// if response.StatusCode == 200 {
-	// 	res, err3 := r.gatewayClient.GetPackgeDetails()
-	// 	if err3 != nil {
-	// 		resp.Diagnostics.AddError(
-	// 			"Error getting pacckage details:",
-	// 			"unexpected error: "+err3.Error(),
-	// 		)
-	// 		return
-	// 	}
-
-		// Set refreshed state
-		// data, dgs := updateUploadPackageState(res, plan)
-		// resp.Diagnostics.Append(dgs...)
-
-		// diags = resp.State.Set(ctx, data)
-		// resp.Diagnostics.Append(diags...)
-	//}
 }
 
 func (r *parsecsvResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
