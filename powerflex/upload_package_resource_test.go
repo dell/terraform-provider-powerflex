@@ -13,6 +13,7 @@ func TestAccUploadPackageResource(t *testing.T) {
 		file_path = ["/home/krunal/Work/Software/EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
 	 }
 	`
+
 	var uploadPackageUpdateTest = `
 	resource "powerflex_uploadPackage" "upload-test" {
 		file_path = ["/home/krunal/Work/Software/PowerFlex_3.6.700.103_Ubuntu22.04/EMC-ScaleIO-mdm-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
