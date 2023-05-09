@@ -8,7 +8,6 @@ import (
 	"github.com/dell/goscaleio"
 	goscaleio_types "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -260,7 +259,7 @@ func (r *uploadPackageResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
-	packageDetailResponse, packageDetailError := r.gatewayClient.GetPackgeDetails()
+	packageDetailResponse, packageDetailError := r.gatewayClient.GetPackageDetails()
 	if packageDetailError != nil {
 		resp.Diagnostics.AddError(
 			"Error for getting package details.",
@@ -333,7 +332,7 @@ func (r *uploadPackageResource) Update(ctx context.Context, req resource.UpdateR
 	}
 
 	if uploadPackageResponse.StatusCode == 200 {
-		packgeDetailResponse, packgeDetailError := r.gatewayClient.GetPackgeDetails()
+		packgeDetailResponse, packgeDetailError := r.gatewayClient.GetPackageDetails()
 		if packgeDetailError != nil {
 			resp.Diagnostics.AddError(
 				"Error for getting package details.",
