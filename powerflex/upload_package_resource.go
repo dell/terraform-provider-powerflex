@@ -45,10 +45,10 @@ func (r *uploadPackageResource) Schema(_ context.Context, _ resource.SchemaReque
 		MarkdownDescription: "This resource can be used to upload packages on a PowerFlex Gateway.",
 		Attributes: map[string]schema.Attribute{
 			"file_path": schema.ListAttribute{
-				Description:         "The Path of the directory of packages or package file ",
+				Description:         "The list of path of packages",
 				Required:            true,
 				ElementType:         types.StringType,
-				MarkdownDescription: "The Path of the directory of packages or package file",
+				MarkdownDescription: "The list of path of packages",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
@@ -68,49 +68,31 @@ func (r *uploadPackageResource) Schema(_ context.Context, _ resource.SchemaReque
 							Description:         "The Name of package.",
 							Computed:            true,
 							MarkdownDescription: "The Name of package.",
-							Validators: []validator.String{
-								stringvalidator.LengthAtLeast(1),
-							},
 						},
 						"operating_system": schema.StringAttribute{
 							Description:         "Supported OS.",
 							Computed:            true,
 							MarkdownDescription: "Supported OS.",
-							Validators: []validator.String{
-								stringvalidator.LengthAtLeast(1),
-							},
 						},
 						"linux_flavour": schema.StringAttribute{
 							Description:         "Type of Linux OS",
 							Computed:            true,
 							MarkdownDescription: "Type of Linux OS",
-							Validators: []validator.String{
-								stringvalidator.LengthAtLeast(1),
-							},
 						},
 						"version": schema.StringAttribute{
 							Description:         "Uploaded Package Version.",
 							Computed:            true,
 							MarkdownDescription: "Uploaded Package Version.",
-							Validators: []validator.String{
-								stringvalidator.LengthAtLeast(1),
-							},
 						},
 						"label": schema.StringAttribute{
 							Description:         "Uploaded Package Minor Version with OS Combination.",
 							Computed:            true,
 							MarkdownDescription: "Uploaded Package Minor Version with OS Combination.",
-							Validators: []validator.String{
-								stringvalidator.LengthAtLeast(1),
-							},
 						},
 						"type": schema.StringAttribute{
 							Description:         "Type of Package.",
 							Computed:            true,
 							MarkdownDescription: "Type of Package. Like. MDM, LIA, SDS, SDC, etc.",
-							Validators: []validator.String{
-								stringvalidator.LengthAtLeast(1),
-							},
 						},
 						"sio_patch_number": schema.Int64Attribute{
 							Description:         "Package Patch Number.",
@@ -191,7 +173,7 @@ func (r *uploadPackageResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	if uploadPackageResponse.StatusCode == 200 {
-		packageDetailResponse, packageDetailError := r.gatewayClient.GetPackgeDetails()
+		packageDetailResponse, packageDetailError := r.gatewayClient.GetPackageDetails()
 		if packageDetailError != nil {
 			resp.Diagnostics.AddError(
 				"Error for getting package details.",
