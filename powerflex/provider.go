@@ -238,6 +238,7 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 		StoragePoolDataSource,
 		SnapshotPolicyDataSource,
 		SDSDataSource,
+		DeviceDataSource,
 	}
 }
 
