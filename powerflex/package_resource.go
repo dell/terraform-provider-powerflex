@@ -273,7 +273,6 @@ func (r *packageResource) Update(ctx context.Context, req resource.UpdateRequest
 	stateFilePaths := []string{}
 	state.FilePath.ElementsAs(ctx, &stateFilePaths, true)
 
-
 	planFileMap := make(map[string]string)
 	stateFileMap := make(map[string]string)
 
