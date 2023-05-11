@@ -213,7 +213,7 @@ func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 	if !state.StoragePoolID.IsNull() || !state.StoragePoolName.IsNull() {
-		if !state.StoragePoolName.IsUnknown() {
+		if !state.StoragePoolName.IsNull() {
 			pd, err = getNewProtectionDomainEx(d.client, state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString(), "")
 			if err != nil {
 				resp.Diagnostics.AddError(
@@ -234,15 +234,6 @@ func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		}
 
 		if !state.StoragePoolID.IsUnknown() {
-			// sp1, err := d.system.GetStoragePoolByID(state.StoragePoolID.ValueString())
-			// if err != nil {
-			// 	resp.Diagnostics.AddError(
-			// 		"Error in getting storage pool details with ID: "+state.StoragePoolID.ValueString(),
-			// 		err.Error(),
-			// 	)
-			// 	return
-			// }
-
 			sp1, err := getStoragePool(d, state.StoragePoolID.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
@@ -260,20 +251,8 @@ func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 				)
 			}
 		}
-	}
-
-	if !state.SdsID.IsNull() || !state.SdsName.IsNull() {
-		if !state.SdsID.IsUnknown() {
-			sds, err := d.system.GetSdsByID(state.SdsID.ValueString())
-			if err != nil {
-				resp.Diagnostics.AddError(
-					"Error in getting sds details with ID: "+state.SdsID.ValueString(),
-					err.Error(),
-				)
-				return
-			}
-			state.SdsName = types.StringValue(sds.Name)
-		} else if !state.SdsName.IsUnknown() {
+	} else if !state.SdsID.IsNull() || !state.SdsName.IsNull() {
+		if !state.SdsName.IsNull() {
 			sds, err := d.system.FindSds("Name", state.SdsName.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
@@ -283,7 +262,7 @@ func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 				return
 			}
 			state.SdsID = types.StringValue(sds.ID)
-		}
+		} 
 		if !state.SdsID.IsUnknown() {
 			rsp, err := d.system.GetSdsByID(state.SdsID.ValueString())
 			if err != nil {
@@ -302,9 +281,25 @@ func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 				)
 			}
 		}
-	}
-
-	if !state.ID.IsNull() {
+	} else if !state.CurrentPath.IsNull() {
+		devices, err = d.system.GetDeviceByField("DeviceCurrentPathName",state.CurrentPath.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error getting device with CurrentPath: "+state.CurrentPath.ValueString(),
+				"unexpected error: "+err.Error(),
+			)
+			return
+		}
+	} else if !state.Name.IsNull() {
+		devices, err = d.system.GetDeviceByField("Name",state.Name.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error getting device with Name: "+state.Name.ValueString(),
+				"unexpected error: "+err.Error(),
+			)
+			return
+		}
+	} else if !state.ID.IsNull() {
 		devices = make([]scaleiotypes.Device, 0)
 		deviceResponse, err3 := d.system.GetDevice(state.ID.ValueString())
 		if err3 != nil {
@@ -315,9 +310,19 @@ func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			return
 		}
 		devices = append(devices, *deviceResponse)
+	} else {
+		devices, err = d.system.GetAllDevice()
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error getting all devices in the system ",
+				"unexpected error: "+err.Error(),
+			)
+			return
+		}
 	}
 
 	// Set refreshed state
+	state.ID = types.StringValue("placeholder")
 	state.DeviceModel = getAllDeviceState(devices)
 	resp.Diagnostics.Append(diags...)
 
