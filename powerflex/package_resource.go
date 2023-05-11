@@ -17,28 +17,28 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-// UploadPackageModel defines the struct for device resource
-type UploadPackageModel struct {
+// PackageModel defines the struct for device resource
+type PackageModel struct {
 	ID             types.String `tfsdk:"id"`
 	FilePath       types.List   `tfsdk:"file_path"`
 	PackageDetails types.Set    `tfsdk:"package_details"`
 }
 
-// NewUploadPackageResource is a helper function to simplify the provider implementation.
-func NewUploadPackageResource() resource.Resource {
-	return &uploadPackageResource{}
+// NewPackageResource is a helper function to simplify the provider implementation.
+func NewPackageResource() resource.Resource {
+	return &packageResource{}
 }
 
-// uploadPackageResource is the resource implementation.
-type uploadPackageResource struct {
+// packageResource is the resource implementation.
+type packageResource struct {
 	gatewayClient *goscaleio.GatewayClient
 }
 
-func (r *uploadPackageResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_uploadPackage"
+func (r *packageResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_package"
 }
 
-func (r *uploadPackageResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *packageResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description:         "This resource can be used to upload packages on a PowerFlex Gateway.",
 		MarkdownDescription: "This resource can be used to upload packages on a PowerFlex Gateway.",
@@ -115,7 +115,7 @@ func (r *uploadPackageResource) Schema(_ context.Context, _ resource.SchemaReque
 	}
 }
 
-func (r *uploadPackageResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *packageResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -123,36 +123,10 @@ func (r *uploadPackageResource) Configure(_ context.Context, req resource.Config
 	r.gatewayClient = req.ProviderData.(*goscaleio.GatewayClient)
 }
 
-func (r *uploadPackageResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	var config UploadPackageModel
-
-	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
-// ModifyPlan modify resource plan attribute value
-func (r *uploadPackageResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	if req.Plan.Raw.IsNull() {
-		return
-	}
-	var (
-		plan UploadPackageModel
-	)
-
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-
-	diags = resp.Plan.Set(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-}
-
 // Create creates the resource and sets the initial Terraform state.
-func (r *uploadPackageResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *packageResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan UploadPackageModel
+	var plan PackageModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -195,7 +169,7 @@ func (r *uploadPackageResource) Create(ctx context.Context, req resource.CreateR
 	}
 }
 
-func updateUploadPackageState(packageDetails []*goscaleio_types.PackageDetails, plan UploadPackageModel) (UploadPackageModel, diag.Diagnostics) {
+func updateUploadPackageState(packageDetails []*goscaleio_types.PackageDetails, plan PackageModel) (PackageModel, diag.Diagnostics) {
 	state := plan
 	var diags diag.Diagnostics
 
@@ -249,9 +223,9 @@ func getPackageValue(packageDetails *goscaleio_types.PackageDetails) (basetypes.
 }
 
 // Read refreshes the Terraform state with the latest data.
-func (r *uploadPackageResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *packageResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Retrieve values from state
-	var state UploadPackageModel
+	var state PackageModel
 
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -277,16 +251,16 @@ func (r *uploadPackageResource) Read(ctx context.Context, req resource.ReadReque
 }
 
 // Update updates the resource and sets the updated Terraform state on success.
-func (r *uploadPackageResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *packageResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Retrieve values from plan
-	var plan UploadPackageModel
+	var plan PackageModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	var state UploadPackageModel
+	var state PackageModel
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -356,9 +330,9 @@ func (r *uploadPackageResource) Update(ctx context.Context, req resource.UpdateR
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
-func (r *uploadPackageResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *packageResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
-	var state UploadPackageModel
+	var state PackageModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -383,7 +357,7 @@ func (r *uploadPackageResource) Delete(ctx context.Context, req resource.DeleteR
 }
 
 // ImportState imports the resource
-func (r *uploadPackageResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *packageResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 }
 
 func inslice(n string, h []string) bool {

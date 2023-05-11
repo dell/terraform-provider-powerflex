@@ -165,9 +165,9 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 		if username == "" {
 			resp.Diagnostics.AddAttributeError(
 				path.Root("username"),
-				"Missing powerflex API Username",
-				"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API username. "+
-					"Set the username value in the configuration or use the POWERFLEX_USERNAME environment variable. "+
+				"Missing gateway API Username",
+				"The provider cannot create the gateway API client as there is a missing or empty value for the gateway API username. "+
+					"Set the username value in the configuration or use the GATEWAY_USERNAME environment variable. "+
 					"If either is already set, ensure the value is not empty.",
 			)
 		}
@@ -175,9 +175,9 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 		if password == "" {
 			resp.Diagnostics.AddAttributeError(
 				path.Root("password"),
-				"Missing powerflex API Password",
-				"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API password. "+
-					"Set the password value in the configuration or use the POWERFLEX_PASSWORD environment variable. "+
+				"Missing gateway API Password",
+				"The provider cannot create the gateway API client as there is a missing or empty value for the gateway API password. "+
+					"Set the password value in the configuration or use the GATEWAY_PASSWORD environment variable. "+
 					"If either is already set, ensure the value is not empty.",
 			)
 		}
@@ -347,6 +347,6 @@ func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resou
 		StoragepoolResource,
 		NewSDCVolumesMappingResource,
 		NewDeviceResource,
-		NewUploadPackageResource,
+		NewPackageResource,
 	}
 }

@@ -7,15 +7,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAccUploadPackageResource(t *testing.T) {
-	var uploadPackageTest = `
-	resource "powerflex_uploadPackage" "upload-test" {
-		file_path = ["/root/powerflex_packages/EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
+func TestAccPackageResource(t *testing.T) {
+	var packageTest = `
+	resource "powerflex_package" "upload-test" {
+		file_path = ["/root/powerflex_packages/PowerFlex_3.6.700.103_Ubuntu22.04/EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
 	 }
 	`
 
-	var uploadPackageUpdateTest = `
-	resource "powerflex_uploadPackage" "upload-test" {
+	var packageUpdateTest = `
+	resource "powerflex_package" "upload-test" {
 		file_path = ["/root/powerflex_packages/PowerFlex_3.6.700.103_Ubuntu22.04/EMC-ScaleIO-mdm-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
 	 }
 	`
@@ -25,38 +25,38 @@ func TestAccUploadPackageResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			//Create
 			{
-				Config: ProviderConfigForGatewayTesting + uploadPackageTest,
-				Check:  resource.TestCheckResourceAttr("powerflex_uploadPackage.upload-test", "package_details.0.file_name", "EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"),
+				Config: ProviderConfigForGatewayTesting + packageTest,
+				Check:  resource.TestCheckResourceAttr("powerflex_package.upload-test", "package_details.0.file_name", "EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"),
 			},
 			//Update
 			{
-				Config: ProviderConfigForGatewayTesting + uploadPackageUpdateTest,
-				Check:  resource.TestCheckResourceAttr("powerflex_uploadPackage.upload-test", "package_details.0.file_name", "EMC-ScaleIO-mdm-3.6-700.103.Ubuntu.22.04.x86_64.tar"),
+				Config: ProviderConfigForGatewayTesting + packageUpdateTest,
+				Check:  resource.TestCheckResourceAttr("powerflex_package.upload-test", "package_details.0.file_name", "EMC-ScaleIO-mdm-3.6-700.103.Ubuntu.22.04.x86_64.tar"),
 			},
 		}})
 }
 
-func TestAccUploadPackageNegative(t *testing.T) {
+func TestAccPackageNegative(t *testing.T) {
 	var InvalidPath = `
-	resource "powerflex_uploadPackage" "upload-test" {
+	resource "powerflex_package" "upload-test" {
 		file_path = ["/home/Software/EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
 	 }
 	`
 
 	var InvalidFile = `
-	resource "powerflex_uploadPackage" "upload-test" {
+	resource "powerflex_package" "upload-test" {
 		file_path = ["/root/powerflex_packages/abc.txt"]
 	 }
 	`
 
 	var InvalidNameFile = `
-	resource "powerflex_uploadPackage" "upload-test" {
+	resource "powerflex_package" "upload-test" {
 		file_path = ["/root/powerflex_packages/abc.rpm"]
 	 }
 	`
 
 	var EmptyList = `
-	resource "powerflex_uploadPackage" "upload-test" {
+	resource "powerflex_package" "upload-test" {
 		file_path = []
 	 }
 	`
