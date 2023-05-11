@@ -273,13 +273,21 @@ func (r *packageResource) Update(ctx context.Context, req resource.UpdateRequest
 	stateFilePaths := []string{}
 	state.FilePath.ElementsAs(ctx, &stateFilePaths, true)
 
-	removePackages := make([]string, 0)
 
-	for _, path := range stateFilePaths {
-		if !inslice(path, planFilePaths) {
-			removePackages = append(removePackages, path)
-		}
+	planFileMap := make(map[string]string)
+	stateFileMap := make(map[string]string)
+
+	// Populate planFileMap with the file paths defined in plan
+	for _, filePath := range planFilePaths {
+		planFileMap[filePath] = filePath
 	}
+
+	// Populate stateFileMap with the file paths stored in state
+	for _, filePath := range stateFilePaths {
+		stateFileMap[filePath] = filePath
+	}
+
+	removePackages := DifferenceMap(stateFileMap, planFileMap)
 
 	if len(removePackages) > 0 {
 		for _, packageData := range removePackages {
