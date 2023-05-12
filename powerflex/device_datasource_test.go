@@ -85,5 +85,3 @@ data "powerflex_device" "dev" {
 	sds_id = "db2c37000000000"
 }
 `
-
-

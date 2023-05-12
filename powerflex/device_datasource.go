@@ -16,7 +16,7 @@ var (
 	_ datasource.DataSourceWithConfigure = &deviceDataSource{}
 )
 
-// deviceDataSource returns the volume data source
+// DeviceDataSource returns the volume data source
 func DeviceDataSource() datasource.DataSource {
 	return &deviceDataSource{}
 }
@@ -99,7 +99,7 @@ type LongSuccessfulIosModel struct {
 	LongWindow   DeviceWindowTypeModel `tfsdk:"long_window"`
 }
 
-// DeviceWindowType defines struct for LongSuccessfulIosModel
+// DeviceWindowTypeModel defines struct for LongSuccessfulIosModel
 type DeviceWindowTypeModel struct {
 	Threshold            types.Int64 `tfsdk:"threshold"`
 	WindowSizeInSec      types.Int64 `tfsdk:"window_size_in_sec"`
@@ -179,7 +179,7 @@ func (d *deviceDataSource) Configure(_ context.Context, req datasource.Configure
 	d.system = system
 }
 
-func (r *deviceDataSource) ValidateConfig(ctx context.Context, req datasource.ValidateConfigRequest, resp *datasource.ValidateConfigResponse) {
+func (d *deviceDataSource) ValidateConfig(ctx context.Context, req datasource.ValidateConfigRequest, resp *datasource.ValidateConfigResponse) {
 	var config deviceDataSourceModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
@@ -262,7 +262,7 @@ func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 				return
 			}
 			state.SdsID = types.StringValue(sds.ID)
-		} 
+		}
 		if !state.SdsID.IsUnknown() {
 			rsp, err := d.system.GetSdsByID(state.SdsID.ValueString())
 			if err != nil {
@@ -282,7 +282,7 @@ func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			}
 		}
 	} else if !state.CurrentPath.IsNull() {
-		devices, err = d.system.GetDeviceByField("DeviceCurrentPathName",state.CurrentPath.ValueString())
+		devices, err = d.system.GetDeviceByField("DeviceCurrentPathName", state.CurrentPath.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting device with CurrentPath: "+state.CurrentPath.ValueString(),
@@ -291,7 +291,7 @@ func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			return
 		}
 	} else if !state.Name.IsNull() {
-		devices, err = d.system.GetDeviceByField("Name",state.Name.ValueString())
+		devices, err = d.system.GetDeviceByField("Name", state.Name.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting device with Name: "+state.Name.ValueString(),
