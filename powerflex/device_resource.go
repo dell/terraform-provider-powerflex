@@ -234,8 +234,8 @@ func (r *deviceResource) ValidateConfig(ctx context.Context, req resource.Valida
 func (r *deviceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
 	var (
-		plan        DeviceModel
-		sp_instance *goscaleio_types.StoragePool
+		plan       DeviceModel
+		spInstance *goscaleio_types.StoragePool
 	)
 
 	diags := req.Plan.Get(ctx, &plan)
@@ -250,7 +250,7 @@ func (r *deviceResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	sp_instance, diags = r.getStoragePoolID(&plan)
+	spInstance, diags = r.getStoragePoolID(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -265,7 +265,7 @@ func (r *deviceResource) Create(ctx context.Context, req resource.CreateRequest,
 		ExternalAccelerationType: plan.ExternalAccelerationType.ValueString(),
 	}
 
-	sp := goscaleio.NewStoragePoolEx(r.client, sp_instance)
+	sp := goscaleio.NewStoragePoolEx(r.client, spInstance)
 
 	deviceID, err2 := sp.AttachDevice(deviceParam)
 	if err2 != nil {
@@ -345,9 +345,9 @@ func (r *deviceResource) Read(ctx context.Context, req resource.ReadRequest, res
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *deviceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var (
-		plan        DeviceModel
-		sp_instance *goscaleio_types.StoragePool
-		err         error
+		plan       DeviceModel
+		spInstance *goscaleio_types.StoragePool
+		err        error
 	)
 
 	diags := req.Plan.Get(ctx, &plan)
@@ -367,13 +367,13 @@ func (r *deviceResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	sp_instance, diags = r.getStoragePoolID(&plan)
+	spInstance, diags = r.getStoragePoolID(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	sp := goscaleio.NewStoragePoolEx(r.client, sp_instance)
+	sp := goscaleio.NewStoragePoolEx(r.client, spInstance)
 
 	// Check if device name needs be updated
 	if !plan.Name.IsUnknown() && plan.Name.ValueString() != state.Name.ValueString() {
