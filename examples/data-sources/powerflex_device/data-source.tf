@@ -4,6 +4,14 @@
 data "powerflex_device" "dev" {
 }
 
+data "powerflex_device" "dev1" {
+	storage_pool_id = "c98e26e500000000"
+}
+
+data "powerflex_device" "dev2" {
+	sds_name = "SDS_2"
+}
+
 output "deviceResult" {
   value = data.powerflex_device.dev.device_model
 }
