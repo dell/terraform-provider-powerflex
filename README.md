@@ -66,6 +66,6 @@ The installation and execution steps of Terraform Provider for Dell PowerFlex ca
 
 Terraform Provider for Dell Technnologies PowerFlex follows [Semantic Versioning](https://semver.org/).
 
-New version will be release regularly if significant changes (bug fix or new feature) are made in the provider.
+New versions will be release regularly if significant changes (bug fix or new feature) are made in the provider.
 
-Released code versions are located on tags with names of the form "vx.y.z" where x.y.z corresponds to the version number.
+Released code versions are located on tags in the form of "vx.y.z" where x.y.z corresponds to the version number.
