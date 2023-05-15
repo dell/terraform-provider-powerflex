@@ -35,6 +35,7 @@ var SdsResourceTestData sdsDataPoints
 var SDCMappingResourceID2 = os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_ID2")
 var SDCMappingResourceName2 = os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_NAME2")
 var SDCVolName = os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_NAME")
+var SdsID = os.Getenv("POWERFLEX_DEVICE_SDS_ID")
 
 func init() {
 	godotenv.Load("POWERFLEX_TERRAFORM_TEST.env")
