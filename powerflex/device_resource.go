@@ -233,10 +233,12 @@ func (r *deviceResource) ValidateConfig(ctx context.Context, req resource.Valida
 // Create creates the resource and sets the initial Terraform state.
 func (r *deviceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan DeviceModel
+	var (
+		plan        DeviceModel
+		sp_instance *goscaleio_types.StoragePool
+	)
 
 	diags := req.Plan.Get(ctx, &plan)
-
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -248,7 +250,7 @@ func (r *deviceResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	diags = r.getStoragePoolID(&plan)
+	sp_instance, diags = r.getStoragePoolID(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -263,14 +265,7 @@ func (r *deviceResource) Create(ctx context.Context, req resource.CreateRequest,
 		ExternalAccelerationType: plan.ExternalAccelerationType.ValueString(),
 	}
 
-	sp, err := getStoragePoolType(r.client, plan.StoragePoolID.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error getting storage pool instance with ID: "+plan.StoragePoolID.ValueString(),
-			"unexpected error: "+err.Error(),
-		)
-		return
-	}
+	sp := goscaleio.NewStoragePoolEx(r.client, sp_instance)
 
 	deviceID, err2 := sp.AttachDevice(deviceParam)
 	if err2 != nil {
@@ -349,7 +344,12 @@ func (r *deviceResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *deviceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan DeviceModel
+	var (
+		plan        DeviceModel
+		sp_instance *goscaleio_types.StoragePool
+		err         error
+	)
+
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 
@@ -367,20 +367,13 @@ func (r *deviceResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	diags = r.getStoragePoolID(&plan)
+	sp_instance, diags = r.getStoragePoolID(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	sp, err := getStoragePoolType(r.client, plan.StoragePoolID.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error getting storage pool instance with ID: "+plan.StoragePoolID.ValueString(),
-			"unexpected error: "+err.Error(),
-		)
-		return
-	}
+	sp := goscaleio.NewStoragePoolEx(r.client, sp_instance)
 
 	// Check if device name needs be updated
 	if !plan.Name.IsUnknown() && plan.Name.ValueString() != state.Name.ValueString() {
@@ -433,8 +426,8 @@ func (r *deviceResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if plan.DevicePath.ValueString() != state.DevicePath.ValueString() {
 		resp.Diagnostics.AddAttributeError(
 			path.Root("device_path"),
-			"Please update the device path in sync with current path of device.",
-			"Please update the device path in sync with current path of device.",
+			"The device path on the actual infrastructure has drifted.",
+			"One reason for that could be the configured device path has been deleted from the SDS and this new path has been automatically assigned. Please update the device path in the config if you want to keep using this new path.",
 		)
 	}
 
@@ -531,7 +524,7 @@ func (r *deviceResource) getSdsID(plan *DeviceModel) (diags diag.Diagnostics) {
 }
 
 // getStoragePoolID populates the storage pool ID in the plan
-func (r *deviceResource) getStoragePoolID(plan *DeviceModel) (diags diag.Diagnostics) {
+func (r *deviceResource) getStoragePoolID(plan *DeviceModel) (sp *goscaleio_types.StoragePool, diags diag.Diagnostics) {
 	var (
 		pd  *goscaleio.ProtectionDomain
 		err error
@@ -549,7 +542,7 @@ func (r *deviceResource) getStoragePoolID(plan *DeviceModel) (diags diag.Diagnos
 	}
 
 	if !plan.StoragePoolID.IsUnknown() {
-		sp, err := r.system.GetStoragePoolByID(plan.StoragePoolID.ValueString())
+		sp, err = r.system.GetStoragePoolByID(plan.StoragePoolID.ValueString())
 		if err != nil {
 			diags.AddError(
 				"Error in getting storage pool details with ID: "+plan.StoragePoolID.ValueString(),
@@ -559,15 +552,15 @@ func (r *deviceResource) getStoragePoolID(plan *DeviceModel) (diags diag.Diagnos
 		}
 		plan.StoragePoolName = types.StringValue(sp.Name)
 	} else if !plan.StoragePoolName.IsUnknown() {
-		sp, err1 := pd.FindStoragePool("", plan.StoragePoolName.ValueString(), "")
-		if err1 != nil {
+		sp, err = pd.FindStoragePool("", plan.StoragePoolName.ValueString(), "")
+		if err != nil {
 			diags.AddError(
 				"Error in getting storage pool details with name: "+plan.ProtectionDomainName.ValueString(),
-				err1.Error(),
+				err.Error(),
 			)
 			return
 		}
 		plan.StoragePoolID = types.StringValue(sp.ID)
 	}
-	return
+	return sp, diags
 }
