@@ -37,35 +37,35 @@ func TestAccDeviceDatasource(t *testing.T) {
 				Config: ProviderConfigForTesting + deviceDataWithSdsID,
 			},
 			{
-				Config: ProviderConfigForTesting + deviceDataWithNameInvalid,
+				Config:      ProviderConfigForTesting + deviceDataWithNameInvalid,
 				ExpectError: regexp.MustCompile("Error getting device with Name"),
 			},
 			{
-				Config: ProviderConfigForTesting + deviceDataWithPathInvalid,
+				Config:      ProviderConfigForTesting + deviceDataWithPathInvalid,
 				ExpectError: regexp.MustCompile("Error getting device with CurrentPath"),
 			},
 			{
-				Config: ProviderConfigForTesting + deviceDataWithIDInvalid,
+				Config:      ProviderConfigForTesting + deviceDataWithIDInvalid,
 				ExpectError: regexp.MustCompile("Error getting device with ID"),
 			},
 			{
-				Config: ProviderConfigForTesting + deviceDataWithProtectionDomainNameInvalid,
+				Config:      ProviderConfigForTesting + deviceDataWithProtectionDomainNameInvalid,
 				ExpectError: regexp.MustCompile("Error in getting protection domain details with ID"),
 			},
 			{
-				Config: ProviderConfigForTesting + deviceDataWithStoragePoolNameInvalid,
+				Config:      ProviderConfigForTesting + deviceDataWithStoragePoolNameInvalid,
 				ExpectError: regexp.MustCompile("Error in getting storage pool details with name"),
 			},
 			{
-				Config: ProviderConfigForTesting + deviceDataWithStoragePoolIDInvalid,
+				Config:      ProviderConfigForTesting + deviceDataWithStoragePoolIDInvalid,
 				ExpectError: regexp.MustCompile("Error getting storage pool instance with ID"),
 			},
 			{
-				Config: ProviderConfigForTesting + deviceDataWithSdsIDInvalid,
+				Config:      ProviderConfigForTesting + deviceDataWithSdsIDInvalid,
 				ExpectError: regexp.MustCompile("Could not get SDS by ID"),
 			},
 			{
-				Config: ProviderConfigForTesting + deviceDataWithSdsNameInvalid,
+				Config:      ProviderConfigForTesting + deviceDataWithSdsNameInvalid,
 				ExpectError: regexp.MustCompile("Error in getting sds details with name"),
 			},
 		},

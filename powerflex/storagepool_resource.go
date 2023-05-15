@@ -375,7 +375,7 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		err := pd.SetRebuildEnabled(sp, plan.RebuildEnabled.String())
 		if err != nil {
 			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set rebuild enabled to %s", plan.RebalanceEnabled.String()),
+				fmt.Sprintf("Could not set rebuild enabled to %s", plan.RebuildEnabled.String()),
 				err.Error(),
 			)
 		}
