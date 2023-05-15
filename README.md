@@ -46,7 +46,7 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
 
 ## List of DataSources in Terraform Provider for Dell PowerFlex
   * [SDC](docs/data-sources/sdc.md)
-  * [Storage pool](docs/data-sources/storagepool.md)
+  * [Storage pool](docs/data-sources/storage_pool.md)
   * [Volume](docs/data-sources/volume.md)
   * [SDS](docs/data-sources/sds.md)
   * [Protection Domain](docs/data-sources/protection_domain.md)
@@ -54,7 +54,7 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
 
 ## List of Resources in Terraform Provider for Dell PowerFlex
   * [SDC](docs/resources/sdc.md)
-  * [Storage pool](docs/resources/storagepool.md)
+  * [Storage pool](docs/resources/storage_pool.md)
   * [Volume](docs/resources/volume.md)
   * [SDS](docs/resources/sds.md)
   * [Snapshot](docs/resources/snapshot.md)
