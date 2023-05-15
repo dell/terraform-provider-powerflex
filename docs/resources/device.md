@@ -51,7 +51,7 @@ resource "powerflex_device" "test-device" {
 
 ### Required
 
-- `device_path` (String) The current path of the device.
+- `device_path` (String) The current path of the device. Cannot be updated.
 
 ### Optional
 

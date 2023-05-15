@@ -69,9 +69,9 @@ func (r *deviceResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				},
 			},
 			"device_path": schema.StringAttribute{
-				Description:         "The current path of the device.",
+				Description:         "The current path of the device. Cannot be updated.",
 				Required:            true,
-				MarkdownDescription: "The current path of the device.",
+				MarkdownDescription: "The current path of the device. Cannot be updated.",
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
