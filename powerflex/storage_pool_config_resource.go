@@ -8,6 +8,7 @@ import (
 	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -33,20 +34,73 @@ type storagepoolConfigResourceModel struct {
 	ProtectionDomainID         types.String   `tfsdk:"protection_domain_id"`
 	RebuildEnabled             types.Bool     `tfsdk:"rebuild_enabled"`
 	ReplicationJournalCapacity types.Int64    `tfsdk:"replication_journal_capacity"`
-	OriginalConfig             originalConfig `tfsdk:"original_config"`
+	// OriginalConfig             originalConfigModel `tfsdk:"original_config"`
 }
 
-type originalConfig struct {
-	RebuildEnabled             types.Bool  `tfsdk:"rebuild_enabled"`
-	ReplicationJournalCapacity types.Int64 `tfsdk:"replication_journal_capacity"`
+// type originalConfigModel struct {
+// 	RebuildEnabled             types.Bool  `tfsdk:"rebuild_enabled"`
+// 	ReplicationJournalCapacity types.Int64 `tfsdk:"replication_journal_capacity"`
+// }
+
+var StoragepoolConfigReourceSchema schema.Schema = schema.Schema{
+	Description: "This resource can be used to manage Storage Pools on a PowerFlex array.",
+	Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{
+			Description:         "ID of the Storage pool",
+			MarkdownDescription: "ID of the Storage pool",
+			Required:            true,
+		},
+		"protection_domain_id": schema.StringAttribute{
+			Description: "ID of the Protection Domain under which the storage pool will be created." +
+				" Conflicts with 'protection_domain_name'." +
+				" Cannot be updated.",
+			MarkdownDescription: "ID of the Protection Domain under which the storage pool will be created." +
+				" Conflicts with `protection_domain_name`." +
+				" Cannot be updated.",
+			Required: true,
+		},
+		"replication_journal_capacity": schema.Int64Attribute{
+			Description:         "This defines the maximum percentage of Storage Pool capacity that can be used by replication for the journal.",
+			MarkdownDescription: "This defines the maximum percentage of Storage Pool capacity that can be used by replication for the journal.",
+			Computed:            true,
+			Optional:            true,
+		},
+		"rebuild_enabled": schema.BoolAttribute{
+			Description:         "Enable or disable rebuilds in the specified Storage Pool",
+			MarkdownDescription: "Enable or disable rebuilds in the specified Storage Pool",
+			Computed:            true,
+			Optional:            true,
+		},
+		// "original_config": schema.SingleNestedAttribute{
+		// 	Description:         "Acceleration Props Of The Device Instance.",
+		// 	MarkdownDescription: "Acceleration Props Of The Device Instance.",
+		// 	Computed:            true,
+		// 	Attributes:          getOriginalConfigParamsSchema(),
+		// },
+	},
 }
+
+// func getOriginalConfigParamsSchema() map[string]schema.Attribute {
+// 	return map[string]schema.Attribute{
+// 		"replication_journal_capacity": schema.Int64Attribute{
+// 			Description:         "This defines the maximum percentage of Storage Pool capacity that can be used by replication for the journal.",
+// 			MarkdownDescription: "This defines the maximum percentage of Storage Pool capacity that can be used by replication for the journal.",
+// 			Computed:            true,
+// 		},
+// 		"rebuild_enabled": schema.BoolAttribute{
+// 			Description:         "Enable or disable rebuilds in the specified Storage Pool",
+// 			MarkdownDescription: "Enable or disable rebuilds in the specified Storage Pool",
+// 			Computed:            true,
+// 		},
+// 	}
+// }
 
 func (r *storagepoolConfigResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_storage_pool_config"
 }
 
 func (r *storagepoolConfigResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = StoragepoolReourceSchema
+	resp.Schema = StoragepoolConfigReourceSchema
 }
 
 func (r *storagepoolConfigResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -71,58 +125,61 @@ func (r *storagepoolConfigResource) Create(ctx context.Context, req resource.Cre
 	tflog.Debug(ctx, "Create storagepool")
 	// Retrieve values from plan
 	var plan, state storagepoolConfigResourceModel
-
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	pd, err := getNewProtectionDomainEx(r.client, plan.ProtectionDomainID.ValueString(), "", "")
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error getting Protection Domain",
-			"Could not get Protection Domain, unexpected err: "+err.Error(),
-		)
-		return
-	}
-
-	sp, err := pd.FindStoragePool(plan.ID.ValueString(), "", "")
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error while getting Storagepool", err.Error(),
-		)
-		return
-	}
-
-	state.OriginalConfig = originalConfig{
-		ReplicationJournalCapacity: types.Int64Value(int64(sp.ReplicationCapacityMaxRatio)),
-		RebuildEnabled:             types.BoolValue(sp.RebuildEnabled),
-	}
-
-	// set rebuild enabled
-	if !plan.RebuildEnabled.IsUnknown() && !plan.RebuildEnabled.IsNull() {
-		err := pd.SetRebuildEnabled(sp.ID, plan.RebuildEnabled.String())
+	if !plan.ProtectionDomainID.IsUnknown() && !plan.ID.IsUnknown() {
+		pd, err := getNewProtectionDomainEx(r.client, plan.ProtectionDomainID.ValueString(), "", "")
 		if err != nil {
 			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set rebuild enabled to %s", plan.RebuildEnabled.String()),
-				err.Error(),
+				"Error getting Protection Domain",
+				"Could not get Protection Domain, unexpected err: "+err.Error(),
 			)
+			return
 		}
-		state.RebuildEnabled = plan.RebuildEnabled
-	}
 
-	// set the replication journal capacity
-	if !plan.ReplicationJournalCapacity.IsUnknown() && !plan.ReplicationJournalCapacity.IsNull() {
-		err := pd.SetReplicationJournalCapacity(sp.ID, plan.ReplicationJournalCapacity.String())
+		sp, err := pd.FindStoragePool(plan.ID.ValueString(), "", "")
 		if err != nil {
 			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set replication Journal capacity to %s", plan.ReplicationJournalCapacity.String()),
-				err.Error(),
+				"Error while getting Storagepool", err.Error(),
 			)
+			return
 		}
-		state.ReplicationJournalCapacity = plan.ReplicationJournalCapacity
+		// if sp.RebuildEnabled || sp.ReplicationCapacityMaxRatio != 0 {
+		// 	state.OriginalConfig = originalConfigModel{
+		// 		RebuildEnabled:             types.BoolValue(sp.RebuildEnabled),
+		// 		ReplicationJournalCapacity: types.Int64Value(int64(sp.ReplicationCapacityMaxRatio)),
+		// 	}
+		// }
+
+		// set rebuild enabled
+		if !plan.RebuildEnabled.IsUnknown() && !plan.RebuildEnabled.IsNull() {
+			err := pd.SetRebuildEnabled(sp.ID, plan.RebuildEnabled.String())
+			if err != nil {
+				resp.Diagnostics.AddError(
+					fmt.Sprintf("Could not set rebuild enabled to %s", plan.RebuildEnabled.String()),
+					err.Error(),
+				)
+			}
+			state.RebuildEnabled = plan.RebuildEnabled
+		}
+
+		// set the replication journal capacity
+		if !plan.ReplicationJournalCapacity.IsUnknown() && !plan.ReplicationJournalCapacity.IsNull() {
+			err := pd.SetReplicationJournalCapacity(sp.ID, plan.ReplicationJournalCapacity.String())
+			if err != nil {
+				resp.Diagnostics.AddError(
+					fmt.Sprintf("Could not set replication Journal capacity to %s", plan.ReplicationJournalCapacity.String()),
+					err.Error(),
+				)
+			}
+			state.ReplicationJournalCapacity = plan.ReplicationJournalCapacity
+		}
 	}
+
 	state.ID = plan.ID
 	state.ProtectionDomainID = plan.ProtectionDomainID
 	diags = resp.State.Set(ctx, state)
@@ -237,7 +294,7 @@ func (r *storagepoolConfigResource) Delete(ctx context.Context, req resource.Del
 		return
 	}
 
-	pd, err := getNewProtectionDomainEx(r.client, state.ProtectionDomainID.ValueString(),"", "")
+	pd, err := getNewProtectionDomainEx(r.client, state.ProtectionDomainID.ValueString(), "", "")
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting Protection Domain",
@@ -253,27 +310,26 @@ func (r *storagepoolConfigResource) Delete(ctx context.Context, req resource.Del
 		return
 	}
 
-	if !state.OriginalConfig.ReplicationJournalCapacity.IsUnknown() &&
-		!state.ReplicationJournalCapacity.Equal(state.OriginalConfig.ReplicationJournalCapacity) {
-		errReplicationJournalCapacity := pd.SetReplicationJournalCapacity(sp.ID, strconv.FormatInt(state.OriginalConfig.ReplicationJournalCapacity.ValueInt64(), 10))
+	if !state.ReplicationJournalCapacity.IsUnknown() &&
+		state.ReplicationJournalCapacity.ValueInt64() != 0 {
+		errReplicationJournalCapacity := pd.SetReplicationJournalCapacity(sp.ID, strconv.FormatInt(0, 10))
 		if errReplicationJournalCapacity != nil {
 			resp.Diagnostics.AddError(
 				"Error while updating ReplicationJournalCapacity of Storagepool", errReplicationJournalCapacity.Error(),
 			)
 		}
-		state.ReplicationJournalCapacity = state.OriginalConfig.ReplicationJournalCapacity
 	}
 
-	if !state.OriginalConfig.RebuildEnabled.IsUnknown() &&
-		!state.RebuildEnabled.Equal(state.OriginalConfig.RebuildEnabled) {
-		errRebuildEnabled := pd.SetRebuildEnabled(sp.ID, state.OriginalConfig.RebuildEnabled.String())
-		if errRebuildEnabled != nil {
-			resp.Diagnostics.AddError(
-				"Error while updating RebuildEnabled of Storagepool", errRebuildEnabled.Error(),
-			)
-		}
-		state.RebuildEnabled = state.OriginalConfig.RebuildEnabled
-	}
+	// if !state.OriginalConfig.RebuildEnabled.IsUnknown() &&
+	// 	!state.RebuildEnabled.Equal(state.OriginalConfig.RebuildEnabled) {
+	// 	errRebuildEnabled := pd.SetRebuildEnabled(sp.ID, state.OriginalConfig.RebuildEnabled.String())
+	// 	if errRebuildEnabled != nil {
+	// 		resp.Diagnostics.AddError(
+	// 			"Error while updating RebuildEnabled of Storagepool", errRebuildEnabled.Error(),
+	// 		)
+	// 	}
+	// 	state.RebuildEnabled = state.OriginalConfig.RebuildEnabled
+	// }
 	if resp.Diagnostics.HasError() {
 		return
 	}
