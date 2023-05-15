@@ -73,10 +73,10 @@ func (r *sdcVolumeMappingResource) Schema(_ context.Context, _ resource.SchemaRe
 				},
 			},
 			"volume_list": schema.SetNestedAttribute{
-				Description:         "List of volumes mapped to SDC. Atleast one of 'volume_id' and 'volume_name' is required.",
+				Description:         "List of volumes mapped to SDC. At least one of 'volume_id' and 'volume_name' is required.",
 				Computed:            true,
 				Optional:            true,
-				MarkdownDescription: "List of volumes mapped to SDC. Atleast one of `volume_id` and `volume_name` is required.",
+				MarkdownDescription: "List of volumes mapped to SDC. At least one of `volume_id` and `volume_name` is required.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"volume_id": schema.StringAttribute{

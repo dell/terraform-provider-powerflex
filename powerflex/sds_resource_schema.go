@@ -54,12 +54,12 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 		},
 		"ip_list": schema.SetNestedAttribute{
 			Description: "List of IPs to be assigned to the SDS." +
-				fmt.Sprintf(" There must be atleast one IP with '%s' role or ", goscaleio.RoleAll) +
-				fmt.Sprintf("atleast two IPs, one with role '%s' ", goscaleio.RoleSdcOnly) +
+				fmt.Sprintf(" There must be at least one IP with '%s' role or ", goscaleio.RoleAll) +
+				fmt.Sprintf("at least two IPs, one with role '%s' ", goscaleio.RoleSdcOnly) +
 				fmt.Sprintf("and the other with role '%s'.", goscaleio.RoleSdsOnly),
 			MarkdownDescription: "List of IPs to be assigned to the SDS." +
-				fmt.Sprintf(" There must be atleast one IP with `%s` role or ", goscaleio.RoleAll) +
-				fmt.Sprintf("atleast two IPs, one with role `%s` ", goscaleio.RoleSdcOnly) +
+				fmt.Sprintf(" There must be at least one IP with `%s` role or ", goscaleio.RoleAll) +
+				fmt.Sprintf("at least two IPs, one with role `%s` ", goscaleio.RoleSdcOnly) +
 				fmt.Sprintf("and the other with role `%s`.", goscaleio.RoleSdsOnly),
 			Required: true,
 			NestedObject: schema.NestedAttributeObject{

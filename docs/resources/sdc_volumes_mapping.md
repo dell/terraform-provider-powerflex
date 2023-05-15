@@ -71,7 +71,7 @@ resource "powerflex_sdc_volumes_mapping" "mapping-test" {
 
 - `id` (String) The ID of the SDC.
 - `name` (String) The name of the SDC.
-- `volume_list` (Attributes Set) List of volumes mapped to SDC. Atleast one of `volume_id` and `volume_name` is required. (see [below for nested schema](#nestedatt--volume_list))
+- `volume_list` (Attributes Set) List of volumes mapped to SDC. At least one of `volume_id` and `volume_name` is required. (see [below for nested schema](#nestedatt--volume_list))
 
 <a id="nestedatt--volume_list"></a>
 ### Nested Schema for `volume_list`
