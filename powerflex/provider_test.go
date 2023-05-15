@@ -11,6 +11,7 @@ import (
 )
 
 var ProviderConfigForTesting = ``
+var ProviderConfigForGatewayTesting = ``
 
 type sdsDataPoints struct {
 	SdsIP1   string
@@ -34,6 +35,7 @@ var SdsResourceTestData sdsDataPoints
 var SDCMappingResourceID2 = os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_ID2")
 var SDCMappingResourceName2 = os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_NAME2")
 var SDCVolName = os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_NAME")
+var SdsID = os.Getenv("POWERFLEX_DEVICE_SDS_ID")
 
 func init() {
 	godotenv.Load("POWERFLEX_TERRAFORM_TEST.env")
@@ -41,6 +43,10 @@ func init() {
 	username := os.Getenv("POWERFLEX_USERNAME")
 	password := os.Getenv("POWERFLEX_PASSWORD")
 	endpoint := os.Getenv("POWERFLEX_ENDPOINT")
+
+	gatewayusername := os.Getenv("GATEWAY_USERNAME")
+	gatewaypassword := os.Getenv("GATEWAY_PASSWORD")
+	gatewayendpoint := os.Getenv("GATEWAY_ENDPOINT")
 	SdsResourceTestData.SdsIP1 = os.Getenv("POWERFLEX_SDS_IP_1")
 	SdsResourceTestData.SdsIP2 = os.Getenv("POWERFLEX_SDS_IP_2")
 	SdsResourceTestData.SdsIP3 = os.Getenv("POWERFLEX_SDS_IP_3")
@@ -64,6 +70,15 @@ func init() {
 			endpoint = "%s"
 		}
 	`, username, password, endpoint)
+
+	ProviderConfigForGatewayTesting = fmt.Sprintf(`
+		provider "powerflex" {
+			username = "%s"
+			password = "%s"
+			endpoint = "%s"
+			gatewayinstaller = true
+		}
+	`, gatewayusername, gatewaypassword, gatewayendpoint)
 }
 
 var (
