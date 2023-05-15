@@ -35,6 +35,9 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("storage_pool_name")),
 			},
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.UseStateForUnknown(),
+			},
 		},
 		"storage_pool_name": schema.StringAttribute{
 			Description: "Name of the Storage Pool under which the volume will be created." +
@@ -48,6 +51,9 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("storage_pool_id")),
+			},
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.UseStateForUnknown(),
 			},
 		},
 		"protection_domain_id": schema.StringAttribute{
@@ -63,6 +69,9 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_name")),
 			},
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.UseStateForUnknown(),
+			},
 		},
 		"protection_domain_name": schema.StringAttribute{
 			Description: "Name of the Protection Domain under which the volume will be created." +
@@ -76,6 +85,9 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),
+			},
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.UseStateForUnknown(),
 			},
 		},
 		"size": schema.Int64Attribute{

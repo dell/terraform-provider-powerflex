@@ -17,16 +17,16 @@ func TestStoragePoolDataSource(t *testing.T) {
 					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example1", "storage_pools.#", "2"),
 					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example1", "storage_pools.0.name", "pool2"),
 					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example1", "storage_pools.1.name", "pool1"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example1", "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example1", "protection_domain_id", protectionDomainID1),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + StoragePoolDataSourceConfig2,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example2", "storage_pools.#", "2"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example2", "storage_pools.0.id", "7630a24600000000"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example2", "storage_pools.1.id", "7630a24800000002"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example2", "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example2", "storage_pools.0.id", "c98ec35000000002"),
+					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example2", "storage_pools.1.id", "c98e26e500000000"),
+					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example2", "protection_domain_id", protectionDomainID1),
 				),
 			},
 			{
@@ -42,8 +42,8 @@ func TestStoragePoolDataSource(t *testing.T) {
 				Config: ProviderConfigForTesting + StoragePoolDataSourceConfig4,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example4", "storage_pools.#", "2"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example4", "storage_pools.0.id", "7630a24600000000"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example4", "storage_pools.1.id", "7630a24800000002"),
+					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example4", "storage_pools.0.id", "c98ec35000000002"),
+					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example4", "storage_pools.1.id", "c98e26e500000000"),
 					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example4", "protection_domain_name", "domain1"),
 				),
 			},
@@ -59,15 +59,15 @@ func TestStoragePoolDataSource(t *testing.T) {
 
 var StoragePoolDataSourceConfig1 = `
 data "powerflex_storage_pool" "example1" {
-	protection_domain_id = "202a046600000000"
+	protection_domain_id = "` + protectionDomainID1 + `"
 	storage_pool_names = ["pool2", "pool1"]
 }
 `
 
 var StoragePoolDataSourceConfig2 = `
 data "powerflex_storage_pool" "example2" {
-	protection_domain_id = "202a046600000000"
-	storage_pool_ids = ["7630a24600000000", "7630a24800000002"]
+	protection_domain_id = "` + protectionDomainID1 + `"
+	storage_pool_ids = ["c98ec35000000002", "c98e26e500000000"]
 }
 `
 
@@ -80,7 +80,7 @@ data "powerflex_storage_pool" "example3" {
 var StoragePoolDataSourceConfig4 = `
 data "powerflex_storage_pool" "example4" {
 	protection_domain_name = "domain1"
-	storage_pool_ids = ["7630a24600000000", "7630a24800000002"]
+	storage_pool_ids = ["c98ec35000000002", "c98e26e500000000"]
 }
 `
 var StoragePoolDataSourceConfig5 = `

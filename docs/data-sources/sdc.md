@@ -38,7 +38,7 @@ This data-source can be used to fetch information related to Storage Data Client
 # id can't be empty
 
 data "powerflex_sdc" "selected" {
-  #id = "c423b09800000003"
+  #id = "e3ce1fb500000000"
   name = "sdc_01"
 }
 

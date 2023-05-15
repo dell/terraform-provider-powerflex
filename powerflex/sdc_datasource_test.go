@@ -23,7 +23,7 @@ func init() {
 	sdcTestData.noOfSdc = "1"
 	sdcTestData.noOflinks = "4"
 	sdcTestData.name = ""
-	sdcTestData.sdcip = SdsResourceTestData.SdcIP
+	sdcTestData.sdcip = os.Getenv("POWERFLEX_SDC_IP1")
 }
 
 func TestSdcDataSource(t *testing.T) {
@@ -44,7 +44,7 @@ func TestSdcDataSource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckTypeSetElemNestedAttrs("data.powerflex_sdc.selected", "sdcs.*", map[string]string{
 						"id":   "e3ce1fb500000000",
-						"name": "Terraform_sdc",
+						"name": "terraform_sdc",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("data.powerflex_sdc.selected", "sdcs.*", map[string]string{
 						"id":   "e3ce1fb600000001",
@@ -55,7 +55,7 @@ func TestSdcDataSource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + TestSdcDataSourceByNameBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "Terraform_sdc"),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "terraform_sdc"),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.id", "e3ce1fb500000000"),
 				),
 			},
@@ -111,7 +111,7 @@ var (
 	}`
 
 	TestSdcDataSourceByNameBlock = `data "powerflex_sdc" "selected" {
-		name = "Terraform_sdc"
+		name = "terraform_sdc"
 	}`
 
 	TestSdcDataSourceInvalidName = `data "powerflex_sdc" "selected" {

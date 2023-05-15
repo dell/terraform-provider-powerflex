@@ -39,7 +39,7 @@ This data-source can be used to fetch information related to the snapshot polici
 data "powerflex_snapshot_policy" "sp" {
 
   #name = "sample_snap_policy_1"
-  id = "15ad99b900000001"
+  id = "896a535700000000"
 }
 
 output "spResult" {

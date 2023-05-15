@@ -59,8 +59,12 @@ resource "powerflex_snapshot" "snapshots-create" {
 `
 
 var updateSnapshotRenameNegTest = createVolForSs + `
-resource "powerflex_snapshot" "snapshots-create" {
+resource "powerflex_snapshot" "snapshots-create-before" {
 	name = "snapshot-create-invalid"
+	volume_id = resource.powerflex_volume.ref-vol.id
+}
+resource "powerflex_snapshot" "snapshots-create" {
+	name = resource.powerflex_snapshot.snapshots-create-before.name
 	// snapshot with name snapshot-create-invalid already exist  
 	volume_id = resource.powerflex_volume.ref-vol.id
 }
@@ -94,7 +98,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
   	remove_mode = "INCLUDING_DESCENDANTS"
 	sdc_list = [
 		{	
-			sdc_id = "c423b09900000004"
+			sdc_name = "terraform_sdc"
 			limit_iops = 150
 			limit_bw_in_mbps = 20
 			access_mode = "ReadWrite"
@@ -110,7 +114,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
 	access_mode = "ReadOnly"
 	sdc_list = [
 		{	
-			sdc_id = "c423b09900000004"
+			sdc_id = "e3ce1fb500000000"
 			limit_iops = 150
 			limit_bw_in_mbps = 20
 			access_mode = "ReadWrite"
@@ -130,7 +134,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
   	remove_mode = "INCLUDING_DESCENDANTS"
 	sdc_list = [
 		{	
-			sdc_id = "c423b09900000004"
+			sdc_id = "e3ce1fb500000000"
 			limit_iops = 150
 			limit_bw_in_mbps = 20
 			access_mode = "ReadWrite"
@@ -149,19 +153,19 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
   remove_mode = "INCLUDING_DESCENDANTS"
 	sdc_list = [
     {	
-			sdc_id = "c423b09800000003"
+			sdc_id = "e3ce1fb500000000"
 			limit_iops = 200
 			limit_bw_in_mbps = 40
 			access_mode = "ReadWrite"
 		},
 		{	
-			sdc_id = "c423b09900000004"
+			sdc_id = "e3ce46c500000002"
 			limit_iops = 190
 			limit_bw_in_mbps = 70
 			access_mode = "NoAccess"
 		},
     		{
-			sdc_id = "c423b09a00000005"
+			sdc_id = "e3ce46c600000003"
 			limit_iops = 82
 			limit_bw_in_mbps = 17
 			access_mode = "ReadOnly"
@@ -177,7 +181,7 @@ resource "powerflex_snapshot" "snapshots-create-access-mode-invalid-sdc-map" {
 	access_mode = "ReadWrite"
 	sdc_list = [
 		{	
-			sdc_id = "c423b09900000004"
+			sdc_id = "e3ce1fb500000000"
 			limit_iops = 200
 			limit_bw_in_mbps = 40
 			access_mode = "ReadWrite"
@@ -200,13 +204,13 @@ resource "powerflex_snapshot" "snapshots-create-locked-auto-invalid" {
 	lock_auto_snapshot = true
 	sdc_list = [
 		{	
-			sdc_id = "c423b09900000004"
+			sdc_id = "e3ce1fb500000000"
 			limit_iops = 200
 			limit_bw_in_mbps = 40
 			access_mode = "ReadWrite"
 		},
 		{
-			sdc_id = "c423b09a00000005"
+			sdc_id = "e3ce46c600000003"
 			limit_iops = 90
 			limit_bw_in_mbps = 9
 			access_mode = "ReadOnly"
@@ -331,13 +335,13 @@ func TestAccSnapshotResourceDuplicateSdc(t *testing.T) {
 		size = 16
 		sdc_list = [
 			{	
-				sdc_id = "c423b09800000003"
+				sdc_id = "e3ce1fb500000000"
 				limit_iops = 200
 				limit_bw_in_mbps = 40
 				access_mode = "ReadWrite"
 			},
 			{	
-				sdc_id = "c423b09800000003"
+				sdc_id = "e3ce1fb500000000"
 				limit_iops = 200
 				limit_bw_in_mbps = 40
 				access_mode = "ReadWrite"
@@ -353,13 +357,13 @@ func TestAccSnapshotResourceDuplicateSdc(t *testing.T) {
 		size = 16
 		sdc_list = [
 			{	
-				sdc_id = "c423b09800000003"
+				sdc_id = "e3ce1fb500000000"
 				limit_iops = 200
 				limit_bw_in_mbps = 40
 				access_mode = "ReadWrite"
 			},
 			{	
-				sdc_id = "c423b09800000003"
+				sdc_id = "e3ce1fb500000000"
 				limit_iops = 200
 				limit_bw_in_mbps = 45
 				access_mode = "ReadWrite"
@@ -367,6 +371,26 @@ func TestAccSnapshotResourceDuplicateSdc(t *testing.T) {
 		]
 	}
 	`
+
+	createSsUnspecifiedSdc := createVolForSs + `
+	resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
+		name = "snapshots-create-epsilon"
+		volume_id = resource.powerflex_volume.ref-vol.id
+		access_mode = "ReadWrite"
+		size = 16
+	}
+	`
+
+	createSsNoSdc := createVolForSs + `
+	resource "powerflex_snapshot" "snapshots-create-access-mode-sdc-map" {
+		name = "snapshots-create-epsilon"
+		volume_id = resource.powerflex_volume.ref-vol.id
+		access_mode = "ReadWrite"
+		size = 16
+		sdc_list = []
+	}
+	`
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -379,6 +403,18 @@ func TestAccSnapshotResourceDuplicateSdc(t *testing.T) {
 				Config: ProviderConfigForTesting + createSsDuplicateSdcPos,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create-access-mode-sdc-map", "sdc_list.#", "1"),
+				),
+			},
+			{
+				Config: ProviderConfigForTesting + createSsUnspecifiedSdc,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create-access-mode-sdc-map", "sdc_list.#", "1"),
+				),
+			},
+			{
+				Config: ProviderConfigForTesting + createSsNoSdc,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create-access-mode-sdc-map", "sdc_list.#", "0"),
 				),
 			},
 		},
