@@ -201,8 +201,8 @@ func (d *deviceDataSource) ValidateConfig(ctx context.Context, req datasource.Va
 
 func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var (
-		state   deviceDataSourceModel
-		pd      *goscaleio.ProtectionDomain
+		state deviceDataSourceModel
+		// pd      *goscaleio.ProtectionDomain
 		err     error
 		devices []scaleiotypes.Device
 	)
@@ -213,8 +213,11 @@ func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 	if !state.StoragePoolID.IsNull() || !state.StoragePoolName.IsNull() {
+		// Get ProtectionDomain with ID and Name if StoragePoolName is provided
+		var sp *goscaleio.StoragePool
+		var err error
 		if !state.StoragePoolName.IsNull() {
-			pd, err = getNewProtectionDomainEx(d.client, state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString(), "")
+			pd, err := getNewProtectionDomainEx(d.client, state.ProtectionDomainID.ValueString(), state.ProtectionDomainName.ValueString(), "")
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error in getting protection domain details with ID: "+state.ProtectionDomainID.ValueString()+" name: "+state.ProtectionDomainName.ValueString(),
@@ -222,17 +225,22 @@ func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 				)
 				return
 			}
-			sp, err1 := pd.FindStoragePool("", state.StoragePoolName.ValueString(), "")
-			if err1 != nil {
+
+			// Find StoragePool by Name
+			sp, err := pd.FindStoragePool("", state.StoragePoolName.ValueString(), "")
+			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error in getting storage pool details with name: "+state.StoragePoolName.ValueString(),
-					err1.Error(),
+					err.Error(),
 				)
 				return
 			}
+
 			state.StoragePoolID = types.StringValue(sp.ID)
-		} else if !state.StoragePoolID.IsUnknown() {
-			sp1, err := getStoragePool(d, state.StoragePoolID.ValueString())
+		}
+		// Get StoragePool by ID
+		if !state.StoragePoolID.IsUnknown() {
+			sp, err = getStoragePool(d, state.StoragePoolID.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error getting storage pool instance with ID: "+state.StoragePoolID.ValueString(),
@@ -240,16 +248,19 @@ func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 				)
 				return
 			}
-			state.StoragePoolName = types.StringValue(sp1.StoragePool.Name)
-			devices, err = sp1.GetDevice()
-			if err != nil {
-				resp.Diagnostics.AddError(
-					"Error getting all devices within storage pool instance with ID: "+state.StoragePoolID.ValueString(),
-					"unexpected error: "+err.Error(),
-				)
-			}
 		}
+		state.StoragePoolName = types.StringValue(sp.StoragePool.Name)
+		devices, err = sp.GetDevice()
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error getting all devices within storage pool instance with ID: "+state.StoragePoolID.ValueString(),
+				"unexpected error: "+err.Error(),
+			)
+		}
+
 	} else if !state.SdsID.IsNull() || !state.SdsName.IsNull() {
+		var rsp scaleiotypes.Sds
+		var err error
 		if !state.SdsName.IsNull() {
 			sds, err := d.system.FindSds("Name", state.SdsName.ValueString())
 			if err != nil {
@@ -260,8 +271,9 @@ func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 				return
 			}
 			state.SdsID = types.StringValue(sds.ID)
-		} else if !state.SdsID.IsUnknown() {
-			rsp, err := d.system.GetSdsByID(state.SdsID.ValueString())
+		}
+		if !state.SdsID.IsUnknown() {
+			rsp, err = d.system.GetSdsByID(state.SdsID.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
 					fmt.Sprintf("Could not get SDS by ID %s", state.SdsID.ValueString()),
@@ -269,14 +281,14 @@ func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 				)
 				return
 			}
-			sds := goscaleio.NewSdsEx(d.client, &rsp)
-			devices, err = sds.GetDevice()
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Could not get devices within SDS by ID %s", state.SdsID.ValueString()),
-					err.Error(),
-				)
-			}
+		}
+		sds := goscaleio.NewSdsEx(d.client, &rsp)
+		devices, err = sds.GetDevice()
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Could not get devices within SDS by ID %s", state.SdsID.ValueString()),
+				err.Error(),
+			)
 		}
 	} else if !state.CurrentPath.IsNull() {
 		devices, err = d.system.GetDeviceByField("DeviceCurrentPathName", state.CurrentPath.ValueString())
@@ -319,7 +331,9 @@ func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 
 	// Set refreshed state
-	state.ID = types.StringValue("placeholder")
+	if state.ID.IsNull() {
+		state.ID = types.StringValue("placeholder")
+	}
 	state.DeviceModel = getAllDeviceState(devices)
 	resp.Diagnostics.Append(diags...)
 
