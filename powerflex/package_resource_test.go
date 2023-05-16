@@ -26,12 +26,16 @@ func TestAccPackageResource(t *testing.T) {
 			//Create
 			{
 				Config: ProviderConfigForGatewayTesting + packageTest,
-				Check:  resource.TestCheckResourceAttr("powerflex_package.upload-test", "package_details.0.file_name", "EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"),
+				Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_package.upload-test", "package_details.*", map[string]string{
+					"file_name": "EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar",
+				}),
 			},
 			//Update
 			{
 				Config: ProviderConfigForGatewayTesting + packageUpdateTest,
-				Check:  resource.TestCheckResourceAttr("powerflex_package.upload-test", "package_details.0.file_name", "EMC-ScaleIO-mdm-3.6-700.103.Ubuntu.22.04.x86_64.tar"),
+				Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_package.upload-test", "package_details.*", map[string]string{
+					"file_name": "EMC-ScaleIO-mdm-3.6-700.103.Ubuntu.22.04.x86_64.tar",
+				}),
 			},
 		}})
 }
