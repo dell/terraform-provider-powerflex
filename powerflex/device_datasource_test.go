@@ -36,36 +36,36 @@ func TestAccDeviceDatasource(t *testing.T) {
 				Config: ProviderConfigForTesting + deviceDataWithID,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_device.dev4", "device_model.#", "1"),
-					resource.TestCheckResourceAttr("data.powerflex_device.dev4", "id" , "c7fc68a200000000"),
+					resource.TestCheckResourceAttr("data.powerflex_device.dev4", "id", "c7fc68a200000000"),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + deviceDataWithStoragePoolName,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_device.dev5", "device_model.#", "3"),
-					resource.TestCheckResourceAttr("data.powerflex_device.dev5", "protection_domain_name","domain1"),
-					resource.TestCheckResourceAttr("data.powerflex_device.dev5", "storage_pool_name","pool1"),
+					resource.TestCheckResourceAttr("data.powerflex_device.dev5", "protection_domain_name", "domain1"),
+					resource.TestCheckResourceAttr("data.powerflex_device.dev5", "storage_pool_name", "pool1"),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + deviceDataWithStoragePoolID,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_device.dev6", "device_model.#", "3"),
-					resource.TestCheckResourceAttr("data.powerflex_device.dev6", "storage_pool_id","c98e26e500000000"),
+					resource.TestCheckResourceAttr("data.powerflex_device.dev6", "storage_pool_id", "c98e26e500000000"),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + deviceDataWithSdsName,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_device.dev7", "device_model.#", "2"),
-					resource.TestCheckResourceAttr("data.powerflex_device.dev7", "sds_name","SDS_2"),
+					resource.TestCheckResourceAttr("data.powerflex_device.dev7", "sds_name", "SDS_2"),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + deviceDataWithSdsID,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_device.dev8", "device_model.#", "1"),
-					resource.TestCheckResourceAttr("data.powerflex_device.dev8", "sds_id","db2c37000000000"),
+					resource.TestCheckResourceAttr("data.powerflex_device.dev8", "sds_id", "db2c37000000000"),
 				),
 			},
 			{
