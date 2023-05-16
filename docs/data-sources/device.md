@@ -120,7 +120,7 @@ Read-Only:
 
 Read-Only:
 
-- `acc_used_capacity_in_kb` (String) Acceleration Used Capacity In KB Acceleration Properties Parameters Of The Device Instance.
+- `acc_used_capacity_in_kb` (String) Accelerator(ACC) Used Capacity In KB Acceleration Properties Parameters Of The Device Instance.
 
 
 <a id="nestedatt--device_model--links"></a>
@@ -194,19 +194,19 @@ Read-Only:
 
 Read-Only:
 
-- `checksum_acc_device_id` (String) Checksum Acc Device ID Storage Properties Parameters Of The Device Instance.
-- `checksum_changelog_acc_device_id` (String) Checksum Changelog Acc Device ID Storage Properties Parameters Of The Device Instance.
+- `checksum_acc_device_id` (String) Checksum Accelerator(ACC) Device ID Storage Properties Parameters Of The Device Instance.
+- `checksum_changelog_acc_device_id` (String) Checksum Changelog Accelerator(ACC) Device ID Storage Properties Parameters Of The Device Instance.
 - `checksum_changelog_size_mb` (Number) Checksum Changelog Size MB Storage Properties Parameters Of The Device Instance.
 - `checksum_mode` (String) Checksum Mode Storage Properties Parameters Of The Device Instance.
 - `checksum_size_mb` (Number) Checksum Size MB Storage Properties Parameters Of The Device Instance.
-- `dest_checksum_acc_device_id` (String) Dest Checksum Acc Device ID Storage Properties Parameters Of The Device Instance.
-- `dest_checksum_changelog_acc_device_id` (String) Dest Checksum Changelog Acc Device ID Storage Properties Parameters Of The Device Instance.
-- `dest_checksum_changelog_size_mb` (Number) Dest Checksum Changelog Size MB Storage Properties Parameters Of The Device Instance.
-- `dest_checksum_mode` (String) Dest Checksum Mode Storage Properties Parameters Of The Device Instance.
-- `dest_fgl_acc_device_id` (String) Dest Fgl Acc Device ID Storage Properties Parameters Of The Device Instance.
-- `dest_fgl_nvdimm_size_mb` (Number) Dest Fgl Nvdimm Size MB Storage Properties Parameters Of The Device Instance.
-- `fgl_acc_device_id` (String) Fgl Acc Device Id Storage Properties Parameters Of The Device Instance.
-- `fgl_nvdimm_size_mb` (Number) Fgl Nvdimm Size MB Storage Properties Parameters Of The Device Instance.
+- `dest_checksum_acc_device_id` (String) Destination Checksum Accelerator(ACC) Device ID Storage Properties Parameters Of The Device Instance.
+- `dest_checksum_changelog_acc_device_id` (String) Destination Checksum Changelog Accelerator(ACC) Device ID Storage Properties Parameters Of The Device Instance.
+- `dest_checksum_changelog_size_mb` (Number) Destination Checksum Changelog Size MB Storage Properties Parameters Of The Device Instance.
+- `dest_checksum_mode` (String) Destination Checksum Mode Storage Properties Parameters Of The Device Instance.
+- `dest_fgl_acc_device_id` (String) Destination FGL(Fujitsu General Limited) Accelerator(ACC) Device ID Storage Properties Parameters Of The Device Instance.
+- `dest_fgl_nvdimm_size_mb` (Number) Destination FGL(Fujitsu General Limited) Non-Volatile Dual In-line Memory Module(NVDIMM) Size In MB Storage Properties Parameters Of The Device Instance.
+- `fgl_acc_device_id` (String) FGL(Fujitsu General Limited) Accelerator(ACC) Device Id Storage Properties Parameters Of The Device Instance.
+- `fgl_nvdimm_size_mb` (Number) FGL(Fujitsu General Limited) Non-Volatile Dual In-line Memory Module(NVDIMM) Size In MB Storage Properties Parameters Of The Device Instance.
 - `is_checksum_fully_calculated` (Boolean) Is Checksum Fully Calculated Storage Properties Parameters Of The Device Instance.
 
 

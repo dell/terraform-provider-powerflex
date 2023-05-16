@@ -500,23 +500,23 @@ func getWindowParamsDeviceSchema() map[string]schema.Attribute {
 func getStoragePropsParamsSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"fgl_acc_device_id": schema.StringAttribute{
-			Description:         "Fgl Acc Device Id Storage Properties Parameters Of The Device Instance.",
-			MarkdownDescription: "Fgl Acc Device Id Storage Properties Parameters Of The Device Instance.",
+			Description:         "FGL(Fujitsu General Limited) Accelerator(ACC) Device Id Storage Properties Parameters Of The Device Instance.",
+			MarkdownDescription: "FGL(Fujitsu General Limited) Accelerator(ACC) Device Id Storage Properties Parameters Of The Device Instance.",
 			Computed:            true,
 		},
 		"fgl_nvdimm_size_mb": schema.Int64Attribute{
-			Description:         "Fgl Nvdimm Size MB Storage Properties Parameters Of The Device Instance.",
-			MarkdownDescription: "Fgl Nvdimm Size MB Storage Properties Parameters Of The Device Instance.",
+			Description:         "FGL(Fujitsu General Limited) Non-Volatile Dual In-line Memory Module(NVDIMM) Size In MB Storage Properties Parameters Of The Device Instance.",
+			MarkdownDescription: "FGL(Fujitsu General Limited) Non-Volatile Dual In-line Memory Module(NVDIMM) Size In MB Storage Properties Parameters Of The Device Instance.",
 			Computed:            true,
 		},
 		"dest_fgl_nvdimm_size_mb": schema.Int64Attribute{
-			Description:         "Dest Fgl Nvdimm Size MB Storage Properties Parameters Of The Device Instance.",
-			MarkdownDescription: "Dest Fgl Nvdimm Size MB Storage Properties Parameters Of The Device Instance.",
+			Description:         "Destination FGL(Fujitsu General Limited) Non-Volatile Dual In-line Memory Module(NVDIMM) Size In MB Storage Properties Parameters Of The Device Instance.",
+			MarkdownDescription: "Destination FGL(Fujitsu General Limited) Non-Volatile Dual In-line Memory Module(NVDIMM) Size In MB Storage Properties Parameters Of The Device Instance.",
 			Computed:            true,
 		},
 		"dest_fgl_acc_device_id": schema.StringAttribute{
-			Description:         "Dest Fgl Acc Device ID Storage Properties Parameters Of The Device Instance.",
-			MarkdownDescription: "Dest Fgl Acc Device ID Storage Properties Parameters Of The Device Instance.",
+			Description:         "Destination FGL(Fujitsu General Limited) Accelerator(ACC) Device ID Storage Properties Parameters Of The Device Instance.",
+			MarkdownDescription: "Destination FGL(Fujitsu General Limited) Accelerator(ACC) Device ID Storage Properties Parameters Of The Device Instance.",
 			Computed:            true,
 		},
 		"checksum_mode": schema.StringAttribute{
@@ -525,18 +525,18 @@ func getStoragePropsParamsSchema() map[string]schema.Attribute {
 			Computed:            true,
 		},
 		"dest_checksum_mode": schema.StringAttribute{
-			Description:         "Dest Checksum Mode Storage Properties Parameters Of The Device Instance.",
-			MarkdownDescription: "Dest Checksum Mode Storage Properties Parameters Of The Device Instance.",
+			Description:         "Destination Checksum Mode Storage Properties Parameters Of The Device Instance.",
+			MarkdownDescription: "Destination Checksum Mode Storage Properties Parameters Of The Device Instance.",
 			Computed:            true,
 		},
 		"checksum_acc_device_id": schema.StringAttribute{
-			Description:         "Checksum Acc Device ID Storage Properties Parameters Of The Device Instance.",
-			MarkdownDescription: "Checksum Acc Device ID Storage Properties Parameters Of The Device Instance.",
+			Description:         "Checksum Accelerator(ACC) Device ID Storage Properties Parameters Of The Device Instance.",
+			MarkdownDescription: "Checksum Accelerator(ACC) Device ID Storage Properties Parameters Of The Device Instance.",
 			Computed:            true,
 		},
 		"dest_checksum_acc_device_id": schema.StringAttribute{
-			Description:         "Dest Checksum Acc Device ID Storage Properties Parameters Of The Device Instance.",
-			MarkdownDescription: "Dest Checksum Acc Device ID Storage Properties Parameters Of The Device Instance.",
+			Description:         "Destination Checksum Accelerator(ACC) Device ID Storage Properties Parameters Of The Device Instance.",
+			MarkdownDescription: "Destination Checksum Accelerator(ACC) Device ID Storage Properties Parameters Of The Device Instance.",
 			Computed:            true,
 		},
 		"checksum_size_mb": schema.Int64Attribute{
@@ -550,13 +550,13 @@ func getStoragePropsParamsSchema() map[string]schema.Attribute {
 			Computed:            true,
 		},
 		"checksum_changelog_acc_device_id": schema.StringAttribute{
-			Description:         "Checksum Changelog Acc Device ID Storage Properties Parameters Of The Device Instance.",
-			MarkdownDescription: "Checksum Changelog Acc Device ID Storage Properties Parameters Of The Device Instance.",
+			Description:         "Checksum Changelog Accelerator(ACC) Device ID Storage Properties Parameters Of The Device Instance.",
+			MarkdownDescription: "Checksum Changelog Accelerator(ACC) Device ID Storage Properties Parameters Of The Device Instance.",
 			Computed:            true,
 		},
 		"dest_checksum_changelog_acc_device_id": schema.StringAttribute{
-			Description:         "Dest Checksum Changelog Acc Device ID Storage Properties Parameters Of The Device Instance.",
-			MarkdownDescription: "Dest Checksum Changelog Acc Device ID Storage Properties Parameters Of The Device Instance.",
+			Description:         "Destination Checksum Changelog Accelerator(ACC) Device ID Storage Properties Parameters Of The Device Instance.",
+			MarkdownDescription: "Destination Checksum Changelog Accelerator(ACC) Device ID Storage Properties Parameters Of The Device Instance.",
 			Computed:            true,
 		},
 		"checksum_changelog_size_mb": schema.Int64Attribute{
@@ -565,8 +565,8 @@ func getStoragePropsParamsSchema() map[string]schema.Attribute {
 			Computed:            true,
 		},
 		"dest_checksum_changelog_size_mb": schema.Int64Attribute{
-			Description:         "Dest Checksum Changelog Size MB Storage Properties Parameters Of The Device Instance.",
-			MarkdownDescription: "Dest Checksum Changelog Size MB Storage Properties Parameters Of The Device Instance.",
+			Description:         "Destination Checksum Changelog Size MB Storage Properties Parameters Of The Device Instance.",
+			MarkdownDescription: "Destination Checksum Changelog Size MB Storage Properties Parameters Of The Device Instance.",
 			Computed:            true,
 		},
 	}
@@ -575,8 +575,8 @@ func getStoragePropsParamsSchema() map[string]schema.Attribute {
 func getAccelerationPropsParamsSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"acc_used_capacity_in_kb": schema.StringAttribute{
-			Description:         "Acceleration Used Capacity In KB Acceleration Properties Parameters Of The Device Instance.",
-			MarkdownDescription: "Acceleration Used Capacity In KB Acceleration Properties Parameters Of The Device Instance.",
+			Description:         "Accelerator(ACC) Used Capacity In KB Acceleration Properties Parameters Of The Device Instance.",
+			MarkdownDescription: "Accelerator(ACC) Used Capacity In KB Acceleration Properties Parameters Of The Device Instance.",
 			Computed:            true,
 		},
 	}
