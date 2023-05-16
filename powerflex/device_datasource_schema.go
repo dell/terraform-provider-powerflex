@@ -256,8 +256,8 @@ var DeviceDataAttributes map[string]schema.Attribute = map[string]schema.Attribu
 		Computed:            true,
 	},
 	"led_setting": schema.StringAttribute{
-		Description:         "Led Setting Of The Device Instance.",
-		MarkdownDescription: "Led Setting Of The Device Instance.",
+		Description:         "LED Setting Of The Device Instance.",
+		MarkdownDescription: "LED Setting Of The Device Instance.",
 		Computed:            true,
 	},
 	"max_capacity_in_kb": schema.Int64Attribute{
@@ -575,8 +575,8 @@ func getStoragePropsParamsSchema() map[string]schema.Attribute {
 func getAccelerationPropsParamsSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"acc_used_capacity_in_kb": schema.StringAttribute{
-			Description:         "Acc Used Capacity In KB Acceleration Properties Parameters Of The Device Instance.",
-			MarkdownDescription: "Acc Used Capacity In KB Acceleration Properties Parameters Of The Device Instance.",
+			Description:         "Acceleration Used Capacity In KB Acceleration Properties Parameters Of The Device Instance.",
+			MarkdownDescription: "Acceleration Used Capacity In KB Acceleration Properties Parameters Of The Device Instance.",
 			Computed:            true,
 		},
 	}

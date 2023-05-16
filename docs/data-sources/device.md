@@ -90,7 +90,7 @@ Read-Only:
 - `fgl_nvdimm_write_cache_size` (Number) Fgl Nvdimm Write Cache Size Of The Device Instance.
 - `firmware_version` (String) Firmware Version Of The Device Instance.
 - `id` (String) Unique ID Of The Device Instance.
-- `led_setting` (String) Led Setting Of The Device Instance.
+- `led_setting` (String) LED Setting Of The Device Instance.
 - `links` (Attributes List) Underlying REST API links. (see [below for nested schema](#nestedatt--device_model--links))
 - `logical_sector_size_in_bytes` (Number) Logical Sector Size In Bytes Of The Device Instance.
 - `long_successful_ios` (Attributes) Long Successful Ios Of The Device Instance. (see [below for nested schema](#nestedatt--device_model--long_successful_ios))
@@ -120,7 +120,7 @@ Read-Only:
 
 Read-Only:
 
-- `acc_used_capacity_in_kb` (String) Acc Used Capacity In KB Acceleration Properties Parameters Of The Device Instance.
+- `acc_used_capacity_in_kb` (String) Acceleration Used Capacity In KB Acceleration Properties Parameters Of The Device Instance.
 
 
 <a id="nestedatt--device_model--links"></a>
