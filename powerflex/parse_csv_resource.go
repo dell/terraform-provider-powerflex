@@ -146,6 +146,14 @@ func (r *parsecsvResource) Create(ctx context.Context, req resource.CreateReques
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	// to make gateway available for installation
+	r.gatewayClient.AbortOperation()
+
+	r.gatewayClient.ClearQueueCommand()
+
+	r.gatewayClient.MoveToIdlePhase()
+
 	mydir, err := os.Getwd()
 	if err != nil {
 		panic(err)
@@ -184,11 +192,11 @@ func (r *parsecsvResource) Create(ctx context.Context, req resource.CreateReques
 		}
 	}
 	writer.Flush()
-	parsecsvRespose, err3 := r.gatewayClient.ParseCSV(mydir + "/Minimal.csv")
-	if err3 != nil {
+	parsecsvRespose, parseCSVError := r.gatewayClient.ParseCSV(mydir + "/Minimal.csv")
+	if parseCSVError != nil {
 		resp.Diagnostics.AddError(
 			"Error parsing csv: ",
-			"unexpected error: "+err3.Error(),
+			"unexpected error: "+parseCSVError.Error(),
 		)
 		//plan.CsvCompltete = types.StringValue("Not completed")
 		return
@@ -213,107 +221,110 @@ func (r *parsecsvResource) Create(ctx context.Context, req resource.CreateReques
 
 	secureData := map[string]interface{}{
 		"allowNonSecureCommunicationWithMdm": true,
-		"allowNonSecureCommunicationWithLia": false,
+		"allowNonSecureCommunicationWithLia": true,
 		"disableNonMgmtComponentsAuth":       false,
 	}
 	mapData["securityConfiguration"] = secureData
 	jsonres, _ := json.Marshal(mapData)
-	response, err4 := r.gatewayClient.ValidateMDMDetails(jsonres)
-	if err4 != nil {
+	validateMDMResponse, validateMDMError := r.gatewayClient.ValidateMDMDetails(jsonres)
+	if validateMDMError != nil {
 		resp.Diagnostics.AddError(
 			"Error validating details: ",
-			"unexpected error: "+err3.Error(),
+			"unexpected error: "+parseCSVError.Error(),
 		)
 		return
 	}
-	if response.StatusCode == 200 {
+	if validateMDMResponse.StatusCode == 200 {
 
-		//var phaseData PhaseDetail
-		response3, _ := r.gatewayClient.BeginInstallation(parsecsvRespose.Data, "admin", plan.MdmPassword.ValueString(), plan.LiaPassword.ValueString(),true)
-		// phaseStatusResponseBefore,_:= r.gatewayClient.GetInstallerPhaseDetails()
-		// json.Unmarshal([]byte(phaseStatusResponseBefore.Message), &phaseData)
-		// currentPhaseName := phaseData.Phase.Name
-		// resp.Diagnostics.AddWarning(
-		// 	"current pahse name :"+currentPhaseName,
-		// 	currentPhaseName,
-		// )
-		 if response3.StatusCode == 0 {
-			time.Sleep(7*time.Minute)
-			moveToNextPhaseResponse, _ := r.gatewayClient.MoveToNextPhase()
-			time.Sleep(15*time.Second)
-			moveToNextPhaseResponse2, _ := r.gatewayClient.MoveToNextPhase()
-			time.Sleep(1*time.Minute)
-			moveToNextPhaseResponse3, _ := r.gatewayClient.MoveToNextPhase()
-			if moveToNextPhaseResponse.StatusCode == 200 {
-				plan.CsvCompltete = types.StringValue("Completed")
-				diags = resp.State.Set(ctx, &plan)
-				resp.Diagnostics.Append(diags...)
-			} else {
-				resp.Diagnostics.AddError(
-					"Error in moving to next phase :"+moveToNextPhaseResponse.Message+" & Error Code :"+strconv.Itoa(moveToNextPhaseResponse.ErrorCode),
-					"Status Code:"+strconv.Itoa(response3.StatusCode),
-				)
-			}
-			if moveToNextPhaseResponse2.StatusCode == 200 {
-				plan.CsvCompltete = types.StringValue("Completed")
-				diags = resp.State.Set(ctx, &plan)
-				resp.Diagnostics.Append(diags...)
-			} else {
-				resp.Diagnostics.AddError(
-					"Error in moving to next phase :"+moveToNextPhaseResponse.Message+" & Error Code :"+strconv.Itoa(moveToNextPhaseResponse.ErrorCode),
-					"Status Code:"+strconv.Itoa(response3.StatusCode),
-				)
-			}
-			if moveToNextPhaseResponse3.StatusCode == 200 {
-				plan.CsvCompltete = types.StringValue("Completed")
-				diags = resp.State.Set(ctx, &plan)
-				resp.Diagnostics.Append(diags...)
-			} else {
-				resp.Diagnostics.AddError(
-					"Error in moving to next phase :"+moveToNextPhaseResponse.Message+" & Error Code :"+strconv.Itoa(moveToNextPhaseResponse.ErrorCode),
-					"Status Code:"+strconv.Itoa(response3.StatusCode),
-				)
-			}
-		
-			// i:=0
-			// details, _ := r.gatewayClient.GetInstallerPhaseDetails()
-			// currentPhase := details.NextPhase.Name
-			// for i<3{
-			// 	time.Sleep(5*time.Second)
-			// 	phaseAfterFiveSec,_:= r.gatewayClient.GetInstallerPhaseDetails()
-			// 	if currentPhase != phaseAfterFiveSec.Phase.Name {
-			// 		i= i+1
-			// 		moveToNextPhaseResponse, _ := r.gatewayClient.MoveToNextPhase()
-			// 		currentPhase = phaseAfterFiveSec.Phase.Name
-			// 		if moveToNextPhaseResponse.StatusCode == 200 {
-			// 			plan.CsvCompltete = types.StringValue("Completed")
-			// 			diags = resp.State.Set(ctx, &plan)
-			// 			resp.Diagnostics.Append(diags...)
-			// 		} else {
-			// 			resp.Diagnostics.AddError(
-			// 				"Error in moving to next phase :"+moveToNextPhaseResponse.Message+" & Error Code :"+strconv.Itoa(moveToNextPhaseResponse.ErrorCode),
-			// 				"Status Code:"+strconv.Itoa(response3.StatusCode),
-			// 			)
-			// 			break
-			// 		}
-					
-			// 	}
+		// begin instllation process
+		beginInstallationResponse, _ := r.gatewayClient.BeginInstallation(parsecsvRespose.Data, "admin", plan.MdmPassword.ValueString(), plan.LiaPassword.ValueString(), true)
 
-			// }
-			
+		if beginInstallationResponse.StatusCode == 200 {
+
+			currentPhase := "query"
+
+			couterForStopExecution := 0
+
+			for couterForStopExecution <= 5 {
+
+				time.Sleep(1 * time.Minute)
+
+				checkForPhaseCompleted, _ := r.gatewayClient.CheckForCompletionQueueCommands(currentPhase)
+
+				if checkForPhaseCompleted.Data == "Completed" {
+
+					couterForStopExecution = 0
+
+					if currentPhase != "configure" {
+						moveToNextPhaseResponse, err := r.gatewayClient.MoveToNextPhase()
+
+						if err != nil {
+							resp.Diagnostics.AddError(
+								"Error getting first system",
+								"unexpected error: "+err.Error(),
+							)
+							return
+						}
+
+						if moveToNextPhaseResponse.StatusCode == 200 {
+
+							if currentPhase == "query" {
+								currentPhase = "upload"
+							} else if currentPhase == "upload" {
+								currentPhase = "install"
+							} else if currentPhase == "install" {
+								currentPhase = "configure"
+							}
+
+						}
+					} else {
+
+						r.gatewayClient.AbortOperation()
+
+						r.gatewayClient.ClearQueueCommand()
+
+						r.gatewayClient.MoveToIdlePhase()
+
+						couterForStopExecution = 10
+					}
+
+				} else {
+					if checkForPhaseCompleted.Data == "Running" {
+						couterForStopExecution++
+					} else {
+						if couterForStopExecution < 5 {
+
+							r.gatewayClient.RetryPhase()
+
+							couterForStopExecution = 5
+						} else {
+
+							r.gatewayClient.AbortOperation()
+
+							r.gatewayClient.ClearQueueCommand()
+
+							r.gatewayClient.MoveToIdlePhase()
+
+							resp.Diagnostics.AddError("Errors in installation process",
+								"Errors:"+checkForPhaseCompleted.Message)
+
+							couterForStopExecution++
+						}
+					}
+				}
+			}
 		} else {
-
 			resp.Diagnostics.AddError(
-				"Error in begin installation :"+response3.Message+" & Error Code :"+strconv.Itoa(response3.ErrorCode),
-				"Status Code:"+strconv.Itoa(response3.StatusCode),
+				"Error in begin installation :"+beginInstallationResponse.Message+" & Error Code :"+strconv.Itoa(beginInstallationResponse.ErrorCode),
+				"Status Code:"+strconv.Itoa(beginInstallationResponse.StatusCode),
 			)
 		}
 
 	} else {
 		//plan.CsvCompltete = types.StringValue("Unsuccessful")
 		resp.Diagnostics.AddError(
-			"Error while validating mdm credentials :"+response.Message+" & Error Code :"+strconv.Itoa(response.ErrorCode),
-			"Status Code:"+strconv.Itoa(response.StatusCode),
+			"Error while validating mdm credentials :"+validateMDMResponse.Message+" & Error Code :"+strconv.Itoa(validateMDMResponse.ErrorCode),
+			"Status Code:"+strconv.Itoa(validateMDMResponse.StatusCode),
 		)
 	}
 
