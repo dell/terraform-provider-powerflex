@@ -78,7 +78,7 @@ func TestAccVolumeResource(t *testing.T) {
 		access_mode = "ReadOnly"
 		sdc_list = [
 				  {
-				   sdc_name = "` + SdsResourceTestData.volName + `"
+				   sdc_name = "` + SdsResourceTestData.sdcName2 + `"
 				   limit_iops = 9
 				   limit_bw_in_mbps = 122
 				   access_mode = "ReadWrite"
@@ -110,7 +110,7 @@ func TestAccVolumeResource(t *testing.T) {
 		access_mode = "ReadOnly" # sdc_can't be mapped to volume with access mode readonly
 		sdc_list = [
 		  {
-				   sdc_name = "` + SdsResourceTestData.volName + `"
+				   sdc_name = "` + SdsResourceTestData.sdcName + `"
 				   limit_iops = 119
 				   limit_bw_in_mbps = 19
 				   access_mode = "ReadWrite"
@@ -130,7 +130,7 @@ func TestAccVolumeResource(t *testing.T) {
 		access_mode = "ReadWrite"
 		sdc_list = [
 		  {
-				   sdc_name = "` + SdsResourceTestData.volName + `"
+				   sdc_name = "` + SdsResourceTestData.sdcName + `"
 				   limit_iops = 119
 				   limit_bw_in_mbps = 19
 				   access_mode = "ReadOnly"
@@ -150,19 +150,19 @@ func TestAccVolumeResource(t *testing.T) {
 		access_mode = "ReadWrite"
 		sdc_list = [
 				  {
-				   sdc_name = "` + SdsResourceTestData.volName + `"
+				   sdc_name = "` + SdsResourceTestData.sdcName + `"
 				   limit_iops = 328
 				   limit_bw_in_mbps = 28
 				   access_mode = "ReadOnly"
 			   },
 			   {
-				sdc_name = "` + SdsResourceTestData.volName2 + `"
+				sdc_name = "` + SdsResourceTestData.sdcName2 + `"
 				limit_iops = 129
 				limit_bw_in_mbps = 17
 				access_mode = "ReadWrite"
 			   },
 			   {
-				sdc_id = "c423b09800000003"
+				sdc_id = "e3ce46c600000003"
 				limit_iops = 38
 				limit_bw_in_mbps = 28
 				access_mode = "NoAccess"
@@ -182,14 +182,14 @@ func TestAccVolumeResource(t *testing.T) {
 		access_mode = "ReadWrite"
 		sdc_list = [
 				  {
-				   sdc_name = "` + SdsResourceTestData.volName + `"
+				   sdc_name = "` + SdsResourceTestData.sdcName + `"
 				   limit_iops = 328
 				   limit_bw_in_mbps = 28
 				   access_mode = "ReadOnly"
 			   },
 	
 			   {
-				sdc_id = "c423b09800000003"
+				sdc_id = "e3ce46c600000003"
 				limit_iops = 38
 				limit_bw_in_mbps = 28
 				access_mode = "NoAccess"
@@ -434,13 +434,13 @@ func TestAccVolumeResourceDuplicateSDC(t *testing.T) {
 		access_mode = "ReadWrite"
 		sdc_list = [
 			{
-				sdc_name = "` + SdsResourceTestData.volName + `"
+				sdc_name = "` + SdsResourceTestData.sdcName2 + `"
 				limit_iops = 119
 				limit_bw_in_mbps = 19
 				access_mode = "ReadOnly"
 			},
 			{
-				sdc_name = "` + SdsResourceTestData.volName + `"
+				sdc_name = "` + SdsResourceTestData.sdcName2 + `"
 				limit_iops = 119
 				limit_bw_in_mbps = 19
 				access_mode = "ReadWrite"
@@ -457,13 +457,13 @@ func TestAccVolumeResourceDuplicateSDC(t *testing.T) {
 		access_mode = "ReadWrite"
 		sdc_list = [
 			{
-				sdc_name = "` + SdsResourceTestData.volName + `"
+				sdc_name = "` + SdsResourceTestData.sdcName + `"
 				limit_iops = 119
 				limit_bw_in_mbps = 19
 				access_mode = "ReadOnly"
 			},
 			{
-				sdc_name = "` + SdsResourceTestData.volName + `"
+				sdc_name = "` + SdsResourceTestData.sdcName + `"
 				limit_iops = 119
 				limit_bw_in_mbps = 19
 				access_mode = "ReadOnly"
@@ -554,6 +554,74 @@ func TestAccVolumeResourceUnknown(t *testing.T) {
 				),
 				// TODO
 				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}
+
+func TestAccVolumeResourceUnMapAll(t *testing.T) {
+	create := `
+	resource "powerflex_volume" "avengers-volume-create"{
+		name = "avengers-volume-create"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 8
+		access_mode = "ReadWrite"
+		sdc_list = [
+			{
+				sdc_name = "` + SdsResourceTestData.sdcName2 + `"
+				limit_iops = 119
+				limit_bw_in_mbps = 19
+				access_mode = "ReadOnly"
+			}
+		]
+	  }
+	`
+
+	updateIdemp := `
+	resource "powerflex_volume" "avengers-volume-create"{
+		name = "avengers-volume-create"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 8
+		access_mode = "ReadWrite"
+	  }
+	`
+
+	update := `
+	resource "powerflex_volume" "avengers-volume-create"{
+		name = "avengers-volume-create"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 8
+		access_mode = "ReadWrite"
+		sdc_list = []
+	  }
+	`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + create,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "1"),
+				),
+				// TODO
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				Config: ProviderConfigForTesting + updateIdemp,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "1"),
+				),
+			},
+			{
+				Config: ProviderConfigForTesting + update,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "0"),
+				),
 			},
 		},
 	})

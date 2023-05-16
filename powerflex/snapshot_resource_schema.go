@@ -36,6 +36,9 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("volume_name")),
 			},
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.UseStateForUnknown(),
+			},
 		},
 		"volume_name": schema.StringAttribute{
 			Description: "The volume name for which snapshot is created." +
@@ -49,6 +52,9 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("volume_id")),
+			},
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.UseStateForUnknown(),
 			},
 		},
 		"access_mode": schema.StringAttribute{

@@ -1,6 +1,6 @@
 # Command to run this tf file : terraform init && terraform plan && terraform apply.
 # Create, Update, Delete is supported for this resource.
-# To import, check sdc_volumes_mapping_resource_import.tf for more info.
+# To import, check import.sh for more info.
 # To create/update, either SDC ID or SDC name must be provided.
 # volume_list attribute is optional. 
 # To check which attributes of the sdc_volumes_mappping resource can be updated, please refer Product Guide in the documentation
@@ -21,4 +21,11 @@ resource "powerflex_sdc_volumes_mapping" "mapping-test" {
       limit_bw_in_mbps = 25
     }
   ]
+}
+
+# To unmap all the volumes mapped to SDC, below config can be used. 
+
+resource "powerflex_sdc_volumes_mapping" "mapping-test" {
+  id = "e3ce1fb600000001"
+  volume_list = []
 }

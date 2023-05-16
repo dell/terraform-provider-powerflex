@@ -6,7 +6,6 @@ import (
 
 	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
-	types "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	frameworkTypes "github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -58,21 +57,7 @@ func getSdcType(c *goscaleio.Client, sdcID string) (*goscaleio.Sdc, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	sdcs, err1 := system.GetSdc()
-	if err1 != nil {
-		return nil, err1
-	}
-
-	var sdcType *types.Sdc
-	for _, sdc := range sdcs {
-		if sdc.ID == sdcID {
-			sdcType = &sdc
-		}
-	}
-
-	c4 := goscaleio.NewSdc(c, sdcType)
-	return c4, nil
+	return system.GetSdcByID(sdcID)
 }
 
 // getVolumeType function returns volume type
