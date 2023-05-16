@@ -72,9 +72,6 @@ func GetSdcSetValueFromItems(sl []SDCItem) (basetypes.SetValue, diag.Diagnostics
 	sdcInfoElemType := types.ObjectType{
 		AttrTypes: SDCItem{}.GetType(),
 	}
-	if len(sl) == 0 {
-		return types.SetNull(sdcInfoElemType), diags
-	}
 	objectSdcInfos := []attr.Value{}
 	for _, si := range sl {
 		objVal, dgs := si.GetValue()
@@ -91,9 +88,6 @@ func GetSdcSetValueFromInfo(sl []*pftypes.MappedSdcInfo) (basetypes.SetValue, di
 	var diags diag.Diagnostics
 	sdcInfoElemType := types.ObjectType{
 		AttrTypes: SDCItem{}.GetType(),
-	}
-	if len(sl) == 0 {
-		return types.SetNull(sdcInfoElemType), diags
 	}
 	objectSdcInfos := []attr.Value{}
 	for _, msi := range sl {
