@@ -231,9 +231,7 @@ func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 				return
 			}
 			state.StoragePoolID = types.StringValue(sp.ID)
-		}
-
-		if !state.StoragePoolID.IsUnknown() {
+		} else if !state.StoragePoolID.IsUnknown() {
 			sp1, err := getStoragePool(d, state.StoragePoolID.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
@@ -262,8 +260,7 @@ func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 				return
 			}
 			state.SdsID = types.StringValue(sds.ID)
-		}
-		if !state.SdsID.IsUnknown() {
+		} else if !state.SdsID.IsUnknown() {
 			rsp, err := d.system.GetSdsByID(state.SdsID.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
