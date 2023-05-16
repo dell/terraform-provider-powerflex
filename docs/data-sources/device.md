@@ -82,7 +82,7 @@ Read-Only:
 - `capacity_limit_in_kb` (Number) Capacity Limit In Kb Of The Device Instance.
 - `device_current_path_name` (String) Device Current Path Name Of The Device Instance.
 - `device_original_path_name` (String) Device Original Path Name Of The Device Instance.
-- `device_state` (String) List of devices fetched Of The Device Instance.
+- `device_state` (String) State Of The Device Instance.
 - `device_type` (String) Device Type Of The Device Instance.
 - `error_state` (String) Error State Of The Device Instance.
 - `external_acceleration_type` (String) External Acceleration Type Of The Device Instance.

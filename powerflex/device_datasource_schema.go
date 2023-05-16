@@ -251,8 +251,8 @@ var DeviceDataAttributes map[string]schema.Attribute = map[string]schema.Attribu
 		Computed:            true,
 	},
 	"device_state": schema.StringAttribute{
-		Description:         "List of devices fetched Of The Device Instance.",
-		MarkdownDescription: "List of devices fetched Of The Device Instance.",
+		Description:         "State Of The Device Instance.",
+		MarkdownDescription: "State Of The Device Instance.",
 		Computed:            true,
 	},
 	"led_setting": schema.StringAttribute{
