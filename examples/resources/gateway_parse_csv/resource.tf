@@ -7,35 +7,35 @@
 # other  atrributes like : capacity_unit, volume_type, use_rm_cache, compression_method, access_mode, remove_mode, sdc_list are optional 
 # To check which attributes of the snapshot can be updated, please refer Product Guide in the documentation
 
-resource "powerflex_parse_csv" "test-csv2" {
-	mdm_ip = "Mdm_ip"
-	mdm_password = "pwd"
-	lia_password="pwd"
+resource "powerflex_sdc_expansion" "test-csv2" {
+	mdm_ip = "10.247.101.68"
+	mdm_password = "Password123"
+	lia_password=""
 csv_detail = [
 				  {
-					ip = "ip1"
-					password = "pwd"
+					ip = "10.247.101.68"
+					password = "dangerous"
 					operating_system = "linux"
-					is_mdm_or_tb = "Primary"
+					is_mdm_or_tb = "abcde"
 					is_sdc = "Yes"
 			   },
 				{
-					ip = "ip2"
-					password = "pwd"
+					ip = "10.247.101.60"
+					password = "dangerous"
 					operating_system = "linux"
 					is_mdm_or_tb = "Secondary"
 					is_sdc = "Yes"
 			},
 		   {
-			ip = "ip2"
-			password = "pwd"
+			ip = "10.247.101.69"
+			password = "dangerous"
 			operating_system = "linux"
 			is_mdm_or_tb = "TB"
 			is_sdc = "Yes"
 	   },
 	   {
-		ip = "ip4"
-		password = "pwd"
+		ip = "10.247.103.163"
+		password = "dangerous"
 		operating_system = "linux"
 		is_mdm_or_tb = "Standby"
 		is_sdc = "Yes"
