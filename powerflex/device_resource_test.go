@@ -7,6 +7,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+var createSDSForTest = `
+	resource "powerflex_sds" "sds" {
+		name = "Tf_SDS_01"
+		ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			}
+		]
+		protection_domain_id = "` + protectionDomainID1 + `"
+	}
+	`
+
 var createStoragePool = `
 	resource "powerflex_storage_pool" "pre-req1"{
 		name = "terraform-storage-pool"
@@ -15,15 +28,25 @@ var createStoragePool = `
 	}
 `
 
-func TestAccDeviceResourceWithSPID(t *testing.T) {
-	var AddDeviceWithSPID = createStoragePool + `
+var updateStoragePool = `
+	resource "powerflex_storage_pool" "pre-req1"{
+		name = "terraform-storage-pool"
+		protection_domain_name = "domain1"
+		media_type = "Transitional"
+		use_rmcache = true
+	}
+`
+
+var AddDeviceWithSPID = createSDSForTest + createStoragePool + `
 	resource "powerflex_device" "device-test" {
 		device_path = "/dev/sdc"
 		storage_pool_id = resource.powerflex_storage_pool.pre-req1.id
-		sds_id = "0db2c37100000001"
+		sds_id = powerflex_sds.sds.id
 		media_type = "HDD"
 	 }
-	`
+`
+
+func TestAccDeviceResourceWithSPID(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -33,7 +56,7 @@ func TestAccDeviceResourceWithSPID(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_path", "/dev/sdc"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
-					resource.TestCheckResourceAttr("powerflex_device.device-test", "sds_id", "0db2c37100000001"),
+					resource.TestCheckResourceAttrPair("powerflex_device.device-test", "sds_id", "powerflex_sds.sds", "id"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "media_type", "HDD"),
 				),
 			},
@@ -41,13 +64,13 @@ func TestAccDeviceResourceWithSPID(t *testing.T) {
 }
 
 func TestAccDeviceResourceWithSPName(t *testing.T) {
-	var AddDeviceWithSPName = `
+	var AddDeviceWithSPName = createSDSForTest + `
 	resource "powerflex_device" "device-test" {
 		name = "terraform-device"
 		device_path = "/dev/sdc"
 		storage_pool_name = "pool1"
 		protection_domain_name = "domain1"
-		sds_id = "0db2c37100000001"
+		sds_id = powerflex_sds.sds.id
 		media_type = "HDD"
 	 }
 	`
@@ -61,7 +84,7 @@ func TestAccDeviceResourceWithSPName(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_path", "/dev/sdc"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "name", "terraform-device"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "pool1"),
-					resource.TestCheckResourceAttr("powerflex_device.device-test", "sds_id", "0db2c37100000001"),
+					resource.TestCheckResourceAttrPair("powerflex_device.device-test", "sds_id", "powerflex_sds.sds", "id"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "protection_domain_name", "domain1"),
 				),
@@ -70,13 +93,13 @@ func TestAccDeviceResourceWithSPName(t *testing.T) {
 }
 
 func TestAccDeviceResourceWithPDID(t *testing.T) {
-	var AddDeviceWithSPName = `
+	var AddDeviceWithSPName = createSDSForTest + `
 	resource "powerflex_device" "device-test" {
 		name = "terraform-device"
 		device_path = "/dev/sdc"
 		storage_pool_name = "pool1"
 		protection_domain_id = "202a046600000000"
-		sds_id = "0db2c37100000001"
+		sds_id = powerflex_sds.sds.id
 		media_type = "HDD"
 	 }
 	`
@@ -90,7 +113,7 @@ func TestAccDeviceResourceWithPDID(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_path", "/dev/sdc"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "name", "terraform-device"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "pool1"),
-					resource.TestCheckResourceAttr("powerflex_device.device-test", "sds_id", "0db2c37100000001"),
+					resource.TestCheckResourceAttrPair("powerflex_device.device-test", "sds_id", "powerflex_sds.sds", "id"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "protection_domain_id", "202a046600000000"),
 				),
@@ -99,13 +122,13 @@ func TestAccDeviceResourceWithPDID(t *testing.T) {
 }
 
 func TestAccDeviceResourceWithSDSName(t *testing.T) {
-	var AddDeviceWithSDSName = createStoragePool + `
+	var AddDeviceWithSDSName = createSDSForTest + createStoragePool + `
 	resource "powerflex_device" "device-test" {
 		name = "terraform-device"
 		device_path = "/dev/sdc"
 		storage_pool_id = resource.powerflex_storage_pool.pre-req1.id
 		protection_domain_id = "202a046600000000"
-		sds_name = "SDS_2"
+		sds_name = powerflex_sds.sds.name
 		media_type = "HDD"
 	 }
 	`
@@ -119,7 +142,7 @@ func TestAccDeviceResourceWithSDSName(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_path", "/dev/sdc"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "name", "terraform-device"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
-					resource.TestCheckResourceAttr("powerflex_device.device-test", "sds_name", "SDS_2"),
+					resource.TestCheckResourceAttrPair("powerflex_device.device-test", "sds_name", "powerflex_sds.sds", "name"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "protection_domain_id", "202a046600000000"),
 				),
@@ -230,6 +253,124 @@ func TestAccDeviceNegative(t *testing.T) {
 			{
 				Config:      ProviderConfigForTesting + InvalidSDSName,
 				ExpectError: regexp.MustCompile("Error in getting sds details"),
+			},
+		}})
+}
+
+func TestAccDeviceResourceUpdate(t *testing.T) {
+	var RenameDevice = createSDSForTest + createStoragePool + `
+	resource "powerflex_device" "device-test" {
+		device_path = "/dev/sdc"
+		storage_pool_id = resource.powerflex_storage_pool.pre-req1.id
+		sds_id = powerflex_sds.sds.id
+		media_type = "HDD"
+		name = "terraform-device-renamed"
+	 }
+`
+
+	var UpdateDeviceMediaType = createSDSForTest + createStoragePool + `
+	resource "powerflex_device" "device-test" {
+		device_path = "/dev/sdc"
+		storage_pool_id = resource.powerflex_storage_pool.pre-req1.id
+		sds_id = powerflex_sds.sds.id
+		media_type = "SSD"
+		name = "terraform-device-renamed"
+	 }
+`
+
+	var UpdateDeviceExternalAccelerationType = createSDSForTest + createStoragePool + `
+	resource "powerflex_device" "device-test" {
+		device_path = "/dev/sdc"
+		storage_pool_id = resource.powerflex_storage_pool.pre-req1.id
+		sds_id = powerflex_sds.sds.id
+		external_acceleration_type = "Read"
+		name = "terraform-device-renamed"
+	 }
+`
+
+	var UpdateDeviceCapacity = createSDSForTest + createStoragePool + `
+	resource "powerflex_device" "device-test" {
+		device_path = "/dev/sdc"
+		storage_pool_id = resource.powerflex_storage_pool.pre-req1.id
+		sds_id = powerflex_sds.sds.id
+		external_acceleration_type = "Read"
+		device_capacity = 300
+		name = "terraform-device-renamed"
+ }
+`
+
+	var UpdateDeviceCapacityNegative = createSDSForTest + createStoragePool + `
+	resource "powerflex_device" "device-test" {
+		device_path = "/dev/sdc"
+		storage_pool_id = resource.powerflex_storage_pool.pre-req1.id
+		sds_id = powerflex_sds.sds.id
+		external_acceleration_type = "Read"
+		device_capacity = 500
+		name = "terraform-device-renamed"
+ }
+`
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + AddDeviceWithSPID,
+			},
+			{
+				Config: ProviderConfigForTesting + RenameDevice,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_path", "/dev/sdc"),
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
+					resource.TestCheckResourceAttrPair("powerflex_device.device-test", "sds_id", "powerflex_sds.sds", "id"),
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "media_type", "HDD"),
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "name", "terraform-device-renamed"),
+				),
+			},
+			{
+				Config:      ProviderConfigForTesting + UpdateDeviceMediaType,
+				ExpectError: regexp.MustCompile("The device media type is not compatible with the Storage Pool media type"),
+			},
+			{
+				Config: ProviderConfigForTesting + UpdateDeviceExternalAccelerationType,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_path", "/dev/sdc"),
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
+					resource.TestCheckResourceAttrPair("powerflex_device.device-test", "sds_id", "powerflex_sds.sds", "id"),
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "media_type", "HDD"),
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "name", "terraform-device-renamed"),
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "external_acceleration_type", "Read"),
+				),
+			},
+			{
+				Config: ProviderConfigForTesting + UpdateDeviceCapacity,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_path", "/dev/sdc"),
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
+					resource.TestCheckResourceAttrPair("powerflex_device.device-test", "sds_id", "powerflex_sds.sds", "id"),
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "media_type", "HDD"),
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "name", "terraform-device-renamed"),
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "external_acceleration_type", "Read"),
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_capacity_in_kb", "314572800"),
+				),
+			},
+			{
+				Config:      ProviderConfigForTesting + UpdateDeviceCapacityNegative,
+				ExpectError: regexp.MustCompile("Error updating device capacity with ID"),
+			},
+		}})
+}
+
+func TestAccDeviceResourceImport(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + AddDeviceWithSPID,
+			},
+			// Import resource
+			{
+				ResourceName: "powerflex_device.device-test",
+				ImportState:  true,
 			},
 		}})
 }

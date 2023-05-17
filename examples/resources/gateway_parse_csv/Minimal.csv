@@ -1,5 +1,0 @@
-IPs,Password,Operating System,Is MDM/TB,Is SDC
-10.247.101.60,dangerous,linux,Secondary,Yes
-10.247.101.68,dangerous,linux,abcde,Yes
-10.247.101.69,dangerous,linux,TB,Yes
-10.247.103.163,dangerous,linux,Standby,Yes

@@ -41,11 +41,11 @@ type VolumeResourceModel struct {
 
 // SDCItemize maps the sdc_list schema data
 type SDCItemize struct {
-	SdcID         string `tfsdk:"sdc_id"`
-	LimitIops     int    `tfsdk:"limit_iops"`
-	LimitBwInMbps int    `tfsdk:"limit_bw_in_mbps"`
-	SdcName       string `tfsdk:"sdc_name"`
-	AccessMode    string `tfsdk:"access_mode"`
+	SdcID         types.String `tfsdk:"sdc_id"`
+	LimitIops     types.Int64  `tfsdk:"limit_iops"`
+	LimitBwInMbps types.Int64  `tfsdk:"limit_bw_in_mbps"`
+	SdcName       types.String `tfsdk:"sdc_name"`
+	AccessMode    types.String `tfsdk:"access_mode"`
 }
 
 // covertToKB fucntion to convert size into kb

@@ -28,7 +28,7 @@ This resource can be used to manage Storage Data Servers on a PowerFlex array.
 
 ~> **Note:** Exactly one of `protection_domain_name` and `protection_domain_id` is required.
 
-!> **Warning:** SDS creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
+!> **Caution:** SDS creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 If the taint is not removed, terraform will destroy and recreate the resource.
 
@@ -68,7 +68,7 @@ output "changed_sds" {
 
 ### Required
 
-- `ip_list` (Attributes Set) List of IPs to be assigned to the SDS. There must be atleast one IP with `all` role or atleast two IPs, one with role `sdcOnly` and the other with role `sdsOnly`. (see [below for nested schema](#nestedatt--ip_list))
+- `ip_list` (Attributes Set) List of IPs to be assigned to the SDS. There must be at least one IP with `all` role or at least two IPs, one with role `sdcOnly` and the other with role `sdsOnly`. (see [below for nested schema](#nestedatt--ip_list))
 - `name` (String) Name of SDS.
 
 ### Optional

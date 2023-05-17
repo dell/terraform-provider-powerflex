@@ -51,7 +51,7 @@ resource "powerflex_device" "test-device" {
 
 ### Required
 
-- `device_path` (String) The path of the device.
+- `device_path` (String) The current path of the device. Cannot be updated.
 
 ### Optional
 
@@ -69,6 +69,7 @@ resource "powerflex_device" "test-device" {
 ### Read-Only
 
 - `device_capacity_in_kb` (Number) Capacity of the device in KB.
+- `device_original_path` (String) Original path of the device.
 - `device_state` (String) State of the device.
 - `id` (String) The ID of the device.
 

@@ -8,26 +8,26 @@
 # To check which attributes of the snapshot can be updated, please refer Product Guide in the documentation
 
 resource "powerflex_sdc_expansion" "test-csv2" {
-	mdm_ip = "10.247.101.68"
+	mdm_ip = "10.247.66.67"
 	mdm_password = "Password123"
-	lia_password=""
+	lia_password="Password123"
 csv_detail = [
 				  {
-					ip = "10.247.101.68"
+					ip = "10.247.66.67"
 					password = "dangerous"
 					operating_system = "linux"
-					is_mdm_or_tb = "abcde"
+					is_mdm_or_tb = "Primary"
 					is_sdc = "Yes"
 			   },
 				{
-					ip = "10.247.101.60"
+					ip = "10.247.100.214"
 					password = "dangerous"
 					operating_system = "linux"
-					is_mdm_or_tb = "Secondary"
+					is_mdm_or_tb = "sad"
 					is_sdc = "Yes"
 			},
 		   {
-			ip = "10.247.101.69"
+			ip = "10.247.66.194"
 			password = "dangerous"
 			operating_system = "linux"
 			is_mdm_or_tb = "TB"

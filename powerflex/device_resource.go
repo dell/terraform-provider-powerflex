@@ -19,6 +19,7 @@ type DeviceModel struct {
 	ID                       types.String `tfsdk:"id"`
 	Name                     types.String `tfsdk:"name"`
 	DevicePath               types.String `tfsdk:"device_path"`
+	DeviceOriginalPath       types.String `tfsdk:"device_original_path"`
 	ProtectionDomainName     types.String `tfsdk:"protection_domain_name"`
 	ProtectionDomainID       types.String `tfsdk:"protection_domain_id"`
 	StoragePoolName          types.String `tfsdk:"storage_pool_name"`
@@ -68,9 +69,9 @@ func (r *deviceResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				},
 			},
 			"device_path": schema.StringAttribute{
-				Description:         "The path of the device.",
+				Description:         "The current path of the device. Cannot be updated.",
 				Required:            true,
-				MarkdownDescription: "The path of the device.",
+				MarkdownDescription: "The current path of the device. Cannot be updated.",
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
@@ -167,6 +168,11 @@ func (r *deviceResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				MarkdownDescription: "State of the device.",
 				Computed:            true,
 			},
+			"device_original_path": schema.StringAttribute{
+				Description:         "Original path of the device.",
+				MarkdownDescription: "Original path of the device.",
+				Computed:            true,
+			},
 		},
 	}
 }
@@ -224,85 +230,27 @@ func (r *deviceResource) ValidateConfig(ctx context.Context, req resource.Valida
 	}
 }
 
-// ModifyPlan modify resource plan attribute value
-func (r *deviceResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	if req.Plan.Raw.IsNull() {
-		return
-	}
-	var (
-		plan DeviceModel
-		pd   *goscaleio.ProtectionDomain
-		err  error
-	)
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-
-	if !plan.ProtectionDomainID.IsNull() || !plan.ProtectionDomainName.IsNull() {
-		pd, err = getNewProtectionDomainEx(r.client, plan.ProtectionDomainID.ValueString(), plan.ProtectionDomainName.ValueString(), "")
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error in getting protection domain details with ID: "+plan.ProtectionDomainID.ValueString()+" name: "+plan.ProtectionDomainName.ValueString(),
-				err.Error(),
-			)
-			return
-		}
-	}
-
-	if !plan.StoragePoolID.IsUnknown() {
-		sp, err := r.system.GetStoragePoolByID(plan.StoragePoolID.ValueString())
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error in getting storage pool details with ID: "+plan.StoragePoolID.ValueString(),
-				err.Error(),
-			)
-			return
-		}
-		plan.StoragePoolName = types.StringValue(sp.Name)
-	} else if !plan.StoragePoolName.IsUnknown() {
-		sp, err1 := pd.FindStoragePool("", plan.StoragePoolName.ValueString(), "")
-		if err1 != nil {
-			resp.Diagnostics.AddError(
-				"Error in getting storage pool details with name: "+plan.ProtectionDomainName.ValueString(),
-				err1.Error(),
-			)
-			return
-		}
-		plan.StoragePoolID = types.StringValue(sp.ID)
-	}
-
-	if !plan.SdsID.IsUnknown() {
-		sds, err := r.system.GetSdsByID(plan.SdsID.ValueString())
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error in getting sds details with ID: "+plan.SdsID.ValueString(),
-				err.Error(),
-			)
-			return
-		}
-		plan.SdsName = types.StringValue(sds.Name)
-	} else if !plan.SdsName.IsUnknown() {
-		sds, err := r.system.FindSds("Name", plan.SdsName.ValueString())
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error in getting sds details with name: "+plan.SdsName.ValueString(),
-				err.Error(),
-			)
-			return
-		}
-		plan.SdsID = types.StringValue(sds.ID)
-	}
-
-	diags = resp.Plan.Set(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-}
-
 // Create creates the resource and sets the initial Terraform state.
 func (r *deviceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan DeviceModel
+	var (
+		plan       DeviceModel
+		spInstance *goscaleio_types.StoragePool
+	)
 
 	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
+	diags = r.getSdsID(&plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	spInstance, diags = r.getStoragePoolID(&plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -317,14 +265,7 @@ func (r *deviceResource) Create(ctx context.Context, req resource.CreateRequest,
 		ExternalAccelerationType: plan.ExternalAccelerationType.ValueString(),
 	}
 
-	sp, err := getStoragePoolType(r.client, plan.StoragePoolID.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error getting storage pool instance with ID: "+plan.StoragePoolID.ValueString(),
-			"unexpected error: "+err.Error(),
-		)
-		return
-	}
+	sp := goscaleio.NewStoragePoolEx(r.client, spInstance)
 
 	deviceID, err2 := sp.AttachDevice(deviceParam)
 	if err2 != nil {
@@ -363,6 +304,8 @@ func updateDeviceState(deviceResponse *goscaleio_types.Device, plan DeviceModel)
 		state.Name = types.StringValue(deviceResponse.Name)
 	}
 
+	state.DevicePath = types.StringValue(deviceResponse.DeviceCurrentPathName)
+	state.DeviceOriginalPath = types.StringValue(deviceResponse.DeviceOriginalPathName)
 	state.MediaType = types.StringValue(deviceResponse.MediaType)
 	state.ExternalAccelerationType = types.StringValue(deviceResponse.ExternalAccelerationType)
 	state.DeviceCapacityInKB = types.Int64Value(int64(deviceResponse.CapacityLimitInKb))
@@ -401,6 +344,120 @@ func (r *deviceResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *deviceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var (
+		plan       DeviceModel
+		spInstance *goscaleio_types.StoragePool
+		err        error
+	)
+
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+
+	// Retrieve values from state
+	var state DeviceModel
+	diags = req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	diags = r.getSdsID(&plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	spInstance, diags = r.getStoragePoolID(&plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	sp := goscaleio.NewStoragePoolEx(r.client, spInstance)
+
+	// Check if device name needs be updated
+	if !plan.Name.IsUnknown() && plan.Name.ValueString() != state.Name.ValueString() {
+		err := sp.SetDeviceName(state.ID.ValueString(), plan.Name.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error updating device name with ID: "+plan.ID.ValueString(),
+				err.Error(),
+			)
+		}
+	}
+
+	// Check if device media type needs be updated
+	if !plan.MediaType.IsUnknown() && plan.MediaType.ValueString() != state.MediaType.ValueString() {
+		err := sp.SetDeviceMediaType(state.ID.ValueString(), plan.MediaType.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error updating device media type with ID: "+plan.ID.ValueString(),
+				err.Error(),
+			)
+		}
+	}
+
+	// Check if device external acceleration type needs be updated
+	if !plan.ExternalAccelerationType.IsUnknown() && plan.ExternalAccelerationType.ValueString() != state.ExternalAccelerationType.ValueString() {
+		err := sp.SetDeviceExternalAccelerationType(state.ID.ValueString(), plan.ExternalAccelerationType.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error updating device external acceleration type with ID: "+plan.ID.ValueString(),
+				err.Error(),
+			)
+		}
+	}
+
+	// Check if device capacity needs to be updated
+	if !plan.DeviceCapacity.IsNull() {
+		size := convertToKB("GB", plan.DeviceCapacity.ValueInt64())
+
+		if size != state.DeviceCapacityInKB.ValueInt64() {
+			err := sp.SetDeviceCapacityLimit(state.ID.ValueString(), plan.DeviceCapacity.String())
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"Error updating device capacity with ID: "+plan.ID.ValueString(),
+					err.Error(),
+				)
+			}
+		}
+	}
+
+	if plan.DevicePath.ValueString() != state.DevicePath.ValueString() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("device_path"),
+			"The device path on the actual infrastructure has drifted.",
+			"One reason for that could be the configured device path has been deleted from the SDS and this new path has been automatically assigned. Please update the device path in the config if you want to keep using this new path.",
+		)
+	}
+
+	// Update original path if there is change in the current path
+	if state.DevicePath.ValueString() != state.DeviceOriginalPath.ValueString() {
+		err = sp.UpdateDeviceOriginalPathways(state.ID.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error updating device pathway with ID: "+plan.ID.ValueString(),
+				err.Error(),
+			)
+		}
+	}
+
+	deviceResponse, err3 := r.system.GetDevice(state.ID.ValueString())
+	if err3 != nil {
+		resp.Diagnostics.AddError(
+			"Error getting device with ID: "+state.ID.ValueString(),
+			"unexpected error: "+err3.Error(),
+		)
+		return
+	}
+
+	// Set refreshed state
+	state, dgs := updateDeviceState(deviceResponse, plan)
+	resp.Diagnostics.Append(dgs...)
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
@@ -436,4 +493,74 @@ func (r *deviceResource) Delete(ctx context.Context, req resource.DeleteRequest,
 
 // ImportState imports the resource
 func (r *deviceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	// Retrieve import ID and save to id attribute
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+// getSdsID populates the SDS ID in the plan
+func (r *deviceResource) getSdsID(plan *DeviceModel) (diags diag.Diagnostics) {
+	if !plan.SdsID.IsUnknown() {
+		sds, err := r.system.GetSdsByID(plan.SdsID.ValueString())
+		if err != nil {
+			diags.AddError(
+				"Error in getting sds details with ID: "+plan.SdsID.ValueString(),
+				err.Error(),
+			)
+			return
+		}
+		plan.SdsName = types.StringValue(sds.Name)
+	} else if !plan.SdsName.IsUnknown() {
+		sds, err := r.system.FindSds("Name", plan.SdsName.ValueString())
+		if err != nil {
+			diags.AddError(
+				"Error in getting sds details with name: "+plan.SdsName.ValueString(),
+				err.Error(),
+			)
+			return
+		}
+		plan.SdsID = types.StringValue(sds.ID)
+	}
+	return
+}
+
+// getStoragePoolID populates the storage pool ID in the plan
+func (r *deviceResource) getStoragePoolID(plan *DeviceModel) (sp *goscaleio_types.StoragePool, diags diag.Diagnostics) {
+	var (
+		pd  *goscaleio.ProtectionDomain
+		err error
+	)
+
+	if !plan.ProtectionDomainID.IsNull() || !plan.ProtectionDomainName.IsNull() {
+		pd, err = getNewProtectionDomainEx(r.client, plan.ProtectionDomainID.ValueString(), plan.ProtectionDomainName.ValueString(), "")
+		if err != nil {
+			diags.AddError(
+				"Error in getting protection domain details with ID: "+plan.ProtectionDomainID.ValueString()+" name: "+plan.ProtectionDomainName.ValueString(),
+				err.Error(),
+			)
+			return
+		}
+	}
+
+	if !plan.StoragePoolID.IsUnknown() {
+		sp, err = r.system.GetStoragePoolByID(plan.StoragePoolID.ValueString())
+		if err != nil {
+			diags.AddError(
+				"Error in getting storage pool details with ID: "+plan.StoragePoolID.ValueString(),
+				err.Error(),
+			)
+			return
+		}
+		plan.StoragePoolName = types.StringValue(sp.Name)
+	} else if !plan.StoragePoolName.IsUnknown() {
+		sp, err = pd.FindStoragePool("", plan.StoragePoolName.ValueString(), "")
+		if err != nil {
+			diags.AddError(
+				"Error in getting storage pool details with name: "+plan.ProtectionDomainName.ValueString(),
+				err.Error(),
+			)
+			return
+		}
+		plan.StoragePoolID = types.StringValue(sp.ID)
+	}
+	return sp, diags
 }
