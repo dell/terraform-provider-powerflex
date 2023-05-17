@@ -366,12 +366,3 @@ func (r *packageResource) Delete(ctx context.Context, req resource.DeleteRequest
 // ImportState imports the resource
 func (r *packageResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 }
-
-func inslice(n string, h []string) bool {
-	for _, v := range h {
-		if v == n {
-			return true
-		}
-	}
-	return false
-}
