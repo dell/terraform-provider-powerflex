@@ -32,35 +32,35 @@ resource "powerflex_parse_csv" "test-csv2" {
 	mdm_ip = "10.247.66.67"
 	mdm_password = "Password123"
 	lia_password="Password123"
-csv_detail = [
-				  {
-					ip = "10.247.66.67"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "Primary"
-					is_sdc = "Yes"
-			   },
-				{
-					ip = "10.247.100.214"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "Secondary"
-					is_sdc = "Yes"
-			},
-		   {
+	csv_detail = [
+		{
+			ip = "10.247.66.67"
+			password = "dangerous"
+			operating_system = "linux"
+			is_mdm_or_tb = "Primary"
+			is_sdc = "Yes"
+		},
+		{
+			ip = "10.247.100.214"
+			password = "dangerous"
+			operating_system = "linux"
+			is_mdm_or_tb = "Secondary"
+			is_sdc = "Yes"
+		},
+		{
 			ip = "10.247.66.194"
 			password = "dangerous"
 			operating_system = "linux"
 			is_mdm_or_tb = "TB"
 			is_sdc = "Yes"
-	   },
-	   {
-		ip = "10.247.103.163"
-		password = "dangerous"
-		operating_system = "linux"
-		is_mdm_or_tb = "Standby"
-		is_sdc = "Yes"
-   },
-		]
-    }
+	    },
+	    {
+			ip = "10.247.103.163"
+			password = "dangerous"
+			operating_system = "linux"
+			is_mdm_or_tb = "Standby"
+			is_sdc = "Yes"
+		},
+	]
+}
 `

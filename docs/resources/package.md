@@ -31,7 +31,11 @@ This resource can be used to upload packages on a PowerFlex Gateway.
 
 ```terraform
 resource "powerflex_package" "upload-package-1" {
-  file_path = ["/root/krunal/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-mdm-3.6-700.103.el7.x86_64.rpm", "/root/krunal/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdc-3.6-700.103.el7.x86_64.rpm"]
+  file_path = ["/home/krunal/Work/Software/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-lia-3.6-700.103.el7.x86_64.rpm",
+  "/home/krunal/Work/Software/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-mdm-3.6-700.103.el7.x86_64.rpm",
+  "/home/krunal/Work/Software/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sds-3.6-700.103.el7.x86_64.rpm",
+  "/home/krunal/Work/Software/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdc-3.6-700.103.el7.x86_64.rpm",
+  "/home/krunal/Work/Software/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdr-3.6-700.103.el7.x86_64.rpm"]
 }
 ```
 
