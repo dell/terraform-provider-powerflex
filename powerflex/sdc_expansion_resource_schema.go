@@ -4,6 +4,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
 
+// SDCExpansionResourceSchema - varible holds schema for SDC Expansion
 var SDCExpansionResourceSchema schema.Schema = schema.Schema{
 	Description:         "This resource can be used to add the SDC.",
 	MarkdownDescription: "This resource can be used to add the SDC.",
@@ -37,6 +38,7 @@ var SDCExpansionResourceSchema schema.Schema = schema.Schema{
 	},
 }
 
+// csvSchema - varible holds schema for CSV Param Details
 var csvSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 	Description:         "List of SDCs to be mapped to the volume. Exactly one of `sdc_id` or `sdc_name` must be specified.",
 	Required:            true,
