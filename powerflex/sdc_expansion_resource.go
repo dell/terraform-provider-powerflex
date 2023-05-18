@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/csv"
 	"encoding/json"
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -16,7 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-func NewSdcExpansionResource() resource.Resource {
+func NewSDCExpansionResource() resource.Resource {
 	return &sdcExpansionResource{}
 }
 
@@ -27,7 +28,6 @@ type sdcExpansionResource struct {
 type CsvAndMdmDataModel struct {
 	ID              types.String `tfsdk:"id"`
 	CsvDetail       types.Set    `tfsdk:"csv_detail"`
-	CsvComplete     types.String `tfsdk:"csv_complete"`
 	MdmIp           types.String `tfsdk:"mdm_ip"`
 	MdmPassword     types.String `tfsdk:"mdm_password"`
 	LiaPassword     types.String `tfsdk:"lia_password"`
@@ -61,11 +61,6 @@ func (r *sdcExpansionResource) Schema(_ context.Context, _ resource.SchemaReques
 		MarkdownDescription: "This resource can be used to add the SDC.",
 		Attributes: map[string]schema.Attribute{
 			"csv_detail": csvSchema,
-			"csv_complete": schema.StringAttribute{
-				Description:         "The JSON data which is being received after parsing the csv.",
-				MarkdownDescription: "The JSON data which is being received after parsing the csv.",
-				Computed:            true,
-			},
 			"mdm_ip": schema.StringAttribute{
 				Description:         "The JSON data which is being received after parsing the csv.",
 				MarkdownDescription: "The JSON data which is being received after parsing the csv.",
@@ -138,6 +133,28 @@ func (r *sdcExpansionResource) Configure(_ context.Context, req resource.Configu
 	r.gatewayClient = req.ProviderData.(*goscaleio.GatewayClient)
 }
 
+func QueueOpeartions(gatewayClient *goscaleio.GatewayClient) error {
+
+	_, err := gatewayClient.AbortOperation()
+
+	if err != nil {
+		return fmt.Errorf("Error while Aborting Operation: %s", err.Error())
+	}
+	_, err = gatewayClient.ClearQueueCommand()
+
+	if err != nil {
+		return fmt.Errorf("Error while Clearing Queue: %s", err.Error())
+	}
+
+	_, err = gatewayClient.MoveToIdlePhase()
+
+	if err != nil {
+		return fmt.Errorf("Error while Move to Ideal Phase: %s", err.Error())
+	}
+
+	return nil
+}
+
 func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan CsvAndMdmDataModel
 
@@ -149,19 +166,32 @@ func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	// to make gateway available for installation
-	r.gatewayClient.AbortOperation()
-	r.gatewayClient.ClearQueueCommand()
-	r.gatewayClient.MoveToIdlePhase()
+	queueOperationError := QueueOpeartions(r.gatewayClient)
+	if queueOperationError != nil {
+		resp.Diagnostics.AddError(
+			"Error Clearing Queue",
+			"unexpected error: "+queueOperationError.Error(),
+		)
+		return
+	}
 
 	//Create a csv file from the input given by the user
 	mydir, err := os.Getwd()
 	if err != nil {
-		panic(err)
+		resp.Diagnostics.AddError(
+			"Error While Readin Current Directory",
+			"unexpected error: "+queueOperationError.Error(),
+		)
+		return
 	}
 	// Create a csv writer
 	file, err := os.Create(mydir + "/Minimal.csv")
 	if err != nil {
-		panic(err)
+		resp.Diagnostics.AddError(
+			"Error While Creating Temp CSV",
+			"unexpected error: "+queueOperationError.Error(),
+		)
+		return
 	}
 	defer file.Close()
 	writer := csv.NewWriter(file)
@@ -170,46 +200,54 @@ func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRe
 	header := []string{"IPs", "Password", "Operating System", "Is MDM/TB", "Is SDC"}
 	err = writer.Write(header)
 	if err != nil {
-		panic(err)
+		resp.Diagnostics.AddError(
+			"Error While Writing Temp CSV",
+			"unexpected error: "+queueOperationError.Error(),
+		)
+		return
 	}
+
 	csvItems := []CSVDataModel{}
 	diags = plan.CsvDetail.ElementsAs(ctx, &csvItems, true)
 	resp.Diagnostics.Append(diags...)
-	for _, si := range csvItems {
+
+	for _, item := range csvItems {
 		// Add mapped SDC
 		csvStruct := CsvRow{
-			Ip:              si.Ip.ValueString(),
-			Password:        si.Password.ValueString(),
-			IsMdmOrTb:       si.IsMdmOrTb.ValueString(),
-			OperatingSystem: si.OperatingSystem.ValueString(),
-			IsSdc:           si.IsSdc.ValueString(),
+			Ip:              item.Ip.ValueString(),
+			Password:        item.Password.ValueString(),
+			IsMdmOrTb:       item.IsMdmOrTb.ValueString(),
+			OperatingSystem: item.OperatingSystem.ValueString(),
+			IsSdc:           item.IsSdc.ValueString(),
 		}
 		//Write the data row
 		data := []string{csvStruct.Ip, csvStruct.Password, csvStruct.OperatingSystem, csvStruct.IsMdmOrTb, csvStruct.IsSdc}
 		err = writer.Write(data)
 		if err != nil {
-			panic(err)
+			resp.Diagnostics.AddError(
+				"Error While Creating Temp CSV File",
+				"unexpected error: "+queueOperationError.Error(),
+			)
+			return
 		}
 	}
 	writer.Flush()
+
 	parsecsvRespose, parseCSVError := r.gatewayClient.ParseCSV(mydir + "/Minimal.csv")
 	if parseCSVError != nil {
 		resp.Diagnostics.AddError(
-			"Error while Parsing the CSV",
+			"Error While Parsing the CSV",
 			"unexpected error: "+parseCSVError.Error(),
 		)
 		return
 	}
-	if parsecsvRespose.StatusCode == 200 {
-		plan.CsvComplete = types.StringValue("Completed")
-		diags = resp.State.Set(ctx, &plan)
-		resp.Diagnostics.Append(diags...)
-	} else {
-		//plan.CsvCompltete = types.StringValue("Unsuccessful")
+
+	if parsecsvRespose.StatusCode != 200 {
 		resp.Diagnostics.AddError(
-			"Error parsing csv :"+parsecsvRespose.Message+" & Error Code :"+strconv.Itoa(parsecsvRespose.ErrorCode),
-			"Status Code:"+strconv.Itoa(parsecsvRespose.StatusCode),
+			"Error While Parsing CSV",
+			"Error While Parsing CSV :"+parsecsvRespose.Message+" & Status Code :"+strconv.Itoa(parsecsvRespose.StatusCode),
 		)
+		return
 	}
 
 	// Vaidate the MDM credentials
@@ -234,21 +272,27 @@ func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRe
 		)
 		return
 	}
-	if validateMDMResponse.StatusCode == 200 {
 
+	if validateMDMResponse.StatusCode == 200 {
 		// begin instllation process
 		beginInstallationResponse, _ := r.gatewayClient.BeginInstallation(parsecsvRespose.Data, "admin", plan.MdmPassword.ValueString(), plan.LiaPassword.ValueString(), true)
 
 		if beginInstallationResponse.StatusCode == 200 {
 			currentPhase := "query"
 			couterForStopExecution := 0
+
 			for couterForStopExecution <= 5 {
+
 				time.Sleep(1 * time.Minute)
+
 				checkForPhaseCompleted, _ := r.gatewayClient.CheckForCompletionQueueCommands(currentPhase)
+
 				if checkForPhaseCompleted.Data == "Completed" {
 					couterForStopExecution = 0
+
 					if currentPhase != "configure" {
 						moveToNextPhaseResponse, err := r.gatewayClient.MoveToNextPhase()
+
 						if err != nil {
 							resp.Diagnostics.AddError(
 								"Error while moving to next phase",
@@ -266,34 +310,16 @@ func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRe
 							}
 						}
 					} else {
-						_, err := r.gatewayClient.AbortOperation()
-
-						if err != nil {
+						// to make gateway available for installation
+						queueOperationError := QueueOpeartions(r.gatewayClient)
+						if queueOperationError != nil {
 							resp.Diagnostics.AddError(
-								"Error while Aborting Operation",
-								"Unexpected error: "+err.Error(),
-							)
-							return
-						}
-						_, err = r.gatewayClient.ClearQueueCommand()
-
-						if err != nil {
-							resp.Diagnostics.AddError(
-								"Error while Clearing Queue",
-								"Unexpected error: "+err.Error(),
+								"Error Clearing Queue",
+								"unexpected error: "+queueOperationError.Error(),
 							)
 							return
 						}
 
-						_, err = r.gatewayClient.MoveToIdlePhase()
-
-						if err != nil {
-							resp.Diagnostics.AddError(
-								"Error while Move to Ideal Phase",
-								"Unexpected error: "+err.Error(),
-							)
-							return
-						}
 						couterForStopExecution = 10
 
 						//Fetching Latest Data Updating to State
@@ -321,29 +347,37 @@ func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRe
 							r.gatewayClient.RetryPhase()
 							couterForStopExecution = 5
 						} else {
-							r.gatewayClient.AbortOperation()
-							r.gatewayClient.ClearQueueCommand()
-							r.gatewayClient.MoveToIdlePhase()
+							// to make gateway available for installation
+							queueOperationError := QueueOpeartions(r.gatewayClient)
+							if queueOperationError != nil {
+								resp.Diagnostics.AddError(
+									"Error Clearing Queue",
+									"unexpected error: "+queueOperationError.Error(),
+								)
+								return
+							}
+
 							resp.Diagnostics.AddError("Errors in installation process",
 								"Errors:"+checkForPhaseCompleted.Message)
-							couterForStopExecution++
+
+							return
 						}
 					}
 				}
 			}
 		} else {
 			resp.Diagnostics.AddError(
-				"Error in begin installation :"+beginInstallationResponse.Message+" & Error Code :"+strconv.Itoa(beginInstallationResponse.ErrorCode),
-				"Status Code:"+strconv.Itoa(beginInstallationResponse.StatusCode),
+				"Error in begin installation",
+				"Error in begin installation :"+beginInstallationResponse.Message+" & Status Code :"+strconv.Itoa(beginInstallationResponse.StatusCode),
 			)
+			return
 		}
-
 	} else {
-		//plan.CsvCompltete = types.StringValue("Unsuccessful")
 		resp.Diagnostics.AddError(
-			"Error while validating mdm credentials :"+validateMDMResponse.Message+" & Error Code :"+strconv.Itoa(validateMDMResponse.ErrorCode),
-			"Status Code:"+strconv.Itoa(validateMDMResponse.StatusCode),
+			"Error While Validating MDM Credentials",
+			"Error While Validating MDM Credentials: "+validateMDMResponse.Message+" & Status Code: "+strconv.Itoa(validateMDMResponse.StatusCode),
 		)
+		return
 	}
 
 }
@@ -360,6 +394,64 @@ func updateState(gatewayResponse *goscaleio_types.GatewayResponse, plan CsvAndMd
 }
 
 func (r *sdcExpansionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+
+	// Retrieve values from state
+	var state CsvAndMdmDataModel
+
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Vaidate the MDM credentials
+	mapData := map[string]interface{}{
+		"mdmUser":     "admin",
+		"mdmPassword": state.MdmPassword.ValueString(),
+	}
+	mapData["mdmIps"] = []string{state.MdmIp.ValueString()}
+
+	secureData := map[string]interface{}{
+		"allowNonSecureCommunicationWithMdm": true,
+		"allowNonSecureCommunicationWithLia": true,
+		"disableNonMgmtComponentsAuth":       false,
+	}
+	mapData["securityConfiguration"] = secureData
+
+	jsonres, jsonerr := json.Marshal(mapData)
+	if jsonerr != nil {
+		resp.Diagnostics.AddError(
+			"Error while validating MDM inputs",
+			"unexpected error: "+jsonerr.Error(),
+		)
+		return
+	}
+
+	validateMDMResponse, validateMDMError := r.gatewayClient.ValidateMDMDetails(jsonres)
+	if validateMDMError != nil {
+		resp.Diagnostics.AddError(
+			"Error validating details: ",
+			"unexpected error: "+validateMDMResponse.Message,
+		)
+		return
+	}
+
+	if validateMDMResponse.StatusCode == 200 {
+		// Set refreshed state
+		data, dgs := updateState(validateMDMResponse, state)
+		resp.Diagnostics.Append(dgs...)
+
+		diags = resp.State.Set(ctx, data)
+		resp.Diagnostics.Append(diags...)
+
+		return
+	}
+
+	resp.Diagnostics.AddError(
+		"Error While Validating MDM Details",
+		"Error Meesage: "+validateMDMResponse.Message+" Error Code:"+strconv.FormatInt(int64(validateMDMResponse.StatusCode), 10),
+	)
+	return
 }
 
 func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -373,19 +465,32 @@ func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRe
 	}
 
 	// to make gateway available for installation
-	r.gatewayClient.AbortOperation()
-	r.gatewayClient.ClearQueueCommand()
-	r.gatewayClient.MoveToIdlePhase()
+	queueOperationError := QueueOpeartions(r.gatewayClient)
+	if queueOperationError != nil {
+		resp.Diagnostics.AddError(
+			"Error Clearing Queue",
+			"unexpected error: "+queueOperationError.Error(),
+		)
+		return
+	}
 
 	//Create a csv file from the input given by the user
 	mydir, err := os.Getwd()
 	if err != nil {
-		panic(err)
+		resp.Diagnostics.AddError(
+			"Error While Readin Current Directory",
+			"unexpected error: "+queueOperationError.Error(),
+		)
+		return
 	}
 	// Create a csv writer
 	file, err := os.Create(mydir + "/Minimal.csv")
 	if err != nil {
-		panic(err)
+		resp.Diagnostics.AddError(
+			"Error While Creating Temp CSV",
+			"unexpected error: "+queueOperationError.Error(),
+		)
+		return
 	}
 	defer file.Close()
 	writer := csv.NewWriter(file)
@@ -394,47 +499,54 @@ func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRe
 	header := []string{"IPs", "Password", "Operating System", "Is MDM/TB", "Is SDC"}
 	err = writer.Write(header)
 	if err != nil {
-		panic(err)
+		resp.Diagnostics.AddError(
+			"Error While Writing Temp CSV",
+			"unexpected error: "+queueOperationError.Error(),
+		)
+		return
 	}
+
 	csvItems := []CSVDataModel{}
 	diags = plan.CsvDetail.ElementsAs(ctx, &csvItems, true)
 	resp.Diagnostics.Append(diags...)
-	for _, si := range csvItems {
+
+	for _, item := range csvItems {
 		// Add mapped SDC
 		csvStruct := CsvRow{
-			Ip:              si.Ip.ValueString(),
-			Password:        si.Password.ValueString(),
-			IsMdmOrTb:       si.IsMdmOrTb.ValueString(),
-			OperatingSystem: si.OperatingSystem.ValueString(),
-			IsSdc:           si.IsSdc.ValueString(),
+			Ip:              item.Ip.ValueString(),
+			Password:        item.Password.ValueString(),
+			IsMdmOrTb:       item.IsMdmOrTb.ValueString(),
+			OperatingSystem: item.OperatingSystem.ValueString(),
+			IsSdc:           item.IsSdc.ValueString(),
 		}
 		//Write the data row
 		data := []string{csvStruct.Ip, csvStruct.Password, csvStruct.OperatingSystem, csvStruct.IsMdmOrTb, csvStruct.IsSdc}
 		err = writer.Write(data)
 		if err != nil {
-			panic(err)
+			resp.Diagnostics.AddError(
+				"Error While Creating Temp CSV File",
+				"unexpected error: "+queueOperationError.Error(),
+			)
+			return
 		}
 	}
 	writer.Flush()
+
 	parsecsvRespose, parseCSVError := r.gatewayClient.ParseCSV(mydir + "/Minimal.csv")
 	if parseCSVError != nil {
 		resp.Diagnostics.AddError(
-			"Error while Parsing the CSV",
+			"Error While Parsing the CSV",
 			"unexpected error: "+parseCSVError.Error(),
 		)
-		//plan.CsvCompltete = types.StringValue("Not completed")
 		return
 	}
-	if parsecsvRespose.StatusCode == 200 {
-		plan.CsvComplete = types.StringValue("Completed")
-		diags = resp.State.Set(ctx, &plan)
-		resp.Diagnostics.Append(diags...)
-	} else {
-		//plan.CsvCompltete = types.StringValue("Unsuccessful")
+
+	if parsecsvRespose.StatusCode != 200 {
 		resp.Diagnostics.AddError(
-			"Error parsing csv :"+parsecsvRespose.Message+" & Error Code :"+strconv.Itoa(parsecsvRespose.ErrorCode),
-			"Status Code:"+strconv.Itoa(parsecsvRespose.StatusCode),
+			"Error While Parsing CSV",
+			"Error While Parsing CSV :"+parsecsvRespose.Message+" & Status Code :"+strconv.Itoa(parsecsvRespose.StatusCode),
 		)
+		return
 	}
 
 	// Vaidate the MDM credentials
@@ -459,21 +571,27 @@ func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRe
 		)
 		return
 	}
-	if validateMDMResponse.StatusCode == 200 {
 
+	if validateMDMResponse.StatusCode == 200 {
 		// begin instllation process
 		beginInstallationResponse, _ := r.gatewayClient.BeginInstallation(parsecsvRespose.Data, "admin", plan.MdmPassword.ValueString(), plan.LiaPassword.ValueString(), true)
 
 		if beginInstallationResponse.StatusCode == 200 {
 			currentPhase := "query"
 			couterForStopExecution := 0
+
 			for couterForStopExecution <= 5 {
+
 				time.Sleep(1 * time.Minute)
+
 				checkForPhaseCompleted, _ := r.gatewayClient.CheckForCompletionQueueCommands(currentPhase)
+
 				if checkForPhaseCompleted.Data == "Completed" {
 					couterForStopExecution = 0
+
 					if currentPhase != "configure" {
 						moveToNextPhaseResponse, err := r.gatewayClient.MoveToNextPhase()
+
 						if err != nil {
 							resp.Diagnostics.AddError(
 								"Error while moving to next phase",
@@ -491,34 +609,16 @@ func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRe
 							}
 						}
 					} else {
-						_, err := r.gatewayClient.AbortOperation()
-
-						if err != nil {
+						// to make gateway available for installation
+						queueOperationError := QueueOpeartions(r.gatewayClient)
+						if queueOperationError != nil {
 							resp.Diagnostics.AddError(
-								"Error while Aborting Operation",
-								"Unexpected error: "+err.Error(),
-							)
-							return
-						}
-						_, err = r.gatewayClient.ClearQueueCommand()
-
-						if err != nil {
-							resp.Diagnostics.AddError(
-								"Error while Clearing Queue",
-								"Unexpected error: "+err.Error(),
+								"Error Clearing Queue",
+								"unexpected error: "+queueOperationError.Error(),
 							)
 							return
 						}
 
-						_, err = r.gatewayClient.MoveToIdlePhase()
-
-						if err != nil {
-							resp.Diagnostics.AddError(
-								"Error while Move to Ideal Phase",
-								"Unexpected error: "+err.Error(),
-							)
-							return
-						}
 						couterForStopExecution = 10
 
 						//Fetching Latest Data Updating to State
@@ -546,54 +646,37 @@ func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRe
 							r.gatewayClient.RetryPhase()
 							couterForStopExecution = 5
 						} else {
-							_, err := r.gatewayClient.AbortOperation()
-
-							if err != nil {
+							// to make gateway available for installation
+							queueOperationError := QueueOpeartions(r.gatewayClient)
+							if queueOperationError != nil {
 								resp.Diagnostics.AddError(
-									"Error while Aborting Operation",
-									"Unexpected error: "+err.Error(),
-								)
-								return
-							}
-							_, err = r.gatewayClient.ClearQueueCommand()
-
-							if err != nil {
-								resp.Diagnostics.AddError(
-									"Error while Clearing Queue",
-									"Unexpected error: "+err.Error(),
+									"Error Clearing Queue",
+									"unexpected error: "+queueOperationError.Error(),
 								)
 								return
 							}
 
-							_, err = r.gatewayClient.MoveToIdlePhase()
-
-							if err != nil {
-								resp.Diagnostics.AddError(
-									"Error while Move to Ideal Phase",
-									"Unexpected error: "+err.Error(),
-								)
-								return
-							}
 							resp.Diagnostics.AddError("Errors in installation process",
 								"Errors:"+checkForPhaseCompleted.Message)
-							couterForStopExecution++
+
+							return
 						}
 					}
 				}
 			}
 		} else {
 			resp.Diagnostics.AddError(
-				"Error in begin installation :"+beginInstallationResponse.Message+" & Error Code :"+strconv.Itoa(beginInstallationResponse.ErrorCode),
-				"Status Code:"+strconv.Itoa(beginInstallationResponse.StatusCode),
+				"Error in begin installation",
+				"Error in begin installation :"+beginInstallationResponse.Message+" & Status Code :"+strconv.Itoa(beginInstallationResponse.StatusCode),
 			)
+			return
 		}
-
 	} else {
-		//plan.CsvCompltete = types.StringValue("Unsuccessful")
 		resp.Diagnostics.AddError(
-			"Error while validating mdm credentials :"+validateMDMResponse.Message+" & Error Code :"+strconv.Itoa(validateMDMResponse.ErrorCode),
-			"Status Code:"+strconv.Itoa(validateMDMResponse.StatusCode),
+			"Error While Validating MDM Credentials",
+			"Error While Validating MDM Credentials: "+validateMDMResponse.Message+" & Status Code: "+strconv.Itoa(validateMDMResponse.StatusCode),
 		)
+		return
 	}
 
 }
@@ -606,31 +689,11 @@ func (r *sdcExpansionResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	_, err := r.gatewayClient.AbortOperation()
-
-	if err != nil {
+	queueOperationError := QueueOpeartions(r.gatewayClient)
+	if queueOperationError != nil {
 		resp.Diagnostics.AddError(
-			"Error while Aborting Operation",
-			"Unexpected error: "+err.Error(),
-		)
-		return
-	}
-	_, err = r.gatewayClient.ClearQueueCommand()
-
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error while Clearing Queue",
-			"Unexpected error: "+err.Error(),
-		)
-		return
-	}
-
-	_, err = r.gatewayClient.MoveToIdlePhase()
-
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error while Move to Ideal Phase",
-			"Unexpected error: "+err.Error(),
+			"Error Clearing Queue",
+			"unexpected error: "+queueOperationError.Error(),
 		)
 		return
 	}

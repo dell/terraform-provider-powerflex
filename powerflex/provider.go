@@ -349,6 +349,6 @@ func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resou
 		NewSDCVolumesMappingResource,
 		NewDeviceResource,
 		NewPackageResource,
-		NewSdcExpansionResource,
+		NewSDCExpansionResource,
 	}
 }

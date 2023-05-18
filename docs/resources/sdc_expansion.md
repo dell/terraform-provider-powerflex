@@ -41,8 +41,8 @@ This resource can be used to add the SDC.
 
 resource "powerflex_sdc_expansion" "test-csv2" {
 	mdm_ip = "10.247.103.160"
-	mdm_password = "Password123"
-	lia_password="Password123"
+	mdm_password = "ABCD"
+	lia_password="ABCD"
 	csv_detail = [
 		{
 			ip = "10.247.103.160"
@@ -63,7 +63,7 @@ resource "powerflex_sdc_expansion" "test-csv2" {
 			password = "dangerous"
 			operating_system = "linux"
 			is_mdm_or_tb = "TB"
-			is_sdc = "No"
+			is_sdc = "Yes"
 	    },
 	    {
 			ip = "10.247.103.163"
@@ -88,7 +88,6 @@ resource "powerflex_sdc_expansion" "test-csv2" {
 
 ### Read-Only
 
-- `csv_complete` (String) The JSON data which is being received after parsing the csv.
 - `id` (String) The ID of the package.
 - `installed_sdc_ips` (String) List of installed SDC IPs
 
