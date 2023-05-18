@@ -9,8 +9,8 @@
 
 resource "powerflex_sdc_expansion" "test-csv2" {
 	mdm_ip = "10.247.103.160"
-	mdm_password = "Password123"
-	lia_password="Password123"
+	mdm_password = "ABCD"
+	lia_password="ABCD"
 	csv_detail = [
 		{
 			ip = "10.247.103.160"

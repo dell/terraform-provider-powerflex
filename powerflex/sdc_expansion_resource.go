@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+// NewSDCExpansionResource  resource for the SDC Expansion
 func NewSDCExpansionResource() resource.Resource {
 	return &sdcExpansionResource{}
 }
@@ -24,10 +25,11 @@ type sdcExpansionResource struct {
 	gatewayClient *goscaleio.GatewayClient
 }
 
+// CsvAndMdmDataModel struct for CSV Data Processing
 type CsvAndMdmDataModel struct {
 	ID              types.String `tfsdk:"id"`
 	CsvDetail       types.Set    `tfsdk:"csv_detail"`
-	MdmIp           types.String `tfsdk:"mdm_ip"`
+	MdmIP           types.String `tfsdk:"mdm_ip"`
 	MdmPassword     types.String `tfsdk:"mdm_password"`
 	LiaPassword     types.String `tfsdk:"lia_password"`
 	InstalledSDCIps types.String `tfsdk:"installed_sdc_ips"`
@@ -35,15 +37,16 @@ type CsvAndMdmDataModel struct {
 
 // CSVDataModel defines the struct for CSV Parse Data
 type CSVDataModel struct {
-	Ip              types.String `tfsdk:"ip"`
+	IP              types.String `tfsdk:"ip"`
 	Password        types.String `tfsdk:"password"`
 	OperatingSystem types.String `tfsdk:"operating_system"`
 	IsMdmOrTb       types.String `tfsdk:"is_mdm_or_tb"`
 	IsSdc           types.String `tfsdk:"is_sdc"`
 }
 
+// CsvRow desfines the srtuct for the CSV Data
 type CsvRow struct {
-	Ip              string
+	IP              string
 	Password        string
 	OperatingSystem string
 	IsMdmOrTb       string
@@ -66,6 +69,7 @@ func (r *sdcExpansionResource) Configure(_ context.Context, req resource.Configu
 	r.gatewayClient = req.ProviderData.(*goscaleio.GatewayClient)
 }
 
+// QueueOpeartions function for the Abort, Clear and Move To Idle Execution
 func QueueOpeartions(gatewayClient *goscaleio.GatewayClient) error {
 
 	_, err := gatewayClient.AbortOperation()
@@ -147,14 +151,14 @@ func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRe
 	for _, item := range csvItems {
 		// Add mapped SDC
 		csvStruct := CsvRow{
-			Ip:              item.Ip.ValueString(),
+			IP:              item.IP.ValueString(),
 			Password:        item.Password.ValueString(),
 			IsMdmOrTb:       item.IsMdmOrTb.ValueString(),
 			OperatingSystem: item.OperatingSystem.ValueString(),
 			IsSdc:           item.IsSdc.ValueString(),
 		}
 		//Write the data row
-		data := []string{csvStruct.Ip, csvStruct.Password, csvStruct.OperatingSystem, csvStruct.IsMdmOrTb, csvStruct.IsSdc}
+		data := []string{csvStruct.IP, csvStruct.Password, csvStruct.OperatingSystem, csvStruct.IsMdmOrTb, csvStruct.IsSdc}
 		err = writer.Write(data)
 		if err != nil {
 			resp.Diagnostics.AddError(
@@ -197,7 +201,7 @@ func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRe
 		"mdmUser":     "admin",
 		"mdmPassword": plan.MdmPassword.ValueString(),
 	}
-	mapData["mdmIps"] = []string{plan.MdmIp.ValueString()}
+	mapData["mdmIps"] = []string{plan.MdmIP.ValueString()}
 
 	secureData := map[string]interface{}{
 		"allowNonSecureCommunicationWithMdm": true,
@@ -351,7 +355,7 @@ func (r *sdcExpansionResource) Read(ctx context.Context, req resource.ReadReques
 		"mdmUser":     "admin",
 		"mdmPassword": state.MdmPassword.ValueString(),
 	}
-	mapData["mdmIps"] = []string{state.MdmIp.ValueString()}
+	mapData["mdmIps"] = []string{state.MdmIP.ValueString()}
 
 	secureData := map[string]interface{}{
 		"allowNonSecureCommunicationWithMdm": true,
@@ -455,14 +459,14 @@ func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRe
 	for _, item := range csvItems {
 		// Add mapped SDC
 		csvStruct := CsvRow{
-			Ip:              item.Ip.ValueString(),
+			IP:              item.IP.ValueString(),
 			Password:        item.Password.ValueString(),
 			IsMdmOrTb:       item.IsMdmOrTb.ValueString(),
 			OperatingSystem: item.OperatingSystem.ValueString(),
 			IsSdc:           item.IsSdc.ValueString(),
 		}
 		//Write the data row
-		data := []string{csvStruct.Ip, csvStruct.Password, csvStruct.OperatingSystem, csvStruct.IsMdmOrTb, csvStruct.IsSdc}
+		data := []string{csvStruct.IP, csvStruct.Password, csvStruct.OperatingSystem, csvStruct.IsMdmOrTb, csvStruct.IsSdc}
 		err = writer.Write(data)
 		if err != nil {
 			resp.Diagnostics.AddError(
@@ -505,7 +509,7 @@ func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRe
 		"mdmUser":     "admin",
 		"mdmPassword": plan.MdmPassword.ValueString(),
 	}
-	mapData["mdmIps"] = []string{plan.MdmIp.ValueString()}
+	mapData["mdmIps"] = []string{plan.MdmIP.ValueString()}
 
 	secureData := map[string]interface{}{
 		"allowNonSecureCommunicationWithMdm": true,
