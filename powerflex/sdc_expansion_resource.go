@@ -242,6 +242,15 @@ func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
+	deletCSVError := os.Remove(mydir + "/Minimal.csv")
+	if deletCSVError != nil {
+		resp.Diagnostics.AddError(
+			"Error While Deleting Temp CSV File",
+			"unexpected error: "+deletCSVError.Error(),
+		)
+		return
+	}
+
 	if parsecsvRespose.StatusCode != 200 {
 		resp.Diagnostics.AddError(
 			"Error While Parsing CSV",
@@ -537,6 +546,15 @@ func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRe
 		resp.Diagnostics.AddError(
 			"Error While Parsing the CSV",
 			"unexpected error: "+parseCSVError.Error(),
+		)
+		return
+	}
+
+	deletCSVError := os.Remove(mydir + "/Minimal.csv")
+	if deletCSVError != nil {
+		resp.Diagnostics.AddError(
+			"Error While Deleting Temp CSV File",
+			"unexpected error: "+deletCSVError.Error(),
 		)
 		return
 	}
