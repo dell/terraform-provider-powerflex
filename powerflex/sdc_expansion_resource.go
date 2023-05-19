@@ -112,13 +112,14 @@ func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRe
 
 		return
 
-	} else {
-		resp.Diagnostics.AddError(
-			"Error While Validating MDM Credentials",
-			"unexpected error: "+validateMDMResponse.Message+" & Status Code: "+strconv.Itoa(validateMDMResponse.StatusCode),
-		)
-		return
 	}
+
+	resp.Diagnostics.AddError(
+		"Error While Validating MDM Credentials",
+		"unexpected error: "+validateMDMResponse.Message+" & Status Code: "+strconv.Itoa(validateMDMResponse.StatusCode),
+	)
+	return
+
 }
 
 func updateState(gatewayResponse *goscaleio_types.GatewayResponse, plan CsvAndMdmDataModel) (CsvAndMdmDataModel, diag.Diagnostics) {
@@ -263,13 +264,13 @@ func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRe
 
 		return
 
-	} else {
-		resp.Diagnostics.AddError(
-			"Error While Validating MDM Credentials",
-			"unexpected error: "+validateMDMResponse.Message+" & Status Code: "+strconv.Itoa(validateMDMResponse.StatusCode),
-		)
-		return
 	}
+
+	resp.Diagnostics.AddError(
+		"Error While Validating MDM Credentials",
+		"unexpected error: "+validateMDMResponse.Message+" & Status Code: "+strconv.Itoa(validateMDMResponse.StatusCode),
+	)
+	return
 
 }
 
