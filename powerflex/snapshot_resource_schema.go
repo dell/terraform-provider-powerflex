@@ -157,6 +157,5 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 				stringDefault("ONLY_ME"),
 			},
 		},
-		"sdc_list": sdcListSchema,
 	},
 }

@@ -34,7 +34,6 @@ type SnapshotResourceModel struct {
 	CapacityUnit     types.String `tfsdk:"capacity_unit"`
 	SizeInKb         types.Int64  `tfsdk:"size_in_kb"`
 	LockAutoSnapshot types.Bool   `tfsdk:"lock_auto_snapshot"`
-	SdcList          types.Set    `tfsdk:"sdc_list"`
 	RemoveMode       types.String `tfsdk:"remove_mode"`
 	DesiredRetention types.Int64  `tfsdk:"desired_retention"`
 	RetentionUnit    types.String `tfsdk:"retention_unit"`
@@ -72,10 +71,6 @@ func refreshState(snap *pftypes.Volume, prestate *SnapshotResourceModel) (diags 
 	if diff1 > 0 && drift > SecondsThreshold && drift < -SecondsThreshold {
 		prestate.RetentionInMin = types.StringValue(strconv.FormatInt(diff1/60, 10))
 	}
-
-	mappedSdcInfoVal, diag2 := GetSdcSetValueFromInfo(snap.MappedSdcInfo)
-	diags = append(diags, diag2...)
-	prestate.SdcList = mappedSdcInfoVal
 
 	return diags
 }
