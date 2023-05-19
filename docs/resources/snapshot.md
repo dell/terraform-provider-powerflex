@@ -40,7 +40,7 @@ If the taint is not removed, terraform will destroy and recreate the resource.
 # To import , check snapshot_resource_import.tf for more info
 # To create / update, either volume_id or volume_name must be provided
 # name is the required parameter to create or update
-# other  atrributes like : access_mode, size, capacity_unit, lock_auto_snapshot, desired_retention, retention_unit, remove_mode, sdc_list are optional 
+# other  atrributes like : access_mode, size, capacity_unit, lock_auto_snapshot, desired_retention, retention_unit, remove_mode are optional 
 # To check which attributes of the snapshot can be updated, please refer Product Guide in the documentation
 
 resource "powerflex_snapshot" "snapshots-create" {
@@ -55,26 +55,6 @@ resource "powerflex_snapshot" "snapshots-create-01" {
   size          = 16
   capacity_unit = "GB"
   remove_mode   = "INCLUDING_DESCENDANTS"
-  sdc_list = [
-    {
-      sdc_id           = "e3ce1fb500000000"
-      limit_iops       = 200
-      limit_bw_in_mbps = 40
-      access_mode      = "ReadWrite"
-    },
-    {
-      sdc_id           = "e3ce1fb500000000"
-      limit_iops       = 190
-      limit_bw_in_mbps = 70
-      access_mode      = "NoAccess"
-    },
-    {
-      sdc_id           = "e3ce46c600000003"
-      limit_iops       = 82
-      limit_bw_in_mbps = 17
-      access_mode      = "ReadOnly"
-    },
-  ]
 }
 
 
@@ -89,20 +69,6 @@ resource "powerflex_snapshot" "snapshots-create-01" {
 # 	desired_retention = "<desired retention[int] associated with retention unit>"
 # 	retention_unit = "<retention unit options are hours/days, default value hours>"
 # 	remove_mode = "<remove mode options are ONLY_ME/INCLUDING_DESCENDANTS, default value ONLY_ME>"
-# 	sdc_list = [
-# 	   {
-# 		sdc_id = "<sdc id either of sdc_id/sdc_name should be present to map snapshot to sdc>"
-# 		limit_iops = "<limit iops setting on mapped sdc>"
-# 		limit_bw_in_mbps = "<limit bw in mbps setting on mapped sdc>"
-# 		access_mode = "<access mode options are ReadOnly/ReadWrite, default value ReadOnly>"
-# 	   },
-# 	   	   {
-# 		sdc_name = "<sdc name either of sdc_id/sdc_name should be present to map snapshot to sdc>"
-# 		limit_iops = "<limit iops setting on mapped sdc>"
-# 		limit_bw_in_mbps = "<limit bw in mbps setting on mapped sdc>"
-# 		access_mode = "<access mode options are ReadOnly/ReadWrite, default value ReadOnly>"
-# 	   }
-# 	]
 # }
 ```
 
@@ -121,7 +87,6 @@ resource "powerflex_snapshot" "snapshots-create-01" {
 - `lock_auto_snapshot` (Boolean) lock auto snapshot
 - `remove_mode` (String) Remove mode of the snapshot. Valid values are `ONLY_ME` and `INCLUDING_DESCENDANTS`. Default value is `ONLY_ME`.
 - `retention_unit` (String) Retention unit of the snapshot. Valid values are `hours` and `days`. Default value is `hours`.
-- `sdc_list` (Attributes Set, Deprecated) List of SDCs to be mapped to the volume. Exactly one of `sdc_id` or `sdc_name` must be specified. (see [below for nested schema](#nestedatt--sdc_list))
 - `size` (Number) Size of the snapshot. The unit of size is defined by `capacity_unit`. The storage capacity of a snapshot must be a multiple of 8GB and cannot be decreased.
 - `volume_id` (String) The ID of the volume from which snapshot is to be created. Conflicts with `volume_name`. Cannot be updated.
 - `volume_name` (String) The volume name for which snapshot is created. Conflicts with `volume_id`. Cannot be updated.
@@ -131,17 +96,6 @@ resource "powerflex_snapshot" "snapshots-create-01" {
 - `id` (String) The ID of the snapshot.
 - `retention_in_min` (String) retention of snapshot in min
 - `size_in_kb` (Number) Size in KB
-
-<a id="nestedatt--sdc_list"></a>
-### Nested Schema for `sdc_list`
-
-Optional:
-
-- `access_mode` (String) The Access Mode of the SDC. Valid values are `ReadOnly`, `ReadWrite` and `NoAccess`. Default value is `ReadOnly`
-- `limit_bw_in_mbps` (Number) Bandwidth limit in MBPS of the SDC. `0` represents unlimited IOPS. Default value is `0`.
-- `limit_iops` (Number) IOPS limit of the SDC. Valid values are `0` or integers greater than `10`. `0` represents unlimited IOPS. Default value is `0`.
-- `sdc_id` (String) The ID of the SDC. Conflicts with `sdc_name`. Cannot be updated.
-- `sdc_name` (String) The Name of the SDC. Conflicts with `sdc_id`. Cannot be updated.
 
 ## Import
 
