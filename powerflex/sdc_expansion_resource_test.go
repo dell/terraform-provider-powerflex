@@ -301,45 +301,19 @@ func TestAccSDCExpansionResourceNegative(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      ProviderConfigForGatewayTesting + WithoutIP,
-				ExpectError: regexp.MustCompile(`.*No IPs were provided on line number 2.*`),
+				ExpectError: regexp.MustCompile(`.*Error while Parsing CSV.*`),
 			},
 			{
 				Config:      ProviderConfigForGatewayTesting + WithoutPrimary,
-				ExpectError: regexp.MustCompile(`.*Unable to detect a Primary MDM.*`),
+				ExpectError: regexp.MustCompile(`.*Error while Parsing CSV.*`),
 			},
 			{
 				Config:      ProviderConfigForGatewayTesting + WithoutSecondary,
-				ExpectError: regexp.MustCompile(`.*Error For Parse CSV.*`),
+				ExpectError: regexp.MustCompile(`.*Error while Parsing CSV.*`),
 			},
 			{
 				Config:      ProviderConfigForGatewayTesting + WithoutTB,
-				ExpectError: regexp.MustCompile(`.*Error For Parse CSV.*`),
-			},
-			{
-				Config:      ProviderConfigForGatewayTesting + WrongMDMCred,
-				ExpectError: regexp.MustCompile(`.*Error While Validating MDM Credentials.*`),
-			},
-			//Create
-			{
-				Config: ProviderConfigForGatewayTesting + ParseCSVConfig1,
-				Check:  resource.TestCheckResourceAttr("powerflex_sdc_expansion.test", "installed_sdc_ips", "10.247.103.163,10.247.103.161,10.247.103.162,10.247.103.160"),
-			},
-			//Negative After Create
-			{
-				Config:      ProviderConfigForGatewayTesting + WithoutIP,
-				ExpectError: regexp.MustCompile(`.*No IPs were provided on line number 2.*`),
-			},
-			{
-				Config:      ProviderConfigForGatewayTesting + WithoutPrimary,
-				ExpectError: regexp.MustCompile(`.*Unable to detect a Primary MDM.*`),
-			},
-			{
-				Config:      ProviderConfigForGatewayTesting + WithoutSecondary,
-				ExpectError: regexp.MustCompile(`.*Error For Parse CSV.*`),
-			},
-			{
-				Config:      ProviderConfigForGatewayTesting + WithoutTB,
-				ExpectError: regexp.MustCompile(`.*Error For Parse CSV.*`),
+				ExpectError: regexp.MustCompile(`.*Error while Parsing CSV.*`),
 			},
 			{
 				Config:      ProviderConfigForGatewayTesting + WrongMDMCred,

@@ -19,12 +19,12 @@ linkTitle: "powerflex_sdc_expansion"
 page_title: "powerflex_sdc_expansion Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource can be used to add the SDC.
+  This resource can be used to add the SDC in PowerFlex Cluster.
 ---
 
 # powerflex_sdc_expansion (Resource)
 
-This resource can be used to add the SDC.
+This resource can be used to add the SDC in PowerFlex Cluster.
 
 
 ## Example Usage
@@ -32,45 +32,40 @@ This resource can be used to add the SDC.
 ```terraform
 # Command to run this tf file : terraform init && terraform plan && terraform apply
 # Create, Update, Delete is supported for this resource
-# To import , check volume_resource_import.tf for more info
-# To create / update, either storage_pool_id or storage_pool_name must be provided
-# Also , to create / update, either protection_domain_id or protection_domain_name must be provided
-# name, size is the required parameter to create or update
-# other  atrributes like : capacity_unit, volume_type, use_rm_cache, compression_method, access_mode, remove_mode, sdc_list are optional 
-# To check which attributes of the snapshot can be updated, please refer Product Guide in the documentation
-
 resource "powerflex_sdc_expansion" "test-csv2" {
-	mdm_ip = "10.247.103.160"
+	mdm_ip = "MDM_IPS"
 	mdm_password = "ABCD"
 	lia_password="ABCD"
 	csv_detail = [
 		{
-			ip = "10.247.103.160"
-			password = "dangerous"
+			ip = "IP"
+			password = "Password"
 			operating_system = "linux"
 			is_mdm_or_tb = "Primary"
 			is_sdc = "Yes"
 		},
 		{
-			ip = "10.247.103.161"
-			password = "dangerous"
+			ip = "IP"
+			password = "Password"
 			operating_system = "linux"
 			is_mdm_or_tb = "Secondary"
 			is_sdc = "Yes"
 		},
 		{
-			ip = "10.247.103.162"
-			password = "dangerous"
+			ip = "IP"
+			password = "Password"
 			operating_system = "linux"
 			is_mdm_or_tb = "TB"
 			is_sdc = "Yes"
 	    },
 	    {
-			ip = "10.247.103.163"
-			password = "dangerous"
+			ip = "IP"
+			password = "Password"
 			operating_system = "linux"
 			is_mdm_or_tb = "Standby"
 			is_sdc = "Yes"
+			performance_profile = "Compact"
+			sdc_name = "SDC"
    		},
 	]
 }
@@ -81,10 +76,10 @@ resource "powerflex_sdc_expansion" "test-csv2" {
 
 ### Required
 
-- `csv_detail` (Attributes Set) List of SDCs to be mapped to the volume. Exactly one of `sdc_id` or `sdc_name` must be specified. (see [below for nested schema](#nestedatt--csv_detail))
-- `lia_password` (String) The JSON data which is being received after parsing the csv.
-- `mdm_ip` (String) The JSON data which is being received after parsing the csv.
-- `mdm_password` (String) The JSON data which is being received after parsing the csv.
+- `csv_detail` (Attributes Set) List OF SDC Expansion Server Details. (see [below for nested schema](#nestedatt--csv_detail))
+- `lia_password` (String) LIA Password to connect MDM Server.
+- `mdm_ip` (String) MDM Server IPs. User can provide Primary and Secondary MDM IP comma seperated
+- `mdm_password` (String) MDM Password to connect MDM Server.
 
 ### Read-Only
 
@@ -96,9 +91,14 @@ resource "powerflex_sdc_expansion" "test-csv2" {
 
 Required:
 
-- `ip` (String) ip of the node
-- `is_mdm_or_tb` (String) Whether this works as MDM or Tie Breaker
+- `ip` (String) IP of the node
 - `is_sdc` (String) whether this node is SDC or not
 - `operating_system` (String) Operating System on the node
 - `password` (String) Password on the node
+
+Optional:
+
+- `is_mdm_or_tb` (String) Whether this works as MDM or Tie Breaker
+- `performance_profile` (String) To Configure Performance Profile of SDC
+- `sdc_name` (String) Name of the SDC
 
