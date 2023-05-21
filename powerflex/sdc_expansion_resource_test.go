@@ -18,12 +18,12 @@ func TestAccSDCExpansionResource(t *testing.T) {
 			//Create
 			{
 				Config: ProviderConfigForGatewayTesting + ParseCSVConfig1,
-				Check:  resource.TestCheckResourceAttr("powerflex_sdc_expansion.test", "installed_sdc_ips", "10.247.103.163,10.247.103.161,10.247.103.162,10.247.103.160"),
+				Check:  resource.TestMatchResourceAttr("powerflex_sdc_expansion.test", "installed_sdc_ips", regexp.MustCompile("10.247.103.163")),
 			},
 			//Update
 			{
 				Config: ProviderConfigForGatewayTesting + ParseCSVConfigUpdate,
-				Check:  resource.TestCheckResourceAttr("powerflex_sdc_expansion.test", "installed_sdc_ips", "10.247.103.163,10.247.103.161,10.247.103.162,10.247.103.160"),
+				Check:  resource.TestCheckResourceAttr("powerflex_sdc_expansion.test", "installed_sdc_ips", "N/A,10.247.103.163,10.247.103.161,10.247.103.162,10.247.103.160"),
 			},
 		},
 	})

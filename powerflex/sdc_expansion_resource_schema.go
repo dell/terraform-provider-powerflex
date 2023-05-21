@@ -1,8 +1,10 @@
 package powerflex
 
 import (
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -74,9 +76,9 @@ var SDCExpansionResourceSchema schema.Schema = schema.Schema{
 
 // csvSchema - varible holds schema for CSV Param Details
 var csvSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
-	Description:         "List OF SDC Expansion Server Details.",
+	Description:         "List of SDC Expansion Server Details.",
 	Required:            true,
-	MarkdownDescription: "List OF SDC Expansion Server Details.",
+	MarkdownDescription: "List of SDC Expansion Server Details.",
 	NestedObject: schema.NestedAttributeObject{
 		Attributes: map[string]schema.Attribute{
 			"ip": schema.StringAttribute{
@@ -108,9 +110,13 @@ var csvSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 				MarkdownDescription: "whether this node is SDC or not",
 			},
 			"performance_profile": schema.StringAttribute{
-				Description:         "To Configure Performance Profile of SDC",
+				Description:         "Performance Profile of SDC",
 				Optional:            true,
-				MarkdownDescription: "To Configure Performance Profile of SDC",
+				MarkdownDescription: "Performance Profile of SDC",
+				Validators: []validator.String{stringvalidator.OneOf(
+					"High",
+					"Compact",
+				)},
 			},
 			"sdc_name": schema.StringAttribute{
 				Description:         "Name of the SDC",

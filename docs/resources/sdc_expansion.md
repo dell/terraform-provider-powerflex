@@ -76,7 +76,7 @@ resource "powerflex_sdc_expansion" "test-csv2" {
 
 ### Required
 
-- `csv_detail` (Attributes Set) List OF SDC Expansion Server Details. (see [below for nested schema](#nestedatt--csv_detail))
+- `csv_detail` (Attributes Set) List of SDC Expansion Server Details. (see [below for nested schema](#nestedatt--csv_detail))
 - `lia_password` (String) LIA Password to connect MDM Server.
 - `mdm_ip` (String) MDM Server IPs. User can provide Primary and Secondary MDM IP comma seperated
 - `mdm_password` (String) MDM Password to connect MDM Server.
@@ -99,6 +99,6 @@ Required:
 Optional:
 
 - `is_mdm_or_tb` (String) Whether this works as MDM or Tie Breaker
-- `performance_profile` (String) To Configure Performance Profile of SDC
+- `performance_profile` (String) Performance Profile of SDC
 - `sdc_name` (String) Name of the SDC
 
