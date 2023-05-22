@@ -144,40 +144,17 @@ func (r *sdcExpansionResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	// Vaidate the MDM credentials
-	mapData := map[string]interface{}{
-		"mdmUser":     "admin",
-		"mdmPassword": state.MdmPassword.ValueString(),
-	}
-	mapData["mdmIps"] = []string{state.MdmIP.ValueString()}
+	validateMDMResponse, validateMDMError := ValidateMDMOperation(ctx, state, r.gatewayClient)
 
-	secureData := map[string]interface{}{
-		"allowNonSecureCommunicationWithMdm": true,
-		"allowNonSecureCommunicationWithLia": true,
-		"disableNonMgmtComponentsAuth":       false,
-	}
-	mapData["securityConfiguration"] = secureData
-
-	jsonres, jsonerr := json.Marshal(mapData)
-	if jsonerr != nil {
-		resp.Diagnostics.AddError(
-			"Error while validating MDM inputs",
-			"unexpected error: "+jsonerr.Error(),
-		)
-		return
-	}
-
-	validateMDMResponse, validateMDMError := r.gatewayClient.ValidateMDMDetails(jsonres)
 	if validateMDMError != nil {
 		resp.Diagnostics.AddError(
-			"Error validating details: ",
+			"Error While Validating MDM Details",
 			"unexpected error: "+validateMDMResponse.Message,
 		)
 		return
 	}
 
 	if validateMDMResponse.StatusCode == 200 {
-		// Set refreshed state
 		data, dgs := updateState(validateMDMResponse, state)
 		resp.Diagnostics.Append(dgs...)
 
@@ -187,9 +164,10 @@ func (r *sdcExpansionResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
+
 	resp.Diagnostics.AddError(
-		"Error While Validating MDM Details",
-		"Error Meesage: "+validateMDMResponse.Message+" Error Code:"+strconv.FormatInt(int64(validateMDMResponse.StatusCode), 10),
+		"Error While Validating MDM Credentials",
+		"unexpected error: "+validateMDMResponse.Message+" & Status Code: "+strconv.Itoa(validateMDMResponse.StatusCode),
 	)
 	return
 }
