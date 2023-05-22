@@ -528,7 +528,7 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 
 	rm := goscaleio.NewStoragePoolEx(r.client, spResponse)
 
-	if !state.UseRmcache.Equal(plan.UseRmcache) {
+	if !plan.UseRmcache.IsUnknown() && !state.UseRmcache.Equal(plan.UseRmcache) {
 		err := rm.ModifyRMCache(plan.UseRmcache.String())
 		if err != nil {
 			resp.Diagnostics.AddError(
@@ -537,7 +537,7 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 		}
 	}
 
-	if !state.UseRfcache.Equal(plan.UseRfcache) {
+	if !plan.UseRfcache.IsUnknown() && !state.UseRfcache.Equal(plan.UseRfcache) {
 		if plan.UseRfcache.String() == "true" {
 			_, err1 = pd.EnableRFCache(spResponse.ID)
 
