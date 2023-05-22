@@ -26,6 +26,10 @@ description: |-
 
 This resource can be used to manage Storage Pools on a PowerFlex array.
 
+!> **Caution:** Storage Pool creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
+One can manually remove the taint and try applying the configuration (after making necessary adjustments).
+If the taint is not removed, terraform will destroy and recreate the resource.
+
 ~> **Note:** Exactly one of `protection_domain_name` and `protection_domain_id` is required.
 
 ## Example Usage
