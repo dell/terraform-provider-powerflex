@@ -164,7 +164,6 @@ func (r *sdcExpansionResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-
 	resp.Diagnostics.AddError(
 		"Error While Validating MDM Credentials",
 		"unexpected error: "+validateMDMResponse.Message+" & Status Code: "+strconv.Itoa(validateMDMResponse.StatusCode),
