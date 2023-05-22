@@ -61,15 +61,6 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 
-	sr, err := getFirstSystem(r.client)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error getting first system",
-			"unexpected error: "+err.Error(),
-		)
-		return
-	}
-
 	if !plan.Size.IsNull() && !plan.Size.IsUnknown() {
 		VSIKB := converterKB(plan.CapacityUnit.ValueString(), plan.Size.ValueInt64())
 		plan.SizeInKb = types.Int64Value(int64(VSIKB))
@@ -89,58 +80,6 @@ func (r *snapshotResource) ModifyPlan(ctx context.Context, req resource.ModifyPl
 			plan.RetentionInMin = basetypes.NewStringUnknown()
 		}
 	}
-	diags = resp.Plan.Set(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-
-	if plan.SdcList.IsUnknown() {
-		return
-	}
-	sdcList := []SDCItem{}
-	diags = plan.SdcList.ElementsAs(ctx, &sdcList, true)
-	resp.Diagnostics.Append(diags...)
-
-	for i, si := range sdcList {
-		if !si.SdcName.IsUnknown() {
-			tflog.Info(ctx, fmt.Sprintf("SDC name is provided: %s", si.SdcName.ValueString()))
-			foundsdc, errA := sr.FindSdc("Name", si.SdcName.ValueString())
-			if errA != nil {
-				resp.Diagnostics.AddError(
-					"Error getting sdc id from sdc name: "+si.SdcName.ValueString(),
-					"unexpected error: "+errA.Error(),
-				)
-				return
-			}
-			tflog.Info(ctx, fmt.Sprintf("SDC id found: %s", foundsdc.Sdc.ID))
-			sdcList[i].SdcID = types.StringValue(foundsdc.Sdc.ID)
-		}
-		if !si.SdcID.IsUnknown() {
-			tflog.Info(ctx, fmt.Sprintf("SDC id is provided: %s", si.SdcID.ValueString()))
-			foundsdc, errA := sr.FindSdc("ID", si.SdcID.ValueString())
-			if errA != nil {
-				resp.Diagnostics.AddError(
-					"Error getting sdc name from sdc id: "+si.SdcID.ValueString(),
-					"unexpected error: "+errA.Error(),
-				)
-				return
-			}
-			tflog.Info(ctx, fmt.Sprintf("SDC name found: %s", foundsdc.Sdc.Name))
-			sdcList[i].SdcName = types.StringValue(foundsdc.Sdc.Name)
-		}
-	}
-
-	// raise errors for SDCs that have multiple entries in the set
-	for _, err := range validateSdcSet(sdcList) {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("sdc_list"),
-			"Error: Duplicate SDC in list",
-			err.Error(),
-		)
-	}
-
-	mappedSdcInfoVal, dgs := GetSdcSetValueFromItems(sdcList)
-	diags = append(diags, dgs...)
-	resp.Diagnostics.Append(diags...)
-	plan.SdcList = mappedSdcInfoVal
 	diags = resp.Plan.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
@@ -227,36 +166,7 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 			errMsg["lock_auto_snapshot"] = err.Error()
 		}
 	}
-	// unmarshalling the plan sdclist data into sdcList struct for iterative mapping of snapshot to sdc
-	sdcList := []SdcList{}
-	diags = plan.SdcList.ElementsAs(ctx, &sdcList, true)
-	resp.Diagnostics.Append(diags...)
-	for _, si := range sdcList {
-		// Add mapped SDC
-		pfmvsp := pftypes.MapVolumeSdcParam{
-			SdcID:                 si.SdcID.ValueString(),
-			AllowMultipleMappings: "true",
-		}
-		// mapping the snapshot to sdc
-		err3 := snapResource.MapVolumeSdc(&pfmvsp)
-		if err3 != nil {
-			errMsg["sdc_map_err_"+si.SdcID.ValueString()] += "\n" + err3.Error()
-		}
-		// setting limits on mapped sdc
-		smslp := pftypes.SetMappedSdcLimitsParam{
-			SdcID:                si.SdcID.ValueString(),
-			BandwidthLimitInKbps: strconv.FormatInt(int64(si.LimitBwInMbps.ValueInt64()*1024), 10),
-			IopsLimit:            strconv.FormatInt(int64(si.LimitIops.ValueInt64()), 10),
-		}
-		err4 := snapResource.SetMappedSdcLimits(&smslp)
-		if err4 != nil {
-			errMsg["sdc_map_err_"+si.SdcID.ValueString()] += "\n" + err4.Error()
-		}
-		err5 := snapResource.SetVolumeMappingAccessMode(si.AccessMode.ValueString(), si.SdcID.ValueString())
-		if err5 != nil {
-			errMsg["sdc_map_err_"+si.SdcID.ValueString()] += "\n" + err5.Error()
-		}
-	}
+
 	// disabling retention in case of error with update
 	if (len(errMsg) > 0) && !plan.DesiredRetention.IsNull() {
 		errMsg["desired_retention/retention_unit"] = "The specified snapshot can't be retained due to failure in creation."
@@ -337,11 +247,6 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	resp.Diagnostics.Append(diags...)
 	errMsg := make(map[string]string, 0)
 
-	// in case of update, if sdc_list plan is unknown, we go for idempotency, ie. we shall make no changes
-	if plan.SdcList.IsUnknown() {
-		plan.SdcList = state.SdcList
-	}
-
 	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
@@ -387,128 +292,6 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 		if err != nil {
 			errMsg["lock_auto_snapshot"] = err.Error()
 		}
-	}
-	planSdcList := []SdcList{}
-	stateSdcList := []SdcList{}
-
-	//unmarshall the tfsdk sdclist type to go sdclist type
-	diags = plan.SdcList.ElementsAs(ctx, &planSdcList, true)
-	resp.Diagnostics.Append(diags...)
-	diags = state.SdcList.ElementsAs(ctx, &stateSdcList, true)
-	resp.Diagnostics.Append(diags...)
-
-	// getting all the sdc_ids from plan and state sdc list and saving into respective list for finding sdc to map and unmap.
-	planSdcIds := []string{}
-	stateSdcIds := []string{}
-	for _, psl := range planSdcList {
-		planSdcIds = append(planSdcIds, psl.SdcID.ValueString())
-	}
-	for _, ssl := range stateSdcList {
-		stateSdcIds = append(stateSdcIds, ssl.SdcID.ValueString())
-	}
-
-	// mapSdcIds will be storing the sdc id for which mapping action need to perform.
-	mapSdcIds := Difference(planSdcIds, stateSdcIds)
-
-	// unmapSdcIds will be storing the sdc id for which unmapping action need to perform.
-	unmapSdcIds := Difference(stateSdcIds, planSdcIds)
-
-	// nonchangeSdcIds will be storing the sdc id for which mapping parameter change action need to perform.
-	nonchangeSdcIds := Difference(planSdcIds, mapSdcIds)
-
-	// changing the access mode in case of change in access mode state
-	if (plan.AccessMode.ValueString() == READWRITE) && (state.AccessMode.ValueString() == READONLY) {
-		err := snapResource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
-		if err != nil {
-			errMsg["access"] = err.Error()
-		}
-	}
-
-	// retervial of sdc id from mapping list
-	for _, msi := range mapSdcIds {
-		pfmvsp := pftypes.MapVolumeSdcParam{
-			SdcID:                 msi,
-			AllowMultipleMappings: "true",
-		}
-		err3 := snapResource.MapVolumeSdc(&pfmvsp)
-		if err3 != nil {
-			errMsg["sdc_map_err_"+msi] += "\n" + err3.Error()
-		}
-
-		// getting sdc parameter to set while mapping
-		for _, ssl := range planSdcList {
-			if ssl.SdcID.ValueString() == msi {
-				smslp := pftypes.SetMappedSdcLimitsParam{
-					SdcID:                ssl.SdcID.ValueString(),
-					BandwidthLimitInKbps: strconv.FormatInt(int64(ssl.LimitBwInMbps.ValueInt64()*1024), 10),
-					IopsLimit:            strconv.FormatInt(int64(ssl.LimitIops.ValueInt64()), 10),
-				}
-				err4 := snapResource.SetMappedSdcLimits(&smslp)
-				if err4 != nil {
-					errMsg["sdc_map_err_"+msi] += "\n" + err4.Error()
-				}
-				err5 := snapResource.SetVolumeMappingAccessMode(ssl.AccessMode.ValueString(), ssl.SdcID.ValueString())
-				if err5 != nil {
-					errMsg["sdc_map_err_"+msi] += "\n" + err5.Error()
-				}
-			}
-		}
-	}
-
-	// reterival of sdc id from unmapping list.
-	for _, usi := range unmapSdcIds {
-		err4 := snapResource.UnmapVolumeSdc(
-			&pftypes.UnmapVolumeSdcParam{
-				SdcID: usi,
-			},
-		)
-		if err4 != nil {
-			errMsg["sdc_unmap_err_"+usi] += "\n" + err4.Error()
-		}
-	}
-
-	// reterival of sdc id from non changed sdc list.
-	for _, ncsi := range nonchangeSdcIds {
-		var planObj SdcList
-		var stateObj SdcList
-
-		// getting the plan sdc obj for comparision with state
-		for _, psl := range planSdcList {
-			if ncsi == psl.SdcID.ValueString() {
-				planObj = psl
-				break
-			}
-		}
-
-		// getting the state sdc obj for comparision with plan
-		for _, ssl := range stateSdcList {
-			if ncsi == ssl.SdcID.ValueString() {
-				stateObj = ssl
-				break
-			}
-		}
-
-		// updating the sdc mapping parameters: limit iops and bandwidth limits if there is change in plan and state
-		if (planObj.LimitIops != stateObj.LimitIops) || (planObj.LimitBwInMbps != stateObj.LimitBwInMbps) {
-			smslp := pftypes.SetMappedSdcLimitsParam{
-				SdcID:                planObj.SdcID.ValueString(),
-				BandwidthLimitInKbps: strconv.FormatInt(int64(planObj.LimitBwInMbps.ValueInt64()*1024), 10),
-				IopsLimit:            strconv.FormatInt(int64(planObj.LimitIops.ValueInt64()), 10),
-			}
-			err4 := snapResource.SetMappedSdcLimits(&smslp)
-			if err4 != nil {
-				errMsg["sdc_map_err_"+planObj.SdcID.ValueString()] += "\n" + err4.Error()
-			}
-		}
-
-		// updating the access mode for sdc mapping if there is change in plan and state
-		if planObj.AccessMode != stateObj.AccessMode {
-			err5 := snapResource.SetVolumeMappingAccessMode(planObj.AccessMode.ValueString(), planObj.SdcID.ValueString())
-			if err5 != nil {
-				errMsg["sdc_map_err_"+planObj.SdcID.ValueString()] += "\n" + err5.Error()
-			}
-		}
-
 	}
 
 	// changing the access mode in case of change in access mode state
@@ -582,21 +365,6 @@ func (r *snapshotResource) Delete(ctx context.Context, req resource.DeleteReques
 	snapshot := goscaleio.NewVolume(r.client)
 	snapshot.Volume = snapResponse[0]
 
-	// performing unmap operation
-	for _, stu := range snapResponse[0].MappedSdcInfo {
-		err := snapshot.UnmapVolumeSdc(
-			&pftypes.UnmapVolumeSdcParam{
-				SdcID: stu.SdcID,
-			},
-		)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error Unmapping Volume to SDCs",
-				"Couldn't unmap volume to SDC with id: "+stu.SdcID+", unexpected error: "+err.Error(),
-			)
-			return
-		}
-	}
 	err := snapshot.RemoveVolume(state.RemoveMode.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(

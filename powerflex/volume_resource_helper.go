@@ -36,7 +36,6 @@ type VolumeResourceModel struct {
 	ID                   types.String `tfsdk:"id"`
 	AccessMode           types.String `tfsdk:"access_mode"`
 	RemoveMode           types.String `tfsdk:"remove_mode"`
-	SdcList              types.Set    `tfsdk:"sdc_list"`
 }
 
 // SDCItemize maps the sdc_list schema data
@@ -72,9 +71,6 @@ func refreshVolumeState(vol *pftypes.Volume, state *VolumeResourceModel) (diags 
 	state.ID = types.StringValue(vol.ID)
 	state.AccessMode = types.StringValue(vol.AccessModeLimit)
 	state.CompressionMethod = types.StringValue(vol.CompressionMethod)
-	mappedSdcInfoVal, diag2 := GetSdcSetValueFromInfo(vol.MappedSdcInfo)
-	diags = append(diags, diag2...)
-	state.SdcList = mappedSdcInfoVal
 	return diags
 }
 

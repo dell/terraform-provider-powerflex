@@ -1,7 +1,6 @@
 package powerflex
 
 import (
-	"fmt"
 	"regexp"
 	"testing"
 
@@ -41,53 +40,6 @@ func TestAccVolumeResource(t *testing.T) {
 		size = 8
 	}`
 
-	var modifyPlanSdcNameNegTest = `
-	resource "powerflex_volume" "avengers-volume-sdc-map-name"{
-		name = "avengers-volume-sdc-map-name"
-		protection_domain_name = "domain1"
-		storage_pool_name = "pool1"
-		size = 8
-		sdc_list = [
-		  {
-			sdc_name = "invalid-sdc-name"
-		  }
-		]
-	}`
-
-	var modifyPlanSdcIDNegTest = `
-	resource "powerflex_volume" "avengers-volume-sdc-map-id"{
-		name = "avengers-volume-sdc-map-id"
-		protection_domain_name = "domain1"
-		storage_pool_name = "pool1"
-		size = 8
-		sdc_list = [
-		  {
-			sdc_id = "invalid-sdc-id"
-		  }
-		]
-	}`
-
-	var modifyPlanVolumeInvalidMapLimit = `
-	resource "powerflex_volume" "avengers-volume-create"{
-		name = "avengers-volume-create-lm"
-		protection_domain_name = "domain1"
-		storage_pool_name = "pool1" #pool1 have medium granularity
-		size = 8
-		use_rm_cache = true 
-		volume_type = "ThickProvisioned" 
-		access_mode = "ReadOnly"
-		sdc_list = [
-				  {
-				   sdc_name = "` + SdsResourceTestData.sdcName2 + `"
-				   limit_iops = 9
-				   limit_bw_in_mbps = 122
-				   access_mode = "ReadWrite"
-			   },
-	
-		]
-	  }
-	`
-
 	var createVolumeWithInvalidCompressionMethodNegTest = `
 	resource "powerflex_volume" "avengers-volume---create"{
 		name = "avengers-volume---create0101010101010100101010101010101010101"
@@ -96,26 +48,6 @@ func TestAccVolumeResource(t *testing.T) {
 		size = 8
 		use_rm_cache = true 
 		volume_type = "ThickProvisioned"
-	  }
-	`
-
-	var createVolumeWithSdcConfigNegTest = `
-	resource "powerflex_volume" "avengers-volume----create"{
-		name = "avengers-volume----create"
-		protection_domain_name = "domain1"
-		storage_pool_name = "pool1" #pool1 have medium granularity
-		size = 8
-		use_rm_cache = true 
-		volume_type = "ThickProvisioned" 
-		access_mode = "ReadOnly" # sdc_can't be mapped to volume with access mode readonly
-		sdc_list = [
-		  {
-				   sdc_name = "` + SdsResourceTestData.sdcName + `"
-				   limit_iops = 119
-				   limit_bw_in_mbps = 19
-				   access_mode = "ReadWrite"
-			   },
-		]
 	  }
 	`
 
@@ -128,73 +60,6 @@ func TestAccVolumeResource(t *testing.T) {
 		use_rm_cache = true 
 		volume_type = "ThickProvisioned" 
 		access_mode = "ReadWrite"
-		sdc_list = [
-		  {
-				   sdc_name = "` + SdsResourceTestData.sdcName + `"
-				   limit_iops = 119
-				   limit_bw_in_mbps = 19
-				   access_mode = "ReadOnly"
-			   },
-		]
-	  }
-	`
-
-	var updateVolumePosTest = `
-	resource "powerflex_volume" "avengers-volume-create"{
-		name = "avengers-volume-create"
-		protection_domain_name = "domain1"
-		storage_pool_name = "pool1" #pool1 have medium granularity
-		size = 8
-		use_rm_cache = true 
-		volume_type = "ThickProvisioned" 
-		access_mode = "ReadWrite"
-		sdc_list = [
-				  {
-				   sdc_name = "` + SdsResourceTestData.sdcName + `"
-				   limit_iops = 328
-				   limit_bw_in_mbps = 28
-				   access_mode = "ReadOnly"
-			   },
-			   {
-				sdc_name = "` + SdsResourceTestData.sdcName2 + `"
-				limit_iops = 129
-				limit_bw_in_mbps = 17
-				access_mode = "ReadWrite"
-			   },
-			   {
-				sdc_id = "e3ce46c600000003"
-				limit_iops = 38
-				limit_bw_in_mbps = 28
-				access_mode = "NoAccess"
-			   }
-		]
-	  }
-	`
-
-	var updateVolumeUnmapPosTest = `
-	resource "powerflex_volume" "avengers-volume-create"{
-		name = "avengers-volume-create"
-		protection_domain_name = "domain1"
-		storage_pool_name = "pool1" #pool1 have medium granularity
-		size = 8
-		use_rm_cache = true 
-		volume_type = "ThickProvisioned" 
-		access_mode = "ReadWrite"
-		sdc_list = [
-				  {
-				   sdc_name = "` + SdsResourceTestData.sdcName + `"
-				   limit_iops = 328
-				   limit_bw_in_mbps = 28
-				   access_mode = "ReadOnly"
-			   },
-	
-			   {
-				sdc_id = "e3ce46c600000003"
-				limit_iops = 38
-				limit_bw_in_mbps = 28
-				access_mode = "NoAccess"
-			   }
-		]
 	  }
 	`
 
@@ -295,41 +160,13 @@ func TestAccVolumeResource(t *testing.T) {
 				ExpectError: regexp.MustCompile(`.*Error getting storage pool with id*.`),
 			},
 			{
-				Config:      ProviderConfigForTesting + modifyPlanSdcNameNegTest,
-				ExpectError: regexp.MustCompile(`.*Error getting sdc with the name*.`),
-			},
-			{
-				Config:      ProviderConfigForTesting + modifyPlanSdcIDNegTest,
-				ExpectError: regexp.MustCompile(`.*Error getting sdc name from sdc id*.`),
-			},
-			{
-				Config:      ProviderConfigForTesting + modifyPlanVolumeInvalidMapLimit,
-				ExpectError: regexp.MustCompile(`.*Error setting the limit iops*.`),
-			},
-			{
 				Config:      ProviderConfigForTesting + createVolumeWithInvalidCompressionMethodNegTest,
 				ExpectError: regexp.MustCompile(`.*Error creating volume*.`),
 			},
 			{
-				Config:      ProviderConfigForTesting + createVolumeWithSdcConfigNegTest,
-				ExpectError: regexp.MustCompile(`.*Error mapping sdc*.`),
-			},
-			{
 				Config: ProviderConfigForTesting + createVolumePosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "1"),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + updateVolumePosTest,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "3"),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + updateVolumeUnmapPosTest,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "2"),
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "name", "avengers-volume-create"),
 				),
 			},
 			{
@@ -419,209 +256,6 @@ func TestAccVolumeResourceImport(t *testing.T) {
 				ResourceName: resourceName,
 				ImportState:  true,
 				// TODO // ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccVolumeResourceDuplicateSDC(t *testing.T) {
-	createDuplicateInv := `
-	resource "powerflex_volume" "avengers-volume-create"{
-		name = "avengers-volume-create"
-		protection_domain_name = "domain1"
-		storage_pool_name = "pool1"
-		size = 8
-		access_mode = "ReadWrite"
-		sdc_list = [
-			{
-				sdc_name = "` + SdsResourceTestData.sdcName2 + `"
-				limit_iops = 119
-				limit_bw_in_mbps = 19
-				access_mode = "ReadOnly"
-			},
-			{
-				sdc_name = "` + SdsResourceTestData.sdcName2 + `"
-				limit_iops = 119
-				limit_bw_in_mbps = 19
-				access_mode = "ReadWrite"
-			}
-		]
-	  }
-	`
-	createDuplicatePos := `
-	resource "powerflex_volume" "avengers-volume-create"{
-		name = "avengers-volume-create"
-		protection_domain_name = "domain1"
-		storage_pool_name = "pool1"
-		size = 8
-		access_mode = "ReadWrite"
-		sdc_list = [
-			{
-				sdc_name = "` + SdsResourceTestData.sdcName + `"
-				limit_iops = 119
-				limit_bw_in_mbps = 19
-				access_mode = "ReadOnly"
-			},
-			{
-				sdc_name = "` + SdsResourceTestData.sdcName + `"
-				limit_iops = 119
-				limit_bw_in_mbps = 19
-				access_mode = "ReadOnly"
-			}
-		]
-	  }
-	`
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config:      ProviderConfigForTesting + createDuplicateInv,
-				ExpectError: regexp.MustCompile(`.*Duplicate SDS*.`),
-			},
-			{
-				Config: ProviderConfigForTesting + createDuplicatePos,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "1"),
-				),
-				ExpectNonEmptyPlan: true,
-			},
-		},
-	})
-}
-
-func TestAccVolumeResourceUnknown(t *testing.T) {
-	if SdsResourceTestData.SdcIP == "" {
-		t.Fatal("POWERFLEX_SDC_IP must be set for TestAccVolumeResourceUnknown")
-	}
-	tfVars := fmt.Sprintf(`
-	locals {
-		sdc_ip = "%s"
-	}
-	`, SdsResourceTestData.SdcIP)
-	createVolUnk := tfVars + `
-	data "powerflex_sdc" "all" {
-	}
-	
-	data "powerflex_protection_domain" "pd" {
-		 name = "domain1"
-	}
-
-	provider "random" {
-	}
-	
-	resource "random_integer" "sdc_ind" {
-	  min = 0
-	  max = 0
-	}
-
-	locals {
-		ips = [local.sdc_ip]
-		matching_sdc = [for sdc in data.powerflex_sdc.all.sdcs : sdc if sdc.sdc_ip == local.ips[random_integer.sdc_ind.result]]
-	}
-	
-	resource "powerflex_volume" "avengers-volume-create"{
-	  name = "tf-volume-create"
-	  protection_domain_name = data.powerflex_protection_domain.pd.protection_domains[0].name
-	  storage_pool_name = "pool1"
-	  size = 8
-	  access_mode = "ReadWrite"
-	  sdc_list = [
-		{
-		  sdc_id = local.matching_sdc[0].id
-		  limit_iops = 119
-		  limit_bw_in_mbps = 19
-		  access_mode = "ReadOnly"
-		}
-	  ]
-	}
-	`
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {
-				VersionConstraint: "3.4.3",
-				Source:            "hashicorp/random",
-			},
-		},
-		Steps: []resource.TestStep{
-			{
-				Config: ProviderConfigForTesting + createVolUnk,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "1"),
-				),
-				// TODO
-				ExpectNonEmptyPlan: true,
-			},
-		},
-	})
-}
-
-func TestAccVolumeResourceUnMapAll(t *testing.T) {
-	create := `
-	resource "powerflex_volume" "avengers-volume-create"{
-		name = "avengers-volume-create"
-		protection_domain_name = "domain1"
-		storage_pool_name = "pool1"
-		size = 8
-		access_mode = "ReadWrite"
-		sdc_list = [
-			{
-				sdc_name = "` + SdsResourceTestData.sdcName2 + `"
-				limit_iops = 119
-				limit_bw_in_mbps = 19
-				access_mode = "ReadOnly"
-			}
-		]
-	  }
-	`
-
-	updateIdemp := `
-	resource "powerflex_volume" "avengers-volume-create"{
-		name = "avengers-volume-create"
-		protection_domain_name = "domain1"
-		storage_pool_name = "pool1"
-		size = 8
-		access_mode = "ReadWrite"
-	  }
-	`
-
-	update := `
-	resource "powerflex_volume" "avengers-volume-create"{
-		name = "avengers-volume-create"
-		protection_domain_name = "domain1"
-		storage_pool_name = "pool1"
-		size = 8
-		access_mode = "ReadWrite"
-		sdc_list = []
-	  }
-	`
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: ProviderConfigForTesting + create,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "1"),
-				),
-				// TODO
-				ExpectNonEmptyPlan: true,
-			},
-			{
-				Config: ProviderConfigForTesting + updateIdemp,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "1"),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + update,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "sdc_list.#", "0"),
-				),
 			},
 		},
 	})
