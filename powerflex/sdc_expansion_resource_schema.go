@@ -13,7 +13,6 @@ import (
 type CsvAndMdmDataModel struct {
 	ID              types.String `tfsdk:"id"`
 	ClusterDetails  types.Set    `tfsdk:"cluster_details"`
-	// MdmIP           types.String `tfsdk:"mdm_ip"`
 	MdmPassword     types.String `tfsdk:"mdm_password"`
 	LiaPassword     types.String `tfsdk:"lia_password"`
 	InstalledSDCIps types.String `tfsdk:"installed_sdc_ips"`
@@ -49,11 +48,6 @@ var SDCExpansionResourceSchema schema.Schema = schema.Schema{
 	MarkdownDescription: "This resource can be used to add the SDC in PowerFlex Cluster.",
 	Attributes: map[string]schema.Attribute{
 		"cluster_details": csvSchema,
-		// "mdm_ip": schema.StringAttribute{
-		// 	Description:         "MDM Server IP",
-		// 	MarkdownDescription: "MDM Server IP",
-		// 	Computed:            true,
-		// },
 		"mdm_password": schema.StringAttribute{
 			Description:         "MDM Password to connect MDM Server.",
 			MarkdownDescription: "MDM Password to connect MDM Server.",
@@ -114,26 +108,26 @@ var csvSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 				MarkdownDescription: "Operating System on the node",
 			},
 			"is_mdm_or_tb": schema.StringAttribute{
-				Description:         "Whether this works as MDM or Tie Breaker",
+				Description:         "Whether this works as MDM or Tie Breaker,The acceptable value is `Primary`, `Secondary`, `TB`, `Standby` or blank. Default value is blank",
 				Optional:            true,
-				MarkdownDescription: "Whether this works as MDM or Tie Breaker",
+				MarkdownDescription: "Whether this works as MDM or Tie Breaker,The acceptable value is `Primary`, `Secondary`, `TB`, `Standby` or blank. Default value is blank",
 				PlanModifiers: []planmodifier.String{
 					stringDefault(" "),
 				},
 			},
 			"is_sdc": schema.StringAttribute{
-				Description:         "whether this node is SDC or not",
+				Description:         "whether this node is SDC or not,The acceptable value is `Yes` or `No`",
 				Required:            true,
-				MarkdownDescription: "whether this node is SDC or not",
+				MarkdownDescription: "whether this node is SDC or not,The acceptable value is `Yes` or `No`.",
 				Validators: []validator.String{stringvalidator.OneOf(
 					"Yes",
 					"No",
 				)},
 			},
 			"performance_profile": schema.StringAttribute{
-				Description:         "Performance Profile of SDC",
+				Description:         "Performance Profile of SDC, The acceptable value is `High` or `Compact`.",
 				Optional:            true,
-				MarkdownDescription: "Performance Profile of SDC",
+				MarkdownDescription: "Performance Profile of SDC, The acceptable value is `High` or `Compact`.",
 				Validators: []validator.String{stringvalidator.OneOf(
 					"High",
 					"Compact",

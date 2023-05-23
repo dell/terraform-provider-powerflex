@@ -76,11 +76,11 @@ func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	mdmIP, mdmIpError := GetMDMIP(ctx, plan)
-	if mdmIpError != nil {
+	mdmIP, mdmIPError := GetMDMIP(ctx, plan)
+	if mdmIPError != nil {
 		resp.Diagnostics.AddError(
 			"Error while Getting MDM IP",
-			"unexpected error: "+mdmIpError.Error(),
+			"unexpected error: "+mdmIPError.Error(),
 		)
 		return
 	}
@@ -165,11 +165,11 @@ func (r *sdcExpansionResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	mdmIP, mdmIpError := GetMDMIP(ctx, state)
-	if mdmIpError != nil {
+	mdmIP, mdmIPError := GetMDMIP(ctx, state)
+	if mdmIPError != nil {
 		resp.Diagnostics.AddError(
 			"Error while Getting MDM IP",
-			"unexpected error: "+mdmIpError.Error(),
+			"unexpected error: "+mdmIPError.Error(),
 		)
 		return
 	}
@@ -233,11 +233,11 @@ func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	mdmIP, mdmIpError := GetMDMIP(ctx, plan)
-	if mdmIpError != nil {
+	mdmIP, mdmIPError := GetMDMIP(ctx, plan)
+	if mdmIPError != nil {
 		resp.Diagnostics.AddError(
 			"Error while Getting MDM IP",
-			"unexpected error: "+mdmIpError.Error(),
+			"unexpected error: "+mdmIPError.Error(),
 		)
 		return
 	}
@@ -321,6 +321,7 @@ func (r *sdcExpansionResource) Delete(ctx context.Context, req resource.DeleteRe
 	resp.State.RemoveResource(ctx)
 }
 
+// GetMDMIP function is used for fetch MDM IP from cluster details
 func GetMDMIP(ctx context.Context, model CsvAndMdmDataModel) (string, error) {
 	var mdmIP string
 	csvItems := []CSVDataModel{}
