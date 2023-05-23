@@ -833,8 +833,8 @@ func TestAccStoragePoolResourceRmCacheUpdate(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3rmcache", "use_rmcache", "true")),
 			},
-		}, 
-	},) 
+		},
+	})
 }
 
 var CreateRmCacheCheck = `
