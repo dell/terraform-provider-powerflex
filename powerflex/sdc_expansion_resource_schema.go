@@ -128,7 +128,7 @@ var csvSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 				Description:         "whether this node is SDC or not,The acceptable value is `Yes` or `No`",
 				Required:            true,
 				MarkdownDescription: "whether this node is SDC or not,The acceptable value is `Yes` or `No`.",
-				Validators: []validator.String{stringvalidator.OneOf(
+				Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
 					"Yes",
 					"No",
 				)},
