@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dell/goscaleio"
@@ -14,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // NewSDCExpansionResource  resource for the SDC Expansion
@@ -53,7 +55,7 @@ func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	// to make gateway available for installation
-	queueOperationError := QueueOpeartions(r.gatewayClient)
+	queueOperationError := ResetInstallerQueue(r.gatewayClient)
 	if queueOperationError != nil {
 		resp.Diagnostics.AddError(
 			"Error Clearing Queue",
@@ -62,7 +64,9 @@ func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	parsecsvRespose, parseCSVError := ParseCSVOperation(ctx, plan, r.gatewayClient)
+	tflog.Info(ctx, "Gateway Installer changed to idle phase before initiating process")
+
+	parsecsvRespose, parseCSVError := ParseCSVOperation(ctx, &plan, r.gatewayClient)
 
 	if parseCSVError != nil {
 		resp.Diagnostics.AddError(
@@ -72,8 +76,19 @@ func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
+	mdmIP, mdmIpError := GetMDMIP(ctx, plan)
+	if mdmIpError != nil {
+		resp.Diagnostics.AddError(
+			"Error while Getting MDM IP",
+			"unexpected error: "+mdmIpError.Error(),
+		)
+		return
+	}
+
+	tflog.Info(ctx, "CSV File parsed ssucessfully")
+
 	// Vaidate the MDM credentials
-	validateMDMResponse, validateMDMError := ValidateMDMOperation(ctx, plan, r.gatewayClient)
+	validateMDMResponse, validateMDMError := ValidateMDMOperation(ctx, plan, r.gatewayClient, mdmIP)
 	if validateMDMError != nil {
 		resp.Diagnostics.AddError(
 			"Error While Validating MDM Details",
@@ -84,24 +99,28 @@ func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRe
 
 	if validateMDMResponse.StatusCode == 200 {
 
-		installationError := InstallationOperations(ctx, plan, r.gatewayClient, parsecsvRespose)
+		tflog.Info(ctx, "MDM Details validated successfully")
 
-		if installationError != nil {
-			resp.Diagnostics.AddError(
-				"Error in Installation Process",
-				"unexpected error: "+installationError.Error(),
-			)
-			return
-		}
+		if !CheckForNewSDCIPs(strings.Split(parsecsvRespose.Message, ","), strings.Split(validateMDMResponse.Data, ",")) {
+			installationError := InstallationOperations(ctx, plan, r.gatewayClient, parsecsvRespose)
 
-		validateMDMResponse, validateMDMError = ValidateMDMOperation(ctx, plan, r.gatewayClient)
+			if installationError != nil {
+				resp.Diagnostics.AddError(
+					"Error in Installation Process",
+					"unexpected error: "+installationError.Error(),
+				)
+				return
+			}
 
-		if validateMDMError != nil {
-			resp.Diagnostics.AddError(
-				"Error While Validating MDM Details",
-				"unexpected error: "+validateMDMResponse.Message,
-			)
-			return
+			validateMDMResponse, validateMDMError = ValidateMDMOperation(ctx, plan, r.gatewayClient, mdmIP)
+
+			if validateMDMError != nil {
+				resp.Diagnostics.AddError(
+					"Error While Validating MDM Details",
+					"unexpected error: "+validateMDMResponse.Message,
+				)
+				return
+			}
 		}
 
 		data, dgs := updateState(validateMDMResponse, plan)
@@ -109,6 +128,8 @@ func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRe
 
 		diags = resp.State.Set(ctx, data)
 		resp.Diagnostics.Append(diags...)
+
+		tflog.Info(ctx, "MDM Details updated to state file successfully")
 
 		return
 
@@ -144,7 +165,16 @@ func (r *sdcExpansionResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	validateMDMResponse, validateMDMError := ValidateMDMOperation(ctx, state, r.gatewayClient)
+	mdmIP, mdmIpError := GetMDMIP(ctx, state)
+	if mdmIpError != nil {
+		resp.Diagnostics.AddError(
+			"Error while Getting MDM IP",
+			"unexpected error: "+mdmIpError.Error(),
+		)
+		return
+	}
+
+	validateMDMResponse, validateMDMError := ValidateMDMOperation(ctx, state, r.gatewayClient, mdmIP)
 
 	if validateMDMError != nil {
 		resp.Diagnostics.AddError(
@@ -182,7 +212,7 @@ func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRe
 	}
 
 	// to make gateway available for installation
-	queueOperationError := QueueOpeartions(r.gatewayClient)
+	queueOperationError := ResetInstallerQueue(r.gatewayClient)
 	if queueOperationError != nil {
 		resp.Diagnostics.AddError(
 			"Error Clearing Queue",
@@ -191,7 +221,9 @@ func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	parsecsvRespose, parseCSVError := ParseCSVOperation(ctx, plan, r.gatewayClient)
+	tflog.Info(ctx, "Gateway Installer changed to idle phase before initiating process")
+
+	parsecsvRespose, parseCSVError := ParseCSVOperation(ctx, &plan, r.gatewayClient)
 
 	if parseCSVError != nil {
 		resp.Diagnostics.AddError(
@@ -201,8 +233,19 @@ func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
+	mdmIP, mdmIpError := GetMDMIP(ctx, plan)
+	if mdmIpError != nil {
+		resp.Diagnostics.AddError(
+			"Error while Getting MDM IP",
+			"unexpected error: "+mdmIpError.Error(),
+		)
+		return
+	}
+
+	tflog.Info(ctx, "CSV File parsed ssucessfully")
+
 	// Vaidate the MDM credentials
-	validateMDMResponse, validateMDMError := ValidateMDMOperation(ctx, plan, r.gatewayClient)
+	validateMDMResponse, validateMDMError := ValidateMDMOperation(ctx, plan, r.gatewayClient, mdmIP)
 	if validateMDMError != nil {
 		resp.Diagnostics.AddError(
 			"Error While Validating MDM Details",
@@ -213,24 +256,28 @@ func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRe
 
 	if validateMDMResponse.StatusCode == 200 {
 
-		installationError := InstallationOperations(ctx, plan, r.gatewayClient, parsecsvRespose)
+		tflog.Info(ctx, "MDM Details validated successfully")
 
-		if installationError != nil {
-			resp.Diagnostics.AddError(
-				"Error in Installation Process",
-				"unexpected error: "+installationError.Error(),
-			)
-			return
-		}
+		if !CheckForNewSDCIPs(strings.Split(parsecsvRespose.Message, ","), strings.Split(validateMDMResponse.Data, ",")) {
+			installationError := InstallationOperations(ctx, plan, r.gatewayClient, parsecsvRespose)
 
-		validateMDMResponse, validateMDMError = ValidateMDMOperation(ctx, plan, r.gatewayClient)
+			if installationError != nil {
+				resp.Diagnostics.AddError(
+					"Error in Installation Process",
+					"unexpected error: "+installationError.Error(),
+				)
+				return
+			}
 
-		if validateMDMError != nil {
-			resp.Diagnostics.AddError(
-				"Error While Validating MDM Details",
-				"unexpected error: "+validateMDMResponse.Message,
-			)
-			return
+			validateMDMResponse, validateMDMError = ValidateMDMOperation(ctx, plan, r.gatewayClient, mdmIP)
+
+			if validateMDMError != nil {
+				resp.Diagnostics.AddError(
+					"Error While Validating MDM Details",
+					"unexpected error: "+validateMDMResponse.Message,
+				)
+				return
+			}
 		}
 
 		data, dgs := updateState(validateMDMResponse, plan)
@@ -238,6 +285,8 @@ func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRe
 
 		diags = resp.State.Set(ctx, data)
 		resp.Diagnostics.Append(diags...)
+
+		tflog.Info(ctx, "MDM Details updated to state file successfully")
 
 		return
 
@@ -260,7 +309,7 @@ func (r *sdcExpansionResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	queueOperationError := QueueOpeartions(r.gatewayClient)
+	queueOperationError := ResetInstallerQueue(r.gatewayClient)
 	if queueOperationError != nil {
 		resp.Diagnostics.AddError(
 			"Error Clearing Queue",
@@ -272,8 +321,26 @@ func (r *sdcExpansionResource) Delete(ctx context.Context, req resource.DeleteRe
 	resp.State.RemoveResource(ctx)
 }
 
-// QueueOpeartions function for the Abort, Clear and Move To Idle Execution
-func QueueOpeartions(gatewayClient *goscaleio.GatewayClient) error {
+func GetMDMIP(ctx context.Context, model CsvAndMdmDataModel) (string, error) {
+	var mdmIP string
+	csvItems := []CSVDataModel{}
+	diags := model.ClusterDetails.ElementsAs(ctx, &csvItems, true)
+
+	if diags.HasError() {
+		return mdmIP, fmt.Errorf("Error While Parse CSV Data  is %s", diags.Errors())
+	}
+
+	for _, item := range csvItems {
+		if strings.EqualFold(item.IsMdmOrTb.ValueString(), "primary") {
+			mdmIP = item.IP.ValueString()
+			return mdmIP, nil
+		}
+	}
+	return mdmIP, nil
+}
+
+// ResetInstallerQueue function for the Abort, Clear and Move To Idle Execution
+func ResetInstallerQueue(gatewayClient *goscaleio.GatewayClient) error {
 
 	_, err := gatewayClient.AbortOperation()
 
@@ -296,7 +363,7 @@ func QueueOpeartions(gatewayClient *goscaleio.GatewayClient) error {
 }
 
 // ParseCSVOperation function for Handling Parsing CSV Operation
-func ParseCSVOperation(ctx context.Context, plan CsvAndMdmDataModel, gatewayClient *goscaleio.GatewayClient) (*goscaleio_types.GatewayResponse, error) {
+func ParseCSVOperation(ctx context.Context, model *CsvAndMdmDataModel, gatewayClient *goscaleio.GatewayClient) (*goscaleio_types.GatewayResponse, error) {
 
 	var parseCSVResponse goscaleio_types.GatewayResponse
 
@@ -314,22 +381,25 @@ func ParseCSVOperation(ctx context.Context, plan CsvAndMdmDataModel, gatewayClie
 	writer := csv.NewWriter(file)
 
 	// Write the header row
-	header := []string{"IPs", "Password", "Operating System", "Is MDM/TB", "Is SDC", "perfProfileForSDC", "SDC Name"}
+	header := []string{"IPs", "Username", "Password", "Operating System", "Is MDM/TB", "Is SDC", "perfProfileForSDC", "SDC Name"}
 	err = writer.Write(header)
 	if err != nil {
 		return &parseCSVResponse, fmt.Errorf("Error While Writing Temp CSV is %s", err.Error())
 	}
 
 	csvItems := []CSVDataModel{}
-	diags := plan.CsvDetail.ElementsAs(ctx, &csvItems, true)
+	diags := model.ClusterDetails.ElementsAs(ctx, &csvItems, true)
 	if diags.HasError() {
 		return &parseCSVResponse, fmt.Errorf("Error While Parse CSV Data  is %s", diags.Errors())
 	}
+
+	var newSDCIPs []string
 
 	for _, item := range csvItems {
 		// Add mapped SDC
 		csvStruct := CsvRow{
 			IP:                 item.IP.ValueString(),
+			UserName:           item.UserName.ValueString(),
 			Password:           item.Password.ValueString(),
 			IsMdmOrTb:          item.IsMdmOrTb.ValueString(),
 			OperatingSystem:    item.OperatingSystem.ValueString(),
@@ -337,8 +407,13 @@ func ParseCSVOperation(ctx context.Context, plan CsvAndMdmDataModel, gatewayClie
 			PerformanceProfile: item.PerformanceProfile.ValueString(),
 			SDCName:            item.SDCName.ValueString(),
 		}
+
+		if !strings.EqualFold(csvStruct.IsMdmOrTb, "primary") && !strings.EqualFold(csvStruct.IsMdmOrTb, "secondary") && !strings.EqualFold(csvStruct.IsMdmOrTb, "tb") {
+			newSDCIPs = append(newSDCIPs, csvStruct.IP)
+		}
+
 		//Write the data row
-		data := []string{csvStruct.IP, csvStruct.Password, csvStruct.OperatingSystem, csvStruct.IsMdmOrTb, csvStruct.IsSdc, csvStruct.PerformanceProfile, csvStruct.SDCName}
+		data := []string{csvStruct.IP, csvStruct.UserName, csvStruct.Password, csvStruct.OperatingSystem, csvStruct.IsMdmOrTb, csvStruct.IsSdc, csvStruct.PerformanceProfile, csvStruct.SDCName}
 		err = writer.Write(data)
 		if err != nil {
 			return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
@@ -350,6 +425,8 @@ func ParseCSVOperation(ctx context.Context, plan CsvAndMdmDataModel, gatewayClie
 	if parseCSVError != nil {
 		return &parseCSVResponse, fmt.Errorf("%s", parseCSVError.Error())
 	}
+
+	parsecsvRespose.Message = strings.Join(newSDCIPs, ",")
 
 	deletCSVError := os.Remove(mydir + "/Minimal.csv")
 	if deletCSVError != nil {
@@ -364,12 +441,12 @@ func ParseCSVOperation(ctx context.Context, plan CsvAndMdmDataModel, gatewayClie
 }
 
 // ValidateMDMOperation function for Vaidate the MDM credentials
-func ValidateMDMOperation(ctx context.Context, plan CsvAndMdmDataModel, gatewayClient *goscaleio.GatewayClient) (*goscaleio_types.GatewayResponse, error) {
+func ValidateMDMOperation(ctx context.Context, model CsvAndMdmDataModel, gatewayClient *goscaleio.GatewayClient, mdmIP string) (*goscaleio_types.GatewayResponse, error) {
 	mapData := map[string]interface{}{
 		"mdmUser":     "admin",
-		"mdmPassword": plan.MdmPassword.ValueString(),
+		"mdmPassword": model.MdmPassword.ValueString(),
 	}
-	mapData["mdmIps"] = []string{plan.MdmIP.ValueString()}
+	mapData["mdmIps"] = []string{mdmIP}
 
 	secureData := map[string]interface{}{
 		"allowNonSecureCommunicationWithMdm": true,
@@ -388,12 +465,18 @@ func ValidateMDMOperation(ctx context.Context, plan CsvAndMdmDataModel, gatewayC
 }
 
 // InstallationOperations function for begin instllation process
-func InstallationOperations(ctx context.Context, plan CsvAndMdmDataModel, gatewayClient *goscaleio.GatewayClient, parsecsvRespose *goscaleio_types.GatewayResponse) error {
-	beginInstallationResponse, _ := gatewayClient.BeginInstallation(parsecsvRespose.Data, "admin", plan.MdmPassword.ValueString(), plan.LiaPassword.ValueString(), true)
+func InstallationOperations(ctx context.Context, model CsvAndMdmDataModel, gatewayClient *goscaleio.GatewayClient, parsecsvRespose *goscaleio_types.GatewayResponse) error {
+	beginInstallationResponse, installationError := gatewayClient.BeginInstallation(parsecsvRespose.Data, "admin", model.MdmPassword.ValueString(), model.LiaPassword.ValueString(), true)
+
+	if installationError != nil {
+		return fmt.Errorf("Error while begin installation is %s", installationError.Error())
+	}
 
 	if beginInstallationResponse.StatusCode == 200 {
 		currentPhase := "query"
 		couterForStopExecution := 0
+
+		tflog.Info(ctx, "Gateway Installation Begin, Current Phase - Query")
 
 		for couterForStopExecution <= 5 {
 
@@ -414,17 +497,20 @@ func InstallationOperations(ctx context.Context, plan CsvAndMdmDataModel, gatewa
 					if moveToNextPhaseResponse.StatusCode == 200 {
 						if currentPhase == "query" {
 							currentPhase = "upload"
+							tflog.Info(ctx, "Gateway Installation phase changed to Upload")
 						} else if currentPhase == "upload" {
 							currentPhase = "install"
+							tflog.Info(ctx, "Gateway Installation phase changed to Install")
 						} else if currentPhase == "install" {
 							currentPhase = "configure"
+							tflog.Info(ctx, "Gateway Installation phase changed to Configure")
 						}
 					} else {
 						return fmt.Errorf("Messsage: %s, Error Code: %s", moveToNextPhaseResponse.Message, strconv.Itoa(moveToNextPhaseResponse.StatusCode))
 					}
 				} else {
 					// to make gateway available for installation
-					queueOperationError := QueueOpeartions(gatewayClient)
+					queueOperationError := ResetInstallerQueue(gatewayClient)
 					if queueOperationError != nil {
 						return fmt.Errorf("Error Clearing Queue During Installation is %s", queueOperationError.Error())
 					}
@@ -434,35 +520,36 @@ func InstallationOperations(ctx context.Context, plan CsvAndMdmDataModel, gatewa
 					return nil
 				}
 
+			} else if checkForPhaseCompleted.Data == "Running" {
+				couterForStopExecution++
+
+				tflog.Info(ctx, "Gateway Installation operations are still running")
+
+				if couterForStopExecution == 5 {
+					// to make gateway available for installation
+					queueOperationError := ResetInstallerQueue(gatewayClient)
+					if queueOperationError != nil {
+						return fmt.Errorf("Error Clearing Queue During Installation is %s", queueOperationError.Error())
+					}
+
+					return fmt.Errorf("Time Out,Some Operations of Installer running from since long")
+				}
+
 			} else {
-				if checkForPhaseCompleted.Data == "Running" {
-					couterForStopExecution++
+				if couterForStopExecution < 5 {
 
-					if couterForStopExecution == 5 {
-						// to make gateway available for installation
-						queueOperationError := QueueOpeartions(gatewayClient)
-						if queueOperationError != nil {
-							return fmt.Errorf("Error Clearing Queue During Installation is %s", queueOperationError.Error())
-						}
+					tflog.Info(ctx, "Some Gateway Installation operations are failed, Retrying...")
 
-						return fmt.Errorf("Time Out,Some Operations of Installer running from since long")
+					_, err := gatewayClient.RetryPhase()
+
+					if err != nil {
+						return fmt.Errorf("Error while retrying failure is %s", err.Error())
 					}
 
+					couterForStopExecution = 5
 				} else {
-					if couterForStopExecution < 5 {
 
-						gatewayClient.RetryPhase()
-
-						couterForStopExecution = 5
-					} else {
-						// to make gateway available for installation
-						queueOperationError := QueueOpeartions(gatewayClient)
-						if queueOperationError != nil {
-							return fmt.Errorf("Error Clearing Queue During Installation is %s", queueOperationError.Error())
-						}
-
-						return fmt.Errorf("Errors in installation process is %s", queueOperationError.Error())
-					}
+					return fmt.Errorf("Error During Installation is %s", checkForPhaseCompleted.Message)
 				}
 			}
 		}
@@ -471,4 +558,18 @@ func InstallationOperations(ctx context.Context, plan CsvAndMdmDataModel, gatewa
 	}
 
 	return nil
+}
+
+// CheckForNewSDCIPs function to check SDC Alredy Installed or not
+func CheckForNewSDCIPs(newSDCIPS []string, installedSDCIPs []string) bool {
+	checkset := make(map[string]bool)
+	for _, element := range newSDCIPS {
+		checkset[element] = true
+	}
+	for _, value := range installedSDCIPs {
+		if checkset[value] {
+			delete(checkset, value)
+		}
+	}
+	return len(checkset) == 0 //this implies that set is subset of superset
 }

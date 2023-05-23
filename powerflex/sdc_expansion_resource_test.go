@@ -17,48 +17,64 @@ func TestAccSDCExpansionResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			//Create
 			{
-				Config: ProviderConfigForGatewayTesting + ParseCSVConfig1,
-				Check:  resource.TestMatchResourceAttr("powerflex_sdc_expansion.test", "installed_sdc_ips", regexp.MustCompile("10.247.103.163")),
+				Config:      ProviderConfigForGatewayTesting + ParseCSVConfig1,
+				ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
+			},
+			//Create with Packages
+			{
+				Config:             ProviderConfigForGatewayTesting + packageTest + ParseCSVConfig1,
+				ExpectNonEmptyPlan: true,
+				Check:              resource.TestMatchResourceAttr("powerflex_sdc_expansion.test", "installed_sdc_ips", regexp.MustCompile(GatewayDataPoints.sdcServerIP)),
 			},
 			//Update
 			{
-				Config: ProviderConfigForGatewayTesting + ParseCSVConfigUpdate,
-				Check:  resource.TestCheckResourceAttr("powerflex_sdc_expansion.test", "installed_sdc_ips", "N/A,10.247.103.163,10.247.103.161,10.247.103.162,10.247.103.160"),
+				Config:             ProviderConfigForGatewayTesting + packageTest + ParseCSVConfigUpdate,
+				ExpectNonEmptyPlan: true,
+				Check:              resource.TestMatchResourceAttr("powerflex_sdc_expansion.test", "installed_sdc_ips", regexp.MustCompile(GatewayDataPoints.sdcServerIP)),
 			},
 		},
 	})
 }
 
+var packageTest = `
+resource "powerflex_package" "upload-test" {
+	file_path = ["/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-lia-3.6-700.103.el7.x86_64.rpm",
+	"/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-mdm-3.6-700.103.el7.x86_64.rpm",
+	"/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sds-3.6-700.103.el7.x86_64.rpm",
+	"/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdc-3.6-700.103.el7.x86_64.rpm",
+	"/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdr-3.6-700.103.el7.x86_64.rpm"]
+	}
+`
+
 var ParseCSVConfig1 = `
 resource "powerflex_sdc_expansion" "test" {
-	mdm_ip = "10.247.103.160"
-	mdm_password = "Password123"
-	lia_password="Password123"
-	csv_detail = [
+	mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
+	lia_password= "` + GatewayDataPoints.liaPassword + `"
+	cluster_details = [
 		{
-			ip = "10.247.103.160"
-			password = "dangerous"
+			ip = "` + GatewayDataPoints.primaryMDMIP + `"
+			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "Primary"
 			is_sdc = "Yes"
 		},
 		{
-			ip = "10.247.103.161"
-			password = "dangerous"
+			ip = "` + GatewayDataPoints.secondaryMDMIP + `"
+			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "Secondary"
 			is_sdc = "Yes"
 		},
 		{
-			ip = "10.247.103.162"
-			password = "dangerous"
+			ip = "` + GatewayDataPoints.tbIP + `"
+			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "TB"
 			is_sdc = "Yes"
 	    },
 	    {
-			ip = "10.247.103.163"
-			password = "dangerous"
+			ip = "` + GatewayDataPoints.sdcServerIP + `"
+			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "Standby"
 			is_sdc = "Yes"
@@ -69,36 +85,35 @@ resource "powerflex_sdc_expansion" "test" {
 
 var ParseCSVConfigUpdate = `
 resource "powerflex_sdc_expansion" "test" {
-	mdm_ip = "10.247.103.160"
-	mdm_password = "Password123"
-	lia_password="Password123"
-	csv_detail = [
+	mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
+	lia_password= "` + GatewayDataPoints.liaPassword + `"
+	cluster_details = [
 		{
-			ip = "10.247.103.160"
-			password = "dangerous"
+			ip = "` + GatewayDataPoints.primaryMDMIP + `"
+			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "Primary"
 			is_sdc = "Yes"
 		},
 		{
-			ip = "10.247.103.161"
-			password = "dangerous"
+			ip = "` + GatewayDataPoints.secondaryMDMIP + `"
+			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "Secondary"
 			is_sdc = "Yes"
 		},
 		{
-			ip = "10.247.103.162"
-			password = "dangerous"
+			ip = "` + GatewayDataPoints.tbIP + `"
+			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "TB"
 			is_sdc = "Yes"
 	    },
 	    {
-			ip = "10.247.103.163"
-			password = "dangerous"
+			ip = "` + GatewayDataPoints.sdcServerIP + `"
+			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
-			is_mdm_or_tb = ""
+			is_mdm_or_tb = "Standby"
 			is_sdc = "Yes"
    		},
 	]
@@ -107,193 +122,188 @@ resource "powerflex_sdc_expansion" "test" {
 
 func TestAccSDCExpansionResourceNegative(t *testing.T) {
 	var WithoutPrimary = `
-		resource "powerflex_sdc_expansion" "test" {
-			mdm_ip = "10.247.103.160"
-			mdm_password = "Password123"
-			lia_password="Password123"
-			csv_detail = [
-				{
-					ip = "10.247.103.160"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = ""
-					is_sdc = "Yes"
-				},
-				{
-					ip = "10.247.103.161"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "Secondary"
-					is_sdc = "Yes"
-				},
-				{
-					ip = "10.247.103.162"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "TB"
-					is_sdc = "Yes"
-				},
-				{
-					ip = "10.247.103.163"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "Standby"
-					is_sdc = "Yes"
-				},
-			]
-		}
+	resource "powerflex_sdc_expansion" "test" {
+		mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
+		lia_password= "` + GatewayDataPoints.liaPassword + `"
+		cluster_details = [
+			{
+				ip = "` + GatewayDataPoints.primaryMDMIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = ""
+				is_sdc = "Yes"
+			},
+			{
+				ip = "` + GatewayDataPoints.secondaryMDMIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = "Secondary"
+				is_sdc = "Yes"
+			},
+			{
+				ip = "` + GatewayDataPoints.tbIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = "TB"
+				is_sdc = "Yes"
+			},
+			{
+				ip = "` + GatewayDataPoints.sdcServerIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = ""
+				is_sdc = "Yes"
+			   },
+		]
+	}
 	`
 
 	var WithoutSecondary = `
-		resource "powerflex_sdc_expansion" "test" {
-			mdm_ip = "10.247.103.160"
-			mdm_password = "Password123"
-			lia_password="Password123"
-			csv_detail = [
-				{
-					ip = "10.247.103.160"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "Primary"
-					is_sdc = "Yes"
-				},
-				{
-					ip = "10.247.103.161"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = ""
-					is_sdc = "Yes"
-				},
-				{
-					ip = "10.247.103.162"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "TB"
-					is_sdc = "Yes"
-				},
-				{
-					ip = "10.247.103.163"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "Standby"
-					is_sdc = "Yes"
-				},
-			]
-		}
+	resource "powerflex_sdc_expansion" "test" {
+		mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
+		lia_password= "` + GatewayDataPoints.liaPassword + `"
+		cluster_details = [
+			{
+				ip = "` + GatewayDataPoints.primaryMDMIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = "Primary"
+				is_sdc = "Yes"
+			},
+			{
+				ip = "` + GatewayDataPoints.secondaryMDMIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = ""
+				is_sdc = "Yes"
+			},
+			{
+				ip = "` + GatewayDataPoints.tbIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = "TB"
+				is_sdc = "Yes"
+			},
+			{
+				ip = "` + GatewayDataPoints.sdcServerIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = ""
+				is_sdc = "Yes"
+			   },
+		]
+	}
 	`
 
 	var WithoutTB = `
-		resource "powerflex_sdc_expansion" "test" {
-			mdm_ip = "10.247.103.160"
-			mdm_password = "Password123"
-			lia_password="Password123"
-			csv_detail = [
-				{
-					ip = "10.247.103.160"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "Primary"
-					is_sdc = "Yes"
-				},
-				{
-					ip = "10.247.103.161"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "Secondary"
-					is_sdc = "Yes"
-				},
-				{
-					ip = "10.247.103.162"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = ""
-					is_sdc = "Yes"
-				},
-				{
-					ip = "10.247.103.163"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "Standby"
-					is_sdc = "Yes"
-				},
-			]
-		}
+	resource "powerflex_sdc_expansion" "test" {
+		mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
+		lia_password= "` + GatewayDataPoints.liaPassword + `"
+		cluster_details = [
+			{
+				ip = "` + GatewayDataPoints.primaryMDMIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = "Primary"
+				is_sdc = "Yes"
+			},
+			{
+				ip = "` + GatewayDataPoints.secondaryMDMIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = "Secondary"
+				is_sdc = "Yes"
+			},
+			{
+				ip = "` + GatewayDataPoints.tbIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = ""
+				is_sdc = "Yes"
+			},
+			{
+				ip = "` + GatewayDataPoints.sdcServerIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = ""
+				is_sdc = "Yes"
+			   },
+		]
+	}
 	`
 
 	var WithoutIP = `
-		resource "powerflex_sdc_expansion" "test" {
-			mdm_ip = "10.247.103.160"
-			mdm_password = "Password123"
-			lia_password="Password123"
-			csv_detail = [
-				{
-					ip = ""
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "Primary"
-					is_sdc = "Yes"
-				},
-				{
-					ip = "10.247.103.161"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "Secondary"
-					is_sdc = "Yes"
-				},
-				{
-					ip = "10.247.103.162"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "TB"
-					is_sdc = "Yes"
-				},
-				{
-					ip = "10.247.103.163"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "Standby"
-					is_sdc = "Yes"
-				},
-			]
-		}
+	resource "powerflex_sdc_expansion" "test" {
+		mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
+		lia_password= "` + GatewayDataPoints.liaPassword + `"
+		cluster_details = [
+			{
+				ip = "` + GatewayDataPoints.primaryMDMIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = "Primary"
+				is_sdc = "Yes"
+			},
+			{
+				ip = ""
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = "Secondary"
+				is_sdc = "Yes"
+			},
+			{
+				ip = "` + GatewayDataPoints.tbIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = "TB"
+				is_sdc = "Yes"
+			},
+			{
+				ip = "` + GatewayDataPoints.sdcServerIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = ""
+				is_sdc = "Yes"
+			   },
+		]
+	}
 	`
 
 	var WrongMDMCred = `
-		resource "powerflex_sdc_expansion" "test" {
-			mdm_ip = "10.247.103.160"
-			mdm_password = "ABCD"
-			lia_password="ABCD"
-			csv_detail = [
-				{
-					ip = "10.247.103.160"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "Primary"
-					is_sdc = "Yes"
-				},
-				{
-					ip = "10.247.103.161"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "Secondary"
-					is_sdc = "Yes"
-				},
-				{
-					ip = "10.247.103.162"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "TB"
-					is_sdc = "Yes"
-				},
-				{
-					ip = "10.247.103.163"
-					password = "dangerous"
-					operating_system = "linux"
-					is_mdm_or_tb = "Standby"
-					is_sdc = "Yes"
-				},
-			]
-		}
+	resource "powerflex_sdc_expansion" "test" {
+		mdm_password =  "ABCD"
+		lia_password= "ABCD"
+		cluster_details = [
+			{
+				ip = "` + GatewayDataPoints.primaryMDMIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = "Primary"
+				is_sdc = "Yes"
+			},
+			{
+				ip = "` + GatewayDataPoints.secondaryMDMIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = "Secondary"
+				is_sdc = "Yes"
+			},
+			{
+				ip = "` + GatewayDataPoints.tbIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = "TB"
+				is_sdc = "Yes"
+			},
+			{
+				ip = "` + GatewayDataPoints.sdcServerIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = ""
+				is_sdc = "Yes"
+			   },
+		]
+	}
 	`
 
 	resource.Test(t, resource.TestCase{

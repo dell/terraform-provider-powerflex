@@ -1,12 +1,12 @@
 # Command to run this tf file : terraform init && terraform plan && terraform apply
 # Create, Update, Delete is supported for this resource
-resource "powerflex_sdc_expansion" "test-csv2" {
-	mdm_ip = "MDM_IPS"
-	mdm_password = "ABCD"
-	lia_password="ABCD"
-	csv_detail = [
+resource "powerflex_sdc_expansion" "test" {
+	mdm_password = "Password"
+	lia_password = "Password"
+	cluster_details = [
 		{
 			ip = "IP"
+			username = "Username"
 			password = "Password"
 			operating_system = "linux"
 			is_mdm_or_tb = "Primary"
@@ -14,6 +14,7 @@ resource "powerflex_sdc_expansion" "test-csv2" {
 		},
 		{
 			ip = "IP"
+			username = "Username"
 			password = "Password"
 			operating_system = "linux"
 			is_mdm_or_tb = "Secondary"
@@ -21,6 +22,7 @@ resource "powerflex_sdc_expansion" "test-csv2" {
 		},
 		{
 			ip = "IP"
+			username = "Username"
 			password = "Password"
 			operating_system = "linux"
 			is_mdm_or_tb = "TB"
@@ -28,12 +30,11 @@ resource "powerflex_sdc_expansion" "test-csv2" {
 	    },
 	    {
 			ip = "IP"
+			username = "Username"
 			password = "Password"
 			operating_system = "linux"
 			is_mdm_or_tb = "Standby"
 			is_sdc = "Yes"
-			performance_profile = "Compact"
-			sdc_name = "SDC"
    		},
 	]
 }

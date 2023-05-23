@@ -4,6 +4,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -11,8 +12,8 @@ import (
 // CsvAndMdmDataModel struct for CSV Data Processing
 type CsvAndMdmDataModel struct {
 	ID              types.String `tfsdk:"id"`
-	CsvDetail       types.Set    `tfsdk:"csv_detail"`
-	MdmIP           types.String `tfsdk:"mdm_ip"`
+	ClusterDetails  types.Set    `tfsdk:"cluster_details"`
+	// MdmIP           types.String `tfsdk:"mdm_ip"`
 	MdmPassword     types.String `tfsdk:"mdm_password"`
 	LiaPassword     types.String `tfsdk:"lia_password"`
 	InstalledSDCIps types.String `tfsdk:"installed_sdc_ips"`
@@ -21,6 +22,7 @@ type CsvAndMdmDataModel struct {
 // CSVDataModel defines the struct for CSV Parse Data
 type CSVDataModel struct {
 	IP                 types.String `tfsdk:"ip"`
+	UserName           types.String `tfsdk:"username"`
 	Password           types.String `tfsdk:"password"`
 	OperatingSystem    types.String `tfsdk:"operating_system"`
 	IsMdmOrTb          types.String `tfsdk:"is_mdm_or_tb"`
@@ -32,6 +34,7 @@ type CSVDataModel struct {
 // CsvRow desfines the srtuct for the CSV Data
 type CsvRow struct {
 	IP                 string
+	UserName           string
 	Password           string
 	OperatingSystem    string
 	IsMdmOrTb          string
@@ -40,26 +43,28 @@ type CsvRow struct {
 	SDCName            string
 }
 
-// SDCExpansionResourceSchema - varible holds schema for SDC Expansion
+// SDCExpansionResourceSchema - variable holds schema for SDC Expansion
 var SDCExpansionResourceSchema schema.Schema = schema.Schema{
 	Description:         "This resource can be used to add the SDC in PowerFlex Cluster.",
 	MarkdownDescription: "This resource can be used to add the SDC in PowerFlex Cluster.",
 	Attributes: map[string]schema.Attribute{
-		"csv_detail": csvSchema,
-		"mdm_ip": schema.StringAttribute{
-			Description:         "MDM Server IPs. User can provide Primary and Secondary MDM IP comma seperated",
-			MarkdownDescription: "MDM Server IPs. User can provide Primary and Secondary MDM IP comma seperated",
-			Required:            true,
-		},
+		"cluster_details": csvSchema,
+		// "mdm_ip": schema.StringAttribute{
+		// 	Description:         "MDM Server IP",
+		// 	MarkdownDescription: "MDM Server IP",
+		// 	Computed:            true,
+		// },
 		"mdm_password": schema.StringAttribute{
 			Description:         "MDM Password to connect MDM Server.",
 			MarkdownDescription: "MDM Password to connect MDM Server.",
 			Required:            true,
+			Sensitive:           true,
 		},
 		"lia_password": schema.StringAttribute{
 			Description:         "LIA Password to connect MDM Server.",
 			MarkdownDescription: "LIA Password to connect MDM Server.",
 			Required:            true,
+			Sensitive:           true,
 		},
 		"installed_sdc_ips": schema.StringAttribute{
 			Description:         "List of installed SDC IPs",
@@ -67,14 +72,17 @@ var SDCExpansionResourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "List of installed SDC IPs",
 		},
 		"id": schema.StringAttribute{
-			Description:         "The ID of the package.",
-			Computed:            true,
+			Description: "The ID of the package.",
+			Computed:    true,
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.UseStateForUnknown(),
+			},
 			MarkdownDescription: "The ID of the package.",
 		},
 	},
 }
 
-// csvSchema - varible holds schema for CSV Param Details
+// csvSchema - variable holds schema for CSV Param Details
 var csvSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 	Description:         "List of SDC Expansion Server Details.",
 	Required:            true,
@@ -86,10 +94,19 @@ var csvSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 				Required:            true,
 				MarkdownDescription: "IP of the node",
 			},
+			"username": schema.StringAttribute{
+				Description:         "Username of the node",
+				Optional:            true,
+				MarkdownDescription: "Username of the node",
+				PlanModifiers: []planmodifier.String{
+					stringDefault("root"),
+				},
+			},
 			"password": schema.StringAttribute{
-				Description:         "Password on the node",
+				Description:         "Password of the node",
 				Required:            true,
-				MarkdownDescription: "Password on the node",
+				Sensitive:           true,
+				MarkdownDescription: "Password of the node",
 			},
 			"operating_system": schema.StringAttribute{
 				Description:         "Operating System on the node",
@@ -108,6 +125,10 @@ var csvSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 				Description:         "whether this node is SDC or not",
 				Required:            true,
 				MarkdownDescription: "whether this node is SDC or not",
+				Validators: []validator.String{stringvalidator.OneOf(
+					"Yes",
+					"No",
+				)},
 			},
 			"performance_profile": schema.StringAttribute{
 				Description:         "Performance Profile of SDC",
