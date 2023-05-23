@@ -35,6 +35,16 @@ type sdsDataPoints struct {
 	sdcName3 string
 }
 
+type gatewayDataPoints struct {
+	primaryMDMIP   string
+	secondaryMDMIP string
+	tbIP           string
+	serverPassword string
+	mdmPassword    string
+	liaPassword    string
+	sdcServerIP    string
+}
+
 func getNewSdsDataPointForTest() sdsDataPoints {
 	var SdsResourceTestData sdsDataPoints
 
@@ -62,7 +72,26 @@ func getNewSdsDataPointForTest() sdsDataPoints {
 	return SdsResourceTestData
 }
 
+func getNewGatewayDataPointForTest() gatewayDataPoints {
+
+	var GatewayDataPoints gatewayDataPoints
+
+	godotenv.Load("POWERFLEX_TERRAFORM_TEST.env")
+
+	GatewayDataPoints.primaryMDMIP = os.Getenv("POWERFLEX_PRIMARY_MDM_IP")
+	GatewayDataPoints.secondaryMDMIP = os.Getenv("POWERFLEX_SECONDARY_MDM_IP")
+	GatewayDataPoints.tbIP = os.Getenv("POWERFLEX_TB_IP")
+	GatewayDataPoints.sdcServerIP = os.Getenv("POWERFLEX_SDC_SERVER_IP")
+	GatewayDataPoints.serverPassword = os.Getenv("POWERFLEX_SERVER_PASSWORD")
+	GatewayDataPoints.serverPassword = os.Getenv("POWERFLEX_SERVER_PASSWORD")
+	GatewayDataPoints.mdmPassword = os.Getenv("POWERFLEX_MDM_PASSWORD")
+	GatewayDataPoints.liaPassword = os.Getenv("POWERFLEX_LIA_PASSWORD")
+
+	return GatewayDataPoints
+}
+
 var SdsResourceTestData = getNewSdsDataPointForTest()
+var GatewayDataPoints = getNewGatewayDataPointForTest()
 var SDCMappingResourceID2 = os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_ID2")
 var SDCMappingResourceName2 = os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_NAME2")
 var SDCVolName = os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_NAME")

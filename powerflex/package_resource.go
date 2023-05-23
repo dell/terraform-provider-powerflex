@@ -291,7 +291,7 @@ func (r *packageResource) Update(ctx context.Context, req resource.UpdateRequest
 	if len(removePackages) > 0 {
 		for _, packageData := range removePackages {
 			packageName := packageData[strings.LastIndex(packageData, "/")+1:]
-			_, err := r.gatewayClient.DeletePackge(packageName)
+			_, err := r.gatewayClient.DeletePackage(packageName)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error removing package with Name: "+packageName,
@@ -352,7 +352,7 @@ func (r *packageResource) Delete(ctx context.Context, req resource.DeleteRequest
 	for _, packageData := range stateFilePaths {
 		packageName := packageData[strings.LastIndex(packageData, "/")+1:]
 
-		_, err := r.gatewayClient.DeletePackge(packageName)
+		_, err := r.gatewayClient.DeletePackage(packageName)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error removing package with Name: "+packageName,
@@ -365,13 +365,4 @@ func (r *packageResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 // ImportState imports the resource
 func (r *packageResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-}
-
-func inslice(n string, h []string) bool {
-	for _, v := range h {
-		if v == n {
-			return true
-		}
-	}
-	return false
 }
