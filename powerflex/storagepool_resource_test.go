@@ -812,3 +812,52 @@ resource "powerflex_storage_pool" "sp3cache" {
 	rebuild_enabled = true
 }
 `
+
+func TestAccStoragePoolResourceRmCacheUpdate(t *testing.T) {
+	if os.Getenv("TF_ACC") == "" {
+		t.Skip("Dont run with units tests because it will try to create the context")
+	}
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + CreateRmCacheCheck,
+			},
+			{
+				Config: ProviderConfigForTesting + updateRmCacheCheck,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3rmcache", "use_rmcache", "false")),
+			},
+			{
+				Config: ProviderConfigForTesting + updateRmCacheCheckTrue,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp3rmcache", "use_rmcache", "true")),
+			},
+		},
+	})
+}
+
+var CreateRmCacheCheck = `
+resource "powerflex_storage_pool" "sp3rmcache" {
+	name                 = "` + testAccStoragePoolName + `"
+	protection_domain_name = "domain1"
+	media_type  = "HDD"
+}
+`
+
+var updateRmCacheCheck = `
+resource "powerflex_storage_pool" "sp3rmcache" {
+	name                 = "` + testAccStoragePoolName + `-1"
+	protection_domain_name = "domain1"
+	media_type  = "HDD"
+}
+`
+
+var updateRmCacheCheckTrue = `
+resource "powerflex_storage_pool" "sp3rmcache" {
+	name                 = "` + testAccStoragePoolName + `-1"
+	protection_domain_name = "domain1"
+	media_type  = "HDD"
+	use_rmcache = true
+}
+`

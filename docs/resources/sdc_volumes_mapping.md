@@ -59,7 +59,7 @@ resource "powerflex_sdc_volumes_mapping" "mapping-test" {
 # To unmap all the volumes mapped to SDC, below config can be used. 
 
 resource "powerflex_sdc_volumes_mapping" "mapping-test" {
-  id = "e3ce1fb600000001"
+  id          = "e3ce1fb600000001"
   volume_list = []
 }
 ```
