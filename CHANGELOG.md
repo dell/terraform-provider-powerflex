@@ -1,4 +1,17 @@
-# v1.0.0
+# v1.0.1 (May 23, 2023)
+## Release Summary
+The release supports resources mentioned in the Features section for Dell PowerFlex.
+## Features
+
+### Resources
+* `powerflex_sdc_volumes_mapping` for managing map/unmap operations between SDC and volumes in PowerFlex.
+
+### Deprecations
+* sdc_list attribute in powerflex_volume and powerflex_snapshot resource.
+***
+<br>
+
+# v1.0.0 (Feb 27, 2023)
 ## Release Summary
 The release supports resources and data sources mentioned in the Features section for Dell PowerFlex.
 ## Features
@@ -25,3 +38,4 @@ N/A
 
 ## Bug Fixes
 N/A
+
