@@ -53,12 +53,18 @@ var SDCExpansionResourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "MDM Password to connect MDM Server.",
 			Required:            true,
 			Sensitive:           true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 		"lia_password": schema.StringAttribute{
 			Description:         "LIA Password to connect MDM Server.",
 			MarkdownDescription: "LIA Password to connect MDM Server.",
 			Required:            true,
 			Sensitive:           true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 		"installed_sdc_ips": schema.StringAttribute{
 			Description:         "List of installed SDC IPs",
@@ -101,6 +107,9 @@ var csvSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 				Required:            true,
 				Sensitive:           true,
 				MarkdownDescription: "Password of the node",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"operating_system": schema.StringAttribute{
 				Description:         "Operating System on the node",

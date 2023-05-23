@@ -427,6 +427,10 @@ func ParseCSVOperation(ctx context.Context, model *CsvAndMdmDataModel, gatewayCl
 		return &parseCSVResponse, fmt.Errorf("%s", parseCSVError.Error())
 	}
 
+	if len(newSDCIPs) == 0 {
+		return &parseCSVResponse, fmt.Errorf("No SDC Expansion Details are provided")
+	}
+
 	parsecsvRespose.Message = strings.Join(newSDCIPs, ",")
 
 	deletCSVError := os.Remove(mydir + "/Minimal.csv")
