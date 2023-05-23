@@ -92,14 +92,14 @@ resource "powerflex_sdc_expansion" "test" {
 Required:
 
 - `ip` (String) IP of the node
-- `is_sdc` (String) whether this node is SDC or not
+- `is_sdc` (String) whether this node is SDC or not,The acceptable value is `Yes` or `No`.
 - `operating_system` (String) Operating System on the node
 - `password` (String, Sensitive) Password of the node
 
 Optional:
 
-- `is_mdm_or_tb` (String) Whether this works as MDM or Tie Breaker
-- `performance_profile` (String) Performance Profile of SDC
+- `is_mdm_or_tb` (String) Whether this works as MDM or Tie Breaker,The acceptable value is `Primary`, `Secondary`, `TB`, `Standby` or blank. Default value is blank
+- `performance_profile` (String) Performance Profile of SDC, The acceptable value is `High` or `Compact`.
 - `sdc_name` (String) Name of the SDC
 - `username` (String) Username of the node
 
