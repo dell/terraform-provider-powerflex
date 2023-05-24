@@ -306,6 +306,36 @@ func TestAccSDCExpansionResourceNegative(t *testing.T) {
 	}
 	`
 
+	var WithoutSDCYes = `
+	resource "powerflex_sdc_expansion" "test" {
+		mdm_password =  "ABCD"
+		lia_password= "ABCD"
+		cluster_details = [
+			{
+				ip = "` + GatewayDataPoints.primaryMDMIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = "Primary"
+				is_sdc = "No"
+			},
+			{
+				ip = "` + GatewayDataPoints.secondaryMDMIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = "Secondary"
+				is_sdc = "No"
+			},
+			{
+				ip = "` + GatewayDataPoints.tbIP + `"
+				password = "` + GatewayDataPoints.serverPassword + `"
+				operating_system = "linux"
+				is_mdm_or_tb = "TB"
+				is_sdc = "NO"
+			},
+		]
+	}
+	`
+
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -328,6 +358,10 @@ func TestAccSDCExpansionResourceNegative(t *testing.T) {
 			{
 				Config:      ProviderConfigForGatewayTesting + WrongMDMCred,
 				ExpectError: regexp.MustCompile(`.*Error While Validating MDM Credentials.*`),
+			},
+			{
+				Config:      ProviderConfigForGatewayTesting + WithoutSDCYes,
+				ExpectError: regexp.MustCompile(`.*No SDC Expansion Details are provided.*`),
 			},
 		}})
 }
