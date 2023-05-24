@@ -394,7 +394,7 @@ func ParseCSVOperation(ctx context.Context, model *CsvAndMdmDataModel, gatewayCl
 		return &parseCSVResponse, fmt.Errorf("Error While Parse CSV Data  is %s", diags.Errors())
 	}
 
-	var newSDCIPs []string
+	var sdcIPs []string
 
 	for _, item := range csvItems {
 		// Add mapped SDC
@@ -409,8 +409,8 @@ func ParseCSVOperation(ctx context.Context, model *CsvAndMdmDataModel, gatewayCl
 			SDCName:            item.SDCName.ValueString(),
 		}
 
-		if !strings.EqualFold(csvStruct.IsMdmOrTb, "primary") && !strings.EqualFold(csvStruct.IsMdmOrTb, "secondary") && !strings.EqualFold(csvStruct.IsMdmOrTb, "tb") {
-			newSDCIPs = append(newSDCIPs, csvStruct.IP)
+		if strings.EqualFold(csvStruct.IsSdc, "Yes") {
+			sdcIPs = append(sdcIPs, csvStruct.IP)
 		}
 
 		//Write the data row
@@ -427,11 +427,11 @@ func ParseCSVOperation(ctx context.Context, model *CsvAndMdmDataModel, gatewayCl
 		return &parseCSVResponse, fmt.Errorf("%s", parseCSVError.Error())
 	}
 
-	if len(newSDCIPs) == 0 {
+	if len(sdcIPs) == 0 {
 		return &parseCSVResponse, fmt.Errorf("No SDC Expansion Details are provided")
 	}
 
-	parsecsvRespose.Message = strings.Join(newSDCIPs, ",")
+	parsecsvRespose.Message = strings.Join(sdcIPs, ",")
 
 	deletCSVError := os.Remove(mydir + "/Minimal.csv")
 	if deletCSVError != nil {
