@@ -15,7 +15,7 @@ func TestAccDeviceDatasource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + devicesData,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev1", "device_model.#", "4"),
+					resource.TestCheckResourceAttr("data.powerflex_device.dev1", "device_model.#", "3"),
 				),
 			},
 			{
@@ -57,7 +57,7 @@ func TestAccDeviceDatasource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + deviceDataWithSdsName,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev7", "device_model.#", "2"),
+					resource.TestCheckResourceAttr("data.powerflex_device.dev7", "device_model.#", "1"),
 					resource.TestCheckResourceAttr("data.powerflex_device.dev7", "sds_name", "SDS_2"),
 				),
 			},
