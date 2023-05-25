@@ -423,19 +423,14 @@ func ParseCSVOperation(ctx context.Context, model *CsvAndMdmDataModel, gatewayCl
 	writer.Flush()
 
 	parsecsvRespose, parseCSVError := gatewayClient.ParseCSV(mydir + "/Minimal.csv")
-	if parseCSVError != nil {
-
-		deletCSVError := os.Remove(mydir + "/Minimal.csv")
-		if deletCSVError != nil {
-			return &parseCSVResponse, fmt.Errorf("Error While Deleting Temp CSV File is %s", deletCSVError.Error())
-		}
-
-		return &parseCSVResponse, fmt.Errorf("%s", parseCSVError.Error())
-	}
 
 	deletCSVError := os.Remove(mydir + "/Minimal.csv")
 	if deletCSVError != nil {
 		return &parseCSVResponse, fmt.Errorf("Error While Deleting Temp CSV File is %s", deletCSVError.Error())
+	}
+
+	if parseCSVError != nil {
+		return &parseCSVResponse, fmt.Errorf("%s", parseCSVError.Error())
 	}
 
 	if len(sdcIPs) == 0 {
