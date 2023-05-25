@@ -197,6 +197,22 @@ func (d *deviceDataSource) ValidateConfig(ctx context.Context, req datasource.Va
 			)
 		}
 	}
+
+	if !config.ProtectionDomainID.IsNull() && config.StoragePoolName.IsNull() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("protection_domain_id"),
+			"Please provide protection_domain_id with storage_pool_name.",
+			"Please provide protection_domain_id with storage_pool_name.",
+		)
+	}
+
+	if !config.ProtectionDomainName.IsNull() && config.StoragePoolName.IsNull() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("protection_domain_name"),
+			"Please provide protection_domain_name with storage_pool_name.",
+			"Please provide protection_domain_name with storage_pool_name.",
+		)
+	}
 }
 
 func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -294,7 +310,7 @@ func (d *deviceDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		devices, err = d.system.GetDeviceByField("DeviceCurrentPathName", state.CurrentPath.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error getting device with CurrentPath: "+state.CurrentPath.ValueString(),
+				"Error getting device with Current Path: "+state.CurrentPath.ValueString(),
 				"unexpected error: "+err.Error(),
 			)
 			return
@@ -379,7 +395,7 @@ func getAllDeviceState(devices []scaleiotypes.Device) (response []deviceModelDat
 			RfcacheErrorDeviceDoesNotExist:    types.BoolValue(device.RfcacheErrorDeviceDoesNotExist),
 			MediaType:                         types.StringValue(device.MediaType),
 			SerialNumber:                      types.StringValue(device.SerialNumber),
-			Name:                              types.StringValue(device.SerialNumber),
+			Name:                              types.StringValue(device.Name),
 			ID:                                types.StringValue(device.ID),
 		}
 		deviceState.RfcacheProps = RfcachePropsModel{
