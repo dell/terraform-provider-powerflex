@@ -423,6 +423,12 @@ func ParseCSVOperation(ctx context.Context, model *CsvAndMdmDataModel, gatewayCl
 	writer.Flush()
 
 	parsecsvRespose, parseCSVError := gatewayClient.ParseCSV(mydir + "/Minimal.csv")
+
+	deletCSVError := os.Remove(mydir + "/Minimal.csv")
+	if deletCSVError != nil {
+		return &parseCSVResponse, fmt.Errorf("Error While Deleting Temp CSV File is %s", deletCSVError.Error())
+	}
+
 	if parseCSVError != nil {
 		return &parseCSVResponse, fmt.Errorf("%s", parseCSVError.Error())
 	}
@@ -432,11 +438,6 @@ func ParseCSVOperation(ctx context.Context, model *CsvAndMdmDataModel, gatewayCl
 	}
 
 	parsecsvRespose.Message = strings.Join(sdcIPs, ",")
-
-	deletCSVError := os.Remove(mydir + "/Minimal.csv")
-	if deletCSVError != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Deleting Temp CSV File is %s", deletCSVError.Error())
-	}
 
 	if parsecsvRespose.StatusCode != 200 {
 		return &parseCSVResponse, fmt.Errorf("Meesage : %s, Error Cosde : %s", parsecsvRespose.Message, strconv.Itoa(parsecsvRespose.StatusCode))
@@ -541,21 +542,7 @@ func InstallationOperations(ctx context.Context, model CsvAndMdmDataModel, gatew
 				}
 
 			} else {
-				if couterForStopExecution < 5 {
-
-					tflog.Info(ctx, "Some Gateway Installation operations are failed, Retrying...")
-
-					_, err := gatewayClient.RetryPhase()
-
-					if err != nil {
-						return fmt.Errorf("Error while retrying failure is %s", err.Error())
-					}
-
-					couterForStopExecution = 5
-				} else {
-
-					return fmt.Errorf("Error During Installation is %s", checkForPhaseCompleted.Message)
-				}
+				return fmt.Errorf("Error During Installation is %s", checkForPhaseCompleted.Message)
 			}
 		}
 	} else {
