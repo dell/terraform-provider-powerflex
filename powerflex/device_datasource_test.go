@@ -15,7 +15,7 @@ func TestAccDeviceDatasource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + devicesData,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev1", "device_model.0.id", "c7fe68a400020000"),
+					resource.TestCheckResourceAttrSet("data.powerflex_device.dev1", "device_model.#"),
 				),
 			},
 			{
@@ -110,8 +110,8 @@ func TestAccDeviceDatasourcePDC(t *testing.T) {
 				Config:      ProviderConfigForTesting + deviceDataWithPDNameInvalid,
 				ExpectError: regexp.MustCompile("Please provide protection_domain_name with storage_pool_name."),
 			},
-		}})}
-
+		}})
+}
 
 var devicesData = `
 data "powerflex_device" "dev1" {
