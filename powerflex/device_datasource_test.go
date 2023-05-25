@@ -15,7 +15,7 @@ func TestAccDeviceDatasource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + devicesData,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev1", "device_model.#", "3"),
+					resource.TestCheckResourceAttr("data.powerflex_device.dev1", "device_model.0.id", "c7fe68a400020000"),
 				),
 			},
 			{
@@ -93,6 +93,15 @@ func TestAccDeviceDatasource(t *testing.T) {
 				Config:      ProviderConfigForTesting + deviceDataWithSdsNameInvalid,
 				ExpectError: regexp.MustCompile("Error in getting sds details with name"),
 			},
+		},
+	})
+}
+
+func TestAccDeviceDatasourcePDC(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
 			{
 				Config:      ProviderConfigForTesting + deviceDataWithPDIDInvalid,
 				ExpectError: regexp.MustCompile("Please provide protection_domain_id with storage_pool_name."),
@@ -101,9 +110,8 @@ func TestAccDeviceDatasource(t *testing.T) {
 				Config:      ProviderConfigForTesting + deviceDataWithPDNameInvalid,
 				ExpectError: regexp.MustCompile("Please provide protection_domain_name with storage_pool_name."),
 			},
-		},
-	})
-}
+		}})}
+
 
 var devicesData = `
 data "powerflex_device" "dev1" {
@@ -209,7 +217,7 @@ data "powerflex_device" "dev17" {
 `
 
 var deviceDataWithPDNameInvalid = `
-data "powerflex_device" "dev17" {
+data "powerflex_device" "dev18" {
 	protection_domain_name = "domain1"
 }
 `
