@@ -19,6 +19,7 @@ var DeviceDataSourceSchema schema.Schema = schema.Schema{
 				" Conflicts with `name`, `current_path`, `sds_id`, `sds_name`, `protection_domain_id`, `protection_domain_name`, `storage_pool_id` and `storage_pool_name`.",
 			Optional: true,
 			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ConflictsWith(path.MatchRoot("name")),
 				stringvalidator.ConflictsWith(path.MatchRoot("current_path")),
 				stringvalidator.ConflictsWith(path.MatchRoot("sds_id")),
@@ -163,7 +164,6 @@ var DeviceDataSourceSchema schema.Schema = schema.Schema{
 			Optional: true,
 			Computed: true,
 			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ConflictsWith(path.MatchRoot("id")),
 				stringvalidator.ConflictsWith(path.MatchRoot("name")),

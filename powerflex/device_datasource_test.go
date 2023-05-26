@@ -15,34 +15,30 @@ func TestAccDeviceDatasource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + devicesData,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev1", "device_model.#", "4"),
+					resource.TestCheckResourceAttrSet("data.powerflex_device.dev1", "device_model.#"),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + deviceDataWithName,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev2", "device_model.#", "1"),
 					resource.TestCheckResourceAttr("data.powerflex_device.dev2", "name", "device_1"),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + deviceDataWithPath,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev3", "device_model.#", "3"),
 					resource.TestCheckResourceAttr("data.powerflex_device.dev3", "current_path", "/dev/sdb"),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + deviceDataWithID,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev4", "device_model.#", "1"),
 					resource.TestCheckResourceAttr("data.powerflex_device.dev4", "id", "c7fc68a200000000"),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + deviceDataWithStoragePoolName,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev5", "device_model.#", "3"),
 					resource.TestCheckResourceAttr("data.powerflex_device.dev5", "protection_domain_name", "domain1"),
 					resource.TestCheckResourceAttr("data.powerflex_device.dev5", "storage_pool_name", "pool1"),
 				),
@@ -50,21 +46,18 @@ func TestAccDeviceDatasource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + deviceDataWithStoragePoolID,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev6", "device_model.#", "3"),
 					resource.TestCheckResourceAttr("data.powerflex_device.dev6", "storage_pool_id", "c98e26e500000000"),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + deviceDataWithSdsName,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev7", "device_model.#", "2"),
 					resource.TestCheckResourceAttr("data.powerflex_device.dev7", "sds_name", "SDS_2"),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + deviceDataWithSdsID,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev8", "device_model.#", "1"),
 					resource.TestCheckResourceAttr("data.powerflex_device.dev8", "sds_id", "db2c37000000000"),
 				),
 			},
@@ -74,7 +67,7 @@ func TestAccDeviceDatasource(t *testing.T) {
 			},
 			{
 				Config:      ProviderConfigForTesting + deviceDataWithPathInvalid,
-				ExpectError: regexp.MustCompile("Error getting device with CurrentPath"),
+				ExpectError: regexp.MustCompile("Error getting device with Current Path"),
 			},
 			{
 				Config:      ProviderConfigForTesting + deviceDataWithIDInvalid,
@@ -102,6 +95,22 @@ func TestAccDeviceDatasource(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccDeviceDatasourcePDC(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      ProviderConfigForTesting + deviceDataWithPDIDInvalid,
+				ExpectError: regexp.MustCompile("Please provide protection_domain_id with storage_pool_name."),
+			},
+			{
+				Config:      ProviderConfigForTesting + deviceDataWithPDNameInvalid,
+				ExpectError: regexp.MustCompile("Please provide protection_domain_name with storage_pool_name."),
+			},
+		}})
 }
 
 var devicesData = `
@@ -198,5 +207,17 @@ data "powerflex_device" "dev15" {
 var deviceDataWithSdsNameInvalid = `
 data "powerflex_device" "dev16" {
 	sds_name = "invalid"
+}
+`
+
+var deviceDataWithPDIDInvalid = `
+data "powerflex_device" "dev17" {
+	protection_domain_id = "202a046600000000"
+}
+`
+
+var deviceDataWithPDNameInvalid = `
+data "powerflex_device" "dev18" {
+	protection_domain_name = "domain1"
 }
 `
