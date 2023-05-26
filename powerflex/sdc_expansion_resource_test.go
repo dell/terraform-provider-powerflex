@@ -22,15 +22,13 @@ func TestAccSDCExpansionResource(t *testing.T) {
 			},
 			//Create with Packages
 			{
-				Config:             ProviderConfigForGatewayTesting + packageTest + ParseCSVConfig2,
-				ExpectNonEmptyPlan: true,
-				Check:              resource.TestMatchResourceAttr("powerflex_sdc_expansion.test", "installed_sdc_ips", regexp.MustCompile(GatewayDataPoints.sdcServerIP)),
+				Config: ProviderConfigForGatewayTesting + packageTest + ParseCSVConfig2,
+				Check:  resource.TestMatchResourceAttr("powerflex_sdc_expansion.test", "installed_sdc_ips", regexp.MustCompile(GatewayDataPoints.tbIP)),
 			},
 			//Update
 			{
-				Config:             ProviderConfigForGatewayTesting + packageTest + ParseCSVConfigUpdate,
-				ExpectNonEmptyPlan: true,
-				Check:              resource.TestMatchResourceAttr("powerflex_sdc_expansion.test", "installed_sdc_ips", regexp.MustCompile(GatewayDataPoints.sdcServerIP)),
+				Config: ProviderConfigForGatewayTesting + packageTest + ParseCSVConfigUpdate,
+				Check:  resource.TestMatchResourceAttr("powerflex_sdc_expansion.test", "installed_sdc_ips", regexp.MustCompile(GatewayDataPoints.sdcServerIP)),
 			},
 		},
 	})
@@ -55,14 +53,14 @@ resource "powerflex_sdc_expansion" "test" {
 			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "Primary"
-			is_sdc = "Yes"
+			is_sdc = "No"
 		},
 		{
 			ip = "` + GatewayDataPoints.secondaryMDMIP + `"
 			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "Secondary"
-			is_sdc = "Yes"
+			is_sdc = "NO"
 		},
 		{
 			ip = "` + GatewayDataPoints.tbIP + `"
@@ -76,7 +74,7 @@ resource "powerflex_sdc_expansion" "test" {
 			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "Standby"
-			is_sdc = "Yes"
+			is_sdc = "No"
    		},
 	]
 }
@@ -97,14 +95,14 @@ resource "powerflex_sdc_expansion" "test" {
 			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "Primary"
-			is_sdc = "Yes"
+			is_sdc = "No"
 		},
 		{
 			ip = "` + GatewayDataPoints.secondaryMDMIP + `"
 			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "Secondary"
-			is_sdc = "Yes"
+			is_sdc = "No"
 		},
 		{
 			ip = "` + GatewayDataPoints.tbIP + `"
@@ -117,8 +115,8 @@ resource "powerflex_sdc_expansion" "test" {
 			ip = "` + GatewayDataPoints.sdcServerIP + `"
 			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
-			is_mdm_or_tb = "Standby"
-			is_sdc = "Yes"
+			is_mdm_or_tb = ""
+			is_sdc = "No"
    		},
 	]
 }
@@ -130,7 +128,7 @@ resource "powerflex_sdc_expansion" "test" {
 	depends_on = [
 		powerflex_package.upload-test
 	]
-
+	
 	mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
 	lia_password= "` + GatewayDataPoints.liaPassword + `"
 	cluster_details = [
@@ -139,14 +137,14 @@ resource "powerflex_sdc_expansion" "test" {
 			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "Primary"
-			is_sdc = "Yes"
+			is_sdc = "No"
 		},
 		{
 			ip = "` + GatewayDataPoints.secondaryMDMIP + `"
 			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "Secondary"
-			is_sdc = "Yes"
+			is_sdc = "No"
 		},
 		{
 			ip = "` + GatewayDataPoints.tbIP + `"
@@ -159,7 +157,7 @@ resource "powerflex_sdc_expansion" "test" {
 			ip = "` + GatewayDataPoints.sdcServerIP + `"
 			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
-			is_mdm_or_tb = "Standby"
+			is_mdm_or_tb = ""
 			is_sdc = "Yes"
    		},
 	]
