@@ -22,7 +22,7 @@ func TestAccSDCExpansionResource(t *testing.T) {
 			},
 			//Create with Packages
 			{
-				Config:             ProviderConfigForGatewayTesting + packageTest + ParseCSVConfig1,
+				Config:             ProviderConfigForGatewayTesting + packageTest + ParseCSVConfig2,
 				ExpectNonEmptyPlan: true,
 				Check:              resource.TestMatchResourceAttr("powerflex_sdc_expansion.test", "installed_sdc_ips", regexp.MustCompile(GatewayDataPoints.sdcServerIP)),
 			},
@@ -45,7 +45,6 @@ resource "powerflex_package" "upload-test" {
 	"/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdr-3.6-700.103.el7.x86_64.rpm"]
 	}
 `
-
 var ParseCSVConfig1 = `
 resource "powerflex_sdc_expansion" "test" {
 	mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
@@ -83,8 +82,55 @@ resource "powerflex_sdc_expansion" "test" {
 }
 `
 
+var ParseCSVConfig2 = `
+resource "powerflex_sdc_expansion" "test" {
+
+	depends_on = [
+		powerflex_package.upload-test
+	]
+
+	mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
+	lia_password= "` + GatewayDataPoints.liaPassword + `"
+	cluster_details = [
+		{
+			ip = "` + GatewayDataPoints.primaryMDMIP + `"
+			password = "` + GatewayDataPoints.serverPassword + `"
+			operating_system = "linux"
+			is_mdm_or_tb = "Primary"
+			is_sdc = "Yes"
+		},
+		{
+			ip = "` + GatewayDataPoints.secondaryMDMIP + `"
+			password = "` + GatewayDataPoints.serverPassword + `"
+			operating_system = "linux"
+			is_mdm_or_tb = "Secondary"
+			is_sdc = "Yes"
+		},
+		{
+			ip = "` + GatewayDataPoints.tbIP + `"
+			password = "` + GatewayDataPoints.serverPassword + `"
+			operating_system = "linux"
+			is_mdm_or_tb = "TB"
+			is_sdc = "Yes"
+	    },
+	    {
+			ip = "` + GatewayDataPoints.sdcServerIP + `"
+			password = "` + GatewayDataPoints.serverPassword + `"
+			operating_system = "linux"
+			is_mdm_or_tb = "Standby"
+			is_sdc = "Yes"
+   		},
+	]
+}
+`
+
 var ParseCSVConfigUpdate = `
 resource "powerflex_sdc_expansion" "test" {
+
+	depends_on = [
+		powerflex_package.upload-test
+	]
+
 	mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
 	lia_password= "` + GatewayDataPoints.liaPassword + `"
 	cluster_details = [

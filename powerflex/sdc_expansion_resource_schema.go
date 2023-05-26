@@ -97,6 +97,7 @@ var csvSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 			"username": schema.StringAttribute{
 				Description:         "Username of the node",
 				Optional:            true,
+				Computed:            true,
 				MarkdownDescription: "Username of the node",
 				PlanModifiers: []planmodifier.String{
 					stringDefault("root"),
