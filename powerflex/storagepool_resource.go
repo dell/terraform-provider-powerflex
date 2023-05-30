@@ -264,6 +264,16 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		)
 		return
 	}
+	initialSpResponse, err := pd.FindStoragePool(sp, "", "")
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting Storagepool after creation",
+			"Could not get Storagepool, unexpected error: "+err.Error(),
+		)
+		return
+	}
+
+	initialState := updateStoragepoolState(initialSpResponse, plan)
 
 	// set the replication journal capacity
 	if !plan.ReplicationJournalCapacity.IsUnknown() && !plan.ReplicationJournalCapacity.IsNull() {
@@ -277,17 +287,11 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	// set the capacity alert threshold - high or critical
-	if (!plan.CapacityAlertHighThreshold.IsUnknown() && !plan.CapacityAlertHighThreshold.IsNull()) ||
-		(!plan.CapacityAlertCriticalThreshold.IsUnknown() && !plan.CapacityAlertCriticalThreshold.IsNull()) {
-		capacityAlertThreshold := &scaleiotypes.CapacityAlertThresholdParam{
-			CapacityAlertHighThresholdPercent:     strconv.FormatInt(plan.CapacityAlertHighThreshold.ValueInt64(), 10),
-			CapacityAlertCriticalThresholdPercent: strconv.FormatInt(plan.CapacityAlertCriticalThreshold.ValueInt64(), 10),
-		}
-		err := pd.SetCapacityAlertThreshold(sp, capacityAlertThreshold)
-		if err != nil {
+	if capacityAlertThresholdParam, ok := isCritcalAlert(plan, initialState); !ok {
+		errSetCapacityAlertThreshold := pd.SetCapacityAlertThreshold(initialSpResponse.ID, capacityAlertThresholdParam)
+		if errSetCapacityAlertThreshold != nil {
 			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set capacity alert high threshold to %s", plan.CapacityAlertHighThreshold.String()),
-				err.Error(),
+				"Error while updating Capacity Alert Thresholds of Storagepool", errSetCapacityAlertThreshold.Error(),
 			)
 		}
 	}

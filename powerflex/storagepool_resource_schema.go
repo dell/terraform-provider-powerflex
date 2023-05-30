@@ -87,12 +87,18 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Set the threshold for triggering capacity usage high-priority alert.",
 			Optional:            true,
 			Computed:            true,
+			Validators: []validator.Int64{
+				int64validator.AtLeast(1),
+			},
 		},
 		"capacity_alert_critical_threshold": schema.Int64Attribute{
 			Description:         "Set the threshold for triggering capacity usage critical-priority alert.",
 			MarkdownDescription: "Set the threshold for triggering capacity usage critical-priority alert.",
 			Optional:            true,
 			Computed:            true,
+			Validators: []validator.Int64{
+				int64validator.AtLeast(1),
+			},
 		},
 		"protected_maintenance_mode_io_priority_policy": schema.StringAttribute{
 			Description:         "Set the I/O priority policy for protected maintenance mode for a specific Storage Pool. Valid values are `unlimited`, `limitNumOfConcurrentIos` and `favorAppIos`",
