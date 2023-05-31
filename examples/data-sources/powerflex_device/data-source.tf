@@ -13,5 +13,5 @@ data "powerflex_device" "dev2" {
 }
 
 output "deviceResult" {
-  value =    data.powerflex_device.dev.device_model
+  value = data.powerflex_device.dev.device_model
 }
