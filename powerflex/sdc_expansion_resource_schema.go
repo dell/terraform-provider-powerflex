@@ -121,9 +121,6 @@ var csvSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 				Description:         "Whether this works as MDM or Tie Breaker,The acceptable value is `Primary`, `Secondary`, `TB`, `Standby` or blank. Default value is blank",
 				Optional:            true,
 				MarkdownDescription: "Whether this works as MDM or Tie Breaker,The acceptable value is `Primary`, `Secondary`, `TB`, `Standby` or blank. Default value is blank",
-				PlanModifiers: []planmodifier.String{
-					stringDefault(" "),
-				},
 			},
 			"is_sdc": schema.StringAttribute{
 				Description:         "whether this node is SDC or not,The acceptable value is `Yes` or `No`",
