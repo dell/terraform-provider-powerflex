@@ -41,7 +41,7 @@ If the taint is not removed, terraform will destroy and recreate the resource.
 # To create / update, either storage_pool_id or storage_pool_name must be provided
 # Also , to create / update, either protection_domain_id or protection_domain_name must be provided
 # name, size is the required parameter to create or update
-# other  atrributes like : capacity_unit, volume_type, use_rm_cache, compression_method, access_mode, remove_mode, sdc_list are optional 
+# other  atrributes like : capacity_unit, volume_type, use_rm_cache, compression_method, access_mode, remove_mode are optional 
 # To check which attributes of the snapshot can be updated, please refer Product Guide in the documentation
 
 
@@ -53,14 +53,6 @@ resource "powerflex_volume" "avengers-volume-create" {
   use_rm_cache           = true
   volume_type            = "ThickProvisioned"
   access_mode            = "ReadWrite"
-  sdc_list = [
-    {
-      sdc_name         = "sdc_01"
-      limit_iops       = 119
-      limit_bw_in_mbps = 19
-      access_mode      = "ReadOnly"
-    },
-  ]
 }
 
 
@@ -75,14 +67,6 @@ resource "powerflex_volume" "avengers-volume-create" {
 # 	volume_type = "<ThickProvisioned/ThinProvisioned volume type>" 
 # 	access_mode = "<ReadWrite/ReadOnly volume access mode>"
 # 	compression_method = "<None/Normal compression method>"
-# 	sdc_list = [
-# 	  		{
-# 			   sdc_name = "<sdc name>"
-# 			   limit_iops = "<iops limit in int>"
-# 			   limit_bw_in_mbps = "<bandwidth limit in mbps>"
-# 			   access_mode = "<ReadWrite/ReadOnly/Noaccess sdc access mode>"
-# 		   },
-# 	]
 # }
 ```
 
@@ -102,7 +86,6 @@ resource "powerflex_volume" "avengers-volume-create" {
 - `protection_domain_id` (String) ID of the Protection Domain under which the volume will be created. Conflicts with `protection_domain_name`. Cannot be updated.
 - `protection_domain_name` (String) Name of the Protection Domain under which the volume will be created. Conflicts with `protection_domain_id`. Cannot be updated.
 - `remove_mode` (String) Remove mode of the volume. Valid values are `ONLY_ME` and `INCLUDING_DESCENDANTS`. Default value is `ONLY_ME`.
-- `sdc_list` (Attributes Set, Deprecated) List of SDCs to be mapped to the volume. Exactly one of `sdc_id` or `sdc_name` must be specified. (see [below for nested schema](#nestedatt--sdc_list))
 - `storage_pool_id` (String) ID of the Storage Pool under which the volume will be created. Conflicts with `storage_pool_name`. Cannot be updated.
 - `storage_pool_name` (String) Name of the Storage Pool under which the volume will be created. Conflicts with `storage_pool_id`. Cannot be updated.
 - `use_rm_cache` (Boolean) use rm cache
@@ -112,17 +95,6 @@ resource "powerflex_volume" "avengers-volume-create" {
 
 - `id` (String) The ID of the volume.
 - `size_in_kb` (Number) Size in KB
-
-<a id="nestedatt--sdc_list"></a>
-### Nested Schema for `sdc_list`
-
-Optional:
-
-- `access_mode` (String) The Access Mode of the SDC. Valid values are `ReadOnly`, `ReadWrite` and `NoAccess`. Default value is `ReadOnly`
-- `limit_bw_in_mbps` (Number) Bandwidth limit in MBPS of the SDC. `0` represents unlimited IOPS. Default value is `0`.
-- `limit_iops` (Number) IOPS limit of the SDC. Valid values are `0` or integers greater than `10`. `0` represents unlimited IOPS. Default value is `0`.
-- `sdc_id` (String) The ID of the SDC. Conflicts with `sdc_name`. Cannot be updated.
-- `sdc_name` (String) The Name of the SDC. Conflicts with `sdc_id`. Cannot be updated.
 
 ## Import
 

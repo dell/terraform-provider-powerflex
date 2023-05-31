@@ -4,7 +4,7 @@
 # To create / update, either storage_pool_id or storage_pool_name must be provided
 # Also , to create / update, either protection_domain_id or protection_domain_name must be provided
 # name, size is the required parameter to create or update
-# other  atrributes like : capacity_unit, volume_type, use_rm_cache, compression_method, access_mode, remove_mode, sdc_list are optional 
+# other  atrributes like : capacity_unit, volume_type, use_rm_cache, compression_method, access_mode, remove_mode are optional 
 # To check which attributes of the snapshot can be updated, please refer Product Guide in the documentation
 
 
@@ -16,14 +16,6 @@ resource "powerflex_volume" "avengers-volume-create" {
   use_rm_cache           = true
   volume_type            = "ThickProvisioned"
   access_mode            = "ReadWrite"
-  sdc_list = [
-    {
-      sdc_name         = "sdc_01"
-      limit_iops       = 119
-      limit_bw_in_mbps = 19
-      access_mode      = "ReadOnly"
-    },
-  ]
 }
 
 
@@ -38,12 +30,4 @@ resource "powerflex_volume" "avengers-volume-create" {
 # 	volume_type = "<ThickProvisioned/ThinProvisioned volume type>" 
 # 	access_mode = "<ReadWrite/ReadOnly volume access mode>"
 # 	compression_method = "<None/Normal compression method>"
-# 	sdc_list = [
-# 	  		{
-# 			   sdc_name = "<sdc name>"
-# 			   limit_iops = "<iops limit in int>"
-# 			   limit_bw_in_mbps = "<bandwidth limit in mbps>"
-# 			   access_mode = "<ReadWrite/ReadOnly/Noaccess sdc access mode>"
-# 		   },
-# 	]
 # }

@@ -42,7 +42,7 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
 
 | **Terraform Provider** | **PowerFlex/VxFlex OS Version** | **OS** | **Terraform** | **Golang** |
 |---------------------|-----------------------|-------|--------------------|--------------------------|
-| v1.0.0 | 3.6 | ubuntu22.04 <br> rhel8.x <br> rhel7.x | 1.3.2 <br> 1.2.9 <br> | 1.19.x
+| v1.1.0 | 3.6 | ubuntu22.04 <br> rhel8.x <br> rhel7.x | 1.3.2 <br> 1.2.9 <br> | 1.19.x
 
 ## List of DataSources in Terraform Provider for Dell PowerFlex
   * [SDC](docs/data-sources/sdc.md)
@@ -51,6 +51,7 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
   * [SDS](docs/data-sources/sds.md)
   * [Protection Domain](docs/data-sources/protection_domain.md)
   * [Snapshot Policy](docs/data-sources/protection_domain.md)
+  * [Device](docs/data-sources/device.md)
 
 ## List of Resources in Terraform Provider for Dell PowerFlex
   * [SDC](docs/resources/sdc.md)
@@ -58,7 +59,11 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
   * [Volume](docs/resources/volume.md)
   * [SDS](docs/resources/sds.md)
   * [Snapshot](docs/resources/snapshot.md)
-  * [SDC volumes Mapping](docs/resources/sdc_volumes_mapping.md)
+  * [Protection Domain](docs/resources/protection_domain.md)
+  * [SDC Volume Mapping](docs/resources/sdc_volmues_mapping.md)
+  * [Device](docs/resources/device.md)
+  * [Package](docs/resources/package.md)
+  * [SDC Expansion](docs/resources/sdc_expansion.md)
 
 ## Installation and execution of Terraform Provider for Dell PowerFlex
 The installation and execution steps of Terraform Provider for Dell PowerFlex can be found [here](about/INSTALLATION.md).
