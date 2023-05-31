@@ -1,6 +1,14 @@
 name: terraform-lint
 
-on: [push, pull_request]
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on pull request events
+  pull_request:
+  # Runs CI on every day (at 06:00 UTC)
+  schedule:
+    - cron: '0 6 * * *'
+  push:
+    branches: [ "main" ]
 
 jobs:
   delivery:
