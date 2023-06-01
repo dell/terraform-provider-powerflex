@@ -26,6 +26,10 @@ description: |-
 
 {{ .Description | trimspace }}
 
+!> **Caution:** SDC Volume mapping creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
+One can manually remove the taint and try applying the configuration (after making necessary adjustments).
+If the taint is not removed, terraform will destroy and recreate the resource.
+
 ~> **Note:** Exactly one of `id` and `name` is required. Exactly one of `volume_id` and `volume_name` is required.
 
 {{ if .HasExample -}}
