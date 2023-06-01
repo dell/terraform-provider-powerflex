@@ -65,7 +65,6 @@ func (r *deviceResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				MarkdownDescription: "The name of the device.",
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
-					stringvalidator.ConflictsWith(path.MatchRoot("id")),
 				},
 			},
 			"device_path": schema.StringAttribute{
@@ -84,6 +83,8 @@ func (r *deviceResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 					stringvalidator.ExactlyOneOf(path.MatchRoot("storage_pool_name")),
+					stringvalidator.ConflictsWith(path.MatchRoot("protection_domain_name")),
+					stringvalidator.ConflictsWith(path.MatchRoot("protection_domain_id")),
 				},
 			},
 			"storage_pool_name": schema.StringAttribute{
@@ -285,6 +286,29 @@ func (r *deviceResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
+	if !plan.DeviceCapacity.IsNull() {
+		size := convertToKB("GB", plan.DeviceCapacity.ValueInt64())
+
+		if size != int64(deviceResponse.CapacityLimitInKb) {
+			err := sp.SetDeviceCapacityLimit(deviceResponse.ID, plan.DeviceCapacity.String())
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"Error updating device capacity with ID: "+deviceResponse.ID,
+					err.Error(),
+				)
+			}
+		}
+	}
+
+	deviceResponse, err3 = r.system.GetDevice(deviceID)
+	if err3 != nil {
+		resp.Diagnostics.AddError(
+			"Error getting device with ID: "+deviceID,
+			"unexpected error: "+err3.Error(),
+		)
+		return
+	}
+
 	// Set refreshed state
 	state, dgs := updateDeviceState(deviceResponse, plan)
 	resp.Diagnostics.Append(dgs...)
@@ -373,6 +397,20 @@ func (r *deviceResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
+	if !plan.StoragePoolID.IsUnknown() && plan.StoragePoolID.ValueString() != state.StoragePoolID.ValueString() {
+		resp.Diagnostics.AddError(
+			"Storage pool ID cannot be updated",
+			"Storage pool ID cannot be updated")
+		return
+	}
+
+	if !plan.SdsID.IsUnknown() && plan.SdsID.ValueString() != state.SdsID.ValueString() {
+		resp.Diagnostics.AddError(
+			"SDS ID cannot be updated",
+			"SDS ID cannot be updated")
+		return
+	}
+
 	sp := goscaleio.NewStoragePoolEx(r.client, spInstance)
 
 	// Check if device name needs be updated
@@ -380,7 +418,7 @@ func (r *deviceResource) Update(ctx context.Context, req resource.UpdateRequest,
 		err := sp.SetDeviceName(state.ID.ValueString(), plan.Name.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error updating device name with ID: "+plan.ID.ValueString(),
+				"Error updating device name with ID: "+state.ID.ValueString(),
 				err.Error(),
 			)
 		}
@@ -391,7 +429,7 @@ func (r *deviceResource) Update(ctx context.Context, req resource.UpdateRequest,
 		err := sp.SetDeviceMediaType(state.ID.ValueString(), plan.MediaType.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error updating device media type with ID: "+plan.ID.ValueString(),
+				"Error updating device media type with ID: "+state.ID.ValueString(),
 				err.Error(),
 			)
 		}
@@ -402,7 +440,7 @@ func (r *deviceResource) Update(ctx context.Context, req resource.UpdateRequest,
 		err := sp.SetDeviceExternalAccelerationType(state.ID.ValueString(), plan.ExternalAccelerationType.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error updating device external acceleration type with ID: "+plan.ID.ValueString(),
+				"Error updating device external acceleration type with ID: "+state.ID.ValueString(),
 				err.Error(),
 			)
 		}
@@ -416,7 +454,7 @@ func (r *deviceResource) Update(ctx context.Context, req resource.UpdateRequest,
 			err := sp.SetDeviceCapacityLimit(state.ID.ValueString(), plan.DeviceCapacity.String())
 			if err != nil {
 				resp.Diagnostics.AddError(
-					"Error updating device capacity with ID: "+plan.ID.ValueString(),
+					"Error updating device capacity with ID: "+state.ID.ValueString(),
 					err.Error(),
 				)
 			}
@@ -436,7 +474,7 @@ func (r *deviceResource) Update(ctx context.Context, req resource.UpdateRequest,
 		err = sp.UpdateDeviceOriginalPathways(state.ID.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error updating device pathway with ID: "+plan.ID.ValueString(),
+				"Error updating device pathway with ID: "+state.ID.ValueString(),
 				err.Error(),
 			)
 		}
@@ -555,7 +593,7 @@ func (r *deviceResource) getStoragePoolID(plan *DeviceModel) (sp *goscaleio_type
 		sp, err = pd.FindStoragePool("", plan.StoragePoolName.ValueString(), "")
 		if err != nil {
 			diags.AddError(
-				"Error in getting storage pool details with name: "+plan.ProtectionDomainName.ValueString(),
+				"Error in getting storage pool details with name: "+plan.StoragePoolName.ValueString(),
 				err.Error(),
 			)
 			return

@@ -26,7 +26,7 @@ description: |-
 
 This resource can be used to manage volumes on a PowerFlex array.
 
-!> **Caution:** Volume creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
+!> **Caution:** Volume creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 If the taint is not removed, terraform will destroy and recreate the resource.
 

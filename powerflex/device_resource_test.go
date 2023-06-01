@@ -43,6 +43,7 @@ var AddDeviceWithSPID = createSDSForTest + createStoragePool + `
 		storage_pool_id = resource.powerflex_storage_pool.pre-req1.id
 		sds_id = powerflex_sds.sds.id
 		media_type = "HDD"
+		device_capacity = 300
 	 }
 `
 
@@ -58,6 +59,7 @@ func TestAccDeviceResourceWithSPID(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
 					resource.TestCheckResourceAttrPair("powerflex_device.device-test", "sds_id", "powerflex_sds.sds", "id"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "media_type", "HDD"),
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_capacity_in_kb", "314572800"),
 				),
 			},
 		}})
@@ -127,7 +129,6 @@ func TestAccDeviceResourceWithSDSName(t *testing.T) {
 		name = "terraform-device"
 		device_path = "/dev/sdc"
 		storage_pool_id = resource.powerflex_storage_pool.pre-req1.id
-		protection_domain_id = "202a046600000000"
 		sds_name = powerflex_sds.sds.name
 		media_type = "HDD"
 	 }
@@ -144,7 +145,6 @@ func TestAccDeviceResourceWithSDSName(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
 					resource.TestCheckResourceAttrPair("powerflex_device.device-test", "sds_name", "powerflex_sds.sds", "name"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "media_type", "HDD"),
-					resource.TestCheckResourceAttr("powerflex_device.device-test", "protection_domain_id", "202a046600000000"),
 				),
 			},
 		}})
@@ -223,6 +223,16 @@ func TestAccDeviceNegative(t *testing.T) {
 	 }
 	`
 
+	var InvalidDeviceCapacity = createSDSForTest + createStoragePool + `
+	resource "powerflex_device" "device-test" {
+		device_path = "/dev/sdc"
+		storage_pool_id = resource.powerflex_storage_pool.pre-req1.id
+		sds_id = powerflex_sds.sds.id
+		media_type = "HDD"
+		device_capacity = 500
+	 }
+`
+
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -253,6 +263,10 @@ func TestAccDeviceNegative(t *testing.T) {
 			{
 				Config:      ProviderConfigForTesting + InvalidSDSName,
 				ExpectError: regexp.MustCompile("Error in getting sds details"),
+			},
+			{
+				Config:      ProviderConfigForTesting + InvalidDeviceCapacity,
+				ExpectError: regexp.MustCompile("Error updating device capacity with ID"),
 			},
 		}})
 }
