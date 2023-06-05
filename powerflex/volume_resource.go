@@ -198,12 +198,12 @@ func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, res
 func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Get plan values
 	var plan VolumeResourceModel
-	// errMsg := make(map[string]string, 0)
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
 	// Get current state
 	var state VolumeResourceModel
 	diags = req.State.Get(ctx, &state)
@@ -222,8 +222,9 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 	volresource := goscaleio.NewVolume(r.client)
 	volresource.Volume = volsplan[0]
+
 	// updating the name of volume if there is change in plan
-	if plan.Name.ValueString() != state.Name.ValueString() {
+	if !plan.Name.IsUnknown() && plan.Name.ValueString() != state.Name.ValueString() {
 		err3 := volresource.SetVolumeName(plan.Name.ValueString())
 		if err3 != nil {
 			resp.Diagnostics.AddError(
@@ -243,11 +244,14 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 				"Error setting the volume size",
 				"unexpected error: "+err4.Error(),
 			)
+		} else {
+			state.Size = plan.Size
+			state.CapacityUnit = plan.CapacityUnit
 		}
 	}
 
 	// prompt error on change in volume type, as we can't update the volume type after the creation
-	if !plan.VolumeType.Equal(state.VolumeType) {
+	if !plan.VolumeType.IsUnknown() && !plan.VolumeType.Equal(state.VolumeType) {
 		resp.Diagnostics.AddError(
 			"volume type cannot be update after volume creation.",
 			"unexpected error: volume type change is not supported",
@@ -255,7 +259,7 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	// updating the use rm cache if there is change in plan
-	if !plan.UseRmCache.Equal(state.UseRmCache) {
+	if !plan.UseRmCache.IsUnknown() && plan.UseRmCache.ValueBool() != state.UseRmCache.ValueBool() {
 		err5 := volresource.SetVolumeUseRmCache(plan.UseRmCache.ValueBool())
 		if err5 != nil {
 			resp.Diagnostics.AddError(
@@ -276,13 +280,13 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 		}
 	}
 
-	// changing the access mode in case of change in access mode state from readwrite to readonly
-	if (plan.AccessMode.ValueString() == READONLY) && (state.AccessMode.ValueString() == READWRITE) {
-		err13 := volresource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
-		if err13 != nil {
+	// changing the access mode
+	if !plan.AccessMode.IsUnknown() && plan.AccessMode.ValueString() != state.AccessMode.ValueString() {
+		err := volresource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
+		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error setting the access mode",
-				"unexpected error: "+err13.Error(),
+				"unexpected error: "+err.Error(),
 			)
 		}
 	}
@@ -296,9 +300,9 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 	vol := vols[0]
-	dgs := refreshVolumeState(vol, &plan)
+	dgs := refreshVolumeState(vol, &state)
 	resp.Diagnostics.Append(dgs...)
-	diags = resp.State.Set(ctx, &plan)
+	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 
 	if resp.Diagnostics.HasError() {
