@@ -4,18 +4,48 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// CsvAndMdmDataModel struct for CSV Data Processing
-type CsvAndMdmDataModel struct {
-	ID              types.String `tfsdk:"id"`
-	ClusterDetails  types.Set    `tfsdk:"cluster_details"`
-	MdmPassword     types.String `tfsdk:"mdm_password"`
-	LiaPassword     types.String `tfsdk:"lia_password"`
-	InstalledSDCIps types.String `tfsdk:"installed_sdc_ips"`
+var sdcDetailsDescriptions = struct {
+	SdcResourceSchema  string
+	LastUpdated        string
+	ID                 string
+	SystemID           string
+	Name               string
+	SdcIP              string
+	SdcApproved        string
+	OnVMWare           string
+	SdcGUID            string
+	MdmConnectionState string
+	Links              string
+	LinksRel           string
+	LinksHref          string
+}{
+	SdcResourceSchema:  "This resource can be used to manage Storage Data Clients on a PowerFlex array.",
+	LastUpdated:        "The Last updated timestamp of the SDC.",
+	ID:                 "ID of the SDC to manage. This can be retrieved from the PowerFlex website. Cannot be updated.",
+	SystemID:           "The System ID of the fetched SDC.",
+	Name:               "Name of the SDC to manage.",
+	SdcIP:              "The IP of the fetched SDC.",
+	SdcApproved:        "If the fetched SDC is approved.",
+	OnVMWare:           "If the fetched SDC is on vmware.",
+	SdcGUID:            "The GUID of the fetched SDC.",
+	MdmConnectionState: "The MDM connection status of the fetched SDC.",
+	Links:              "The Links of the fetched SDC.",
+	LinksRel:           "The Links-Rel of the fetched SDC.",
+	LinksHref:          "The Links-HREF of the fetched SDC.",
+}
+
+// SDCDataModel struct for CSV Data Processing
+type SDCDataModel struct {
+	ID             types.String `tfsdk:"id"`
+	Name           types.String `tfsdk:"name"`
+	ClusterDetails types.Set    `tfsdk:"cluster_details"`
+	MdmPassword    types.String `tfsdk:"mdm_password"`
+	LiaPassword    types.String `tfsdk:"lia_password"`
+	InstalledSDCs  types.Set    `tfsdk:"installed_sdcs"`
 }
 
 // CSVDataModel defines the struct for CSV Parse Data
@@ -42,16 +72,20 @@ type CsvRow struct {
 	SDCName            string
 }
 
-// SDCExpansionResourceSchema - variable holds schema for SDC Expansion
-var SDCExpansionResourceSchema schema.Schema = schema.Schema{
+// SDCManagerResourceSchema - variable holds schema for SDC Management
+var SDCManagerResourceSchema schema.Schema = schema.Schema{
 	Description:         "This resource can be used to add the SDC in PowerFlex Cluster.",
 	MarkdownDescription: "This resource can be used to add the SDC in PowerFlex Cluster.",
 	Attributes: map[string]schema.Attribute{
 		"cluster_details": csvSchema,
+		"name": schema.StringAttribute{
+			Description: sdcDetailsDescriptions.Name,
+			Optional:    true,
+		},
 		"mdm_password": schema.StringAttribute{
 			Description:         "MDM Password to connect MDM Server.",
 			MarkdownDescription: "MDM Password to connect MDM Server.",
-			Required:            true,
+			Optional:            true,
 			Sensitive:           true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
@@ -60,24 +94,83 @@ var SDCExpansionResourceSchema schema.Schema = schema.Schema{
 		"lia_password": schema.StringAttribute{
 			Description:         "LIA Password to connect MDM Server.",
 			MarkdownDescription: "LIA Password to connect MDM Server.",
-			Required:            true,
+			Optional:            true,
 			Sensitive:           true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 			},
 		},
-		"installed_sdc_ips": schema.StringAttribute{
-			Description:         "List of installed SDC IPs",
-			Computed:            true,
-			MarkdownDescription: "List of installed SDC IPs",
-		},
+		"installed_sdcs": sdcDetailsSchema,
 		"id": schema.StringAttribute{
-			Description: "The ID of the package.",
+			Optional:    true,
 			Computed:    true,
-			PlanModifiers: []planmodifier.String{
-				stringplanmodifier.UseStateForUnknown(),
+			Description: sdcDetailsDescriptions.ID,
+		},
+	},
+}
+
+// sdcDetailsSchema - variable holds sdc Details
+var sdcDetailsSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
+	Description:         "List of SDC Details.",
+	Optional:            true,
+	MarkdownDescription: "List of SDC Details.",
+	NestedObject: schema.NestedAttributeObject{
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				Required:    true,
+				Description: sdcDetailsDescriptions.ID,
 			},
-			MarkdownDescription: "The ID of the package.",
+			"last_updated": schema.StringAttribute{
+				Computed:    true,
+				Description: sdcDetailsDescriptions.LastUpdated,
+			},
+			"name": schema.StringAttribute{
+				Description: sdcDetailsDescriptions.Name,
+				Required:    true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
+			},
+			"sdc_guid": schema.StringAttribute{
+				Description: sdcDetailsDescriptions.SdcGUID,
+				Computed:    true,
+			},
+			"on_vmware": schema.BoolAttribute{
+				Description: sdcDetailsDescriptions.OnVMWare,
+				Computed:    true,
+			},
+			"sdc_approved": schema.BoolAttribute{
+				Description: sdcDetailsDescriptions.SdcApproved,
+				Computed:    true,
+			},
+			"system_id": schema.StringAttribute{
+				Description: sdcDetailsDescriptions.SystemID,
+				Computed:    true,
+			},
+			"sdc_ip": schema.StringAttribute{
+				Description: sdcDetailsDescriptions.SdcIP,
+				Computed:    true,
+			},
+			"mdm_connection_state": schema.StringAttribute{
+				Description: sdcDetailsDescriptions.MdmConnectionState,
+				Computed:    true,
+			},
+			"links": schema.ListNestedAttribute{
+				Description: sdcDetailsDescriptions.Links,
+				Computed:    true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"rel": schema.StringAttribute{
+							Description: sdcDetailsDescriptions.LinksRel,
+							Computed:    true,
+						},
+						"href": schema.StringAttribute{
+							Description: sdcDetailsDescriptions.LinksHref,
+							Computed:    true,
+						},
+					},
+				},
+			},
 		},
 	},
 }
@@ -85,13 +178,13 @@ var SDCExpansionResourceSchema schema.Schema = schema.Schema{
 // csvSchema - variable holds schema for CSV Param Details
 var csvSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 	Description:         "List of SDC Expansion Server Details.",
-	Required:            true,
+	Optional:            true,
 	MarkdownDescription: "List of SDC Expansion Server Details.",
 	NestedObject: schema.NestedAttributeObject{
 		Attributes: map[string]schema.Attribute{
 			"ip": schema.StringAttribute{
 				Description:         "IP of the node",
-				Required:            true,
+				Optional:            true,
 				MarkdownDescription: "IP of the node",
 			},
 			"username": schema.StringAttribute{
@@ -105,7 +198,7 @@ var csvSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 			},
 			"password": schema.StringAttribute{
 				Description:         "Password of the node",
-				Required:            true,
+				Optional:            true,
 				Sensitive:           true,
 				MarkdownDescription: "Password of the node",
 				Validators: []validator.String{
@@ -114,7 +207,7 @@ var csvSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 			},
 			"operating_system": schema.StringAttribute{
 				Description:         "Operating System on the node",
-				Required:            true,
+				Optional:            true,
 				MarkdownDescription: "Operating System on the node",
 			},
 			"is_mdm_or_tb": schema.StringAttribute{
@@ -124,7 +217,7 @@ var csvSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 			},
 			"is_sdc": schema.StringAttribute{
 				Description:         "whether this node is SDC or not,The acceptable value is `Yes` or `No`",
-				Required:            true,
+				Optional:            true,
 				MarkdownDescription: "whether this node is SDC or not,The acceptable value is `Yes` or `No`.",
 				Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
 					"Yes",

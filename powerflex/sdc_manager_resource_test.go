@@ -17,17 +17,17 @@ func TestAccSDCExpansionResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			//Create
 			{
-				Config:      ProviderConfigForGatewayTesting + ParseCSVConfig1,
+				Config:      ProviderConfigForTesting + ParseCSVConfig1,
 				ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
 			},
 			//Create with Packages
 			{
-				Config: ProviderConfigForGatewayTesting + packageTest + ParseCSVConfig2,
+				Config: ProviderConfigForTesting + packageTest + ParseCSVConfig2,
 				Check:  resource.TestMatchResourceAttr("powerflex_sdc_expansion.test", "installed_sdc_ips", regexp.MustCompile(GatewayDataPoints.tbIP)),
 			},
 			//Update
 			{
-				Config: ProviderConfigForGatewayTesting + packageTest + ParseCSVConfigUpdate,
+				Config: ProviderConfigForTesting + packageTest + ParseCSVConfigUpdate,
 				Check:  resource.TestMatchResourceAttr("powerflex_sdc_expansion.test", "installed_sdc_ips", regexp.MustCompile(GatewayDataPoints.sdcServerIP)),
 			},
 		},

@@ -12,40 +12,57 @@ import (
 
 	"github.com/dell/goscaleio"
 	goscaleio_types "github.com/dell/goscaleio/types/v1"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-// NewSDCExpansionResource  resource for the SDC Expansion
-func NewSDCExpansionResource() resource.Resource {
-	return &sdcExpansionResource{}
+// NewSDCManagerResource  resource for the SDC Management
+func NewSDCManagerResource() resource.Resource {
+	return &sdcManagerResource{}
 }
 
-type sdcExpansionResource struct {
+type sdcManagerResource struct {
+	client        *goscaleio.Client
 	gatewayClient *goscaleio.GatewayClient
 }
 
-func (r *sdcExpansionResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_sdc_expansion"
+func (r *sdcManagerResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_sdc_manager"
 }
 
-func (r *sdcExpansionResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = SDCExpansionResourceSchema
+func (r *sdcManagerResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = SDCManagerResourceSchema
 }
 
-func (r *sdcExpansionResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *sdcManagerResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
 
-	r.gatewayClient = req.ProviderData.(*goscaleio.GatewayClient)
+	r.client = req.ProviderData.(*goscaleio.Client)
+
+	// Create a new powerflex gateway client using the configuration values
+	gatewayClient, err := goscaleio.NewGateway(r.client.GetConfigConnect().Endpoint, r.client.GetConfigConnect().Username, r.client.GetConfigConnect().Password, r.client.GetConfigConnect().Insecure, true)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Create gateway API Client",
+			"An unexpected error occurred when creating the gateway API client. "+
+				"If the error is not clear, please contact the provider developers.\n\n"+
+				"gateway Client Error: "+err.Error(),
+		)
+		return
+	}
+
+	r.gatewayClient = gatewayClient
 }
 
-func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *sdcManagerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 
-	var plan CsvAndMdmDataModel
+	var plan SDCDataModel
 
 	diags := req.Plan.Get(ctx, &plan)
 
@@ -123,7 +140,26 @@ func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRe
 			}
 		}
 
-		data, dgs := updateState(validateMDMResponse, plan)
+		system, err := getFirstSystem(r.client)
+
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Read Powerflex systems sdcs Create",
+				err.Error(),
+			)
+			return
+		}
+
+		sdcs, err := system.GetSdc()
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Read Powerflex sdcs",
+				err.Error(),
+			)
+			return
+		}
+
+		data, dgs := updateState(sdcs, plan)
 		resp.Diagnostics.Append(dgs...)
 
 		diags = resp.State.Set(ctx, data)
@@ -143,21 +179,10 @@ func (r *sdcExpansionResource) Create(ctx context.Context, req resource.CreateRe
 
 }
 
-func updateState(gatewayResponse *goscaleio_types.GatewayResponse, plan CsvAndMdmDataModel) (CsvAndMdmDataModel, diag.Diagnostics) {
-	state := plan
-	var diags diag.Diagnostics
-
-	state.InstalledSDCIps = types.StringValue(gatewayResponse.Data)
-
-	state.ID = types.StringValue("placeholder")
-
-	return state, diags
-}
-
-func (r *sdcExpansionResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *sdcManagerResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 
 	// Retrieve values from state
-	var state CsvAndMdmDataModel
+	var state SDCDataModel
 
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -185,7 +210,27 @@ func (r *sdcExpansionResource) Read(ctx context.Context, req resource.ReadReques
 	}
 
 	if validateMDMResponse.StatusCode == 200 {
-		data, dgs := updateState(validateMDMResponse, state)
+
+		system, err := getFirstSystem(r.client)
+
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Read Powerflex systems sdcs Create",
+				err.Error(),
+			)
+			return
+		}
+
+		sdcs, err := system.GetSdc()
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Read Powerflex sdcs",
+				err.Error(),
+			)
+			return
+		}
+
+		data, dgs := updateState(sdcs, state)
 		resp.Diagnostics.Append(dgs...)
 
 		diags = resp.State.Set(ctx, data)
@@ -201,8 +246,8 @@ func (r *sdcExpansionResource) Read(ctx context.Context, req resource.ReadReques
 	return
 }
 
-func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan CsvAndMdmDataModel
+func (r *sdcManagerResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan SDCDataModel
 
 	diags := req.Plan.Get(ctx, &plan)
 
@@ -279,8 +324,26 @@ func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRe
 				return
 			}
 		}
+		system, err := getFirstSystem(r.client)
 
-		data, dgs := updateState(validateMDMResponse, plan)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Read Powerflex systems sdcs Create",
+				err.Error(),
+			)
+			return
+		}
+
+		sdcs, err := system.GetSdc()
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Read Powerflex sdcs",
+				err.Error(),
+			)
+			return
+		}
+
+		data, dgs := updateState(sdcs, plan)
 		resp.Diagnostics.Append(dgs...)
 
 		diags = resp.State.Set(ctx, data)
@@ -301,8 +364,8 @@ func (r *sdcExpansionResource) Update(ctx context.Context, req resource.UpdateRe
 }
 
 // Working as PowerFlex Gateway Server Cleanup
-func (r *sdcExpansionResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state CsvAndMdmDataModel
+func (r *sdcManagerResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state SDCDataModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -321,8 +384,88 @@ func (r *sdcExpansionResource) Delete(ctx context.Context, req resource.DeleteRe
 	resp.State.RemoveResource(ctx)
 }
 
+// getSDCDetailType returns the Package type required for mapping
+func getSDCDetailType() map[string]attr.Type {
+	return map[string]attr.Type{
+		"id":                   types.StringType,
+		"last_updated":         types.StringType,
+		"system_id":            types.StringType,
+		"name":                 types.StringType,
+		"sdc_ip":               types.StringType,
+		"sdc_guid":             types.StringType,
+		"mdm_connection_state": types.StringType,
+		"links":                types.ListType{},
+		"sdc_approved":         types.BoolType,
+		"on_vmware":            types.BoolType,
+	}
+}
+
+// getPackageValue returns the Package object required for mapping
+func getSDCDetailsValue(packageDetails *goscaleio_types.PackageDetails) (basetypes.ObjectValue, diag.Diagnostics) {
+	return types.ObjectValue(getSDCDetailType(), map[string]attr.Value{
+		"file_name":        types.StringValue(packageDetails.Filename),
+		"operating_system": types.StringValue(packageDetails.OperatingSystem),
+		"linux_flavour":    types.StringValue(packageDetails.LinuxFlavour),
+		"version":          types.StringValue(packageDetails.Version),
+		"label":            types.StringValue(packageDetails.Label),
+		"type":             types.StringValue(packageDetails.Type),
+		"sio_patch_number": types.Int64Value(int64(packageDetails.SioPatchNumber)),
+		"size":             types.Int64Value(int64(packageDetails.Size)),
+		"latest":           types.BoolValue(bool(packageDetails.Latest)),
+	})
+}
+
+func updateState(sdcs []goscaleio_types.Sdc, plan SDCDataModel) (SDCDataModel, diag.Diagnostics) {
+	state := plan
+	var diags diag.Diagnostics
+
+	//packages := []attr.Value{}
+
+	// for _, sdc := range sdcs {
+	// 	// var basenameOpts []sdcModel = []sdcModel{}
+	// 	pln := sdcResourceModel{
+	// 		ID:                 types.StringValue(sdc.ID),
+	// 		Name:               types.StringValue(sdc.Name),
+	// 		SdcGUID:            types.StringValue(sdc.SdcGUID),
+	// 		SdcApproved:        types.BoolValue(sdc.SdcApproved),
+	// 		OnVMWare:           types.BoolValue(sdc.OnVMWare),
+	// 		SystemID:           types.StringValue(sdc.SystemID),
+	// 		SdcIP:              types.StringValue(sdc.SdcIP),
+	// 		MdmConnectionState: types.StringValue(sdc.MdmConnectionState),
+	// 	}
+	// 	pln.ID = types.StringValue(sdc.ID)
+	// 	sourceKeywordAttrTypes := map[string]attr.Type{
+	// 		"rel":  types.StringType,
+	// 		"href": types.StringType,
+	// 	}
+	// 	elemType := types.ObjectType{AttrTypes: sourceKeywordAttrTypes}
+	// 	objLinksList := []attr.Value{}
+
+	// 	for _, link := range sdc.Links {
+	// 		obj := map[string]attr.Value{
+	// 			"rel":  types.StringValue(link.Rel),
+	// 			"href": types.StringValue(link.HREF),
+	// 		}
+	// 		objVal, _ := types.ObjectValue(sourceKeywordAttrTypes, obj)
+	// 		objLinksList = append(objLinksList, objVal)
+	// 	}
+
+	// 	listVal, _ := types.ListValue(elemType, objLinksList)
+
+	// 	pln.Links = listVal
+
+	// 	packages = append(packages, pln)
+	// }
+
+	// state.InstalledSDCs = sdcs
+
+	state.ID = types.StringValue("placeholder")
+
+	return state, diags
+}
+
 // GetMDMIP function is used for fetch MDM IP from cluster details
-func GetMDMIP(ctx context.Context, model CsvAndMdmDataModel) (string, error) {
+func GetMDMIP(ctx context.Context, model SDCDataModel) (string, error) {
 	var mdmIP string
 	csvItems := []CSVDataModel{}
 	diags := model.ClusterDetails.ElementsAs(ctx, &csvItems, true)
@@ -364,7 +507,7 @@ func ResetInstallerQueue(gatewayClient *goscaleio.GatewayClient) error {
 }
 
 // ParseCSVOperation function for Handling Parsing CSV Operation
-func ParseCSVOperation(ctx context.Context, model *CsvAndMdmDataModel, gatewayClient *goscaleio.GatewayClient) (*goscaleio_types.GatewayResponse, error) {
+func ParseCSVOperation(ctx context.Context, model *SDCDataModel, gatewayClient *goscaleio.GatewayClient) (*goscaleio_types.GatewayResponse, error) {
 
 	var parseCSVResponse goscaleio_types.GatewayResponse
 
@@ -447,7 +590,7 @@ func ParseCSVOperation(ctx context.Context, model *CsvAndMdmDataModel, gatewayCl
 }
 
 // ValidateMDMOperation function for Vaidate the MDM credentials
-func ValidateMDMOperation(ctx context.Context, model CsvAndMdmDataModel, gatewayClient *goscaleio.GatewayClient, mdmIP string) (*goscaleio_types.GatewayResponse, error) {
+func ValidateMDMOperation(ctx context.Context, model SDCDataModel, gatewayClient *goscaleio.GatewayClient, mdmIP string) (*goscaleio_types.GatewayResponse, error) {
 	mapData := map[string]interface{}{
 		"mdmUser":     "admin",
 		"mdmPassword": model.MdmPassword.ValueString(),
@@ -471,7 +614,7 @@ func ValidateMDMOperation(ctx context.Context, model CsvAndMdmDataModel, gateway
 }
 
 // InstallationOperations function for begin instllation process
-func InstallationOperations(ctx context.Context, model CsvAndMdmDataModel, gatewayClient *goscaleio.GatewayClient, parsecsvRespose *goscaleio_types.GatewayResponse) error {
+func InstallationOperations(ctx context.Context, model SDCDataModel, gatewayClient *goscaleio.GatewayClient, parsecsvRespose *goscaleio_types.GatewayResponse) error {
 	beginInstallationResponse, installationError := gatewayClient.BeginInstallation(parsecsvRespose.Data, "admin", model.MdmPassword.ValueString(), model.LiaPassword.ValueString(), true)
 
 	if installationError != nil {
