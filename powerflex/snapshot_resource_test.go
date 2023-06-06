@@ -46,6 +46,7 @@ resource "powerflex_snapshot" "snapshots-create" {
 	volume_id = resource.powerflex_volume.ref-vol.id
 	size = 24
 	capacity_unit="GB"
+	access_mode = "ReadWrite"
 }
 `
 
@@ -148,6 +149,7 @@ func TestAccSnapshotResource(t *testing.T) {
 				Config: ProviderConfigForTesting + updateSnapshotResizePosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create", "size", "24"),
+					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create", "access_mode", "ReadWrite"),
 				),
 			},
 			// check that import is working

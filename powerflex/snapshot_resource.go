@@ -295,7 +295,7 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 
 	// changing the access mode in case of change in access mode state
-	if (plan.AccessMode.ValueString() == READONLY) && (state.AccessMode.ValueString() == READWRITE) {
+	if !plan.AccessMode.IsUnknown() && plan.AccessMode.ValueString() != state.AccessMode.ValueString() {
 		err := snapResource.SetVolumeAccessModeLimit(plan.AccessMode.ValueString())
 		if err != nil {
 			errMsg["access"] = err.Error()
@@ -308,10 +308,15 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 
 	// updating the retention in min if there is change in plan and state.
-	if (len(errMsg) == 0) && plan.DesiredRetention.ValueInt64() != state.DesiredRetention.ValueInt64() {
+	if plan.RetentionInMin.ValueString() != state.RetentionInMin.ValueString() {
 		err := snapResource.SetSnapshotSecurity(plan.RetentionInMin.ValueString())
+
 		if err != nil {
 			errMsg["desired_retention/retention_unit"] = err.Error()
+		} else {
+			state.DesiredRetention = plan.DesiredRetention
+			state.RetentionUnit = plan.RetentionUnit
+			state.RetentionInMin = plan.RetentionInMin
 		}
 	}
 
@@ -327,10 +332,10 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	snap = snapResponse[0]
 	snapResource.Volume = snap
 	// refreshing the state
-	dgs := refreshState(snap, &plan)
+	dgs := refreshState(snap, &state)
 	resp.Diagnostics.Append(dgs...)
 	// setting the state
-	diags = resp.State.Set(ctx, plan)
+	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 
 	// Adding error if the len of errMsg is greater than zero.
