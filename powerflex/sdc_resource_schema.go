@@ -3,7 +3,11 @@ package powerflex
 import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 var sdcResourceSchemaDescriptions = struct {
@@ -36,62 +40,216 @@ var sdcResourceSchemaDescriptions = struct {
 	LinksHref:          "The Links-HREF of the fetched SDC.",
 }
 
+// sdcResourceModel struct for CSV Data Processing
+type sdcResourceModel struct {
+	ID          types.String         `tfsdk:"id"`
+	Name        types.String         `tfsdk:"name"`
+	SDCDetails  []SDCDetailDataModel `tfsdk:"sdc_details"`
+	MdmPassword types.String         `tfsdk:"mdm_password"`
+	LiaPassword types.String         `tfsdk:"lia_password"`
+}
+
+// SDCDetailDataModel defines the struct for CSV Parse Data
+type SDCDetailDataModel struct {
+	SDCID              types.String `tfsdk:"sdc_id"`
+	IP                 types.String `tfsdk:"ip"`
+	UserName           types.String `tfsdk:"username"`
+	Password           types.String `tfsdk:"password"`
+	OperatingSystem    types.String `tfsdk:"operating_system"`
+	IsMdmOrTb          types.String `tfsdk:"is_mdm_or_tb"`
+	IsSdc              types.String `tfsdk:"is_sdc"`
+	PerformanceProfile types.String `tfsdk:"performance_profile"`
+	SDCName            types.String `tfsdk:"name"`
+	SystemID           types.String `tfsdk:"system_id"`
+	SdcApproved        types.Bool   `tfsdk:"sdc_approved"`
+	OnVMWare           types.Bool   `tfsdk:"on_vmware"`
+	SdcGUID            types.String `tfsdk:"sdc_guid"`
+	MdmConnectionState types.String `tfsdk:"mdm_connection_state"`
+	LastUpdated        types.String `tfsdk:"last_updated"`
+}
+
+// CsvRow desfines the srtuct for the CSV Data
+type CsvRow struct {
+	IP                 string
+	UserName           string
+	Password           string
+	OperatingSystem    string
+	IsMdmOrTb          string
+	IsSdc              string
+	PerformanceProfile string
+	SDCName            string
+}
+
 // SDCReourceSchema - varible holds schema for SDC resource
 var SDCReourceSchema schema.Schema = schema.Schema{
-	Description: sdcResourceSchemaDescriptions.SdcResourceSchema,
+	Description:         "This resource can be used to Manage the SDC in PowerFlex Cluster.",
+	MarkdownDescription: "This resource can be used to Manage the SDC in PowerFlex Cluster.",
 	Attributes: map[string]schema.Attribute{
-		"id": schema.StringAttribute{
-			Required:    true,
-			Description: sdcResourceSchemaDescriptions.ID,
-		},
-		"last_updated": schema.StringAttribute{
-			Computed:    true,
-			Description: sdcResourceSchemaDescriptions.LastUpdated,
-		},
+		"sdc_details": sdcDetailSchema,
 		"name": schema.StringAttribute{
-			Description: sdcResourceSchemaDescriptions.Name,
-			Required:    true,
+			Description:         sdcResourceSchemaDescriptions.Name,
+			MarkdownDescription: sdcResourceSchemaDescriptions.Name,
+			Optional:            true,
+		},
+		"mdm_password": schema.StringAttribute{
+			Description:         "MDM Password to connect MDM Server.",
+			MarkdownDescription: "MDM Password to connect MDM Server.",
+			Optional:            true,
+			Sensitive:           true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 			},
 		},
-		"sdc_guid": schema.StringAttribute{
-			Description: sdcResourceSchemaDescriptions.SdcGUID,
-			Computed:    true,
+		"lia_password": schema.StringAttribute{
+			Description:         "LIA Password to connect MDM Server.",
+			MarkdownDescription: "LIA Password to connect MDM Server.",
+			Optional:            true,
+			Sensitive:           true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
-		"on_vmware": schema.BoolAttribute{
-			Description: sdcResourceSchemaDescriptions.OnVMWare,
-			Computed:    true,
+		"id": schema.StringAttribute{
+			Optional:            true,
+			Computed:            true,
+			Description:         sdcResourceSchemaDescriptions.ID,
+			MarkdownDescription: sdcResourceSchemaDescriptions.ID,
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.UseStateForUnknown(),
+			},
 		},
-		"sdc_approved": schema.BoolAttribute{
-			Description: sdcResourceSchemaDescriptions.SdcApproved,
-			Computed:    true,
-		},
-		"system_id": schema.StringAttribute{
-			Description: sdcResourceSchemaDescriptions.SystemID,
-			Computed:    true,
-		},
-		"sdc_ip": schema.StringAttribute{
-			Description: sdcResourceSchemaDescriptions.SdcIP,
-			Computed:    true,
-		},
-		"mdm_connection_state": schema.StringAttribute{
-			Description: sdcResourceSchemaDescriptions.MdmConnectionState,
-			Computed:    true,
-		},
-		"links": schema.ListNestedAttribute{
-			Description: sdcResourceSchemaDescriptions.Links,
-			Computed:    true,
-			NestedObject: schema.NestedAttributeObject{
-				Attributes: map[string]schema.Attribute{
-					"rel": schema.StringAttribute{
-						Description: sdcResourceSchemaDescriptions.LinksRel,
-						Computed:    true,
-					},
-					"href": schema.StringAttribute{
-						Description: sdcResourceSchemaDescriptions.LinksHref,
-						Computed:    true,
-					},
+	},
+}
+
+// sdcDetailSchema - variable holds schema for CSV Param Details
+var sdcDetailSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
+	Description:         "List of SDC Expansion Server Details.",
+	Optional:            true,
+	MarkdownDescription: "List of SDC Expansion Server Details.",
+	NestedObject: schema.NestedAttributeObject{
+		Attributes: map[string]schema.Attribute{
+			"ip": schema.StringAttribute{
+				Description:         "IP of the node",
+				Optional:            true,
+				MarkdownDescription: "IP of the node",
+			},
+			"username": schema.StringAttribute{
+				Description:         "Username of the node",
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "Username of the node",
+				PlanModifiers: []planmodifier.String{
+					stringDefault("root"),
+				},
+			},
+			"password": schema.StringAttribute{
+				Description:         "Password of the node",
+				Optional:            true,
+				Sensitive:           true,
+				MarkdownDescription: "Password of the node",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
+			},
+			"operating_system": schema.StringAttribute{
+				Description:         "Operating System on the node",
+				Optional:            true,
+				MarkdownDescription: "Operating System on the node",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"is_mdm_or_tb": schema.StringAttribute{
+				Description:         "Whether this works as MDM or Tie Breaker,The acceptable value is `Primary`, `Secondary`, `TB`, `Standby` or blank. Default value is blank",
+				Optional:            true,
+				MarkdownDescription: "Whether this works as MDM or Tie Breaker,The acceptable value is `Primary`, `Secondary`, `TB`, `Standby` or blank. Default value is blank",
+			},
+			"is_sdc": schema.StringAttribute{
+				Description:         "whether this node is SDC or not,The acceptable value is `Yes` or `No`",
+				Optional:            true,
+				MarkdownDescription: "whether this node is SDC or not,The acceptable value is `Yes` or `No`.",
+				Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
+					"Yes",
+					"No",
+				)},
+			},
+			"performance_profile": schema.StringAttribute{
+				Description:         "Performance Profile of SDC, The acceptable value is `High` or `Compact`.",
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "Performance Profile of SDC, The acceptable value is `High` or `Compact`.",
+				Validators: []validator.String{stringvalidator.OneOf(
+					"HighPerformance",
+					"Compact",
+				)},
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"sdc_id": schema.StringAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         sdcResourceSchemaDescriptions.ID,
+				MarkdownDescription: sdcResourceSchemaDescriptions.ID,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"last_updated": schema.StringAttribute{
+				Computed:            true,
+				Description:         sdcResourceSchemaDescriptions.LastUpdated,
+				MarkdownDescription: sdcResourceSchemaDescriptions.LastUpdated,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"name": schema.StringAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         sdcResourceSchemaDescriptions.Name,
+				MarkdownDescription: sdcResourceSchemaDescriptions.Name,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"sdc_guid": schema.StringAttribute{
+				Description:         sdcResourceSchemaDescriptions.SdcGUID,
+				MarkdownDescription: sdcResourceSchemaDescriptions.SdcGUID,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"on_vmware": schema.BoolAttribute{
+				Description:         sdcResourceSchemaDescriptions.OnVMWare,
+				MarkdownDescription: sdcResourceSchemaDescriptions.OnVMWare,
+				Computed:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"sdc_approved": schema.BoolAttribute{
+				Description:         sdcResourceSchemaDescriptions.SdcApproved,
+				MarkdownDescription: sdcResourceSchemaDescriptions.SdcApproved,
+				Computed:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"system_id": schema.StringAttribute{
+				Description:         sdcResourceSchemaDescriptions.SystemID,
+				MarkdownDescription: sdcResourceSchemaDescriptions.SystemID,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"mdm_connection_state": schema.StringAttribute{
+				Description:         sdcResourceSchemaDescriptions.MdmConnectionState,
+				MarkdownDescription: sdcResourceSchemaDescriptions.MdmConnectionState,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 		},

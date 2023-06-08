@@ -40,6 +40,12 @@ github.com/dell/goscaleio v1.10.1-0.20230531055457-92e254d5c20f h1:9CSn85Z9peb4X
 github.com/dell/goscaleio v1.10.1-0.20230531055457-92e254d5c20f/go.mod h1:dMTrHnXSsPus+Kd9mrs0JuyrCndoKvFP/bbEdc21Bi8=
 github.com/dell/goscaleio v1.10.1-0.20230605104902-33f5ba3ab096 h1:j1c+l+KP79r7m5bySktQRVhxIx/6Noyb9P2UXqhHZzU=
 github.com/dell/goscaleio v1.10.1-0.20230605104902-33f5ba3ab096/go.mod h1:dMTrHnXSsPus+Kd9mrs0JuyrCndoKvFP/bbEdc21Bi8=
+github.com/dell/goscaleio v1.10.1-0.20230606062224-dcda9f2373fd h1:/VvIBr31cKjl1wj6SbWv3m2RmC8/b9c9vO1yu+kwqW8=
+github.com/dell/goscaleio v1.10.1-0.20230606062224-dcda9f2373fd/go.mod h1:dMTrHnXSsPus+Kd9mrs0JuyrCndoKvFP/bbEdc21Bi8=
+github.com/dell/goscaleio v1.10.1-0.20230606111741-d239c499cf73 h1:z29tNchnurDbN3gZaCur+WRbxKhTRQk+szMblIRPaeM=
+github.com/dell/goscaleio v1.10.1-0.20230606111741-d239c499cf73/go.mod h1:dMTrHnXSsPus+Kd9mrs0JuyrCndoKvFP/bbEdc21Bi8=
+github.com/dell/goscaleio v1.10.1-0.20230606125803-c377668451e3 h1:oIb1PkwhKF1NrRvCtx3VjXkxWN2/DIuIER63cHU6KC0=
+github.com/dell/goscaleio v1.10.1-0.20230606125803-c377668451e3/go.mod h1:dMTrHnXSsPus+Kd9mrs0JuyrCndoKvFP/bbEdc21Bi8=
 github.com/emirpasic/gods v1.12.0 h1:QAUIPSaCu4G+POclxeqb3F+WPpdKqFGlw36+yOzGlrg=
 github.com/emirpasic/gods v1.12.0/go.mod h1:YfzfFFoVP/catgzJb4IKIqXjX78Ha8FMSDh3ymbK86o=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=

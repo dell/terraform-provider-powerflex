@@ -11,7 +11,6 @@ import (
 )
 
 var ProviderConfigForTesting = ``
-var ProviderConfigForGatewayTesting = ``
 
 type sdsDataPoints struct {
 	SdsIP1   string
@@ -104,10 +103,6 @@ func init() {
 	password := os.Getenv("POWERFLEX_PASSWORD")
 	endpoint := os.Getenv("POWERFLEX_ENDPOINT")
 
-	gatewayusername := os.Getenv("GATEWAY_USERNAME")
-	gatewaypassword := os.Getenv("GATEWAY_PASSWORD")
-	gatewayendpoint := os.Getenv("GATEWAY_ENDPOINT")
-
 	ProviderConfigForTesting = fmt.Sprintf(`
 		provider "powerflex" {
 			username = "%s"
@@ -115,15 +110,6 @@ func init() {
 			endpoint = "%s"
 		}
 	`, username, password, endpoint)
-
-	ProviderConfigForGatewayTesting = fmt.Sprintf(`
-		provider "powerflex" {
-			username = "%s"
-			password = "%s"
-			endpoint = "%s"
-			gatewayinstaller = true
-		}
-	`, gatewayusername, gatewaypassword, gatewayendpoint)
 }
 
 var (
