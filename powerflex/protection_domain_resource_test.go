@@ -328,6 +328,12 @@ func TestAccPDResource2(t *testing.T) {
 	}
 	`
 
+	validatePDEmptyNameNeg := `
+	resource "powerflex_protection_domain" "pd" {
+		name = ""
+	}
+	`
+
 	// a failure on update after create
 	createPDTestNeg2 := `
 	resource "powerflex_protection_domain" "pd" {
@@ -356,6 +362,11 @@ func TestAccPDResource2(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			{
+				Config:      ProviderConfigForTesting + validatePDEmptyNameNeg,
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile(".*Attribute name string length must be at least 1.*"),
+			},
 			{
 				Config:      ProviderConfigForTesting + createPDTestNeg,
 				ExpectError: regexp.MustCompile(".*name exceeds the allowed length of 31 character.*"),
