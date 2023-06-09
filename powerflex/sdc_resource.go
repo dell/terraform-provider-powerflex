@@ -1040,22 +1040,14 @@ func getSDCState(sdc goscaleio_types.Sdc, model SDCDetailDataModel) (response SD
 	if sdc.ID != "" {
 		model.SDCID = types.StringValue(sdc.ID)
 	}
-	// else {
-	// 	model.SDCID = types.StringValue("")
-	// }
 
 	if sdc.Name != "" {
 		model.SDCName = types.StringValue(sdc.Name)
-	} else {
-		model.SDCName = types.StringValue("")
 	}
 
 	if sdc.SdcGUID != "" {
 		model.SdcGUID = types.StringValue(sdc.SdcGUID)
 	}
-	// else {
-	// 	model.SdcGUID = types.StringValue("")
-	// }
 
 	model.SdcApproved = types.BoolValue(sdc.SdcApproved)
 
@@ -1064,16 +1056,10 @@ func getSDCState(sdc goscaleio_types.Sdc, model SDCDetailDataModel) (response SD
 	if sdc.SystemID != "" {
 		model.SystemID = types.StringValue(sdc.SystemID)
 	}
-	// else {
-	// 	model.SystemID = types.StringValue("")
-	// }
 
 	if sdc.PerfProfile != "" {
 		model.PerformanceProfile = types.StringValue(sdc.PerfProfile)
 	}
-	// else {
-	// 	model.PerformanceProfile = types.StringValue("")
-	// }
 
 	if sdc.SdcIP != "" {
 		model.IP = types.StringValue(sdc.SdcIP)
@@ -1082,14 +1068,6 @@ func getSDCState(sdc goscaleio_types.Sdc, model SDCDetailDataModel) (response SD
 	if sdc.MdmConnectionState != "" {
 		model.MdmConnectionState = types.StringValue(sdc.MdmConnectionState)
 	}
-	// else {
-	// 	model.MdmConnectionState = types.StringValue("")
-	// }
-
-	// if model.LastUpdated.ValueString() == "" {
-	// 	model.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-	// }
-	model.LastUpdated = types.StringValue("")
 
 	return model
 }
