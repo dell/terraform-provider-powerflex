@@ -153,9 +153,14 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 				Description:         "IP of the node",
 				Optional:            true,
 				Computed:            true,
+				Sensitive:           true,
 				MarkdownDescription: "IP of the node",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+					stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("sdc_id")),
 				},
 			},
 			"username": schema.StringAttribute{
@@ -215,10 +220,10 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 				},
 			},
 			"performance_profile": schema.StringAttribute{
-				Description:         "Performance Profile of SDC, The acceptable value is `High` or `Compact`. Default is Compact",
+				Description:         "Performance Profile of SDC, The acceptable value is `HighPerformance` or `Compact`. Default is Compact",
 				Optional:            true,
 				Computed:            true,
-				MarkdownDescription: "Performance Profile of SDC, The acceptable value is `High` or `Compact`. Default is Compact",
+				MarkdownDescription: "Performance Profile of SDC, The acceptable value is `HighPerformance` or `Compact`. Default is Compact",
 				Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
 					"HighPerformance",
 					"Compact",
@@ -235,6 +240,10 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 				MarkdownDescription: sdcResourceSchemaDescriptions.ID,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+					stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("ip")),
 				},
 			},
 			"last_updated": schema.StringAttribute{

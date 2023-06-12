@@ -123,7 +123,7 @@ func (r *packageResource) Configure(_ context.Context, req resource.ConfigureReq
 
 	r.client = req.ProviderData.(*goscaleio.Client)
 
-	// Create a new powerflex gateway client using the configuration values
+	// Create a new PowerFlex gateway client using the configuration values
 	gatewayClient, err := goscaleio.NewGateway(r.client.GetConfigConnect().Endpoint, r.client.GetConfigConnect().Username, r.client.GetConfigConnect().Password, r.client.GetConfigConnect().Insecure, true)
 	if err != nil {
 		resp.Diagnostics.AddError(

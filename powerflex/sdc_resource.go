@@ -57,7 +57,7 @@ func (r *sdcResource) Configure(_ context.Context, req resource.ConfigureRequest
 
 	r.client = req.ProviderData.(*goscaleio.Client)
 
-	// Create a new powerflex gateway client using the configuration values
+	// Create a new PowerFlex gateway client using the configuration values
 	gatewayClient, err := goscaleio.NewGateway(r.client.GetConfigConnect().Endpoint, r.client.GetConfigConnect().Username, r.client.GetConfigConnect().Password, r.client.GetConfigConnect().Insecure, true)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -93,7 +93,7 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex systems sdcs Create",
+			"Error in getting system instance on the PowerFlex cluster",
 			err.Error(),
 		)
 		return
@@ -176,7 +176,7 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	system, err := getFirstSystem(r.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex systems Read",
+			"Error in getting system instance on the PowerFlex cluster",
 			err.Error(),
 		)
 		return
@@ -184,7 +184,7 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 
 	var chnagedSDCs []SDCDetailDataModel
 
-	if state.ID.ValueString() != "" && state.Name.ValueString() == "" {
+	if state.ID.ValueString() != "" && state.ID.ValueString() != "placeholder" && (state.Name.ValueString() == "" || state.Name.IsNull()) {
 
 		for _, id := range strings.Split(state.ID.ValueString(), ",") {
 			sdcData, err := system.GetSdcByID(id)
@@ -203,7 +203,7 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 				chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 			}
 		}
-	} else if state.Name.ValueString() != "" && state.ID.ValueString() != "" {
+	} else if state.Name.ValueString() != "" && !state.Name.IsNull() && state.ID.ValueString() != "" && state.ID.ValueString() != "placeholder" {
 		singleSdc, err := system.FindSdc("ID", state.ID.ValueString())
 
 		if err != nil {
@@ -300,7 +300,7 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex systems sdcs Create",
+			"Error in getting system instance on the PowerFlex cluster",
 			err.Error(),
 		)
 		return
@@ -328,16 +328,6 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	}
 
 	if plan.Name.ValueString() != "" && plan.ID.ValueString() != "" {
-
-		if state.Name.ValueString() == plan.Name.ValueString() {
-			if err != nil {
-				resp.Diagnostics.AddError(
-					"[Update] Same name alredy exists.",
-					err.Error(),
-				)
-				return
-			}
-		}
 
 		nameChng, err := system.ChangeSdcName(plan.ID.ValueString(), plan.Name.ValueString())
 
@@ -417,7 +407,7 @@ func (r *sdcResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex systems sdcs Create",
+			"Error in getting system instance on the PowerFlex cluster",
 			err.Error(),
 		)
 		return
@@ -471,7 +461,7 @@ func findDeletedSDC(state, plan []SDCDetailDataModel) []SDCDetailDataModel {
 	return difference
 }
 
-// getSDCDetailType returns the volume type required for mapping
+// getSDCDetailType returns the SDC Detail type
 func getSDCDetailType() map[string]attr.Type {
 	return map[string]attr.Type{
 		"sdc_id":               types.StringType,
@@ -492,7 +482,7 @@ func getSDCDetailType() map[string]attr.Type {
 	}
 }
 
-// getSDCDetailValue returns the volume object required for mapping
+// getSDCDetailValue returns the SDC Detail model object value
 func getSDCDetailValue(sdc SDCDetailDataModel) (basetypes.ObjectValue, diag.Diagnostics) {
 	return types.ObjectValue(getSDCDetailType(), map[string]attr.Value{
 		"sdc_id":               types.StringValue(sdc.SDCID.ValueString()),
@@ -920,7 +910,7 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []SDCDetailDataModel, gat
 	return parsecsvRespose, nil
 }
 
-// ValidateMDMOperation function for Vaidate the MDM credentials
+// ValidateMDMOperation function for Validate the MDM credentials
 func ValidateMDMOperation(ctx context.Context, model sdcResourceModel, gatewayClient *goscaleio.GatewayClient, mdmIP string) (*goscaleio_types.GatewayResponse, error) {
 	mapData := map[string]interface{}{
 		"mdmUser":     "admin",

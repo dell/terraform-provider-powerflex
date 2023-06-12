@@ -34,14 +34,14 @@ func TestAccSDCResource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + packageTest + SDCConfig2,
 				Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc.test", "sdc_details.*", map[string]string{
-					"ip": "10.247.66.194",
+					"ip": GatewayDataPoints.tbIP,
 				}),
 			},
 			//Update
 			{
 				Config: ProviderConfigForTesting + packageTest + SDCConfigUpdate,
 				Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc.test", "sdc_details.*", map[string]string{
-					"ip": "10.247.103.163",
+					"ip": GatewayDataPoints.sdcServerIP,
 				}),
 			},
 			//Reaname
@@ -75,6 +75,12 @@ func TestAccSDCManagerResourceNegative(t *testing.T) {
 				}),
 			},
 			{
+				Config: ProviderConfigForTesting + SDCConfigUpdateName,
+				Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc.name", "sdc_details.*", map[string]string{
+					"name": time.Now().Weekday().String() + "2",
+				}),
+			},
+			{
 				Config:      ProviderConfigForTesting + WithoutIP,
 				ExpectError: regexp.MustCompile(`.*Error while Parsing CSV.*`),
 			},
@@ -94,10 +100,6 @@ func TestAccSDCManagerResourceNegative(t *testing.T) {
 				Config:      ProviderConfigForTesting + WrongMDMCred,
 				ExpectError: regexp.MustCompile(`.*Error While Validating MDM Credentials.*`),
 			},
-			// {
-			// 	Config:      ProviderConfigForTesting + WithoutSDCYes,
-			// 	ExpectError: regexp.MustCompile(`.*No SDC Expansion Details are provided.*`),
-			// },
 		}})
 }
 
@@ -120,6 +122,12 @@ var SDCConfigChangeName = `
 resource "powerflex_sdc" "name" {
 	id   = "e3ce46c500000002"
   	name = "` + time.Now().Weekday().String() + `1"
+}
+`
+var SDCConfigUpdateName = `
+resource "powerflex_sdc" "name" {
+	id   = "e3ce46c500000002"
+  	name = "` + time.Now().Weekday().String() + `2"
 }
 `
 
@@ -497,36 +505,6 @@ resource "powerflex_sdc" "test" {
 			is_mdm_or_tb = ""
 			is_sdc = "Yes"
 			},
-	]
-}
-`
-
-var WithoutSDCYes = `
-resource "powerflex_sdc" "test" {
-	mdm_password =  "ABCD"
-	lia_password= "ABCD"
-	sdc_details = [
-		{
-			ip = "` + GatewayDataPoints.primaryMDMIP + `"
-			password = "` + GatewayDataPoints.serverPassword + `"
-			operating_system = "linux"
-			is_mdm_or_tb = "Primary"
-			is_sdc = "No"
-		},
-		{
-			ip = "` + GatewayDataPoints.secondaryMDMIP + `"
-			password = "` + GatewayDataPoints.serverPassword + `"
-			operating_system = "linux"
-			is_mdm_or_tb = "Secondary"
-			is_sdc = "No"
-		},
-		{
-			ip = "` + GatewayDataPoints.tbIP + `"
-			password = "` + GatewayDataPoints.serverPassword + `"
-			operating_system = "linux"
-			is_mdm_or_tb = "TB"
-			is_sdc = "NO"
-		},
 	]
 }
 `

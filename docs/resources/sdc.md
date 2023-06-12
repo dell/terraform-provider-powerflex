@@ -102,13 +102,13 @@ resource "powerflex_sdc" "test" {
 
 Optional:
 
-- `ip` (String) IP of the node
+- `ip` (String, Sensitive) IP of the node
 - `is_mdm_or_tb` (String) Whether this works as MDM or Tie Breaker,The acceptable value is `Primary`, `Secondary`, `TB`, `Standby` or blank. Default value is blank
 - `is_sdc` (String) whether this node is SDC or not,The acceptable value is `Yes` or `No`.
 - `name` (String) Name of the SDC to manage.
 - `operating_system` (String) Operating System on the node
 - `password` (String, Sensitive) Password of the node
-- `performance_profile` (String) Performance Profile of SDC, The acceptable value is `High` or `Compact`. Default is Compact
+- `performance_profile` (String) Performance Profile of SDC, The acceptable value is `HighPerformance` or `Compact`. Default is Compact
 - `sdc_id` (String) ID of the SDC to manage. This can be retrieved from the PowerFlex website. Cannot be updated.
 - `username` (String) Username of the node
 
