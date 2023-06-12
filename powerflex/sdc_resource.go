@@ -184,7 +184,7 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 
 	var chnagedSDCs []SDCDetailDataModel
 
-	if state.ID.ValueString() != "" && len(strings.Split(state.ID.ValueString(), ",")) > 1 {
+	if state.ID.ValueString() != "" && state.Name.ValueString() == "" {
 
 		for _, id := range strings.Split(state.ID.ValueString(), ",") {
 			sdcData, err := system.GetSdcByID(id)
@@ -194,6 +194,7 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 					"[Import] Unable to Find SDC by ID:"+id,
 					err.Error(),
 				)
+				return
 			}
 
 			if sdcData != nil {
@@ -697,7 +698,7 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 
 		if sdc.SDCName.ValueString() != "" || sdc.PerformanceProfile.ValueString() != "" {
 			if sdc.SDCID.ValueString() == "" && sdc.IP.ValueString() != "" {
-				sdcID, err := system.GetSdcId(sdc.IP.ValueString())
+				sdcID, err := system.GetSdcIDByIP(sdc.IP.ValueString())
 
 				if err != nil {
 					dia.AddError(
