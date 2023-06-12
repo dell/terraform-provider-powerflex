@@ -141,11 +141,6 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 	Description: "List of SDC Expansion Server Details.",
 	Optional:    true,
 	Computed:    true,
-	// Validators: []validator.Set{
-	// 	setvalidator.SizeAtLeast(1),
-	// 	setvalidator.AlsoRequires(path.MatchRoot("lia_password")),
-	// 	setvalidator.AlsoRequires(path.MatchRoot("mdm_password")),
-	// },
 	Validators: []validator.List{
 		listvalidator.SizeAtLeast(1),
 		listvalidator.AlsoRequires(path.MatchRoot("lia_password")),

@@ -5,8 +5,6 @@ import (
 	"regexp"
 	"testing"
 
-	"reflect"
-
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -101,7 +99,7 @@ func TestNonNullPDConnInfo(t *testing.T) {
 
 	out := pdConnInfoModelValue(input)
 
-	if !reflect.DeepEqual(out, expectedOut) {
+	if out != expectedOut {
 		t.Fatalf("Error matching output and expected: %#v vs %#v", out, expectedOut)
 	}
 

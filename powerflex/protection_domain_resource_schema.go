@@ -28,6 +28,9 @@ var ProtectionDomainResourceSchema schema.Schema = schema.Schema{
 			Description:         "Unique name of the protection domain instance.",
 			MarkdownDescription: "Unique name of the protection domain instance.",
 			Required:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 		"active": schema.BoolAttribute{
 			Description:         "Whether the PD should be in 'Active' state. Default value is 'true'.",

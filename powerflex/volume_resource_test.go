@@ -63,6 +63,18 @@ func TestAccVolumeResource(t *testing.T) {
 	  }
 	`
 
+	var modifyVolumePosTest = `
+	resource "powerflex_volume" "avengers-volume-create"{
+		name = "avengers-volume-create"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1" #pool1 have medium granularity
+		size = 8
+		use_rm_cache = false
+		volume_type = "ThickProvisioned" 
+		access_mode = "ReadOnly"
+	  }
+	`
+
 	var createVolumePos01Test = `
 	resource "powerflex_volume" "avengers-volume-create-01"{
 		name = "avengers-volume-create-01"
@@ -167,6 +179,14 @@ func TestAccVolumeResource(t *testing.T) {
 				Config: ProviderConfigForTesting + createVolumePosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "name", "avengers-volume-create"),
+				),
+			},
+			{
+				Config: ProviderConfigForTesting + modifyVolumePosTest,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "name", "avengers-volume-create"),
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "use_rm_cache", "false"),
+					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "access_mode", "ReadOnly"),
 				),
 			},
 			{

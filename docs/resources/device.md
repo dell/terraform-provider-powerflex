@@ -26,6 +26,10 @@ description: |-
 
 This resource can be used to manage devices on a PowerFlex array.
 
+!> **Caution:** Device creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
+One can manually remove the taint and try applying the configuration (after making necessary adjustments).
+If the taint is not removed, terraform will destroy and recreate the resource.
+
 ~> **Note:** Exactly one of `storage_pool_name` and `storage_pool_id` is required. Exactly one of `sds_name` and `sds_id` is required. 
 
 ## Example Usage
