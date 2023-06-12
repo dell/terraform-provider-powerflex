@@ -222,7 +222,7 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 			}
 		}
 	} else if state.Name.ValueString() != "" && !state.Name.IsNull() && state.ID.ValueString() != "" && state.ID.ValueString() != "placeholder" {
-		
+
 		//For handling the single SDC reanme operation
 		singleSdc, err := system.FindSdc("ID", state.ID.ValueString())
 
