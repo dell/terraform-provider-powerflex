@@ -110,6 +110,7 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 			Optional:            true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
+				stringvalidator.AlsoRequires(path.MatchRoot("id")),
 				stringvalidator.ConflictsWith(path.MatchRoot("sdc_details")),
 				stringvalidator.ConflictsWith(path.MatchRoot("mdm_password")),
 				stringvalidator.ConflictsWith(path.MatchRoot("lia_password")),
@@ -149,6 +150,7 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 			},
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
+				stringvalidator.AlsoRequires(path.MatchRoot("name")),
 				stringvalidator.ConflictsWith(path.MatchRoot("sdc_details")),
 				stringvalidator.ConflictsWith(path.MatchRoot("mdm_password")),
 				stringvalidator.ConflictsWith(path.MatchRoot("lia_password")),
