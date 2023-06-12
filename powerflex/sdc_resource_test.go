@@ -18,10 +18,10 @@ func TestAccSDCResource(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			//Create
-			// {
-			// 	Config:      ProviderConfigForTesting + SDCConfig1,
-			// 	ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
-			// },
+			{
+				Config:      ProviderConfigForTesting + SDCConfig1,
+				ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
+			},
 			//Import
 			{
 				Config:        ProviderConfigForTesting + importTest,
@@ -31,35 +31,35 @@ func TestAccSDCResource(t *testing.T) {
 				ExpectError:   regexp.MustCompile(`.*Unable to Find SDC.*`),
 			},
 			//Create with Packages
-			// {
-			// 	Config: ProviderConfigForTesting + packageTest + SDCConfig2,
-			// 	Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc.test", "sdc_details.*", map[string]string{
-			// 		"ip": "10.247.66.194",
-			// 	}),
-			// },
-			// //Update
-			// {
-			// 	Config: ProviderConfigForTesting + packageTest + SDCConfigUpdate,
-			// 	Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc.test", "sdc_details.*", map[string]string{
-			// 		"ip": "10.247.103.163",
-			// 	}),
-			// },
-			// //Reaname
-			// {
-			// 	Config: ProviderConfigForTesting + packageTest + SDCConfigRename,
-			// 	Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc.test", "sdc_details.*", map[string]string{
-			// 		"name": time.Now().Weekday().String(),
-			// 		"ip":   GatewayDataPoints.secondaryMDMIP,
-			// 	}),
-			// },
-			// //Perormance Profile
-			// {
-			// 	Config: ProviderConfigForTesting + packageTest + SDCConfigPerProfile,
-			// 	Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc.test", "sdc_details.*", map[string]string{
-			// 		"ip":                  GatewayDataPoints.secondaryMDMIP,
-			// 		"performance_profile": "Compact",
-			// 	}),
-			// },
+			{
+				Config: ProviderConfigForTesting + packageTest + SDCConfig2,
+				Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc.test", "sdc_details.*", map[string]string{
+					"ip": "10.247.66.194",
+				}),
+			},
+			//Update
+			{
+				Config: ProviderConfigForTesting + packageTest + SDCConfigUpdate,
+				Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc.test", "sdc_details.*", map[string]string{
+					"ip": "10.247.103.163",
+				}),
+			},
+			//Reaname
+			{
+				Config: ProviderConfigForTesting + packageTest + SDCConfigRename,
+				Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc.test", "sdc_details.*", map[string]string{
+					"name": time.Now().Weekday().String(),
+					"ip":   GatewayDataPoints.secondaryMDMIP,
+				}),
+			},
+			//Perormance Profile
+			{
+				Config: ProviderConfigForTesting + packageTest + SDCConfigPerProfile,
+				Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc.test", "sdc_details.*", map[string]string{
+					"ip":                  GatewayDataPoints.secondaryMDMIP,
+					"performance_profile": "Compact",
+				}),
+			},
 		},
 	})
 }
