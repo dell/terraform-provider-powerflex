@@ -46,7 +46,7 @@ var sdcResourceSchemaDescriptions = struct {
 }{
 	SdcResourceSchema:  "This resource can be used to manage Storage Data Clients on a PowerFlex array.",
 	LastUpdated:        "The Last updated timestamp of the SDC.",
-	ID:                 "ID of the SDC to manage. This can be retrieved from the PowerFlex website. Cannot be updated.",
+	ID:                 "ID of the SDC to manage. This can be retrieved from the Datasource and PowerFlex Server. Cannot be updated.",
 	SystemID:           "The System ID of the fetched SDC.",
 	Name:               "Name of the SDC to manage.",
 	SdcIP:              "The IP of the fetched SDC.",

@@ -15,15 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
 # Command to run this tf file : terraform init && terraform plan && terraform apply.
 # Create, Update, Read, Delete and Import operations are supported for this resource.
-resource "powerflex_sdc" "test" {
-  id   = "SDC_ID"
-  name = "Name"
+
+# To perform Multiple SDC Detail Update and SDC Expansion
+resource "powerflex_sdc" "expansion" {
   mdm_password = "Password"
   lia_password = "Password"
-  cluster_details = [
+  sdc_details = [
     {
       ip               = "IP"
       username         = "Username"
@@ -70,3 +69,14 @@ resource "powerflex_sdc" "test" {
     },
   ]
 }
+
+#To Rename One SDC Server 
+resource "powerflex_sdc" "rename" {
+   id   = "SDC_ID"
+   name = "Name"
+}
+
+# For Import Multiple SDC
+resource "powerflex_sdc" "importing" {
+}
+#terraform import powerflex_sdc.importing ID1,ID2,ID3
