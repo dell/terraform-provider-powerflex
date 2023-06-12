@@ -221,7 +221,8 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 				chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 			}
 		}
-	} else if state.Name.ValueString() != "" && !state.Name.IsNull() && state.ID.ValueString() != "" && state.ID.ValueString() != "placeholder" { 
+	} else if state.Name.ValueString() != "" && !state.Name.IsNull() && state.ID.ValueString() != "" && state.ID.ValueString() != "placeholder" {
+		
 		//For handling the single SDC reanme operation
 		singleSdc, err := system.FindSdc("ID", state.ID.ValueString())
 
@@ -236,7 +237,8 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		changedSDCDetail := getSDCState(*singleSdc.Sdc, SDCDetailDataModel{})
 
 		chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
-	} else if len(sdcDetailList) > 0 { 
+	} else if len(sdcDetailList) > 0 {
+
 		//For handling the multiple sdc_details update
 		for _, sdc := range sdcDetailList {
 
