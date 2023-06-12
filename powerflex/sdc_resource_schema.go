@@ -1,6 +1,7 @@
 package powerflex
 
 import (
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -45,7 +46,7 @@ var sdcResourceSchemaDescriptions = struct {
 type sdcResourceModel struct {
 	ID          types.String `tfsdk:"id"`
 	Name        types.String `tfsdk:"name"`
-	SDCDetails  types.Set    `tfsdk:"sdc_details"`
+	SDCDetails  types.List   `tfsdk:"sdc_details"`
 	MdmPassword types.String `tfsdk:"mdm_password"`
 	LiaPassword types.String `tfsdk:"lia_password"`
 }
@@ -102,7 +103,6 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 			Sensitive:           true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
-				stringvalidator.AlsoRequires(path.MatchRoot("sdc_details")),
 			},
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.UseStateForUnknown(),
@@ -115,7 +115,6 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 			Sensitive:           true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
-				stringvalidator.AlsoRequires(path.MatchRoot("sdc_details")),
 			},
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.UseStateForUnknown(),
@@ -138,10 +137,20 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 }
 
 // sdcDetailSchema - variable holds schema for CSV Param Details
-var sdcDetailSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
-	Description:         "List of SDC Expansion Server Details.",
-	Optional:            true,
-	Computed:            true,
+var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
+	Description: "List of SDC Expansion Server Details.",
+	Optional:    true,
+	Computed:    true,
+	// Validators: []validator.Set{
+	// 	setvalidator.SizeAtLeast(1),
+	// 	setvalidator.AlsoRequires(path.MatchRoot("lia_password")),
+	// 	setvalidator.AlsoRequires(path.MatchRoot("mdm_password")),
+	// },
+	Validators: []validator.List{
+		listvalidator.SizeAtLeast(1),
+		listvalidator.AlsoRequires(path.MatchRoot("lia_password")),
+		listvalidator.AlsoRequires(path.MatchRoot("mdm_password")),
+	},
 	MarkdownDescription: "List of SDC Expansion Server Details.",
 	NestedObject: schema.NestedAttributeObject{
 		Attributes: map[string]schema.Attribute{
@@ -183,6 +192,7 @@ var sdcDetailSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 				Computed:            true,
 				MarkdownDescription: "Operating System on the node",
 				PlanModifiers: []planmodifier.String{
+					stringDefault("linux"),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
@@ -205,19 +215,21 @@ var sdcDetailSchema schema.SetNestedAttribute = schema.SetNestedAttribute{
 					"No",
 				)},
 				PlanModifiers: []planmodifier.String{
+					stringDefault("No"),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"performance_profile": schema.StringAttribute{
-				Description:         "Performance Profile of SDC, The acceptable value is `High` or `Compact`.",
+				Description:         "Performance Profile of SDC, The acceptable value is `High` or `Compact`. Default is Compact",
 				Optional:            true,
 				Computed:            true,
-				MarkdownDescription: "Performance Profile of SDC, The acceptable value is `High` or `Compact`.",
-				Validators: []validator.String{stringvalidator.OneOf(
+				MarkdownDescription: "Performance Profile of SDC, The acceptable value is `High` or `Compact`. Default is Compact",
+				Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
 					"HighPerformance",
 					"Compact",
 				)},
 				PlanModifiers: []planmodifier.String{
+					stringDefault("Compact"),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},

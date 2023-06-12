@@ -144,9 +144,6 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 		}
 
 		resp.Diagnostics.Append(r.UpdateSDCNamdPerfProfileOperations(ctx, sdcDetailList, system, &chnagedSDCs)...)
-		// if resp.Diagnostics.HasError() {
-		// 	return
-		// }
 
 		data, dgs := updateState(chnagedSDCs, plan)
 		resp.Diagnostics.Append(dgs...)
@@ -199,11 +196,12 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 				)
 			}
 
-			changedSDCDetail := getSDCState(*sdcData.Sdc, SDCDetailDataModel{})
+			if sdcData != nil {
+				changedSDCDetail := getSDCState(*sdcData.Sdc, SDCDetailDataModel{})
 
-			chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
+				chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
+			}
 		}
-
 	} else if state.Name.ValueString() != "" && state.ID.ValueString() != "" {
 		singleSdc, err := system.FindSdc("ID", state.ID.ValueString())
 
@@ -217,10 +215,7 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 
 		changedSDCDetail := getSDCState(*singleSdc.Sdc, SDCDetailDataModel{})
 
-		changedSDCDetail.LastUpdated = sdcDetailList[0].LastUpdated
-
 		chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
-
 	} else if len(sdcDetailList) > 0 {
 
 		for _, sdc := range sdcDetailList {
@@ -256,11 +251,11 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 				}
 			}
 
-			changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
+			if sdcData != nil {
+				changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
 
-			changedSDCDetail.LastUpdated = sdc.LastUpdated
-
-			chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
+				chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
+			}
 		}
 	}
 
@@ -280,10 +275,13 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	// Retrieve values from plan
 	var plan sdcResourceModel
 	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	var state sdcResourceModel
-	req.State.Get(ctx, &state)
-
+	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -363,7 +361,9 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 		changedSDCDetail := getSDCState(*finalSDC.Sdc, SDCDetailDataModel{})
 
-		changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+		if changedSDCDetail.LastUpdated.ValueString() == "" {
+			changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+		}
 
 		chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 
@@ -381,9 +381,6 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		}
 
 		resp.Diagnostics.Append(r.UpdateSDCNamdPerfProfileOperations(ctx, planSdcDetailList, system, &chnagedSDCs)...)
-		// if resp.Diagnostics.HasError() {
-		// 	return
-		// }
 
 		data, dgs := updateState(chnagedSDCs, plan)
 		resp.Diagnostics.Append(dgs...)
@@ -532,7 +529,7 @@ func updateState(sdcs []SDCDetailDataModel, plan sdcResourceModel) (sdcResourceM
 		diags = append(diags, dgs...)
 		objectSDCs = append(objectSDCs, objVal)
 	}
-	setSdcs, dgs := types.SetValue(SDCElemType, objectSDCs)
+	setSdcs, dgs := types.ListValue(SDCElemType, objectSDCs)
 	diags = append(diags, dgs...)
 
 	state.SDCDetails = setSdcs
@@ -564,7 +561,7 @@ func CheckForExpansion(model []SDCDetailDataModel) bool {
 	performaneChangeSdc := false
 
 	for _, item := range model {
-		if item.IsSdc.ValueString() == "Yes" {
+		if strings.EqualFold(item.IsSdc.ValueString(), "Yes") {
 			performaneChangeSdc = true
 			break
 		}
@@ -656,39 +653,31 @@ func (r *sdcResource) SDCExpansionOperations(ctx context.Context, plan sdcResour
 					)
 					return
 				}
+			}
+			for _, sdc := range sdcDetails {
 
-				validateMDMResponse, validateMDMError = ValidateMDMOperation(ctx, plan, r.gatewayClient, mdmIP)
+				if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") && sdc.SDCName.ValueString() == "" && sdc.PerformanceProfile.ValueString() == "" {
+					sdcData, err := system.FindSdc("SdcIP", sdc.IP.ValueString())
 
-				if validateMDMError != nil {
-					dia.AddError(
-						"Error While Validating MDM Details",
-						"unexpected error: "+validateMDMResponse.Message,
-					)
-					return
-				}
-			} else {
+					if err != nil {
+						dia.AddError(
+							"[Create] Unable to Find SDC by IP:"+sdc.SDCName.ValueString(),
+							err.Error(),
+						)
+					}
 
-				for _, sdc := range sdcDetails {
-
-					if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") && sdc.SDCName.ValueString() == "" && sdc.PerformanceProfile.ValueString() == "" {
-						sdcData, err := system.FindSdc("SdcIP", sdc.IP.ValueString())
-
-						if err != nil {
-							dia.AddError(
-								"[Create] Unable to Find SDC by IP:"+sdc.SDCName.ValueString(),
-								err.Error(),
-							)
-						}
-
+					if sdcData != nil {
 						changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
 
-						changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+						if changedSDCDetail.LastUpdated.ValueString() == "" {
+							changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+						}
 
 						*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
 					}
 				}
-
 			}
+
 		} else if validateMDMResponse.StatusCode != 200 {
 			dia.AddError(
 				"Error While Validating MDM Credentials",
@@ -773,11 +762,15 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 				return
 			}
 
-			changedSDCDetail := getSDCState(*finalSDC.Sdc, sdc)
+			if finalSDC != nil {
+				changedSDCDetail := getSDCState(*finalSDC.Sdc, sdc)
 
-			changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+				if changedSDCDetail.LastUpdated.ValueString() == "" {
+					changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+				}
 
-			*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
+				*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
+			}
 		} else if strings.EqualFold(sdc.IsSdc.ValueString(), "No") && sdc.SDCName.ValueString() == "" && sdc.PerformanceProfile.ValueString() == "" {
 
 			if sdc.SDCID.ValueString() != "" {
@@ -790,11 +783,15 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 					)
 				}
 
-				changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
+				if sdcData != nil {
+					changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
 
-				changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+					if changedSDCDetail.LastUpdated.ValueString() == "" {
+						changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+					}
 
-				*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
+					*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
+				}
 			} else if sdc.IP.ValueString() != "" {
 				sdcData, err := system.FindSdc("SdcIP", sdc.IP.ValueString())
 
@@ -805,11 +802,15 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 					)
 				}
 
-				changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
+				if sdcData != nil {
+					changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
 
-				changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+					if changedSDCDetail.LastUpdated.ValueString() == "" {
+						changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+					}
 
-				*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
+					*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
+				}
 			} else if sdc.SDCName.ValueString() != "" {
 				sdcData, err := system.FindSdc("Name", sdc.SDCName.ValueString())
 
@@ -820,11 +821,15 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 					)
 				}
 
-				changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
+				if sdcData != nil {
+					changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
 
-				changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+					if changedSDCDetail.LastUpdated.ValueString() == "" {
+						changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+					}
 
-				*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
+					*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
+				}
 			}
 
 		}
@@ -862,21 +867,25 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []SDCDetailDataModel, gat
 
 	for _, item := range sdcDetails {
 
-		if item.SDCID.ValueString() == "" {
+		if item.Password.ValueString() != "" {
 			// Add mapped SDC
 			csvStruct := CsvRow{
-				IP:                 item.IP.ValueString(),
-				UserName:           item.UserName.ValueString(),
-				Password:           item.Password.ValueString(),
-				IsMdmOrTb:          item.IsMdmOrTb.ValueString(),
-				OperatingSystem:    item.OperatingSystem.ValueString(),
-				IsSdc:              item.IsSdc.ValueString(),
-				PerformanceProfile: item.PerformanceProfile.ValueString(),
+				IP:              item.IP.ValueString(),
+				UserName:        item.UserName.ValueString(),
+				Password:        item.Password.ValueString(),
+				IsMdmOrTb:       item.IsMdmOrTb.ValueString(),
+				OperatingSystem: item.OperatingSystem.ValueString(),
+				IsSdc:           item.IsSdc.ValueString(),
+				//PerformanceProfile: item.PerformanceProfile.ValueString(),
 				//SDCName:            item.SDCName.ValueString(),
 			}
 
 			if strings.EqualFold(csvStruct.IsSdc, "Yes") {
 				sdcIPs = append(sdcIPs, csvStruct.IP)
+			}
+
+			if strings.EqualFold(item.PerformanceProfile.ValueString(), "HighPerformance") {
+				csvStruct.PerformanceProfile = "High"
 			}
 
 			//Write the data row
@@ -899,10 +908,6 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []SDCDetailDataModel, gat
 
 	if parseCSVError != nil {
 		return &parseCSVResponse, fmt.Errorf("%s", parseCSVError.Error())
-	}
-
-	if len(sdcIPs) == 0 {
-		return &parseCSVResponse, fmt.Errorf("No SDC Expansion Details are provided")
 	}
 
 	parsecsvRespose.Message = strings.Join(sdcIPs, ",")
@@ -940,6 +945,7 @@ func ValidateMDMOperation(ctx context.Context, model sdcResourceModel, gatewayCl
 
 // InstallationOperations function for begin instllation process
 func InstallationOperations(ctx context.Context, model sdcResourceModel, gatewayClient *goscaleio.GatewayClient, parsecsvRespose *goscaleio_types.GatewayResponse) error {
+
 	beginInstallationResponse, installationError := gatewayClient.BeginInstallation(parsecsvRespose.Data, "admin", model.MdmPassword.ValueString(), model.LiaPassword.ValueString(), true)
 
 	if installationError != nil {
