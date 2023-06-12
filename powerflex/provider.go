@@ -45,12 +45,11 @@ type powerflexProvider struct{}
 
 // powerflexProviderModel - provider input struct.
 type powerflexProviderModel struct {
-	EndPoint         types.String `tfsdk:"endpoint"`
-	Username         types.String `tfsdk:"username"`
-	Password         types.String `tfsdk:"password"`
-	Insecure         types.Bool   `tfsdk:"insecure"`
-	Timeout          types.Int64  `tfsdk:"timeout"`
-	GatewayInstaller types.Bool   `tfsdk:"gatewayinstaller"`
+	EndPoint types.String `tfsdk:"endpoint"`
+	Username types.String `tfsdk:"username"`
+	Password types.String `tfsdk:"password"`
+	Insecure types.Bool   `tfsdk:"insecure"`
+	Timeout  types.Int64  `tfsdk:"timeout"`
 }
 
 // Metadata - provider metadata AKA name.
@@ -90,11 +89,6 @@ func (p *powerflexProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 			"timeout": schema.Int64Attribute{
 				Description:         "HTTPS timeout.",
 				MarkdownDescription: "HTTPS timeout.",
-				Optional:            true,
-			},
-			"gatewayinstaller": schema.BoolAttribute{
-				Description:         "Specifies if the user wants to use Gateway Installer.",
-				MarkdownDescription: "Specifies if the user wants to use Gateway Installer.",
 				Optional:            true,
 			},
 		},
@@ -144,199 +138,111 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 		return
 	}
 
-	if config.GatewayInstaller.String() == "true" {
-
-		endpoint := os.Getenv("GATEWAY_ENDPOINT")
-		username := os.Getenv("GATEWAY_USERNAME")
-		password := os.Getenv("GATEWAY_PASSWORD")
-		insecure := os.Getenv("GATEWAY_INSECURE") == "true"
-
-		if !config.EndPoint.IsNull() {
-			endpoint = config.EndPoint.ValueString()
-		}
-
-		if !config.Username.IsNull() {
-			username = config.Username.ValueString()
-		}
-
-		if !config.Password.IsNull() {
-			password = config.Password.ValueString()
-		}
-		if !config.Insecure.IsNull() {
-			insecure = config.Insecure.ValueBool()
-		}
-		if !config.Timeout.IsNull() {
-			timeout = int(config.Timeout.ValueInt64())
-		}
-
-		if endpoint == "" {
-			resp.Diagnostics.AddAttributeError(
-				path.Root("endpoint"),
-				"Missing gateway API Endpoint",
-				"The provider cannot create the gateway API client as there is a missing or empty value for the gateway API endpoint. "+
-					"Set the endpoint value in the configuration or use the GATEWAY_ENDPOINT environment variable. "+
-					"If either is already set, ensure the value is not empty.",
-			)
-		}
-
-		if username == "" {
-			resp.Diagnostics.AddAttributeError(
-				path.Root("username"),
-				"Missing gateway API Username",
-				"The provider cannot create the gateway API client as there is a missing or empty value for the gateway API username. "+
-					"Set the username value in the configuration or use the GATEWAY_USERNAME environment variable. "+
-					"If either is already set, ensure the value is not empty.",
-			)
-		}
-
-		if password == "" {
-			resp.Diagnostics.AddAttributeError(
-				path.Root("password"),
-				"Missing gateway API Password",
-				"The provider cannot create the gateway API client as there is a missing or empty value for the gateway API password. "+
-					"Set the password value in the configuration or use the GATEWAY_PASSWORD environment variable. "+
-					"If either is already set, ensure the value is not empty.",
-			)
-		}
-
-		if resp.Diagnostics.HasError() {
-			return
-		}
-
-		ctx = tflog.SetField(ctx, "gateway_endpoint", endpoint)
-		ctx = tflog.SetField(ctx, "gateway_username", username)
-		ctx = tflog.SetField(ctx, "gateway_password", password)
-		ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "gateway_password")
-		ctx = tflog.SetField(ctx, "insecure", insecure)
-		tflog.Debug(ctx, "Creating gateway client")
-
-		// Create a new powerflex client using the configuration values
-		Client, err := goscaleio.NewGateway(endpoint, username, password, insecure, true)
+	endpoint := os.Getenv("POWERFLEX_ENDPOINT")
+	username := os.Getenv("POWERFLEX_USERNAME")
+	password := os.Getenv("POWERFLEX_PASSWORD")
+	insecure := os.Getenv("POWERFLEX_INSECURE") == "true"
+	if os.Getenv("POWERFLEX_TIMEOUT") != "" {
+		var err error
+		timeout, err = strconv.Atoi(os.Getenv("POWERFLEX_TIMEOUT"))
 		if err != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Create gateway API Client",
-				"An unexpected error occurred when creating the gateway API client. "+
-					"If the error is not clear, please contact the provider developers.\n\n"+
-					"gateway Client Error: "+err.Error(),
-			)
-			return
+			resp.Diagnostics.AddError("Invalid POWERFLEX_TIMEOUT", err.Error())
 		}
-
-		var goscaleioConf goscaleio.ConfigConnect = goscaleio.ConfigConnect{}
-		goscaleioConf.Endpoint = endpoint
-		goscaleioConf.Username = username
-		goscaleioConf.Version = ""
-		goscaleioConf.Password = password
-
-		resp.DataSourceData = Client
-		resp.ResourceData = Client
-
-	} else {
-		endpoint := os.Getenv("POWERFLEX_ENDPOINT")
-		username := os.Getenv("POWERFLEX_USERNAME")
-		password := os.Getenv("POWERFLEX_PASSWORD")
-		insecure := os.Getenv("POWERFLEX_INSECURE") == "true"
-		if os.Getenv("POWERFLEX_TIMEOUT") != "" {
-			var err error
-			timeout, err = strconv.Atoi(os.Getenv("POWERFLEX_TIMEOUT"))
-			if err != nil {
-				resp.Diagnostics.AddError("Invalid POWERFLEX_TIMEOUT", err.Error())
-			}
-		}
-
-		if !config.EndPoint.IsNull() {
-			endpoint = config.EndPoint.ValueString()
-		}
-
-		if !config.Username.IsNull() {
-			username = config.Username.ValueString()
-		}
-
-		if !config.Password.IsNull() {
-			password = config.Password.ValueString()
-		}
-		if !config.Insecure.IsNull() {
-			insecure = config.Insecure.ValueBool()
-		}
-		if !config.Timeout.IsNull() {
-			timeout = int(config.Timeout.ValueInt64())
-		}
-
-		if endpoint == "" {
-			resp.Diagnostics.AddAttributeError(
-				path.Root("endpoint"),
-				"Missing powerflex API Endpoint",
-				"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API endpoint. "+
-					"Set the endpoint value in the configuration or use the POWERFLEX_ENDPOINT environment variable. "+
-					"If either is already set, ensure the value is not empty.",
-			)
-		}
-
-		if username == "" {
-			resp.Diagnostics.AddAttributeError(
-				path.Root("username"),
-				"Missing powerflex API Username",
-				"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API username. "+
-					"Set the username value in the configuration or use the POWERFLEX_USERNAME environment variable. "+
-					"If either is already set, ensure the value is not empty.",
-			)
-		}
-
-		if password == "" {
-			resp.Diagnostics.AddAttributeError(
-				path.Root("password"),
-				"Missing powerflex API Password",
-				"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API password. "+
-					"Set the password value in the configuration or use the POWERFLEX_PASSWORD environment variable. "+
-					"If either is already set, ensure the value is not empty.",
-			)
-		}
-
-		if resp.Diagnostics.HasError() {
-			return
-		}
-
-		ctx = tflog.SetField(ctx, "powerflex_endpoint", endpoint)
-		ctx = tflog.SetField(ctx, "powerflex_username", username)
-		ctx = tflog.SetField(ctx, "powerflex_password", password)
-		ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "powerflex_password")
-		ctx = tflog.SetField(ctx, "insecure", insecure)
-		ctx = tflog.SetField(ctx, "timeout", timeout)
-		tflog.Debug(ctx, "Creating powerflex client")
-
-		// Create a new powerflex client using the configuration values
-		Client, err := goscaleio.NewClientWithArgs(endpoint, "", int64(timeout), insecure, true)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Create powerflex API Client",
-				"An unexpected error occurred when creating the powerflex API client. "+
-					"If the error is not clear, please contact the provider developers.\n\n"+
-					"powerflex Client Error: "+err.Error(),
-			)
-			return
-		}
-
-		var goscaleioConf goscaleio.ConfigConnect = goscaleio.ConfigConnect{}
-		goscaleioConf.Endpoint = endpoint
-		goscaleioConf.Username = username
-		goscaleioConf.Version = ""
-		goscaleioConf.Password = password
-
-		_, err = Client.Authenticate(&goscaleioConf)
-
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Authenticate Goscaleio API Client",
-				"An unexpected error occurred when authenticating the Goscaleio API Client. "+
-					"Unable to Authenticate Goscaleio API Client.\n\n"+
-					"powerflex Client Error: "+err.Error(),
-			)
-			return
-		}
-
-		resp.DataSourceData = Client
-		resp.ResourceData = Client
 	}
+
+	if !config.EndPoint.IsNull() {
+		endpoint = config.EndPoint.ValueString()
+	}
+
+	if !config.Username.IsNull() {
+		username = config.Username.ValueString()
+	}
+
+	if !config.Password.IsNull() {
+		password = config.Password.ValueString()
+	}
+	if !config.Insecure.IsNull() {
+		insecure = config.Insecure.ValueBool()
+	}
+	if !config.Timeout.IsNull() {
+		timeout = int(config.Timeout.ValueInt64())
+	}
+
+	if endpoint == "" {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("endpoint"),
+			"Missing powerflex API Endpoint",
+			"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API endpoint. "+
+				"Set the endpoint value in the configuration or use the POWERFLEX_ENDPOINT environment variable. "+
+				"If either is already set, ensure the value is not empty.",
+		)
+	}
+
+	if username == "" {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("username"),
+			"Missing powerflex API Username",
+			"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API username. "+
+				"Set the username value in the configuration or use the POWERFLEX_USERNAME environment variable. "+
+				"If either is already set, ensure the value is not empty.",
+		)
+	}
+
+	if password == "" {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("password"),
+			"Missing powerflex API Password",
+			"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API password. "+
+				"Set the password value in the configuration or use the POWERFLEX_PASSWORD environment variable. "+
+				"If either is already set, ensure the value is not empty.",
+		)
+	}
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	ctx = tflog.SetField(ctx, "powerflex_endpoint", endpoint)
+	ctx = tflog.SetField(ctx, "powerflex_username", username)
+	ctx = tflog.SetField(ctx, "powerflex_password", password)
+	ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "powerflex_password")
+	ctx = tflog.SetField(ctx, "insecure", insecure)
+	ctx = tflog.SetField(ctx, "timeout", timeout)
+	tflog.Debug(ctx, "Creating powerflex client")
+
+	// Create a new powerflex client using the configuration values
+	Client, err := goscaleio.NewClientWithArgs(endpoint, "", int64(timeout), insecure, true)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Create powerflex API Client",
+			"An unexpected error occurred when creating the powerflex API client. "+
+				"If the error is not clear, please contact the provider developers.\n\n"+
+				"powerflex Client Error: "+err.Error(),
+		)
+		return
+	}
+
+	var goscaleioConf goscaleio.ConfigConnect = goscaleio.ConfigConnect{}
+	goscaleioConf.Endpoint = endpoint
+	goscaleioConf.Username = username
+	goscaleioConf.Version = ""
+	goscaleioConf.Password = password
+	goscaleioConf.Insecure = insecure
+
+	_, err = Client.Authenticate(&goscaleioConf)
+
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Authenticate Goscaleio API Client",
+			"An unexpected error occurred when authenticating the Goscaleio API Client. "+
+				"Unable to Authenticate Goscaleio API Client.\n\n"+
+				"powerflex Client Error: "+err.Error(),
+		)
+		return
+	}
+
+	resp.DataSourceData = Client
+	resp.ResourceData = Client
 
 	tflog.Info(ctx, "Configured powerflex client", map[string]any{"success": true})
 }
@@ -366,6 +272,5 @@ func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resou
 		NewSDCVolumesMappingResource,
 		NewDeviceResource,
 		NewPackageResource,
-		NewSDCExpansionResource,
 	}
 }

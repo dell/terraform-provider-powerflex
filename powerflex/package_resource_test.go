@@ -42,14 +42,14 @@ func TestAccPackageResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			//Create
 			{
-				Config: ProviderConfigForGatewayTesting + packageTest,
+				Config: ProviderConfigForTesting + packageTest,
 				Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_package.upload-test", "package_details.*", map[string]string{
 					"file_name": "EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar",
 				}),
 			},
 			//Update
 			{
-				Config: ProviderConfigForGatewayTesting + packageUpdateTest,
+				Config: ProviderConfigForTesting + packageUpdateTest,
 				Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_package.upload-test", "package_details.*", map[string]string{
 					"file_name": "EMC-ScaleIO-mdm-3.6-700.103.Ubuntu.22.04.x86_64.tar",
 				}),
@@ -86,19 +86,19 @@ func TestAccPackageNegative(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config:      ProviderConfigForGatewayTesting + InvalidPath,
+				Config:      ProviderConfigForTesting + InvalidPath,
 				ExpectError: regexp.MustCompile(`.*Error getting with file path.*`),
 			},
 			{
-				Config:      ProviderConfigForGatewayTesting + InvalidFile,
+				Config:      ProviderConfigForTesting + InvalidFile,
 				ExpectError: regexp.MustCompile(`.*invalid file type, please provide valid file type.*`),
 			},
 			{
-				Config:      ProviderConfigForGatewayTesting + EmptyList,
+				Config:      ProviderConfigForTesting + EmptyList,
 				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value.*`),
 			},
 			{
-				Config:      ProviderConfigForGatewayTesting + InvalidNameFile,
+				Config:      ProviderConfigForTesting + InvalidNameFile,
 				ExpectError: regexp.MustCompile(`.*Error getting with file path.*`),
 			},
 		}})

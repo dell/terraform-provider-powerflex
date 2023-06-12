@@ -15,22 +15,68 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-# Commands to run this tf file : terraform init && terraform plan && terraform apply
-# Only importing the sdc resource or renaming of sdc resource is supported
-# For Renaming , id and name are required fields
-# For importing , please check sdc_resource_import.tf file for more details
-# name can't be empty
+# Command to run this tf file : terraform init && terraform plan && terraform apply.
+# Create, Update, Read, Delete and Import operations are supported for this resource.
 
-
-resource "powerflex_sdc" "sdc" {
-  id   = "e3ce1fb500000000"
-  name = "terraform_sdc"
+# To perform Multiple SDC Detail Update and SDC Expansion
+resource "powerflex_sdc" "expansion" {
+  mdm_password = "Password"
+  lia_password = "Password"
+  sdc_details = [
+    {
+      ip               = "IP"
+      username         = "Username"
+      password         = "Password"
+      operating_system = "linux"
+      is_mdm_or_tb     = "Primary"
+      is_sdc           = "No"
+      name             = "SDC_NAME"
+      performance_profile ="HighPerformance"
+      sdc_id           = "sdc_id"
+    },
+    {
+      ip               = "IP"
+      username         = "Username"
+      password         = "Password"
+      operating_system = "linux"
+      is_mdm_or_tb     = "Secondary"
+      is_sdc           = "Yes"
+      name             = "SDC_NAME"
+      performance_profile ="Compact"
+      sdc_id           = "sdc_id"
+    },
+    {
+      ip               = "IP"
+      username         = "Username"
+      password         = "Password"
+      operating_system = "linux"
+      is_mdm_or_tb     = "TB"
+      is_sdc           = "Yes"
+      name             = "SDC_NAME"
+      performance_profile ="Compact"
+      sdc_id           = "sdc_id"
+    },
+    {
+      ip               = "IP"
+      username         = "Username"
+      password         = "Password"
+      operating_system = "linux"
+      is_mdm_or_tb     = "Standby"
+      is_sdc           = "Yes"
+      name             = "SDC_NAME"
+      performance_profile ="Compact"
+      sdc_id           = "sdc_id"
+    },
+  ]
 }
 
+#To Rename One SDC Server 
+resource "powerflex_sdc" "rename" {
+   id   = "SDC_ID"
+   name = "Name"
+}
 
-#output "changed_sdc" {
-# value = powerflex_sdc.sdc
-#}
-# # -----------------------------------------------------------------------------------
-
-
+# For Import Multiple SDC
+resource "powerflex_sdc" "importing" {
+}
+#terraform import powerflex_sdc.importing ID1,ID2,ID3

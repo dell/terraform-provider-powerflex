@@ -112,6 +112,5 @@ variable "endpoint" {
 
 ### Optional
 
-- `gatewayinstaller` (Boolean) Specifies if the user wants to use Gateway Installer.
 - `insecure` (Boolean) Specifies if the user wants to skip SSL verification.
 - `timeout` (Number) HTTPS timeout.
