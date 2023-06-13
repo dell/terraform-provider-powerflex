@@ -32,9 +32,7 @@ import (
 var sdcResourceSchemaDescriptions = struct {
 	SdcResourceSchema  string
 	LastUpdated        string
-	ID                 string
 	SystemID           string
-	Name               string
 	SdcIP              string
 	SdcApproved        string
 	OnVMWare           string
@@ -46,9 +44,7 @@ var sdcResourceSchemaDescriptions = struct {
 }{
 	SdcResourceSchema:  "This resource can be used to manage Storage Data Clients on a PowerFlex array.",
 	LastUpdated:        "The Last updated timestamp of the SDC.",
-	ID:                 "ID of the SDC to manage. This can be retrieved from the Datasource and PowerFlex Server. Cannot be updated.",
 	SystemID:           "The System ID of the fetched SDC.",
-	Name:               "Name of the SDC to manage.",
 	SdcIP:              "The IP of the fetched SDC.",
 	SdcApproved:        "If the fetched SDC is approved.",
 	OnVMWare:           "If the fetched SDC is on vmware.",
@@ -105,9 +101,9 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 	Attributes: map[string]schema.Attribute{
 		"sdc_details": sdcDetailSchema,
 		"name": schema.StringAttribute{
-			DeprecationMessage:  "This attribute will be removed in future release. To rename SDC, use attribute `name` in `sdc_details`",
-			Description:         sdcResourceSchemaDescriptions.Name,
-			MarkdownDescription: sdcResourceSchemaDescriptions.Name,
+			DeprecationMessage:  "This attribute will be removed in future release. To rename SDC, use attribute `name` in `sdc_details`.",
+			Description:         "Name of the SDC to manage.  Conflict `sdc_details`, `mdm_password` and `lia_password`.",
+			MarkdownDescription: "Name of the SDC to manage.  Conflict `sdc_details`, `mdm_password` and `lia_password`.",
 			Optional:            true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
@@ -149,8 +145,8 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 		"id": schema.StringAttribute{
 			Optional:            true,
 			Computed:            true,
-			Description:         sdcResourceSchemaDescriptions.ID,
-			MarkdownDescription: sdcResourceSchemaDescriptions.ID,
+			Description:         "ID of the SDC to manage. This can be retrieved from the Datasource and PowerFlex Server. Cannot be updated. Conflict `sdc_details`, `mdm_password` and `lia_password`",
+			MarkdownDescription: "ID of the SDC to manage. This can be retrieved from the Datasource and PowerFlex Server. Cannot be updated. Conflict `sdc_details`, `mdm_password` and `lia_password`",
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.UseStateForUnknown(),
 			},
@@ -234,10 +230,10 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 				},
 			},
 			"is_sdc": schema.StringAttribute{
-				Description:         "whether this node is SDC or not,The acceptable value are `Yes` or `No`",
+				Description:         "Whether this node is SDC or not,The acceptable value are `Yes` or `No`. Default value is `No`.",
 				Optional:            true,
 				Computed:            true,
-				MarkdownDescription: "whether this node is SDC or not,The acceptable value are `Yes` or `No`.",
+				MarkdownDescription: "Whether this node is SDC or not,The acceptable value are `Yes` or `No`. Default value is `No`.",
 				Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
 					"Yes",
 					"No",
@@ -284,8 +280,8 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 			"name": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         sdcResourceSchemaDescriptions.Name,
-				MarkdownDescription: sdcResourceSchemaDescriptions.Name,
+				Description:         "Name of the SDC to manage.",
+				MarkdownDescription: "Name of the SDC to manage.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
