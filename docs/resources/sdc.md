@@ -119,7 +119,7 @@ resource "powerflex_sdc" "importing" {
 
 ### Optional
 
-- `id` (String) ID of the SDC to manage. This can be retrieved from the Datasource and PowerFlex Server. Cannot be updated. Conflict with `ip`
+- `id` (String) ID of the SDC to manage. This can be retrieved from the Datasource and PowerFlex Server. Cannot be updated.
 - `lia_password` (String, Sensitive) LIA Password to connect MDM Server.
 - `mdm_password` (String, Sensitive) MDM Password to connect MDM Server.
 - `name` (String, Deprecated) Name of the SDC to manage.
