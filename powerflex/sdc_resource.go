@@ -398,17 +398,23 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		resp.Diagnostics.Append(r.SDCExpansionOperations(ctx, plan, system, planSdcDetailList)...)
 		if resp.Diagnostics.HasError() {
 
-			//TODO
 			//Handling the existing state file data
 			for _, sdc := range planSdcDetailList {
 
-				sdcData, _ := system.FindSdc("SdcIP", sdc.IP.ValueString())
+				if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") {
+					sdcData, _ := system.FindSdc("SdcIP", sdc.IP.ValueString())
 
-				if sdcData != nil {
-					changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
+					if sdcData != nil {
+						changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
+
+						chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
+					}
+				}else{
+					changedSDCDetail := getSDCState(*&goscaleio_types.Sdc{}, sdc)
 
 					chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 				}
+				
 			}
 
 			data, dgs := updateState(chnagedSDCs, plan)
