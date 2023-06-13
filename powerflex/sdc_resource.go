@@ -409,12 +409,11 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 						chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 					}
-				}else{
+				} else {
 					changedSDCDetail := getSDCState(*&goscaleio_types.Sdc{}, sdc)
 
 					chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 				}
-				
 			}
 
 			data, dgs := updateState(chnagedSDCs, plan)
@@ -806,65 +805,6 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 			changedSDCDetail := getSDCState(goscaleio_types.Sdc{}, sdc)
 
 			*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
-
-			// if sdc.SDCID.ValueString() != "" {
-			// 	sdcData, err := system.GetSdcByID(sdc.SDCID.ValueString())
-
-			// 	if err != nil {
-			// 		dia.AddError(
-			// 			"[Create] Unable to Find SDC by ID:"+sdc.SDCID.ValueString(),
-			// 			err.Error(),
-			// 		)
-			// 	}
-
-			// 	if sdcData != nil {
-			// 		changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
-
-			// 		if changedSDCDetail.LastUpdated.ValueString() == "" {
-			// 			changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-			// 		}
-
-			// 		*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
-			// 	}
-			// } else if sdc.IP.ValueString() != "" {
-			// 	sdcData, err := system.FindSdc("SdcIP", sdc.IP.ValueString())
-
-			// 	if err != nil {
-			// 		dia.AddError(
-			// 			"[Create] Unable to Find SDC by IP:"+sdc.IP.ValueString(),
-			// 			err.Error(),
-			// 		)
-			// 	}
-
-			// 	if sdcData != nil {
-			// 		changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
-
-			// 		if changedSDCDetail.LastUpdated.ValueString() == "" {
-			// 			changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-			// 		}
-
-			// 		*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
-			// 	}
-			// } else if sdc.SDCName.ValueString() != "" {
-			// 	sdcData, err := system.FindSdc("Name", sdc.SDCName.ValueString())
-
-			// 	if err != nil {
-			// 		dia.AddError(
-			// 			"[Create] Unable to Find SDC by Name:"+sdc.SDCName.ValueString(),
-			// 			err.Error(),
-			// 		)
-			// 	}
-
-			// 	if sdcData != nil {
-			// 		changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
-
-			// 		if changedSDCDetail.LastUpdated.ValueString() == "" {
-			// 			changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-			// 		}
-
-			// 		*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
-			// 	}
-			// }
 
 		}
 	}
