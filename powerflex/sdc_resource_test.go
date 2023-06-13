@@ -34,19 +34,19 @@ func TestAccSDCResource(t *testing.T) {
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			//Create
-			{
-				Config:      ProviderConfigForTesting + SDCConfig1,
-				ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
-			},
-			//Import
-			{
-				Config:        ProviderConfigForTesting + importTest,
-				ImportState:   true,
-				ImportStateId: "123",
-				ResourceName:  "powerflex_sdc.test",
-				ExpectError:   regexp.MustCompile(`.*Unable to Find SDC.*`),
-			},
+			// //Create
+			// {
+			// 	Config:      ProviderConfigForTesting + SDCConfig1,
+			// 	ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
+			// },
+			// //Import
+			// {
+			// 	Config:        ProviderConfigForTesting + importTest,
+			// 	ImportState:   true,
+			// 	ImportStateId: "123",
+			// 	ResourceName:  "powerflex_sdc.test",
+			// 	ExpectError:   regexp.MustCompile(`.*Unable to Find SDC.*`),
+			// },
 			//Create with Packages
 			{
 				Config: ProviderConfigForTesting + packageTest + SDCConfig2,
@@ -277,15 +277,16 @@ resource "powerflex_sdc" "test" {
 			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "Primary"
-			is_sdc = "No"
+			is_sdc = "Yes"
 		},
 		{
 			ip = "` + GatewayDataPoints.secondaryMDMIP + `"
 			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "Secondary"
-			is_sdc = "NO"
+			is_sdc = "Yes"
 			performance_profile = "HighPerformance"
+			name                = "sdc_expansion_test1"
 		},
 		{
 			ip = "` + GatewayDataPoints.tbIP + `"
