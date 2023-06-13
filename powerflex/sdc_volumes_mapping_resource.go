@@ -393,6 +393,7 @@ func (r *sdcVolumeMappingResource) Read(ctx context.Context, req resource.ReadRe
 			"Error Getting SDC type: "+state.ID.String(),
 			"unexpected error: "+err1.Error(),
 		)
+		return
 	}
 
 	mappedVolumes, err2 := sdcType.GetVolume()
@@ -433,6 +434,14 @@ func (r *sdcVolumeMappingResource) Update(ctx context.Context, req resource.Upda
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Validate if there is change in plan and state w.r.t SDC ID
+	if !plan.ID.IsUnknown() && plan.ID.ValueString() != state.ID.ValueString() {
+		resp.Diagnostics.AddError(
+			"SDC ID cannot be updated",
+			"SDC ID cannot be updated")
 		return
 	}
 

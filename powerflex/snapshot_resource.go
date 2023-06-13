@@ -166,11 +166,17 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 				err3 := snapResource.SetVolumeSize(strconv.FormatInt(plan.Size.ValueInt64()*1000, 10))
 				if err3 != nil {
 					errMsg["size/capacity_unit"] = err3.Error()
+					// In case of failure, the size will be stored in GB capacity unit in state
+					plan.SizeInKb = types.Int64Value(int64(snap.SizeInKb))
+					plan.CapacityUnit = types.StringValue("GB")
 				}
 			case "GB":
 				err3 := snapResource.SetVolumeSize(strconv.FormatInt(plan.Size.ValueInt64(), 10))
 				if err3 != nil {
 					errMsg["size/capacity_unit"] = err3.Error()
+					// In case of failure, the size will be stored in GB capacity unit in state
+					plan.SizeInKb = types.Int64Value(int64(snap.SizeInKb))
+					plan.CapacityUnit = types.StringValue("GB")
 				}
 			}
 
