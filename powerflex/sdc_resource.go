@@ -393,6 +393,28 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 		resp.Diagnostics.Append(r.SDCExpansionOperations(ctx, plan, system, planSdcDetailList, &chnagedSDCs)...)
 		if resp.Diagnostics.HasError() {
+
+			//Handling the existing state file data
+			for _, sdc := range planSdcDetailList {
+				sdcData, _ := system.FindSdc("SdcIP", sdc.IP.ValueString())
+
+				if sdcData != nil {
+					changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
+
+					if changedSDCDetail.LastUpdated.ValueString() == "" {
+						changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+					}
+
+					chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
+				}
+			}
+
+			data, dgs := updateState(chnagedSDCs, plan)
+			resp.Diagnostics.Append(dgs...)
+
+			diags = resp.State.Set(ctx, data)
+			resp.Diagnostics.Append(diags...)
+
 			return
 		}
 
@@ -1057,9 +1079,7 @@ func getSDCState(sdc goscaleio_types.Sdc, model SDCDetailDataModel) (response SD
 		model.SDCID = types.StringValue(sdc.ID)
 	}
 
-	if sdc.Name != "" {
-		model.SDCName = types.StringValue(sdc.Name)
-	}
+	model.SDCName = types.StringValue(sdc.Name)
 
 	if sdc.SdcGUID != "" {
 		model.SdcGUID = types.StringValue(sdc.SdcGUID)
@@ -1073,9 +1093,7 @@ func getSDCState(sdc goscaleio_types.Sdc, model SDCDetailDataModel) (response SD
 		model.SystemID = types.StringValue(sdc.SystemID)
 	}
 
-	if sdc.PerfProfile != "" {
-		model.PerformanceProfile = types.StringValue(sdc.PerfProfile)
-	}
+	model.PerformanceProfile = types.StringValue(sdc.PerfProfile)
 
 	if sdc.SdcIP != "" {
 		model.IP = types.StringValue(sdc.SdcIP)
