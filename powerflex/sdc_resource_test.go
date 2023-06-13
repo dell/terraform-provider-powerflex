@@ -88,13 +88,13 @@ func TestAccSDCManagerResourceNegative(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + SDCConfigChangeName,
 				Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc.name", "sdc_details.*", map[string]string{
-					"name": time.Now().Weekday().String() + "1",
+					"name": time.Now().Weekday().String() + "101",
 				}),
 			},
 			{
 				Config: ProviderConfigForTesting + SDCConfigUpdateName,
 				Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc.name", "sdc_details.*", map[string]string{
-					"name": time.Now().Weekday().String() + "2",
+					"name": time.Now().Weekday().String() + "201",
 				}),
 			},
 			{
@@ -138,13 +138,13 @@ resource "powerflex_package" "upload-test" {
 var SDCConfigChangeName = `
 resource "powerflex_sdc" "name" {
 	id   = "e3ce46c500000002"
-  	name = "` + time.Now().Weekday().String() + `1"
+  	name = "` + time.Now().Weekday().String() + `101"
 }
 `
 var SDCConfigUpdateName = `
 resource "powerflex_sdc" "name" {
 	id   = "e3ce46c500000002"
-  	name = "` + time.Now().Weekday().String() + `2"
+  	name = "` + time.Now().Weekday().String() + `201"
 }
 `
 
@@ -159,6 +159,7 @@ resource "powerflex_sdc" "test" {
 			operating_system = "linux"
 			is_mdm_or_tb = "Primary"
 			is_sdc = "No"
+			sdc_id = "id"
 		},
 		{
 			ip = "` + GatewayDataPoints.secondaryMDMIP + `"

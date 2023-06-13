@@ -172,8 +172,6 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 		return
 	}
-
-	return
 }
 
 // Read - function to Read for SDC resource.
@@ -279,6 +277,10 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 				chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 			}
 		}
+	} else {
+		resp.Diagnostics.AddError("[Read] Please provide valid SDC ID", "Please provide valid SDC ID")
+
+		return
 	}
 
 	data, dgs := updateState(chnagedSDCs, state)
@@ -385,6 +387,8 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		diags = resp.State.Set(ctx, data)
 		resp.Diagnostics.Append(diags...)
 
+		return
+
 	} else if len(planSdcDetailList) > 0 {
 
 		resp.Diagnostics.Append(r.SDCExpansionOperations(ctx, plan, system, planSdcDetailList, &chnagedSDCs)...)
@@ -404,10 +408,6 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 		return
 	}
-
-	resp.State.RemoveResource(ctx) //TODO
-
-	return
 }
 
 // Delete - function to Delete for SDC resource.
@@ -673,7 +673,7 @@ func (r *sdcResource) SDCExpansionOperations(ctx context.Context, plan sdcResour
 
 					if err != nil {
 						dia.AddError(
-							"[Create] Unable to Find SDC by IP:"+sdc.SDCName.ValueString(),
+							"[Create] Unable to Find SDC by IP:"+sdc.IP.ValueString(),
 							err.Error(),
 						)
 					}
@@ -809,7 +809,7 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 
 				if err != nil {
 					dia.AddError(
-						"[Create] Unable to Find SDC by IP:"+sdc.SDCName.ValueString(),
+						"[Create] Unable to Find SDC by IP:"+sdc.IP.ValueString(),
 						err.Error(),
 					)
 				}
@@ -869,7 +869,7 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []SDCDetailDataModel, gat
 	writer := csv.NewWriter(file)
 
 	// Write the header row
-	header := []string{"IPs", "Username", "Password", "Operating System", "Is MDM/TB", "Is SDC", "perfProfileForSDC"} //, "SDC Name"
+	header := []string{"IPs", "Username", "Password", "Operating System", "Is MDM/TB", "Is SDC", "perfProfileForSDC"}
 	err = writer.Write(header)
 	if err != nil {
 		return &parseCSVResponse, fmt.Errorf("Error While Writing Temp CSV is %s", err.Error())
@@ -888,8 +888,6 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []SDCDetailDataModel, gat
 				IsMdmOrTb:       item.IsMdmOrTb.ValueString(),
 				OperatingSystem: item.OperatingSystem.ValueString(),
 				IsSdc:           item.IsSdc.ValueString(),
-				//PerformanceProfile: item.PerformanceProfile.ValueString(),
-				//SDCName:            item.SDCName.ValueString(),
 			}
 
 			if strings.EqualFold(csvStruct.IsSdc, "Yes") {
