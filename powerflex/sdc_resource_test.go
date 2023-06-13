@@ -99,7 +99,7 @@ func TestAccSDCManagerResourceNegative(t *testing.T) {
 			},
 			{
 				Config:      ProviderConfigForTesting + WithoutIP,
-				ExpectError: regexp.MustCompile(`.*Error while Parsing CSV.*`),
+				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value Length.*`),
 			},
 			{
 				Config:      ProviderConfigForTesting + WithoutPrimary,
@@ -137,13 +137,13 @@ resource "powerflex_package" "upload-test" {
 `
 var SDCConfigChangeName = `
 resource "powerflex_sdc" "name" {
-	id   = "e3ce46c500000002"
+	id   = "e3cfcd6500000004"
   	name = "` + time.Now().Weekday().String() + `1"
 }
 `
 var SDCConfigUpdateName = `
 resource "powerflex_sdc" "name" {
-	id   = "e3ce46c500000002"
+	id   = "e3cfcd6500000004"
   	name = "` + time.Now().Weekday().String() + `2"
 }
 `
@@ -159,7 +159,6 @@ resource "powerflex_sdc" "test" {
 			operating_system = "linux"
 			is_mdm_or_tb = "Primary"
 			is_sdc = "No"
-			sdc_id = "id"
 		},
 		{
 			ip = "` + GatewayDataPoints.secondaryMDMIP + `"
