@@ -80,7 +80,6 @@ type SDCDetailDataModel struct {
 	OnVMWare           types.Bool   `tfsdk:"on_vmware"`
 	SdcGUID            types.String `tfsdk:"sdc_guid"`
 	MdmConnectionState types.String `tfsdk:"mdm_connection_state"`
-	LastUpdated        types.String `tfsdk:"last_updated"`
 }
 
 // CsvRow desfines the srtuct for the CSV Data
@@ -267,14 +266,6 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 					stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("ip")),
-				},
-			},
-			"last_updated": schema.StringAttribute{
-				Computed:            true,
-				Description:         sdcResourceSchemaDescriptions.LastUpdated,
-				MarkdownDescription: sdcResourceSchemaDescriptions.LastUpdated,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{

@@ -137,13 +137,13 @@ resource "powerflex_package" "upload-test" {
 `
 var SDCConfigChangeName = `
 resource "powerflex_sdc" "name" {
-	id   = "e3cfcd6500000004"
+	id   = "e3cff47d00000005"
   	name = "` + time.Now().Weekday().String() + `1"
 }
 `
 var SDCConfigUpdateName = `
 resource "powerflex_sdc" "name" {
-	id   = "e3cfcd6500000004"
+	id   = "e3cff47d00000005"
   	name = "` + time.Now().Weekday().String() + `2"
 }
 `

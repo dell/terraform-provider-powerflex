@@ -142,7 +142,6 @@ Optional:
 
 Read-Only:
 
-- `last_updated` (String) The Last updated timestamp of the SDC.
 - `mdm_connection_state` (String) The MDM connection status of the fetched SDC.
 - `on_vmware` (Boolean) If the fetched SDC is on vmware.
 - `sdc_approved` (Boolean) If the fetched SDC is approved.

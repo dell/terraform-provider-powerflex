@@ -143,8 +143,6 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 		changedSDCDetail := getSDCState(*finalSDC.Sdc, SDCDetailDataModel{})
 
-		changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-
 		chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 
 		data, dgs := updateState(chnagedSDCs, plan)
@@ -385,10 +383,6 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 		changedSDCDetail := getSDCState(*finalSDC.Sdc, SDCDetailDataModel{})
 
-		if changedSDCDetail.LastUpdated.ValueString() == "" {
-			changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-		}
-
 		chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 
 		data, dgs := updateState(chnagedSDCs, plan)
@@ -412,10 +406,6 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 				if sdcData != nil {
 					changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
-
-					if changedSDCDetail.LastUpdated.ValueString() == "" {
-						changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-					}
 
 					chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 				}
@@ -536,7 +526,6 @@ func getSDCDetailType() map[string]attr.Type {
 		"on_vmware":            types.BoolType,
 		"sdc_guid":             types.StringType,
 		"mdm_connection_state": types.StringType,
-		"last_updated":         types.StringType,
 	}
 }
 
@@ -557,7 +546,6 @@ func getSDCDetailValue(sdc SDCDetailDataModel) (basetypes.ObjectValue, diag.Diag
 		"on_vmware":            types.BoolValue(sdc.OnVMWare.ValueBool()),
 		"sdc_guid":             types.StringValue(sdc.SdcGUID.ValueString()),
 		"mdm_connection_state": types.StringValue(sdc.MdmConnectionState.ValueString()),
-		"last_updated":         types.StringValue(sdc.LastUpdated.ValueString()),
 	})
 }
 
@@ -610,7 +598,7 @@ func CheckForExpansion(model []SDCDetailDataModel) bool {
 	performaneChangeSdc := false
 
 	for _, item := range model {
-		if strings.EqualFold(item.IsSdc.ValueString(), "Yes") {
+		if item.Password.ValueString() != "" {
 			performaneChangeSdc = true
 			break
 		}
@@ -733,10 +721,6 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 			if sdcData != nil {
 				changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
 
-				if changedSDCDetail.LastUpdated.ValueString() == "" {
-					changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-				}
-
 				*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
 			}
 		} else if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") && (sdc.SDCName.ValueString() != "" || sdc.PerformanceProfile.ValueString() != "") {
@@ -808,10 +792,6 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 
 			if finalSDC != nil {
 				changedSDCDetail := getSDCState(*finalSDC.Sdc, sdc)
-
-				if changedSDCDetail.LastUpdated.ValueString() == "" {
-					changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-				}
 
 				*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
 			}
