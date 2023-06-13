@@ -105,7 +105,7 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 	Attributes: map[string]schema.Attribute{
 		"sdc_details": sdcDetailSchema,
 		"name": schema.StringAttribute{
-			DeprecationMessage:  "This attribute will be remove in future release. To rename SDC, use attribute `name` in `sdc_details`",
+			DeprecationMessage:  "This attribute will be removed in future release. To rename SDC, use attribute `name` in `sdc_details`",
 			Description:         sdcResourceSchemaDescriptions.Name,
 			MarkdownDescription: sdcResourceSchemaDescriptions.Name,
 			Optional:            true,
