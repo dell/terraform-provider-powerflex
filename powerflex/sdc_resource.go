@@ -437,13 +437,9 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 		return
 	} else {
-		data, dgs := updateState(chnagedSDCs, plan)
-		resp.Diagnostics.Append(dgs...)
+		resp.State.RemoveResource(ctx)
 
-		diags = resp.State.Set(ctx, data)
-		resp.Diagnostics.Append(diags...)
-
-		tflog.Info(ctx, "SDC Details updated to state file successfully")
+		tflog.Info(ctx, "SDC Details deleted from state file successfully")
 	}
 }
 
