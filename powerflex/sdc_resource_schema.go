@@ -229,10 +229,10 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 				},
 			},
 			"is_sdc": schema.StringAttribute{
-				Description:         "Whether this node is want to manage as SDC or not,The acceptable value are `Yes` or `No`. Default value is `Yes`.",
+				Description:         "Whether this node is to operate as an SDC or not. The acceptable values are `Yes` and `No`. Default value is `Yes`.",
 				Optional:            true,
 				Computed:            true,
-				MarkdownDescription: "Whether this node is want to manage as SDC or not,The acceptable value are `Yes` or `No`. Default value is `Yes`.",
+				MarkdownDescription: "Whether this node is to operate as an SDC or not. The acceptable values are `Yes` and `No`. Default value is `Yes`.",
 				Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
 					"Yes",
 					"No",
