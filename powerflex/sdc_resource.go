@@ -143,8 +143,6 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 		changedSDCDetail := getSDCState(*finalSDC.Sdc, SDCDetailDataModel{})
 
-		changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-
 		chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 
 		data, dgs := updateState(chnagedSDCs, plan)
@@ -155,7 +153,7 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 	} else if len(sdcDetailList) > 0 {
 
-		resp.Diagnostics.Append(r.SDCExpansionOperations(ctx, plan, system, sdcDetailList, &chnagedSDCs)...)
+		resp.Diagnostics.Append(r.SDCExpansionOperations(ctx, plan, system, sdcDetailList)...)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -242,37 +240,44 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 
 			var sdcData *goscaleio.Sdc
 
-			if sdc.SDCID.ValueString() != "" {
-				sdcData, err = system.GetSdcByID(sdc.SDCID.ValueString())
+			if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") {
 
-				if err != nil {
-					resp.Diagnostics.AddError(
-						"[Read] Unable to Find SDC by ID:"+sdc.SDCID.ValueString(),
-						err.Error(),
-					)
+				if sdc.SDCID.ValueString() != "" {
+					sdcData, err = system.GetSdcByID(sdc.SDCID.ValueString())
+
+					if err != nil {
+						resp.Diagnostics.AddError(
+							"[Read] Unable to Find SDC by ID:"+sdc.SDCID.ValueString(),
+							err.Error(),
+						)
+					}
+				} else if sdc.IP.ValueString() != "" {
+					sdcData, err = system.FindSdc("SdcIP", sdc.IP.ValueString())
+
+					if err != nil {
+						resp.Diagnostics.AddError(
+							"[Read] Unable to Find SDC by IP:"+sdc.IP.ValueString(),
+							err.Error(),
+						)
+					}
+				} else if sdc.SDCName.ValueString() != "" {
+					sdcData, err = system.FindSdc("Name", sdc.SDCName.ValueString())
+
+					if err != nil {
+						resp.Diagnostics.AddError(
+							"[Read] Unable to Find SDC by Name:"+sdc.SDCName.ValueString(),
+							err.Error(),
+						)
+					}
 				}
-			} else if sdc.IP.ValueString() != "" {
-				sdcData, err = system.FindSdc("SdcIP", sdc.IP.ValueString())
 
-				if err != nil {
-					resp.Diagnostics.AddError(
-						"[Read] Unable to Find SDC by IP:"+sdc.IP.ValueString(),
-						err.Error(),
-					)
+				if sdcData != nil {
+					changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
+
+					chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 				}
-			} else if sdc.SDCName.ValueString() != "" {
-				sdcData, err = system.FindSdc("Name", sdc.SDCName.ValueString())
-
-				if err != nil {
-					resp.Diagnostics.AddError(
-						"[Read] Unable to Find SDC by Name:"+sdc.SDCName.ValueString(),
-						err.Error(),
-					)
-				}
-			}
-
-			if sdcData != nil {
-				changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
+			} else {
+				changedSDCDetail := getSDCState(*&goscaleio_types.Sdc{}, sdc)
 
 				chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 			}
@@ -337,14 +342,17 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		if len(deletedSDC) > 0 {
 
 			for _, sdc := range deletedSDC {
-				err := system.DeleteSdc(sdc.SDCID.ValueString())
 
-				if err != nil {
-					resp.Diagnostics.AddError(
-						"[Update] Unable to Delete SDC by ID:"+sdc.SDCID.ValueString(),
-						err.Error(),
-					)
-					return
+				if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") {
+					err := system.DeleteSdc(sdc.SDCID.ValueString())
+
+					if err != nil {
+						resp.Diagnostics.AddError(
+							"[Update] Unable to Delete SDC by ID:"+sdc.SDCID.ValueString(),
+							err.Error(),
+						)
+						return
+					}
 				}
 			}
 		}
@@ -375,10 +383,6 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 		changedSDCDetail := getSDCState(*finalSDC.Sdc, SDCDetailDataModel{})
 
-		if changedSDCDetail.LastUpdated.ValueString() == "" {
-			changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-		}
-
 		chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 
 		data, dgs := updateState(chnagedSDCs, plan)
@@ -391,19 +395,22 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 	} else if len(planSdcDetailList) > 0 {
 
-		resp.Diagnostics.Append(r.SDCExpansionOperations(ctx, plan, system, planSdcDetailList, &chnagedSDCs)...)
+		resp.Diagnostics.Append(r.SDCExpansionOperations(ctx, plan, system, planSdcDetailList)...)
 		if resp.Diagnostics.HasError() {
 
 			//Handling the existing state file data
 			for _, sdc := range planSdcDetailList {
-				sdcData, _ := system.FindSdc("SdcIP", sdc.IP.ValueString())
 
-				if sdcData != nil {
-					changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
+				if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") {
+					sdcData, _ := system.FindSdc("SdcIP", sdc.IP.ValueString())
 
-					if changedSDCDetail.LastUpdated.ValueString() == "" {
-						changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+					if sdcData != nil {
+						changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
+
+						chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 					}
+				} else {
+					changedSDCDetail := getSDCState(*&goscaleio_types.Sdc{}, sdc)
 
 					chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 				}
@@ -429,6 +436,10 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		tflog.Info(ctx, "SDC Details updated to state file successfully")
 
 		return
+	} else {
+		resp.State.RemoveResource(ctx)
+
+		tflog.Info(ctx, "SDC Details deleted from state file successfully")
 	}
 }
 
@@ -457,14 +468,17 @@ func (r *sdcResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 	}
 
 	for _, sdc := range sdcDetailList {
-		err := system.DeleteSdc(sdc.SDCID.ValueString())
+		if !strings.EqualFold(sdc.IsSdc.ValueString(), "No") {
 
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"[Delete] Unable to Delete SDC by ID:"+sdc.SDCID.ValueString(),
-				err.Error(),
-			)
-			return
+			err := system.DeleteSdc(sdc.SDCID.ValueString())
+
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"[Delete] Unable to Delete SDC by ID:"+sdc.SDCID.ValueString(),
+					err.Error(),
+				)
+				return
+			}
 		}
 	}
 
@@ -521,7 +535,6 @@ func getSDCDetailType() map[string]attr.Type {
 		"on_vmware":            types.BoolType,
 		"sdc_guid":             types.StringType,
 		"mdm_connection_state": types.StringType,
-		"last_updated":         types.StringType,
 	}
 }
 
@@ -542,7 +555,6 @@ func getSDCDetailValue(sdc SDCDetailDataModel) (basetypes.ObjectValue, diag.Diag
 		"on_vmware":            types.BoolValue(sdc.OnVMWare.ValueBool()),
 		"sdc_guid":             types.StringValue(sdc.SdcGUID.ValueString()),
 		"mdm_connection_state": types.StringValue(sdc.MdmConnectionState.ValueString()),
-		"last_updated":         types.StringValue(sdc.LastUpdated.ValueString()),
 	})
 }
 
@@ -595,7 +607,7 @@ func CheckForExpansion(model []SDCDetailDataModel) bool {
 	performaneChangeSdc := false
 
 	for _, item := range model {
-		if strings.EqualFold(item.IsSdc.ValueString(), "Yes") {
+		if item.Password.ValueString() != "" && strings.EqualFold(item.IsSdc.ValueString(), "Yes") {
 			performaneChangeSdc = true
 			break
 		}
@@ -627,7 +639,7 @@ func ResetInstallerQueue(gatewayClient *goscaleio.GatewayClient) error {
 }
 
 // SDCExpansionOperations function for the SDC Expansion Operation Like ParseCSV, Validate MDM and Installation
-func (r *sdcResource) SDCExpansionOperations(ctx context.Context, plan sdcResourceModel, system *goscaleio.System, sdcDetails []SDCDetailDataModel, chnagedSDCs *[]SDCDetailDataModel) (dia diag.Diagnostics) {
+func (r *sdcResource) SDCExpansionOperations(ctx context.Context, plan sdcResourceModel, system *goscaleio.System, sdcDetails []SDCDetailDataModel) (dia diag.Diagnostics) {
 
 	if CheckForExpansion(sdcDetails) {
 		parsecsvRespose, parseCSVError := ParseCSVOperation(ctx, sdcDetails, r.gatewayClient)
@@ -688,30 +700,6 @@ func (r *sdcResource) SDCExpansionOperations(ctx context.Context, plan sdcResour
 					return
 				}
 			}
-			for _, sdc := range sdcDetails {
-
-				if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") && sdc.SDCName.ValueString() == "" && sdc.PerformanceProfile.ValueString() == "" {
-					sdcData, err := system.FindSdc("SdcIP", sdc.IP.ValueString())
-
-					if err != nil {
-						dia.AddError(
-							"[Create] Unable to Find SDC by IP:"+sdc.IP.ValueString(),
-							err.Error(),
-						)
-					}
-
-					if sdcData != nil {
-						changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
-
-						if changedSDCDetail.LastUpdated.ValueString() == "" {
-							changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-						}
-
-						*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
-					}
-				}
-			}
-
 		} else if validateMDMResponse.StatusCode != 200 {
 			dia.AddError(
 				"Error While Validating MDM Credentials",
@@ -729,7 +717,22 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 
 	for _, sdc := range sdcDetailList {
 
-		if sdc.SDCName.ValueString() != "" || sdc.PerformanceProfile.ValueString() != "" {
+		if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") && sdc.SDCName.ValueString() == "" && sdc.PerformanceProfile.ValueString() == "" {
+			sdcData, err := system.FindSdc("SdcIP", sdc.IP.ValueString())
+
+			if err != nil {
+				dia.AddError(
+					"[Create] Unable to Find SDC by IP:"+sdc.IP.ValueString(),
+					err.Error(),
+				)
+			}
+
+			if sdcData != nil {
+				changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
+
+				*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
+			}
+		} else if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") && (sdc.SDCName.ValueString() != "" || sdc.PerformanceProfile.ValueString() != "") {
 			if sdc.SDCID.ValueString() == "" && sdc.IP.ValueString() != "" {
 				sdcID, err := system.GetSdcIDByIP(sdc.IP.ValueString())
 
@@ -799,72 +802,13 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 			if finalSDC != nil {
 				changedSDCDetail := getSDCState(*finalSDC.Sdc, sdc)
 
-				if changedSDCDetail.LastUpdated.ValueString() == "" {
-					changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-				}
-
 				*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
 			}
-		} else if strings.EqualFold(sdc.IsSdc.ValueString(), "No") && sdc.SDCName.ValueString() == "" && sdc.PerformanceProfile.ValueString() == "" {
+		} else if strings.EqualFold(sdc.IsSdc.ValueString(), "No") {
 
-			if sdc.SDCID.ValueString() != "" {
-				sdcData, err := system.GetSdcByID(sdc.SDCID.ValueString())
+			changedSDCDetail := getSDCState(goscaleio_types.Sdc{}, sdc)
 
-				if err != nil {
-					dia.AddError(
-						"[Create] Unable to Find SDC by ID:"+sdc.SDCID.ValueString(),
-						err.Error(),
-					)
-				}
-
-				if sdcData != nil {
-					changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
-
-					if changedSDCDetail.LastUpdated.ValueString() == "" {
-						changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-					}
-
-					*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
-				}
-			} else if sdc.IP.ValueString() != "" {
-				sdcData, err := system.FindSdc("SdcIP", sdc.IP.ValueString())
-
-				if err != nil {
-					dia.AddError(
-						"[Create] Unable to Find SDC by IP:"+sdc.IP.ValueString(),
-						err.Error(),
-					)
-				}
-
-				if sdcData != nil {
-					changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
-
-					if changedSDCDetail.LastUpdated.ValueString() == "" {
-						changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-					}
-
-					*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
-				}
-			} else if sdc.SDCName.ValueString() != "" {
-				sdcData, err := system.FindSdc("Name", sdc.SDCName.ValueString())
-
-				if err != nil {
-					dia.AddError(
-						"[Create] Unable to Find SDC by Name:"+sdc.SDCName.ValueString(),
-						err.Error(),
-					)
-				}
-
-				if sdcData != nil {
-					changedSDCDetail := getSDCState(*sdcData.Sdc, sdc)
-
-					if changedSDCDetail.LastUpdated.ValueString() == "" {
-						changedSDCDetail.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-					}
-
-					*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
-				}
-			}
+			*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
 
 		}
 	}
@@ -1077,30 +1021,30 @@ func getSDCState(sdc goscaleio_types.Sdc, model SDCDetailDataModel) (response SD
 
 	if sdc.ID != "" {
 		model.SDCID = types.StringValue(sdc.ID)
-	}
 
-	model.SDCName = types.StringValue(sdc.Name)
+		model.SDCName = types.StringValue(sdc.Name)
 
-	if sdc.SdcGUID != "" {
-		model.SdcGUID = types.StringValue(sdc.SdcGUID)
-	}
+		if sdc.SdcGUID != "" {
+			model.SdcGUID = types.StringValue(sdc.SdcGUID)
+		}
 
-	model.SdcApproved = types.BoolValue(sdc.SdcApproved)
+		model.SdcApproved = types.BoolValue(sdc.SdcApproved)
 
-	model.OnVMWare = types.BoolValue(sdc.OnVMWare)
+		model.OnVMWare = types.BoolValue(sdc.OnVMWare)
 
-	if sdc.SystemID != "" {
-		model.SystemID = types.StringValue(sdc.SystemID)
-	}
+		if sdc.SystemID != "" {
+			model.SystemID = types.StringValue(sdc.SystemID)
+		}
 
-	model.PerformanceProfile = types.StringValue(sdc.PerfProfile)
+		model.PerformanceProfile = types.StringValue(sdc.PerfProfile)
 
-	if sdc.SdcIP != "" {
-		model.IP = types.StringValue(sdc.SdcIP)
-	}
+		if sdc.SdcIP != "" {
+			model.IP = types.StringValue(sdc.SdcIP)
+		}
 
-	if sdc.MdmConnectionState != "" {
-		model.MdmConnectionState = types.StringValue(sdc.MdmConnectionState)
+		if sdc.MdmConnectionState != "" {
+			model.MdmConnectionState = types.StringValue(sdc.MdmConnectionState)
+		}
 	}
 
 	return model

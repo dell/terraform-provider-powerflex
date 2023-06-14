@@ -137,13 +137,13 @@ resource "powerflex_package" "upload-test" {
 `
 var SDCConfigChangeName = `
 resource "powerflex_sdc" "name" {
-	id   = "e3cfcd6500000004"
+	id   = "e3cff47d00000005"
   	name = "` + time.Now().Weekday().String() + `1"
 }
 `
 var SDCConfigUpdateName = `
 resource "powerflex_sdc" "name" {
-	id   = "e3cfcd6500000004"
+	id   = "e3cff47d00000005"
   	name = "` + time.Now().Weekday().String() + `2"
 }
 `
@@ -203,7 +203,6 @@ resource "powerflex_sdc" "test" {
 			operating_system = "linux"
 			is_mdm_or_tb = "Secondary"
 			is_sdc = "NO"
-			performance_profile = "Compact"
 		},
 		{
 			ip = "` + GatewayDataPoints.tbIP + `"
@@ -211,6 +210,7 @@ resource "powerflex_sdc" "test" {
 			operating_system = "linux"
 			is_mdm_or_tb = "TB"
 			is_sdc = "Yes"
+			performance_profile = "Compact"
 	    },
 	    {
 			ip = "` + GatewayDataPoints.sdcServerIP + `"
@@ -240,7 +240,7 @@ resource "powerflex_sdc" "test" {
 			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "Secondary"
-			is_sdc = "NO"
+			is_sdc = "Yes"
 			name = "` + time.Now().Weekday().String() + `"
 		},
 		{
@@ -277,15 +277,16 @@ resource "powerflex_sdc" "test" {
 			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "Primary"
-			is_sdc = "No"
+			is_sdc = "Yes"
 		},
 		{
 			ip = "` + GatewayDataPoints.secondaryMDMIP + `"
 			password = "` + GatewayDataPoints.serverPassword + `"
 			operating_system = "linux"
 			is_mdm_or_tb = "Secondary"
-			is_sdc = "NO"
+			is_sdc = "Yes"
 			performance_profile = "HighPerformance"
+			name                = "sdc_expansion_test1"
 		},
 		{
 			ip = "` + GatewayDataPoints.tbIP + `"

@@ -132,7 +132,7 @@ Optional:
 
 - `ip` (String, Sensitive) IP of the node. Conflict with `sdc_id`
 - `is_mdm_or_tb` (String) Whether this works as MDM or Tie Breaker,The acceptable value are `Primary`, `Secondary`, `TB`, `Standby` or blank. Default value is blank
-- `is_sdc` (String) Whether this node is SDC or not,The acceptable value are `Yes` or `No`. Default value is `No`.
+- `is_sdc` (String) Whether this node is to operate as an SDC or not. The acceptable values are `Yes` and `No`. Default value is `Yes`.
 - `name` (String) Name of the SDC to manage.
 - `operating_system` (String) Operating System on the node
 - `password` (String, Sensitive) Password of the node
@@ -142,7 +142,6 @@ Optional:
 
 Read-Only:
 
-- `last_updated` (String) The Last updated timestamp of the SDC.
 - `mdm_connection_state` (String) The MDM connection status of the fetched SDC.
 - `on_vmware` (Boolean) If the fetched SDC is on vmware.
 - `sdc_approved` (Boolean) If the fetched SDC is approved.
