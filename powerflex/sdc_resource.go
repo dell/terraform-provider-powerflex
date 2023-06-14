@@ -436,6 +436,14 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		tflog.Info(ctx, "SDC Details updated to state file successfully")
 
 		return
+	} else {
+		data, dgs := updateState(chnagedSDCs, plan)
+		resp.Diagnostics.Append(dgs...)
+
+		diags = resp.State.Set(ctx, data)
+		resp.Diagnostics.Append(diags...)
+
+		tflog.Info(ctx, "SDC Details updated to state file successfully")
 	}
 }
 
@@ -464,7 +472,7 @@ func (r *sdcResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 	}
 
 	for _, sdc := range sdcDetailList {
-		if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") {
+		if !strings.EqualFold(sdc.IsSdc.ValueString(), "No") {
 
 			err := system.DeleteSdc(sdc.SDCID.ValueString())
 
@@ -603,7 +611,7 @@ func CheckForExpansion(model []SDCDetailDataModel) bool {
 	performaneChangeSdc := false
 
 	for _, item := range model {
-		if item.Password.ValueString() != "" {
+		if item.Password.ValueString() != "" && strings.EqualFold(item.IsSdc.ValueString(), "Yes") {
 			performaneChangeSdc = true
 			break
 		}
