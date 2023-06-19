@@ -40,7 +40,7 @@ func init() {
 	sdcTestData.noOfSdc = "1"
 	sdcTestData.noOflinks = "4"
 	sdcTestData.name = ""
-	sdcTestData.sdcip = os.Getenv("POWERFLEX_SDC_IP1")
+	sdcTestData.sdcip = os.Getenv("POWERFLEX_SDC_IP")
 }
 
 func TestSdcDataSource(t *testing.T) {
@@ -59,21 +59,17 @@ func TestSdcDataSource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + TestSdcDataSourceByEmptyBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckTypeSetElemNestedAttrs("data.powerflex_sdc.selected", "sdcs.*", map[string]string{
-						"id":   "e3ce1fb500000000",
-						"name": "terraform_sdc",
-					}),
-					resource.TestCheckTypeSetElemNestedAttrs("data.powerflex_sdc.selected", "sdcs.*", map[string]string{
-						"id":   "e3ce1fb600000001",
-						"name": "Terraform_sdc1",
-					}),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "Terraform_sdc1"),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.sdc_ip", sdcTestData.sdcip),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.1.name", "terraform_sdc"),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.1.id", "e3d01ba200000001"),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + TestSdcDataSourceByNameBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "terraform_sdc"),
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.id", "e3ce1fb500000000"),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.id", "e3d01ba200000001"),
 				),
 			},
 		},
@@ -108,7 +104,7 @@ func TestSdcDataSourceNegative(t *testing.T) {
 
 var (
 	TestSdcDataSourceBlockOnlyID = `data "powerflex_sdc" "selected" {
-		id = "e3ce1fb600000001"
+		id = "e3d01ba100000000"
 	}`
 
 	TestSdcDataSourceByEmptyIDNeg = `data "powerflex_sdc" "selected" {
@@ -116,7 +112,7 @@ var (
 	}`
 
 	TestSdcDataSourceBlockBothNeg = `data "powerflex_sdc" "selected" {
-		id = "e3ce1fb600000001"
+		id = "e3d01ba100000000"
 		name = "Terraform_sdc1"
 	}`
 
