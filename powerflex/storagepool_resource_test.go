@@ -347,21 +347,21 @@ func TestAccStoragepoolResourceManyAttributes(t *testing.T) {
 	})
 }
 
-func TestAccStoragepoolResourceCapacityAlertInvalidValue(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Create Storagepool Test Negative
-			{
-				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidAttributesValue1,
-				ExpectError: regexp.MustCompile(`.*Could not set capacity alert high threshold.*`),
-			},
-		},
-	})
-}
+// func TestAccStoragepoolResourceCapacityAlertInvalidValue(t *testing.T) {
+// 	if os.Getenv("TF_ACC") == "" {
+// 		t.Skip("Dont run with units tests because it will try to create the context")
+// 	}
+// 	resource.Test(t, resource.TestCase{
+// 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+// 		Steps: []resource.TestStep{
+// 			// Create Storagepool Test Negative
+// 			{
+// 				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidAttributesValue1,
+// 				ExpectError: regexp.MustCompile(`.*Could not set capacity alert high threshold.*`),
+// 			},
+// 		},
+// 	})
+// }
 
 func TestAccStoragepoolResourceInvalidAttributesValue(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {

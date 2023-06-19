@@ -38,7 +38,7 @@ func TestAccDeviceDatasource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + deviceDataWithName,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev2", "name", "device_1"),
+					resource.TestCheckResourceAttr("data.powerflex_device.dev2", "name", "device_2"),
 				),
 			},
 			{
@@ -50,7 +50,7 @@ func TestAccDeviceDatasource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + deviceDataWithID,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev4", "id", "c7fc68a200000000"),
+					resource.TestCheckResourceAttr("data.powerflex_device.dev4", "id", "c7fe68a400020000"),
 				),
 			},
 			{
@@ -75,7 +75,7 @@ func TestAccDeviceDatasource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + deviceDataWithSdsID,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev8", "sds_id", "db2c37000000000"),
+					resource.TestCheckResourceAttr("data.powerflex_device.dev8", "sds_id", "db2c37200000002"),
 				),
 			},
 			{
@@ -137,7 +137,7 @@ data "powerflex_device" "dev1" {
 
 var deviceDataWithName = `
 data "powerflex_device" "dev2" {
-	name = "device_1"
+	name = "device_2"
 }
 `
 
@@ -149,7 +149,7 @@ data "powerflex_device" "dev3" {
 
 var deviceDataWithID = `
 data "powerflex_device" "dev4" {
-	id = "c7fc68a200000000"
+	id = "c7fe68a400020000"
 }
 `
 var deviceDataWithStoragePoolName = `
@@ -173,7 +173,7 @@ data "powerflex_device" "dev7" {
 
 var deviceDataWithSdsID = `
 data "powerflex_device" "dev8" {
-	sds_id = "db2c37000000000"
+	sds_id = "db2c37200000002"
 }
 `
 

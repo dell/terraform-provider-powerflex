@@ -88,7 +88,7 @@ func generateDynamicConfig(baseConfig string, sdcID string, name string) string 
 	return fmt.Sprintf("%s\nresource \"powerflex_sdc\" \"test\" {\n  name = \"%s\"\n  id = \"%s\"\n}", baseConfig, name, sdcID)
 }
 
-func TestAccSDCManagerResourceSingleNameOperation(t *testing.T) {
+func TestAccSDCResourceSingleNameOperation(t *testing.T) {
 
 	var sdcID string // Variable to store the SDC IP
 
@@ -140,7 +140,7 @@ func TestAccSDCManagerResourceSingleNameOperation(t *testing.T) {
 		}})
 }
 
-func TestAccSDCManagerResourceMultiNameOperation(t *testing.T) {
+func TestAccSDCResourceMultiNameOperation(t *testing.T) {
 
 	var sdcID string // Variable to store the SDC IP
 
@@ -214,7 +214,7 @@ func TestAccSDCManagerResourceMultiNameOperation(t *testing.T) {
 		}})
 }
 
-func TestAccSDCManagerResourceNegative(t *testing.T) {
+func TestAccSDCResourceNegative(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
