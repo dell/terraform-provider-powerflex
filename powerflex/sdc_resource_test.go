@@ -72,7 +72,7 @@ func TestAccSDCResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.1.name", time.Now().Weekday().String()),
 				),
 			},
-			//Perormance Profile
+			//Performance Profile
 			{
 				Config: ProviderConfigForTesting + packageTest + SDCConfigPerProfile,
 				Check: resource.ComposeAggregateTestCheckFunc(
