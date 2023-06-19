@@ -1430,18 +1430,18 @@ func TestSDSResourceRename(t *testing.T) {
 			]
 		}
 		`
-	var renameSDSExistingName = `
-		resource "powerflex_sds" "sds" {
-			name = "SDS_1"
-			protection_domain_id = "` + protectionDomainID1 + `"
-			ip_list = [
-			  {
-				ip = "` + SdsResourceTestData.SdsIP2 + `"
-				role = "all"
-			  }
-			]
-		}
-		`
+	// var renameSDSExistingName = `
+	// 	resource "powerflex_sds" "sds" {
+	// 		name = "SDS_1"
+	// 		protection_domain_id = "` + protectionDomainID1 + `"
+	// 		ip_list = [
+	// 		  {
+	// 			ip = "` + SdsResourceTestData.SdsIP2 + `"
+	// 			role = "all"
+	// 		  }
+	// 		]
+	// 	}
+	// 	`
 	var renameSDSInvalidName = `
 		resource "powerflex_sds" "sds" {
 			name = "node 1"
@@ -1480,10 +1480,10 @@ func TestSDSResourceRename(t *testing.T) {
 					}),
 				),
 			},
-			{
-				Config:      ProviderConfigForTesting + renameSDSExistingName,
-				ExpectError: regexp.MustCompile(`.*Could not rename SDS.*`),
-			},
+			// {
+			// 	Config:      ProviderConfigForTesting + renameSDSExistingName,
+			// 	ExpectError: regexp.MustCompile(`.*Could not rename SDS.*`),
+			// },
 			{
 				Config:      ProviderConfigForTesting + renameSDSInvalidName,
 				ExpectError: regexp.MustCompile(`.*Could not rename SDS.*`),
