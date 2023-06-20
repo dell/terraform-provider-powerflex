@@ -1,0 +1,17 @@
+# Controls when the workflow will run
+on:
+  push:
+    branches: [ "test-auto-docs" ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  action-check:
+    name: Check the checkout action
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+        with:
+          ref: test-auto-docs
+      - name: LS output after checkout
+        run: ls
