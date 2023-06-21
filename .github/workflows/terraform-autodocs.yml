@@ -22,7 +22,7 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v3
         with:
-          repository: terraform-providers-svc/terraform-docs 
+          repository: terraform-providers-svc/dell/terraform-docs 
           token: ${{ secrets.SERVICE_TOKEN }}           
           ref: test-docs-automation 
       - run: git branch     
