@@ -6,6 +6,7 @@ The release supports resources mentioned in the Features section for Dell PowerF
 ### Resources
 * `powerflex_device` for managing devices in PowerFlex.
 * `powerflex_protection_domain` for managing protection domains in PowerFlex.
+* `powerflex_package` for managing packages on the PowerFlex Gateway.
 
 ### Data Sources:
 * `powerflex_device` for reading devices in PowerFlex.
@@ -15,8 +16,10 @@ The release supports resources mentioned in the Features section for Dell PowerF
 * `powerflex_sdc` is enhanced to create/delete/import multiple SDCs in PowerFlex.
 
 ### Deprecations:
-* `sdc_list` attribute from volume and snapshot resource.
 * `name` attribute from SDC resource.
+
+### Notes:
+* `sdc_list` attribute is removed from volume and snapshot resource.
 
 # v1.0.1 (May 23, 2023)
 ## Release Summary
