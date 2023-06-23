@@ -14,12 +14,7 @@ jobs:
         with:
           ref: test-auto-docs
       - run: git branch 
-
-  checkout-docs:
-    name: Check out to docs repo
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the code
+      - name: Check out to docs repo
         uses: actions/checkout@v3
         with:
           repository: dell/terraform-docs
