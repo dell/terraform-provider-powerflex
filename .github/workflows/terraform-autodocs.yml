@@ -23,6 +23,6 @@ jobs:
           ref: test-docs-automation 
       - run: ls -ltr
       - run: pwd
-      - run: cd ../ && ls -ltr
+      - run: cd ../ && ls -a
       - run: make powerflex
       - run: git status     
