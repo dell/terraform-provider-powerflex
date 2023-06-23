@@ -25,4 +25,5 @@ jobs:
           repository: dell/terraform-docs
           token: ${{ secrets.SERVICE_TOKEN }}    
           ref: test-docs-automation 
-      - run: git branch     
+      - run: make powerflex
+      - run: git status     
