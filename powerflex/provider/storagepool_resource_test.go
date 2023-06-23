@@ -26,7 +26,6 @@ import (
 )
 
 var testAccStoragePoolName = os.Getenv("POWERFLEX_STORAGE_POOL_NAME")
-var protectionDomainID1 = os.Getenv("POWERFLEX_PROTECTION_DOMAIN_ID")
 
 // TestAccStoragepoolResource
 func TestAccStoragepoolResource(t *testing.T) {

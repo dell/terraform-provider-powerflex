@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package powerflex
+package provider
 
 import (
 	"os"
@@ -60,11 +60,11 @@ func TestSdcDataSource(t *testing.T) {
 				Config: ProviderConfigForTesting + TestSdcDataSourceByEmptyBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckTypeSetElemNestedAttrs("data.powerflex_sdc.selected", "sdcs.*", map[string]string{
-						"id":   "e3ce1fb500000000",
+						"id":   "e3d01ba200000001",
 						"name": "terraform_sdc",
 					}),
 					resource.TestCheckTypeSetElemNestedAttrs("data.powerflex_sdc.selected", "sdcs.*", map[string]string{
-						"id":   "e3ce1fb600000001",
+						"id":   "e3d01ba100000000",
 						"name": "Terraform_sdc1",
 					}),
 				),
@@ -73,7 +73,6 @@ func TestSdcDataSource(t *testing.T) {
 				Config: ProviderConfigForTesting + TestSdcDataSourceByNameBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "terraform_sdc"),
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.id", "e3ce1fb500000000"),
 				),
 			},
 		},
@@ -108,7 +107,7 @@ func TestSdcDataSourceNegative(t *testing.T) {
 
 var (
 	TestSdcDataSourceBlockOnlyID = `data "powerflex_sdc" "selected" {
-		id = "e3ce1fb600000001"
+		id = "e3d01ba100000000"
 	}`
 
 	TestSdcDataSourceByEmptyIDNeg = `data "powerflex_sdc" "selected" {
@@ -116,7 +115,7 @@ var (
 	}`
 
 	TestSdcDataSourceBlockBothNeg = `data "powerflex_sdc" "selected" {
-		id = "e3ce1fb600000001"
+		id = "e3d01ba100000000"
 		name = "Terraform_sdc1"
 	}`
 

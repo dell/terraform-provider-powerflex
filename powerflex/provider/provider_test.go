@@ -99,7 +99,6 @@ func getNewGatewayDataPointForTest() gatewayDataPoints {
 	GatewayDataPoints.tbIP = os.Getenv("POWERFLEX_TB_IP")
 	GatewayDataPoints.sdcServerIP = os.Getenv("POWERFLEX_SDC_SERVER_IP")
 	GatewayDataPoints.serverPassword = os.Getenv("POWERFLEX_SERVER_PASSWORD")
-	GatewayDataPoints.serverPassword = os.Getenv("POWERFLEX_SERVER_PASSWORD")
 	GatewayDataPoints.mdmPassword = os.Getenv("POWERFLEX_MDM_PASSWORD")
 	GatewayDataPoints.liaPassword = os.Getenv("POWERFLEX_LIA_PASSWORD")
 

@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package powerflex
+package provider
 
 import (
 	"testing"
@@ -41,7 +41,7 @@ func TestStoragePoolDataSource(t *testing.T) {
 				Config: ProviderConfigForTesting + StoragePoolDataSourceConfig2,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example2", "storage_pools.#", "2"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example2", "storage_pools.0.id", "c98ec35000000002"),
+					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example2", "storage_pools.0.id", "c992bad600000005"),
 					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example2", "storage_pools.1.id", "c98e26e500000000"),
 					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example2", "protection_domain_id", protectionDomainID1),
 				),
@@ -59,7 +59,7 @@ func TestStoragePoolDataSource(t *testing.T) {
 				Config: ProviderConfigForTesting + StoragePoolDataSourceConfig4,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example4", "storage_pools.#", "2"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example4", "storage_pools.0.id", "c98ec35000000002"),
+					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example4", "storage_pools.0.id", "c992bad600000005"),
 					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example4", "storage_pools.1.id", "c98e26e500000000"),
 					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example4", "protection_domain_name", "domain1"),
 				),
@@ -84,7 +84,7 @@ data "powerflex_storage_pool" "example1" {
 var StoragePoolDataSourceConfig2 = `
 data "powerflex_storage_pool" "example2" {
 	protection_domain_id = "` + protectionDomainID1 + `"
-	storage_pool_ids = ["c98ec35000000002", "c98e26e500000000"]
+	storage_pool_ids = ["c992bad600000005", "c98e26e500000000"]
 }
 `
 
@@ -97,7 +97,7 @@ data "powerflex_storage_pool" "example3" {
 var StoragePoolDataSourceConfig4 = `
 data "powerflex_storage_pool" "example4" {
 	protection_domain_name = "domain1"
-	storage_pool_ids = ["c98ec35000000002", "c98e26e500000000"]
+	storage_pool_ids = ["c992bad600000005", "c98e26e500000000"]
 }
 `
 var StoragePoolDataSourceConfig5 = `

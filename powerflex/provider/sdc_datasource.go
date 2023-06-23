@@ -15,12 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package powerflex
+package provider
 
 import (
 	"context"
 
-	"terraform-provider-powerflex/helper"
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
 
 	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -32,6 +33,11 @@ var (
 	_ datasource.DataSource              = &sdcDataSource{}
 	_ datasource.DataSourceWithConfigure = &sdcDataSource{}
 )
+
+// sdcDataSource - for returning singleton holder with goscaleio client.
+type sdcDataSource struct {
+	client *goscaleio.Client
+}
 
 // SDCDataSource - function used to return SDC DataSource provider with singleton values.
 func SDCDataSource() datasource.DataSource {
@@ -59,11 +65,11 @@ func (d *sdcDataSource) Configure(_ context.Context, req datasource.ConfigureReq
 
 // Read - function to read sdc values from goscaleio.
 func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var state sdcDataSourceModel
+	var state models.SdcDataSourceModel
 	diags := req.Config.Get(ctx, &state)
 	tflog.Info(ctx, "[POWERFLEX] sdcDataSourceModel"+helper.PrettyJSON((state)))
 
-	system, err := getFirstSystem(d.client)
+	system, err := helper.GetFirstSystem(d.client)
 
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -82,15 +88,15 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		return
 	}
 	// Set state
-	searchFilter := sdcFilterType.All
+	searchFilter := helper.SdcFilterType.All
 	if !state.Name.IsNull() {
-		searchFilter = sdcFilterType.ByName
+		searchFilter = helper.SdcFilterType.ByName
 	}
 	if !state.ID.IsNull() {
-		searchFilter = sdcFilterType.ByID
+		searchFilter = helper.SdcFilterType.ByID
 	}
 
-	allSdcWithStats := getAllSdcState(ctx, *d.client, sdcs)
+	allSdcWithStats := helper.GetAllSdcState(ctx, *d.client, sdcs)
 
 	if len(*allSdcWithStats) == 0 {
 		resp.Diagnostics.AddError("SDCs are not installed on the PowerFlex cluster.",
@@ -99,10 +105,10 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		return
 	}
 
-	if searchFilter == sdcFilterType.All {
+	if searchFilter == helper.SdcFilterType.All {
 		state.Sdcs = *allSdcWithStats
 	} else {
-		filterResult := getFilteredSdcState(allSdcWithStats, searchFilter, state.Name.ValueString(), state.ID.ValueString())
+		filterResult := helper.GetFilteredSdcState(allSdcWithStats, searchFilter, state.Name.ValueString(), state.ID.ValueString())
 		if len(*filterResult) == 0 {
 			resp.Diagnostics.AddError("Couldn't find SDC.",
 				"Couldn't find SDC.",

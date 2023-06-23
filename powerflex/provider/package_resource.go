@@ -15,31 +15,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package powerflex
+package provider
 
 import (
 	"context"
 	"strconv"
 	"strings"
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
 
 	"github.com/dell/goscaleio"
-	goscaleio_types "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/attr"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
-
-// PackageModel defines the struct for device resource
-type PackageModel struct {
-	ID             types.String `tfsdk:"id"`
-	FilePath       types.List   `tfsdk:"file_path"`
-	PackageDetails types.Set    `tfsdk:"package_details"`
-}
 
 // NewPackageResource is a helper function to simplify the provider implementation.
 func NewPackageResource() resource.Resource {
@@ -158,7 +149,7 @@ func (r *packageResource) Configure(_ context.Context, req resource.ConfigureReq
 // Create creates the resource and sets the initial Terraform state.
 func (r *packageResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan PackageModel
+	var plan models.PackageModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -188,7 +179,7 @@ func (r *packageResource) Create(ctx context.Context, req resource.CreateRequest
 		}
 
 		// Set refreshed state
-		data, dgs := updateUploadPackageState(packageDetailResponse, plan)
+		data, dgs := helper.UpdateUploadPackageState(packageDetailResponse, plan)
 		resp.Diagnostics.Append(dgs...)
 
 		diags = resp.State.Set(ctx, data)
@@ -201,63 +192,10 @@ func (r *packageResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 }
 
-func updateUploadPackageState(packageDetails []*goscaleio_types.PackageDetails, plan PackageModel) (PackageModel, diag.Diagnostics) {
-	state := plan
-	var diags diag.Diagnostics
-
-	PackageAttrTypes := getPackageType()
-	PackageElemType := types.ObjectType{
-		AttrTypes: PackageAttrTypes,
-	}
-
-	packages := []attr.Value{}
-	for _, vol := range packageDetails {
-		objVal, dgs := getPackageValue(vol)
-		diags = append(diags, dgs...)
-		packages = append(packages, objVal)
-	}
-	setVal, dgs := types.SetValue(PackageElemType, packages)
-	diags = append(diags, dgs...)
-	state.PackageDetails = setVal
-	state.ID = types.StringValue("placeholder")
-
-	return state, diags
-}
-
-// getPackageType returns the Package type required for mapping
-func getPackageType() map[string]attr.Type {
-	return map[string]attr.Type{
-		"file_name":        types.StringType,
-		"operating_system": types.StringType,
-		"linux_flavour":    types.StringType,
-		"version":          types.StringType,
-		"label":            types.StringType,
-		"type":             types.StringType,
-		"sio_patch_number": types.Int64Type,
-		"size":             types.Int64Type,
-		"latest":           types.BoolType,
-	}
-}
-
-// getPackageValue returns the Package object required for mapping
-func getPackageValue(packageDetails *goscaleio_types.PackageDetails) (basetypes.ObjectValue, diag.Diagnostics) {
-	return types.ObjectValue(getPackageType(), map[string]attr.Value{
-		"file_name":        types.StringValue(packageDetails.Filename),
-		"operating_system": types.StringValue(packageDetails.OperatingSystem),
-		"linux_flavour":    types.StringValue(packageDetails.LinuxFlavour),
-		"version":          types.StringValue(packageDetails.Version),
-		"label":            types.StringValue(packageDetails.Label),
-		"type":             types.StringValue(packageDetails.Type),
-		"sio_patch_number": types.Int64Value(int64(packageDetails.SioPatchNumber)),
-		"size":             types.Int64Value(int64(packageDetails.Size)),
-		"latest":           types.BoolValue(bool(packageDetails.Latest)),
-	})
-}
-
 // Read refreshes the Terraform state with the latest data.
 func (r *packageResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Retrieve values from state
-	var state PackageModel
+	var state models.PackageModel
 
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -275,7 +213,7 @@ func (r *packageResource) Read(ctx context.Context, req resource.ReadRequest, re
 	}
 
 	// Set refreshed state
-	data, dgs := updateUploadPackageState(packageDetailResponse, state)
+	data, dgs := helper.UpdateUploadPackageState(packageDetailResponse, state)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, data)
@@ -285,14 +223,14 @@ func (r *packageResource) Read(ctx context.Context, req resource.ReadRequest, re
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *packageResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Retrieve values from plan
-	var plan PackageModel
+	var plan models.PackageModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	var state PackageModel
+	var state models.PackageModel
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -318,7 +256,7 @@ func (r *packageResource) Update(ctx context.Context, req resource.UpdateRequest
 		stateFileMap[filePath] = filePath
 	}
 
-	removePackages := DifferenceMap(stateFileMap, planFileMap)
+	removePackages := helper.DifferenceMap(stateFileMap, planFileMap)
 
 	if len(removePackages) > 0 {
 		for _, packageData := range removePackages {
@@ -355,7 +293,7 @@ func (r *packageResource) Update(ctx context.Context, req resource.UpdateRequest
 		}
 
 		// Set refreshed state
-		data, dgs := updateUploadPackageState(packgeDetailResponse, plan)
+		data, dgs := helper.UpdateUploadPackageState(packgeDetailResponse, plan)
 		resp.Diagnostics.Append(dgs...)
 
 		diags = resp.State.Set(ctx, data)
@@ -371,7 +309,7 @@ func (r *packageResource) Update(ctx context.Context, req resource.UpdateRequest
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *packageResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
-	var state PackageModel
+	var state models.PackageModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

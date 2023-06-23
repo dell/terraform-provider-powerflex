@@ -15,42 +15,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package powerflex
+package provider
 
 import (
+	"terraform-provider-powerflex/powerflex/models"
+
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
-
-var sdcDatasourceSchemaDescriptions = struct {
-	LastUpdated        string
-	ID                 string
-	SystemID           string
-	Name               string
-	SdcIP              string
-	SdcApproved        string
-	OnVMWare           string
-	SdcGUID            string
-	MdmConnectionState string
-	Links              string
-	LinksRel           string
-	LinksHref          string
-}{
-	LastUpdated:        "The Last updated timestamp of the fetched SDC.",
-	ID:                 "The ID of the fetched SDC.",
-	SystemID:           "The System ID of the fetched SDC.",
-	Name:               "The name of the fetched SDC.",
-	SdcIP:              "The IP of the fetched SDC.",
-	SdcApproved:        "If the fetched SDC is approved.",
-	OnVMWare:           "If the fetched SDC is on vmware.",
-	SdcGUID:            "The GUID of the fetched SDC.",
-	MdmConnectionState: "The MDM connection status of the fetched SDC.",
-	Links:              "The Links of the fetched SDC.",
-	LinksRel:           "The Links-Rel of the fetched SDC.",
-	LinksHref:          "The Links-HREF of the fetched SDC.",
-}
 
 // SDCDataSourceScheme is variable for schematic for SDC Data Source
 var SDCDataSourceScheme schema.Schema = schema.Schema{
@@ -85,48 +59,48 @@ var SDCDataSourceScheme schema.Schema = schema.Schema{
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: map[string]schema.Attribute{
 					"id": schema.StringAttribute{
-						Description: sdcDatasourceSchemaDescriptions.ID,
+						Description: models.SdcDatasourceSchemaDescriptions.ID,
 						Computed:    true,
 					},
 					"name": schema.StringAttribute{
-						Description: sdcDatasourceSchemaDescriptions.Name,
+						Description: models.SdcDatasourceSchemaDescriptions.Name,
 						Computed:    true,
 					},
 					"sdc_guid": schema.StringAttribute{
-						Description: sdcDatasourceSchemaDescriptions.SdcGUID,
+						Description: models.SdcDatasourceSchemaDescriptions.SdcGUID,
 						Computed:    true,
 					},
 					"on_vmware": schema.BoolAttribute{
-						Description: sdcDatasourceSchemaDescriptions.OnVMWare,
+						Description: models.SdcDatasourceSchemaDescriptions.OnVMWare,
 						Computed:    true,
 					},
 					"sdc_approved": schema.BoolAttribute{
-						Description: sdcDatasourceSchemaDescriptions.SdcApproved,
+						Description: models.SdcDatasourceSchemaDescriptions.SdcApproved,
 						Computed:    true,
 					},
 					"system_id": schema.StringAttribute{
-						Description: sdcDatasourceSchemaDescriptions.SystemID,
+						Description: models.SdcDatasourceSchemaDescriptions.SystemID,
 						Computed:    true,
 					},
 					"sdc_ip": schema.StringAttribute{
-						Description: sdcDatasourceSchemaDescriptions.SdcIP,
+						Description: models.SdcDatasourceSchemaDescriptions.SdcIP,
 						Computed:    true,
 					},
 					"mdm_connection_state": schema.StringAttribute{
-						Description: sdcDatasourceSchemaDescriptions.MdmConnectionState,
+						Description: models.SdcDatasourceSchemaDescriptions.MdmConnectionState,
 						Computed:    true,
 					},
 					"links": schema.ListNestedAttribute{
-						Description: sdcDatasourceSchemaDescriptions.Links,
+						Description: models.SdcDatasourceSchemaDescriptions.Links,
 						Computed:    true,
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"rel": schema.StringAttribute{
-									Description: sdcDatasourceSchemaDescriptions.LinksRel,
+									Description: models.SdcDatasourceSchemaDescriptions.LinksRel,
 									Computed:    true,
 								},
 								"href": schema.StringAttribute{
-									Description: sdcDatasourceSchemaDescriptions.LinksHref,
+									Description: models.SdcDatasourceSchemaDescriptions.LinksHref,
 									Computed:    true,
 								},
 							},

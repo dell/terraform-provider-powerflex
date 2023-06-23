@@ -15,11 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package powerflex
+package provider
 
 import (
 	"os"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
 	"testing"
 
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
@@ -105,7 +107,7 @@ func TestNonNullPDConnInfo(t *testing.T) {
 		DisconnectedServerIP:   &inputStr,
 	}
 
-	expectedOut := pdConnInfoModel{
+	expectedOut := models.PdConnInfoModel{
 		ClientServerConnStatus: types.StringValue(inputStr),
 		DisconnectedClientID:   types.StringValue(inputStr),
 		DisconnectedClientName: types.StringValue(inputStr),
@@ -114,7 +116,7 @@ func TestNonNullPDConnInfo(t *testing.T) {
 		DisconnectedServerIP:   types.StringValue(inputStr),
 	}
 
-	out := pdConnInfoModelValue(input)
+	out := helper.PdConnInfoModelValue(input)
 
 	if out != expectedOut {
 		t.Fatalf("Error matching output and expected: %#v vs %#v", out, expectedOut)
@@ -130,7 +132,7 @@ func TestNonNullReplicationCapacityMaxRatio(t *testing.T) {
 		ReplicationCapacityMaxRatio: &inp,
 	}
 
-	outList := getAllProtectionDomainState([]*scaleiotypes.ProtectionDomain{
+	outList := helper.GetAllProtectionDomainState([]*scaleiotypes.ProtectionDomain{
 		&input,
 	})
 	out := outList[0]

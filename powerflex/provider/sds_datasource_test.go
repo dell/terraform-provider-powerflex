@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package powerflex
+package provider
 
 import (
 	"os"
@@ -37,7 +37,7 @@ func TestSdsDataSource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_sds.example1", "sds_details.#", "1"),
 					resource.TestCheckResourceAttr("data.powerflex_sds.example1", "sds_details.0.name", "SDS_1"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example1", "sds_details.0.id", "0db2c37000000000"),
+					resource.TestCheckResourceAttr("data.powerflex_sds.example1", "sds_details.0.id", "0db7306f00000003"),
 					resource.TestCheckResourceAttr("data.powerflex_sds.example1", "protection_domain_id", protectionDomainID1),
 				),
 			},
@@ -46,7 +46,7 @@ func TestSdsDataSource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "sds_details.#", "1"),
 					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "sds_details.0.name", "SDS_1"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "sds_details.0.id", "0db2c37000000000"),
+					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "sds_details.0.id", "0db7306f00000003"),
 					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "protection_domain_id", protectionDomainID1),
 				),
 			},
@@ -55,7 +55,7 @@ func TestSdsDataSource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_sds.example3", "sds_details.#", "1"),
 					resource.TestCheckResourceAttr("data.powerflex_sds.example3", "sds_details.0.name", "SDS_1"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example3", "sds_details.0.id", "0db2c37000000000"),
+					resource.TestCheckResourceAttr("data.powerflex_sds.example3", "sds_details.0.id", "0db7306f00000003"),
 					resource.TestCheckResourceAttr("data.powerflex_sds.example3", "protection_domain_name", "domain1"),
 				),
 			},
@@ -64,7 +64,7 @@ func TestSdsDataSource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_sds.example4", "sds_details.#", "1"),
 					resource.TestCheckResourceAttr("data.powerflex_sds.example4", "sds_details.0.name", "SDS_1"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example4", "sds_details.0.id", "0db2c37000000000"),
+					resource.TestCheckResourceAttr("data.powerflex_sds.example4", "sds_details.0.id", "0db7306f00000003"),
 					resource.TestCheckResourceAttr("data.powerflex_sds.example4", "protection_domain_name", "domain1"),
 				),
 			},
@@ -96,7 +96,7 @@ data "powerflex_sds" "example1" {
 var SdsDataSourceConfig2 = `
 data "powerflex_sds" "example2" {
 	protection_domain_id = "` + protectionDomainID1 + `"
-	sds_ids = ["0db2c37000000000"]
+	sds_ids = ["0db7306f00000003"]
 }
 `
 
@@ -110,7 +110,7 @@ data "powerflex_sds" "example3" {
 var SdsDataSourceConfig4 = `
 data "powerflex_sds" "example4" {
 	protection_domain_name = "domain1"
-	sds_ids = ["0db2c37000000000"]
+	sds_ids = ["0db7306f00000003"]
 }
 `
 

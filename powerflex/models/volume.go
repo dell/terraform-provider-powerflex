@@ -47,3 +47,54 @@ type SDCItemize struct {
 	SdcName       types.String `tfsdk:"sdc_name"`
 	AccessMode    types.String `tfsdk:"access_mode"`
 }
+
+type VolumeDataSourceModel struct {
+	Volumes         []VolumeModel `tfsdk:"volumes"`
+	ID              types.String  `tfsdk:"id"`
+	StoragePoolID   types.String  `tfsdk:"storage_pool_id"`
+	StoragePoolName types.String  `tfsdk:"storage_pool_name"`
+	Name            types.String  `tfsdk:"name"`
+}
+
+type VolumeModel struct {
+	ID                                 types.String         `tfsdk:"id"`
+	Name                               types.String         `tfsdk:"name"`
+	CreationTime                       types.Int64          `tfsdk:"creation_time"`
+	SizeInKb                           types.Int64          `tfsdk:"size_in_kb"`
+	AncestorVolumeID                   types.String         `tfsdk:"ancestor_volume_id"`
+	VTreeID                            types.String         `tfsdk:"vtree_id"`
+	ConsistencyGroupID                 types.String         `tfsdk:"consistency_group_id"`
+	VolumeType                         types.String         `tfsdk:"volume_type"`
+	UseRmCache                         types.Bool           `tfsdk:"use_rm_cache"`
+	StoragePoolID                      types.String         `tfsdk:"storage_pool_id"`
+	DataLayout                         types.String         `tfsdk:"data_layout"`
+	NotGenuineSnapshot                 types.Bool           `tfsdk:"not_genuine_snapshot"`
+	AccessModeLimit                    types.String         `tfsdk:"access_mode_limit"`
+	SecureSnapshotExpTime              types.Int64          `tfsdk:"secure_snapshot_exp_time"`
+	ManagedBy                          types.String         `tfsdk:"managed_by"`
+	LockedAutoSnapshot                 types.Bool           `tfsdk:"locked_auto_snapshot"`
+	LockedAutoSnapshotMarkedForRemoval types.Bool           `tfsdk:"locked_auto_snapshot_marked_for_removal"`
+	CompressionMethod                  types.String         `tfsdk:"compression_method"`
+	TimeStampIsAccurate                types.Bool           `tfsdk:"time_stamp_is_accurate"`
+	OriginalExpiryTime                 types.Int64          `tfsdk:"original_expiry_time"`
+	VolumeReplicationState             types.String         `tfsdk:"volume_replication_state"`
+	ReplicationJournalVolume           types.Bool           `tfsdk:"replication_journal_volume"`
+	ReplicationTimeStamp               types.Int64          `tfsdk:"replication_time_stamp"`
+	Links                              []VolumeLinkModel    `tfsdk:"links"`
+	MappedSdcInfo                      []MappedSdcInfoModel `tfsdk:"mapped_sdc_info"`
+}
+
+type VolumeLinkModel struct {
+	Rel  types.String `tfsdk:"rel"`
+	HREF types.String `tfsdk:"href"`
+}
+
+type MappedSdcInfoModel struct {
+	SdcID                 types.String `tfsdk:"sdc_id"`
+	SdcIP                 types.String `tfsdk:"sdc_ip"`
+	LimitIops             types.Int64  `tfsdk:"limit_iops"`
+	LimitBwInMbps         types.Int64  `tfsdk:"limit_bw_in_mbps"`
+	SdcName               types.String `tfsdk:"sdc_name"`
+	AccessMode            types.String `tfsdk:"access_mode"`
+	IsDirectBufferMapping types.Bool   `tfsdk:"is_direct_buffer_mapping"`
+}

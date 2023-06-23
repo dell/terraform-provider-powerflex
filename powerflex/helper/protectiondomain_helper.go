@@ -104,3 +104,96 @@ func GetLinksFromTfList(ctx context.Context, links types.List) ([]*scaleiotypes.
 	}
 	return listVal, d
 }
+
+func PdConnInfoModelValue(p scaleiotypes.PDConnInfo) models.PdConnInfoModel {
+	pdconninfo := models.PdConnInfoModel{
+		ClientServerConnStatus: types.StringValue(p.ClientServerConnStatus),
+	}
+	if v := p.DisconnectedClientID; v != nil {
+		pdconninfo.DisconnectedClientID = types.StringValue(*v)
+	} else {
+		pdconninfo.DisconnectedClientID = types.StringNull()
+	}
+	if v := p.DisconnectedClientName; v != nil {
+		pdconninfo.DisconnectedClientName = types.StringValue(*v)
+	} else {
+		pdconninfo.DisconnectedClientName = types.StringNull()
+	}
+	if v := p.DisconnectedServerID; v != nil {
+		pdconninfo.DisconnectedServerID = types.StringValue(*v)
+	} else {
+		pdconninfo.DisconnectedServerID = types.StringNull()
+	}
+	if v := p.DisconnectedServerName; v != nil {
+		pdconninfo.DisconnectedServerName = types.StringValue(*v)
+	} else {
+		pdconninfo.DisconnectedServerName = types.StringNull()
+	}
+	if v := p.DisconnectedServerIP; v != nil {
+		pdconninfo.DisconnectedServerIP = types.StringValue(*v)
+	} else {
+		pdconninfo.DisconnectedServerIP = types.StringNull()
+	}
+	return pdconninfo
+}
+
+func GetAllProtectionDomainState(protectionDomains []*scaleiotypes.ProtectionDomain) (response []models.ProtectionDomainModel) {
+	for _, protectionDomainValue := range protectionDomains {
+		protectionDomainState := models.ProtectionDomainModel{
+			SystemID:               types.StringValue(protectionDomainValue.SystemID),
+			SdrSdsConnectivityInfo: PdConnInfoModelValue(protectionDomainValue.SdrSdsConnectivityInfo),
+
+			// Network throttling params
+			RebuildNetworkThrottlingInKbps:                   types.Int64Value(int64(protectionDomainValue.RebuildNetworkThrottlingInKbps)),
+			RebalanceNetworkThrottlingInKbps:                 types.Int64Value(int64(protectionDomainValue.RebalanceNetworkThrottlingInKbps)),
+			OverallIoNetworkThrottlingInKbps:                 types.Int64Value(int64(protectionDomainValue.OverallIoNetworkThrottlingInKbps)),
+			VTreeMigrationNetworkThrottlingInKbps:            types.Int64Value(int64(protectionDomainValue.VTreeMigrationNetworkThrottlingInKbps)),
+			ProtectedMaintenanceModeNetworkThrottlingInKbps:  types.Int64Value(int64(protectionDomainValue.ProtectedMaintenanceModeNetworkThrottlingInKbps)),
+			OverallIoNetworkThrottlingEnabled:                types.BoolValue(protectionDomainValue.OverallIoNetworkThrottlingEnabled),
+			RebuildNetworkThrottlingEnabled:                  types.BoolValue(protectionDomainValue.RebuildNetworkThrottlingEnabled),
+			RebalanceNetworkThrottlingEnabled:                types.BoolValue(protectionDomainValue.RebalanceNetworkThrottlingEnabled),
+			VTreeMigrationNetworkThrottlingEnabled:           types.BoolValue(protectionDomainValue.VTreeMigrationNetworkThrottlingEnabled),
+			ProtectedMaintenanceModeNetworkThrottlingEnabled: types.BoolValue(protectionDomainValue.ProtectedMaintenanceModeNetworkThrottlingEnabled),
+
+			// Fine Granularity Params
+			FglDefaultNumConcurrentWrites: types.Int64Value(int64(protectionDomainValue.FglDefaultNumConcurrentWrites)),
+			FglMetadataCacheEnabled:       types.BoolValue(protectionDomainValue.FglMetadataCacheEnabled),
+			FglDefaultMetadataCacheSize:   types.Int64Value(int64(protectionDomainValue.FglDefaultMetadataCacheSize)),
+
+			// RfCache Params
+			RfCacheEnabled:         types.BoolValue(protectionDomainValue.RfCacheEnabled),
+			RfCacheAccpID:          types.StringValue(protectionDomainValue.RfCacheAccpID),
+			RfCacheOperationalMode: types.StringValue(string(protectionDomainValue.RfCacheOperationalMode)),
+			RfCachePageSizeKb:      types.Int64Value(int64(protectionDomainValue.RfCachePageSizeKb)),
+			RfCacheMaxIoSizeKb:     types.Int64Value(int64(protectionDomainValue.RfCacheMaxIoSizeKb)),
+
+			// Counter Params
+			SdsConfigurationFailureCP:            models.PdCounterModelValue(protectionDomainValue.SdsConfigurationFailureCP),
+			SdsDecoupledCP:                       models.PdCounterModelValue(protectionDomainValue.SdsDecoupledCP),
+			MdmSdsNetworkDisconnectionsCP:        models.PdCounterModelValue(protectionDomainValue.MdmSdsNetworkDisconnectionsCP),
+			SdsSdsNetworkDisconnectionsCP:        models.PdCounterModelValue(protectionDomainValue.SdsSdsNetworkDisconnectionsCP),
+			SdsReceiveBufferAllocationFailuresCP: models.PdCounterModelValue(protectionDomainValue.SdsReceiveBufferAllocationFailuresCP),
+
+			State: types.StringValue(protectionDomainValue.ProtectionDomainState),
+			Name:  types.StringValue(protectionDomainValue.Name),
+			ID:    types.StringValue(protectionDomainValue.ID),
+		}
+
+		if v := protectionDomainValue.ReplicationCapacityMaxRatio; v != nil {
+			protectionDomainState.ReplicationCapacityMaxRatio = types.Int64Value(int64(*v))
+		} else {
+			protectionDomainState.ReplicationCapacityMaxRatio = types.Int64Null()
+		}
+
+		for _, link := range protectionDomainValue.Links {
+			protectionDomainState.Links = append(protectionDomainState.Links, models.ProtectionDomainLinkModel{
+				Rel:  types.StringValue(link.Rel),
+				HREF: types.StringValue(link.HREF),
+			})
+		}
+
+		response = append(response, protectionDomainState)
+	}
+
+	return
+}

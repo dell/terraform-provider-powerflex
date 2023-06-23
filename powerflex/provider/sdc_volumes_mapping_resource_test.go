@@ -25,9 +25,9 @@ import (
 )
 
 func init() {
-	SDCMappingResourceID2 = "e3ce1fb500000000"
+	SDCMappingResourceID2 = "e3d01ba200000001"
 	SDCMappingResourceName2 = "terraform_sdc"
-	SDCVolName = "terraform-unknown-test"
+	SDCVolName = "tf-unknown-test-donot-delete"
 
 }
 
@@ -108,7 +108,7 @@ func TestAccSDCVolumesResource(t *testing.T) {
 				Config: ProviderConfigForTesting + MapSDCVolumesResource,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "name", "terraform_sdc"),
-					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3ce1fb500000000"),
+					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3d01ba200000001"),
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.*", map[string]string{
 						"volume_name":      "terraform-vol",
@@ -123,7 +123,7 @@ func TestAccSDCVolumesResource(t *testing.T) {
 				Config: ProviderConfigForTesting + AddVolumesToSDC,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "name", "terraform_sdc"),
-					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3ce1fb500000000"),
+					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3d01ba200000001"),
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.#", "2"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.*", map[string]string{
 						"volume_name":      "terraform-vol",
@@ -150,7 +150,7 @@ func TestAccSDCVolumesResource(t *testing.T) {
 				Config: ProviderConfigForTesting + MapSDCVolumesResource,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "name", "terraform_sdc"),
-					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3ce1fb500000000"),
+					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3d01ba200000001"),
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.*", map[string]string{
 						"volume_name":      "terraform-vol",
@@ -165,7 +165,7 @@ func TestAccSDCVolumesResource(t *testing.T) {
 				Config: ProviderConfigForTesting + ChangeSDCVolumesResource,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "name", "terraform_sdc"),
-					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3ce1fb500000000"),
+					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3d01ba200000001"),
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.*", map[string]string{
 						"volume_name":      "terraform-vol",
@@ -376,7 +376,7 @@ func TestAccSDCVolumesResourceUpdate(t *testing.T) {
 				Config: ProviderConfigForTesting + UpdateAccessMode,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "name", "terraform_sdc"),
-					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3ce1fb500000000"),
+					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3d01ba200000001"),
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.*", map[string]string{
 						"volume_name":      "terraform-vol1",
@@ -457,7 +457,7 @@ func TestAccSDCResourceUnknown(t *testing.T) {
 				Config: ProviderConfigForTesting + createSDCVolMapUnk,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "name", "terraform_sdc"),
-					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3ce1fb500000000"),
+					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "id", "e3d01ba200000001"),
 					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.*", map[string]string{
 						"volume_name":      "terraform-vol1",

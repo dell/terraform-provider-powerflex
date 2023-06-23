@@ -250,13 +250,13 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 // DataSources - returns array of all datasources.
 func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		// VolumeDataSource,
-		// SDCDataSource,
-		// ProtectionDomainDataSource,
-		// StoragePoolDataSource,
-		// SnapshotPolicyDataSource,
-		// SDSDataSource,
-		// DeviceDataSource,
+		VolumeDataSource,
+		SDCDataSource,
+		ProtectionDomainDataSource,
+		StoragePoolDataSource,
+		SnapshotPolicyDataSource,
+		SDSDataSource,
+		DeviceDataSource,
 	}
 }
 
@@ -267,10 +267,10 @@ func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resou
 		NewSDSResource,
 		NewVolumeResource,
 		NewSnapshotResource,
-		// SDCResource,
+		SDCResource,
 		StoragepoolResource,
-		// NewSDCVolumesMappingResource,
+		NewSDCVolumesMappingResource,
 		NewDeviceResource,
-		// NewPackageResource,
+		NewPackageResource,
 	}
 }

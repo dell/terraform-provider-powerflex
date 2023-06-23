@@ -125,3 +125,96 @@ func IsVtreeMigration(plan, state models.StoragepoolResourceModel) (*scaleiotype
 	}
 	return &payload, ok
 }
+
+func GetStoragePoolState(volList []*scaleiotypes.Volume, sdsList []scaleiotypes.Sds, s1 *scaleiotypes.StoragePool) (storagePool models.StoragePoolModel) {
+	storagePool = models.StoragePoolModel{
+		ID:   types.StringValue(s1.ID),
+		Name: types.StringValue(s1.Name),
+	}
+
+	// Iterate through volume list
+	for _, vol := range volList {
+		storagePool.Volumes = append(storagePool.Volumes, models.Volume{
+			ID:   types.StringValue(vol.ID),
+			Name: types.StringValue(vol.Name),
+		})
+	}
+
+	// Iterate through SDS list
+	for _, sds := range sdsList {
+		storagePool.SDS = append(storagePool.SDS, models.SdsData{
+			ID:   types.StringValue(sds.ID),
+			Name: types.StringValue(sds.Name),
+		})
+	}
+
+	// Iterate through the Links
+	for _, link := range s1.Links {
+		storagePool.Links = append(storagePool.Links, models.LinkModel{
+			Rel:  types.StringValue(link.Rel),
+			HREF: types.StringValue(link.HREF),
+		})
+	}
+
+	storagePool.RebalanceioPriorityPolicy = types.StringValue(s1.RebalanceioPriorityPolicy)
+	storagePool.RebalanceioPriorityAppBwPerDeviceThresholdInKbps = types.Int64Value(int64(s1.RebalanceioPriorityAppBwPerDeviceThresholdInKbps))
+	storagePool.RebalanceioPriorityAppIopsPerDeviceThreshold = types.Int64Value(int64(s1.RebalanceioPriorityAppIopsPerDeviceThreshold))
+	storagePool.RebalanceioPriorityBwLimitPerDeviceInKbps = types.Int64Value(int64(s1.RebalanceioPriorityBwLimitPerDeviceInKbps))
+	storagePool.RebalanceioPriorityQuietPeriodInMsec = types.Int64Value(int64(s1.RebalanceioPriorityQuietPeriodInMsec))
+	storagePool.RebalanceioPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.RebalanceioPriorityNumOfConcurrentIosPerDevice))
+	storagePool.RebuildioPriorityPolicy = types.StringValue(s1.RebuildioPriorityPolicy)
+	storagePool.RebuildioPriorityAppBwPerDeviceThresholdInKbps = types.Int64Value(int64(s1.RebuildioPriorityAppBwPerDeviceThresholdInKbps))
+	storagePool.RebuildioPriorityAppIopsPerDeviceThreshold = types.Int64Value(int64(s1.RebuildioPriorityAppIopsPerDeviceThreshold))
+	storagePool.RebuildioPriorityBwLimitPerDeviceInKbps = types.Int64Value(int64(s1.RebalanceioPriorityBwLimitPerDeviceInKbps))
+	storagePool.RebuildioPriorityQuietPeriodInMsec = types.Int64Value(int64(s1.RebuildioPriorityQuietPeriodInMsec))
+	storagePool.RebuildioPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.RebuildioPriorityNumOfConcurrentIosPerDevice))
+	storagePool.ZeroPaddingEnabled = types.BoolValue(s1.ZeroPaddingEnabled)
+	storagePool.UseRmcache = types.BoolValue(s1.UseRmcache)
+	storagePool.SparePercentage = types.Int64Value(int64(s1.SparePercentage))
+	storagePool.RmCacheWriteHandlingMode = types.StringValue(s1.RmCacheWriteHandlingMode)
+	storagePool.RebalanceEnabled = types.BoolValue(s1.RebalanceEnabled)
+	storagePool.RebuildEnabled = types.BoolValue(s1.RebuildEnabled)
+	storagePool.NumofParallelRebuildRebalanceJobsPerDevice = types.Int64Value(int64(s1.NumofParallelRebuildRebalanceJobsPerDevice))
+	storagePool.BackgroundScannerBWLimitKBps = types.Int64Value(int64(s1.BackgroundScannerBWLimitKBps))
+	storagePool.ProtectedMaintenanceModeIoPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.ProtectedMaintenanceModeIoPriorityNumOfConcurrentIosPerDevice))
+	storagePool.DataLayout = types.StringValue(s1.DataLayout)
+	storagePool.VtreeMigrationIoPriorityBwLimitPerDeviceInKbps = types.Int64Value(int64(s1.VtreeMigrationIoPriorityBwLimitPerDeviceInKbps))
+	storagePool.VtreeMigrationIoPriorityPolicy = types.StringValue(s1.VtreeMigrationIoPriorityPolicy)
+	storagePool.AddressSpaceUsage = types.StringValue(s1.AddressSpaceUsage)
+	storagePool.ExternalAccelerationType = types.StringValue(s1.ExternalAccelerationType)
+	storagePool.PersistentChecksumState = types.StringValue(s1.PersistentChecksumState)
+	storagePool.UseRfcache = types.BoolValue(s1.UseRfcache)
+	storagePool.ChecksumEnabled = types.BoolValue(s1.ChecksumEnabled)
+	storagePool.CompressionMethod = types.StringValue(s1.CompressionMethod)
+	storagePool.FragmentationEnabled = types.BoolValue(s1.FragmentationEnabled)
+	storagePool.CapacityUsageState = types.StringValue(s1.CapacityUsageState)
+	storagePool.CapacityUsageType = types.StringValue(s1.CapacityUsageType)
+	storagePool.AddressSpaceUsageType = types.StringValue(s1.AddressSpaceUsageType)
+	storagePool.BgScannerCompareErrorAction = types.StringValue(s1.BgScannerCompareErrorAction)
+	storagePool.BgScannerReadErrorAction = types.StringValue(s1.BgScannerReadErrorAction)
+	storagePool.ReplicationCapacityMaxRatio = types.Int64Value(int64(s1.ReplicationCapacityMaxRatio))
+	storagePool.PersistentChecksumEnabled = types.BoolValue(s1.PersistentChecksumEnabled)
+	storagePool.PersistentChecksumBuilderLimitKb = types.Int64Value(int64(s1.PersistentChecksumBuilderLimitKb))
+	storagePool.PersistentChecksumValidateOnRead = types.BoolValue(s1.PersistentChecksumValidateOnRead)
+	storagePool.VtreeMigrationIoPriorityNumOfConcurrentIosPerDevice = types.Int64Value(int64(s1.VtreeMigrationIoPriorityNumOfConcurrentIosPerDevice))
+	storagePool.ProtectedMaintenanceModeIoPriorityPolicy = types.StringValue(s1.ProtectedMaintenanceModeIoPriorityPolicy)
+	storagePool.BackgroundScannerMode = types.StringValue(s1.BackgroundScannerMode)
+	storagePool.MediaType = types.StringValue(s1.MediaType)
+	storagePool.CapacityAlertHighThreshold = types.Int64Value(int64(s1.CapacityAlertHighThreshold))
+	storagePool.CapacityAlertHighThreshold = types.Int64Value(int64(s1.CapacityAlertCriticalThreshold))
+	storagePool.VtreeMigrationIoPriorityAppBwPerDeviceThresholdInKbps = types.Int64Value(int64(s1.VtreeMigrationIoPriorityAppBwPerDeviceThresholdInKbps))
+	storagePool.VtreeMigrationIoPriorityAppIopsPerDeviceThreshold = types.Int64Value(int64(s1.VtreeMigrationIoPriorityAppBwPerDeviceThresholdInKbps))
+	storagePool.VtreeMigrationIoPriorityQuietPeriodInMsec = types.Int64Value(int64(s1.VtreeMigrationIoPriorityQuietPeriodInMsec))
+	storagePool.FglAccpID = types.StringValue(s1.FglAccpID)
+	storagePool.FglExtraCapacity = types.Int64Value(int64(s1.FglExtraCapacity))
+	storagePool.FglOverProvisioningFactor = types.Int64Value(int64(s1.FglOverProvisioningFactor))
+	storagePool.FglWriteAtomicitySize = types.Int64Value(int64(s1.FglWriteAtomicitySize))
+	storagePool.FglNvdimmWriteCacheSizeInMb = types.Int64Value(int64(s1.FglNvdimmWriteCacheSizeInMb))
+	storagePool.FglNvdimmMetadataAmortizationX100 = types.Int64Value(int64(s1.FglNvdimmMetadataAmortizationX100))
+	storagePool.FglPerfProfile = types.StringValue(s1.FglPerfProfile)
+	storagePool.ProtectedMaintenanceModeIoPriorityAppBwPerDeviceThresholdInKbps = types.Int64Value(int64(s1.ProtectedMaintenanceModeIoPriorityAppBwPerDeviceThresholdInKbps))
+	storagePool.ProtectedMaintenanceModeIoPriorityAppIopsPerDeviceThreshold = types.Int64Value(int64(s1.ProtectedMaintenanceModeIoPriorityAppIopsPerDeviceThreshold))
+	storagePool.ProtectedMaintenanceModeIoPriorityBwLimitPerDeviceInKbps = types.Int64Value(int64(s1.ProtectedMaintenanceModeIoPriorityBwLimitPerDeviceInKbps))
+	storagePool.ProtectedMaintenanceModeIoPriorityQuietPeriodInMsec = types.Int64Value(int64(s1.ProtectedMaintenanceModeIoPriorityQuietPeriodInMsec))
+	return
+}

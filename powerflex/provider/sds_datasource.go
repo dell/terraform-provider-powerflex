@@ -15,10 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package powerflex
+package provider
 
 import (
 	"context"
+
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
 
 	"github.com/dell/goscaleio"
 	scaleio_types "github.com/dell/goscaleio/types/v1"
@@ -43,99 +46,6 @@ type sdsDataSource struct {
 	client *goscaleio.Client
 }
 
-type ipList struct {
-	IP   types.String `tfsdk:"ip"`
-	Role types.String `tfsdk:"role"`
-}
-
-type sdsWindowType struct {
-	Threshold            types.Int64 `tfsdk:"threshold"`
-	WindowSizeInSec      types.Int64 `tfsdk:"window_size_in_sec"`
-	LastOscillationCount types.Int64 `tfsdk:"last_oscillation_count"`
-	LastOscillationTime  types.Int64 `tfsdk:"last_oscillation_time"`
-	MaxFailuresCount     types.Int64 `tfsdk:"max_failures_count"`
-}
-
-type sdsWindow struct {
-	ShortWindow  sdsWindowType `tfsdk:"short_window"`
-	MediumWindow sdsWindowType `tfsdk:"medium_window"`
-	LongWindow   sdsWindowType `tfsdk:"long_window"`
-}
-
-type certificateInfoModel struct {
-	Subject             types.String `tfsdk:"subject"`
-	Issuer              types.String `tfsdk:"issuer"`
-	ValidFrom           types.String `tfsdk:"valid_from"`
-	ValidTo             types.String `tfsdk:"valid_to"`
-	Thumbprint          types.String `tfsdk:"thumbprint"`
-	ValidFromAsn1Format types.String `tfsdk:"valid_from_asn1_format"`
-	ValidToAsn1Format   types.String `tfsdk:"valid_to_asn1_format"`
-}
-
-type raidControllersModel struct {
-	SerialNumber    types.String `tfsdk:"serial_number"`
-	ModelName       types.String `tfsdk:"model_name"`
-	VendorName      types.String `tfsdk:"vendor_name"`
-	FirmwareVersion types.String `tfsdk:"firmware_version"`
-	DriverVersion   types.String `tfsdk:"driver_version"`
-	DriverName      types.String `tfsdk:"driver_name"`
-	PciAddress      types.String `tfsdk:"pci_address"`
-	Status          types.String `tfsdk:"status"`
-	BatteryStatus   types.String `tfsdk:"battery_status"`
-}
-
-type sdsDataModel struct {
-	ID                                          types.String           `tfsdk:"id"`
-	Name                                        types.String           `tfsdk:"name"`
-	IPList                                      []ipList               `tfsdk:"ip_list"`
-	Port                                        types.Int64            `tfsdk:"port"`
-	SdsState                                    types.String           `tfsdk:"sds_state"`
-	MembershipState                             types.String           `tfsdk:"membership_state"`
-	MdmConnectionState                          types.String           `tfsdk:"mdm_connection_state"`
-	DrlMode                                     types.String           `tfsdk:"drl_mode"`
-	RmcacheEnabled                              types.Bool             `tfsdk:"rmcache_enabled"`
-	RmcacheSize                                 types.Int64            `tfsdk:"rmcache_size"`
-	RmcacheFrozen                               types.Bool             `tfsdk:"rmcache_frozen"`
-	OnVmware                                    types.Bool             `tfsdk:"on_vmware"`
-	FaultsetID                                  types.String           `tfsdk:"faultset_id"`
-	NumIOBuffers                                types.Int64            `tfsdk:"num_io_buffers"`
-	RmcacheMemoryAllocationState                types.String           `tfsdk:"rmcache_memory_allocation_state"`
-	PerformanceProfile                          types.String           `tfsdk:"performance_profile"`
-	SoftwareVersionInfo                         types.String           `tfsdk:"software_version_info"`
-	ConfiguredDrlMode                           types.String           `tfsdk:"configured_drl_mode"`
-	RfcacheEnabled                              types.Bool             `tfsdk:"rfcache_enabled"`
-	MaintenanceState                            types.String           `tfsdk:"maintenance_state"`
-	MaintenanceType                             types.String           `tfsdk:"maintenance_type"`
-	RfcacheErrorLowResources                    types.Bool             `tfsdk:"rfcache_error_low_resources"`
-	RfcacheErrorAPIVersionMismatch              types.Bool             `tfsdk:"rfcache_error_api_version_mismatch"`
-	RfcacheErrorInconsistentCacheConfiguration  types.Bool             `tfsdk:"rfcache_error_inconsistent_cache_configuration"`
-	RfcacheErrorInconsistentSourceConfiguration types.Bool             `tfsdk:"rfcache_error_inconsistent_source_configuration"`
-	RfcacheErrorInvalidDriverPath               types.Bool             `tfsdk:"rfcache_error_invalid_driver_path"`
-	RfcacheErrorDeviceDoesNotExist              types.Bool             `tfsdk:"rfcache_error_device_does_not_exist"`
-	AuthenticationError                         types.String           `tfsdk:"authentication_error"`
-	FglNumConcurrentWrites                      types.Int64            `tfsdk:"fgl_num_concurrent_writes"`
-	FglMetadataCacheState                       types.String           `tfsdk:"fgl_metadata_cache_state"`
-	FglMetadataCacheSize                        types.Int64            `tfsdk:"fgl_metadata_cache_size"`
-	NumRestarts                                 types.Int64            `tfsdk:"num_restarts"`
-	LastUpgradeTime                             types.Int64            `tfsdk:"last_upgrade_time"`
-	SdsDecoupled                                sdsWindow              `tfsdk:"sds_decoupled"`
-	SdsConfigurationFailure                     sdsWindow              `tfsdk:"sds_configuration_failure"`
-	SdsReceiveBufferAllocationFailures          sdsWindow              `tfsdk:"sds_receive_buffer_allocation_failures"`
-	CertificateInfo                             certificateInfoModel   `tfsdk:"certificate_info"`
-	RaidControllers                             []raidControllersModel `tfsdk:"raid_controllers"`
-	Links                                       []linkModel            `tfsdk:"links"`
-}
-
-// sdsDataSourceModel maps the Sds data source schema data
-type sdsDataSourceModel struct {
-	SDSIDs               types.List     `tfsdk:"sds_ids"`
-	SDSNames             types.List     `tfsdk:"sds_names"`
-	ProtectionDomainID   types.String   `tfsdk:"protection_domain_id"`
-	ProtectionDomainName types.String   `tfsdk:"protection_domain_name"`
-	SDSDetails           []sdsDataModel `tfsdk:"sds_details"`
-	ID                   types.String   `tfsdk:"id"`
-}
-
 // Metadata returns the data source type name.
 func (d *sdsDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_sds"
@@ -156,23 +66,23 @@ func (d *sdsDataSource) Configure(_ context.Context, req datasource.ConfigureReq
 }
 
 // sdsCounterModelValue processes the different types of windows information
-func sdsCounterModelValue(s1 scaleio_types.SdsWindow) sdsWindow {
-	return sdsWindow{
-		ShortWindow: sdsWindowType{
+func sdsCounterModelValue(s1 scaleio_types.SdsWindow) models.SdsWindow {
+	return models.SdsWindow{
+		ShortWindow: models.SdsWindowType{
 			Threshold:            types.Int64Value(int64(s1.ShortWindow.Threshold)),
 			WindowSizeInSec:      types.Int64Value(int64(s1.ShortWindow.WindowSizeInSec)),
 			LastOscillationCount: types.Int64Value(int64(s1.ShortWindow.WindowSizeInSec)),
 			LastOscillationTime:  types.Int64Value(int64(s1.ShortWindow.WindowSizeInSec)),
 			MaxFailuresCount:     types.Int64Value(int64(s1.ShortWindow.WindowSizeInSec)),
 		},
-		MediumWindow: sdsWindowType{
+		MediumWindow: models.SdsWindowType{
 			Threshold:            types.Int64Value(int64(s1.MediumWindow.Threshold)),
 			WindowSizeInSec:      types.Int64Value(int64(s1.MediumWindow.WindowSizeInSec)),
 			LastOscillationCount: types.Int64Value(int64(s1.MediumWindow.WindowSizeInSec)),
 			LastOscillationTime:  types.Int64Value(int64(s1.MediumWindow.WindowSizeInSec)),
 			MaxFailuresCount:     types.Int64Value(int64(s1.MediumWindow.WindowSizeInSec)),
 		},
-		LongWindow: sdsWindowType{
+		LongWindow: models.SdsWindowType{
 			Threshold:            types.Int64Value(int64(s1.LongWindow.Threshold)),
 			WindowSizeInSec:      types.Int64Value(int64(s1.LongWindow.WindowSizeInSec)),
 			LastOscillationCount: types.Int64Value(int64(s1.LongWindow.WindowSizeInSec)),
@@ -183,8 +93,8 @@ func sdsCounterModelValue(s1 scaleio_types.SdsWindow) sdsWindow {
 }
 
 // sdsCertificateInfo process SDS certificate information and maps to certificateInfoModel struct
-func sdsCertificateInfo(s1 scaleio_types.CertificateInfo) certificateInfoModel {
-	certicateInfo := certificateInfoModel{}
+func sdsCertificateInfo(s1 scaleio_types.CertificateInfo) models.CertificateInfoModel {
+	certicateInfo := models.CertificateInfoModel{}
 
 	if v := s1.Subject; v != "" {
 		certicateInfo.Subject = types.StringValue(v)
@@ -223,7 +133,7 @@ func sdsCertificateInfo(s1 scaleio_types.CertificateInfo) certificateInfoModel {
 // Read refreshes the Terraform state with the latest data.
 func (d *sdsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Info(ctx, "Started SDS data source read method")
-	var state sdsDataSourceModel
+	var state models.SdsDataSourceModel
 	var pd *scaleio_types.ProtectionDomain
 	var err3 error
 
@@ -235,7 +145,7 @@ func (d *sdsDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 	}
 
 	// Get the system on the PowerFlex cluster
-	c2, err := getFirstSystem(d.client)
+	c2, err := helper.GetFirstSystem(d.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error in getting system instance",
@@ -308,8 +218,8 @@ func (d *sdsDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 }
 
 // getSdsState saves SDS response in SDS struct
-func getSdsState(s1 *scaleio_types.Sds) (sdsDetail sdsDataModel) {
-	sdsDetail = sdsDataModel{
+func getSdsState(s1 *scaleio_types.Sds) (sdsDetail models.SdsDataModel) {
+	sdsDetail = models.SdsDataModel{
 		ID:                             types.StringValue(s1.ID),
 		Name:                           types.StringValue(s1.Name),
 		Port:                           types.Int64Value(int64(s1.Port)),
@@ -355,7 +265,7 @@ func getSdsState(s1 *scaleio_types.Sds) (sdsDetail sdsDataModel) {
 
 	// Iterate through IP list
 	for _, ip := range s1.IPList {
-		sdsDetail.IPList = append(sdsDetail.IPList, ipList{
+		sdsDetail.IPList = append(sdsDetail.IPList, models.IpList{
 			IP:   types.StringValue(ip.IP),
 			Role: types.StringValue(ip.Role),
 		})
@@ -363,7 +273,7 @@ func getSdsState(s1 *scaleio_types.Sds) (sdsDetail sdsDataModel) {
 
 	// Iterate through the Links
 	for _, link := range s1.Links {
-		sdsDetail.Links = append(sdsDetail.Links, linkModel{
+		sdsDetail.Links = append(sdsDetail.Links, models.LinkModel{
 			Rel:  types.StringValue(link.Rel),
 			HREF: types.StringValue(link.HREF),
 		})
@@ -371,7 +281,7 @@ func getSdsState(s1 *scaleio_types.Sds) (sdsDetail sdsDataModel) {
 
 	// Iterate through the RAID controllers
 	for _, raid := range s1.RaidControllers {
-		sdsDetail.RaidControllers = append(sdsDetail.RaidControllers, raidControllersModel{
+		sdsDetail.RaidControllers = append(sdsDetail.RaidControllers, models.RaidControllersModel{
 			SerialNumber:    types.StringValue(raid.SerialNumber),
 			ModelName:       types.StringValue(raid.ModelName),
 			VendorName:      types.StringValue(raid.VendorName),

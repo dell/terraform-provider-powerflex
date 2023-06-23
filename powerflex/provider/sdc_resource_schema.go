@@ -15,9 +15,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package powerflex
+package provider
 
 import (
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
+
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -26,72 +29,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 )
-
-var sdcResourceSchemaDescriptions = struct {
-	SdcResourceSchema  string
-	LastUpdated        string
-	SystemID           string
-	SdcIP              string
-	SdcApproved        string
-	OnVMWare           string
-	SdcGUID            string
-	MdmConnectionState string
-	Links              string
-	LinksRel           string
-	LinksHref          string
-}{
-	SdcResourceSchema:  "This resource can be used to manage Storage Data Clients on a PowerFlex array.",
-	LastUpdated:        "The Last updated timestamp of the SDC.",
-	SystemID:           "The System ID of the fetched SDC.",
-	SdcIP:              "The IP of the fetched SDC.",
-	SdcApproved:        "If the fetched SDC is approved.",
-	OnVMWare:           "If the fetched SDC is on vmware.",
-	SdcGUID:            "The GUID of the fetched SDC.",
-	MdmConnectionState: "The MDM connection status of the fetched SDC.",
-	Links:              "The Links of the fetched SDC.",
-	LinksRel:           "The Links-Rel of the fetched SDC.",
-	LinksHref:          "The Links-HREF of the fetched SDC.",
-}
-
-// sdcResourceModel struct for CSV Data Processing
-type sdcResourceModel struct {
-	ID          types.String `tfsdk:"id"`
-	Name        types.String `tfsdk:"name"`
-	SDCDetails  types.List   `tfsdk:"sdc_details"`
-	MdmPassword types.String `tfsdk:"mdm_password"`
-	LiaPassword types.String `tfsdk:"lia_password"`
-}
-
-// SDCDetailDataModel defines the struct for CSV Parse Data
-type SDCDetailDataModel struct {
-	SDCID              types.String `tfsdk:"sdc_id"`
-	IP                 types.String `tfsdk:"ip"`
-	UserName           types.String `tfsdk:"username"`
-	Password           types.String `tfsdk:"password"`
-	OperatingSystem    types.String `tfsdk:"operating_system"`
-	IsMdmOrTb          types.String `tfsdk:"is_mdm_or_tb"`
-	IsSdc              types.String `tfsdk:"is_sdc"`
-	PerformanceProfile types.String `tfsdk:"performance_profile"`
-	SDCName            types.String `tfsdk:"name"`
-	SystemID           types.String `tfsdk:"system_id"`
-	SdcApproved        types.Bool   `tfsdk:"sdc_approved"`
-	OnVMWare           types.Bool   `tfsdk:"on_vmware"`
-	SdcGUID            types.String `tfsdk:"sdc_guid"`
-	MdmConnectionState types.String `tfsdk:"mdm_connection_state"`
-}
-
-// CsvRow desfines the srtuct for the CSV Data
-type CsvRow struct {
-	IP                 string
-	UserName           string
-	Password           string
-	OperatingSystem    string
-	IsMdmOrTb          string
-	IsSdc              string
-	PerformanceProfile string
-}
 
 // SDCReourceSchema - varible holds schema for SDC resource
 var SDCReourceSchema schema.Schema = schema.Schema{
@@ -192,7 +130,7 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 				Computed:            true,
 				MarkdownDescription: "Username of the node",
 				PlanModifiers: []planmodifier.String{
-					stringDefault("root"),
+					helper.StringDefault("root"),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
@@ -215,7 +153,7 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 				Computed:            true,
 				MarkdownDescription: "Operating System on the node",
 				PlanModifiers: []planmodifier.String{
-					stringDefault("linux"),
+					helper.StringDefault("linux"),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
@@ -238,7 +176,7 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 					"No",
 				)},
 				PlanModifiers: []planmodifier.String{
-					stringDefault("Yes"),
+					helper.StringDefault("Yes"),
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
@@ -282,40 +220,40 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 				},
 			},
 			"sdc_guid": schema.StringAttribute{
-				Description:         sdcResourceSchemaDescriptions.SdcGUID,
-				MarkdownDescription: sdcResourceSchemaDescriptions.SdcGUID,
+				Description:         models.SdcResourceSchemaDescriptions.SdcGUID,
+				MarkdownDescription: models.SdcResourceSchemaDescriptions.SdcGUID,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"on_vmware": schema.BoolAttribute{
-				Description:         sdcResourceSchemaDescriptions.OnVMWare,
-				MarkdownDescription: sdcResourceSchemaDescriptions.OnVMWare,
+				Description:         models.SdcResourceSchemaDescriptions.OnVMWare,
+				MarkdownDescription: models.SdcResourceSchemaDescriptions.OnVMWare,
 				Computed:            true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"sdc_approved": schema.BoolAttribute{
-				Description:         sdcResourceSchemaDescriptions.SdcApproved,
-				MarkdownDescription: sdcResourceSchemaDescriptions.SdcApproved,
+				Description:         models.SdcResourceSchemaDescriptions.SdcApproved,
+				MarkdownDescription: models.SdcResourceSchemaDescriptions.SdcApproved,
 				Computed:            true,
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"system_id": schema.StringAttribute{
-				Description:         sdcResourceSchemaDescriptions.SystemID,
-				MarkdownDescription: sdcResourceSchemaDescriptions.SystemID,
+				Description:         models.SdcResourceSchemaDescriptions.SystemID,
+				MarkdownDescription: models.SdcResourceSchemaDescriptions.SystemID,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"mdm_connection_state": schema.StringAttribute{
-				Description:         sdcResourceSchemaDescriptions.MdmConnectionState,
-				MarkdownDescription: sdcResourceSchemaDescriptions.MdmConnectionState,
+				Description:         models.SdcResourceSchemaDescriptions.MdmConnectionState,
+				MarkdownDescription: models.SdcResourceSchemaDescriptions.MdmConnectionState,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),

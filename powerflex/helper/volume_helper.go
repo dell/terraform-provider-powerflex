@@ -22,6 +22,7 @@ import (
 
 	"github.com/dell/goscaleio"
 	pftypes "github.com/dell/goscaleio/types/v1"
+	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -113,4 +114,55 @@ func DifferenceMap(a, b map[string]string) map[string]string {
 		}
 	}
 	return diff
+}
+
+// UpdateVolumeState iterates over the volume list and update the state
+func UpdateVolumeState(volumes []*scaleiotypes.Volume) (response []models.VolumeModel) {
+	for _, volumeValue := range volumes {
+		volumeState := models.VolumeModel{
+			ID:                                 types.StringValue(volumeValue.ID),
+			Name:                               types.StringValue(volumeValue.Name),
+			CreationTime:                       types.Int64Value((int64)(volumeValue.CreationTime)),
+			SizeInKb:                           types.Int64Value((int64)(volumeValue.SizeInKb)),
+			AncestorVolumeID:                   types.StringValue(volumeValue.AncestorVolumeID),
+			VTreeID:                            types.StringValue(volumeValue.VTreeID),
+			ConsistencyGroupID:                 types.StringValue(volumeValue.ConsistencyGroupID),
+			VolumeType:                         types.StringValue(volumeValue.VolumeType),
+			UseRmCache:                         types.BoolValue(volumeValue.UseRmCache),
+			StoragePoolID:                      types.StringValue(volumeValue.StoragePoolID),
+			DataLayout:                         types.StringValue(volumeValue.DataLayout),
+			NotGenuineSnapshot:                 types.BoolValue(volumeValue.NotGenuineSnapshot),
+			AccessModeLimit:                    types.StringValue(volumeValue.AccessModeLimit),
+			SecureSnapshotExpTime:              types.Int64Value((int64)(volumeValue.SecureSnapshotExpTime)),
+			ManagedBy:                          types.StringValue(volumeValue.ManagedBy),
+			LockedAutoSnapshot:                 types.BoolValue(volumeValue.LockedAutoSnapshot),
+			LockedAutoSnapshotMarkedForRemoval: types.BoolValue(volumeValue.LockedAutoSnapshotMarkedForRemoval),
+			CompressionMethod:                  types.StringValue(volumeValue.CompressionMethod),
+			TimeStampIsAccurate:                types.BoolValue(volumeValue.TimeStampIsAccurate),
+			OriginalExpiryTime:                 types.Int64Value((int64)(volumeValue.OriginalExpiryTime)),
+			VolumeReplicationState:             types.StringValue(volumeValue.VolumeReplicationState),
+			ReplicationJournalVolume:           types.BoolValue(volumeValue.ReplicationJournalVolume),
+			ReplicationTimeStamp:               types.Int64Value((int64)(volumeValue.ReplicationTimeStamp)),
+		}
+
+		for _, link := range volumeValue.Links {
+			volumeState.Links = append(volumeState.Links, models.VolumeLinkModel{
+				Rel:  types.StringValue(link.Rel),
+				HREF: types.StringValue(link.HREF),
+			})
+		}
+		for _, sdc := range volumeValue.MappedSdcInfo {
+			volumeState.MappedSdcInfo = append(volumeState.MappedSdcInfo, models.MappedSdcInfoModel{
+				SdcID:                 types.StringValue(sdc.SdcID),
+				SdcIP:                 types.StringValue(sdc.SdcIP),
+				LimitIops:             types.Int64Value((int64)(sdc.LimitIops)),
+				LimitBwInMbps:         types.Int64Value((int64)(sdc.LimitBwInMbps)),
+				SdcName:               types.StringValue(sdc.SdcName),
+				AccessMode:            types.StringValue(sdc.AccessMode),
+				IsDirectBufferMapping: types.BoolValue(sdc.IsDirectBufferMapping),
+			})
+		}
+		response = append(response, volumeState)
+	}
+	return
 }
