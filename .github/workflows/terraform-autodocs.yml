@@ -27,4 +27,4 @@ jobs:
       - run: pwd
       - run: cd ../ && ls -a
       - run: cd docs/ && make powerflex
-      - run: git status     
+      - run: cd ../ && git status     
