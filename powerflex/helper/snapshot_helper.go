@@ -80,7 +80,7 @@ func ConvertToMin(desireRetention int64, retentionUnit string) string {
 	return retentionMin
 }
 
-// CoverterKB fucntion to convert size into kb
+// ConverterKB fucntion to convert size into kb
 func ConverterKB(capacityUnit string, size int64) int64 {
 	var valInKiB int64
 	switch capacityUnit {

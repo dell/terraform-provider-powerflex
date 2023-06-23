@@ -68,8 +68,8 @@ func (sds *SdsResourceModel) GetIPList(ctx context.Context) []*scaleiotypes.SdsI
 	return iplist
 }
 
-// IpList defines struct for SDS IP
-type IpList struct {
+// IPList defines struct for SDS IP
+type IPList struct {
 	IP   types.String `tfsdk:"ip"`
 	Role types.String `tfsdk:"role"`
 }
@@ -118,7 +118,7 @@ type RaidControllersModel struct {
 type SdsDataModel struct {
 	ID                                          types.String           `tfsdk:"id"`
 	Name                                        types.String           `tfsdk:"name"`
-	IPList                                      []IpList               `tfsdk:"ip_list"`
+	IPList                                      []IPList               `tfsdk:"ip_list"`
 	Port                                        types.Int64            `tfsdk:"port"`
 	SdsState                                    types.String           `tfsdk:"sds_state"`
 	MembershipState                             types.String           `tfsdk:"membership_state"`

@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// Function to update the State for Storagepool Resource
+// UpdateStoragepoolState updates the State for Storagepool Resource
 func UpdateStoragepoolState(storagepool *scaleiotypes.StoragePool, plan models.StoragepoolResourceModel) models.StoragepoolResourceModel {
 	state := plan
 	state.ProtectionDomainID = types.StringValue(storagepool.ProtectionDomainID)

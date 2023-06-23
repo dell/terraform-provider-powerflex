@@ -265,7 +265,7 @@ func getSdsState(s1 *scaleio_types.Sds) (sdsDetail models.SdsDataModel) {
 
 	// Iterate through IP list
 	for _, ip := range s1.IPList {
-		sdsDetail.IPList = append(sdsDetail.IPList, models.IpList{
+		sdsDetail.IPList = append(sdsDetail.IPList, models.IPList{
 			IP:   types.StringValue(ip.IP),
 			Role: types.StringValue(ip.Role),
 		})
