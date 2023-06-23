@@ -13,6 +13,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: test-auto-docs
+          path: powerflex
       - run: ls -ltr 
       - run: pwd
       - name: Check out to docs repo
@@ -20,7 +21,8 @@ jobs:
         with:
           repository: dell/terraform-docs
           token: ${{ secrets.SERVICE_TOKEN }}    
-          ref: test-docs-automation 
+          ref: test-docs-automation
+          path: docs
       - run: ls -ltr
       - run: pwd
       - run: cd ../ && ls -a
