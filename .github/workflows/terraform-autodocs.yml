@@ -26,6 +26,6 @@ jobs:
           token: ${{ secrets.SERVICE_TOKEN }}    
           ref: test-docs-automation 
       - run: ls
-      - run: ../
+      - run: cd ../
       - run: ls
       - run: git status     
