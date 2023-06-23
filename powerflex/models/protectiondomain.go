@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+// ProtectionDomainResourceModel defines struct for protection domain resource
 type ProtectionDomainResourceModel struct {
 	ReplicationCapacityMaxRatio types.Int64 `tfsdk:"replication_capacity_max_ratio"`
 
@@ -51,12 +52,14 @@ type ProtectionDomainResourceModel struct {
 	Links  types.List   `tfsdk:"links"`
 }
 
+// ProtectionDomainDataSourceModel defines struct for protection domain data source
 type ProtectionDomainDataSourceModel struct {
 	ProtectionDomains []ProtectionDomainModel `tfsdk:"protection_domains"`
 	ID                types.String            `tfsdk:"id"`
 	Name              types.String            `tfsdk:"name"`
 }
 
+// ProtectionDomainModel defines struct for protection domain data source
 type ProtectionDomainModel struct {
 	SystemID                    types.String    `tfsdk:"system_id"`
 	SdrSdsConnectivityInfo      PdConnInfoModel `tfsdk:"sdr_sds_connectivity"`
@@ -99,17 +102,20 @@ type ProtectionDomainModel struct {
 	Links []ProtectionDomainLinkModel `tfsdk:"links"`
 }
 
+// WindowModel defines struct for protection domain window model
 type WindowModel struct {
 	Threshold       types.Int64 `tfsdk:"threshold"`
 	WindowSizeInSec types.Int64 `tfsdk:"window_size_in_sec"`
 }
 
+// PdCounterModel defines struct for protection domain counter models
 type PdCounterModel struct {
 	ShortWindow  WindowModel `tfsdk:"short_window"`
 	MediumWindow WindowModel `tfsdk:"medium_window"`
 	LongWindow   WindowModel `tfsdk:"long_window"`
 }
 
+// PdCounterModelValue defines struct for protection domain model values
 func PdCounterModelValue(p scaleiotypes.PDCounterParams) PdCounterModel {
 	return PdCounterModel{
 		ShortWindow: WindowModel{
@@ -127,6 +133,7 @@ func PdCounterModelValue(p scaleiotypes.PDCounterParams) PdCounterModel {
 	}
 }
 
+// PdConnInfoModel defines struct for protection domain connection information
 type PdConnInfoModel struct {
 	ClientServerConnStatus types.String `tfsdk:"client_server_conn_status"`
 	DisconnectedClientID   types.String `tfsdk:"disconnected_client_id"`
@@ -136,6 +143,7 @@ type PdConnInfoModel struct {
 	DisconnectedServerIP   types.String `tfsdk:"disconnected_server_ip"`
 }
 
+// ProtectionDomainLinkModel defines struct for protection domain links
 type ProtectionDomainLinkModel struct {
 	Rel  types.String `tfsdk:"rel"`
 	HREF types.String `tfsdk:"href"`

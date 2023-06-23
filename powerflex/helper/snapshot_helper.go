@@ -42,6 +42,7 @@ const (
 	MinuteInSeconds = 60
 )
 
+// RefreshState saves state of snapshot
 func RefreshState(snap *pftypes.Volume, prestate *models.SnapshotResourceModel) (diags diag.Diagnostics) {
 	var drift int64
 	prestate.ID = types.StringValue(snap.ID)
@@ -68,6 +69,7 @@ func RefreshState(snap *pftypes.Volume, prestate *models.SnapshotResourceModel) 
 	return diags
 }
 
+// ConvertToMin converts retention in minutes
 func ConvertToMin(desireRetention int64, retentionUnit string) string {
 	retentionMin := ""
 	if retentionUnit == "days" {

@@ -21,12 +21,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+// SdcVolumeMappingResourceModel defines struct SDC volume mapping resource
 type SdcVolumeMappingResourceModel struct {
 	ID         types.String `tfsdk:"id"`
 	Name       types.String `tfsdk:"name"`
 	VolumeList types.Set    `tfsdk:"volume_list"`
 }
 
+// SdcVolumeModel defines struct volume mapping data
 type SdcVolumeModel struct {
 	VolumeID   types.String `tfsdk:"volume_id"`
 	VolumeName types.String `tfsdk:"volume_name"`

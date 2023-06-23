@@ -40,6 +40,7 @@ type DeviceModel struct {
 	DeviceState              types.String `tfsdk:"device_state"`
 }
 
+// DeviceDataSourceModel defines struct for device datasource
 type DeviceDataSourceModel struct {
 	ID                   types.String      `tfsdk:"id"`
 	Name                 types.String      `tfsdk:"name"`
@@ -53,6 +54,7 @@ type DeviceDataSourceModel struct {
 	DeviceModel          []DeviceModelData `tfsdk:"device_model"`
 }
 
+// DeviceModelData defines struct for device model
 type DeviceModelData struct {
 	FglNvdimmMetadataAmortizationX100 types.Int64            `tfsdk:"fgl_nvdimm_metadata_amortization_x100"`
 	LogicalSectorSizeInBytes          types.Int64            `tfsdk:"logical_sector_size_in_bytes"`
@@ -145,6 +147,7 @@ type StoragePropsModel struct {
 	DestChecksumChangelogSizeMb      types.Int64  `tfsdk:"dest_checksum_changelog_size_mb"`
 }
 
+// DeviceLinkModel defines struct for device links
 type DeviceLinkModel struct {
 	Rel  types.String `tfsdk:"rel"`
 	HREF types.String `tfsdk:"href"`

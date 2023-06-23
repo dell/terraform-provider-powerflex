@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// SDSResourceModel maps the resource schema data.
+// SdsResourceModel maps the resource schema data.
 type SdsResourceModel struct {
 	ID                           types.String `tfsdk:"id"`
 	Name                         types.String `tfsdk:"name"`
@@ -47,13 +47,13 @@ type SdsResourceModel struct {
 	PerformanceProfile           types.String `tfsdk:"performance_profile"`
 }
 
-// SDS IP object
+// SdsIPModel IP object
 type SdsIPModel struct {
 	IP   types.String `tfsdk:"ip"`
 	Role types.String `tfsdk:"role"`
 }
 
-// Conversion of list of IPs from tf model to go type
+// GetIPList converts list of IPs from tf model to go type
 func (sds *SdsResourceModel) GetIPList(ctx context.Context) []*scaleiotypes.SdsIP {
 	iplist := []*scaleiotypes.SdsIP{}
 	var ipModellist []SdsIPModel
@@ -68,11 +68,13 @@ func (sds *SdsResourceModel) GetIPList(ctx context.Context) []*scaleiotypes.SdsI
 	return iplist
 }
 
+// IpList defines struct for SDS IP
 type IpList struct {
 	IP   types.String `tfsdk:"ip"`
 	Role types.String `tfsdk:"role"`
 }
 
+// SdsWindowType defines struct for SDS windows type
 type SdsWindowType struct {
 	Threshold            types.Int64 `tfsdk:"threshold"`
 	WindowSizeInSec      types.Int64 `tfsdk:"window_size_in_sec"`
@@ -81,12 +83,14 @@ type SdsWindowType struct {
 	MaxFailuresCount     types.Int64 `tfsdk:"max_failures_count"`
 }
 
+// SdsWindow defines struct for SDS window
 type SdsWindow struct {
 	ShortWindow  SdsWindowType `tfsdk:"short_window"`
 	MediumWindow SdsWindowType `tfsdk:"medium_window"`
 	LongWindow   SdsWindowType `tfsdk:"long_window"`
 }
 
+// CertificateInfoModel defines struct for certificate information
 type CertificateInfoModel struct {
 	Subject             types.String `tfsdk:"subject"`
 	Issuer              types.String `tfsdk:"issuer"`
@@ -97,6 +101,7 @@ type CertificateInfoModel struct {
 	ValidToAsn1Format   types.String `tfsdk:"valid_to_asn1_format"`
 }
 
+// RaidControllersModel defines struct for RAID controller
 type RaidControllersModel struct {
 	SerialNumber    types.String `tfsdk:"serial_number"`
 	ModelName       types.String `tfsdk:"model_name"`
@@ -109,6 +114,7 @@ type RaidControllersModel struct {
 	BatteryStatus   types.String `tfsdk:"battery_status"`
 }
 
+// SdsDataModel defines struct for SDS data model
 type SdsDataModel struct {
 	ID                                          types.String           `tfsdk:"id"`
 	Name                                        types.String           `tfsdk:"name"`

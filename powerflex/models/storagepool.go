@@ -21,6 +21,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+// StoragepoolResourceModel defines struct storage pool resource
 type StoragepoolResourceModel struct {
 	ID                                                  types.String `tfsdk:"id"`
 	ProtectionDomainID                                  types.String `tfsdk:"protection_domain_id"`

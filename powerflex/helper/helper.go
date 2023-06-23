@@ -122,7 +122,7 @@ func GetVolumeType(c *goscaleio.Client, volID string) (*goscaleio.Volume, error)
 	return volType, nil
 }
 
-// stringDefaultModifier is a plan modifier that sets a default value for a
+// StringDefaultModifier is a plan modifier that sets a default value for a
 // types.StringType attribute when it is not configured. The attribute must be
 // marked as Optional and Computed. When setting the state during the resource
 // Create, Read, or Update methods, this default value must also be included or
@@ -155,6 +155,7 @@ func (m StringDefaultModifier) PlanModifyString(ctx context.Context, req planmod
 	}
 }
 
+// StringDefault sets default value fot string attributes
 func StringDefault(defaultValue string) planmodifier.String {
 	return StringDefaultModifier{
 		Default: defaultValue,
@@ -191,6 +192,7 @@ func (m boolDefaultModifier) PlanModifyBool(ctx context.Context, req planmodifie
 	}
 }
 
+// BoolDefault sets default value fot string attributes
 func BoolDefault(defaultValue bool) planmodifier.Bool {
 	return boolDefaultModifier{
 		Default: defaultValue,

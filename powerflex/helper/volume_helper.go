@@ -36,7 +36,7 @@ const (
 	TiKB = 1024 * GiKB
 )
 
-// CovertToKB fucntion to convert size into kb
+// ConvertToKB fucntion to convert size into kb
 func ConvertToKB(capacityUnit string, size int64) int64 {
 	var valInKiB int64
 	switch capacityUnit {
@@ -50,7 +50,7 @@ func ConvertToKB(capacityUnit string, size int64) int64 {
 	return valInKiB
 }
 
-// RefreshState function to update the state of volume resource in terraform.tfstate file
+// RefreshVolumeState function to update the state of volume resource in terraform.tfstate file
 func RefreshVolumeState(vol *pftypes.Volume, state *models.VolumeResourceModel) (diags diag.Diagnostics) {
 	state.StoragePoolID = types.StringValue(vol.StoragePoolID)
 	state.UseRmCache = types.BoolValue(vol.UseRmCache)

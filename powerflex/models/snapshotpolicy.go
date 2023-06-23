@@ -21,12 +21,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+// SnapshotPolicyDataSourceModel defines struct for snapshot policy data source
 type SnapshotPolicyDataSourceModel struct {
 	SnapshotPolicies []SnapshotPolicyModel `tfsdk:"snapshotpolicies"`
 	ID               types.String          `tfsdk:"id"`
 	Name             types.String          `tfsdk:"name"`
 }
 
+// SnapshotPolicyModel defines struct for snapshot policy model
 type SnapshotPolicyModel struct {
 	ID                                    types.String              `tfsdk:"id"`
 	Name                                  types.String              `tfsdk:"name"`
@@ -50,6 +52,7 @@ type SnapshotPolicyModel struct {
 	Links                                 []SnapshotPolicyLinkModel `tfsdk:"links"`
 }
 
+// SnapshotPolicyLinkModel defines struct for snapshot policy links
 type SnapshotPolicyLinkModel struct {
 	Rel  types.String `tfsdk:"rel"`
 	HREF types.String `tfsdk:"href"`

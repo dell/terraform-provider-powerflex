@@ -48,6 +48,7 @@ func UpdateDeviceState(deviceResponse *goscaleio_types.Device, plan models.Devic
 	return state, diags
 }
 
+// GetAllDeviceState saves the state of device datasource
 func GetAllDeviceState(devices []goscaleio_types.Device) (response []models.DeviceModelData) {
 	for _, device := range devices {
 		deviceState := models.DeviceModelData{

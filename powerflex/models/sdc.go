@@ -47,6 +47,7 @@ type SdcLinkModel struct {
 	HREF types.String `tfsdk:"href"`
 }
 
+// SdcResourceSchemaDescriptions defines struct for SDC resource schema description
 var SdcResourceSchemaDescriptions = struct {
 	SdcResourceSchema  string
 	LastUpdated        string
@@ -111,6 +112,7 @@ type CsvRow struct {
 	PerformanceProfile string
 }
 
+// SdcDatasourceSchemaDescriptions defines struct for SDC datasource schema description
 var SdcDatasourceSchemaDescriptions = struct {
 	LastUpdated        string
 	ID                 string

@@ -105,6 +105,7 @@ func GetLinksFromTfList(ctx context.Context, links types.List) ([]*scaleiotypes.
 	return listVal, d
 }
 
+// PdConnInfoModelValue returns protection domain connectivity information
 func PdConnInfoModelValue(p scaleiotypes.PDConnInfo) models.PdConnInfoModel {
 	pdconninfo := models.PdConnInfoModel{
 		ClientServerConnStatus: types.StringValue(p.ClientServerConnStatus),
@@ -137,6 +138,7 @@ func PdConnInfoModelValue(p scaleiotypes.PDConnInfo) models.PdConnInfoModel {
 	return pdconninfo
 }
 
+// GetAllProtectionDomainState saves state of protection domain data source
 func GetAllProtectionDomainState(protectionDomains []*scaleiotypes.ProtectionDomain) (response []models.ProtectionDomainModel) {
 	for _, protectionDomainValue := range protectionDomains {
 		protectionDomainState := models.ProtectionDomainModel{

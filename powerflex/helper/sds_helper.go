@@ -66,6 +66,7 @@ func SdsIPListDiff(ctx context.Context, plan, state *models.SdsResourceModel) (t
 	return toAdd, toRmv, changed, common
 }
 
+// UpdateSdsState saves SDS resource state
 func UpdateSdsState(sds *scaleiotypes.Sds, plan models.SdsResourceModel) (models.SdsResourceModel, diag.Diagnostics) {
 	state := plan
 	state.ID = types.StringValue(sds.ID)

@@ -48,6 +48,7 @@ type SDCItemize struct {
 	AccessMode    types.String `tfsdk:"access_mode"`
 }
 
+// VolumeDataSourceModel defines struct for volume data source
 type VolumeDataSourceModel struct {
 	Volumes         []VolumeModel `tfsdk:"volumes"`
 	ID              types.String  `tfsdk:"id"`
@@ -56,6 +57,7 @@ type VolumeDataSourceModel struct {
 	Name            types.String  `tfsdk:"name"`
 }
 
+// VolumeModel define struct for volume model
 type VolumeModel struct {
 	ID                                 types.String         `tfsdk:"id"`
 	Name                               types.String         `tfsdk:"name"`
@@ -84,11 +86,13 @@ type VolumeModel struct {
 	MappedSdcInfo                      []MappedSdcInfoModel `tfsdk:"mapped_sdc_info"`
 }
 
+// VolumeLinkModel defines struct for volume links
 type VolumeLinkModel struct {
 	Rel  types.String `tfsdk:"rel"`
 	HREF types.String `tfsdk:"href"`
 }
 
+// MappedSdcInfoModel defines struct for mapped SDC info
 type MappedSdcInfoModel struct {
 	SdcID                 types.String `tfsdk:"sdc_id"`
 	SdcIP                 types.String `tfsdk:"sdc_ip"`

@@ -56,6 +56,7 @@ func UpdateStoragepoolState(storagepool *scaleiotypes.StoragePool, plan models.S
 	return state
 }
 
+// IsCritcalAlert sets alert threshold
 func IsCritcalAlert(plan, state models.StoragepoolResourceModel) (*scaleiotypes.CapacityAlertThresholdParam, bool) {
 	payload, ok := scaleiotypes.CapacityAlertThresholdParam{}, true
 	if !plan.CapacityAlertHighThreshold.IsUnknown() && !state.CapacityAlertHighThreshold.Equal(plan.CapacityAlertHighThreshold) {
@@ -69,6 +70,7 @@ func IsCritcalAlert(plan, state models.StoragepoolResourceModel) (*scaleiotypes.
 	return &payload, ok
 }
 
+// IsProtectedMaintenance sets protected maintanance mode IO priority policy
 func IsProtectedMaintenance(plan, state models.StoragepoolResourceModel) (*scaleiotypes.ProtectedMaintenanceModeParam, bool) {
 	payload, ok := scaleiotypes.ProtectedMaintenanceModeParam{}, true
 	if !plan.ProtectedMaintenanceModeIoPriorityPolicy.IsUnknown() && !state.ProtectedMaintenanceModeIoPriorityPolicy.Equal(plan.ProtectedMaintenanceModeIoPriorityPolicy) {
@@ -88,6 +90,7 @@ func IsProtectedMaintenance(plan, state models.StoragepoolResourceModel) (*scale
 	return &payload, ok
 }
 
+// IsRebalance sets rebalance IO priority policy
 func IsRebalance(plan, state models.StoragepoolResourceModel) (*scaleiotypes.ProtectedMaintenanceModeParam, bool) {
 	payload, ok := scaleiotypes.ProtectedMaintenanceModeParam{}, true
 	if !plan.RebalanceIoPriorityPolicy.IsUnknown() && !state.RebalanceIoPriorityPolicy.Equal(plan.RebalanceIoPriorityPolicy) {
@@ -107,6 +110,7 @@ func IsRebalance(plan, state models.StoragepoolResourceModel) (*scaleiotypes.Pro
 	return &payload, ok
 }
 
+// IsVtreeMigration sets VTree migration IO priority policy
 func IsVtreeMigration(plan, state models.StoragepoolResourceModel) (*scaleiotypes.ProtectedMaintenanceModeParam, bool) {
 	payload, ok := scaleiotypes.ProtectedMaintenanceModeParam{}, true
 	if !plan.VtreeMigrationIoPriorityPolicy.IsUnknown() && !state.VtreeMigrationIoPriorityPolicy.Equal(plan.VtreeMigrationIoPriorityPolicy) {
@@ -126,6 +130,7 @@ func IsVtreeMigration(plan, state models.StoragepoolResourceModel) (*scaleiotype
 	return &payload, ok
 }
 
+// GetStoragePoolState returns storage pool state
 func GetStoragePoolState(volList []*scaleiotypes.Volume, sdsList []scaleiotypes.Sds, s1 *scaleiotypes.StoragePool) (storagePool models.StoragePoolModel) {
 	storagePool = models.StoragePoolModel{
 		ID:   types.StringValue(s1.ID),
