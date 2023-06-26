@@ -37,7 +37,7 @@ jobs:
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
-          repository: dell/terraform-docs
+          repository: dell/terraform-docs 
           github_token: ${{ secrets.SERVICE_TOKEN }}
           directory: docs
           branch: test-docs-automation     
