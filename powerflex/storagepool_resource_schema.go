@@ -30,15 +30,15 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 	Description: "This resource can be used to manage Storage Pools on a PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
-			Description:         "ID of the Storage pool.",
-			MarkdownDescription: "ID of the Storage pool.",
+			Description:         "ID of the Storage pool. added a line for testing purpose",
+			MarkdownDescription: "ID of the Storage pool. added a line for testing purpose",
 			Computed:            true,
 		},
 		"protection_domain_id": schema.StringAttribute{
-			Description: "ID of the Protection Domain under which the storage pool will be created" +
+			Description: "ID of the Protection Domain under which the storage pool will be created. added a line for testing purpose" +
 				" Conflicts with 'protection_domain_name'." +
 				" Cannot be updated.",
-			MarkdownDescription: "ID of the Protection Domain under which the storage pool will be created." +
+			MarkdownDescription: "ID of the Protection Domain under which the storage pool will be created. added a line for testing purpose" +
 				" Conflicts with `protection_domain_name`." +
 				" Cannot be updated.",
 			Optional: true,
