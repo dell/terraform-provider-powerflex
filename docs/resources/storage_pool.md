@@ -109,7 +109,7 @@ output "created_storagepool" {
 - `protected_maintenance_mode_bw_limit_per_device_in_kbps` (Number) The maximum bandwidth of protected maintenance mode migration I/Os, in KB per second, per device
 - `protected_maintenance_mode_io_priority_policy` (String) Set the I/O priority policy for protected maintenance mode for a specific Storage Pool. Valid values are `unlimited`, `limitNumOfConcurrentIos` and `favorAppIos`
 - `protected_maintenance_mode_num_of_concurrent_ios_per_device` (Number) The maximum number of concurrent protected maintenance mode migration I/Os per device
-- `protection_domain_id` (String) ID of the Protection Domain under which the storage pool will be created. added a line for tetsing purpose Conflicts with `protection_domain_name`. Cannot be updated.
+- `protection_domain_id` (String) ID of the Protection Domain under which the storage pool will be created. added a line for testing purpose Conflicts with `protection_domain_name`. Cannot be updated.
 - `protection_domain_name` (String) Name of the Protection Domain under which the storage pool will be created. Conflicts with `protection_domain_id`. Cannot be updated.
 - `rebalance_bw_limit_per_device_in_kbps` (Number) The maximum bandwidth of rebalance I/Os, in KB/s, per device
 - `rebalance_enabled` (Boolean) Enable or disable rebalancing in the specified Storage Pool
@@ -129,7 +129,7 @@ output "created_storagepool" {
 
 ### Read-Only
 
-- `id` (String) ID of the Storage pool. added a line for tetsing purpose
+- `id` (String) ID of the Storage pool. added a line for testing purpose
 
 ## Import
 
