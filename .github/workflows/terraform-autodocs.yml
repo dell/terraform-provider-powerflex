@@ -26,8 +26,8 @@ jobs:
       - name: Set up Git
         run: |
           cd docs/
-          git config --local user.email "anika.agiwal@dell.com"
-          git config --local user.name "AnikaAgiwal2711"
+          git config --local user.email "abc@def.com"
+          git config --local user.name "example user name"
       - name: Make changes
         run: |
           cd docs/ && make powerflex
