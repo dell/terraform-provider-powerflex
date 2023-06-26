@@ -23,6 +23,7 @@ jobs:
           path: docs
       - name: Set up Git
         run: |
+          cd docs/
           git config --local user.email "anika.agiwal@dell.com"
           git config --local user.name "AnikaAgiwal2711"
       - name: Make changes
