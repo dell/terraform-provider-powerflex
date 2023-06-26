@@ -14,8 +14,6 @@ jobs:
         with:
           ref: test-auto-docs
           path: powerflex
-      - run: ls -ltr 
-      - run: pwd
       - name: Check out to docs repo
         uses: actions/checkout@v3
         with:
@@ -23,8 +21,21 @@ jobs:
           token: ${{ secrets.SERVICE_TOKEN }}    
           ref: test-docs-automation
           path: docs
-      - run: ls -ltr
-      - run: pwd
-      - run: cd ../ && ls -a
-      - run: cd docs/ && make powerflex
-      - run: cd docs/ && git status     
+      - name: Set up Git
+        run: |
+          git config --local user.email "anika.agiwal@dell.com"
+          git config --local user.name "AnikaAgiwal2711"
+      - name: Make changes
+        run: |
+          cd docs/ && make powerflex
+      - name: Commit changes
+        run: |
+          cd docs/
+          git add .
+          git commit -m "push the docs generated from powerflex to docs"
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.SERVICE_TOKEN }}
+          directory: docs
+          branch: test-docs-automation     
