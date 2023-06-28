@@ -31,6 +31,7 @@ The Terraform Provider can be used to manage SDCs, volumes, snapshots, snapshot-
 * [List of DataSources in Terraform Provider for Dell PowerFlex](#list-of-datasources-in-terraform-provider-for-dell-powerflex)
 * [List of Resources in Terraform Provider for Dell PowerFlex](#list-of-resources-in-terraform-provider-for-dell-powerflex)
 * [Releasing, Maintenance and Deprecation](#releasing-maintenance-and-deprecation)
+* [Documentation](#documentation)
 
 ## Support
 For any Terraform Provider for Dell PowerFlex issues, questions or feedback, please follow our [support process](https://github.com/dell/dell-terraform-providers/blob/main/docs/SUPPORT.md)
@@ -75,3 +76,7 @@ Terraform Provider for Dell Technnologies PowerFlex follows [Semantic Versioning
 New versions will be release regularly if significant changes (bug fix or new feature) are made in the provider.
 
 Released code versions are located on tags in the form of "vx.y.z" where x.y.z corresponds to the version number.
+
+## Documentation
+
+For more detailed information on the driver, please refer to [Dell Terraform Providers documentation](https://dell.github.io/terraform-docs/).
