@@ -1,4 +1,4 @@
-# v1.1.0 (June 21, 2023)
+# v1.1.0 (June 28, 2023)
 ## Release Summary
 The release supports resources mentioned in the Features section for Dell PowerFlex.
 ## Features
