@@ -79,4 +79,4 @@ Released code versions are located on tags in the form of "vx.y.z" where x.y.z c
 
 ## Documentation
 
-For more detailed information on the driver, please refer to [Dell Terraform Providers documentation](https://dell.github.io/terraform-docs/).
+For more detailed information, please refer to [Dell Terraform Providers documentation](https://dell.github.io/terraform-docs/).
