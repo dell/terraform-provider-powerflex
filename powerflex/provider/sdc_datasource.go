@@ -67,6 +67,10 @@ func (d *sdcDataSource) Configure(_ context.Context, req datasource.ConfigureReq
 func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state models.SdcDataSourceModel
 	diags := req.Config.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	tflog.Info(ctx, "[POWERFLEX] sdcDataSourceModel"+helper.PrettyJSON((state)))
 
 	system, err := helper.GetFirstSystem(d.client)

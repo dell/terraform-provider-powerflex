@@ -78,11 +78,7 @@ func (r *sdsResource) ValidateConfig(ctx context.Context, req resource.ValidateC
 	ipmap := make(map[string]int)
 	// count how many times an IP is used in the set
 	for _, ipObj := range iplist {
-		if _, ok := ipmap[ipObj.IP]; ok {
-			ipmap[ipObj.IP]++
-		} else {
-			ipmap[ipObj.IP] = 1
-		}
+		ipmap[ipObj.IP]++
 	}
 	// raise errors for duplicate IP entries
 	for ip, count := range ipmap {

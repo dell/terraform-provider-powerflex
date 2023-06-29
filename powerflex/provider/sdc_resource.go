@@ -272,7 +272,7 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 					chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 				}
 			} else {
-				changedSDCDetail := helper.GetSDCState(*&goscaleio_types.Sdc{}, sdc)
+				changedSDCDetail := helper.GetSDCState(goscaleio_types.Sdc{}, sdc)
 
 				chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 			}
@@ -405,7 +405,7 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 						chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 					}
 				} else {
-					changedSDCDetail := helper.GetSDCState(*&goscaleio_types.Sdc{}, sdc)
+					changedSDCDetail := helper.GetSDCState(goscaleio_types.Sdc{}, sdc)
 
 					chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 				}

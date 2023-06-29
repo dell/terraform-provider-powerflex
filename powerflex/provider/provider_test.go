@@ -19,6 +19,7 @@ package provider
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"testing"
 
@@ -64,7 +65,11 @@ type gatewayDataPoints struct {
 func getNewSdsDataPointForTest() sdsDataPoints {
 	var SdsResourceTestData sdsDataPoints
 
-	godotenv.Load("POWERFLEX_TERRAFORM_TEST.env")
+	err := godotenv.Load("POWERFLEX_TERRAFORM_TEST.env")
+	if err != nil {
+		log.Fatal("Error loading .env file: ", err)
+		return SdsResourceTestData
+	}
 	SdsResourceTestData.SdsIP1 = os.Getenv("POWERFLEX_SDS_IP_1")
 	SdsResourceTestData.SdsIP2 = os.Getenv("POWERFLEX_SDS_IP_2")
 	SdsResourceTestData.SdsIP3 = os.Getenv("POWERFLEX_SDS_IP_3")
@@ -92,7 +97,11 @@ func getNewGatewayDataPointForTest() gatewayDataPoints {
 
 	var GatewayDataPoints gatewayDataPoints
 
-	godotenv.Load("POWERFLEX_TERRAFORM_TEST.env")
+	err := godotenv.Load("POWERFLEX_TERRAFORM_TEST.env")
+	if err != nil {
+		log.Fatal("Error loading .env file: ", err)
+		return GatewayDataPoints
+	}
 
 	GatewayDataPoints.primaryMDMIP = os.Getenv("POWERFLEX_PRIMARY_MDM_IP")
 	GatewayDataPoints.secondaryMDMIP = os.Getenv("POWERFLEX_SECONDARY_MDM_IP")
@@ -113,7 +122,11 @@ var SDCVolName = os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_NAME")
 var SdsID = os.Getenv("POWERFLEX_DEVICE_SDS_ID")
 
 func init() {
-	godotenv.Load("POWERFLEX_TERRAFORM_TEST.env")
+	err := godotenv.Load("POWERFLEX_TERRAFORM_TEST.env")
+	if err != nil {
+		log.Fatal("Error loading .env file: ", err)
+		return
+	}
 
 	username := os.Getenv("POWERFLEX_USERNAME")
 	password := os.Getenv("POWERFLEX_PASSWORD")

@@ -184,6 +184,10 @@ func (d *sdsDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 			sdsID = append(sdsID, sds[sp].Name)
 		}
 	}
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	// Iterate though the SDS for sacing details into state file
 	for _, sdsIdentifier := range sdsID {
