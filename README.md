@@ -31,7 +31,7 @@ The Terraform Provider can be used to manage SDCs, volumes, snapshots, snapshot-
 * [Contributing Guide](https://github.com/dell/dell-terraform-providers/blob/main/docs/CONTRIBUTING.md)
 * [List of Adopters](https://github.com/dell/dell-terraform-providers/blob/main/docs/ADOPTERS.md)
 * [Support](#support)
-* [Security](https://github.com/dell/terraform-provider-powerflex/blob/main/.github/SECURITY.md)
+* [Security](https://github.com/dell/dell-terraform-providers/blob/main/docs/SECURITY.md)
 * [License](#license)
 * [Prerequisites](#prerequisites)
 * [List of DataSources in Terraform Provider for Dell PowerFlex](#list-of-datasources-in-terraform-provider-for-dell-powerflex)
