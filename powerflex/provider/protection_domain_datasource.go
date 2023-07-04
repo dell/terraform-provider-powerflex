@@ -53,12 +53,22 @@ func (d *protectionDomainDataSource) Schema(_ context.Context, _ datasource.Sche
 	resp.Schema = ProtectionDomainDataSourceSchema
 }
 
-func (d *protectionDomainDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *protectionDomainDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
 
-	d.client = req.ProviderData.(*goscaleio.Client)
+	if _, ok := req.ProviderData.(*goscaleio.Client); ok {
+		d.client = req.ProviderData.(*goscaleio.Client)
+	} else {
+		resp.Diagnostics.AddError(
+			"Unable to Authenticate Goscaleio API Client",
+			"An unexpected error occurred when authenticating the Goscaleio API Client. "+
+				"Unable to Authenticate Goscaleio API Client.\n\n"+
+				"powerflex Client Error: Failed connecting to cluster: no MDM IP is set",
+		)
+		return
+	}
 }
 
 func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

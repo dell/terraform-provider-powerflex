@@ -198,3 +198,26 @@ func BoolDefault(defaultValue bool) planmodifier.Bool {
 		Default: defaultValue,
 	}
 }
+
+// ResetInstallerQueue function for the Abort, Clear and Move To Idle Execution
+func ResetInstallerQueue(gatewayClient *goscaleio.GatewayClient) error {
+
+	_, err := gatewayClient.AbortOperation()
+
+	if err != nil {
+		return fmt.Errorf("Error while Aborting Operation is %s", err.Error())
+	}
+	_, err = gatewayClient.ClearQueueCommand()
+
+	if err != nil {
+		return fmt.Errorf("Error while Clearing Queue is %s", err.Error())
+	}
+
+	_, err = gatewayClient.MoveToIdlePhase()
+
+	if err != nil {
+		return fmt.Errorf("Error while Move to Ideal Phase is %s", err.Error())
+	}
+
+	return nil
+}

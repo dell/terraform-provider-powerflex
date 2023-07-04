@@ -64,12 +64,22 @@ func (r *snapshotResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 }
 
 // Configure adds the provider configured client to the data source.
-func (r *snapshotResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *snapshotResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
 
-	r.client = req.ProviderData.(*goscaleio.Client)
+	if _, ok := req.ProviderData.(*goscaleio.Client); ok {
+		r.client = req.ProviderData.(*goscaleio.Client)
+	} else {
+		resp.Diagnostics.AddError(
+			"Unable to Authenticate Goscaleio API Client",
+			"An unexpected error occurred when authenticating the Goscaleio API Client. "+
+				"Unable to Authenticate Goscaleio API Client.\n\n"+
+				"powerflex Client Error: Failed connecting to cluster: no MDM IP is set",
+		)
+		return
+	}
 }
 
 // ModifyPlan modify resource plan attribute value

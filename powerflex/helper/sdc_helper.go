@@ -188,29 +188,6 @@ func CheckForExpansion(model []models.SDCDetailDataModel) bool {
 	return performaneChangeSdc
 }
 
-// ResetInstallerQueue function for the Abort, Clear and Move To Idle Execution
-func ResetInstallerQueue(gatewayClient *goscaleio.GatewayClient) error {
-
-	_, err := gatewayClient.AbortOperation()
-
-	if err != nil {
-		return fmt.Errorf("Error while Aborting Operation is %s", err.Error())
-	}
-	_, err = gatewayClient.ClearQueueCommand()
-
-	if err != nil {
-		return fmt.Errorf("Error while Clearing Queue is %s", err.Error())
-	}
-
-	_, err = gatewayClient.MoveToIdlePhase()
-
-	if err != nil {
-		return fmt.Errorf("Error while Move to Ideal Phase is %s", err.Error())
-	}
-
-	return nil
-}
-
 // ParseCSVOperation function for Handling Parsing CSV Operation
 func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataModel, gatewayClient *goscaleio.GatewayClient) (*goscaleio_types.GatewayResponse, error) {
 

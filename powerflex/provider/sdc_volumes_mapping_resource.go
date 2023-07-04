@@ -142,12 +142,22 @@ func (r *sdcVolumeMappingResource) Schema(_ context.Context, _ resource.SchemaRe
 	}
 }
 
-func (r *sdcVolumeMappingResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *sdcVolumeMappingResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
 
-	r.client = req.ProviderData.(*goscaleio.Client)
+	if _, ok := req.ProviderData.(*goscaleio.Client); ok {
+		r.client = req.ProviderData.(*goscaleio.Client)
+	} else {
+		resp.Diagnostics.AddError(
+			"Unable to Authenticate Goscaleio API Client",
+			"An unexpected error occurred when authenticating the Goscaleio API Client. "+
+				"Unable to Authenticate Goscaleio API Client.\n\n"+
+				"powerflex Client Error: Failed connecting to cluster: no MDM IP is set",
+		)
+		return
+	}
 }
 
 // ModifyPlan modify resource plan attribute value

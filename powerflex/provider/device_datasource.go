@@ -59,7 +59,17 @@ func (d *deviceDataSource) Configure(_ context.Context, req datasource.Configure
 		return
 	}
 
-	d.client = req.ProviderData.(*goscaleio.Client)
+	if _, ok := req.ProviderData.(*goscaleio.Client); ok {
+		d.client = req.ProviderData.(*goscaleio.Client)
+	} else {
+		resp.Diagnostics.AddError(
+			"Unable to Authenticate Goscaleio API Client",
+			"An unexpected error occurred when authenticating the Goscaleio API Client. "+
+				"Unable to Authenticate Goscaleio API Client.\n\n"+
+				"powerflex Client Error: Failed connecting to cluster: no MDM IP is set",
+		)
+		return
+	}
 
 	system, err := helper.GetFirstSystem(d.client)
 
