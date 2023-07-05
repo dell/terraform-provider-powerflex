@@ -242,7 +242,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 					"powerflex Client Error: "+err.Error(),
 			)
 			return
-		} 
+		}
 
 		// Create a new PowerFlex gateway client using the configuration values
 		gatewayClient, err := goscaleio.NewGateway(goscaleioConf.Endpoint, goscaleioConf.Username, goscaleioConf.Password, goscaleioConf.Insecure, true)
@@ -258,7 +258,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 
 		resp.DataSourceData = gatewayClient
 		resp.ResourceData = gatewayClient
-		
+
 	}
 
 	resp.DataSourceData = Client
