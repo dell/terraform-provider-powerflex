@@ -21,6 +21,7 @@ import (
 	"context"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -233,7 +234,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 
 	if err != nil {
 
-		if err.Error() != "Failed connecting to cluster: no MDM IP is set" {
+		if !strings.Contains(err.Error(), "Failed connecting to cluster: no MDM IP is set") {
 			resp.Diagnostics.AddError(
 				"Unable to Authenticate Goscaleio API Client",
 				"An unexpected error occurred when authenticating the Goscaleio API Client. "+
