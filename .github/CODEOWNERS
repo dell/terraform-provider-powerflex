@@ -1,0 +1,18 @@
+# CODEOWNERS
+#
+# documentation for this file can be found at:
+# https://help.github.com/en/articles/about-code-owners
+
+# These are the default owners for the code and will
+# be requested for review when someone opens a pull request.
+# Order is alphabetical for easier maintenance.
+#
+# Akash Shendge (shenda1)
+# Anika Agiwal (AnikaAgiwal2711)
+# Gokula Srivathsan (gokul-srivathsan)
+# Krunal Thakkar (Krunal-Thakkar)
+# Priyanshu Krishnan (Krishnan-Priyanshu)
+# Rounak Adhikary (rounak-adhikary)
+
+# for all files:
+* @shenda1 @AnikaAgiwal2711 @gokul-srivathsan @Krunal-Thakkar @Krishnan-Priyanshu @rounak-adhikary
