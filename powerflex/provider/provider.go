@@ -242,22 +242,23 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 					"powerflex Client Error: "+err.Error(),
 			)
 			return
-		} else {
-			// Create a new PowerFlex gateway client using the configuration values
-			gatewayClient, err := goscaleio.NewGateway(goscaleioConf.Endpoint, goscaleioConf.Username, goscaleioConf.Password, goscaleioConf.Insecure, true)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					"Unable to Create gateway API Client",
-					"An unexpected error occurred when creating the gateway API client. "+
-						"If the error is not clear, please contact the provider developers.\n\n"+
-						"gateway Client Error: "+err.Error(),
-				)
-				return
-			}
+		} 
 
-			resp.DataSourceData = gatewayClient
-			resp.ResourceData = gatewayClient
+		// Create a new PowerFlex gateway client using the configuration values
+		gatewayClient, err := goscaleio.NewGateway(goscaleioConf.Endpoint, goscaleioConf.Username, goscaleioConf.Password, goscaleioConf.Insecure, true)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to Create gateway API Client",
+				"An unexpected error occurred when creating the gateway API client. "+
+					"If the error is not clear, please contact the provider developers.\n\n"+
+					"gateway Client Error: "+err.Error(),
+			)
+			return
 		}
+
+		resp.DataSourceData = gatewayClient
+		resp.ResourceData = gatewayClient
+		
 	}
 
 	resp.DataSourceData = Client
