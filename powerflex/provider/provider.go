@@ -258,10 +258,10 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 			resp.DataSourceData = gatewayClient
 			resp.ResourceData = gatewayClient
 		}
-	} else {
-		resp.DataSourceData = Client
-		resp.ResourceData = Client
 	}
+
+	resp.DataSourceData = Client
+	resp.ResourceData = Client
 
 	tflog.Info(ctx, "Configured powerflex client", map[string]any{"success": true})
 }
