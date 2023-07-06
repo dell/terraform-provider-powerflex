@@ -103,7 +103,6 @@ func (p *powerflexProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 func (p *powerflexProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
 	tflog.Info(ctx, "Configuring powerflex client")
 
-	// var pClients powerflexClients
 	var config powerflexProviderModel
 	var timeout int
 	diags := req.Config.Get(ctx, &config)
