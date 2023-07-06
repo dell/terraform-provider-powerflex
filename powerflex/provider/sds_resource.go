@@ -56,12 +56,17 @@ func (r *sdsResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *
 	resp.Schema = SDSResourceSchema
 }
 
-func (r *sdsResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *sdsResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
 
-	r.client = req.ProviderData.(*goscaleio.Client)
+	if req.ProviderData.(*powerflexProvider).client == nil {
+		resp.Diagnostics.AddError("Unable to Authenticate Goscaleio API Client", req.ProviderData.(*powerflexProvider).clientError)
+		return
+	}
+
+	r.client = req.ProviderData.(*powerflexProvider).client
 }
 
 func (r *sdsResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {

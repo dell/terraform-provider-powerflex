@@ -41,7 +41,11 @@ func New() provider.Provider {
 	return &powerflexProvider{}
 }
 
-type powerflexProvider struct{}
+type powerflexProvider struct {
+	client        *goscaleio.Client
+	clientError   string
+	gatewayClient *goscaleio.GatewayClient
+}
 
 // powerflexProviderModel - provider input struct.
 type powerflexProviderModel struct {
@@ -229,20 +233,34 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	goscaleioConf.Password = password
 	goscaleioConf.Insecure = insecure
 
-	_, err = Client.Authenticate(&goscaleioConf)
-
+	// Create a new PowerFlex gateway client using the configuration values
+	gatewayClient, err := goscaleio.NewGateway(goscaleioConf.Endpoint, goscaleioConf.Username, goscaleioConf.Password, goscaleioConf.Insecure, true)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Authenticate Goscaleio API Client",
-			"An unexpected error occurred when authenticating the Goscaleio API Client. "+
-				"Unable to Authenticate Goscaleio API Client.\n\n"+
-				"powerflex Client Error: "+err.Error(),
+			"Unable to Create gateway API Client",
+			"An unexpected error occurred when creating the gateway API client. "+
+				"If the error is not clear, please contact the provider developers.\n\n"+
+				"gateway Client Error: "+err.Error(),
 		)
 		return
 	}
 
-	resp.DataSourceData = Client
-	resp.ResourceData = Client
+	p.gatewayClient = gatewayClient
+
+	_, err = Client.Authenticate(&goscaleioConf)
+
+	if err != nil {
+
+		p.clientError = "An unexpected error occurred when authenticating the Goscaleio API Client. " +
+			"Unable to Authenticate Goscaleio API Client.\n\n" +
+			"powerflex Client Error: " + err.Error()
+
+	} else {
+		p.client = Client
+	}
+
+	resp.DataSourceData = p
+	resp.ResourceData = p
 
 	tflog.Info(ctx, "Configured powerflex client", map[string]any{"success": true})
 }

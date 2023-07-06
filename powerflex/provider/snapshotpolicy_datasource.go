@@ -51,12 +51,17 @@ func (d *snapshotPolicyDataSource) Schema(_ context.Context, _ datasource.Schema
 	resp.Schema = SnapshotPolicyDataSourceSchema
 }
 
-func (d *snapshotPolicyDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *snapshotPolicyDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
 
-	d.client = req.ProviderData.(*goscaleio.Client)
+	if req.ProviderData.(*powerflexProvider).client == nil {
+		resp.Diagnostics.AddError("Unable to Authenticate Goscaleio API Client", req.ProviderData.(*powerflexProvider).clientError)
+		return
+	}
+
+	d.client = req.ProviderData.(*powerflexProvider).client
 }
 
 func (d *snapshotPolicyDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

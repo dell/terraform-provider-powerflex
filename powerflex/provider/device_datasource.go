@@ -59,7 +59,12 @@ func (d *deviceDataSource) Configure(_ context.Context, req datasource.Configure
 		return
 	}
 
-	d.client = req.ProviderData.(*goscaleio.Client)
+	if req.ProviderData.(*powerflexProvider).client == nil {
+		resp.Diagnostics.AddError("Unable to Authenticate Goscaleio API Client", req.ProviderData.(*powerflexProvider).clientError)
+		return
+	}
+
+	d.client = req.ProviderData.(*powerflexProvider).client
 
 	system, err := helper.GetFirstSystem(d.client)
 

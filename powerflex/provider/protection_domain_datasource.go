@@ -53,12 +53,17 @@ func (d *protectionDomainDataSource) Schema(_ context.Context, _ datasource.Sche
 	resp.Schema = ProtectionDomainDataSourceSchema
 }
 
-func (d *protectionDomainDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *protectionDomainDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
 
-	d.client = req.ProviderData.(*goscaleio.Client)
+	if req.ProviderData.(*powerflexProvider).client == nil {
+		resp.Diagnostics.AddError("Unable to Authenticate Goscaleio API Client", req.ProviderData.(*powerflexProvider).clientError)
+		return
+	}
+
+	d.client = req.ProviderData.(*powerflexProvider).client
 }
 
 func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {

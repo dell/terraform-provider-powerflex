@@ -129,21 +129,14 @@ func (r *packageResource) Configure(_ context.Context, req resource.ConfigureReq
 		return
 	}
 
-	r.client = req.ProviderData.(*goscaleio.Client)
+	if req.ProviderData.(*powerflexProvider).gatewayClient != nil {
+		r.gatewayClient = req.ProviderData.(*powerflexProvider).gatewayClient
+	} else {
+		resp.Diagnostics.AddError("Unable to Authenticate Goscaleio API Client", req.ProviderData.(*powerflexProvider).clientError)
 
-	// Create a new PowerFlex gateway client using the configuration values
-	gatewayClient, err := goscaleio.NewGateway(r.client.GetConfigConnect().Endpoint, r.client.GetConfigConnect().Username, r.client.GetConfigConnect().Password, r.client.GetConfigConnect().Insecure, true)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Create gateway API Client",
-			"An unexpected error occurred when creating the gateway API client. "+
-				"If the error is not clear, please contact the provider developers.\n\n"+
-				"gateway Client Error: "+err.Error(),
-		)
 		return
 	}
 
-	r.gatewayClient = gatewayClient
 }
 
 // Create creates the resource and sets the initial Terraform state.

@@ -55,12 +55,17 @@ func (d *sdcDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, re
 }
 
 // Configure - function to call initial configurations before resource execution.
-func (d *sdcDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *sdcDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
 
-	d.client = req.ProviderData.(*goscaleio.Client)
+	if req.ProviderData.(*powerflexProvider).client == nil {
+		resp.Diagnostics.AddError("Unable to Authenticate Goscaleio API Client", req.ProviderData.(*powerflexProvider).clientError)
+		return
+	}
+
+	d.client = req.ProviderData.(*powerflexProvider).client
 }
 
 // Read - function to read sdc values from goscaleio.

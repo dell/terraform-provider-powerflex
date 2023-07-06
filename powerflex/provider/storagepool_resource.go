@@ -60,7 +60,13 @@ func (r *storagepoolResource) Configure(_ context.Context, req resource.Configur
 	if req.ProviderData == nil {
 		return
 	}
-	r.client = req.ProviderData.(*goscaleio.Client)
+
+	if req.ProviderData.(*powerflexProvider).client == nil {
+		resp.Diagnostics.AddError("Unable to Authenticate Goscaleio API Client", req.ProviderData.(*powerflexProvider).clientError)
+		return
+	}
+
+	r.client = req.ProviderData.(*powerflexProvider).client
 }
 
 func (r *storagepoolResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {

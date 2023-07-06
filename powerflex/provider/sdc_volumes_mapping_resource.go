@@ -142,12 +142,17 @@ func (r *sdcVolumeMappingResource) Schema(_ context.Context, _ resource.SchemaRe
 	}
 }
 
-func (r *sdcVolumeMappingResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *sdcVolumeMappingResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
 
-	r.client = req.ProviderData.(*goscaleio.Client)
+	if req.ProviderData.(*powerflexProvider).client == nil {
+		resp.Diagnostics.AddError("Unable to Authenticate Goscaleio API Client", req.ProviderData.(*powerflexProvider).clientError)
+		return
+	}
+
+	r.client = req.ProviderData.(*powerflexProvider).client
 }
 
 // ModifyPlan modify resource plan attribute value

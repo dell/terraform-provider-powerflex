@@ -56,12 +56,17 @@ func (d *storagepoolDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 }
 
 // Configure adds the provider configured client to the data source.
-func (d *storagepoolDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *storagepoolDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
 
-	d.client = req.ProviderData.(*goscaleio.Client)
+	if req.ProviderData.(*powerflexProvider).client == nil {
+		resp.Diagnostics.AddError("Unable to Authenticate Goscaleio API Client", req.ProviderData.(*powerflexProvider).clientError)
+		return
+	}
+
+	d.client = req.ProviderData.(*powerflexProvider).client
 }
 
 // Read refreshes the Terraform state with the latest data.
