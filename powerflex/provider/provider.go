@@ -47,11 +47,6 @@ type powerflexProvider struct {
 	gatewayClient *goscaleio.GatewayClient
 }
 
-// type powerflexClients struct {
-// 	client        *goscaleio.Client
-// 	gatewayClient *goscaleio.GatewayClient
-// }
-
 // powerflexProviderModel - provider input struct.
 type powerflexProviderModel struct {
 	EndPoint types.String `tfsdk:"endpoint"`
