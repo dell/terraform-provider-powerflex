@@ -249,9 +249,9 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 				"gateway Client Error: "+err.Error(),
 		)
 		return
-	} else {
-		p.gatewayClient = gatewayClient
 	}
+
+	p.gatewayClient = gatewayClient
 
 	_, err = Client.Authenticate(&goscaleioConf)
 
@@ -261,13 +261,6 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 			"Unable to Authenticate Goscaleio API Client.\n\n" +
 			"powerflex Client Error: " + err.Error()
 
-		// resp.Diagnostics.AddWarning(
-		// 	"Unable to Authenticate Goscaleio API Client",
-		// 	"An unexpected error occurred when authenticating the Goscaleio API Client. "+
-		// 		"Unable to Authenticate Goscaleio API Client.\n\n"+
-		// 		"powerflex Client Error: "+err.Error(),
-		// )
-		// return
 	} else {
 		p.client = Client
 	}
