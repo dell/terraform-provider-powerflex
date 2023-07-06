@@ -61,17 +61,12 @@ func (d *storagepoolDataSource) Configure(_ context.Context, req datasource.Conf
 		return
 	}
 
-	if _, ok := req.ProviderData.(*goscaleio.Client); ok {
-		d.client = req.ProviderData.(*goscaleio.Client)
-	} else {
-		resp.Diagnostics.AddError(
-			"Unable to Authenticate Goscaleio API Client",
-			"An unexpected error occurred when authenticating the Goscaleio API Client. "+
-				"Unable to Authenticate Goscaleio API Client.\n\n"+
-				"powerflex Client Error: Failed connecting to cluster: no MDM IP is set",
-		)
+	if req.ProviderData.(*powerflexProvider).client == nil {
+		resp.Diagnostics.AddError("Unable to Authenticate Goscaleio API Client", req.ProviderData.(*powerflexProvider).clientError)
 		return
 	}
+
+	d.client = req.ProviderData.(*powerflexProvider).client
 }
 
 // Read refreshes the Terraform state with the latest data.

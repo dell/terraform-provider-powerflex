@@ -21,7 +21,6 @@ import (
 	"context"
 	"os"
 	"strconv"
-	"strings"
 
 	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -42,7 +41,16 @@ func New() provider.Provider {
 	return &powerflexProvider{}
 }
 
-type powerflexProvider struct{}
+type powerflexProvider struct {
+	client        *goscaleio.Client
+	clientError   string
+	gatewayClient *goscaleio.GatewayClient
+}
+
+// type powerflexClients struct {
+// 	client        *goscaleio.Client
+// 	gatewayClient *goscaleio.GatewayClient
+// }
 
 // powerflexProviderModel - provider input struct.
 type powerflexProviderModel struct {
@@ -100,6 +108,7 @@ func (p *powerflexProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 func (p *powerflexProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
 	tflog.Info(ctx, "Configuring powerflex client")
 
+	// var pClients powerflexClients
 	var config powerflexProviderModel
 	var timeout int
 	diags := req.Config.Get(ctx, &config)
@@ -230,39 +239,41 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	goscaleioConf.Password = password
 	goscaleioConf.Insecure = insecure
 
+	// Create a new PowerFlex gateway client using the configuration values
+	gatewayClient, err := goscaleio.NewGateway(goscaleioConf.Endpoint, goscaleioConf.Username, goscaleioConf.Password, goscaleioConf.Insecure, true)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Create gateway API Client",
+			"An unexpected error occurred when creating the gateway API client. "+
+				"If the error is not clear, please contact the provider developers.\n\n"+
+				"gateway Client Error: "+err.Error(),
+		)
+		return
+	} else {
+		p.gatewayClient = gatewayClient
+	}
+
 	_, err = Client.Authenticate(&goscaleioConf)
 
 	if err != nil {
 
-		if !strings.Contains(err.Error(), "Failed connecting to cluster: no MDM IP is set") {
-			resp.Diagnostics.AddError(
-				"Unable to Authenticate Goscaleio API Client",
-				"An unexpected error occurred when authenticating the Goscaleio API Client. "+
-					"Unable to Authenticate Goscaleio API Client.\n\n"+
-					"powerflex Client Error: "+err.Error(),
-			)
-			return
-		}
+		p.clientError = "An unexpected error occurred when authenticating the Goscaleio API Client. " +
+			"Unable to Authenticate Goscaleio API Client.\n\n" +
+			"powerflex Client Error: " + err.Error()
 
-		// Create a new PowerFlex gateway client using the configuration values
-		gatewayClient, err := goscaleio.NewGateway(goscaleioConf.Endpoint, goscaleioConf.Username, goscaleioConf.Password, goscaleioConf.Insecure, true)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Create gateway API Client",
-				"An unexpected error occurred when creating the gateway API client. "+
-					"If the error is not clear, please contact the provider developers.\n\n"+
-					"gateway Client Error: "+err.Error(),
-			)
-			return
-		}
-
-		resp.DataSourceData = gatewayClient
-		resp.ResourceData = gatewayClient
-
+		// resp.Diagnostics.AddWarning(
+		// 	"Unable to Authenticate Goscaleio API Client",
+		// 	"An unexpected error occurred when authenticating the Goscaleio API Client. "+
+		// 		"Unable to Authenticate Goscaleio API Client.\n\n"+
+		// 		"powerflex Client Error: "+err.Error(),
+		// )
+		// return
+	} else {
+		p.client = Client
 	}
 
-	resp.DataSourceData = Client
-	resp.ResourceData = Client
+	resp.DataSourceData = p
+	resp.ResourceData = p
 
 	tflog.Info(ctx, "Configured powerflex client", map[string]any{"success": true})
 }

@@ -61,17 +61,12 @@ func (r *sdsResource) Configure(_ context.Context, req resource.ConfigureRequest
 		return
 	}
 
-	if _, ok := req.ProviderData.(*goscaleio.Client); ok {
-		r.client = req.ProviderData.(*goscaleio.Client)
-	} else {
-		resp.Diagnostics.AddError(
-			"Unable to Authenticate Goscaleio API Client",
-			"An unexpected error occurred when authenticating the Goscaleio API Client. "+
-				"Unable to Authenticate Goscaleio API Client.\n\n"+
-				"powerflex Client Error: Failed connecting to cluster: no MDM IP is set",
-		)
+	if req.ProviderData.(*powerflexProvider).client == nil {
+		resp.Diagnostics.AddError("Unable to Authenticate Goscaleio API Client", req.ProviderData.(*powerflexProvider).clientError)
 		return
 	}
+
+	r.client = req.ProviderData.(*powerflexProvider).client
 }
 
 func (r *sdsResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
