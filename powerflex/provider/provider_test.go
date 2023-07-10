@@ -65,7 +65,7 @@ type gatewayDataPoints struct {
 func getNewSdsDataPointForTest() sdsDataPoints {
 	var SdsResourceTestData sdsDataPoints
 
-	err := godotenv.Load("POWERFLEX_TERRAFORM_TEST.env")
+	err := godotenv.Load("powerflex.env")
 	if err != nil {
 		log.Fatal("Error loading .env file: ", err)
 		return SdsResourceTestData
@@ -97,7 +97,7 @@ func getNewGatewayDataPointForTest() gatewayDataPoints {
 
 	var GatewayDataPoints gatewayDataPoints
 
-	err := godotenv.Load("POWERFLEX_TERRAFORM_TEST.env")
+	err := godotenv.Load("powerflex.env")
 	if err != nil {
 		log.Fatal("Error loading .env file: ", err)
 		return GatewayDataPoints
@@ -122,7 +122,7 @@ var SDCVolName = os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_NAME")
 var SdsID = os.Getenv("POWERFLEX_DEVICE_SDS_ID")
 
 func init() {
-	err := godotenv.Load("POWERFLEX_TERRAFORM_TEST.env")
+	err := godotenv.Load("powerflex.env")
 	if err != nil {
 		log.Fatal("Error loading .env file: ", err)
 		return

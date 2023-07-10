@@ -39,7 +39,6 @@ func NewPackageResource() resource.Resource {
 
 // packageResource is the resource implementation.
 type packageResource struct {
-	client        *goscaleio.Client
 	gatewayClient *goscaleio.GatewayClient
 }
 
