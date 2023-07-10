@@ -23,6 +23,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -199,7 +200,8 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 		return &parseCSVResponse, fmt.Errorf("Error While Reading Current Directory is %s", err.Error())
 	}
 	// Create a csv writer
-	file, err := os.Create(mydir + "/Minimal.csv")
+	filePath := filepath.Join(mydir, filepath.Clean("Minimal.csv"))
+	file, err := os.Create(filepath.Clean(filePath))
 	if err != nil {
 		return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV is %s", err.Error())
 	}
@@ -342,8 +344,6 @@ func InstallationOperations(ctx context.Context, model models.SdcResourceModel, 
 					if queueOperationError != nil {
 						return fmt.Errorf("Error Clearing Queue During Installation is %s", queueOperationError.Error())
 					}
-
-					couterForStopExecution = 10
 
 					return nil
 				}
