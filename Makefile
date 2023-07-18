@@ -3,7 +3,7 @@ HOSTNAME=registry.terraform.io
 NAMESPACE=dell
 NAME=powerflex
 BINARY=terraform-provider-${NAME}
-VERSION=0.0.1
+VERSION=1.1.0
 OS_ARCH=linux_amd64
 
 default: install
@@ -55,7 +55,7 @@ test: check
 check:
 	terraform fmt -recursive examples/
 	gofmt -s -w .
-	golint ./...
+	golangci-lint run --fix --timeout 5m
 	go vet
 
 gosec:

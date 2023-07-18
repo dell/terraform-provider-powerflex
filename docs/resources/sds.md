@@ -28,13 +28,30 @@ This resource can be used to manage Storage Data Servers on a PowerFlex array.
 
 ~> **Note:** Exactly one of `protection_domain_name` and `protection_domain_id` is required.
 
-!> **Caution:** SDS creation or update is not atomic. In case of partially completed operations, terraform can mark the resource as tainted.
+!> **Caution:** SDS creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 If the taint is not removed, terraform will destroy and recreate the resource.
 
 ## Example Usage
 
 ```terraform
+/*
+Copyright (c) 2023 Dell Inc., or its subsidiaries. All Rights Reserved.
+
+Licensed under the Mozilla Public License Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://mozilla.org/MPL/2.0/
+
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 # Commands to run this tf file : terraform init && terraform plan && terraform apply
 # Create, Update, Delete is supported for this resource
 # To import , check sds_resource_import.tf for more info
