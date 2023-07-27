@@ -294,7 +294,7 @@ func ValidateMDMOperation(ctx context.Context, model models.SdcResourceModel, ga
 // InstallationOperations function for begin instllation process
 func InstallationOperations(ctx context.Context, model models.SdcResourceModel, gatewayClient *goscaleio.GatewayClient, parsecsvRespose *goscaleio_types.GatewayResponse) error {
 
-	beginInstallationResponse, installationError := gatewayClient.BeginInstallation(parsecsvRespose.Data, "admin", model.MdmPassword.ValueString(), model.LiaPassword.ValueString(), true)
+	beginInstallationResponse, installationError := gatewayClient.BeginInstallation(parsecsvRespose.Data, "admin", model.MdmPassword.ValueString(), model.LiaPassword.ValueString(), true, true, false, true)
 
 	if installationError != nil {
 		return fmt.Errorf("Error while begin installation is %s", installationError.Error())

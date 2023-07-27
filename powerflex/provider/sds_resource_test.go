@@ -42,7 +42,6 @@ func TestAccSDSResource(t *testing.T) {
 		performance_profile = "Compact"
 		rmcache_enabled = true
 		rmcache_size_in_mb = 156
-		rfcache_enabled = true
 		drl_mode = "NonVolatile"
 		protection_domain_id = "` + protectionDomainID1 + `"
 	}
@@ -102,7 +101,6 @@ func TestAccSDSResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "rmcache_size_in_mb", "156"),
 					resource.TestCheckResourceAttr(resourceName, "rmcache_enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "rfcache_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "performance_profile", "Compact"),
 					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
 						"ip":   SdsResourceTestData.SdsIP2,
