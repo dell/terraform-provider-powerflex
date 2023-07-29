@@ -221,3 +221,27 @@ func ResetInstallerQueue(gatewayClient *goscaleio.GatewayClient) error {
 
 	return nil
 }
+
+// CompareStringSlice Compare string slices. return true if the length and elements are same.
+func CompareStringSlice(plan, state []string) bool {
+	if len(plan) != len(state) {
+		return false
+	}
+
+	itemAppearsTimes := make(map[string]int, len(plan))
+	for _, i := range plan {
+		itemAppearsTimes[i]++
+	}
+
+	for _, i := range state {
+		if _, ok := itemAppearsTimes[i]; !ok {
+			return false
+		}
+
+		itemAppearsTimes[i]--
+		if itemAppearsTimes[i] == 0 {
+			delete(itemAppearsTimes, i)
+		}
+	}
+	return len(itemAppearsTimes) == 0
+}
