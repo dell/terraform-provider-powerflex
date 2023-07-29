@@ -294,8 +294,8 @@ func CheckForSwitchCluster(ctx context.Context, standby []models.StandByMdm, sta
 	return standByFinal, dia
 }
 
-// GetMdmIpMap returns the map with IDs as value
-func GetMdmIpMap(mdmDetails *goscaleio_types.MdmCluster) map[string]string {
+// GetMdmIPMap returns the map with IDs as value
+func GetMdmIPMap(mdmDetails *goscaleio_types.MdmCluster) map[string]string {
 	ipmap := make(map[string]string)
 
 	ipmap[mdmDetails.PrimaryMDM.IPs[0]] = mdmDetails.PrimaryMDM.ID

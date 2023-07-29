@@ -426,7 +426,7 @@ func (d *mdmClusterResource) ModifyPlan(ctx context.Context, req resource.Modify
 	// diags.Append(diag...)
 
 	// Get the IP with IDs as value
-	ipmap := helper.GetMdmIpMap(mdmDetails)
+	ipmap := helper.GetMdmIPMap(mdmDetails)
 
 	// Populate Primary MDM ID if IP is provided
 	if plan.PrimaryMdm.ID.IsUnknown() {
