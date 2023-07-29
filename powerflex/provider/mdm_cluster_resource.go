@@ -47,7 +47,7 @@ var (
 	_ resource.ResourceWithConfigure = &mdmClusterResource{}
 )
 
-// NewMdmResource returns the resource for MDM
+// NewMdmClusterResource returns the resource for MDM
 func NewMdmClusterResource() resource.Resource {
 	return &mdmClusterResource{}
 }
@@ -413,7 +413,7 @@ func (d *mdmClusterResource) ModifyPlan(ctx context.Context, req resource.Modify
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 
-	mdm_details, err := d.system.GetMDMClusterDetails()
+	mdmDetails, err := d.system.GetMDMClusterDetails()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting MDM cluster details: ",
@@ -426,7 +426,7 @@ func (d *mdmClusterResource) ModifyPlan(ctx context.Context, req resource.Modify
 	// diags.Append(diag...)
 
 	// Get the IP with IDs as value
-	ipmap := helper.GetMdmIpMap(mdm_details)
+	ipmap := helper.GetMdmIpMap(mdmDetails)
 
 	// Populate Primary MDM ID if IP is provided
 	if plan.PrimaryMdm.ID.IsUnknown() {
@@ -494,7 +494,7 @@ func (d *mdmClusterResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	mdm_details, err := d.system.GetMDMClusterDetails()
+	mdmDetails, err := d.system.GetMDMClusterDetails()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting MDM cluster details: ",
@@ -503,13 +503,13 @@ func (d *mdmClusterResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	state, dgs := helper.UpdateMdmClusterState(ctx, mdm_details, &plan, d.system.System.PerformanceProfile)
+	state, dgs := helper.UpdateMdmClusterState(ctx, mdmDetails, &plan, d.system.System.PerformanceProfile)
 	diags = append(diags, dgs...)
 
 	// Perform the update operations based on the provided config
 	resp.Diagnostics.Append(d.UpdateMdmClusterResource(ctx, plan, state)...)
 
-	mdm_details, err = d.system.GetMDMClusterDetails()
+	mdmDetails, err = d.system.GetMDMClusterDetails()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting MDM cluster details: ",
@@ -527,7 +527,7 @@ func (d *mdmClusterResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	state, dgs = helper.UpdateMdmClusterState(ctx, mdm_details, &plan, system.System.PerformanceProfile)
+	state, dgs = helper.UpdateMdmClusterState(ctx, mdmDetails, &plan, system.System.PerformanceProfile)
 	diags = append(diags, dgs...)
 
 	diags = resp.State.Set(ctx, state)
@@ -553,7 +553,7 @@ func (d *mdmClusterResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	mdm_details, err := d.system.GetMDMClusterDetails()
+	mdmDetails, err := d.system.GetMDMClusterDetails()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting MDM cluster details: ",
@@ -563,7 +563,7 @@ func (d *mdmClusterResource) Read(ctx context.Context, req resource.ReadRequest,
 	}
 
 	// Set refreshed state
-	state, dgs := helper.UpdateMdmClusterState(ctx, mdm_details, &state, system.System.PerformanceProfile)
+	state, dgs := helper.UpdateMdmClusterState(ctx, mdmDetails, &state, system.System.PerformanceProfile)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state)
@@ -596,7 +596,7 @@ func (d *mdmClusterResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
-	mdm_details, err := d.system.GetMDMClusterDetails()
+	mdmDetails, err := d.system.GetMDMClusterDetails()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting MDM cluster details: ",
@@ -606,7 +606,7 @@ func (d *mdmClusterResource) Update(ctx context.Context, req resource.UpdateRequ
 	}
 
 	// Set refreshed state
-	state, dgs := helper.UpdateMdmClusterState(ctx, mdm_details, &plan, system.System.PerformanceProfile)
+	state, dgs := helper.UpdateMdmClusterState(ctx, mdmDetails, &plan, system.System.PerformanceProfile)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state)
