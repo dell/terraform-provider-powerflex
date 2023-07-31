@@ -146,6 +146,8 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 
 }
+
+// UpdateUserState is the helper function that marshals API response to UserModel
 func UpdateUserState(user *scaleiotypes.User, plan models.UserModel) models.UserModel {
 	state := plan
 	state.Name = types.StringValue(user.Name)
