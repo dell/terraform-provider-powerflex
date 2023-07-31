@@ -23,7 +23,7 @@ import (
 
 // UserModel defines struct for User
 type UserModel struct {
-	ID		types.String `tfsdk:"id"`
+	ID       types.String `tfsdk:"id"`
 	Name     types.String `tfsdk:"name"`
 	Role     types.String `tfsdk:"role"`
 	Password types.String `tfsdk:"password"`
