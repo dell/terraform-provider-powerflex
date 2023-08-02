@@ -61,7 +61,7 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 			"name": schema.StringAttribute{
 				Description: "The name of the user." +
 					" Cannot be updated.",
-				Required:            true,
+				Required: true,
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
@@ -69,7 +69,7 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 			},
 			"role": schema.StringAttribute{
 				Description: "The role of the user." +
-				 " Accepted values are 'Administrator', 'Monitor', 'Configure', 'Security', 'FrontendConfig', 'BackendConfig'.",
+					" Accepted values are 'Administrator', 'Monitor', 'Configure', 'Security', 'FrontendConfig', 'BackendConfig'.",
 				Required:            true,
 				MarkdownDescription: "The role of the user.",
 				Validators: []validator.String{stringvalidator.OneOf(
@@ -82,9 +82,9 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				)},
 			},
 			"password": schema.StringAttribute{
-				Description:         "Password of the user." +
-				" Cannot be updated.",
-				Required:            true,
+				Description: "Password of the user." +
+					" Cannot be updated.",
+				Required: true,
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
@@ -162,8 +162,6 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 
 }
-
-
 
 // Read refreshes the Terraform state with the latest data.
 func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {

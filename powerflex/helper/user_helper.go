@@ -18,9 +18,9 @@ limitations under the License.
 package helper
 
 import (
-	"terraform-provider-powerflex/powerflex/models"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"terraform-provider-powerflex/powerflex/models"
 )
 
 // UpdateUserState is the helper function that marshals API response to UserModel
