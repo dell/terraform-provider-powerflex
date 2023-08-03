@@ -39,7 +39,7 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 	resp.Schema = ClusterReourceSchema
 }
 
-func (d *clusterResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+func (r *clusterResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
 	var config models.ClusterResourceModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)

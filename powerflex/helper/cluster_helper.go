@@ -890,7 +890,7 @@ func getFieldFromItem(item models.ClusterModel, header string) string {
 }
 
 // GetClusterDetails function for Validate the MDM credentials
-func GetClusterDetails(model models.ClusterResourceModel, gatewayClient *goscaleio.GatewayClient, mdmIP string, requireJsonOutput bool) (*goscaleio_types.GatewayResponse, error) {
+func GetClusterDetails(model models.ClusterResourceModel, gatewayClient *goscaleio.GatewayClient, mdmIP string, requireJSONOutput bool) (*goscaleio_types.GatewayResponse, error) {
 	mapData := map[string]interface{}{
 		"mdmUser":     "admin",
 		"mdmPassword": model.MdmPassword.ValueString(),
@@ -905,7 +905,7 @@ func GetClusterDetails(model models.ClusterResourceModel, gatewayClient *goscale
 	mapData["securityConfiguration"] = secureData
 	jsonreq, _ := json.Marshal(mapData)
 
-	validateMDMResponse, validateMDMError := gatewayClient.GetClusterDetails(jsonreq, requireJsonOutput)
+	validateMDMResponse, validateMDMError := gatewayClient.GetClusterDetails(jsonreq, requireJSONOutput)
 	if validateMDMError != nil {
 		return validateMDMResponse, fmt.Errorf("%s", validateMDMError.Error())
 	}
