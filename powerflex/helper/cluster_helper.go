@@ -584,7 +584,7 @@ func GetMDMIPFromMDMList(mdmDataModel []models.MDMDataModel) (string, error) {
 	var mdmIP string
 
 	for _, item := range mdmDataModel {
-		if strings.EqualFold(item.Role.ValueString(), "Primary") {
+		if strings.EqualFold(item.Mode.ValueString(), "Primary") {
 			mdmIP = item.IP.ValueString()
 			return mdmIP, nil
 		}
@@ -771,10 +771,10 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 
 	parsecsvRespose, parseCSVError := gatewayClient.ParseCSV(mydir + "/Minimal.csv")
 
-	deletCSVError := os.Remove(mydir + "/Minimal.csv")
-	if deletCSVError != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Deleting Temp CSV File is %s", deletCSVError.Error())
-	}
+	// deletCSVError := os.Remove(mydir + "/Minimal.csv")
+	// if deletCSVError != nil {
+	// 	return &parseCSVResponse, fmt.Errorf("Error While Deleting Temp CSV File is %s", deletCSVError.Error())
+	// }
 
 	if parseCSVError != nil {
 		return &parseCSVResponse, fmt.Errorf("%s", parseCSVError.Error())
@@ -975,7 +975,7 @@ func ClusterInstallationOperations(ctx context.Context, model models.ClusterReso
 
 				tflog.Info(ctx, "Gateway Installation operations are still running in phase "+currentPhase)
 
-				if couterForStopExecution == 5 {
+				if couterForStopExecution == 6 {
 					// to make gateway available for installation
 					queueOperationError := ResetInstallerQueue(gatewayClient)
 					if queueOperationError != nil {

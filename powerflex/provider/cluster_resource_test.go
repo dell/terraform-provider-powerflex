@@ -19,6 +19,7 @@ package provider
 
 import (
 	"os"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -33,17 +34,17 @@ func TestAccClusterResource(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			//Create
-			// {
-			// 	Config:      ProviderConfigForTesting + ClusterConfig1,
-			// 	ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
-			// },
-			//Import
 			{
-				Config:        ProviderConfigForTesting + importClusterTest,
-				ImportState:   true,
-				ImportStateId: "10.247.103.161,Password123,Password123",
-				ResourceName:  "powerflex_cluster.test",
+				Config:      ProviderConfigForTesting + ClusterConfig1,
+				ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
 			},
+			//Import
+			// {
+			// 	Config:        ProviderConfigForTesting + importClusterTest,
+			// 	ImportState:   true,
+			// 	ImportStateId: "10.247.103.161,Password123,Password123",
+			// 	ResourceName:  "powerflex_cluster.test",
+			// },
 		},
 	})
 }

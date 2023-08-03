@@ -45,14 +45,14 @@ func ClusterResourceModelSchema() map[string]schema.Attribute {
 		"cluster": schema.ListNestedAttribute{
 			MarkdownDescription: "Cluster Installation Details",
 			Description:         "Cluster Installation Details",
-			Optional:            true,
+			Required:            true,
 			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterInstallationDetailsDataModelSchema()},
 		},
 
 		"storage_pools": schema.ListNestedAttribute{
 			MarkdownDescription: "Storage Pool Details",
 			Description:         "Storage Pool Details",
-			Optional:            true,
+			Required:            true,
 			NestedObject:        schema.NestedAttributeObject{Attributes: StoragePoolDetailsDataModelSchema()},
 		},
 
@@ -90,7 +90,6 @@ func ClusterResourceModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Cluster MDM Details",
 			Description:         "Cluster MDM Details",
 			Computed:            true,
-			Optional:            true,
 			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterMDMDetailsDataModelSchema()},
 		},
 
@@ -98,7 +97,6 @@ func ClusterResourceModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Cluster SDS Details",
 			Description:         "Cluster SDS Details",
 			Computed:            true,
-			Optional:            true,
 			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterSDSDetailsDataModelSchema()},
 		},
 
@@ -106,7 +104,6 @@ func ClusterResourceModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Cluster SDC Details",
 			Description:         "Cluster SDC Details",
 			Computed:            true,
-			Optional:            true,
 			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterSDCDetailsDataModelSchema()},
 		},
 
@@ -114,7 +111,6 @@ func ClusterResourceModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Cluster SDR Details",
 			Description:         "Cluster SDR Details",
 			Computed:            true,
-			Optional:            true,
 			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterSDRDetailsDataModelSchema()},
 		},
 
@@ -122,7 +118,6 @@ func ClusterResourceModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Cluster Protection Domain Details",
 			Description:         "Cluster Protection Domain Details",
 			Computed:            true,
-			Optional:            true,
 			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterProtectionDomainDetailsDataModelSchema()},
 		},
 	}

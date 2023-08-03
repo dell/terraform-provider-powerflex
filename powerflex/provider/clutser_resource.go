@@ -113,6 +113,16 @@ func (r *clusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
+	// to make gateway available for installation
+	queueOperationError := helper.ResetInstallerQueue(r.gatewayClient)
+	if queueOperationError != nil {
+		resp.Diagnostics.AddError(
+			"Error Clearing Queue",
+			"unexpected error: "+queueOperationError.Error(),
+		)
+		return
+	}
+
 	//For handling the import case
 	if state.ID.ValueString() != "" && state.ID.ValueString() != "placeholder" {
 
@@ -197,9 +207,19 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 	diags = state.MDMList.ElementsAs(ctx, &mdmList, true)
 	resp.Diagnostics.Append(diags...)
 
+	// to make gateway available for installation
+	queueOperationError := helper.ResetInstallerQueue(r.gatewayClient)
+	if queueOperationError != nil {
+		resp.Diagnostics.AddError(
+			"Error Clearing Queue",
+			"unexpected error: "+queueOperationError.Error(),
+		)
+		return
+	}
+
 	mdmIP, err := helper.GetMDMIPFromMDMList(mdmList)
 	if err != nil {
-		diags.AddError(
+		resp.Diagnostics.AddError(
 			"Error in Fecthing Primary MDM IP",
 			"unexpected error: "+err.Error(),
 		)
@@ -234,7 +254,7 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 	clusteDetailResponse, error := helper.GetClusterDetails(state, r.gatewayClient, mdmIP, true)
 	if error != nil {
-		diags.AddError(
+		resp.Diagnostics.AddError(
 			"Error in validating MDM IP",
 			"unexpected error: "+error.Error(),
 		)
@@ -243,10 +263,13 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 	installationError := helper.ClusterUninstallationOperations(ctx, state, r.gatewayClient, clusteDetailResponse)
 	if installationError != nil {
-		diags.AddError(
+		resp.Diagnostics.AddError(
 			"Error in Uninstallation Process",
 			"unexpected error: "+installationError.Error(),
 		)
+	}
+
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
