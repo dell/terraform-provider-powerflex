@@ -45,15 +45,6 @@ var createStoragePool = `
 	}
 `
 
-var updateStoragePool = `
-	resource "powerflex_storage_pool" "pre-req1"{
-		name = "terraform-storage-pool"
-		protection_domain_name = "domain1"
-		media_type = "Transitional"
-		use_rmcache = true
-	}
-`
-
 var AddDeviceWithSPID = createSDSForTest + createStoragePool + `
 	resource "powerflex_device" "device-test" {
 		device_path = "/dev/sdc"
