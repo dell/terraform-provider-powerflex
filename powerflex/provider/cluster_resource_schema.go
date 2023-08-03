@@ -27,12 +27,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
+// ClusterReourceSchema defines the schema for cluster resource
 var ClusterReourceSchema schema.Schema = schema.Schema{
 	Description:         "This resource can be used to install the PowerFlex Cluster.",
 	MarkdownDescription: "This resource can be used to install the PowerFlex Cluster.",
 	Attributes:          ClusterResourceModelSchema(),
 }
 
+// ClusterResourceModelSchema defines the schema for cluster resource schema model
 func ClusterResourceModelSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 
@@ -47,7 +49,7 @@ func ClusterResourceModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Cluster Installation Details",
 			Description:         "Cluster Installation Details",
 			Required:            true,
-			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterInstallationDetailsDataModelSchema()},
+			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterModelSchema()},
 			Validators: []validator.List{
 				listvalidator.SizeAtLeast(3),
 			},
@@ -57,7 +59,7 @@ func ClusterResourceModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Storage Pool Details",
 			Description:         "Storage Pool Details",
 			Required:            true,
-			NestedObject:        schema.NestedAttributeObject{Attributes: StoragePoolDetailsDataModelSchema()},
+			NestedObject:        schema.NestedAttributeObject{Attributes: StoragePoolModelSchema()},
 			Validators: []validator.List{
 				listvalidator.SizeAtLeast(1),
 			},
@@ -97,40 +99,41 @@ func ClusterResourceModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Cluster MDM Details",
 			Description:         "Cluster MDM Details",
 			Computed:            true,
-			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterMDMDetailsDataModelSchema()},
+			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterMDMModelSchema()},
 		},
 
 		"sds_list": schema.SetNestedAttribute{
 			MarkdownDescription: "Cluster SDS Details",
 			Description:         "Cluster SDS Details",
 			Computed:            true,
-			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterSDSDetailsDataModelSchema()},
+			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterSDSModelSchema()},
 		},
 
 		"sdc_list": schema.SetNestedAttribute{
 			MarkdownDescription: "Cluster SDC Details",
 			Description:         "Cluster SDC Details",
 			Computed:            true,
-			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterSDCDetailsDataModelSchema()},
+			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterSDCModelSchema()},
 		},
 
 		"sdr_list": schema.SetNestedAttribute{
 			MarkdownDescription: "Cluster SDR Details",
 			Description:         "Cluster SDR Details",
 			Computed:            true,
-			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterSDRDetailsDataModelSchema()},
+			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterSDRModelSchema()},
 		},
 
 		"protection_domains": schema.ListNestedAttribute{
 			MarkdownDescription: "Cluster Protection Domain Details",
 			Description:         "Cluster Protection Domain Details",
 			Computed:            true,
-			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterProtectionDomainDetailsDataModelSchema()},
+			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterProtectionDomainModelSchema()},
 		},
 	}
 }
 
-func ClusterInstallationDetailsDataModelSchema() map[string]schema.Attribute {
+// ClusterModelSchema defines the schema for cluster schema model
+func ClusterModelSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 
 		"ips": schema.StringAttribute{
@@ -380,7 +383,8 @@ func ClusterInstallationDetailsDataModelSchema() map[string]schema.Attribute {
 	}
 }
 
-func StoragePoolDetailsDataModelSchema() map[string]schema.Attribute {
+// StoragePoolModelSchema defines the schema for storage pool schema model
+func StoragePoolModelSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 
 		"protection_domain": schema.StringAttribute{
@@ -433,7 +437,8 @@ func StoragePoolDetailsDataModelSchema() map[string]schema.Attribute {
 	}
 }
 
-func ClusterMDMDetailsDataModelSchema() map[string]schema.Attribute {
+// ClusterMDMModelSchema defines the schema for MDM schema model
+func ClusterMDMModelSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			MarkdownDescription: "ID",
@@ -484,7 +489,8 @@ func ClusterMDMDetailsDataModelSchema() map[string]schema.Attribute {
 	}
 }
 
-func ClusterSDSDetailsDataModelSchema() map[string]schema.Attribute {
+// ClusterSDSModelSchema defines the schema for SDS schema model
+func ClusterSDSModelSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			MarkdownDescription: "ID",
@@ -544,12 +550,13 @@ func ClusterSDSDetailsDataModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Devices",
 			Description:         "Devices",
 			Computed:            true,
-			NestedObject:        schema.NestedAttributeObject{Attributes: DeviceDetailModelSchema()},
+			NestedObject:        schema.NestedAttributeObject{Attributes: DeviceModelSchema()},
 		},
 	}
 }
 
-func DeviceDetailModelSchema() map[string]schema.Attribute {
+// DeviceModelSchema defines the schema for Device schema model
+func DeviceModelSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 
 		"name": schema.StringAttribute{
@@ -578,7 +585,8 @@ func DeviceDetailModelSchema() map[string]schema.Attribute {
 	}
 }
 
-func ClusterSDCDetailsDataModelSchema() map[string]schema.Attribute {
+// ClusterSDCModelSchema defines the schema for SDC schema model
+func ClusterSDCModelSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			MarkdownDescription: "ID",
@@ -606,7 +614,8 @@ func ClusterSDCDetailsDataModelSchema() map[string]schema.Attribute {
 	}
 }
 
-func ClusterSDRDetailsDataModelSchema() map[string]schema.Attribute {
+// ClusterSDRModelSchema defines the schema for SDR schema model
+func ClusterSDRModelSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			MarkdownDescription: "ID",
@@ -658,7 +667,8 @@ func ClusterSDRDetailsDataModelSchema() map[string]schema.Attribute {
 	}
 }
 
-func ClusterProtectionDomainDetailsDataModelSchema() map[string]schema.Attribute {
+// ClusterProtectionDomainModelSchema defines the schema for PD schema model
+func ClusterProtectionDomainModelSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 
 		"name": schema.StringAttribute{
@@ -676,6 +686,7 @@ func ClusterProtectionDomainDetailsDataModelSchema() map[string]schema.Attribute
 	}
 }
 
+// StoragePoolDetailModelSchema defines the schema for SP detail schema model
 func StoragePoolDetailModelSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 
