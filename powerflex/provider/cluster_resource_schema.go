@@ -20,6 +20,7 @@ package provider
 import (
 	"terraform-provider-powerflex/powerflex/helper"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -47,6 +48,9 @@ func ClusterResourceModelSchema() map[string]schema.Attribute {
 			Description:         "Cluster Installation Details",
 			Required:            true,
 			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterInstallationDetailsDataModelSchema()},
+			Validators: []validator.List{
+				listvalidator.SizeAtLeast(3),
+			},
 		},
 
 		"storage_pools": schema.ListNestedAttribute{
@@ -54,6 +58,9 @@ func ClusterResourceModelSchema() map[string]schema.Attribute {
 			Description:         "Storage Pool Details",
 			Required:            true,
 			NestedObject:        schema.NestedAttributeObject{Attributes: StoragePoolDetailsDataModelSchema()},
+			Validators: []validator.List{
+				listvalidator.SizeAtLeast(1),
+			},
 		},
 
 		"mdm_password": schema.StringAttribute{

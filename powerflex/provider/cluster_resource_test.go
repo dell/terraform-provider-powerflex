@@ -35,16 +35,55 @@ func TestAccClusterResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			//Create
 			{
+				Config: ProviderConfigForTesting + ClusterConfig1,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_cluster.test", "sdc_details.2.ip", GatewayDataPoints.tbIP),
+				),
+			},
+		},
+	})
+}
+
+func TestAccClusterResourceValidation(t *testing.T) {
+	os.Setenv("TF_ACC", "1")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			//Create
+			{
+				Config:      ProviderConfigForTesting + ClusterValidationConfig1,
+				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value*`),
+			},
+			//Create
+			{
+				Config:      ProviderConfigForTesting + ClusterValidationConfig2,
+				ExpectError: regexp.MustCompile(`.*Missing required argument*`),
+			},
+			//Create
+			{
+				Config:      ProviderConfigForTesting + ClusterValidationConfig3,
+				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value*`),
+			},
+			//Create
+			{
+				Config:      ProviderConfigForTesting + ClusterValidationConfig4,
+				ExpectError: regexp.MustCompile(`.*Error while Parsing CSV*`),
+			},
+			//Create
+			{
 				Config:      ProviderConfigForTesting + ClusterConfig1,
-				ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
+				ExpectError: regexp.MustCompile(`.*Error During Installation*`),
 			},
 			//Import
-			// {
-			// 	Config:        ProviderConfigForTesting + importClusterTest,
-			// 	ImportState:   true,
-			// 	ImportStateId: "10.247.103.161,Password123,Password123",
-			// 	ResourceName:  "powerflex_cluster.test",
-			// },
+			{
+				Config:        ProviderConfigForTesting + importClusterTest,
+				ImportState:   true,
+				ImportStateId: "1.1.1.1,Password",
+				ResourceName:  "powerflex_cluster.test",
+				ExpectError:   regexp.MustCompile(`.*Please provide valid Input Details*`),
+			},
 		},
 	})
 }
@@ -63,9 +102,9 @@ resource "powerflex_cluster" "test" {
 	allow_non_secure_communication_with_mdm= true
 	cluster = [
 	{
-		ips= "10.247.103.161",
+		ips= "` + GatewayDataPoints.clusterPrimaryIP + `",
 		username= "root",
-		password= "dangerous",
+		password= "` + GatewayDataPoints.serverPassword + `",
 		operating_system= "linux",
 		is_mdm_or_tb= "primary",
 		perf_profile_for_mdm= "compact",
@@ -79,7 +118,123 @@ resource "powerflex_cluster" "test" {
 		sdr_all_ips= ""
 	 },
 	 {
-		ips= "10.247.103.162",
+		ips= "` + GatewayDataPoints.clusterSecondaryIP + `",
+		username= "root",
+		password= "` + GatewayDataPoints.serverPassword + `",
+		operating_system= "linux",
+		is_mdm_or_tb= "Secondary",
+		perf_profile_for_mdm= "compact",
+		is_sds= "yes",
+		sds_name= "sds2",
+		is_sdc= "yes",
+		sdc_name= "sdc2",
+		perf_profile_for_sdc= "compact",
+		ia_rfcache= "No",
+		is_sdr= "No",
+		sdr_all_ips= ""
+	 },
+	 {
+		ips= "` + GatewayDataPoints.clusterTBIP + `",
+		username= "root",
+		password= "` + GatewayDataPoints.serverPassword + `",
+		operating_system= "linux",
+		is_mdm_or_tb= "TB",
+		perf_profile_for_mdm= "compact",
+		is_sds= "yes",
+		sds_name= "sds3",
+		is_sdc= "yes",
+		sdc_name= "sdc3",
+		perf_profile_for_sdc= "compact",
+		ia_rfcache= "No",
+		is_sdr= "No",
+		sdr_all_ips= ""
+	 },
+	]
+	storage_pools = [
+		{
+			media_type = "HDD"
+		}	
+	]
+}
+`
+
+var ClusterValidationConfig1 = `
+resource "powerflex_cluster" "test" {
+	mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
+	lia_password= "` + GatewayDataPoints.liaPassword + `"
+	allow_non_secure_communication_with_lia= true
+	allow_non_secure_communication_with_mdm= true
+	cluster = []
+	storage_pools = []
+}
+`
+
+var ClusterValidationConfig2 = `
+resource "powerflex_cluster" "test" {
+	mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
+	lia_password= "` + GatewayDataPoints.liaPassword + `"
+	allow_non_secure_communication_with_lia= true
+	allow_non_secure_communication_with_mdm= true
+}
+`
+
+var ClusterValidationConfig3 = `
+resource "powerflex_cluster" "test" {
+	mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
+	lia_password= "` + GatewayDataPoints.liaPassword + `"
+	allow_non_secure_communication_with_lia= true
+	allow_non_secure_communication_with_mdm= true
+	cluster = [
+	{
+		ips= "1.1.1.1",
+		username= "root",
+		password= "Password",
+		operating_system= "linux",
+		is_mdm_or_tb= "primary",
+		perf_profile_for_mdm= "compact",
+		is_sds= "yes",
+		sds_name= "sds1",
+		is_sdc= "yes",
+		sdc_name= "sdc1",
+		perf_profile_for_sdc= "compact",
+		ia_rfcache= "No",
+		is_sdr= "No",
+		sdr_all_ips= ""
+	 },
+	]
+	storage_pools = [
+		{
+			media_type = "HDD"
+		}	
+	]
+}
+`
+
+var ClusterValidationConfig4 = `
+resource "powerflex_cluster" "test" {
+	mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
+	lia_password= "` + GatewayDataPoints.liaPassword + `"
+	allow_non_secure_communication_with_lia= true
+	allow_non_secure_communication_with_mdm= true
+	cluster = [
+	{
+		ips= "10.10.10.10",
+		username= "root",
+		password= "dangerous",
+		operating_system= "linux",
+		is_mdm_or_tb= "primary",
+		perf_profile_for_mdm= "ABCD",
+		is_sds= "yes",
+		sds_name= "sds1",
+		is_sdc= "yes",
+		sdc_name= "sdc1",
+		perf_profile_for_sdc= "ABCD",
+		ia_rfcache= "No",
+		is_sdr= "No",
+		sdr_all_ips= ""
+	 },
+	 {
+		ips= "10.10.10.11",
 		username= "root",
 		password= "dangerous",
 		operating_system= "linux",
@@ -95,7 +250,7 @@ resource "powerflex_cluster" "test" {
 		sdr_all_ips= ""
 	 },
 	 {
-		ips= "10.247.103.160",
+		ips= "10.10.10.12",
 		username= "root",
 		password= "dangerous",
 		operating_system= "linux",
