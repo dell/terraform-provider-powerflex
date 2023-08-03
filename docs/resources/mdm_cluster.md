@@ -126,7 +126,7 @@ resource "powerflex_mdm_cluster" "test-mdm-cluster" {
 ### Optional
 
 - `performance_profile` (String) Performance profile of the MDM cluster. Accepted values are `Compact` and `HighPerformance`.
-- `standby_mdm` (Attributes List) StandBy MDM details. (see [below for nested schema](#nestedatt--standby_mdm))
+- `standby_mdm` (Attributes List) StandBy MDM details. StandBy MDM can be added/removed/promoted to manager/tiebreaker role. (see [below for nested schema](#nestedatt--standby_mdm))
 
 ### Read-Only
 
@@ -182,13 +182,13 @@ Read-Only:
 
 Required:
 
-- `ips` (Set of String) The Ips of the standby MDM.
-- `role` (String) Role of the standby mdm. Accepted values are `Manager` and `TieBreaker`.
+- `ips` (Set of String) The Ips of the standby MDM. Cannot be updated.
+- `role` (String) Role of the standby mdm. Accepted values are `Manager` and `TieBreaker`. Cannot be updated.
 
 Optional:
 
-- `allow_asymmetric_ips` (Boolean) Allow the added MDM to have a different number of IPs from the primary MDM.
-- `management_ips` (Set of String) The management ips of the standby MDM.
+- `allow_asymmetric_ips` (Boolean) Allow the added MDM to have a different number of IPs from the primary MDM. Cannot be updated.
+- `management_ips` (Set of String) The management ips of the standby MDM. Cannot be updated.
 - `name` (String) Name of the the standby MDM.
 - `port` (Number) Port of the standby MDM.
 

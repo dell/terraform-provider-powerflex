@@ -91,9 +91,6 @@ func GetStandByMdmValue(ctx context.Context, mdm *goscaleio_types.Mdm, standby [
 	var asymmetricFlag bool
 
 	for _, standbymdm := range standby {
-		// if mdm.ID == standbymdm.ID.ValueString() {
-		// 	asymmetricFlag = standbymdm.AllowAsymmetricIps.ValueBool()
-		// }
 		planIps := make([]string, 0)
 		diags.Append(standbymdm.Ips.ElementsAs(ctx, &planIps, true)...)
 		if CompareStringSlice(planIps, mdm.IPs) {
@@ -115,7 +112,7 @@ func GetStandByMdmValue(ctx context.Context, mdm *goscaleio_types.Mdm, standby [
 }
 
 // UpdateMdmClusterState returns the state for MDM cluster
-func UpdateMdmClusterState(ctx context.Context, mdmDetails *goscaleio_types.MdmCluster, plan *models.MdmResourceModel, perfProfile string) (models.MdmResourceModel, diag.Diagnostics) {
+func UpdateMdmClusterState(ctx context.Context, mdmDetails *goscaleio_types.MdmCluster, plan *models.MdmResourceModel, perfProfile string) (*models.MdmResourceModel, diag.Diagnostics) {
 	var state models.MdmResourceModel
 	var dgs, diags diag.Diagnostics
 
@@ -139,7 +136,7 @@ func UpdateMdmClusterState(ctx context.Context, mdmDetails *goscaleio_types.MdmC
 	state.PrimaryMdm.ManagementIps, dgs = types.SetValue(types.StringType, primaryMdmMgmtIps)
 	diags = append(diags, dgs...)
 
-	secondaryMdms := make(map[string]models.Mdm)
+	secondaryMdmDetails := make([]models.Mdm, 0)
 	for _, mdm := range mdmDetails.SecondaryMDM {
 		secondaryMdmIps := []attr.Value{}
 		for _, ip := range mdm.IPs {
@@ -155,29 +152,18 @@ func UpdateMdmClusterState(ctx context.Context, mdmDetails *goscaleio_types.MdmC
 		mgmtIps, dgs2 := types.SetValue(types.StringType, secondaryMdmMgmtIps)
 		diags = append(diags, dgs2...)
 
-		secondaryMdms[mdm.ID] = models.Mdm{
+		secondaryMdm := models.Mdm{
 			ID:            types.StringValue(mdm.ID),
 			Name:          types.StringValue(mdm.Name),
 			Port:          types.Int64Value(int64(mdm.Port)),
 			Ips:           mdmIps,
 			ManagementIps: mgmtIps,
 		}
-	}
-
-	secondaryMdmDetails := make([]models.Mdm, 0)
-	// for _, mdm := range plan.SecondaryMdm {
-	// 	if val, ok := secondaryMdms[mdm.ID.ValueString()]; ok {
-	// 		secondaryMdmDetails = append(secondaryMdmDetails, val)
-	// 		// delete(secondaryMdms, mdm.ID.ValueString())
-	// 	}
-	// }
-
-	for _, mdm := range secondaryMdms {
-		secondaryMdmDetails = append(secondaryMdmDetails, mdm)
+		secondaryMdmDetails = append(secondaryMdmDetails, secondaryMdm)
 	}
 	state.SecondaryMdm = secondaryMdmDetails
 
-	tbmdms := make(map[string]models.Mdm)
+	tbMdmDetails := make([]models.Mdm, 0)
 	for _, mdm := range mdmDetails.TiebreakerMdm {
 		tbMdmIps := []attr.Value{}
 		for _, ip := range mdm.IPs {
@@ -193,23 +179,14 @@ func UpdateMdmClusterState(ctx context.Context, mdmDetails *goscaleio_types.MdmC
 		mgmtIps, dgs2 := types.SetValue(types.StringType, tbMdmMgmtIps)
 		diags = append(diags, dgs2...)
 
-		tbmdms[mdm.ID] = models.Mdm{
+		tbMdm := models.Mdm{
 			ID:            types.StringValue(mdm.ID),
 			Name:          types.StringValue(mdm.Name),
 			Port:          types.Int64Value(int64(mdm.Port)),
 			Ips:           mdmIps,
 			ManagementIps: mgmtIps,
 		}
-	}
-
-	tbMdmDetails := make([]models.Mdm, 0)
-	// for _, mdm := range plan.TieBreakerMdm {
-	// 	if val, ok := tbmdms[mdm.ID.ValueString()]; ok {
-	// 		tbMdmDetails = append(tbMdmDetails, val)
-	// 	}
-	// }
-	for _, mdm := range tbmdms {
-		tbMdmDetails = append(tbMdmDetails, mdm)
+		tbMdmDetails = append(tbMdmDetails, tbMdm)
 	}
 	state.TieBreakerMdm = tbMdmDetails
 
@@ -223,7 +200,7 @@ func UpdateMdmClusterState(ctx context.Context, mdmDetails *goscaleio_types.MdmC
 	}
 	state.StandByMdm, _ = types.ListValue(types.ObjectType{AttrTypes: GetStandByMdmType()}, sbMdmDetails)
 
-	return state, diags
+	return &state, diags
 }
 
 // StandByMdmDifference returns the diff between plan and state standby MDMs
@@ -312,4 +289,12 @@ func GetMdmIPMap(mdmDetails *goscaleio_types.MdmCluster) map[string]string {
 		ipmap[mdm.IPs[0]] = mdm.ID
 	}
 	return ipmap
+}
+
+// CheckforExistingName checks for the given name in map
+func CheckforExistingName(plan models.MdmResourceModel, names map[string]string) bool {
+	if _, ok := names[plan.PrimaryMdm.Name.ValueString()]; ok {
+		return false
+	}
+	return true
 }

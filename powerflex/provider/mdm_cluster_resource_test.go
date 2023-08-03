@@ -18,9 +18,10 @@ limitations under the License.
 package provider
 
 import (
+	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 var createMdmConfig = `
@@ -50,6 +51,29 @@ resource "powerflex_mdm_cluster" "test" {
 	primary_mdm = {
 		id = "` + MDMDataPoints.primaryMDMID + `"
 	    name = "primary_mdm_renamed"
+	}
+	secondary_mdm = [
+		{
+			id = "` + MDMDataPoints.secondaryMDMID + `"
+			name = "secondary_mdm_renamed"
+		},
+	]
+	tiebreaker_mdm = [
+		{
+			id = "` + MDMDataPoints.tbID + `"
+			name = "tb_mdm_renamed"
+		},
+	]
+}
+`
+
+var renameMdmConfigNegative = `
+resource "powerflex_mdm_cluster" "test" {
+	cluster_mode = "ThreeNodes"
+	performance_profile = "Compact"
+	primary_mdm = {
+		id = "` + MDMDataPoints.primaryMDMID + `"
+	    name = "tb_mdm_renamed"
 	}
 	secondary_mdm = [
 		{
@@ -166,6 +190,28 @@ resource "powerflex_mdm_cluster" "test" {
 
 var reduceCluster = addStandby
 
+var switchPrimaryMdm1 = `
+resource "powerflex_mdm_cluster" "test" {
+	cluster_mode = "ThreeNodes"
+	performance_profile = "Compact"
+	primary_mdm = {
+	  id = "` + MDMDataPoints.secondaryMDMID + `"
+	}
+	secondary_mdm = [
+		{
+	  		id = "` + MDMDataPoints.primaryMDMID + `"
+		},
+	]
+	tiebreaker_mdm = [
+		{
+	  		id = "` + MDMDataPoints.tbID + `"
+		},
+	]
+}
+`
+
+var switchPrimaryMdm2 = createMdmConfig
+
 func TestAccMdmClusterResource(t *testing.T) {
 	var mdmClusterResourceBlock = "powerflex_mdm_cluster.test"
 	resource.Test(t, resource.TestCase{
@@ -197,6 +243,10 @@ func TestAccMdmClusterResource(t *testing.T) {
 			},
 			{
 				Config: ProviderConfigForTesting + renameMdmConfig1,
+			},
+			{
+				Config:      ProviderConfigForTesting + renameMdmConfigNegative,
+				ExpectError: regexp.MustCompile("Could not rename the MDM"),
 			},
 		}})
 }
@@ -263,6 +313,32 @@ func TestAccMdmClusterSwitchClusterMode(t *testing.T) {
 						"id": MDMDataPoints.tbID,
 					}),
 					resource.TestCheckResourceAttr(mdmClusterResourceBlock, "standby_mdm.#", "0"),
+				),
+			},
+		}})
+}
+
+func TestAccMdmClusterSwitchPrimaryMdm(t *testing.T) {
+	var mdmClusterResourceBlock = "powerflex_mdm_cluster.test"
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + switchPrimaryMdm1,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(mdmClusterResourceBlock, "primary_mdm.id", MDMDataPoints.secondaryMDMID),
+					resource.TestCheckTypeSetElemNestedAttrs(mdmClusterResourceBlock, "secondary_mdm.*", map[string]string{
+						"id": MDMDataPoints.primaryMDMID,
+					}),
+				),
+			},
+			{
+				Config: ProviderConfigForTesting + switchPrimaryMdm2,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(mdmClusterResourceBlock, "primary_mdm.id", MDMDataPoints.primaryMDMID),
+					resource.TestCheckTypeSetElemNestedAttrs(mdmClusterResourceBlock, "secondary_mdm.*", map[string]string{
+						"id": MDMDataPoints.secondaryMDMID,
+					}),
 				),
 			},
 		}})

@@ -133,9 +133,6 @@ var MdmClusterResourceSchema schema.Schema = schema.Schema{
 					Validators: []validator.String{
 						stringvalidator.LengthAtLeast(1),
 					},
-					PlanModifiers: []planmodifier.String{
-						stringplanmodifier.UseStateForUnknown(),
-					},
 				},
 				"port": schema.Int64Attribute{
 					Description:         "Port of the primary MDM.",
@@ -151,9 +148,6 @@ var MdmClusterResourceSchema schema.Schema = schema.Schema{
 					ElementType:         types.StringType,
 					Optional:            true,
 					Computed:            true,
-					PlanModifiers: []planmodifier.Set{
-						setplanmodifier.UseStateForUnknown(),
-					},
 				},
 				"management_ips": schema.SetAttribute{
 					Description:         "The management ips of the primary MDM.",
@@ -196,9 +190,6 @@ var MdmClusterResourceSchema schema.Schema = schema.Schema{
 						Validators: []validator.String{
 							stringvalidator.LengthAtLeast(1),
 						},
-						PlanModifiers: []planmodifier.String{
-							stringplanmodifier.UseStateForUnknown(),
-						},
 					},
 					"port": schema.Int64Attribute{
 						Description:         "Port of the secondary MDM.",
@@ -214,9 +205,6 @@ var MdmClusterResourceSchema schema.Schema = schema.Schema{
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.Set{
-							setplanmodifier.UseStateForUnknown(),
-						},
 					},
 					"management_ips": schema.SetAttribute{
 						Description:         "The management ips of the secondary MDM.",
@@ -297,8 +285,8 @@ var MdmClusterResourceSchema schema.Schema = schema.Schema{
 		"standby_mdm": schema.ListNestedAttribute{
 			Optional:            true,
 			Computed:            true,
-			Description:         "StandBy MDM details.",
-			MarkdownDescription: "StandBy MDM details.",
+			Description:         "StandBy MDM details. StandBy MDM can be added/removed/promoted to manager/tiebreaker role.",
+			MarkdownDescription: "StandBy MDM details. StandBy MDM can be added/removed/promoted to manager/tiebreaker role.",
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: map[string]schema.Attribute{
 					"id": schema.StringAttribute{
@@ -331,8 +319,8 @@ var MdmClusterResourceSchema schema.Schema = schema.Schema{
 						},
 					},
 					"ips": schema.SetAttribute{
-						Description:         "The Ips of the standby MDM.",
-						MarkdownDescription: "The Ips of the standby MDM.",
+						Description:         "The Ips of the standby MDM. Cannot be updated.",
+						MarkdownDescription: "The Ips of the standby MDM. Cannot be updated.",
 						ElementType:         types.StringType,
 						Required:            true,
 						Validators: []validator.Set{
@@ -341,8 +329,8 @@ var MdmClusterResourceSchema schema.Schema = schema.Schema{
 						},
 					},
 					"management_ips": schema.SetAttribute{
-						Description:         "The management ips of the standby MDM.",
-						MarkdownDescription: "The management ips of the standby MDM.",
+						Description:         "The management ips of the standby MDM. Cannot be updated.",
+						MarkdownDescription: "The management ips of the standby MDM. Cannot be updated.",
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
@@ -356,8 +344,8 @@ var MdmClusterResourceSchema schema.Schema = schema.Schema{
 					},
 					"role": schema.StringAttribute{
 						Required:            true,
-						Description:         "Role of the standby mdm. Accepted values are 'Manager' and 'TieBreaker'.",
-						MarkdownDescription: "Role of the standby mdm. Accepted values are `Manager` and `TieBreaker`.",
+						Description:         "Role of the standby mdm. Accepted values are 'Manager' and 'TieBreaker'. Cannot be updated.",
+						MarkdownDescription: "Role of the standby mdm. Accepted values are `Manager` and `TieBreaker`. Cannot be updated.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								scaleio_types.Manager,
@@ -368,8 +356,8 @@ var MdmClusterResourceSchema schema.Schema = schema.Schema{
 					"allow_asymmetric_ips": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Allow the added MDM to have a different number of IPs from the primary MDM.",
-						MarkdownDescription: "Allow the added MDM to have a different number of IPs from the primary MDM.",
+						Description:         "Allow the added MDM to have a different number of IPs from the primary MDM. Cannot be updated.",
+						MarkdownDescription: "Allow the added MDM to have a different number of IPs from the primary MDM. Cannot be updated.",
 						PlanModifiers: []planmodifier.Bool{
 							helper.BoolDefault(false),
 						},
@@ -403,27 +391,23 @@ func (d *mdmClusterResource) Configure(_ context.Context, req resource.Configure
 	d.system = system
 }
 
-// ModifyPlan modify resource plan attribute value
-func (d *mdmClusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	if req.Plan.Raw.IsNull() {
-		return
-	}
-
-	var plan models.MdmResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
+// PopulateMdmID populates MDM IDs based on IP
+func (d *mdmClusterResource) PopulateMdmID(ctx context.Context, plan *models.MdmResourceModel, state *models.MdmResourceModel, flag bool) diag.Diagnostics {
+	var dgs, diags diag.Diagnostics
 
 	mdmDetails, err := d.system.GetMDMClusterDetails()
 	if err != nil {
-		resp.Diagnostics.AddError(
+		diags.AddError(
 			"Error getting MDM cluster details: ",
 			"Error getting MDM cluster details: "+err.Error(),
 		)
-		return
+		return diags
 	}
 
-	// state, diag := helper.UpdateMdmClusterState(ctx, mdm_details, &plan, d.system.System.PerformanceProfile)
-	// diags.Append(diag...)
+	if flag {
+		state, dgs = helper.UpdateMdmClusterState(ctx, mdmDetails, plan, d.system.System.PerformanceProfile)
+		diags = append(diags, dgs...)
+	}
 
 	// Get the IP with IDs as value
 	ipmap := helper.GetMdmIPMap(mdmDetails)
@@ -479,6 +463,84 @@ func (d *mdmClusterResource) ModifyPlan(ctx context.Context, req resource.Modify
 		plan.StandByMdm = standbyList
 	}
 
+	if plan.PrimaryMdm.ID.ValueString() != state.PrimaryMdm.ID.ValueString() {
+		for index, mdm := range state.SecondaryMdm {
+			if mdm.ID.ValueString() == plan.PrimaryMdm.ID.ValueString() {
+				if plan.PrimaryMdm.Name.IsUnknown() {
+					plan.PrimaryMdm.Name = mdm.Name
+				}
+
+				if plan.PrimaryMdm.Ips.IsUnknown() {
+					plan.PrimaryMdm.Ips = mdm.Ips
+				}
+
+				plan.PrimaryMdm.ManagementIps = mdm.ManagementIps
+				plan.PrimaryMdm.Port = mdm.Port
+
+				if plan.SecondaryMdm[index].Name.IsUnknown() {
+					plan.SecondaryMdm[index].Name = state.PrimaryMdm.Name
+				}
+
+				if plan.SecondaryMdm[index].Ips.IsUnknown() {
+					plan.SecondaryMdm[index].Ips = state.PrimaryMdm.Ips
+				}
+
+				plan.SecondaryMdm[index].ManagementIps = state.PrimaryMdm.ManagementIps
+				plan.SecondaryMdm[index].Port = state.PrimaryMdm.Port
+				break
+			}
+		}
+	} else {
+		if plan.PrimaryMdm.Name.IsUnknown() {
+			plan.PrimaryMdm.Name = state.PrimaryMdm.Name
+		}
+
+		if plan.PrimaryMdm.Ips.IsUnknown() {
+			plan.PrimaryMdm.Ips = state.PrimaryMdm.Ips
+		}
+
+		for index, mdm := range plan.SecondaryMdm {
+			if index < len(state.SecondaryMdm) {
+				if mdm.Name.IsUnknown() {
+					plan.SecondaryMdm[index].Name = state.SecondaryMdm[index].Name
+				}
+
+				if mdm.Ips.IsUnknown() {
+					plan.SecondaryMdm[index].Ips = state.SecondaryMdm[index].Ips
+				}
+			}
+		}
+	}
+	return diags
+}
+
+// ModifyPlan modify resource plan attribute value
+func (d *mdmClusterResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	if req.Plan.Raw.IsNull() {
+		return
+	}
+
+	var stateFlag bool
+	if req.State.Raw.IsNull() {
+		stateFlag = true
+	}
+
+	var plan models.MdmResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+
+	// Reading state for update operation
+	var state models.MdmResourceModel
+	if !stateFlag {
+		diags = req.State.Get(ctx, &state)
+		resp.Diagnostics.Append(diags...)
+	}
+
+	diags = d.PopulateMdmID(ctx, &plan, &state, stateFlag)
+	if diags.HasError() {
+		return
+	}
+
 	diags = resp.Plan.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
@@ -491,6 +553,11 @@ func (d *mdmClusterResource) Create(ctx context.Context, req resource.CreateRequ
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	diags = d.PopulateMdmID(ctx, &plan, nil, true)
+	if diags.HasError() {
 		return
 	}
 
@@ -507,7 +574,7 @@ func (d *mdmClusterResource) Create(ctx context.Context, req resource.CreateRequ
 	diags = append(diags, dgs...)
 
 	// Perform the update operations based on the provided config
-	resp.Diagnostics.Append(d.UpdateMdmClusterResource(ctx, plan, state)...)
+	resp.Diagnostics.Append(d.UpdateMdmClusterResource(ctx, plan, *state)...)
 
 	mdmDetails, err = d.system.GetMDMClusterDetails()
 	if err != nil {
@@ -563,10 +630,10 @@ func (d *mdmClusterResource) Read(ctx context.Context, req resource.ReadRequest,
 	}
 
 	// Set refreshed state
-	state, dgs := helper.UpdateMdmClusterState(ctx, mdmDetails, &state, system.System.PerformanceProfile)
+	state1, dgs := helper.UpdateMdmClusterState(ctx, mdmDetails, &state, system.System.PerformanceProfile)
 	resp.Diagnostics.Append(dgs...)
 
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, state1)
 	resp.Diagnostics.Append(diags...)
 }
 
@@ -582,6 +649,11 @@ func (d *mdmClusterResource) Update(ctx context.Context, req resource.UpdateRequ
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	diags = d.PopulateMdmID(ctx, &plan, &state, false)
+	if diags.HasError() {
 		return
 	}
 
@@ -606,10 +678,10 @@ func (d *mdmClusterResource) Update(ctx context.Context, req resource.UpdateRequ
 	}
 
 	// Set refreshed state
-	state, dgs := helper.UpdateMdmClusterState(ctx, mdmDetails, &plan, system.System.PerformanceProfile)
+	state1, dgs := helper.UpdateMdmClusterState(ctx, mdmDetails, &plan, system.System.PerformanceProfile)
 	resp.Diagnostics.Append(dgs...)
 
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, state1)
 	resp.Diagnostics.Append(diags...)
 
 }
@@ -665,13 +737,18 @@ func (d *mdmClusterResource) RenameMdms(ctx context.Context, plan, state models.
 	renamePayload := make(map[string]string, 0)
 	planMdm := make(map[string]string, 0)
 	stateMdm := make(map[string]string, 0)
+	existingNames := make(map[string]string, 0)
 
-	if !plan.PrimaryMdm.Name.IsUnknown() && plan.PrimaryMdm.Name.ValueString() != state.PrimaryMdm.Name.ValueString() {
+	for _, mdm := range state.SecondaryMdm {
+		existingNames[mdm.Name.ValueString()] = mdm.Name.ValueString()
+	}
+
+	if !plan.PrimaryMdm.Name.IsUnknown() && plan.PrimaryMdm.Name.ValueString() != state.PrimaryMdm.Name.ValueString() && helper.CheckforExistingName(plan, existingNames) {
 		renamePayload[plan.PrimaryMdm.ID.ValueString()] = plan.PrimaryMdm.Name.ValueString()
 	}
 
 	for _, mdm := range plan.SecondaryMdm {
-		if !mdm.Name.IsUnknown() {
+		if !mdm.Name.IsUnknown() && mdm.Name.ValueString() != state.PrimaryMdm.Name.ValueString() {
 			planMdm[mdm.ID.ValueString()] = mdm.Name.ValueString()
 		}
 	}
@@ -699,30 +776,6 @@ func (d *mdmClusterResource) RenameMdms(ctx context.Context, plan, state models.
 	for _, mdm := range planSbMdmList {
 		if !mdm.ID.IsUnknown() && !mdm.Name.IsUnknown() {
 			planMdm[mdm.ID.ValueString()] = mdm.Name.ValueString()
-		} else {
-			if mdm.Role.ValueString() == scaleio_types.Manager {
-				for _, secMdm := range state.SecondaryMdm {
-					stateIps := make([]string, 0)
-					planIps := make([]string, 0)
-					dia.Append(mdm.Ips.ElementsAs(ctx, &planIps, true)...)
-					dia.Append(secMdm.Ips.ElementsAs(ctx, &stateIps, true)...)
-					if helper.CompareStringSlice(planIps, stateIps) {
-						planMdm[secMdm.ID.ValueString()] = mdm.Name.ValueString()
-						break
-					}
-				}
-			} else {
-				for _, tbMdm := range state.TieBreakerMdm {
-					stateIps := make([]string, 0)
-					planIps := make([]string, 0)
-					dia.Append(mdm.Ips.ElementsAs(ctx, &planIps, true)...)
-					dia.Append(tbMdm.Ips.ElementsAs(ctx, &stateIps, true)...)
-					if helper.CompareStringSlice(planIps, stateIps) {
-						planMdm[tbMdm.ID.ValueString()] = mdm.Name.ValueString()
-						break
-					}
-				}
-			}
 		}
 	}
 
@@ -749,11 +802,18 @@ func (d *mdmClusterResource) RenameMdms(ctx context.Context, plan, state models.
 		err := d.system.RenameMdm(&payload)
 		if err != nil {
 			dia.AddError(
-				fmt.Sprintf("Could not rename the MDM with ID %v", id), err.Error())
+				fmt.Sprintf("Could not rename the MDM with ID %v and name %v", id, name), err.Error())
 		}
 	}
 	return dia
 }
+
+// func CheckforExistingName1(plan, state models.Mdm) bool {
+// 	if plan.Name.ValueString() == state.Name.ValueString() {
+// 		return false
+// 	}
+// 	return true
+// }
 
 // ChangeMdmOwnerShip modifies the primary MDM
 func (d *mdmClusterResource) ChangeMdmOwnerShip(plan, state models.MdmResourceModel) diag.Diagnostics {

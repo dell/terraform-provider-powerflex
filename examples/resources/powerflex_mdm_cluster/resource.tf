@@ -48,7 +48,7 @@ resource "powerflex_mdm_cluster" "test-mdm-cluster" {
 
 # Example for switching cluster mode to 5 nodes
 resource "powerflex_mdm_cluster" "test-mdm-cluster" {
-  cluster_mode = "ThreeNodes"
+  cluster_mode = "FiveNodes"
   primary_mdm = {
     id = "7f328d0b71711801"
 
