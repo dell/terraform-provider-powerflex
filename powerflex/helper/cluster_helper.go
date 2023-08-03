@@ -400,7 +400,7 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 func GetPDType() map[string]attr.Type {
 	return map[string]attr.Type{
 		"name":              types.StringType,
-		"storage_pool_list": types.ListType{ElemType: types.ObjectType{GetStoragePoolsType()}},
+		"storage_pool_list": types.ListType{ElemType: types.ObjectType{AttrTypes: GetStoragePoolsType()}},
 	}
 }
 
@@ -526,7 +526,7 @@ func GetSDSType() map[string]attr.Type {
 		"protection_domain_id":   types.StringType,
 		"protection_domain_name": types.StringType,
 		"fault_set":              types.StringType,
-		"devices":                types.SetType{ElemType: types.ObjectType{GetDeviceType()}},
+		"devices":                types.SetType{ElemType: types.ObjectType{AttrTypes: GetDeviceType()}},
 	}
 }
 
