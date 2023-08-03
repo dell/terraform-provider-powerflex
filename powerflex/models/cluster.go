@@ -36,46 +36,46 @@ type ClusterResourceModel struct {
 	SDSList                            types.Set    `tfsdk:"sds_list"`
 	SDCList                            types.Set    `tfsdk:"sdc_list"`
 	SDRList                            types.Set    `tfsdk:"sdr_list"`
-	ProtectionDomains                  types.List    `tfsdk:"protection_domains"`
+	ProtectionDomains                  types.List   `tfsdk:"protection_domains"`
 }
 
-// ClusterDataModel defines the struct for Cluster Details Data
-type ClusterDataModel struct {
-	IP                                types.String `tfsdk:"ips"`
-	UserName                          types.String `tfsdk:"username"`
-	Password                          types.String `tfsdk:"password"`
-	OperatingSystem                   types.String `tfsdk:"operating_system"`
-	IsMdmOrTb                         types.String `tfsdk:"is_mdm_or_tb"`
-	MDMIP                             types.String `tfsdk:"mdm_ips"`
-	MDMMgmtIP                         types.String `tfsdk:"mdm_mgmt_ip"`
-	MDMName                           types.String `tfsdk:"mdm_name"`
-	PerfProfileForMDM                 types.String `tfsdk:"perf_profile_for_mdm"`
-	VirtualIPs                        types.String `tfsdk:"virtual_ips"`
-	VirtualIPNICs                     types.String `tfsdk:"virtual_ip_nics"`
-	IsSds                             types.String `tfsdk:"is_sds"`
-	SDSName                           types.String `tfsdk:"sds_name"`
-	SDSAllIPs                         types.String `tfsdk:"sds_all_ips"`
-	SDSToSDSOnlyIPs                   types.String `tfsdk:"sds_to_sds_only_ips"`
-	SDSToSDCOnlyIPs                   types.String `tfsdk:"sds_to_sdc_only_ips"`
-	ProtectionDomain                  types.String `tfsdk:"protection_domain"`
-	FaultSet                          types.String `tfsdk:"fault_set"`
-	SDSStorageDeviceList              types.String `tfsdk:"sds_storage_device_list"`
-	StoragePoolList                   types.String `tfsdk:"storage_pool_list"`
-	SDSStorageDeviceNames             types.String `tfsdk:"sds_storage_device_names"`
-	PerfProfileForSDS                 types.String `tfsdk:"perf_profile_for_sds"`
-	IsSdc                             types.String `tfsdk:"is_sdc"`
-	PerfProfileForSDC                 types.String `tfsdk:"perf_profile_for_sdc"`
-	SDCName                           types.String `tfsdk:"sdc_name"`
-	IsRFCache                         types.String `tfsdk:"is_rfcache"`
-	RFcacheSSDDeviceList              types.String `tfsdk:"rf_cache_ssd_device_list"`
-	IsSdr                             types.String `tfsdk:"is_sdr"`
-	SDRName                           types.String `tfsdk:"sdr_name"`
-	SDRPort                           types.String `tfsdk:"sdr_port"`
-	SDRApplicationIPs                 types.String `tfsdk:"sdr_application_ips"`
-	SDRStorageIPs                     types.String `tfsdk:"sdr_storage_ips"`
-	SDRExternalIPs                    types.String `tfsdk:"sdr_external_ips"`
-	SDRAllIPS                         types.String `tfsdk:"sdr_all_ips"`
-	PerfProfileForSDR                 types.String `tfsdk:"perf_profile_for_sdr"`
+// ClusterModel defines the struct for Cluster Details Data
+type ClusterModel struct {
+	IP                    types.String `tfsdk:"ips"`
+	UserName              types.String `tfsdk:"username"`
+	Password              types.String `tfsdk:"password"`
+	OperatingSystem       types.String `tfsdk:"operating_system"`
+	IsMdmOrTb             types.String `tfsdk:"is_mdm_or_tb"`
+	MDMIP                 types.String `tfsdk:"mdm_ips"`
+	MDMMgmtIP             types.String `tfsdk:"mdm_mgmt_ip"`
+	MDMName               types.String `tfsdk:"mdm_name"`
+	PerfProfileForMDM     types.String `tfsdk:"perf_profile_for_mdm"`
+	VirtualIPs            types.String `tfsdk:"virtual_ips"`
+	VirtualIPNICs         types.String `tfsdk:"virtual_ip_nics"`
+	IsSds                 types.String `tfsdk:"is_sds"`
+	SDSName               types.String `tfsdk:"sds_name"`
+	SDSAllIPs             types.String `tfsdk:"sds_all_ips"`
+	SDSToSDSOnlyIPs       types.String `tfsdk:"sds_to_sds_only_ips"`
+	SDSToSDCOnlyIPs       types.String `tfsdk:"sds_to_sdc_only_ips"`
+	ProtectionDomain      types.String `tfsdk:"protection_domain"`
+	FaultSet              types.String `tfsdk:"fault_set"`
+	SDSStorageDeviceList  types.String `tfsdk:"sds_storage_device_list"`
+	StoragePoolList       types.String `tfsdk:"storage_pool_list"`
+	SDSStorageDeviceNames types.String `tfsdk:"sds_storage_device_names"`
+	PerfProfileForSDS     types.String `tfsdk:"perf_profile_for_sds"`
+	IsSdc                 types.String `tfsdk:"is_sdc"`
+	PerfProfileForSDC     types.String `tfsdk:"perf_profile_for_sdc"`
+	SDCName               types.String `tfsdk:"sdc_name"`
+	IsRFCache             types.String `tfsdk:"is_rfcache"`
+	RFcacheSSDDeviceList  types.String `tfsdk:"rf_cache_ssd_device_list"`
+	IsSdr                 types.String `tfsdk:"is_sdr"`
+	SDRName               types.String `tfsdk:"sdr_name"`
+	SDRPort               types.String `tfsdk:"sdr_port"`
+	SDRApplicationIPs     types.String `tfsdk:"sdr_application_ips"`
+	SDRStorageIPs         types.String `tfsdk:"sdr_storage_ips"`
+	SDRExternalIPs        types.String `tfsdk:"sdr_external_ips"`
+	SDRAllIPS             types.String `tfsdk:"sdr_all_ips"`
+	PerfProfileForSDR     types.String `tfsdk:"perf_profile_for_sdr"`
 }
 
 // StoragePoolDataModel desfines the srtuct for the Storage Pool Data
@@ -90,7 +90,8 @@ type StoragePoolDataModel struct {
 	ReplicationJournalCapacityPercentage types.String `tfsdk:"replication_journal_capacity_percentage"`
 }
 
-type MDMDataModel struct {
+// MDMModel desfines the srtuct for the MDM Data
+type MDMModel struct {
 	ID           types.String `tfsdk:"id"`
 	Name         types.String `tfsdk:"name"`
 	IP           types.String `tfsdk:"ip"`
@@ -101,7 +102,8 @@ type MDMDataModel struct {
 	Mode         types.String `tfsdk:"mode"`
 }
 
-type SDSDataModel struct {
+// SDSModel desfines the srtuct for the SDS Data
+type SDSModel struct {
 	ID                   types.String `tfsdk:"id"`
 	Name                 types.String `tfsdk:"name"`
 	IP                   types.String `tfsdk:"ip"`
@@ -114,6 +116,7 @@ type SDSDataModel struct {
 	Devices              types.Set    `tfsdk:"devices"`
 }
 
+// DeviceDataModel desfines the srtuct for the Device Data
 type DeviceDataModel struct {
 	Name            types.String `tfsdk:"name"`
 	Path            types.String `tfsdk:"path"`
@@ -121,14 +124,16 @@ type DeviceDataModel struct {
 	MaxCapacity     types.Int64  `tfsdk:"max_capacity_in_kb"`
 }
 
-type SDCDataModel struct {
+// SDCModel desfines the srtuct for the SDC Data
+type SDCModel struct {
 	ID    types.String `tfsdk:"id"`
 	GUIID types.String `tfsdk:"gui_id"`
 	Name  types.String `tfsdk:"name"`
 	IP    types.String `tfsdk:"ip"`
 }
 
-type SDRDataModel struct {
+// SDRModel desfines the srtuct for the SDR Data
+type SDRModel struct {
 	ID            types.String `tfsdk:"id"`
 	Name          types.String `tfsdk:"name"`
 	IP            types.String `tfsdk:"ip"`
@@ -139,11 +144,13 @@ type SDRDataModel struct {
 	AllIP         types.String `tfsdk:"all_ips"`
 }
 
+// ProtectionDomainDataModel desfines the srtuct for the Protection Domain Data
 type ProtectionDomainDataModel struct {
 	Name         types.String `tfsdk:"name"`
-	StoragePools types.List    `tfsdk:"storage_pool_list"`
+	StoragePools types.List   `tfsdk:"storage_pool_list"`
 }
 
+// StoragePoolDetailModel desfines the srtuct for the StoragePool Data
 type StoragePoolDetailModel struct {
 	Name                                 types.String `tfsdk:"name"`
 	MediaType                            types.String `tfsdk:"media_type"`
@@ -156,41 +163,41 @@ type StoragePoolDetailModel struct {
 
 // ClusterCsvRow desfines the srtuct for the Cluster CSV Data
 type ClusterCsvRow struct {
-	IP                                string
-	UserName                          string
-	Password                          string
-	OperatingSystem                   string
-	IsMdmOrTb                         string
-	MDMIP                             string
-	MDMMgmtIP                         string
-	MDMName                           string
-	PerfProfileForMDM                 string
-	VirtualIPs                        string
-	VirtualIPNICs                     string
-	IsSds                             string
-	SDSName                           string
-	SDSAllIPs                         string
-	SDSToSDSOnlyIPs                   string
-	SDSToSDCOnlyIPs                   string
-	ProtectionDomain                  string
-	FaultSet                          string
-	SDSStorageDeviceList              string
-	StoragePoolList                   string
-	SDSStorageDeviceNames             string
-	PerfProfileForSDS                 string
-	IsSdc                             string
-	PerfProfileForSDC                 string
-	SDCName                           string
-	IsRFCache                         string
-	RFcacheSSDDeviceList              string
-	IsSdr                             string
-	SDRName                           string
-	SDRPort                           string
-	SDRApplicationIPs                 string
-	SDRStorageIPs                     string
-	SDRExternalIPs                    string
-	SDRAllIPS                         string
-	PerfProfileForSDR                 string
+	IP                    string
+	UserName              string
+	Password              string
+	OperatingSystem       string
+	IsMdmOrTb             string
+	MDMIP                 string
+	MDMMgmtIP             string
+	MDMName               string
+	PerfProfileForMDM     string
+	VirtualIPs            string
+	VirtualIPNICs         string
+	IsSds                 string
+	SDSName               string
+	SDSAllIPs             string
+	SDSToSDSOnlyIPs       string
+	SDSToSDCOnlyIPs       string
+	ProtectionDomain      string
+	FaultSet              string
+	SDSStorageDeviceList  string
+	StoragePoolList       string
+	SDSStorageDeviceNames string
+	PerfProfileForSDS     string
+	IsSdc                 string
+	PerfProfileForSDC     string
+	SDCName               string
+	IsRFCache             string
+	RFcacheSSDDeviceList  string
+	IsSdr                 string
+	SDRName               string
+	SDRPort               string
+	SDRApplicationIPs     string
+	SDRStorageIPs         string
+	SDRExternalIPs        string
+	SDRAllIPS             string
+	PerfProfileForSDR     string
 }
 
 // StoragePoolCsvRow desfines the srtuct for the Storage Pool CSV Data

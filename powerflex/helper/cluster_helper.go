@@ -37,7 +37,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-// UpdateState - function to update state file for Cluster resource.
+// UpdateClusterState - function to update state file for Cluster resource.
 func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscaleio.GatewayClient, mdmIP string) (models.ClusterResourceModel, diag.Diagnostics) {
 	state := plan
 	var diags diag.Diagnostics
@@ -79,7 +79,7 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 	}
 
 	// Convert SdcList to SDCDataModel
-	var sdcDataList []models.SDCDataModel
+	var sdcDataList []models.SDCModel
 	for _, sdc := range clusteDetailResponse.ClusterDetails.SdcList {
 
 		id, error := decimalToTwosComplementHex(sdc.ID)
@@ -89,7 +89,7 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 			return plan, diags
 		}
 
-		sdcData := models.SDCDataModel{
+		sdcData := models.SDCModel{
 			ID:    types.StringValue(id),
 			GUIID: types.StringValue(sdc.GUID),
 			Name:  types.StringValue(sdc.SdcName),
@@ -112,7 +112,7 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 	state.ID = types.StringValue("placeholder")
 
 	// Convert SdSList to SDSDataModel
-	var sdsDataList []models.SDSDataModel
+	var sdsDataList []models.SDSModel
 	objectSDSs := []attr.Value{}
 	for _, sds := range clusteDetailResponse.ClusterDetails.SdsList {
 
@@ -156,7 +156,7 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 		setDevices, dgs := types.SetValue(DeviceElemType, objectDevices)
 		diags = append(diags, dgs...)
 
-		sdsData := models.SDSDataModel{
+		sdsData := models.SDSModel{
 			ID:                   types.StringValue(id),
 			Name:                 types.StringValue(sds.SdsName),
 			IP:                   types.StringValue(strings.Join(sds.Node.NodeIPs, ",")),
@@ -183,7 +183,7 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 	state.SDSList = setSdSs
 
 	// Convert SdrList to SDRDataModel
-	var sdrDataList []models.SDRDataModel
+	var sdrDataList []models.SDRModel
 	objectSDRs := []attr.Value{}
 	for _, sdr := range clusteDetailResponse.ClusterDetails.SdrList {
 
@@ -194,7 +194,7 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 			return plan, diags
 		}
 
-		sdrData := models.SDRDataModel{
+		sdrData := models.SDRModel{
 			ID:            types.StringValue(id),
 			Name:          types.StringValue(sdr.SdrName),
 			IP:            types.StringValue(strings.Join(sdr.Node.NodeIPs, ",")),
@@ -272,7 +272,7 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 	state.ProtectionDomains = setPds
 
 	// Convert mdmList to MDMDataModel
-	var mdmList []models.MDMDataModel
+	var mdmList []models.MDMModel
 	objectMDMs := []attr.Value{}
 
 	for _, mdm := range clusteDetailResponse.ClusterDetails.SlaveMdmSet {
@@ -284,7 +284,7 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 			return plan, diags
 		}
 
-		mdmData := models.MDMDataModel{
+		mdmData := models.MDMModel{
 			ID:           types.StringValue(id),
 			Name:         types.StringValue(mdm.Name),
 			IP:           types.StringValue(strings.Join(mdm.Node.NodeIPs, ",")),
@@ -307,7 +307,7 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 			return plan, diags
 		}
 
-		mdmData := models.MDMDataModel{
+		mdmData := models.MDMModel{
 			ID:           types.StringValue(id),
 			Name:         types.StringValue(mdm.Name),
 			IP:           types.StringValue(strings.Join(mdm.Node.NodeIPs, ",")),
@@ -330,7 +330,7 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 			return plan, diags
 		}
 
-		mdmData := models.MDMDataModel{
+		mdmData := models.MDMModel{
 			ID:    types.StringValue(id),
 			Name:  types.StringValue(mdm.Name),
 			IP:    types.StringValue(strings.Join(mdm.Node.NodeIPs, ",")),
@@ -351,7 +351,7 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 			return plan, diags
 		}
 
-		mdmData := models.MDMDataModel{
+		mdmData := models.MDMModel{
 			ID:    types.StringValue(id),
 			Name:  types.StringValue(mdm.Name),
 			IP:    types.StringValue(strings.Join(mdm.Node.NodeIPs, ",")),
@@ -372,7 +372,7 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 		return plan, diags
 	}
 
-	mdmData := models.MDMDataModel{
+	mdmData := models.MDMModel{
 		ID:    types.StringValue(id),
 		Name:  types.StringValue(mastMDM.Name),
 		IP:    types.StringValue(strings.Join(mastMDM.Node.NodeIPs, ",")),
@@ -453,7 +453,7 @@ func GetMDMType() map[string]attr.Type {
 }
 
 // GetMDMValue returns the MDM Detail model object value
-func GetMDMValue(mdm models.MDMDataModel) (basetypes.ObjectValue, diag.Diagnostics) {
+func GetMDMValue(mdm models.MDMModel) (basetypes.ObjectValue, diag.Diagnostics) {
 	return types.ObjectValue(GetMDMType(), map[string]attr.Value{
 		"id":             types.StringValue(mdm.ID.ValueString()),
 		"ip":             types.StringValue(mdm.IP.ValueString()),
@@ -481,7 +481,7 @@ func GetSDRType() map[string]attr.Type {
 }
 
 // GetSDRValue returns the SDR Detail model object value
-func GetSDRValue(sdr models.SDRDataModel) (basetypes.ObjectValue, diag.Diagnostics) {
+func GetSDRValue(sdr models.SDRModel) (basetypes.ObjectValue, diag.Diagnostics) {
 	return types.ObjectValue(GetSDRType(), map[string]attr.Value{
 		"id":              types.StringValue(sdr.ID.ValueString()),
 		"ip":              types.StringValue(sdr.IP.ValueString()),
@@ -531,7 +531,7 @@ func GetSDSType() map[string]attr.Type {
 }
 
 // GetSDSValue returns the SDS Detail model object value
-func GetSDSValue(sds models.SDSDataModel) (basetypes.ObjectValue, diag.Diagnostics) {
+func GetSDSValue(sds models.SDSModel) (basetypes.ObjectValue, diag.Diagnostics) {
 	return types.ObjectValue(GetSDSType(), map[string]attr.Value{
 		"id":                     types.StringValue(sds.ID.ValueString()),
 		"ip":                     types.StringValue(sds.IP.ValueString()),
@@ -557,7 +557,7 @@ func GetSDCType() map[string]attr.Type {
 }
 
 // GetSDCValue returns the SDC Detail model object value
-func GetSDCValue(sds models.SDCDataModel) (basetypes.ObjectValue, diag.Diagnostics) {
+func GetSDCValue(sds models.SDCModel) (basetypes.ObjectValue, diag.Diagnostics) {
 	return types.ObjectValue(GetSDCType(), map[string]attr.Value{
 		"id":     types.StringValue(sds.ID.ValueString()),
 		"ip":     types.StringValue(sds.IP.ValueString()),
@@ -566,8 +566,8 @@ func GetSDCValue(sds models.SDCDataModel) (basetypes.ObjectValue, diag.Diagnosti
 	})
 }
 
-// GetMDMIP function is used for fetch MDM IP from Cluster Details
-func GetMDMIPFromClusterDetails(clusterInstallationDetailsDataModel []models.ClusterDataModel) (string, error) {
+// GetMDMIPFromClusterDetails function is used for fetch MDM IP from Cluster Details
+func GetMDMIPFromClusterDetails(clusterInstallationDetailsDataModel []models.ClusterModel) (string, error) {
 	var mdmIP string
 
 	for _, item := range clusterInstallationDetailsDataModel {
@@ -580,7 +580,7 @@ func GetMDMIPFromClusterDetails(clusterInstallationDetailsDataModel []models.Clu
 }
 
 // GetMDMIPFromMDMList function is used for fetch MDM IP from MDM List Details
-func GetMDMIPFromMDMList(mdmDataModel []models.MDMDataModel) (string, error) {
+func GetMDMIPFromMDMList(mdmDataModel []models.MDMModel) (string, error) {
 	var mdmIP string
 
 	for _, item := range mdmDataModel {
@@ -592,8 +592,8 @@ func GetMDMIPFromMDMList(mdmDataModel []models.MDMDataModel) (string, error) {
 	return mdmIP, nil
 }
 
-// ParseCSVOperation function for Handling Parsing CSV Operation
-func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.GatewayClient, clusterDataModel []models.ClusterDataModel, storagePoolDataModel []models.StoragePoolDataModel) (*goscaleio_types.GatewayResponse, error) {
+// ParseClusterCSVOperation function for Handling Parsing CSV Operation
+func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.GatewayClient, clusterDataModel []models.ClusterModel, storagePoolDataModel []models.StoragePoolDataModel) (*goscaleio_types.GatewayResponse, error) {
 
 	var parseCSVResponse goscaleio_types.GatewayResponse
 
@@ -787,7 +787,7 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 	return parsecsvRespose, nil
 }
 
-// Function to get the field value from the StoragePoolDataModel
+// getFieldFromStorage Function to get the field value from the StoragePoolDataModel
 func getFieldFromStorage(item models.StoragePoolDataModel, header string) string {
 	switch header {
 	case "ProtectionDomain":
@@ -811,8 +811,8 @@ func getFieldFromStorage(item models.StoragePoolDataModel, header string) string
 	}
 }
 
-// Function to get the field value from the ClusterDataModel
-func getFieldFromItem(item models.ClusterDataModel, header string) string {
+// getFieldFromItem Function to get the field value from the ClusterDataModel
+func getFieldFromItem(item models.ClusterModel, header string) string {
 	switch header {
 	case "IPs":
 		return item.IP.ValueString()
@@ -996,7 +996,7 @@ func ClusterInstallationOperations(ctx context.Context, model models.ClusterReso
 	return nil
 }
 
-// ClusterInstallationOperations function for begin uninstllation process
+// ClusterUninstallationOperations function for begin uninstllation process
 func ClusterUninstallationOperations(ctx context.Context, model models.ClusterResourceModel, gatewayClient *goscaleio.GatewayClient, parsecsvRespose *goscaleio_types.GatewayResponse) error {
 
 	beginUninstallationResponse, uninstallationError := gatewayClient.UninstallCluster(parsecsvRespose.Data, "admin", model.MdmPassword.ValueString(), model.LiaPassword.ValueString(), model.AllowNonSecureCommunicationWithMdm.ValueBool(), model.AllowNonSecureCommunicationWithLia.ValueBool(), model.DisableNonMgmtComponentsAuth.ValueBool(), false)
@@ -1073,7 +1073,7 @@ func ClusterUninstallationOperations(ctx context.Context, model models.ClusterRe
 	return nil
 }
 
-// Helper function to remove duplicates from a slice of strings
+// removeDuplicates Helper function to remove duplicates from a slice of strings
 func removeDuplicates(s []string) []string {
 	unique := make(map[string]bool)
 	var result []string
@@ -1086,7 +1086,7 @@ func removeDuplicates(s []string) []string {
 	return result
 }
 
-// Helper function to intersect slices
+// intersect Helper function to intersect slices
 func intersect(a, b []int) []int {
 	m := make(map[int]bool)
 	var intersection []int
@@ -1104,6 +1104,7 @@ func intersect(a, b []int) []int {
 	return intersection
 }
 
+// decimalToTwosComplementHex function to convert decimal id to hex value
 func decimalToTwosComplementHex(decimalStr string) (string, error) {
 	decimalInt, err := strconv.ParseInt(decimalStr, 10, 64)
 	if err != nil {
@@ -1119,6 +1120,7 @@ func decimalToTwosComplementHex(decimalStr string) (string, error) {
 	return twosComplementHex, nil
 }
 
+// boolToYesNo function to convert bool value to Yes/No
 func boolToYesNo(b bool) string {
 	if b {
 		return "Yes"

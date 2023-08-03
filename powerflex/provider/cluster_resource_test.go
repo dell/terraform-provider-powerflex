@@ -73,6 +73,11 @@ func TestAccClusterResourceValidation(t *testing.T) {
 			},
 			//Create
 			{
+				Config:      ProviderConfigForTesting + ClusterValidationConfig5,
+				ExpectError: regexp.MustCompile(`.*Please configure replication_journal_capacity_percentage for SDR*`),
+			},
+			//Create
+			{
 				Config:      ProviderConfigForTesting + ClusterConfig1,
 				ExpectError: regexp.MustCompile(`.*Error During Installation*`),
 			},
@@ -231,6 +236,70 @@ resource "powerflex_cluster" "test" {
 		perf_profile_for_sdc= "ABCD",
 		ia_rfcache= "No",
 		is_sdr= "No",
+		sdr_all_ips= ""
+	 },
+	 {
+		ips= "10.10.10.11",
+		username= "root",
+		password= "dangerous",
+		operating_system= "linux",
+		is_mdm_or_tb= "Secondary",
+		perf_profile_for_mdm= "compact",
+		is_sds= "yes",
+		sds_name= "sds2",
+		is_sdc= "yes",
+		sdc_name= "sdc2",
+		perf_profile_for_sdc= "compact",
+		ia_rfcache= "No",
+		is_sdr= "No",
+		sdr_all_ips= ""
+	 },
+	 {
+		ips= "10.10.10.12",
+		username= "root",
+		password= "dangerous",
+		operating_system= "linux",
+		is_mdm_or_tb= "TB",
+		perf_profile_for_mdm= "compact",
+		is_sds= "yes",
+		sds_name= "sds3",
+		is_sdc= "yes",
+		sdc_name= "sdc3",
+		perf_profile_for_sdc= "compact",
+		ia_rfcache= "No",
+		is_sdr= "No",
+		sdr_all_ips= ""
+	 },
+	]
+	storage_pools = [
+		{
+			media_type = "HDD"
+		}	
+	]
+}
+`
+
+var ClusterValidationConfig5 = `
+resource "powerflex_cluster" "test" {
+	mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
+	lia_password= "` + GatewayDataPoints.liaPassword + `"
+	allow_non_secure_communication_with_lia= true
+	allow_non_secure_communication_with_mdm= true
+	cluster = [
+	{
+		ips= "10.10.10.10",
+		username= "root",
+		password= "dangerous",
+		operating_system= "linux",
+		is_mdm_or_tb= "primary",
+		perf_profile_for_mdm= "ABCD",
+		is_sds= "yes",
+		sds_name= "sds1",
+		is_sdc= "yes",
+		sdc_name= "sdc1",
+		perf_profile_for_sdc= "ABCD",
+		ia_rfcache= "No",
+		is_sdr= "Yes",
 		sdr_all_ips= ""
 	 },
 	 {

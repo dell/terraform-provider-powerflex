@@ -39,6 +39,57 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 	resp.Schema = ClusterReourceSchema
 }
 
+func (d *clusterResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var config models.ClusterResourceModel
+
+	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	clusterInstallationDetailsDataModel := []models.ClusterModel{}
+	diags := config.Cluster.ElementsAs(ctx, &clusterInstallationDetailsDataModel, true)
+	resp.Diagnostics.Append(diags...)
+
+	storagePoolDetailsDataModel := []models.StoragePoolDataModel{}
+	diags = config.StoragePools.ElementsAs(ctx, &storagePoolDetailsDataModel, true)
+	resp.Diagnostics.Append(diags...)
+
+	sdrValidation := false
+
+	if !config.Cluster.IsNull() && !config.StoragePools.IsNull() {
+
+		sdrCheck := false
+
+		for _, row := range clusterInstallationDetailsDataModel {
+			if strings.EqualFold(row.IsSdr.ValueString(), "Yes") {
+				sdrCheck = true
+			}
+		}
+
+		if sdrCheck {
+			if len(storagePoolDetailsDataModel) > 0 {
+				for _, row := range storagePoolDetailsDataModel {
+					if !row.ReplicationJournalCapacityPercentage.IsNull() {
+						sdrValidation = true
+					}
+				}
+			}
+		} else {
+			sdrValidation = true
+		}
+	}
+
+	if !sdrValidation {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("replication_journal_capacity_percentage"),
+			"Please configure replication_journal_capacity_percentage for SDR.",
+			"Please configure replication_journal_capacity_percentage for SDR.",
+		)
+	}
+}
+
 // Configure - function to return Configuration for SDC resource.
 func (r *clusterResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
@@ -73,7 +124,7 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	clusterInstallationDetailsDataModel := []models.ClusterDataModel{}
+	clusterInstallationDetailsDataModel := []models.ClusterModel{}
 	diags = plan.Cluster.ElementsAs(ctx, &clusterInstallationDetailsDataModel, true)
 	resp.Diagnostics.Append(diags...)
 
@@ -154,7 +205,7 @@ func (r *clusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 		}
 	} else {
 
-		mdmList := []models.MDMDataModel{}
+		mdmList := []models.MDMModel{}
 		diags = state.MDMList.ElementsAs(ctx, &mdmList, true)
 		resp.Diagnostics.Append(diags...)
 
@@ -203,7 +254,7 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	mdmList := []models.MDMDataModel{}
+	mdmList := []models.MDMModel{}
 	diags = state.MDMList.ElementsAs(ctx, &mdmList, true)
 	resp.Diagnostics.Append(diags...)
 
@@ -277,7 +328,7 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 }
 
 // ClusterDeploymentOperations function for the Cluster Deployment Operation Like ParseCSV,Installation and Validate Cluster
-func (r *clusterResource) ClusterDeploymentOperations(ctx context.Context, plan models.ClusterResourceModel, clusterInstallationDetailsDataModel []models.ClusterDataModel, storagePoolDetailsDataModel []models.StoragePoolDataModel) (data models.ClusterResourceModel, dia diag.Diagnostics) {
+func (r *clusterResource) ClusterDeploymentOperations(ctx context.Context, plan models.ClusterResourceModel, clusterInstallationDetailsDataModel []models.ClusterModel, storagePoolDetailsDataModel []models.StoragePoolDataModel) (data models.ClusterResourceModel, dia diag.Diagnostics) {
 
 	// to make gateway available for installation
 	queueOperationError := helper.ResetInstallerQueue(r.gatewayClient)
