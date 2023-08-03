@@ -30,6 +30,23 @@ This resource can be used to install the PowerFlex Cluster.
 ## Example Usage
 
 ```terraform
+/*
+Copyright (c) 2023 Dell Inc., or its subsidiaries. All Rights Reserved.
+
+Licensed under the Mozilla Public License Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://mozilla.org/MPL/2.0/
+
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 resource "powerflex_cluster" "test" {
 	mdm_password =  "Password"
 	lia_password= "Password"
@@ -39,26 +56,31 @@ resource "powerflex_cluster" "test" {
 	cluster = [
 	{
 		ips= "10.10.10.1",
-		username= "username",
-		password= "password",
+		username= "root",
+		password= "Password",
 		operating_system= "linux",
 		is_mdm_or_tb= "primary",
-		perf_profile_for_mdm= "High",
 		is_sds= "yes",
 		sds_name= "sds1",
 		is_sdc= "yes",
 		sdc_name= "sdc1",
-		perf_profile_for_sdc= "compact",
+		protection_domain = "domain_1"
+		sds_storage_device_list = "/dev/sdb"
+		storage_pool_list = "pool1"
+		perf_profile_for_sdc= "High",
 		ia_rfcache= "No",
-		is_sdr= "No",
+		is_sdr= "Yes",
+		sdr_all_ips = "10.10.20.1"
 	 },
 	 {
 		ips= "10.10.10.2",
-		username= "username",
-		password= "password",
+		username= "root",
+		password= "Password",
 		operating_system= "linux",
 		is_mdm_or_tb= "Secondary",
-		perf_profile_for_mdm= "compact",
+		protection_domain = "domain_1"
+		sds_storage_device_list = "/dev/sdb"
+		storage_pool_list = "pool1"
 		is_sds= "yes",
 		sds_name= "sds2",
 		is_sdc= "yes",
@@ -69,13 +91,11 @@ resource "powerflex_cluster" "test" {
 	 },
 	 {
 		ips= "10.10.10.3",
-		username= "username",
-		password= "password",
+		username= "root",
+		password= "Password",
 		operating_system= "linux",
 		is_mdm_or_tb= "TB",
-		perf_profile_for_mdm= "compact",
-		is_sds= "yes",
-		sds_name= "sds3",
+		is_sds= "No",
 		is_sdc= "yes",
 		sdc_name= "sdc3",
 		perf_profile_for_sdc= "compact",
@@ -86,6 +106,9 @@ resource "powerflex_cluster" "test" {
 	storage_pools = [
 		{
 			media_type = "HDD"
+			protection_domain = "domain_1"
+			storage_pool = "pool1"
+			replication_journal_capacity_percentage = "50"
 		}	
 	]
 }

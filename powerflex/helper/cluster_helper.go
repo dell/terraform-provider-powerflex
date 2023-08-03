@@ -771,10 +771,10 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 
 	parsecsvRespose, parseCSVError := gatewayClient.ParseCSV(mydir + "/Minimal.csv")
 
-	// deletCSVError := os.Remove(mydir + "/Minimal.csv")
-	// if deletCSVError != nil {
-	// 	return &parseCSVResponse, fmt.Errorf("Error While Deleting Temp CSV File is %s", deletCSVError.Error())
-	// }
+	deletCSVError := os.Remove(mydir + "/Minimal.csv")
+	if deletCSVError != nil {
+		return &parseCSVResponse, fmt.Errorf("Error While Deleting Temp CSV File is %s", deletCSVError.Error())
+	}
 
 	if parseCSVError != nil {
 		return &parseCSVResponse, fmt.Errorf("%s", parseCSVError.Error())
