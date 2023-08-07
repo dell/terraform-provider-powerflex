@@ -50,8 +50,8 @@ func (r *userResource) Metadata(_ context.Context, req resource.MetadataRequest,
 
 func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description:         "This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array.",
-		MarkdownDescription: "This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array.",
+		Description:         "This resource can be used to manage user on a PowerFlex array.",
+		MarkdownDescription: "This resource can be used to manage user on a PowerFlex array.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Description:         "The ID of the user.",

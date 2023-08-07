@@ -19,12 +19,12 @@ linkTitle: "powerflex_user"
 page_title: "powerflex_user Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array.
+  This resource can be used to manage user on a PowerFlex array.
 ---
 
 # powerflex_user (Resource)
 
-This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array.
+This resource can be used to manage user on a PowerFlex array.
 
 
 ## Example Usage
