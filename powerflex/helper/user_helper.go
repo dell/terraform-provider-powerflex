@@ -30,5 +30,6 @@ func UpdateUserState(user *scaleiotypes.User, plan models.UserModel) models.User
 	state.Role = types.StringValue(user.UserRole)
 	state.Password = plan.Password
 	state.ID = types.StringValue(user.ID)
+	state.SystemID = types.StringValue(user.SystemID)
 	return state
 }

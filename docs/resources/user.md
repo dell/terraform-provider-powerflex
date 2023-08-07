@@ -64,11 +64,12 @@ resource "powerflex_user" "newUser" {
 
 ### Required
 
-- `name` (String) The name of the user.
-- `password` (String) Password of the user.
-- `role` (String) The role of the user.
+- `name` (String) The name of the user. Cannot be updated.
+- `password` (String) Password of the user. Cannot be updated.
+- `role` (String) The role of the user. Accepted values are 'Administrator', 'Monitor', 'Configure', 'Security', 'FrontendConfig', 'BackendConfig'.
 
 ### Read-Only
 
 - `id` (String) The ID of the user.
+- `system_id` (String) The ID of the system.
 

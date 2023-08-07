@@ -26,5 +26,6 @@ type UserModel struct {
 	ID       types.String `tfsdk:"id"`
 	Name     types.String `tfsdk:"name"`
 	Role     types.String `tfsdk:"role"`
+	SystemID types.String `tfsdk:"system_id"`
 	Password types.String `tfsdk:"password"`
 }

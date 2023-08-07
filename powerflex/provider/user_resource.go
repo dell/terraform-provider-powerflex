@@ -58,6 +58,12 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				Computed:            true,
 				MarkdownDescription: "The ID of the user.",
 			},
+			"system_id": schema.StringAttribute{
+				Description:         "The ID of the system.",
+				Computed:            true,
+				MarkdownDescription: "The ID of the system.",
+			},
+			
 			"name": schema.StringAttribute{
 				Description: "The name of the user." +
 					" Cannot be updated.",
@@ -65,13 +71,15 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
-				MarkdownDescription: "The name of the user.",
+				MarkdownDescription: "The name of the user." +
+				" Cannot be updated.",
 			},
 			"role": schema.StringAttribute{
 				Description: "The role of the user." +
 					" Accepted values are 'Administrator', 'Monitor', 'Configure', 'Security', 'FrontendConfig', 'BackendConfig'.",
 				Required:            true,
-				MarkdownDescription: "The role of the user.",
+				MarkdownDescription: "The role of the user." +
+					" Accepted values are 'Administrator', 'Monitor', 'Configure', 'Security', 'FrontendConfig', 'BackendConfig'.",
 				Validators: []validator.String{stringvalidator.OneOf(
 					"Monitor",
 					"Configure",
@@ -88,7 +96,8 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
-				MarkdownDescription: "Password of the user.",
+				MarkdownDescription: "Password of the user." +
+				" Cannot be updated.",
 			},
 		},
 	}
