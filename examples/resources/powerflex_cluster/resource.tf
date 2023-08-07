@@ -15,6 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+# Command to run this tf file : terraform init && terraform plan && terraform apply.
+# Create, Read, Delete and Import operations are supported for this resource.
+
+# To perform Cluster Installation
 resource "powerflex_cluster" "test" {
 	mdm_password =  "Password"
 	lia_password= "Password"
@@ -79,4 +83,11 @@ resource "powerflex_cluster" "test" {
 			replication_journal_capacity_percentage = "50"
 		}	
 	]
+}
+
+# To perform Cluster Import MDM_IP, MDM_Password, LIA_Password
+# terraform import powerflex_cluster.test "10.10.10.1,Password,Password"
+# To Delete whole cluster
+# terraform destroy
+resource "powerflex_cluster" "test" {
 }

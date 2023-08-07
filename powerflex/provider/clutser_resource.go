@@ -39,6 +39,7 @@ func (r *clusterResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 	resp.Schema = ClusterReourceSchema
 }
 
+// ValidateConfig - function to check some validations for Cluster Resource.
 func (r *clusterResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
 	var config models.ClusterResourceModel
 
@@ -90,7 +91,7 @@ func (r *clusterResource) ValidateConfig(ctx context.Context, req resource.Valid
 	}
 }
 
-// Configure - function to return Configuration for SDC resource.
+// Configure - function to return Configuration for Cluster resource.
 func (r *clusterResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
@@ -111,7 +112,7 @@ func (r *clusterResource) Configure(_ context.Context, req resource.ConfigureReq
 	}
 }
 
-// Create - function to Create for SDC resource.
+// Create - function to Create for Cluster resource.
 func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "[POWERFLEX] Create")
 
@@ -179,6 +180,7 @@ func (r *clusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 		inputData := strings.Split(state.ID.ValueString(), ",")
 
+		//Expecting MDM IP,MDM Password and LIA Password
 		if len(inputData) == 3 {
 			mdmIP := inputData[0]
 
@@ -230,7 +232,7 @@ func (r *clusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 }
 
-// ImportState - function to ImportState for SDC resource.
+// ImportState - function to ImportState for Cluster resource.
 func (r *clusterResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	tflog.Debug(ctx, "[POWERFLEX] ImportState :-- "+helper.PrettyJSON(req))
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
