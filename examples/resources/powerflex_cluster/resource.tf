@@ -84,10 +84,3 @@ resource "powerflex_cluster" "test" {
 		}	
 	]
 }
-
-# To perform Cluster Import MDM_IP, MDM_Password, LIA_Password
-# terraform import powerflex_cluster.test "10.10.10.1,Password,Password"
-# To Delete whole cluster
-# terraform destroy
-resource "powerflex_cluster" "test" {
-}
