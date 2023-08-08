@@ -192,6 +192,10 @@ func ClusterModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Performance Profile For MDM",
 			Description:         "Performance Profile For MDM",
 			Optional:            true,
+			Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
+				"HighPerformance",
+				"Compact",
+			)},
 		},
 
 		"virtual_ips": schema.StringAttribute{
@@ -278,6 +282,10 @@ func ClusterModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Performance Profile For SDS",
 			Description:         "Performance Profile For SDS",
 			Optional:            true,
+			Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
+				"HighPerformance",
+				"Compact",
+			)},
 		},
 
 		"is_sdc": schema.StringAttribute{
@@ -298,6 +306,10 @@ func ClusterModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Performance Profile For SDC",
 			Description:         "Performance Profile For SDC",
 			Optional:            true,
+			Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
+				"HighPerformance",
+				"Compact",
+			)},
 		},
 
 		"sdc_name": schema.StringAttribute{
@@ -379,6 +391,10 @@ func ClusterModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Performance Profile For SDR",
 			Description:         "Performance Profile For SDR",
 			Optional:            true,
+			Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
+				"HighPerformance",
+				"Compact",
+			)},
 		},
 	}
 }

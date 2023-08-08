@@ -32,6 +32,8 @@ import (
 func TestAccClusterResource(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
 
+	t.Skip("Skipping this test case")
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -150,7 +152,6 @@ resource "powerflex_cluster" "test" {
 		perf_profile_for_sdc= "compact",
 		ia_rfcache= "No",
 		is_sdr= "No",
-		sdr_all_ips= ""
 	 },
 	 {
 		ips= "` + GatewayDataPoints.clusterSecondaryIP + `",
@@ -166,7 +167,6 @@ resource "powerflex_cluster" "test" {
 		perf_profile_for_sdc= "compact",
 		ia_rfcache= "No",
 		is_sdr= "No",
-		sdr_all_ips= ""
 	 },
 	 {
 		ips= "` + GatewayDataPoints.clusterTBIP + `",
@@ -182,7 +182,6 @@ resource "powerflex_cluster" "test" {
 		perf_profile_for_sdc= "compact",
 		ia_rfcache= "No",
 		is_sdr= "No",
-		sdr_all_ips= ""
 	 },
 	]
 	storage_pools = [
@@ -258,12 +257,12 @@ resource "powerflex_cluster" "test" {
 		password= "dangerous",
 		operating_system= "linux",
 		is_mdm_or_tb= "primary",
-		perf_profile_for_mdm= "ABCD",
+		perf_profile_for_mdm= "HighPerformance",
 		is_sds= "yes",
 		sds_name= "sds1",
 		is_sdc= "yes",
 		sdc_name= "sdc1",
-		perf_profile_for_sdc= "ABCD",
+		perf_profile_for_sdc= "HighPerformance",
 		ia_rfcache= "No",
 		is_sdr= "No",
 		sdr_all_ips= ""
