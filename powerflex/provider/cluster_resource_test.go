@@ -38,7 +38,7 @@ func TestAccClusterResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			//Create
 			{
-				Config: ProviderConfigForTesting + ClusterConfig1,
+				Config: ProviderConfigForTesting + packageTest + ClusterConfig1,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					validateSDCLength,
 				),

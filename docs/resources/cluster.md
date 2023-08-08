@@ -206,7 +206,7 @@ Optional:
 Read-Only:
 
 - `id` (String) ID
-- `ip` (String) IP
+- `ip` (String) MDM Node IP
 - `mdm_ip` (String) MDM IP
 - `mgmt_ip` (String) MGMTIP
 - `mode` (String) Mode
@@ -245,7 +245,7 @@ Read-Only:
 
 - `gui_id` (String) GUIID
 - `id` (String) ID
-- `ip` (String) IP
+- `ip` (String) SDC Node IP
 - `name` (String) Name
 
 
@@ -258,7 +258,7 @@ Read-Only:
 - `application_ips` (String) Application IP
 - `external_ips` (String) External IP
 - `id` (String) ID
-- `ip` (String) IP
+- `ip` (String) SDR Node IP
 - `name` (String) Name
 - `port` (Number) Port
 - `storage_ips` (String) Storage IP
@@ -273,7 +273,7 @@ Read-Only:
 - `devices` (Attributes Set) Devices (see [below for nested schema](#nestedatt--sds_list--devices))
 - `fault_set` (String) Fault Set
 - `id` (String) ID
-- `ip` (String) IP
+- `ip` (String) SDS Node IP
 - `name` (String) Name
 - `protection_domain_id` (String) Protection Domain Name
 - `protection_domain_name` (String) Protection Domain Name

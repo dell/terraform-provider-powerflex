@@ -1042,7 +1042,7 @@ func ClusterUninstallationOperations(ctx context.Context, model models.ClusterRe
 					// to make gateway available for installation
 					queueOperationError := ResetInstallerQueue(gatewayClient)
 					if queueOperationError != nil {
-						return fmt.Errorf("Error Clearing Queue After Installation is %s", queueOperationError.Error())
+						return fmt.Errorf("Error Clearing Queue After uninstallation is %s", queueOperationError.Error())
 					}
 
 					return nil

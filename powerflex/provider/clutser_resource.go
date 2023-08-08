@@ -58,7 +58,7 @@ func (r *clusterResource) ValidateConfig(ctx context.Context, req resource.Valid
 	resp.Diagnostics.Append(diags...)
 
 	sdrValidation := false
-
+	//Added validation for if SDR is YES than Replication Capacity must be require
 	if !config.Cluster.IsNull() && !config.StoragePools.IsNull() {
 
 		sdrCheck := false
@@ -376,6 +376,8 @@ func (r *clusterResource) ClusterDeploymentOperations(ctx context.Context, plan 
 		)
 		return
 	}
+
+	tflog.Info(ctx, "Gateway Installer CSV Parsed successfully")
 
 	installationError := helper.ClusterInstallationOperations(ctx, plan, r.gatewayClient, parsecsvRespose)
 

@@ -453,8 +453,8 @@ func ClusterMDMModelSchema() map[string]schema.Attribute {
 		},
 
 		"ip": schema.StringAttribute{
-			MarkdownDescription: "IP",
-			Description:         "IP",
+			MarkdownDescription: "MDM Node IP",
+			Description:         "MDM Node IP",
 			Computed:            true,
 		},
 
@@ -505,8 +505,8 @@ func ClusterSDSModelSchema() map[string]schema.Attribute {
 		},
 
 		"ip": schema.StringAttribute{
-			MarkdownDescription: "IP",
-			Description:         "IP",
+			MarkdownDescription: "SDS Node IP",
+			Description:         "SDS Node IP",
 			Computed:            true,
 		},
 
@@ -607,8 +607,8 @@ func ClusterSDCModelSchema() map[string]schema.Attribute {
 		},
 
 		"ip": schema.StringAttribute{
-			MarkdownDescription: "IP",
-			Description:         "IP",
+			MarkdownDescription: "SDC Node IP",
+			Description:         "SDC Node IP",
 			Computed:            true,
 		},
 	}
@@ -630,8 +630,8 @@ func ClusterSDRModelSchema() map[string]schema.Attribute {
 		},
 
 		"ip": schema.StringAttribute{
-			MarkdownDescription: "IP",
-			Description:         "IP",
+			MarkdownDescription: "SDR Node IP",
+			Description:         "SDR Node IP",
 			Computed:            true,
 		},
 
