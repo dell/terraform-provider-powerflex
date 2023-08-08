@@ -629,7 +629,6 @@ resource "powerflex_storage_pool" "sp10" {
   }
 `
 
-// Note: I'm not testing replication_journal_capacity because it needs some changes in the delete functionality
 var CreateStoragePoolWithAllAttributesConfig1 = `
 resource "powerflex_storage_pool" "sp1" {
 	name                 = "storagepool1"

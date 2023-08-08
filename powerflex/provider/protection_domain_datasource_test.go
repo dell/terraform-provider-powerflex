@@ -37,7 +37,7 @@ type pdDataPoints struct {
 }
 
 var protectiondomainTestData pdDataPoints = pdDataPoints{
-	id:    os.Getenv("POWERFLEX_PROTECTION_DOMAIN_ID"),
+	id:    ProtectionDomainID,
 	name:  "domain1",
 	name2: "domain2",
 	name3: "domain_1",

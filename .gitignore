@@ -5,7 +5,7 @@ gosec*
 .terraform*
 tfplan*
 terraform.tfvars
-powerflex/*.env
+powerflex/provider/*.env
 powerflex/env.sh
 powerflex/trace.txt
 examples/trace.txt

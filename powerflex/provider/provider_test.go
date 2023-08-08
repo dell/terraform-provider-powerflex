@@ -154,6 +154,7 @@ var SDCMappingResourceName2 = os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_NAME2")
 var SDCVolName = os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_NAME")
 var SdsID = os.Getenv("POWERFLEX_DEVICE_SDS_ID")
 var MDMDataPoints = getMdmDataPointsForTest()
+var ProtectionDomainID = os.Getenv("POWERFLEX_PROTECTION_DOMAIN_ID")
 
 func init() {
 	err := godotenv.Load("powerflex.env")
