@@ -148,7 +148,7 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	resp.Diagnostics.AddError("[Create] Please provide valid Clustet and Storage Pool Details", "Please provide valid valid Clustet and Storage Pool Detail Details")
+	resp.Diagnostics.AddError("[Create] Please provide valid Cluster and Storage Pool Details", "Please provide valid valid Cluster and Storage Pool Detail Details")
 
 	return
 
