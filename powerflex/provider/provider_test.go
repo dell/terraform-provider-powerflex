@@ -65,6 +65,17 @@ type gatewayDataPoints struct {
 	clusterTBIP        string
 }
 
+type mdmDataPoints struct {
+	primaryMDMIP   string
+	secondaryMDMIP string
+	tbIP           string
+	primaryMDMID   string
+	secondaryMDMID string
+	tbID           string
+	standByIP1     string
+	standByIP2     string
+}
+
 func getNewSdsDataPointForTest() sdsDataPoints {
 	var SdsResourceTestData sdsDataPoints
 
@@ -120,12 +131,35 @@ func getNewGatewayDataPointForTest() gatewayDataPoints {
 	return GatewayDataPoints
 }
 
+func getMdmDataPointsForTest() mdmDataPoints {
+
+	var MDMDataPoints mdmDataPoints
+
+	err := godotenv.Load("powerflex.env")
+	if err != nil {
+		log.Fatal("Error loading .env file: ", err)
+		return MDMDataPoints
+	}
+
+	MDMDataPoints.primaryMDMIP = os.Getenv("POWERFLEX_PRIMARY_MDM_IP")
+	MDMDataPoints.secondaryMDMIP = os.Getenv("POWERFLEX_SECONDARY_MDM_IP")
+	MDMDataPoints.tbIP = os.Getenv("POWERFLEX_TB_IP")
+	MDMDataPoints.primaryMDMID = os.Getenv("POWERFLEX_PRIMARY_MDM_ID")
+	MDMDataPoints.secondaryMDMID = os.Getenv("POWERFLEX_SECONDARY_MDM_ID")
+	MDMDataPoints.tbID = os.Getenv("POWERFLEX_TB_ID")
+	MDMDataPoints.standByIP1 = os.Getenv("POWERFLEX_STANDBY_MDM_IP1")
+	MDMDataPoints.standByIP2 = os.Getenv("POWERFLEX_STANDBY_MDM_IP2")
+
+	return MDMDataPoints
+}
+
 var SdsResourceTestData = getNewSdsDataPointForTest()
 var GatewayDataPoints = getNewGatewayDataPointForTest()
 var SDCMappingResourceID2 = os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_ID2")
 var SDCMappingResourceName2 = os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_NAME2")
 var SDCVolName = os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_NAME")
 var SdsID = os.Getenv("POWERFLEX_DEVICE_SDS_ID")
+var MDMDataPoints = getMdmDataPointsForTest()
 var ProtectionDomainID = os.Getenv("POWERFLEX_PROTECTION_DOMAIN_ID")
 
 func init() {
