@@ -18,14 +18,13 @@ limitations under the License.
 package provider
 
 import (
-	"os"
 	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var protectionDomainID1 = os.Getenv("POWERFLEX_PROTECTION_DOMAIN_ID")
+var protectionDomainID1 = ProtectionDomainID
 
 func TestSdsDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{

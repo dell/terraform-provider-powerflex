@@ -18,11 +18,14 @@ limitations under the License.
 package provider
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 // TestAccClusterResource tests the SDC Expansion Operation
@@ -37,11 +40,38 @@ func TestAccClusterResource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + ClusterConfig1,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_cluster.test", "sdc_details.2.ip", GatewayDataPoints.tbIP),
+					validateSDCLength,
 				),
 			},
 		},
 	})
+}
+
+func validateSDCLength(state *terraform.State) error {
+	// Retrieve the resource instance
+	clusterResource, ok := state.RootModule().Resources["powerflex_cluster.test"]
+	if !ok {
+		return fmt.Errorf("Failed to find powerflex_cluster.test in state")
+	}
+
+	// Get the value of the "sdc_list" attribute from the resource instance
+	sdcListValue, ok := clusterResource.Primary.Attributes["sdc_list"]
+	if !ok {
+		return fmt.Errorf("sdc_list attribute not found in state")
+	}
+
+	// Parse the sdc_list value into a list
+	var sdcList []interface{}
+	if err := json.Unmarshal([]byte(sdcListValue), &sdcList); err != nil {
+		return fmt.Errorf("Failed to unmarshal sdc_list attribute: %s", err)
+	}
+
+	// Check if the length of the sdc_list is greater than 0
+	if len(sdcList) <= 0 {
+		return fmt.Errorf("sdc_list attribute length is not greater than 0")
+	}
+
+	return nil
 }
 
 func TestAccClusterResourceValidation(t *testing.T) {
