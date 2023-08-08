@@ -70,6 +70,7 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				Required: true,
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
+					stringvalidator.LengthAtMost(31),
 				},
 				MarkdownDescription: "The name of the user." +
 					" Cannot be updated.",
