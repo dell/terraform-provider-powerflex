@@ -193,8 +193,8 @@ func UpdateMdmClusterState(ctx context.Context, mdmDetails *goscaleio_types.MdmC
 	var sbMdmDetails []attr.Value
 	var sbMdmList []models.StandByMdm
 	diags.Append(plan.StandByMdm.ElementsAs(ctx, &sbMdmList, true)...)
-	for _, mdm := range mdmDetails.StandByMdm {
-		model, dgs := GetStandByMdmValue(ctx, &mdm, sbMdmList)
+	for index := range mdmDetails.StandByMdm {
+		model, dgs := GetStandByMdmValue(ctx, &mdmDetails.StandByMdm[index], sbMdmList)
 		diags = append(diags, dgs...)
 		sbMdmDetails = append(sbMdmDetails, model)
 	}
