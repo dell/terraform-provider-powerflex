@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -603,7 +604,8 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 		return &parseCSVResponse, fmt.Errorf("Error While Reading Current Directory is %s", err.Error())
 	}
 	// Create a csv writer
-	file, err := os.Create(mydir + "/Minimal.csv")
+	filePath := filepath.Join(mydir, filepath.Clean("Minimal.csv"))
+	file, err := os.Create(filepath.Clean(filePath))
 	if err != nil {
 		return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV is %s", err.Error())
 	}
@@ -767,7 +769,10 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 		}
 	}
 
-	writer.Flush()
+	err = writer.Flush()
+	if err != nil {
+		return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
+	}
 
 	parsecsvRespose, parseCSVError := gatewayClient.ParseCSV(mydir + "/Minimal.csv")
 
