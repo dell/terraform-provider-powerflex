@@ -150,8 +150,6 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 
 	resp.Diagnostics.AddError("[Create] Please provide valid Cluster and Storage Pool Details", "Please provide valid valid Cluster and Storage Pool Detail Details")
 
-	return
-
 }
 
 // Read refreshes the Terraform state with the latest data.
@@ -243,7 +241,6 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	resp.Diagnostics.AddError("[Update] Update operation is not available.", "Update operation is not available.")
 
-	return
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
@@ -290,6 +287,14 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 	}
 
 	sdcs, err := system.GetSdc()
+
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error in getting sdc on the PowerFlex cluster",
+			err.Error(),
+		)
+		return
+	}
 
 	for _, sdc := range sdcs {
 		if sdc.MdmConnectionState == "Disconnected" {

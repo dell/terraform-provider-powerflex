@@ -965,8 +965,6 @@ func ClusterInstallationOperations(ctx context.Context, model models.ClusterReso
 						return fmt.Errorf("Error Clearing Queue During Installation is %s", queueOperationError.Error())
 					}
 
-					couterForStopExecution = 10
-
 					return nil
 				}
 
@@ -1041,8 +1039,6 @@ func ClusterUninstallationOperations(ctx context.Context, model models.ClusterRe
 					if queueOperationError != nil {
 						return fmt.Errorf("Error Clearing Queue After Installation is %s", queueOperationError.Error())
 					}
-
-					couterForStopExecution = 10
 
 					return nil
 				}
