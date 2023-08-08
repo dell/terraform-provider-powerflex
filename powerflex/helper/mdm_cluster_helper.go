@@ -86,7 +86,7 @@ func GetStandByMdmValue(ctx context.Context, mdm *goscaleio_types.Mdm, standby [
 	for _, ip := range mdm.ManagementIPs {
 		mgmtIps = append(mgmtIps, types.StringValue(ip))
 	}
-	mgmtIps1, _ := types.SetValue(types.StringType, ips)
+	mgmtIps1, _ := types.SetValue(types.StringType, mgmtIps)
 
 	var asymmetricFlag bool
 

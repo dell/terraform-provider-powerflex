@@ -596,6 +596,7 @@ func (d *mdmClusterResource) Create(ctx context.Context, req resource.CreateRequ
 
 	state, dgs = helper.UpdateMdmClusterState(ctx, mdmDetails, &plan, system.System.PerformanceProfile)
 	diags = append(diags, dgs...)
+	resp.Diagnostics.Append(diags...)
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
@@ -807,13 +808,6 @@ func (d *mdmClusterResource) RenameMdms(ctx context.Context, plan, state models.
 	}
 	return dia
 }
-
-// func CheckforExistingName1(plan, state models.Mdm) bool {
-// 	if plan.Name.ValueString() == state.Name.ValueString() {
-// 		return false
-// 	}
-// 	return true
-// }
 
 // ChangeMdmOwnerShip modifies the primary MDM
 func (d *mdmClusterResource) ChangeMdmOwnerShip(plan, state models.MdmResourceModel) diag.Diagnostics {

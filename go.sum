@@ -30,6 +30,8 @@ github.com/dell/goscaleio v1.11.1-0.20230727060320-633aa39d3bcf h1:zaunh+GCChVZI
 github.com/dell/goscaleio v1.11.1-0.20230727060320-633aa39d3bcf/go.mod h1:dMTrHnXSsPus+Kd9mrs0JuyrCndoKvFP/bbEdc21Bi8=
 github.com/dell/goscaleio v1.11.1-0.20230803104813-cfb8799306a2 h1:MJ7YNqf/GXCxBl/p/0+55/oV1W7QwJSFr6P3wPnb658=
 github.com/dell/goscaleio v1.11.1-0.20230803104813-cfb8799306a2/go.mod h1:dMTrHnXSsPus+Kd9mrs0JuyrCndoKvFP/bbEdc21Bi8=
+github.com/dell/goscaleio v1.11.1-0.20230804051431-657fcb1e35a1 h1:Mqxwnv6+BVkIKqwAny+MY1d9JloA1AsazIFmKxfU6yU=
+github.com/dell/goscaleio v1.11.1-0.20230804051431-657fcb1e35a1/go.mod h1:dMTrHnXSsPus+Kd9mrs0JuyrCndoKvFP/bbEdc21Bi8=
 github.com/emirpasic/gods v1.18.1 h1:FXtiHYKDGKCW2KzwZKx0iC0PQmdlorYgdFG9jPXJ1Bc=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fatih/color v1.13.0 h1:8LOYc1KYPPmyKMuN8QV2DNRWNbLo6LZ0iLs8+mlH53w=
