@@ -1032,12 +1032,12 @@ func ClusterUninstallationOperations(ctx context.Context, model models.ClusterRe
 
 	clusterMapData["securityConfiguration"] = secureData
 
-	clusterJsonData, jsonParseError := json.Marshal(clusterMapData)
+	clusterJSONData, jsonParseError := json.Marshal(clusterMapData)
 	if jsonParseError != nil {
 		return fmt.Errorf("Error while begin uninstallation is %s", jsonParseError.Error())
 	}
 
-	beginUninstallationResponse, uninstallationError := gatewayClient.UninstallCluster(string(clusterJsonData), "admin", model.MdmPassword.ValueString(), model.LiaPassword.ValueString(), model.AllowNonSecureCommunicationWithMdm.ValueBool(), model.AllowNonSecureCommunicationWithLia.ValueBool(), model.DisableNonMgmtComponentsAuth.ValueBool(), false)
+	beginUninstallationResponse, uninstallationError := gatewayClient.UninstallCluster(string(clusterJSONData), "admin", model.MdmPassword.ValueString(), model.LiaPassword.ValueString(), model.AllowNonSecureCommunicationWithMdm.ValueBool(), model.AllowNonSecureCommunicationWithLia.ValueBool(), model.DisableNonMgmtComponentsAuth.ValueBool(), false)
 
 	if uninstallationError != nil {
 		return fmt.Errorf("Error while begin uninstallation is %s", uninstallationError.Error())
