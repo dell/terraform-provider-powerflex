@@ -275,7 +275,7 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 		)
 		return
 	}
-	
+
 	clusteDetailResponse, error := helper.GetClusterDetails(state, r.gatewayClient, mdmIP, true)
 	if error != nil {
 		resp.Diagnostics.AddError(
