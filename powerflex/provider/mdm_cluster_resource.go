@@ -148,6 +148,10 @@ var MdmClusterResourceSchema schema.Schema = schema.Schema{
 					ElementType:         types.StringType,
 					Optional:            true,
 					Computed:            true,
+					Validators: []validator.Set{
+						setvalidator.SizeBetween(1, 4),
+						setvalidator.ValueStringsAre(stringvalidator.LengthBetween(7, 15)),
+					},
 				},
 				"management_ips": schema.SetAttribute{
 					Description:         "The management ips of the primary MDM.",
@@ -205,6 +209,10 @@ var MdmClusterResourceSchema schema.Schema = schema.Schema{
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
+						Validators: []validator.Set{
+							setvalidator.SizeBetween(1, 4),
+							setvalidator.ValueStringsAre(stringvalidator.LengthBetween(7, 15)),
+						},
 					},
 					"management_ips": schema.SetAttribute{
 						Description:         "The management ips of the secondary MDM.",
@@ -268,6 +276,10 @@ var MdmClusterResourceSchema schema.Schema = schema.Schema{
 						Computed:            true,
 						PlanModifiers: []planmodifier.Set{
 							setplanmodifier.UseStateForUnknown(),
+						},
+						Validators: []validator.Set{
+							setvalidator.SizeBetween(1, 4),
+							setvalidator.ValueStringsAre(stringvalidator.LengthBetween(7, 15)),
 						},
 					},
 					"management_ips": schema.SetAttribute{
