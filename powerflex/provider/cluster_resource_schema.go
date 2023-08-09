@@ -610,9 +610,9 @@ func ClusterSDCModelSchema() map[string]schema.Attribute {
 			Computed:            true,
 		},
 
-		"gui_id": schema.StringAttribute{
-			MarkdownDescription: "GUIID",
-			Description:         "GUIID",
+		"guid": schema.StringAttribute{
+			MarkdownDescription: "GUID",
+			Description:         "GUID",
 			Computed:            true,
 		},
 

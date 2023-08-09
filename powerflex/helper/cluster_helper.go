@@ -91,10 +91,10 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 		}
 
 		sdcData := models.SDCModel{
-			ID:    types.StringValue(id),
-			GUIID: types.StringValue(sdc.GUID),
-			Name:  types.StringValue(sdc.SdcName),
-			IP:    types.StringValue(strings.Join(sdc.Node.NodeIPs, ",")),
+			ID:   types.StringValue(id),
+			GUID: types.StringValue(sdc.GUID),
+			Name: types.StringValue(sdc.SdcName),
+			IP:   types.StringValue(strings.Join(sdc.Node.NodeIPs, ",")),
 		}
 		sdcDataList = append(sdcDataList, sdcData)
 	}
@@ -550,20 +550,20 @@ func GetSDSValue(sds models.SDSModel) (basetypes.ObjectValue, diag.Diagnostics) 
 // GetSDCType returns the SDC Detail type
 func GetSDCType() map[string]attr.Type {
 	return map[string]attr.Type{
-		"id":     types.StringType,
-		"ip":     types.StringType,
-		"name":   types.StringType,
-		"gui_id": types.StringType,
+		"id":   types.StringType,
+		"ip":   types.StringType,
+		"name": types.StringType,
+		"guid": types.StringType,
 	}
 }
 
 // GetSDCValue returns the SDC Detail model object value
 func GetSDCValue(sds models.SDCModel) (basetypes.ObjectValue, diag.Diagnostics) {
 	return types.ObjectValue(GetSDCType(), map[string]attr.Value{
-		"id":     types.StringValue(sds.ID.ValueString()),
-		"ip":     types.StringValue(sds.IP.ValueString()),
-		"name":   types.StringValue(sds.Name.ValueString()),
-		"gui_id": types.StringValue(sds.GUIID.ValueString()),
+		"id":   types.StringValue(sds.ID.ValueString()),
+		"ip":   types.StringValue(sds.IP.ValueString()),
+		"name": types.StringValue(sds.Name.ValueString()),
+		"guid": types.StringValue(sds.GUID.ValueString()),
 	})
 }
 

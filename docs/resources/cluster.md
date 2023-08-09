@@ -243,7 +243,7 @@ Read-Only:
 
 Read-Only:
 
-- `gui_id` (String) GUIID
+- `guid` (String) GUID
 - `id` (String) ID
 - `ip` (String) SDC Node IP
 - `name` (String) Name

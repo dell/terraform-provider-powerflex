@@ -126,10 +126,10 @@ type DeviceDataModel struct {
 
 // SDCModel desfines the srtuct for the SDC Data
 type SDCModel struct {
-	ID    types.String `tfsdk:"id"`
-	GUIID types.String `tfsdk:"gui_id"`
-	Name  types.String `tfsdk:"name"`
-	IP    types.String `tfsdk:"ip"`
+	ID   types.String `tfsdk:"id"`
+	GUID types.String `tfsdk:"guid"`
+	Name types.String `tfsdk:"name"`
+	IP   types.String `tfsdk:"ip"`
 }
 
 // SDRModel desfines the srtuct for the SDR Data
