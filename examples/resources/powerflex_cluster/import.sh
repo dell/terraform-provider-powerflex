@@ -4,5 +4,5 @@
 # Example :
 # resource "powerflex_cluster" "resource_block_name" {
 # }
-# Step 4 - execute the command : terraform init && terraform import "powerflex_cluster.resource_block_name" "id_of_the_sdc" (resource_block_name must be taken from step 3 and id must be taken from step 2)
-# Step 5 - After successful execution of the command , check the state file
+# Step 3 - execute the command : terraform init && terraform import "powerflex_cluster.resource_block_name" "MDM_IP,MDM_Password,LIA_Password" (resource_block_name must be taken from 2)
+# Step 4 - After successful execution of the command , check the state file
