@@ -1002,7 +1002,42 @@ func ClusterInstallationOperations(ctx context.Context, model models.ClusterReso
 // ClusterUninstallationOperations function for begin uninstllation process
 func ClusterUninstallationOperations(ctx context.Context, model models.ClusterResourceModel, gatewayClient *goscaleio.GatewayClient, parsecsvRespose *goscaleio_types.GatewayResponse) error {
 
-	beginUninstallationResponse, uninstallationError := gatewayClient.UninstallCluster(parsecsvRespose.Data, "admin", model.MdmPassword.ValueString(), model.LiaPassword.ValueString(), model.AllowNonSecureCommunicationWithMdm.ValueBool(), model.AllowNonSecureCommunicationWithLia.ValueBool(), model.DisableNonMgmtComponentsAuth.ValueBool(), false)
+	clusterMapData, jsonParseError := jsonToMap(parsecsvRespose.Data)
+	if jsonParseError != nil {
+		return fmt.Errorf("Error while begin uninstallation is %s", jsonParseError.Error())
+	}
+
+	sdcResData := clusterMapData["sdcList"].([]interface{})
+
+	if len(sdcResData) > 0 {
+		var sdcFinalData []interface{}
+
+		for _, sdcNode := range sdcResData {
+			sdcNode := sdcNode.(map[string]interface{})
+			node := sdcNode["node"].(map[string]interface{})
+			nodeIPs := node["nodeIPs"].([]interface{})
+			if nodeIPs[0].(string) != "N/A" {
+				sdcFinalData = append(sdcFinalData, sdcNode)
+			}
+		}
+
+		clusterMapData["sdcList"] = sdcFinalData
+	}
+
+	secureData := map[string]interface{}{
+		"allowNonSecureCommunicationWithMdm": model.AllowNonSecureCommunicationWithMdm,
+		"allowNonSecureCommunicationWithLia": model.AllowNonSecureCommunicationWithLia,
+		"disableNonMgmtComponentsAuth":       model.DisableNonMgmtComponentsAuth,
+	}
+
+	clusterMapData["securityConfiguration"] = secureData
+
+	clusterJsonData, jsonParseError := json.Marshal(clusterMapData)
+	if jsonParseError != nil {
+		return fmt.Errorf("Error while begin uninstallation is %s", jsonParseError.Error())
+	}
+
+	beginUninstallationResponse, uninstallationError := gatewayClient.UninstallCluster(string(clusterJsonData), "admin", model.MdmPassword.ValueString(), model.LiaPassword.ValueString(), model.AllowNonSecureCommunicationWithMdm.ValueBool(), model.AllowNonSecureCommunicationWithLia.ValueBool(), model.DisableNonMgmtComponentsAuth.ValueBool(), false)
 
 	if uninstallationError != nil {
 		return fmt.Errorf("Error while begin uninstallation is %s", uninstallationError.Error())
@@ -1127,4 +1162,14 @@ func boolToYesNo(b bool) string {
 		return "Yes"
 	}
 	return "No"
+}
+
+// jsonToMap used for convert json to map
+func jsonToMap(jsonStr string) (map[string]interface{}, error) {
+	result := make(map[string]interface{})
+	err := json.Unmarshal([]byte(jsonStr), &result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

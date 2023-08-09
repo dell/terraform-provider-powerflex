@@ -275,41 +275,7 @@ func (r *clusterResource) Delete(ctx context.Context, req resource.DeleteRequest
 		)
 		return
 	}
-
-	system, err := helper.GetFirstSystem(r.client)
-
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error in getting system instance on the PowerFlex cluster",
-			err.Error(),
-		)
-		return
-	}
-
-	sdcs, err := system.GetSdc()
-
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error in getting sdc on the PowerFlex cluster",
-			err.Error(),
-		)
-		return
-	}
-
-	for _, sdc := range sdcs {
-		if sdc.MdmConnectionState == "Disconnected" {
-			err := system.DeleteSdc(sdc.ID)
-
-			if err != nil {
-				resp.Diagnostics.AddError(
-					"[Delete] Unable to Delete SDC by ID:"+sdc.ID,
-					err.Error(),
-				)
-				return
-			}
-		}
-	}
-
+	
 	clusteDetailResponse, error := helper.GetClusterDetails(state, r.gatewayClient, mdmIP, true)
 	if error != nil {
 		resp.Diagnostics.AddError(

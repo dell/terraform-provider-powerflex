@@ -110,7 +110,7 @@ func TestAccClusterResourceValidation(t *testing.T) {
 			},
 			//Create
 			{
-				Config:      ProviderConfigForTesting + ClusterConfig1,
+				Config:      ProviderConfigForTesting + ClusterValidationConfig6,
 				ExpectError: regexp.MustCompile(`.*Error During Installation*`),
 			},
 			//Import
@@ -120,6 +120,14 @@ func TestAccClusterResourceValidation(t *testing.T) {
 				ImportStateId: "1.1.1.1,Password",
 				ResourceName:  "powerflex_cluster.test",
 				ExpectError:   regexp.MustCompile(`.*Please provide valid Input Details*`),
+			},
+			//Import
+			{
+				Config:        ProviderConfigForTesting + importClusterTest,
+				ImportState:   true,
+				ImportStateId: "1.1.1.1,Password,Password",
+				ResourceName:  "powerflex_cluster.test",
+				ExpectError:   regexp.MustCompile(`.*Error Getting Cluster Details*`),
 			},
 		},
 	})
@@ -133,6 +141,71 @@ resource "powerflex_cluster" "test"  {
 
 var ClusterConfig1 = `
 resource "powerflex_cluster" "test" {
+
+	depends_on = [
+		powerflex_package.upload-test
+	]
+
+	mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
+	lia_password= "` + GatewayDataPoints.liaPassword + `"
+	allow_non_secure_communication_with_lia= true
+	allow_non_secure_communication_with_mdm= true
+	disable_non_mgmt_components_auth= false
+	cluster = [
+	{
+		ips= "` + GatewayDataPoints.clusterPrimaryIP + `",
+		username= "root",
+		password = "` + GatewayDataPoints.serverPassword + `"
+		operating_system= "linux",
+		is_mdm_or_tb= "primary",
+		is_sds= "yes",
+		sds_name= "sds1",
+		is_sdc= "yes",
+		sdc_name= "sdc1",
+		perf_profile_for_sdc= "HighPerformance",
+		ia_rfcache= "No",
+		is_sdr= "No",
+		sdr_all_ips = ""
+	 },
+	 {
+		ips= "` + GatewayDataPoints.clusterSecondaryIP + `",
+		username= "root",
+		password = "` + GatewayDataPoints.serverPassword + `"
+		operating_system= "linux",
+		is_mdm_or_tb= "Secondary",
+		is_sds= "yes",
+		sds_name= "sds2",
+		is_sdc= "yes",
+		sdc_name= "sdc2",
+		perf_profile_for_sdc= "compact",
+		ia_rfcache= "No",
+		is_sdr= "No",
+	 },
+	 {
+		ips= "` + GatewayDataPoints.clusterTBIP + `",
+		username= "root",
+		password = "` + GatewayDataPoints.serverPassword + `"
+		operating_system= "linux",
+		is_mdm_or_tb= "TB",
+		is_sds= "No",
+		is_sdc= "yes",
+		sdc_name= "sdc3",
+		perf_profile_for_sdc= "compact",
+		ia_rfcache= "No",
+		is_sdr= "No",
+	 },
+	]
+	storage_pools = [
+		{
+			media_type = "HDD"
+		}	
+	]
+}
+`
+
+var ClusterValidationConfig6 = `
+resource "powerflex_cluster" "test" {
+
 	mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
 	lia_password= "` + GatewayDataPoints.liaPassword + `"
 	allow_non_secure_communication_with_lia= true
