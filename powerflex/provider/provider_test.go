@@ -53,13 +53,16 @@ type sdsDataPoints struct {
 }
 
 type gatewayDataPoints struct {
-	primaryMDMIP   string
-	secondaryMDMIP string
-	tbIP           string
-	serverPassword string
-	mdmPassword    string
-	liaPassword    string
-	sdcServerIP    string
+	primaryMDMIP       string
+	secondaryMDMIP     string
+	tbIP               string
+	serverPassword     string
+	mdmPassword        string
+	liaPassword        string
+	sdcServerIP        string
+	clusterPrimaryIP   string
+	clusterSecondaryIP string
+	clusterTBIP        string
 }
 
 type mdmDataPoints struct {
@@ -121,6 +124,9 @@ func getNewGatewayDataPointForTest() gatewayDataPoints {
 	GatewayDataPoints.serverPassword = os.Getenv("POWERFLEX_SERVER_PASSWORD")
 	GatewayDataPoints.mdmPassword = os.Getenv("POWERFLEX_MDM_PASSWORD")
 	GatewayDataPoints.liaPassword = os.Getenv("POWERFLEX_LIA_PASSWORD")
+	GatewayDataPoints.clusterPrimaryIP = os.Getenv("POWERFLEX_CLUSTER_IP_1")
+	GatewayDataPoints.clusterSecondaryIP = os.Getenv("POWERFLEX_CLUSTER_IP_2")
+	GatewayDataPoints.clusterTBIP = os.Getenv("POWERFLEX_CLUSTER_IP_3")
 
 	return GatewayDataPoints
 }

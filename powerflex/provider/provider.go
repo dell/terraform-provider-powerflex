@@ -293,5 +293,6 @@ func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resou
 		NewPackageResource,
 		NewMdmClusterResource,
 		UserResource,
+		NewClusterResource,
 	}
 }
