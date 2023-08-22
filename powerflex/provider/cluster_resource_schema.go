@@ -58,7 +58,7 @@ func ClusterResourceModelSchema() map[string]schema.Attribute {
 		"storage_pools": schema.ListNestedAttribute{
 			MarkdownDescription: "Storage Pool Details",
 			Description:         "Storage Pool Details",
-			Required:            true,
+			Optional:            true,
 			NestedObject:        schema.NestedAttributeObject{Attributes: StoragePoolModelSchema()},
 			Validators: []validator.List{
 				listvalidator.SizeAtLeast(1),
@@ -155,19 +155,26 @@ func ClusterModelSchema() map[string]schema.Attribute {
 		"password": schema.StringAttribute{
 			MarkdownDescription: "Password used to log in to the node.",
 			Description:         "Password used to log in to the node.",
-			Optional:            true,
+			Required:            true,
+			Sensitive:           true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"operating_system": schema.StringAttribute{
 			MarkdownDescription: "Operating System",
 			Description:         "Operating System",
-			Optional:            true,
+			Required:            true,
+			PlanModifiers: []planmodifier.String{
+				helper.StringDefault("linux"),
+			},
 		},
 
 		"is_mdm_or_tb": schema.StringAttribute{
 			MarkdownDescription: "Is Mdm Or Tb",
 			Description:         "Is Mdm Or Tb",
-			Optional:            true,
+			Required:            true,
 		},
 
 		"mdm_ips": schema.StringAttribute{
@@ -186,6 +193,10 @@ func ClusterModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "MDMName",
 			Description:         "MDMName",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.LengthAtMost(31),
+			},
 		},
 
 		"perf_profile_for_mdm": schema.StringAttribute{
@@ -228,6 +239,10 @@ func ClusterModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "SDS Name",
 			Description:         "SDS Name",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.LengthAtMost(31),
+			},
 		},
 
 		"sds_all_ips": schema.StringAttribute{
@@ -316,6 +331,10 @@ func ClusterModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "SDC Name",
 			Description:         "SDC Name",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.LengthAtMost(31),
+			},
 		},
 
 		"is_rfcache": schema.StringAttribute{
@@ -356,6 +375,10 @@ func ClusterModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "SDR Name",
 			Description:         "SDR Name",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.LengthAtMost(31),
+			},
 		},
 
 		"sdr_port": schema.StringAttribute{
@@ -407,12 +430,20 @@ func StoragePoolModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Protection Domain",
 			Description:         "Protection Domain",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.LengthAtMost(31),
+			},
 		},
 
 		"storage_pool": schema.StringAttribute{
 			MarkdownDescription: "Storage Pool",
 			Description:         "Storage Pool",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.LengthAtMost(31),
+			},
 		},
 
 		"media_type": schema.StringAttribute{

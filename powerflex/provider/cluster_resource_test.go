@@ -146,33 +146,39 @@ resource "powerflex_cluster" "test" {
 		powerflex_package.upload-test
 	]
 
-	mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
-	lia_password= "` + GatewayDataPoints.liaPassword + `"
+	mdm_password =  "Password123"
+	lia_password= "Password123"
 	allow_non_secure_communication_with_lia= true
 	allow_non_secure_communication_with_mdm= true
 	disable_non_mgmt_components_auth= false
 	cluster = [
 	{
-		ips= "` + GatewayDataPoints.clusterPrimaryIP + `",
+		ips= "10.247.103.161",
 		username= "root",
-		password = "` + GatewayDataPoints.serverPassword + `"
+		password= "dangerous",
 		operating_system= "linux",
 		is_mdm_or_tb= "primary",
 		is_sds= "yes",
 		sds_name= "sds1",
 		is_sdc= "yes",
 		sdc_name= "sdc1",
+		protection_domain = "domain_1"
+		sds_storage_device_list = "/dev/sdb"
+		storage_pool_list = "pool1"
 		perf_profile_for_sdc= "HighPerformance",
 		ia_rfcache= "No",
 		is_sdr= "No",
 		sdr_all_ips = ""
 	 },
 	 {
-		ips= "` + GatewayDataPoints.clusterSecondaryIP + `",
+		ips= "10.247.103.162",
 		username= "root",
-		password = "` + GatewayDataPoints.serverPassword + `"
+		password= "dangerous",
 		operating_system= "linux",
 		is_mdm_or_tb= "Secondary",
+		protection_domain = "domain_1"
+		sds_storage_device_list = "/dev/sdb"
+		storage_pool_list = "pool1"
 		is_sds= "yes",
 		sds_name= "sds2",
 		is_sdc= "yes",
@@ -182,12 +188,16 @@ resource "powerflex_cluster" "test" {
 		is_sdr= "No",
 	 },
 	 {
-		ips= "` + GatewayDataPoints.clusterTBIP + `",
+		ips= "10.247.103.160",
 		username= "root",
-		password = "` + GatewayDataPoints.serverPassword + `"
+		password= "dangerous",
 		operating_system= "linux",
 		is_mdm_or_tb= "TB",
-		is_sds= "No",
+		is_sds= "yes",
+		protection_domain = "domain_1"
+		sds_storage_device_list = "/dev/sdb"
+		storage_pool_list = "pool1"
+		sds_name= "sds3",
 		is_sdc= "yes",
 		sdc_name= "sdc3",
 		perf_profile_for_sdc= "compact",
@@ -198,6 +208,9 @@ resource "powerflex_cluster" "test" {
 	storage_pools = [
 		{
 			media_type = "HDD"
+			protection_domain = "domain_1"
+			storage_pool = "pool1"
+			replication_journal_capacity_percentage = "50"
 		}	
 	]
 }

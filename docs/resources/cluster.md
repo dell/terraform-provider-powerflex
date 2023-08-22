@@ -126,7 +126,6 @@ resource "powerflex_cluster" "test" {
 - `cluster` (Attributes List) Cluster Installation Details (see [below for nested schema](#nestedatt--cluster))
 - `lia_password` (String) Lia Password
 - `mdm_password` (String) MDM Password
-- `storage_pools` (Attributes List) Storage Pool Details (see [below for nested schema](#nestedatt--storage_pools))
 
 ### Optional
 
@@ -134,6 +133,7 @@ resource "powerflex_cluster" "test" {
 - `allow_non_secure_communication_with_mdm` (Boolean) Allow Non Secure Communication With MDM
 - `disable_non_mgmt_components_auth` (Boolean) Disable Non Mgmt Components Auth
 - `id` (String) ID
+- `storage_pools` (Attributes List) Storage Pool Details (see [below for nested schema](#nestedatt--storage_pools))
 
 ### Read-Only
 
@@ -146,11 +146,16 @@ resource "powerflex_cluster" "test" {
 <a id="nestedatt--cluster"></a>
 ### Nested Schema for `cluster`
 
+Required:
+
+- `is_mdm_or_tb` (String) Is Mdm Or Tb
+- `operating_system` (String) Operating System
+- `password` (String, Sensitive) Password used to log in to the node.
+
 Optional:
 
 - `fault_set` (String) Fault Set
 - `ips` (String) IP address to be used for multiple purposes. Use this field to designate one IP address that will be assigned to all of the following: MDM IP, MDM Mgmt IP and SDS All IP. This option is provided for use cases where separate networks for data and management are not required.
-- `is_mdm_or_tb` (String) Is Mdm Or Tb
 - `is_rfcache` (String) Is RFCache. The acceptable values are `Yes` and `No`. Default value is `No`.
 - `is_sdc` (String) Is Sdc. The acceptable values are `Yes` and `No`. Default value is `No`.
 - `is_sdr` (String) Is SDR. The acceptable values are `Yes` and `No`. Default value is `No`.
@@ -158,8 +163,6 @@ Optional:
 - `mdm_ips` (String) MDM IP addresses used to communicate with other PowerFlex components in the storage network. This is required for all MDMs, Tiebreakers and Standbys.Leave this field blank for hosts that are not part of the MDM cluster.
 - `mdm_mgmt_ip` (String) The IP address for the management-only network.The management IP address is not required for: Tiebreaker, Standby Tiebreaker, and any host that is not an MDM. In such cases, leave this field blank.
 - `mdm_name` (String) MDMName
-- `operating_system` (String) Operating System
-- `password` (String) Password used to log in to the node.
 - `perf_profile_for_mdm` (String) Performance Profile For MDM
 - `perf_profile_for_sdc` (String) Performance Profile For SDC
 - `perf_profile_for_sdr` (String) Performance Profile For SDR

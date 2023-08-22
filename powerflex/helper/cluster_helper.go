@@ -697,81 +697,84 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 		}
 	}
 
-	// Add a new line with commas
-	err = writer.Write([]string{strings.Repeat(",", len(filteredHeader))})
-	if err != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
-	}
-
-	// Add a blank line after writing each data row
-	err = writer.Write([]string{"Storage Pool Configuration", strings.Repeat(",", len(filteredHeader)-1)})
-	if err != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
-	}
-
-	// Write the Storage Pool header row
-	headerForStorage := []string{"ProtectionDomain", "StoragePool", "Media Type", "External Acceleration", "Data Layout", "Zero Padding", "Compression Method", "Replication journal capacity percentage"}
-	var storageHeaderIndicesToWrite []int
-
-	for i := range headerForStorage {
-		storageHeaderIndicesToWrite = append(storageHeaderIndicesToWrite, i)
-	}
-
-	// Create a slice to hold the filtered header with non-empty values
-	var filteredStorageHeader []string
-
-	for _, item := range storagePoolDataModel {
-
-		data := []string{
-			item.ProtectionDomain.ValueString(),
-			item.StoragePool.ValueString(),
-			item.MediaType.ValueString(),
-			item.ExternalAcceleration.ValueString(),
-			item.DataLayout.ValueString(),
-			item.ZeroPadding.ValueString(),
-			item.CompressionMethod.ValueString(),
-			item.ReplicationJournalCapacityPercentage.ValueString(),
-		}
-
-		// Check which columns have non-empty values in the current row
-		var columnsWithValues []int
-		for i, value := range data {
-			if value != "" {
-				columnsWithValues = append(columnsWithValues, i)
-				// Add the corresponding header to the filteredStorageHeader
-				filteredStorageHeader = append(filteredStorageHeader, headerForStorage[i])
-			}
-		}
-
-		// Update the header indices to write based on the current row's non-empty columns
-		storageHeaderIndicesToWrite = intersect(storageHeaderIndicesToWrite, columnsWithValues)
-	}
-	// Remove duplicates from the filteredStorageHeader
-	filteredStorageHeader = removeDuplicates(filteredStorageHeader)
-
-	err = writer.Write(append(filteredStorageHeader, strings.Repeat(",", len(filteredHeader)-len(filteredStorageHeader))))
-	if err != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Writing Temp CSV is %s", err.Error())
-	}
-
-	// Write the values for each data row according to the filtered headers
-	for _, item := range storagePoolDataModel {
-		var data []string
-		for _, header := range filteredStorageHeader {
-			data = append(data, getFieldFromStorage(item, header))
-		}
-
-		data = append(data, strings.Repeat(",", len(filteredHeader)-len(filteredStorageHeader)))
-
-		err = writer.Write(data)
+	//checking if storage_pool data is available than only write data for that.
+	if len(storagePoolDataModel) > 0 {
+		// Add a new line with commas
+		err = writer.Write([]string{strings.Repeat(",", len(filteredHeader))})
 		if err != nil {
 			return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
 		}
-	}
 
-	err = writer.Flush()
-	if err != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
+		// Add a blank line after writing each data row
+		err = writer.Write([]string{"Storage Pool Configuration", strings.Repeat(",", len(filteredHeader)-1)})
+		if err != nil {
+			return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
+		}
+
+		// Write the Storage Pool header row
+		headerForStorage := []string{"ProtectionDomain", "StoragePool", "Media Type", "External Acceleration", "Data Layout", "Zero Padding", "Compression Method", "Replication journal capacity percentage"}
+		var storageHeaderIndicesToWrite []int
+
+		for i := range headerForStorage {
+			storageHeaderIndicesToWrite = append(storageHeaderIndicesToWrite, i)
+		}
+
+		// Create a slice to hold the filtered header with non-empty values
+		var filteredStorageHeader []string
+
+		for _, item := range storagePoolDataModel {
+
+			data := []string{
+				item.ProtectionDomain.ValueString(),
+				item.StoragePool.ValueString(),
+				item.MediaType.ValueString(),
+				item.ExternalAcceleration.ValueString(),
+				item.DataLayout.ValueString(),
+				item.ZeroPadding.ValueString(),
+				item.CompressionMethod.ValueString(),
+				item.ReplicationJournalCapacityPercentage.ValueString(),
+			}
+
+			// Check which columns have non-empty values in the current row
+			var columnsWithValues []int
+			for i, value := range data {
+				if value != "" {
+					columnsWithValues = append(columnsWithValues, i)
+					// Add the corresponding header to the filteredStorageHeader
+					filteredStorageHeader = append(filteredStorageHeader, headerForStorage[i])
+				}
+			}
+
+			// Update the header indices to write based on the current row's non-empty columns
+			storageHeaderIndicesToWrite = intersect(storageHeaderIndicesToWrite, columnsWithValues)
+		}
+		// Remove duplicates from the filteredStorageHeader
+		filteredStorageHeader = removeDuplicates(filteredStorageHeader)
+
+		err = writer.Write(append(filteredStorageHeader, strings.Repeat(",", len(filteredHeader)-len(filteredStorageHeader))))
+		if err != nil {
+			return &parseCSVResponse, fmt.Errorf("Error While Writing Temp CSV is %s", err.Error())
+		}
+
+		// Write the values for each data row according to the filtered headers
+		for _, item := range storagePoolDataModel {
+			var data []string
+			for _, header := range filteredStorageHeader {
+				data = append(data, getFieldFromStorage(item, header))
+			}
+
+			data = append(data, strings.Repeat(",", len(filteredHeader)-len(filteredStorageHeader)))
+
+			err = writer.Write(data)
+			if err != nil {
+				return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
+			}
+		}
+
+		err = writer.Flush()
+		if err != nil {
+			return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
+		}
 	}
 
 	parsecsvRespose, parseCSVError := gatewayClient.ParseCSV(mydir + "/Minimal.csv")
