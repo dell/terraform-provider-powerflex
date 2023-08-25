@@ -267,6 +267,10 @@ func ClusterModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Protection Domain",
 			Description:         "Protection Domain",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.LengthAtMost(31),
+			},
 		},
 
 		"fault_set": schema.StringAttribute{
