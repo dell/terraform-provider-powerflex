@@ -191,12 +191,15 @@ Optional:
 <a id="nestedatt--storage_pools"></a>
 ### Nested Schema for `storage_pools`
 
+Required:
+
+- `media_type` (String) Media Type
+
 Optional:
 
 - `compression_method` (String) Compression Method
 - `data_layout` (String) Data Layout
 - `extern_alacceleration` (String) External Acceleration
-- `media_type` (String) Media Type
 - `protection_domain` (String) Protection Domain
 - `replication_journal_capacity_percentage` (String) Replication Journal Capacity Percentage
 - `storage_pool` (String) Storage Pool
@@ -215,6 +218,7 @@ Read-Only:
 - `mode` (String) Mode
 - `name` (String) Name
 - `role` (String) Role
+- `virtual_ip` (String) Virtual IP
 - `virtual_ip_nic` (String) Virtual IPNIC
 
 

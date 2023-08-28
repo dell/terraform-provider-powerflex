@@ -97,6 +97,7 @@ type MDMModel struct {
 	IP           types.String `tfsdk:"ip"`
 	MDMIP        types.String `tfsdk:"mdm_ip"`
 	MGMTIP       types.String `tfsdk:"mgmt_ip"`
+	VirtualIP    types.String `tfsdk:"virtual_ip"`
 	VirtualIPNIC types.String `tfsdk:"virtual_ip_nic"`
 	Role         types.String `tfsdk:"role"`
 	Mode         types.String `tfsdk:"mode"`

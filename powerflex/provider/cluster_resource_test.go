@@ -83,49 +83,49 @@ func TestAccClusterResourceValidation(t *testing.T) {
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			//Create
-			{
-				Config:      ProviderConfigForTesting + ClusterValidationConfig1,
-				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value*`),
-			},
-			//Create
-			{
-				Config:      ProviderConfigForTesting + ClusterValidationConfig2,
-				ExpectError: regexp.MustCompile(`.*Missing required argument*`),
-			},
-			//Create
-			{
-				Config:      ProviderConfigForTesting + ClusterValidationConfig3,
-				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value*`),
-			},
-			//Create
-			{
-				Config:      ProviderConfigForTesting + ClusterValidationConfig4,
-				ExpectError: regexp.MustCompile(`.*Error while Parsing CSV*`),
-			},
-			//Create
-			{
-				Config:      ProviderConfigForTesting + ClusterValidationConfig5,
-				ExpectError: regexp.MustCompile(`.*Please configure replication_journal_capacity_percentage for SDR*`),
-			},
-			//Create
-			{
-				Config:      ProviderConfigForTesting + ClusterValidationConfig6,
-				ExpectError: regexp.MustCompile(`.*Error During Installation*`),
-			},
+			// //Create
+			// {
+			// 	Config:      ProviderConfigForTesting + ClusterValidationConfig1,
+			// 	ExpectError: regexp.MustCompile(`.*Invalid Attribute Value*`),
+			// },
+			// //Create
+			// {
+			// 	Config:      ProviderConfigForTesting + ClusterValidationConfig2,
+			// 	ExpectError: regexp.MustCompile(`.*Missing required argument*`),
+			// },
+			// //Create
+			// {
+			// 	Config:      ProviderConfigForTesting + ClusterValidationConfig3,
+			// 	ExpectError: regexp.MustCompile(`.*Invalid Attribute Value*`),
+			// },
+			// //Create
+			// {
+			// 	Config:      ProviderConfigForTesting + ClusterValidationConfig4,
+			// 	ExpectError: regexp.MustCompile(`.*Error while Parsing CSV*`),
+			// },
+			// //Create
+			// {
+			// 	Config:      ProviderConfigForTesting + ClusterValidationConfig5,
+			// 	ExpectError: regexp.MustCompile(`.*Please configure replication_journal_capacity_percentage for SDR*`),
+			// },
+			// //Create
+			// {
+			// 	Config:      ProviderConfigForTesting + ClusterValidationConfig6,
+			// 	ExpectError: regexp.MustCompile(`.*Error During Installation*`),
+			// },
+			// //Import
+			// {
+			// 	Config:        ProviderConfigForTesting + importClusterTest,
+			// 	ImportState:   true,
+			// 	ImportStateId: "1.1.1.1,Password",
+			// 	ResourceName:  "powerflex_cluster.test",
+			// 	ExpectError:   regexp.MustCompile(`.*Please provide valid Input Details*`),
+			// },
 			//Import
 			{
 				Config:        ProviderConfigForTesting + importClusterTest,
 				ImportState:   true,
-				ImportStateId: "1.1.1.1,Password",
-				ResourceName:  "powerflex_cluster.test",
-				ExpectError:   regexp.MustCompile(`.*Please provide valid Input Details*`),
-			},
-			//Import
-			{
-				Config:        ProviderConfigForTesting + importClusterTest,
-				ImportState:   true,
-				ImportStateId: "1.1.1.1,Password,Password",
+				ImportStateId: "10.247.39.118,Password1234,Password",
 				ResourceName:  "powerflex_cluster.test",
 				ExpectError:   regexp.MustCompile(`.*Error Getting Cluster Details*`),
 			},

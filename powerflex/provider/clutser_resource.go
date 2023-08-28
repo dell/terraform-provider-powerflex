@@ -198,6 +198,9 @@ func (r *clusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 			state.AllowNonSecureCommunicationWithLia = types.BoolValue(true)
 
 			data, diags := helper.UpdateClusterState(state, r.gatewayClient, mdmIP)
+			if resp.Diagnostics.HasError() {
+				return
+			}
 			resp.Diagnostics.Append(diags...)
 
 			diags = resp.State.Set(ctx, data)

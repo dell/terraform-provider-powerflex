@@ -296,6 +296,10 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 			Mode:         types.StringValue(string("Secondary")),
 		}
 
+		if len(clusteDetailResponse.ClusterDetails.VirtualIPs) > 0 {
+			mdmData.VirtualIP = types.StringValue(strings.Join(clusteDetailResponse.ClusterDetails.VirtualIPs, ","))
+		}
+
 		mdmList = append(mdmList, mdmData)
 	}
 
@@ -374,12 +378,17 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 	}
 
 	mdmData := models.MDMModel{
-		ID:    types.StringValue(id),
-		Name:  types.StringValue(mastMDM.Name),
-		IP:    types.StringValue(strings.Join(mastMDM.Node.NodeIPs, ",")),
-		MDMIP: types.StringValue(strings.Join(mastMDM.MdmIPs, ",")),
-		Role:  types.StringValue(string("Manager")),
-		Mode:  types.StringValue(string("Primary")),
+		ID:           types.StringValue(id),
+		Name:         types.StringValue(mastMDM.Name),
+		IP:           types.StringValue(strings.Join(mastMDM.Node.NodeIPs, ",")),
+		MDMIP:        types.StringValue(strings.Join(mastMDM.MdmIPs, ",")),
+		VirtualIPNIC: types.StringValue(strings.Join(mastMDM.VirtIPIntfsList, ",")),
+		Role:         types.StringValue(string("Manager")),
+		Mode:         types.StringValue(string("Primary")),
+	}
+
+	if len(clusteDetailResponse.ClusterDetails.VirtualIPs) > 0 {
+		mdmData.VirtualIP = types.StringValue(strings.Join(clusteDetailResponse.ClusterDetails.VirtualIPs, ","))
 	}
 
 	mdmList = append(mdmList, mdmData)
@@ -447,6 +456,7 @@ func GetMDMType() map[string]attr.Type {
 		"name":           types.StringType,
 		"mdm_ip":         types.StringType,
 		"mgmt_ip":        types.StringType,
+		"virtual_ip":     types.StringType,
 		"virtual_ip_nic": types.StringType,
 		"role":           types.StringType,
 		"mode":           types.StringType,
@@ -461,6 +471,7 @@ func GetMDMValue(mdm models.MDMModel) (basetypes.ObjectValue, diag.Diagnostics) 
 		"name":           types.StringValue(mdm.Name.ValueString()),
 		"mdm_ip":         types.StringValue(mdm.MDMIP.ValueString()),
 		"mgmt_ip":        types.StringValue(mdm.MGMTIP.ValueString()),
+		"virtual_ip":     types.StringValue(mdm.VirtualIP.ValueString()),
 		"virtual_ip_nic": types.StringValue(mdm.VirtualIPNIC.ValueString()),
 		"role":           types.StringValue(mdm.Role.ValueString()),
 		"mode":           types.StringValue(mdm.Mode.ValueString()),
@@ -916,6 +927,8 @@ func GetClusterDetails(model models.ClusterResourceModel, gatewayClient *goscale
 	validateMDMResponse, validateMDMError := gatewayClient.GetClusterDetails(jsonreq, requireJSONOutput)
 	if validateMDMError != nil {
 		return validateMDMResponse, fmt.Errorf("%s", validateMDMError.Error())
+	} else if validateMDMResponse.StatusCode >= 300{
+		return validateMDMResponse, fmt.Errorf("%s, Please Validate Entered Details", validateMDMResponse.Message)
 	}
 
 	return validateMDMResponse, nil
