@@ -83,49 +83,49 @@ func TestAccClusterResourceValidation(t *testing.T) {
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			// //Create
-			// {
-			// 	Config:      ProviderConfigForTesting + ClusterValidationConfig1,
-			// 	ExpectError: regexp.MustCompile(`.*Invalid Attribute Value*`),
-			// },
-			// //Create
-			// {
-			// 	Config:      ProviderConfigForTesting + ClusterValidationConfig2,
-			// 	ExpectError: regexp.MustCompile(`.*Missing required argument*`),
-			// },
-			// //Create
-			// {
-			// 	Config:      ProviderConfigForTesting + ClusterValidationConfig3,
-			// 	ExpectError: regexp.MustCompile(`.*Invalid Attribute Value*`),
-			// },
-			// //Create
-			// {
-			// 	Config:      ProviderConfigForTesting + ClusterValidationConfig4,
-			// 	ExpectError: regexp.MustCompile(`.*Error while Parsing CSV*`),
-			// },
-			// //Create
-			// {
-			// 	Config:      ProviderConfigForTesting + ClusterValidationConfig5,
-			// 	ExpectError: regexp.MustCompile(`.*Please configure replication_journal_capacity_percentage for SDR*`),
-			// },
-			// //Create
-			// {
-			// 	Config:      ProviderConfigForTesting + ClusterValidationConfig6,
-			// 	ExpectError: regexp.MustCompile(`.*Error During Installation*`),
-			// },
-			// //Import
-			// {
-			// 	Config:        ProviderConfigForTesting + importClusterTest,
-			// 	ImportState:   true,
-			// 	ImportStateId: "1.1.1.1,Password",
-			// 	ResourceName:  "powerflex_cluster.test",
-			// 	ExpectError:   regexp.MustCompile(`.*Please provide valid Input Details*`),
-			// },
+			//Create
+			{
+				Config:      ProviderConfigForTesting + ClusterValidationConfig1,
+				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value*`),
+			},
+			//Create
+			{
+				Config:      ProviderConfigForTesting + ClusterValidationConfig2,
+				ExpectError: regexp.MustCompile(`.*Missing required argument*`),
+			},
+			//Create
+			{
+				Config:      ProviderConfigForTesting + ClusterValidationConfig3,
+				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value*`),
+			},
+			//Create
+			{
+				Config:      ProviderConfigForTesting + ClusterValidationConfig4,
+				ExpectError: regexp.MustCompile(`.*Error while Parsing CSV*`),
+			},
+			//Create
+			{
+				Config:      ProviderConfigForTesting + ClusterValidationConfig5,
+				ExpectError: regexp.MustCompile(`.*Please configure replication_journal_capacity_percentage for SDR*`),
+			},
+			//Create
+			{
+				Config:      ProviderConfigForTesting + ClusterValidationConfig6,
+				ExpectError: regexp.MustCompile(`.*Error During Installation*`),
+			},
 			//Import
 			{
 				Config:        ProviderConfigForTesting + importClusterTest,
 				ImportState:   true,
-				ImportStateId: "10.247.39.118,Password1234,Password",
+				ImportStateId: "1.1.1.1,Password",
+				ResourceName:  "powerflex_cluster.test",
+				ExpectError:   regexp.MustCompile(`.*Please provide valid Input Details*`),
+			},
+			//Import
+			{
+				Config:        ProviderConfigForTesting + importClusterTest,
+				ImportState:   true,
+				ImportStateId: "1.1.1.1,Password,Password",
 				ResourceName:  "powerflex_cluster.test",
 				ExpectError:   regexp.MustCompile(`.*Error Getting Cluster Details*`),
 			},
@@ -146,39 +146,33 @@ resource "powerflex_cluster" "test" {
 		powerflex_package.upload-test
 	]
 
-	mdm_password =  "Password123"
-	lia_password= "Password123"
+	mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
+	lia_password= "` + GatewayDataPoints.liaPassword + `"
 	allow_non_secure_communication_with_lia= true
 	allow_non_secure_communication_with_mdm= true
 	disable_non_mgmt_components_auth= false
 	cluster = [
 	{
-		ips= "10.247.103.161",
+		ips= "` + GatewayDataPoints.clusterPrimaryIP + `",
 		username= "root",
-		password= "dangerous",
+		password = "` + GatewayDataPoints.serverPassword + `"
 		operating_system= "linux",
 		is_mdm_or_tb= "primary",
 		is_sds= "yes",
 		sds_name= "sds1",
 		is_sdc= "yes",
 		sdc_name= "sdc1",
-		protection_domain = "domain_1"
-		sds_storage_device_list = "/dev/sdb"
-		storage_pool_list = "pool1"
 		perf_profile_for_sdc= "HighPerformance",
 		ia_rfcache= "No",
 		is_sdr= "No",
 		sdr_all_ips = ""
 	 },
 	 {
-		ips= "10.247.103.162",
+		ips= "` + GatewayDataPoints.clusterSecondaryIP + `",
 		username= "root",
-		password= "dangerous",
+		password = "` + GatewayDataPoints.serverPassword + `"
 		operating_system= "linux",
 		is_mdm_or_tb= "Secondary",
-		protection_domain = "domain_1"
-		sds_storage_device_list = "/dev/sdb"
-		storage_pool_list = "pool1"
 		is_sds= "yes",
 		sds_name= "sds2",
 		is_sdc= "yes",
@@ -188,16 +182,12 @@ resource "powerflex_cluster" "test" {
 		is_sdr= "No",
 	 },
 	 {
-		ips= "10.247.103.160",
+		ips= "` + GatewayDataPoints.clusterTBIP + `",
 		username= "root",
-		password= "dangerous",
+		password = "` + GatewayDataPoints.serverPassword + `"
 		operating_system= "linux",
 		is_mdm_or_tb= "TB",
-		is_sds= "yes",
-		protection_domain = "domain_1"
-		sds_storage_device_list = "/dev/sdb"
-		storage_pool_list = "pool1"
-		sds_name= "sds3",
+		is_sds= "No",
 		is_sdc= "yes",
 		sdc_name= "sdc3",
 		perf_profile_for_sdc= "compact",
@@ -208,9 +198,6 @@ resource "powerflex_cluster" "test" {
 	storage_pools = [
 		{
 			media_type = "HDD"
-			protection_domain = "domain_1"
-			storage_pool = "pool1"
-			replication_journal_capacity_percentage = "50"
 		}	
 	]
 }
