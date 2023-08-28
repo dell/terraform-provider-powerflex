@@ -927,7 +927,7 @@ func GetClusterDetails(model models.ClusterResourceModel, gatewayClient *goscale
 	validateMDMResponse, validateMDMError := gatewayClient.GetClusterDetails(jsonreq, requireJSONOutput)
 	if validateMDMError != nil {
 		return validateMDMResponse, fmt.Errorf("%s", validateMDMError.Error())
-	} else if validateMDMResponse.StatusCode >= 300{
+	} else if validateMDMResponse.StatusCode >= 300 {
 		return validateMDMResponse, fmt.Errorf("%s, Please Validate Entered Details", validateMDMResponse.Message)
 	}
 
