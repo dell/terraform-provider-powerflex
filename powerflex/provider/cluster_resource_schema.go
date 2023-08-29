@@ -589,7 +589,6 @@ func ClusterMDMModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Name",
 			Description:         "Name",
 			Computed:            true,
-			
 		},
 
 		"ip": schema.StringAttribute{
