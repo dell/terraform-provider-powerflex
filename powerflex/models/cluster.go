@@ -83,7 +83,7 @@ type StoragePoolDataModel struct {
 	ProtectionDomain                     types.String `tfsdk:"protection_domain"`
 	StoragePool                          types.String `tfsdk:"storage_pool"`
 	MediaType                            types.String `tfsdk:"media_type"`
-	ExternalAcceleration                 types.String `tfsdk:"extern_alacceleration"`
+	ExternalAcceleration                 types.String `tfsdk:"external_acceleration"`
 	DataLayout                           types.String `tfsdk:"data_layout"`
 	ZeroPadding                          types.String `tfsdk:"zero_padding"`
 	CompressionMethod                    types.String `tfsdk:"compression_method"`

@@ -440,7 +440,7 @@ func GetStoragePoolsValue(sp models.StoragePoolDetailModel) (basetypes.ObjectVal
 	return types.ObjectValue(GetStoragePoolsType(), map[string]attr.Value{
 		"name":                  types.StringValue(sp.Name.ValueString()),
 		"media_type":            types.StringValue(sp.MediaType.ValueString()),
-		"extern_alacceleration": types.StringValue(sp.ExternalAcceleration.ValueString()),
+		"external_acceleration": types.StringValue(sp.ExternalAcceleration.ValueString()),
 		"data_layout":           types.StringValue(sp.DataLayout.ValueString()),
 		"compression_method":    types.StringValue(sp.CompressionMethod.ValueString()),
 		"zero_padding":          types.StringValue(sp.ZeroPadding.ValueString()),

@@ -154,6 +154,9 @@ func ClusterModelSchema() map[string]schema.Attribute {
 			PlanModifiers: []planmodifier.String{
 				helper.StringDefault("root"),
 			},
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"password": schema.StringAttribute{
@@ -308,24 +311,36 @@ func ClusterModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Fault Set",
 			Description:         "Fault Set",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"sds_storage_device_list": schema.StringAttribute{
 			MarkdownDescription: "Storage devices to be added to an SDS. For more than one device, use a comma separated list, with no spaces.",
 			Description:         "Storage devices to be added to an SDS. For more than one device, use a comma separated list, with no spaces.",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"storage_pool_list": schema.StringAttribute{
 			MarkdownDescription: "Sets Storage Pool names",
 			Description:         "Sets Storage Pool names",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"sds_storage_device_names": schema.StringAttribute{
 			MarkdownDescription: "Sets names for devices.",
 			Description:         "Sets names for devices.",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"perf_profile_for_sds": schema.StringAttribute{
@@ -514,34 +529,49 @@ func StoragePoolModelSchema() map[string]schema.Attribute {
 			Required:            true,
 		},
 
-		"extern_alacceleration": schema.StringAttribute{
+		"external_acceleration": schema.StringAttribute{
 			MarkdownDescription: "External Acceleration",
 			Description:         "External Acceleration",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"data_layout": schema.StringAttribute{
 			MarkdownDescription: "Data Layout",
 			Description:         "Data Layout",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"zero_padding": schema.StringAttribute{
 			MarkdownDescription: "Zero Padding",
 			Description:         "Zero Padding",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"compression_method": schema.StringAttribute{
 			MarkdownDescription: "Compression Method",
 			Description:         "Compression Method",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"replication_journal_capacity_percentage": schema.StringAttribute{
 			MarkdownDescription: "Replication Journal Capacity Percentage",
 			Description:         "Replication Journal Capacity Percentage",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 	}
 }
@@ -559,6 +589,7 @@ func ClusterMDMModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Name",
 			Description:         "Name",
 			Computed:            true,
+			
 		},
 
 		"ip": schema.StringAttribute{

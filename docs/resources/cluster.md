@@ -199,7 +199,7 @@ Optional:
 
 - `compression_method` (String) Compression Method
 - `data_layout` (String) Data Layout
-- `extern_alacceleration` (String) External Acceleration
+- `external_acceleration` (String) External Acceleration
 - `protection_domain` (String) Protection Domain
 - `replication_journal_capacity_percentage` (String) Replication Journal Capacity Percentage
 - `storage_pool` (String) Storage Pool
