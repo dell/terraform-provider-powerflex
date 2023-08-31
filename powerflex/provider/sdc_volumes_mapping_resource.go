@@ -76,7 +76,7 @@ func (r *sdcVolumeMappingResource) Schema(_ context.Context, _ resource.SchemaRe
 					stringvalidator.ExactlyOneOf(path.MatchRoot("id")),
 				},
 			},
-			"volume_list": schema.SetNestedAttribute{
+			"volume_list": schema.ListNestedAttribute{
 				Description:         "List of volumes mapped to SDC. At least one of 'volume_id' and 'volume_name' is required.",
 				Computed:            true,
 				Optional:            true,
@@ -286,7 +286,7 @@ func (r *sdcVolumeMappingResource) Create(ctx context.Context, req resource.Crea
 	}
 
 	// Set refreshed state
-	state, dgs := helper.UpdateSDCVolMapState(mappedVolumes, plan)
+	state, dgs := helper.UpdateSDCVolMapState(mappedVolumes, &plan, nil, nil, nil)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state)
@@ -322,10 +322,10 @@ func (r *sdcVolumeMappingResource) Read(ctx context.Context, req resource.ReadRe
 	}
 
 	// Set refreshed state
-	state, dgs := helper.UpdateSDCVolMapState(mappedVolumes, state)
+	state1, dgs := helper.UpdateSDCVolMapState(mappedVolumes, nil, &state, nil, nil)
 	resp.Diagnostics.Append(dgs...)
 
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, state1)
 	resp.Diagnostics.Append(diags...)
 }
 
@@ -546,10 +546,10 @@ func (r *sdcVolumeMappingResource) Update(ctx context.Context, req resource.Upda
 	}
 
 	// Set refreshed state
-	state, dgs := helper.UpdateSDCVolMapState(mappedVolumes, state)
+	state1, dgs := helper.UpdateSDCVolMapState(mappedVolumes, nil, nil, nonchangeVolIds, mapVolIds)
 	resp.Diagnostics.Append(dgs...)
 
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, state1)
 	resp.Diagnostics.Append(diags...)
 }
 

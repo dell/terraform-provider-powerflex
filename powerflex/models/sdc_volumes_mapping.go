@@ -25,7 +25,7 @@ import (
 type SdcVolumeMappingResourceModel struct {
 	ID         types.String `tfsdk:"id"`
 	Name       types.String `tfsdk:"name"`
-	VolumeList types.Set    `tfsdk:"volume_list"`
+	VolumeList types.List   `tfsdk:"volume_list"`
 }
 
 // SdcVolumeModel defines struct volume mapping data
