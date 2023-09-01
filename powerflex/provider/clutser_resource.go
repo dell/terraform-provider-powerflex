@@ -59,7 +59,7 @@ func (r *clusterResource) ValidateConfig(ctx context.Context, req resource.Valid
 
 	sdrValidation := false
 	//Added validation for if SDR is YES than Replication Capacity must be require
-	if !config.Cluster.IsNull() && !config.StoragePools.IsNull() {
+	if !config.Cluster.IsNull() {
 
 		sdrCheck := false
 
@@ -76,19 +76,26 @@ func (r *clusterResource) ValidateConfig(ctx context.Context, req resource.Valid
 						sdrValidation = true
 					}
 				}
+			} else {
+				resp.Diagnostics.AddAttributeError(
+					path.Root("storage_pools"),
+					"Please configure storage_pools",
+					"Please configure storage_pools",
+				)
 			}
 		} else {
 			sdrValidation = true
 		}
+
+		if !sdrValidation {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("replication_journal_capacity_percentage"),
+				"Please configure replication_journal_capacity_percentage for SDR.",
+				"Please configure replication_journal_capacity_percentage for SDR.",
+			)
+		}
 	}
 
-	if !sdrValidation {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("replication_journal_capacity_percentage"),
-			"Please configure replication_journal_capacity_percentage for SDR.",
-			"Please configure replication_journal_capacity_percentage for SDR.",
-		)
-	}
 }
 
 // Configure - function to return Configuration for Cluster resource.
@@ -133,7 +140,7 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 	diags = plan.StoragePools.ElementsAs(ctx, &storagePoolDetailsDataModel, true)
 	resp.Diagnostics.Append(diags...)
 
-	if len(clusterInstallationDetailsDataModel) > 0 && len(storagePoolDetailsDataModel) > 0 {
+	if len(clusterInstallationDetailsDataModel) > 0 {
 		data, dgs := r.ClusterDeploymentOperations(ctx, plan, clusterInstallationDetailsDataModel, storagePoolDetailsDataModel)
 		resp.Diagnostics.Append(dgs...)
 		if resp.Diagnostics.HasError() {
@@ -148,7 +155,7 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	resp.Diagnostics.AddError("[Create] Please provide valid Cluster and Storage Pool Details", "Please provide valid valid Cluster and Storage Pool Detail Details")
+	resp.Diagnostics.AddError("[Create] Please provide valid Cluster and Storage Pool Details", "Please provide valid Cluster and Storage Pool Detail Details")
 
 }
 
@@ -191,6 +198,9 @@ func (r *clusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 			state.AllowNonSecureCommunicationWithLia = types.BoolValue(true)
 
 			data, diags := helper.UpdateClusterState(state, r.gatewayClient, mdmIP)
+			if resp.Diagnostics.HasError() {
+				return
+			}
 			resp.Diagnostics.Append(diags...)
 
 			diags = resp.State.Set(ctx, data)
