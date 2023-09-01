@@ -296,6 +296,10 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 			Mode:         types.StringValue(string("Secondary")),
 		}
 
+		if len(clusteDetailResponse.ClusterDetails.VirtualIPs) > 0 {
+			mdmData.VirtualIP = types.StringValue(strings.Join(clusteDetailResponse.ClusterDetails.VirtualIPs, ","))
+		}
+
 		mdmList = append(mdmList, mdmData)
 	}
 
@@ -374,12 +378,17 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 	}
 
 	mdmData := models.MDMModel{
-		ID:    types.StringValue(id),
-		Name:  types.StringValue(mastMDM.Name),
-		IP:    types.StringValue(strings.Join(mastMDM.Node.NodeIPs, ",")),
-		MDMIP: types.StringValue(strings.Join(mastMDM.MdmIPs, ",")),
-		Role:  types.StringValue(string("Manager")),
-		Mode:  types.StringValue(string("Primary")),
+		ID:           types.StringValue(id),
+		Name:         types.StringValue(mastMDM.Name),
+		IP:           types.StringValue(strings.Join(mastMDM.Node.NodeIPs, ",")),
+		MDMIP:        types.StringValue(strings.Join(mastMDM.MdmIPs, ",")),
+		VirtualIPNIC: types.StringValue(strings.Join(mastMDM.VirtIPIntfsList, ",")),
+		Role:         types.StringValue(string("Manager")),
+		Mode:         types.StringValue(string("Primary")),
+	}
+
+	if len(clusteDetailResponse.ClusterDetails.VirtualIPs) > 0 {
+		mdmData.VirtualIP = types.StringValue(strings.Join(clusteDetailResponse.ClusterDetails.VirtualIPs, ","))
 	}
 
 	mdmList = append(mdmList, mdmData)
@@ -431,7 +440,7 @@ func GetStoragePoolsValue(sp models.StoragePoolDetailModel) (basetypes.ObjectVal
 	return types.ObjectValue(GetStoragePoolsType(), map[string]attr.Value{
 		"name":                  types.StringValue(sp.Name.ValueString()),
 		"media_type":            types.StringValue(sp.MediaType.ValueString()),
-		"extern_alacceleration": types.StringValue(sp.ExternalAcceleration.ValueString()),
+		"external_acceleration": types.StringValue(sp.ExternalAcceleration.ValueString()),
 		"data_layout":           types.StringValue(sp.DataLayout.ValueString()),
 		"compression_method":    types.StringValue(sp.CompressionMethod.ValueString()),
 		"zero_padding":          types.StringValue(sp.ZeroPadding.ValueString()),
@@ -447,6 +456,7 @@ func GetMDMType() map[string]attr.Type {
 		"name":           types.StringType,
 		"mdm_ip":         types.StringType,
 		"mgmt_ip":        types.StringType,
+		"virtual_ip":     types.StringType,
 		"virtual_ip_nic": types.StringType,
 		"role":           types.StringType,
 		"mode":           types.StringType,
@@ -461,6 +471,7 @@ func GetMDMValue(mdm models.MDMModel) (basetypes.ObjectValue, diag.Diagnostics) 
 		"name":           types.StringValue(mdm.Name.ValueString()),
 		"mdm_ip":         types.StringValue(mdm.MDMIP.ValueString()),
 		"mgmt_ip":        types.StringValue(mdm.MGMTIP.ValueString()),
+		"virtual_ip":     types.StringValue(mdm.VirtualIP.ValueString()),
 		"virtual_ip_nic": types.StringValue(mdm.VirtualIPNIC.ValueString()),
 		"role":           types.StringValue(mdm.Role.ValueString()),
 		"mode":           types.StringValue(mdm.Mode.ValueString()),
@@ -697,81 +708,84 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 		}
 	}
 
-	// Add a new line with commas
-	err = writer.Write([]string{strings.Repeat(",", len(filteredHeader))})
-	if err != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
-	}
-
-	// Add a blank line after writing each data row
-	err = writer.Write([]string{"Storage Pool Configuration", strings.Repeat(",", len(filteredHeader)-1)})
-	if err != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
-	}
-
-	// Write the Storage Pool header row
-	headerForStorage := []string{"ProtectionDomain", "StoragePool", "Media Type", "External Acceleration", "Data Layout", "Zero Padding", "Compression Method", "Replication journal capacity percentage"}
-	var storageHeaderIndicesToWrite []int
-
-	for i := range headerForStorage {
-		storageHeaderIndicesToWrite = append(storageHeaderIndicesToWrite, i)
-	}
-
-	// Create a slice to hold the filtered header with non-empty values
-	var filteredStorageHeader []string
-
-	for _, item := range storagePoolDataModel {
-
-		data := []string{
-			item.ProtectionDomain.ValueString(),
-			item.StoragePool.ValueString(),
-			item.MediaType.ValueString(),
-			item.ExternalAcceleration.ValueString(),
-			item.DataLayout.ValueString(),
-			item.ZeroPadding.ValueString(),
-			item.CompressionMethod.ValueString(),
-			item.ReplicationJournalCapacityPercentage.ValueString(),
-		}
-
-		// Check which columns have non-empty values in the current row
-		var columnsWithValues []int
-		for i, value := range data {
-			if value != "" {
-				columnsWithValues = append(columnsWithValues, i)
-				// Add the corresponding header to the filteredStorageHeader
-				filteredStorageHeader = append(filteredStorageHeader, headerForStorage[i])
-			}
-		}
-
-		// Update the header indices to write based on the current row's non-empty columns
-		storageHeaderIndicesToWrite = intersect(storageHeaderIndicesToWrite, columnsWithValues)
-	}
-	// Remove duplicates from the filteredStorageHeader
-	filteredStorageHeader = removeDuplicates(filteredStorageHeader)
-
-	err = writer.Write(append(filteredStorageHeader, strings.Repeat(",", len(filteredHeader)-len(filteredStorageHeader))))
-	if err != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Writing Temp CSV is %s", err.Error())
-	}
-
-	// Write the values for each data row according to the filtered headers
-	for _, item := range storagePoolDataModel {
-		var data []string
-		for _, header := range filteredStorageHeader {
-			data = append(data, getFieldFromStorage(item, header))
-		}
-
-		data = append(data, strings.Repeat(",", len(filteredHeader)-len(filteredStorageHeader)))
-
-		err = writer.Write(data)
+	//checking if storage_pool data is available than only write data for that.
+	if len(storagePoolDataModel) > 0 {
+		// Add a new line with commas
+		err = writer.Write([]string{strings.Repeat(",", len(filteredHeader))})
 		if err != nil {
 			return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
 		}
-	}
 
-	err = writer.Flush()
-	if err != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
+		// Add a blank line after writing each data row
+		err = writer.Write([]string{"Storage Pool Configuration", strings.Repeat(",", len(filteredHeader)-1)})
+		if err != nil {
+			return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
+		}
+
+		// Write the Storage Pool header row
+		headerForStorage := []string{"ProtectionDomain", "StoragePool", "Media Type", "External Acceleration", "Data Layout", "Zero Padding", "Compression Method", "Replication journal capacity percentage"}
+		var storageHeaderIndicesToWrite []int
+
+		for i := range headerForStorage {
+			storageHeaderIndicesToWrite = append(storageHeaderIndicesToWrite, i)
+		}
+
+		// Create a slice to hold the filtered header with non-empty values
+		var filteredStorageHeader []string
+
+		for _, item := range storagePoolDataModel {
+
+			data := []string{
+				item.ProtectionDomain.ValueString(),
+				item.StoragePool.ValueString(),
+				item.MediaType.ValueString(),
+				item.ExternalAcceleration.ValueString(),
+				item.DataLayout.ValueString(),
+				item.ZeroPadding.ValueString(),
+				item.CompressionMethod.ValueString(),
+				item.ReplicationJournalCapacityPercentage.ValueString(),
+			}
+
+			// Check which columns have non-empty values in the current row
+			var columnsWithValues []int
+			for i, value := range data {
+				if value != "" {
+					columnsWithValues = append(columnsWithValues, i)
+					// Add the corresponding header to the filteredStorageHeader
+					filteredStorageHeader = append(filteredStorageHeader, headerForStorage[i])
+				}
+			}
+
+			// Update the header indices to write based on the current row's non-empty columns
+			storageHeaderIndicesToWrite = intersect(storageHeaderIndicesToWrite, columnsWithValues)
+		}
+		// Remove duplicates from the filteredStorageHeader
+		filteredStorageHeader = removeDuplicates(filteredStorageHeader)
+
+		err = writer.Write(append(filteredStorageHeader, strings.Repeat(",", len(filteredHeader)-len(filteredStorageHeader))))
+		if err != nil {
+			return &parseCSVResponse, fmt.Errorf("Error While Writing Temp CSV is %s", err.Error())
+		}
+
+		// Write the values for each data row according to the filtered headers
+		for _, item := range storagePoolDataModel {
+			var data []string
+			for _, header := range filteredStorageHeader {
+				data = append(data, getFieldFromStorage(item, header))
+			}
+
+			data = append(data, strings.Repeat(",", len(filteredHeader)-len(filteredStorageHeader)))
+
+			err = writer.Write(data)
+			if err != nil {
+				return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
+			}
+		}
+
+		err = writer.Flush()
+		if err != nil {
+			return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
+		}
 	}
 
 	parsecsvRespose, parseCSVError := gatewayClient.ParseCSV(mydir + "/Minimal.csv")
@@ -913,6 +927,8 @@ func GetClusterDetails(model models.ClusterResourceModel, gatewayClient *goscale
 	validateMDMResponse, validateMDMError := gatewayClient.GetClusterDetails(jsonreq, requireJSONOutput)
 	if validateMDMError != nil {
 		return validateMDMResponse, fmt.Errorf("%s", validateMDMError.Error())
+	} else if validateMDMResponse.StatusCode >= 300 {
+		return validateMDMResponse, fmt.Errorf("%s, Please Validate Entered Details", validateMDMResponse.Message)
 	}
 
 	return validateMDMResponse, nil

@@ -101,7 +101,7 @@ func TestAccClusterResourceValidation(t *testing.T) {
 			//Create
 			{
 				Config:      ProviderConfigForTesting + ClusterValidationConfig4,
-				ExpectError: regexp.MustCompile(`.*Error while Parsing CSV*`),
+				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value Length*`),
 			},
 			//Create
 			{
@@ -402,7 +402,7 @@ resource "powerflex_cluster" "test" {
 		perf_profile_for_sdc= "ABCD",
 		ia_rfcache= "No",
 		is_sdr= "Yes",
-		sdr_all_ips= ""
+		sdr_all_ips= "1.1.1.1"
 	 },
 	 {
 		ips= "10.10.10.11",
@@ -418,7 +418,6 @@ resource "powerflex_cluster" "test" {
 		perf_profile_for_sdc= "compact",
 		ia_rfcache= "No",
 		is_sdr= "No",
-		sdr_all_ips= ""
 	 },
 	 {
 		ips= "10.10.10.12",
@@ -434,7 +433,6 @@ resource "powerflex_cluster" "test" {
 		perf_profile_for_sdc= "compact",
 		ia_rfcache= "No",
 		is_sdr= "No",
-		sdr_all_ips= ""
 	 },
 	]
 	storage_pools = [
