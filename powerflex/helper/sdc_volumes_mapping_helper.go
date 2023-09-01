@@ -18,6 +18,7 @@ limitations under the License.
 package helper
 
 import (
+	"context"
 	"terraform-provider-powerflex/powerflex/models"
 
 	goscaleio_types "github.com/dell/goscaleio/types/v1"
@@ -28,14 +29,14 @@ import (
 )
 
 // GetVolSetValueFromItems return the type for volume list
-func GetVolSetValueFromItems(volumes []models.SdcVolumeModel) (basetypes.SetValue, diag.Diagnostics) {
+func GetVolSetValueFromItems(volumes []models.SdcVolumeModel) (basetypes.ListValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	volInfoElemType := types.ObjectType{
 		AttrTypes: GetVolType(),
 	}
 
 	if len(volumes) == 0 {
-		return types.SetNull(volInfoElemType), diags
+		return types.ListNull(volInfoElemType), diags
 	}
 
 	objectVolInfos := []attr.Value{}
@@ -51,7 +52,7 @@ func GetVolSetValueFromItems(volumes []models.SdcVolumeModel) (basetypes.SetValu
 		diags = append(diags, dgs...)
 		objectVolInfos = append(objectVolInfos, objVal)
 	}
-	mappedSdcInfoVal, dgs := types.SetValue(volInfoElemType, objectVolInfos)
+	mappedSdcInfoVal, dgs := types.ListValue(volInfoElemType, objectVolInfos)
 	diags = append(diags, dgs...)
 	return mappedSdcInfoVal, diags
 }
@@ -79,7 +80,7 @@ func GetVolValue(vol *goscaleio_types.Volume) (basetypes.ObjectValue, diag.Diagn
 }
 
 // UpdateSDCVolMapState updates the state
-func UpdateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan models.SdcVolumeMappingResourceModel) (models.SdcVolumeMappingResourceModel, diag.Diagnostics) {
+func UpdateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan *models.SdcVolumeMappingResourceModel, oldState *models.SdcVolumeMappingResourceModel, nonchangeVolIds, planVolIds map[string]string) (*models.SdcVolumeMappingResourceModel, diag.Diagnostics) {
 	state := plan
 	SDCAttrTypes := GetVolType()
 
@@ -89,16 +90,89 @@ func UpdateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan models.S
 
 	objectSDCs := []attr.Value{}
 	var diags diag.Diagnostics
-	for _, vol := range mappedVolumes {
-		objVal, dgs := GetVolValue(vol)
-		diags = append(diags, dgs...)
-		objectSDCs = append(objectSDCs, objVal)
-		state.Name = types.StringValue(vol.MappedSdcInfo[0].SdcName)
-		state.ID = types.StringValue(vol.MappedSdcInfo[0].SdcID)
-	}
-	setVal, dgs := types.SetValue(SDCElemType, objectSDCs)
-	diags = append(diags, dgs...)
-	state.VolumeList = setVal
 
+	// Set the state once create operation is completed
+	if plan != nil {
+		for _, vol := range mappedVolumes {
+			objVal, dgs := GetVolValue(vol)
+			diags = append(diags, dgs...)
+			objectSDCs = append(objectSDCs, objVal)
+			state.Name = types.StringValue(vol.MappedSdcInfo[0].SdcName)
+			state.ID = types.StringValue(vol.MappedSdcInfo[0].SdcID)
+		}
+		setVal, dgs := types.ListValue(SDCElemType, objectSDCs)
+		diags = append(diags, dgs...)
+		state.VolumeList = setVal
+	} else if oldState != nil {
+		// Set the state for the read operation
+		var state models.SdcVolumeMappingResourceModel
+		volMap := make(map[string]*goscaleio_types.Volume)
+
+		for _, vol := range mappedVolumes {
+			volMap[vol.ID] = vol
+		}
+
+		stateVolList := []models.SdcVolumeModel{}
+		// Populate stateVolList with volumes stored in state
+		diags.Append(oldState.VolumeList.ElementsAs(context.TODO(), &stateVolList, true)...)
+
+		for _, vol := range stateVolList {
+			if volDetails, ok := volMap[vol.VolumeID.ValueString()]; ok {
+				objVal, dgs := GetVolValue(volDetails)
+				diags = append(diags, dgs...)
+				objectSDCs = append(objectSDCs, objVal)
+				state.Name = types.StringValue(volDetails.MappedSdcInfo[0].SdcName)
+				state.ID = types.StringValue(volDetails.MappedSdcInfo[0].SdcID)
+				delete(volMap, volDetails.ID)
+			}
+		}
+
+		// Iterate through volumes which are mapped outside of Terraform
+		for _, vol := range volMap {
+			objVal, dgs := GetVolValue(vol)
+			diags = append(diags, dgs...)
+			objectSDCs = append(objectSDCs, objVal)
+			state.Name = types.StringValue(vol.MappedSdcInfo[0].SdcName)
+			state.ID = types.StringValue(vol.MappedSdcInfo[0].SdcID)
+		}
+
+		setVal, dgs := types.ListValue(SDCElemType, objectSDCs)
+		diags = append(diags, dgs...)
+		state.VolumeList = setVal
+		return &state, diags
+	} else {
+		// Set the state once update operation is completed
+		var state models.SdcVolumeMappingResourceModel
+		volMap := make(map[string]*goscaleio_types.Volume)
+
+		for _, vol := range mappedVolumes {
+			volMap[vol.ID] = vol
+		}
+
+		for _, volID := range nonchangeVolIds {
+			if vol, ok := volMap[volID]; ok {
+				objVal, dgs := GetVolValue(vol)
+				diags = append(diags, dgs...)
+				objectSDCs = append(objectSDCs, objVal)
+				state.Name = types.StringValue(vol.MappedSdcInfo[0].SdcName)
+				state.ID = types.StringValue(vol.MappedSdcInfo[0].SdcID)
+			}
+		}
+
+		for _, volID := range planVolIds {
+			if vol, ok := volMap[volID]; ok {
+				objVal, dgs := GetVolValue(vol)
+				diags = append(diags, dgs...)
+				objectSDCs = append(objectSDCs, objVal)
+				state.Name = types.StringValue(vol.MappedSdcInfo[0].SdcName)
+				state.ID = types.StringValue(vol.MappedSdcInfo[0].SdcID)
+			}
+		}
+
+		setVal, dgs := types.ListValue(SDCElemType, objectSDCs)
+		diags = append(diags, dgs...)
+		state.VolumeList = setVal
+		return &state, diags
+	}
 	return state, diags
 }
