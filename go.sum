@@ -26,8 +26,6 @@ github.com/cloudflare/circl v1.3.3/go.mod h1:5XYMA4rFBvNIrhs50XuiBJ15vF2pZn4nnUK
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/dell/goscaleio v1.11.1-0.20230803104813-cfb8799306a2 h1:MJ7YNqf/GXCxBl/p/0+55/oV1W7QwJSFr6P3wPnb658=
-github.com/dell/goscaleio v1.11.1-0.20230803104813-cfb8799306a2/go.mod h1:dMTrHnXSsPus+Kd9mrs0JuyrCndoKvFP/bbEdc21Bi8=
 github.com/dell/goscaleio v1.11.1-0.20230804051431-657fcb1e35a1 h1:Mqxwnv6+BVkIKqwAny+MY1d9JloA1AsazIFmKxfU6yU=
 github.com/dell/goscaleio v1.11.1-0.20230804051431-657fcb1e35a1/go.mod h1:dMTrHnXSsPus+Kd9mrs0JuyrCndoKvFP/bbEdc21Bi8=
 github.com/emirpasic/gods v1.18.1 h1:FXtiHYKDGKCW2KzwZKx0iC0PQmdlorYgdFG9jPXJ1Bc=
