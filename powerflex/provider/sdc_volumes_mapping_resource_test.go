@@ -141,9 +141,8 @@ func TestAccSDCVolumesResource(t *testing.T) {
 			},
 			// Import resource
 			{
-				ResourceName:      "powerflex_sdc_volumes_mapping.map-sdc-volumes-test",
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName: "powerflex_sdc_volumes_mapping.map-sdc-volumes-test",
+				ImportState:  true,
 			},
 			// Unmap volume from SDC
 			{

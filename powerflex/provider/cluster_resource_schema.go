@@ -22,6 +22,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -58,7 +59,7 @@ func ClusterResourceModelSchema() map[string]schema.Attribute {
 		"storage_pools": schema.ListNestedAttribute{
 			MarkdownDescription: "Storage Pool Details",
 			Description:         "Storage Pool Details",
-			Required:            true,
+			Optional:            true,
 			NestedObject:        schema.NestedAttributeObject{Attributes: StoragePoolModelSchema()},
 			Validators: []validator.List{
 				listvalidator.SizeAtLeast(1),
@@ -140,6 +141,9 @@ func ClusterModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "IP address to be used for multiple purposes. Use this field to designate one IP address that will be assigned to all of the following: MDM IP, MDM Mgmt IP and SDS All IP. This option is provided for use cases where separate networks for data and management are not required.",
 			Description:         "IP address to be used for multiple purposes. Use this field to designate one IP address that will be assigned to all of the following: MDM IP, MDM Mgmt IP and SDS All IP. This option is provided for use cases where separate networks for data and management are not required.",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"username": schema.StringAttribute{
@@ -150,42 +154,62 @@ func ClusterModelSchema() map[string]schema.Attribute {
 			PlanModifiers: []planmodifier.String{
 				helper.StringDefault("root"),
 			},
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"password": schema.StringAttribute{
 			MarkdownDescription: "Password used to log in to the node.",
 			Description:         "Password used to log in to the node.",
-			Optional:            true,
+			Required:            true,
+			Sensitive:           true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"operating_system": schema.StringAttribute{
 			MarkdownDescription: "Operating System",
 			Description:         "Operating System",
-			Optional:            true,
+			Required:            true,
+			PlanModifiers: []planmodifier.String{
+				helper.StringDefault("linux"),
+			},
 		},
 
 		"is_mdm_or_tb": schema.StringAttribute{
 			MarkdownDescription: "Is Mdm Or Tb",
 			Description:         "Is Mdm Or Tb",
-			Optional:            true,
+			Required:            true,
 		},
 
 		"mdm_ips": schema.StringAttribute{
 			MarkdownDescription: "MDM IP addresses used to communicate with other PowerFlex components in the storage network. This is required for all MDMs, Tiebreakers and Standbys.Leave this field blank for hosts that are not part of the MDM cluster.",
 			Description:         "MDM IP addresses used to communicate with other PowerFlex components in the storage network. This is required for all MDMs, Tiebreakers and Standbys.Leave this field blank for hosts that are not part of the MDM cluster.",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"mdm_mgmt_ip": schema.StringAttribute{
 			MarkdownDescription: "The IP address for the management-only network.The management IP address is not required for: Tiebreaker, Standby Tiebreaker, and any host that is not an MDM. In such cases, leave this field blank.",
 			Description:         "The IP address for the management-only network.The management IP address is not required for: Tiebreaker, Standby Tiebreaker, and any host that is not an MDM. In such cases, leave this field blank.",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"mdm_name": schema.StringAttribute{
 			MarkdownDescription: "MDMName",
 			Description:         "MDMName",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.LengthAtMost(31),
+			},
 		},
 
 		"perf_profile_for_mdm": schema.StringAttribute{
@@ -202,12 +226,18 @@ func ClusterModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Virtual IPs",
 			Description:         "Virtual IPs",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"virtual_ip_nics": schema.StringAttribute{
 			MarkdownDescription: "The NIC to which the virtual IP addresses are mapped.",
 			Description:         "The NIC to which the virtual IP addresses are mapped.",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"is_sds": schema.StringAttribute{
@@ -228,54 +258,89 @@ func ClusterModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "SDS Name",
 			Description:         "SDS Name",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.LengthAtMost(31),
+			},
 		},
 
 		"sds_all_ips": schema.StringAttribute{
 			MarkdownDescription: "SDS IP addresses to be used for communication among all nodes.",
 			Description:         "SDS IP addresses to be used for communication among all nodes.",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("sds_to_sds_only_ips")),
+				stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("sds_to_sdc_only_ips")),
+			},
 		},
 
 		"sds_to_sds_only_ips": schema.StringAttribute{
 			MarkdownDescription: "SDS IP addresses to be used for communication among SDS nodes. When the replication feature is used, these addresses are also used for SDS-SDR communication.",
 			Description:         "SDS IP addresses to be used for communication among SDS nodes. When the replication feature is used, these addresses are also used for SDS-SDR communication.",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("sds_all_ips")),
+				stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("sds_to_sdc_only_ips")),
+			},
 		},
 
 		"sds_to_sdc_only_ips": schema.StringAttribute{
 			MarkdownDescription: "SDS IP addresses to be used for communication among SDS and SDC nodes only.",
 			Description:         "SDS IP addresses to be used for communication among SDS and SDC nodes only.",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("sds_all_ips")),
+				stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("sds_to_sds_only_ips")),
+			},
 		},
 
 		"protection_domain": schema.StringAttribute{
 			MarkdownDescription: "Protection Domain",
 			Description:         "Protection Domain",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.LengthAtMost(31),
+			},
 		},
 
 		"fault_set": schema.StringAttribute{
 			MarkdownDescription: "Fault Set",
 			Description:         "Fault Set",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"sds_storage_device_list": schema.StringAttribute{
 			MarkdownDescription: "Storage devices to be added to an SDS. For more than one device, use a comma separated list, with no spaces.",
 			Description:         "Storage devices to be added to an SDS. For more than one device, use a comma separated list, with no spaces.",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"storage_pool_list": schema.StringAttribute{
 			MarkdownDescription: "Sets Storage Pool names",
 			Description:         "Sets Storage Pool names",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"sds_storage_device_names": schema.StringAttribute{
 			MarkdownDescription: "Sets names for devices.",
 			Description:         "Sets names for devices.",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"perf_profile_for_sds": schema.StringAttribute{
@@ -316,6 +381,10 @@ func ClusterModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "SDC Name",
 			Description:         "SDC Name",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.LengthAtMost(31),
+			},
 		},
 
 		"is_rfcache": schema.StringAttribute{
@@ -356,36 +425,67 @@ func ClusterModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "SDR Name",
 			Description:         "SDR Name",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.LengthAtMost(31),
+			},
 		},
 
 		"sdr_port": schema.StringAttribute{
 			MarkdownDescription: "SDR Port",
 			Description:         "SDR Port",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"sdr_application_ips": schema.StringAttribute{
 			MarkdownDescription: "The IP addresses through which the SDC communicates with the SDR.",
 			Description:         "The IP addresses through which the SDC communicates with the SDR.",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("sdr_storage_ips")),
+				stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("sdr_external_ips")),
+				stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("sdr_all_ips")),
+			},
 		},
 
 		"sdr_storage_ips": schema.StringAttribute{
 			MarkdownDescription: "The IP addresses through which the SDR communicates with the MDM for server side control communications.",
 			Description:         "The IP addresses through which the SDR communicates with the MDM for server side control communications.",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("sdr_application_ips")),
+				stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("sdr_external_ips")),
+				stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("sdr_all_ips")),
+			},
 		},
 
 		"sdr_external_ips": schema.StringAttribute{
 			MarkdownDescription: "The IP addresses through which the SDR communicates with peer systems SDRs",
 			Description:         "The IP addresses through which the SDR communicates with peer systems SDRs",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("sdr_application_ips")),
+				stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("sdr_storage_ips")),
+				stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("sdr_all_ips")),
+			},
 		},
 
 		"sdr_all_ips": schema.StringAttribute{
 			MarkdownDescription: "SDR IP addresses to be used for communication among all nodes (including all three roles)",
 			Description:         "SDR IP addresses to be used for communication among all nodes (including all three roles)",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("sdr_application_ips")),
+				stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("sdr_storage_ips")),
+				stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("sdr_external_ips")),
+			},
 		},
 		"perf_profile_for_sdr": schema.StringAttribute{
 			MarkdownDescription: "Performance Profile For SDR",
@@ -407,48 +507,71 @@ func StoragePoolModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Protection Domain",
 			Description:         "Protection Domain",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.LengthAtMost(31),
+			},
 		},
 
 		"storage_pool": schema.StringAttribute{
 			MarkdownDescription: "Storage Pool",
 			Description:         "Storage Pool",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.LengthAtMost(31),
+			},
 		},
 
 		"media_type": schema.StringAttribute{
 			MarkdownDescription: "Media Type",
 			Description:         "Media Type",
-			Optional:            true,
+			Required:            true,
 		},
 
-		"extern_alacceleration": schema.StringAttribute{
+		"external_acceleration": schema.StringAttribute{
 			MarkdownDescription: "External Acceleration",
 			Description:         "External Acceleration",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"data_layout": schema.StringAttribute{
 			MarkdownDescription: "Data Layout",
 			Description:         "Data Layout",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"zero_padding": schema.StringAttribute{
 			MarkdownDescription: "Zero Padding",
 			Description:         "Zero Padding",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"compression_method": schema.StringAttribute{
 			MarkdownDescription: "Compression Method",
 			Description:         "Compression Method",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 
 		"replication_journal_capacity_percentage": schema.StringAttribute{
 			MarkdownDescription: "Replication Journal Capacity Percentage",
 			Description:         "Replication Journal Capacity Percentage",
 			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 	}
 }
@@ -483,6 +606,12 @@ func ClusterMDMModelSchema() map[string]schema.Attribute {
 		"mgmt_ip": schema.StringAttribute{
 			MarkdownDescription: "MGMTIP",
 			Description:         "MGMTIP",
+			Computed:            true,
+		},
+
+		"virtual_ip": schema.StringAttribute{
+			MarkdownDescription: "Virtual IP",
+			Description:         "Virtual IP",
 			Computed:            true,
 		},
 
