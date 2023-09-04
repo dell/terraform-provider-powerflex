@@ -305,14 +305,14 @@ func (r *userResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 
 func (r *userResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	parts := strings.Split(req.ID, ":")
-	var userName string
-	if len(parts) == 2 {
-		userName = parts[1]
+	if len(parts) == 2 && parts[0] == "id" {
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), parts[1])...)
+	} else if len(parts) == 2 && parts[0] == "name" {
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), parts[1])...)
 	} else {
 		resp.Diagnostics.AddError(
 			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: name:username. Got: %q", req.ID),
+			fmt.Sprintf("Expected import identifier format: id:userId or name:userName. Got: %q", req.ID),
 		)
 	}
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), userName)...)
 }
