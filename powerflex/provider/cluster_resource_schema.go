@@ -847,7 +847,7 @@ func StoragePoolDetailModelSchema() map[string]schema.Attribute {
 			Computed:            true,
 		},
 
-		"extern_alacceleration": schema.StringAttribute{
+		"external_acceleration": schema.StringAttribute{
 			MarkdownDescription: "External Acceleration",
 			Description:         "External Acceleration",
 			Computed:            true,

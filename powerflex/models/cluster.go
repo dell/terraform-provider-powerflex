@@ -155,7 +155,7 @@ type ProtectionDomainDataModel struct {
 type StoragePoolDetailModel struct {
 	Name                                 types.String `tfsdk:"name"`
 	MediaType                            types.String `tfsdk:"media_type"`
-	ExternalAcceleration                 types.String `tfsdk:"extern_alacceleration"`
+	ExternalAcceleration                 types.String `tfsdk:"external_acceleration"`
 	DataLayout                           types.String `tfsdk:"data_layout"`
 	ZeroPadding                          types.String `tfsdk:"zero_padding"`
 	CompressionMethod                    types.String `tfsdk:"compression_method"`

@@ -23,15 +23,18 @@ import (
 	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"strings"
 	"terraform-provider-powerflex/powerflex/helper"
 	"terraform-provider-powerflex/powerflex/models"
 )
 
 var (
-	_ resource.Resource = &userResource{}
+	_ resource.Resource                = &userResource{}
+	_ resource.ResourceWithImportState = &userResource{}
 )
 
 // UserResource - function to return resource interface
@@ -96,6 +99,7 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				Required: true,
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
+					stringvalidator.LengthAtMost(31),
 				},
 				MarkdownDescription: "Password of the user." +
 					" Cannot be updated.",
@@ -176,21 +180,32 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 // Read refreshes the Terraform state with the latest data.
 func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state models.UserModel
-
+	var user *scaleiotypes.User
+	var err error
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	//fetch the user
-	user, err := r.system.GetUserByIDName(state.ID.ValueString(), "")
-	if err != nil {
-		resp.Diagnostics.AddError(
-			fmt.Sprintf("Could not get user by ID %s", state.ID.ValueString()), err.Error(),
-		)
-		return
-	}
+	if !state.ID.IsNull() {
+		user, err = r.system.GetUserByIDName(state.ID.ValueString(), "")
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Could not get user by ID %s", state.ID.ValueString()), err.Error(),
+			)
+			return
+		}
 
+	} else {
+		user, err = r.system.GetUserByIDName("", state.Name.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Could not get user by name %s", state.Name.ValueString()), err.Error(),
+			)
+			return
+		}
+	}
 	// update the state as per the values fetched
 	response := helper.UpdateUserState(user, state)
 	diags = resp.State.Set(ctx, response)
@@ -286,4 +301,18 @@ func (r *userResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 	}
 	// remove from state
 	resp.State.RemoveResource(ctx)
+}
+
+func (r *userResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	parts := strings.Split(req.ID, ":")
+	if len(parts) == 2 && parts[0] == "id" {
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), parts[1])...)
+	} else if len(parts) == 2 && parts[0] == "name" {
+		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), parts[1])...)
+	} else {
+		resp.Diagnostics.AddError(
+			"Unexpected Import Identifier",
+			fmt.Sprintf("Expected import identifier format: id:userId or name:userName. Got: %q", req.ID),
+		)
+	}
 }
