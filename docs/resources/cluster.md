@@ -237,7 +237,7 @@ Read-Only:
 
 - `compression_method` (String) Compression Method
 - `data_layout` (String) Data Layout
-- `extern_alacceleration` (String) External Acceleration
+- `external_acceleration` (String) External Acceleration
 - `media_type` (String) Media Type
 - `name` (String) Name
 - `replication_journal_capacity_percentage` (Number) Replication Journal Capacity Percentage

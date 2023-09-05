@@ -426,7 +426,7 @@ func GetPDValue(pd models.ProtectionDomainDataModel) (basetypes.ObjectValue, dia
 func GetStoragePoolsType() map[string]attr.Type {
 	return map[string]attr.Type{
 		"media_type":            types.StringType,
-		"extern_alacceleration": types.StringType,
+		"external_acceleration": types.StringType,
 		"name":                  types.StringType,
 		"data_layout":           types.StringType,
 		"compression_method":    types.StringType,
