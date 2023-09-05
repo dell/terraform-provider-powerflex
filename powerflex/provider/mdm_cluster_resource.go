@@ -473,7 +473,7 @@ func (d *mdmClusterResource) PopulateMdmID(ctx context.Context, plan *models.Mdm
 
 	if flag {
 		state, dgs = helper.UpdateMdmClusterState(ctx, mdmDetails, plan, d.system.System.PerformanceProfile)
-		diags = append(diags, dgs...)
+		diags.Append(dgs...)
 	}
 
 	// Get the IP with IDs as value
