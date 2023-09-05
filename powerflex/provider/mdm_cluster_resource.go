@@ -403,6 +403,61 @@ func (d *mdmClusterResource) Configure(_ context.Context, req resource.Configure
 	d.system = system
 }
 
+func (d *mdmClusterResource) ValidateConfig(ctx context.Context, ipmap map[string]string, plan *models.MdmResourceModel) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	// Check if valid IP is provided for Primary MDM
+	if !plan.PrimaryMdm.Ips.IsNull() {
+		configIps := make([]string, 0)
+		diags.Append(plan.PrimaryMdm.Ips.ElementsAs(ctx, &configIps, true)...)
+
+		if len(configIps) > 0 {
+			if _, ok := ipmap[configIps[0]]; !ok {
+				diags.AddAttributeError(
+					path.Root("primary_mdm"),
+					"Please enter valid IP for primary MDM",
+					"Please enter valid IP for primary MDM",
+				)
+			}
+		}
+	}
+
+	// Check if valid IP is provided for Secondary MDM
+	for _, mdm := range plan.SecondaryMdm {
+		if !mdm.Ips.IsNull() {
+			configIps := make([]string, 0)
+			diags.Append(mdm.Ips.ElementsAs(ctx, &configIps, true)...)
+			if len(configIps) > 0 {
+				if _, ok := ipmap[configIps[0]]; !ok {
+					diags.AddAttributeError(
+						path.Root("secondary_mdm"),
+						"Please enter valid IP for secondary MDM",
+						"Please enter valid IP for secondary MDM",
+					)
+				}
+			}
+		}
+	}
+
+	// Check if valid IP is provided for TB MDM
+	for _, mdm := range plan.TieBreakerMdm {
+		if !mdm.Ips.IsNull() {
+			configIps := make([]string, 0)
+			diags.Append(mdm.Ips.ElementsAs(ctx, &configIps, true)...)
+			if len(configIps) > 0 {
+				if _, ok := ipmap[configIps[0]]; !ok {
+					diags.AddAttributeError(
+						path.Root("tiebreaker_mdm"),
+						"Please enter valid IP for tiebreaker MDM",
+						"Please enter valid IP for tiebreaker MDM",
+					)
+				}
+			}
+		}
+	}
+	return diags
+}
+
 // PopulateMdmID populates MDM IDs based on IP
 func (d *mdmClusterResource) PopulateMdmID(ctx context.Context, plan *models.MdmResourceModel, state *models.MdmResourceModel, flag bool) diag.Diagnostics {
 	var dgs, diags diag.Diagnostics
@@ -418,11 +473,16 @@ func (d *mdmClusterResource) PopulateMdmID(ctx context.Context, plan *models.Mdm
 
 	if flag {
 		state, dgs = helper.UpdateMdmClusterState(ctx, mdmDetails, plan, d.system.System.PerformanceProfile)
-		diags = append(diags, dgs...)
+		diags.Append(dgs...)
 	}
 
 	// Get the IP with IDs as value
 	ipmap := helper.GetMdmIPMap(mdmDetails)
+
+	diags = d.ValidateConfig(ctx, ipmap, plan)
+	if diags.HasError() {
+		return diags
+	}
 
 	// Populate Primary MDM ID if IP is provided
 	if plan.PrimaryMdm.ID.IsUnknown() {
@@ -548,10 +608,7 @@ func (d *mdmClusterResource) ModifyPlan(ctx context.Context, req resource.Modify
 		resp.Diagnostics.Append(diags...)
 	}
 
-	diags = d.PopulateMdmID(ctx, &plan, &state, stateFlag)
-	if diags.HasError() {
-		return
-	}
+	resp.Diagnostics.Append(d.PopulateMdmID(ctx, &plan, &state, stateFlag)...)
 
 	diags = resp.Plan.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
