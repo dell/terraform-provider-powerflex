@@ -5,7 +5,7 @@
 # resource "powerflex_user" "resource_block_name" {
 # }
 # Step 4 - execute the command: terraform import "powerflex_user.resource_block_name" "name:userName" (where userName is the name of the user which you wanna import)
-# 2nd approach to import the user is using the id. The import command to import using the id is : terraform import "powerflex_user.resource_block_name" "id:userId"
+# 2nd approach to import the user is using the id. The import command to import using the id is : terraform import "powerflex_user.resource_block_name" "id:userId" OR terraform import "powerflex_user.resource_block_name" "userId"
 # Step 5 - After successful execution of the command , check the state file
 
 
