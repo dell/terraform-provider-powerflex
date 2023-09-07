@@ -89,12 +89,12 @@ func TestAccSDCResourceMultiNameOperation(t *testing.T) {
 	var sdcID string // Variable to store the SDC IP
 
 	// Convert the current time to milliseconds since the Unix epoch
-	milliseconds_1 := time.Now().UnixNano() / 1e6
+	milliseconds1 := time.Now().UnixNano() / 1e6
 
 	time.Sleep(5 * time.Second)
 
 	// Convert the current time to milliseconds since the Unix epoch
-	milliseconds_2 := time.Now().UnixNano() / 1e6
+	milliseconds2 := time.Now().UnixNano() / 1e6
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -136,14 +136,14 @@ func TestAccSDCResourceMultiNameOperation(t *testing.T) {
 					sdc_details = [
 					  {
 						sdc_id = "` + sdcID + `"
-						name   = "sdc_` + fmt.Sprint(milliseconds_1) + `"
+						name   = "sdc_` + fmt.Sprint(milliseconds1) + `"
 						performance_profile   = "HighPerformance"
 						is_sdc = "Yes"
 					  },
 					]
 				  }`,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.update", "sdc_details.0.name", "sdc_"+fmt.Sprint(milliseconds_1)),
+					resource.TestCheckResourceAttr("powerflex_sdc.update", "sdc_details.0.name", "sdc_"+fmt.Sprint(milliseconds1)),
 				),
 			},
 			{
@@ -153,14 +153,14 @@ func TestAccSDCResourceMultiNameOperation(t *testing.T) {
 					sdc_details = [
 					  {
 						sdc_id = "` + sdcID + `"
-						name   = "sdc_` + fmt.Sprint(milliseconds_2) + `"
+						name   = "sdc_` + fmt.Sprint(milliseconds2) + `"
 						performance_profile   = "HighPerformance"
 						is_sdc = "Yes"
 					  },
 					]
 				  }`,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.update", "sdc_details.0.name", "sdc_"+fmt.Sprint(milliseconds_2)),
+					resource.TestCheckResourceAttr("powerflex_sdc.update", "sdc_details.0.name", "sdc_"+fmt.Sprint(milliseconds2)),
 				),
 			},
 		}})
