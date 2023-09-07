@@ -84,66 +84,18 @@ func TestAccSDCResource(t *testing.T) {
 	})
 }
 
-func generateDynamicConfig(baseConfig string, sdcID string, name string) string {
-	return fmt.Sprintf("%s\nresource \"powerflex_sdc\" \"test\" {\n  name = \"%s\"\n  id = \"%s\"\n}", baseConfig, name, sdcID)
-}
-
-func TestAccSDCResourceSingleNameOperation(t *testing.T) {
-
-	var sdcID string // Variable to store the SDC IP
-
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: ProviderConfigForTesting + TestSdcDataSourceByName,
-
-				Check: resource.ComposeAggregateTestCheckFunc(
-
-					// Store the SDC ID in the variable
-					func(state *terraform.State) error {
-						var index string
-
-						attrs, ok := state.RootModule().Resources["data.powerflex_sdc.selected"].Primary.Attributes, true
-						if !ok {
-							return fmt.Errorf("data resource not found in state")
-						}
-
-						for key, value := range attrs {
-							if strings.Contains(key, "ip") && value == "N/A" {
-								index = strings.Split(key, ".")[1]
-							}
-						}
-
-						sdcID = attrs["sdcs."+index+".id"]
-						return nil
-					},
-				),
-			},
-		}})
-
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: generateDynamicConfig(ProviderConfigForTesting, sdcID, "terraform_sdc_dummy_2"),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.0.name", "terraform_sdc_dummy_2"),
-				),
-			},
-			{
-				Config: generateDynamicConfig(ProviderConfigForTesting, sdcID, "terraform_sdc_dummy_3"),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.0.name", "terraform_sdc_dummy_3"),
-				),
-			},
-		}})
-}
-
 func TestAccSDCResourceMultiNameOperation(t *testing.T) {
 
 	var sdcID string // Variable to store the SDC IP
 
+	// Convert the current time to milliseconds since the Unix epoch
+	milliseconds_1 := time.Now().UnixNano() / 1e6
+
+	time.Sleep(5 * time.Second)
+
+	// Convert the current time to milliseconds since the Unix epoch
+	milliseconds_2 := time.Now().UnixNano() / 1e6
+
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -184,14 +136,14 @@ func TestAccSDCResourceMultiNameOperation(t *testing.T) {
 					sdc_details = [
 					  {
 						sdc_id = "` + sdcID + `"
-						name   = "terraform_sdc_dummy_2"
+						name   = "sdc_` + fmt.Sprint(milliseconds_1) + `"
 						performance_profile   = "HighPerformance"
 						is_sdc = "Yes"
 					  },
 					]
 				  }`,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.update", "sdc_details.0.name", "terraform_sdc_dummy_2"),
+					resource.TestCheckResourceAttr("powerflex_sdc.update", "sdc_details.0.name", "sdc_"+fmt.Sprint(milliseconds_1)),
 				),
 			},
 			{
@@ -201,14 +153,14 @@ func TestAccSDCResourceMultiNameOperation(t *testing.T) {
 					sdc_details = [
 					  {
 						sdc_id = "` + sdcID + `"
-						name   = "terraform_sdc_dummy_3"
+						name   = "sdc_` + fmt.Sprint(milliseconds_2) + `"
 						performance_profile   = "HighPerformance"
 						is_sdc = "Yes"
 					  },
 					]
 				  }`,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.update", "sdc_details.0.name", "terraform_sdc_dummy_3"),
+					resource.TestCheckResourceAttr("powerflex_sdc.update", "sdc_details.0.name", "sdc_"+fmt.Sprint(milliseconds_2)),
 				),
 			},
 		}})
@@ -259,19 +211,6 @@ resource "powerflex_package" "upload-test" {
 `
 var TestSdcDataSourceByName = `data "powerflex_sdc" "selected" {
 }`
-
-var SDCConfigChangeName = `
-resource "powerflex_sdc" "name" {
-	id   = "e3cff47d00000005"
-  	name = "` + time.Now().Weekday().String() + `1"
-}
-`
-var SDCConfigUpdateName = `
-resource "powerflex_sdc" "name" {
-	id   = "e3cff47d00000005"
-  	name = "` + time.Now().Weekday().String() + `2"
-}
-`
 
 var SDCConfig1 = `
 resource "powerflex_sdc" "test" {
@@ -328,6 +267,7 @@ resource "powerflex_sdc" "test" {
 			operating_system = "linux"
 			is_mdm_or_tb = "Secondary"
 			is_sdc = "NO"
+			performance_profile = "HighPerformance"
 		},
 		{
 			ip = "` + GatewayDataPoints.tbIP + `"

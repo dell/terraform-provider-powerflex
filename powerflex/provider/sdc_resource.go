@@ -194,22 +194,6 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 				chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 			}
 		}
-	} else if state.ID.ValueString() != "" && state.ID.ValueString() != "placeholder" {
-
-		//For handling the single SDC reanme operation
-		singleSdc, err := system.FindSdc("ID", state.ID.ValueString())
-
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Read Powerflex systems-sdcs Read",
-				err.Error(),
-			)
-			return
-		}
-
-		changedSDCDetail := helper.GetSDCState(*singleSdc.Sdc, models.SDCDetailDataModel{})
-
-		chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 	} else if len(sdcDetailList) > 0 {
 
 		//For handling the multiple sdc_details update
