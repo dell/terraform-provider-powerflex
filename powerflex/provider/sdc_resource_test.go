@@ -267,7 +267,6 @@ resource "powerflex_sdc" "test" {
 			operating_system = "linux"
 			is_mdm_or_tb = "Secondary"
 			is_sdc = "NO"
-			performance_profile = "HighPerformance"
 		},
 		{
 			ip = "` + GatewayDataPoints.tbIP + `"
