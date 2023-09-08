@@ -19,12 +19,12 @@ linkTitle: "powerflex_user"
 page_title: "powerflex_user Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource can be used to manage user on a PowerFlex array.
+  This resource is used to manage the User entity of PowerFlex Array. We can Create, Update and Delete the user using this resource. We can also import an existing user from PowerFlex array.However, password cannot be updated using this resource.
 ---
 
 # powerflex_user (Resource)
 
-This resource can be used to manage user on a PowerFlex array.
+This resource is used to manage the User entity of PowerFlex Array. We can Create, Update and Delete the user using this resource. We can also import an existing user from PowerFlex array.However, password cannot be updated using this resource.
 
 
 ## Example Usage
@@ -53,8 +53,8 @@ limitations under the License.
 # name, role and password is the required parameter to create or update
 
 resource "powerflex_user" "newUser" {
-  name = "StorageAdmin"
-  role = "Monitor"
+  name     = "StorageAdmin"
+  role     = "Monitor"
   password = "Password"
 }
 ```

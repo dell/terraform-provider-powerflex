@@ -19,12 +19,12 @@ linkTitle: "powerflex_volume"
 page_title: "powerflex_volume Data Source - powerflex"
 subcategory: ""
 description: |-
-  This data-source can be used to fetch information related to volumes from a PowerFlex array.
+  This datasource is used to query the existing volume from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---
 
 # powerflex_volume (Data Source)
 
-This data-source can be used to fetch information related to volumes from a PowerFlex array.
+This datasource is used to query the existing volume from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 
 ~> **Note:** Only one of `names`, `id`, `storage_pool_id` and  `storage_pool_name` can be provided at a time.
 

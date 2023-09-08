@@ -26,8 +26,8 @@ import (
 
 // DeviceDataSourceSchema defines the schema for device datasource
 var DeviceDataSourceSchema schema.Schema = schema.Schema{
-	Description:         "This datasource can be used to fetch information related to devices from a PowerFlex array.",
-	MarkdownDescription: "This datasource can be used to fetch information related to devices from a PowerFlex array.",
+	Description:         "This datasource is used to query the existing device from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
+	MarkdownDescription: "This datasource is used to query the existing device from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description: "Unique identifier Of The Device Instance." +

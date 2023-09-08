@@ -21,7 +21,7 @@ limitations under the License.
 # name, role and password is the required parameter to create or update
 
 resource "powerflex_user" "newUser" {
-  name = "StorageAdmin"
-  role = "Monitor"
+  name     = "StorageAdmin"
+  role     = "Monitor"
   password = "Password"
 }

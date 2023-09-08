@@ -19,12 +19,12 @@ linkTitle: "powerflex_device"
 page_title: "powerflex_device Data Source - powerflex"
 subcategory: ""
 description: |-
-  This datasource can be used to fetch information related to devices from a PowerFlex array.
+  This datasource is used to query the existing device from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---
 
 # powerflex_device (Data Source)
 
-This datasource can be used to fetch information related to devices from a PowerFlex array.
+This datasource is used to query the existing device from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 
 ## Example Usage
 

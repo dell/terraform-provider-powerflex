@@ -19,12 +19,12 @@ linkTitle: "powerflex_protection_domain"
 page_title: "powerflex_protection_domain Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource can be used to manage protection domains on a PowerFlex array.
+  This resource is used to manage the Protection Domain entity of PowerFlex Array. We can Create, Update and Delete the protection domain using this resource. We can also import an existing protection domain from PowerFlex array.
 ---
 
 # powerflex_protection_domain (Resource)
 
-This resource can be used to manage protection domains on a PowerFlex array.
+This resource is used to manage the Protection Domain entity of PowerFlex Array. We can Create, Update and Delete the protection domain using this resource. We can also import an existing protection domain from PowerFlex array.
 
 !> **Caution:** Protection Domain creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).

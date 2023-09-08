@@ -24,31 +24,49 @@ limitations under the License.
 # To check which attributes of the storage pool can be updated, please refer Product Guide in the documentation
 
 resource "powerflex_storage_pool" "sp" {
-  name = "storagepool3"
-  #protection_domain_id = "202a046600000000"
-  protection_domain_name = "domain1"
-  media_type             = "HDD"
-  use_rmcache            = false
-  use_rfcache            = true
-  #replication_journal_capacity = 34
-  capacity_alert_high_threshold                               = 66
-  capacity_alert_critical_threshold                           = 77
-  zero_padding_enabled                                        = false
+  name                         = "newstoragepool"
+  protection_domain_name       = "domain1"
+  media_type                   = "HDD"
+  use_rmcache                  = false
+  use_rfcache                  = true
+  replication_journal_capacity = 34
+  zero_padding_enabled         = false
+  rebalance_enabled            = false
+
+  # Alert Thresholds
+  # Critical threshold must be greater than high threshold
+  capacity_alert_high_threshold     = 66
+  capacity_alert_critical_threshold = 77
+
+  # Protected Maintenance Mode Parameters
+  # When the policy is set to "favorAppIos", then concurrent IOs and bandwidth limit can be set.
+  # When the policy is set to "limitNumOfConcurrentIos", then only concurrent IOs can be set.
+  # When the policy is set to "unlimited", then concurrent IOs and bandwidth limit can't be set.
   protected_maintenance_mode_io_priority_policy               = "favorAppIos"
   protected_maintenance_mode_num_of_concurrent_ios_per_device = 7
   protected_maintenance_mode_bw_limit_per_device_in_kbps      = 1028
-  rebalance_enabled                                           = false
-  rebalance_io_priority_policy                                = "favorAppIos"
-  rebalance_num_of_concurrent_ios_per_device                  = 7
-  rebalance_bw_limit_per_device_in_kbps                       = 1032
-  vtree_migration_io_priority_policy                          = "favorAppIos"
-  vtree_migration_num_of_concurrent_ios_per_device            = 7
-  vtree_migration_bw_limit_per_device_in_kbps                 = 1030
-  spare_percentage                                            = 66
-  rm_cache_write_handling_mode                                = "Passthrough"
-  rebuild_enabled                                             = true
-  rebuild_rebalance_parallelism                               = 5
-  fragmentation                                               = false
+
+  # Rebalance Parameters
+  # When the policy is set to "favorAppIos", then concurrent IOs and bandwidth limit can be set.
+  # When the policy is set to "limitNumOfConcurrentIos", then only concurrent IOs can be set.
+  # When the policy is set to "unlimited", then concurrent IOs and bandwidth limit can't be set.  
+  rebalance_io_priority_policy               = "favorAppIos"
+  rebalance_num_of_concurrent_ios_per_device = 7
+  rebalance_bw_limit_per_device_in_kbps      = 1032
+
+  #VTree Migration Parameters
+  # When the policy is set to "favorAppIos", then concurrent IOs and bandwidth limit can be set.
+  # When the policy is set to "limitNumOfConcurrentIos", then only concurrent IOs can be set.
+  vtree_migration_io_priority_policy               = "favorAppIos"
+  vtree_migration_num_of_concurrent_ios_per_device = 7
+  vtree_migration_bw_limit_per_device_in_kbps      = 1030
+
+
+  spare_percentage              = 66
+  rm_cache_write_handling_mode  = "Passthrough"
+  rebuild_enabled               = true
+  rebuild_rebalance_parallelism = 5
+  fragmentation                 = false
 }
 
 output "created_storagepool" {

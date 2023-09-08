@@ -38,6 +38,8 @@ If the taint is not removed, terraform will destroy and recreate the resource.
 {{tffile .ExampleFile }}
 {{- end }}
 
+After the execution of above resource block, storage pool would have been created on the PowerFlex array. For more information, Please check the state file.
+
 {{ .SchemaMarkdown | trimspace }}
 
 {{ if .HasImport -}}

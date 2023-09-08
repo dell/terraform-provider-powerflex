@@ -54,7 +54,7 @@ func (r *sdcVolumeMappingResource) Metadata(_ context.Context, req resource.Meta
 
 func (r *sdcVolumeMappingResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description:         "This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array.",
+		Description:         "This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array.User can map/unmap",
 		MarkdownDescription: "This resource can be used to manage mapping of volumes to an SDC on a PowerFlex array.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

@@ -51,8 +51,8 @@ func (r *deviceResource) Metadata(_ context.Context, req resource.MetadataReques
 
 func (r *deviceResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description:         "This resource can be used to manage devices on a PowerFlex array.",
-		MarkdownDescription: "This resource can be used to manage devices on a PowerFlex array.",
+		Description:         "This resource is used to manage the Device entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex Devices using this resource. We can also import an existing device from PowerFlex array.",
+		MarkdownDescription: "This resource is used to manage the Device entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex Devices using this resource. We can also import an existing device from PowerFlex array.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Description:         "The ID of the device.",

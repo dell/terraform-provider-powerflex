@@ -19,12 +19,12 @@ linkTitle: "powerflex_snapshot_policy"
 page_title: "powerflex_snapshot_policy Data Source - powerflex"
 subcategory: ""
 description: |-
-  This data-source can be used to fetch information related to the snapshot policies from a PowerFlex array.
+  This datasource is used to query the existing Storage Data Servers from PowerFlex array. The information fetched from this datasource can be used for getting the details.
 ---
 
 # powerflex_snapshot_policy (Data Source)
 
-This data-source can be used to fetch information related to the snapshot policies from a PowerFlex array.
+This datasource is used to query the existing Storage Data Servers from PowerFlex array. The information fetched from this datasource can be used for getting the details.
 
 ~> **Note:** Only one of `name` and `id` can be provided at a time.
 

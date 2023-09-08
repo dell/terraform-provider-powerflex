@@ -19,12 +19,12 @@ linkTitle: "powerflex_device"
 page_title: "powerflex_device Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource can be used to manage devices on a PowerFlex array.
+  This resource is used to manage the Device entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex Devices using this resource. We can also import an existing device from PowerFlex array.
 ---
 
 # powerflex_device (Resource)
 
-This resource can be used to manage devices on a PowerFlex array.
+This resource is used to manage the Device entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex Devices using this resource. We can also import an existing device from PowerFlex array.
 
 !> **Caution:** Device creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).

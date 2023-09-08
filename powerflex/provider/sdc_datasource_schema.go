@@ -28,7 +28,8 @@ import (
 
 // SDCDataSourceScheme is variable for schematic for SDC Data Source
 var SDCDataSourceScheme schema.Schema = schema.Schema{
-	Description: "This data-source can be used to fetch information related to Storage Data Clients from a PowerFlex array.",
+	Description:         "This datasource is used to query the existing Storage Data Clients from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
+	MarkdownDescription: "This datasource is used to query the existing Storage Data Clients from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description: "ID of the SDC to fetch." +

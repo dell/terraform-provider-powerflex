@@ -27,7 +27,8 @@ import (
 
 // StoragepoolReourceSchema - varible holds schema for Storagepool
 var StoragepoolReourceSchema schema.Schema = schema.Schema{
-	Description: "This resource can be used to manage Storage Pools on a PowerFlex array.",
+	Description:         "This resource is used to manage the Storage Pool entity of PowerFlex Array. We can Create, Update and Delete the storage pool using this resource. We can also import an existing storage pool from PowerFlex array.",
+	MarkdownDescription: "This resource is used to manage the Storage Pool entity of PowerFlex Array. We can Create, Update and Delete the storage pool using this resource. We can also import an existing storage pool from PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "ID of the Storage pool",
@@ -94,8 +95,8 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 			Computed:            true,
 		},
 		"replication_journal_capacity": schema.Int64Attribute{
-			Description:         "This defines the maximum percentage of Storage Pool capacity that can be used by replication for the journal.",
-			MarkdownDescription: "This defines the maximum percentage of Storage Pool capacity that can be used by replication for the journal.",
+			Description:         "This defines the maximum percentage of Storage Pool capacity that can be used by replication for the journal. Before deleting the storage pool, this has to be set to 0.",
+			MarkdownDescription: "This defines the maximum percentage of Storage Pool capacity that can be used by replication for the journal. Before deleting the storage pool, this has to be set to 0.",
 			Optional:            true,
 			Computed:            true,
 		},

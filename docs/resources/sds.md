@@ -19,12 +19,12 @@ linkTitle: "powerflex_sds"
 page_title: "powerflex_sds Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource can be used to manage Storage Data Servers on a PowerFlex array.
+  This resource is used to manage the Storage Data Servers entity of PowerFlex Array. We can Create, Update and Delete the SDS using this resource. We can also import an existing SDS from PowerFlex array.
 ---
 
 # powerflex_sds (Resource)
 
-This resource can be used to manage Storage Data Servers on a PowerFlex array.
+This resource is used to manage the Storage Data Servers entity of PowerFlex Array. We can Create, Update and Delete the SDS using this resource. We can also import an existing SDS from PowerFlex array.
 
 ~> **Note:** Exactly one of `protection_domain_name` and `protection_domain_id` is required.
 

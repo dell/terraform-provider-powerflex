@@ -19,12 +19,12 @@ linkTitle: "powerflex_snapshot"
 page_title: "powerflex_snapshot Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource can be used to manage snapshots of volumes on a PowerFlex array.
+  This resource is used to manage the Snapshot of volumes on PowerFlex Array. We can Create, Update and Delete the snapshots using this resource. We can also import an existing snapshot from PowerFlex array.
 ---
 
 # powerflex_snapshot (Resource)
 
-This resource can be used to manage snapshots of volumes on a PowerFlex array.
+This resource is used to manage the Snapshot of volumes on PowerFlex Array. We can Create, Update and Delete the snapshots using this resource. We can also import an existing snapshot from PowerFlex array.
 
 !> **Caution:** Snapshot creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
