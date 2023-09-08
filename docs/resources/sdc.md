@@ -102,12 +102,6 @@ resource "powerflex_sdc" "expansion" {
   ]
 }
 
-#To Rename One SDC Server 
-resource "powerflex_sdc" "rename" {
-   id   = "SDC_ID"
-   name = "Name"
-}
-
 # For Import Multiple SDC
 resource "powerflex_sdc" "importing" {
 }
@@ -119,11 +113,13 @@ resource "powerflex_sdc" "importing" {
 
 ### Optional
 
-- `id` (String) ID of the SDC to manage. This can be retrieved from the Datasource and PowerFlex Server. Cannot be updated. Conflict `sdc_details`, `mdm_password` and `lia_password`
 - `lia_password` (String, Sensitive) LIA Password to connect MDM Server.
 - `mdm_password` (String, Sensitive) MDM Password to connect MDM Server.
-- `name` (String, Deprecated) Name of the SDC to manage.  Conflict `sdc_details`, `mdm_password` and `lia_password`.
 - `sdc_details` (Attributes List) List of SDC Expansion Server Details. (see [below for nested schema](#nestedatt--sdc_details))
+
+### Read-Only
+
+- `id` (String) Placeholder
 
 <a id="nestedatt--sdc_details"></a>
 ### Nested Schema for `sdc_details`

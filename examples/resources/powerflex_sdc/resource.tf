@@ -70,12 +70,6 @@ resource "powerflex_sdc" "expansion" {
   ]
 }
 
-#To Rename One SDC Server 
-resource "powerflex_sdc" "rename" {
-   id   = "SDC_ID"
-   name = "Name"
-}
-
 # For Import Multiple SDC
 resource "powerflex_sdc" "importing" {
 }
