@@ -20,6 +20,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"terraform-provider-powerflex/powerflex/helper"
 	"terraform-provider-powerflex/powerflex/models"
 	"time"
@@ -969,6 +970,7 @@ func (d *mdmClusterResource) AddStandByMdm(ctx context.Context, plan models.MdmR
 			IPs:           ips,
 			Role:          mdm.Role.ValueString(),
 			ManagementIPs: mgmtIps,
+			Port:          strconv.Itoa(int(mdm.Port.ValueInt64())),
 		}
 
 		// Allow asymmetric Ips
