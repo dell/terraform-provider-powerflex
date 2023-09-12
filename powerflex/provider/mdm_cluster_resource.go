@@ -970,7 +970,6 @@ func (d *mdmClusterResource) AddStandByMdm(ctx context.Context, plan models.MdmR
 			IPs:           ips,
 			Role:          mdm.Role.ValueString(),
 			ManagementIPs: mgmtIps,
-			Port:          strconv.Itoa(int(mdm.Port.ValueInt64())),
 		}
 
 		// Allow asymmetric Ips
@@ -978,6 +977,12 @@ func (d *mdmClusterResource) AddStandByMdm(ctx context.Context, plan models.MdmR
 			payload.AllowAsymmetricIps = "true"
 		} else {
 			payload.AllowAsymmetricIps = "false"
+		}
+
+		if mdm.Port.ValueInt64() != 0 {
+			payload.Port = strconv.Itoa(int(mdm.Port.ValueInt64()))
+		} else {
+			payload.Port = "9011"
 		}
 
 		_, err := d.system.AddStandByMdm(&payload)
