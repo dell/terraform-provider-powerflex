@@ -172,6 +172,9 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 					stringvalidator.LengthAtLeast(1),
 					stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("ip")),
 				},
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"name": schema.StringAttribute{
 				Optional:            true,

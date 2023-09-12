@@ -304,7 +304,7 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 			for _, sdc := range deletedSDC {
 
-				if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") {
+				if !sdc.SDCID.IsNull() {
 					err := system.DeleteSdc(sdc.SDCID.ValueString())
 
 					if err != nil {
