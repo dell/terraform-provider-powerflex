@@ -147,6 +147,12 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 		return
 	}
+
+	resp.Diagnostics.AddError(
+		"Please provide valid inputs",
+		"Please provide valid inputs",
+	)
+	return
 }
 
 // Read - function to Read for SDC resource.
@@ -243,6 +249,8 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 				chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 			}
 		}
+	} else if len(sdcDetailList) == 0 {
+		//Dumping same is state
 	} else {
 		resp.Diagnostics.AddError("[Read] Please provide valid SDC ID", "Please provide valid SDC ID")
 
@@ -384,7 +392,8 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 		return
 	} else {
-		resp.State.RemoveResource(ctx)
+		diags = resp.State.Set(ctx, plan)
+		resp.Diagnostics.Append(diags...)
 
 		tflog.Info(ctx, "SDC Details deleted from state file successfully")
 	}
