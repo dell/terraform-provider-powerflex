@@ -152,7 +152,6 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 		"Please provide valid inputs",
 		"Please provide valid inputs",
 	)
-	return
 }
 
 // Read - function to Read for SDC resource.
