@@ -21,6 +21,7 @@ import (
 	"terraform-provider-powerflex/powerflex/helper"
 	"terraform-provider-powerflex/powerflex/models"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -38,10 +39,12 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 		"mdm_password": schema.StringAttribute{
 			Description:         "MDM Password to connect MDM Server.",
 			MarkdownDescription: "MDM Password to connect MDM Server.",
-			Optional:            true,
+			Required:            true,
 			Sensitive:           true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
+				stringvalidator.AlsoRequires(path.MatchRoot("sdc_details")),
+				stringvalidator.AlsoRequires(path.MatchRoot("lia_password")),
 			},
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.UseStateForUnknown(),
@@ -50,10 +53,12 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 		"lia_password": schema.StringAttribute{
 			Description:         "LIA Password to connect MDM Server.",
 			MarkdownDescription: "LIA Password to connect MDM Server.",
-			Optional:            true,
+			Required:            true,
 			Sensitive:           true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
+				stringvalidator.AlsoRequires(path.MatchRoot("sdc_details")),
+				stringvalidator.AlsoRequires(path.MatchRoot("mdm_password")),
 			},
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.UseStateForUnknown(),
@@ -72,9 +77,13 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 
 // sdcDetailSchema - variable holds schema for CSV Param Details
 var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
-	Description:         "List of SDC Expansion Server Details.",
-	Optional:            true,
-	Computed:            true,
+	Description: "List of SDC Expansion Server Details.",
+	Optional:    true,
+	Computed:    true,
+	Validators: []validator.List{
+		listvalidator.AlsoRequires(path.MatchRoot("lia_password")),
+		listvalidator.AlsoRequires(path.MatchRoot("mdm_password")),
+	},
 	MarkdownDescription: "List of SDC Expansion Server Details.",
 	NestedObject: schema.NestedAttributeObject{
 		Attributes: map[string]schema.Attribute{
