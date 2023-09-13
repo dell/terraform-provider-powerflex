@@ -18,7 +18,7 @@ limitations under the License.
 terraform {
   required_providers {
     powerflex = {
-      version = "1.1.0"
+      version = "1.2.0"
       source  = "registry.terraform.io/dell/powerflex"
     }
   }
