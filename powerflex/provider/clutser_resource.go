@@ -206,6 +206,12 @@ func (r *clusterResource) ValidateConfig(ctx context.Context, req resource.Valid
 					)
 				}
 			}
+
+			for _, row := range clusterInstallationDetailsDataModel {
+				if strings.EqualFold(row.IsSdr.ValueString(), "Yes") {
+					sdrCheck = true
+				}
+			}
 		}
 
 		if sdrCheck {
