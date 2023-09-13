@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -177,12 +178,12 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 				Computed:            true,
 				Description:         "ID of the SDC to manage. This can be retrieved from the Datasource and PowerFlex Server. Cannot be updated. Conflict with `ip`",
 				MarkdownDescription: "ID of the SDC to manage. This can be retrieved from the Datasource and PowerFlex Server. Cannot be updated. Conflict with `ip`",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 					stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("ip")),
-				},
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
@@ -202,26 +203,41 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 				Description:         models.SdcResourceSchemaDescriptions.SdcGUID,
 				MarkdownDescription: models.SdcResourceSchemaDescriptions.SdcGUID,
 				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"on_vmware": schema.BoolAttribute{
 				Description:         models.SdcResourceSchemaDescriptions.OnVMWare,
 				MarkdownDescription: models.SdcResourceSchemaDescriptions.OnVMWare,
 				Computed:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"sdc_approved": schema.BoolAttribute{
 				Description:         models.SdcResourceSchemaDescriptions.SdcApproved,
 				MarkdownDescription: models.SdcResourceSchemaDescriptions.SdcApproved,
 				Computed:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"system_id": schema.StringAttribute{
 				Description:         models.SdcResourceSchemaDescriptions.SystemID,
 				MarkdownDescription: models.SdcResourceSchemaDescriptions.SystemID,
 				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"mdm_connection_state": schema.StringAttribute{
 				Description:         models.SdcResourceSchemaDescriptions.MdmConnectionState,
 				MarkdownDescription: models.SdcResourceSchemaDescriptions.MdmConnectionState,
 				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
 	},

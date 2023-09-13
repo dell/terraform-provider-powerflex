@@ -299,21 +299,19 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 	deletedSDC := helper.FindDeletedSDC(stateSdcDetailList, planSdcDetailList)
 
-	if !(plan.ID.ValueString() != "") {
-		if len(deletedSDC) > 0 {
+	if len(deletedSDC) > 0 {
 
-			for _, sdc := range deletedSDC {
+		for _, sdc := range deletedSDC {
 
-				if !sdc.SDCID.IsNull() {
-					err := system.DeleteSdc(sdc.SDCID.ValueString())
+			if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") {
+				err := system.DeleteSdc(sdc.SDCID.ValueString())
 
-					if err != nil {
-						resp.Diagnostics.AddError(
-							"[Update] Unable to Delete SDC by ID:"+sdc.SDCID.ValueString(),
-							err.Error(),
-						)
-						return
-					}
+				if err != nil {
+					resp.Diagnostics.AddError(
+						"[Update] Unable to Delete SDC by ID:"+sdc.SDCID.ValueString(),
+						err.Error(),
+					)
+					return
 				}
 			}
 		}
