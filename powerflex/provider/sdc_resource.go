@@ -147,6 +147,11 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 		return
 	}
+
+	resp.Diagnostics.AddError(
+		"Please provide valid inputs",
+		"Please provide valid inputs",
+	)
 }
 
 // Read - function to Read for SDC resource.
@@ -243,6 +248,8 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 				chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 			}
 		}
+	} else if len(sdcDetailList) == 0 {
+		//Dumping same is state
 	} else {
 		resp.Diagnostics.AddError("[Read] Please provide valid SDC ID", "Please provide valid SDC ID")
 
@@ -299,21 +306,19 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 	deletedSDC := helper.FindDeletedSDC(stateSdcDetailList, planSdcDetailList)
 
-	if !(plan.ID.ValueString() != "") {
-		if len(deletedSDC) > 0 {
+	if len(deletedSDC) > 0 {
 
-			for _, sdc := range deletedSDC {
+		for _, sdc := range deletedSDC {
 
-				if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") {
-					err := system.DeleteSdc(sdc.SDCID.ValueString())
+			if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") {
+				err := system.DeleteSdc(sdc.SDCID.ValueString())
 
-					if err != nil {
-						resp.Diagnostics.AddError(
-							"[Update] Unable to Delete SDC by ID:"+sdc.SDCID.ValueString(),
-							err.Error(),
-						)
-						return
-					}
+				if err != nil {
+					resp.Diagnostics.AddError(
+						"[Update] Unable to Delete SDC by ID:"+sdc.SDCID.ValueString(),
+						err.Error(),
+					)
+					return
 				}
 			}
 		}
@@ -386,7 +391,8 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 		return
 	} else {
-		resp.State.RemoveResource(ctx)
+		diags = resp.State.Set(ctx, plan)
+		resp.Diagnostics.Append(diags...)
 
 		tflog.Info(ctx, "SDC Details deleted from state file successfully")
 	}

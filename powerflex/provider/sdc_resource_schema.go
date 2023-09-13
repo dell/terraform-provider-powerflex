@@ -43,6 +43,8 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 			Sensitive:           true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
+				stringvalidator.AlsoRequires(path.MatchRoot("sdc_details")),
+				stringvalidator.AlsoRequires(path.MatchRoot("lia_password")),
 			},
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.UseStateForUnknown(),
@@ -55,6 +57,8 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 			Sensitive:           true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
+				stringvalidator.AlsoRequires(path.MatchRoot("sdc_details")),
+				stringvalidator.AlsoRequires(path.MatchRoot("mdm_password")),
 			},
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.UseStateForUnknown(),
@@ -169,12 +173,12 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 				Computed:            true,
 				Description:         "ID of the SDC to manage. This can be retrieved from the Datasource and PowerFlex Server. Cannot be updated. Conflict with `ip`",
 				MarkdownDescription: "ID of the SDC to manage. This can be retrieved from the Datasource and PowerFlex Server. Cannot be updated. Conflict with `ip`",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 					stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("ip")),
-				},
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{

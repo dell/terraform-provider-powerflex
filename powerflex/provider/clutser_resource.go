@@ -64,8 +64,153 @@ func (r *clusterResource) ValidateConfig(ctx context.Context, req resource.Valid
 		sdrCheck := false
 
 		for _, row := range clusterInstallationDetailsDataModel {
-			if strings.EqualFold(row.IsSdr.ValueString(), "Yes") {
-				sdrCheck = true
+
+			if row.IsSds.ValueString() == "No" {
+				if !row.SDSName.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("sds_name"),
+						"sds_name can be set only when is_sds is set to yes",
+						"",
+					)
+				}
+				if !row.SDSAllIPs.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("sds_all_ips"),
+						"sds_all_ips can be set only when is_sds is set to yes",
+						"",
+					)
+				}
+				if !row.SDSToSDSOnlyIPs.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("sds_to_sds_only_ips"),
+						"sds_to_sds_only_ips can be set only when is_sds is set to yes",
+						"",
+					)
+				}
+				if !row.SDSToSDCOnlyIPs.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("sds_to_sdc_only_ips"),
+						"sds_to_sdc_only_ips can be set only when is_sds is set to yes",
+						"",
+					)
+				}
+				if !row.ProtectionDomain.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("protection_domain"),
+						"protection_domain can be set only when is_sds is set to yes",
+						"",
+					)
+				}
+				if !row.FaultSet.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("fault_set"),
+						"fault_set can be set only when is_sds is set to yes",
+						"",
+					)
+				}
+				if !row.SDSStorageDeviceList.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("sds_storage_device_list"),
+						"sds_storage_device_list can be set only when is_sds is set to yes",
+						"",
+					)
+				}
+				if !row.StoragePoolList.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("storage_pool_list"),
+						"storage_pool_list can be set only when is_sds is set to yes",
+						"",
+					)
+				}
+				if !row.SDSStorageDeviceNames.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("sds_storage_device_names"),
+						"sds_storage_device_names can be set only when is_sds is set to yes",
+						"",
+					)
+				}
+				if !row.PerfProfileForSDS.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("perf_profile_for_sds"),
+						"perf_profile_for_sds can be set only when is_sds is set to yes",
+						"",
+					)
+				}
+			}
+
+			if row.IsSdc.ValueString() == "No" {
+				if !row.SDCName.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("sdc_name"),
+						"sdc_name can be set only when is_sdc is set to yes",
+						"",
+					)
+				}
+				if !row.PerfProfileForSDC.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("perf_profile_for_sdc"),
+						"perf_profile_for_sdc can be set only when is_sdc is set to yes",
+						"",
+					)
+				}
+			}
+
+			if row.IsSdr.ValueString() == "No" {
+				if !row.SDRName.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("sdr_name"),
+						"sdr_name can be set only when is_sdr is set to yes",
+						"",
+					)
+				}
+				if !row.SDRPort.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("sdr_port"),
+						"sdr_port can be set only when is_sdr is set to yes",
+						"",
+					)
+				}
+				if !row.PerfProfileForSDR.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("perf_profile_for_sdr"),
+						"perf_profile_for_sdr can be set only when is_sdr is set to yes",
+						"",
+					)
+				}
+				if !row.SDRApplicationIPs.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("sdr_application_ips"),
+						"sdr_application_ips can be set only when is_sdr is set to yes",
+						"",
+					)
+				}
+				if !row.SDRStorageIPs.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("sdr_storage_ips"),
+						"sdr_storage_ips can be set only when is_sdr is set to yes",
+						"",
+					)
+				}
+				if !row.SDRExternalIPs.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("sdr_external_ips"),
+						"sdr_external_ips can be set only when is_sdr is set to yes",
+						"",
+					)
+				}
+				if !row.SDRAllIPS.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("sdr_all_ips"),
+						"sdr_all_ips can be set only when is_sdr is set to yes",
+						"",
+					)
+				}
+			}
+
+			for _, row := range clusterInstallationDetailsDataModel {
+				if strings.EqualFold(row.IsSdr.ValueString(), "Yes") {
+					sdrCheck = true
+				}
 			}
 		}
 
