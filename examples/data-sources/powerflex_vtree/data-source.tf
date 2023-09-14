@@ -16,8 +16,8 @@ limitations under the License.
 */
 
 # commands to run this tf file : terraform init && terraform apply --auto-approve
-# empty block of the powerflex_vtree datasource will give list of all VTrees within the system
 
+# Get all VTrees details present on the cluster
 data "powerflex_vtree" "example1" {
 }
 
