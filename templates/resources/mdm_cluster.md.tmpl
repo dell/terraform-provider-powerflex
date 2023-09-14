@@ -30,13 +30,15 @@ description: |-
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 If the taint is not removed, terraform will destroy and recreate the resource.
 
-~> **Note:** Use of MDM cluster resource requires the presence of the MDM cluster. 
+~> **Note:** Use of MDM cluster resource requires the presence of the MDM cluster. The purpose of this resource is to update MDM cluster, not create or delete.
 
 {{ if .HasExample -}}
 ## Example Usage
 
 {{tffile .ExampleFile }}
 {{- end }}
+
+After the execution of the above resource block, the MDM cluster would become a 5-node cluster. For more information, please check the state file.
 
 {{ .SchemaMarkdown | trimspace }}
 
