@@ -30,13 +30,16 @@ description: |-
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 If the taint is not removed, terraform will destroy and recreate the resource.
 
-~> **Note:** Exactly one of `id` and `name` is required. Exactly one of `volume_id` and `volume_name` is required.
+~> **Note:** Exactly one of `id` or `name` is required. Not both can be provided together.
+~> **Note:** Exactly one of `volume_id` or `volume_name` is required. Not both can be provided together.
 
 {{ if .HasExample -}}
 ## Example Usage
 
 {{tffile .ExampleFile }}
 {{- end }}
+
+After the execution of above resource block, two volumes would have been mapped to SDC on the PowerFlex array. For more information, Please check the terraform state file
 
 {{ .SchemaMarkdown | trimspace }}
 
