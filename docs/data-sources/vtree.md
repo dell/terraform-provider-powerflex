@@ -19,12 +19,12 @@ linkTitle: "powerflex_vtree"
 page_title: "powerflex_vtree Data Source - powerflex"
 subcategory: ""
 description: |-
-  This datasource can be used to fetch information related to VTrees from a PowerFlex array.
+  This datasource is used to query the existing vtrees from PowerFlex array. The information fetched from this datasource can be used for getting the details.
 ---
 
 # powerflex_vtree (Data Source)
 
-This datasource can be used to fetch information related to VTrees from a PowerFlex array.
+This datasource is used to query the existing vtrees from PowerFlex array. The information fetched from this datasource can be used for getting the details.
 
 ## Example Usage
 

@@ -30,13 +30,16 @@ description: |-
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 If the taint is not removed, terraform will destroy and recreate the resource.
 
-~> **Note:** Exactly one of `protection_domain_name` and `protection_domain_id` and exactly one of `storage_pool_name` and `storage_pool_id` are required.
+~> **Note:** Exactly one of `protection_domain_name` or `protection_domain_id` is required. Not both can be provided together. 
+~> **Note:** Exactly one of `storage_pool_name` or `storage_pool_id` are required. Not both can be provided together. 
 
 {{ if .HasExample -}}
 ## Example Usage
 
 {{tffile .ExampleFile }}
 {{- end }}
+
+After the execution of above resource block, volume would have been created on the PowerFlex array. For more information, Please check the terraform state file.
 
 {{ .SchemaMarkdown | trimspace }}
 

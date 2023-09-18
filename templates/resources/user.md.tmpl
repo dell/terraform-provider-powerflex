@@ -26,19 +26,13 @@ description: |-
 
 {{ .Description | trimspace }}
 
-!> **Caution:** Storage Pool creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
-One can manually remove the taint and try applying the configuration (after making necessary adjustments).
-If the taint is not removed, terraform will destroy and recreate the resource.
-
-~> **Note:** Exactly one of `protection_domain_name` or `protection_domain_id` is required. Not both can be provided together. 
-
 {{ if .HasExample -}}
 ## Example Usage
 
 {{tffile .ExampleFile }}
 {{- end }}
 
-After the execution of above resource block, storage pool would have been created on the PowerFlex array. For more information, Please check the terraform state file.
+After the execution of above resource block, new user would have been created on the PowerFlex array. For more information, Please check the terraform state file.
 
 {{ .SchemaMarkdown | trimspace }}
 

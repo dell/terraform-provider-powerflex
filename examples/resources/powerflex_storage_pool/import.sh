@@ -13,5 +13,3 @@
 
 # import storage pool by it's id
 terraform import powerflex_storage_pool.storage_pool_import_by_id "<id>"
-
-

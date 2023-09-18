@@ -66,7 +66,7 @@ data "powerflex_storage_pool" "example" {
 }
 
 
-output "allsdcresult" {
+output "storagePoolresult" {
   value = data.powerflex_storage_pool.example.storage_pools
 }
 ```
