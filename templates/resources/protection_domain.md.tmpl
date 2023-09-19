@@ -36,6 +36,8 @@ If the taint is not removed, terraform will destroy and recreate the resource.
 {{tffile .ExampleFile }}
 {{- end }}
 
+~> After the execution of above resource block, protection domain would have been created on the PowerFlex array. For more information, Please check the terraform state file.
+
 {{ .SchemaMarkdown | trimspace }}
 
 {{ if .HasImport -}}

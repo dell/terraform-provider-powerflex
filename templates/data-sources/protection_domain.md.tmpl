@@ -34,6 +34,8 @@ description: |-
 {{tffile .ExampleFile }}
 {{- end }}
 
+~> After the successful execution of above said block, We can see the output by executing `terraform output` command. Also, we can fetch information via the variable: `data.powerflex_protection_domain.example.attribute_name` where attribute_name is the attribute which user wants to fetch.
+
 {{ .SchemaMarkdown | trimspace }}
 
 

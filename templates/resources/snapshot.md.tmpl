@@ -39,6 +39,8 @@ In case of partial create/update operation, retention will not be set.
 {{tffile .ExampleFile }}
 {{- end }}
 
+~> After the execution of above resource block, snapshot would have been created on the PowerFlex array. For more information, Please check the terraform state file.
+
 {{ .SchemaMarkdown | trimspace }}
 
 {{ if .HasImport -}}
