@@ -142,7 +142,7 @@ func (r *storagepoolResource) ValidateConfig(ctx context.Context, req resource.V
 		resp.Diagnostics.AddAttributeError(
 			path.Root("rebalance_num_of_concurrent_ios_per_device"),
 			"Attribute Error",
-			"rebalance_io_priority_policy must be provided with a valid value to configure bandwidth limit",
+			"rebalance_io_priority_policy must be provided with a valid value to configure num of concurrent IOS per device ",
 		)
 	}
 
@@ -150,7 +150,7 @@ func (r *storagepoolResource) ValidateConfig(ctx context.Context, req resource.V
 		resp.Diagnostics.AddAttributeError(
 			path.Root("rebalance_bw_limit_per_device_in_kbps"),
 			"Attribute Error",
-			"rebalance_io_priority_policy must be provided with a valid value to configure num of concurrent IOS per device",
+			"rebalance_io_priority_policy must be provided with a valid value to configure bandwidth limit",
 		)
 	}
 
