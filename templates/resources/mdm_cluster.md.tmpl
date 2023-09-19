@@ -26,11 +26,11 @@ description: |-
 
 {{ .Description | trimspace }}
 
-!> **Caution:** MDM cluster creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
+> **Caution:** MDM cluster creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 If the taint is not removed, terraform will destroy and recreate the resource.
 
-~> **Note:** Use of MDM cluster resource requires the presence of the MDM cluster. The purpose of this resource is to update MDM cluster, not create or delete. Import operation is not supported for MDM cluster.
+> **Note:** Use of MDM cluster resource requires the presence of the MDM cluster. The purpose of this resource is to update MDM cluster, not create or delete. Import operation is not supported for MDM cluster.
 
 {{ if .HasExample -}}
 ## Example Usage
@@ -38,7 +38,7 @@ If the taint is not removed, terraform will destroy and recreate the resource.
 {{tffile .ExampleFile }}
 {{- end }}
 
-After the execution of the above resource block, the MDM cluster would become a 3-node cluster. For more information, please check the state file.
+> After the execution of the above resource block, the MDM cluster would become a 3-node cluster. For more information, please check the state file.
 
 {{ .SchemaMarkdown | trimspace }}
 

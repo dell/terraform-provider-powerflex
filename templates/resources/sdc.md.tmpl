@@ -15,7 +15,7 @@
 # limitations under the License.
 
 title: "{{.Name }} {{.Type | lower}}"
-linkTitle: "{{.Name}}"
+linkTitle: "{{.Name }}"
 page_title: "{{.Name}} {{.Type}} - {{.ProviderName}}"
 subcategory: ""
 description: |-
@@ -26,7 +26,6 @@ description: |-
 
 {{ .Description | trimspace }}
 
-> **Note:** Only one of `name` and `id` can be provided at a time.
 
 {{ if .HasExample -}}
 ## Example Usage
@@ -34,8 +33,15 @@ description: |-
 {{tffile .ExampleFile }}
 {{- end }}
 
-> After the successful execution of above said block, We can see the output by executing `terraform output` command. Also, we can fetch information via the variable: `data.powerflex_protection_domain.pd.attribute_name` where attribute_name is the attribute which user wants to fetch.
+> After the execution of above resource block, sdc would have been created on the PowerFlex array. For more information, Please check the terraform state file.
 
 {{ .SchemaMarkdown | trimspace }}
 
+{{ if .HasImport -}}
+## Import
 
+Import is supported using the following syntax:
+
+{{codefile "shell" .ImportFile }}
+
+{{- end }}

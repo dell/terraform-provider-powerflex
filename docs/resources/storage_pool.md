@@ -26,11 +26,11 @@ description: |-
 
 This resource is used to manage the Storage Pool entity of PowerFlex Array. We can Create, Update and Delete the storage pool using this resource. We can also import an existing storage pool from PowerFlex array.
 
-!> **Caution:** Storage Pool creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
+> **Caution:** Storage Pool creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 If the taint is not removed, terraform will destroy and recreate the resource.
 
-~> **Note:** Exactly one of `protection_domain_name` or `protection_domain_id` is required. Not both can be provided together. 
+> **Note:** Exactly one of `protection_domain_name` or `protection_domain_id` is required. Not both can be provided together. 
 
 ## Example Usage
 

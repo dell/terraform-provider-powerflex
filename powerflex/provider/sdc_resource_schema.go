@@ -33,8 +33,8 @@ import (
 
 // SDCReourceSchema - varible holds schema for SDC resource
 var SDCReourceSchema schema.Schema = schema.Schema{
-	Description:         "This resource can be used to Manage the SDC in PowerFlex Cluster.",
-	MarkdownDescription: "This resource can be used to Manage the SDC in PowerFlex Cluster.",
+	Description:         "This terraform resource is used to manage the SDC entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex SDC using this resource. We can also Import an existing SDC from PowerFlex array.",
+	MarkdownDescription: "This terraform resource is used to manage the SDC entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex SDC using this resource. We can also Import an existing SDC from PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"sdc_details": sdcDetailSchema,
 		"name": schema.StringAttribute{
