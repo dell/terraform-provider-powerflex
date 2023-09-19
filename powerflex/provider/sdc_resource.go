@@ -107,19 +107,7 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 	var chnagedSDCs []models.SDCDetailDataModel
 
-	if plan.Name.ValueString() != "" && plan.ID.ValueString() != "" {
-
-		nameChng, err := system.ChangeSdcName(plan.ID.ValueString(), plan.Name.ValueString())
-
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"[Create] Unable to Change name Powerflex sdc",
-				err.Error(),
-			)
-			return
-		}
-
-		tflog.Debug(ctx, "[POWERFLEX] nameChng Result :-- "+helper.PrettyJSON(nameChng))
+	if plan.ID.ValueString() != "" {
 
 		finalSDC, err := system.GetSdcByID(plan.ID.ValueString())
 		if err != nil {
@@ -159,6 +147,11 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 		return
 	}
+
+	resp.Diagnostics.AddError(
+		"Please provide valid inputs",
+		"Please provide valid inputs",
+	)
 }
 
 // Read - function to Read for SDC resource.
@@ -187,7 +180,7 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	var chnagedSDCs []models.SDCDetailDataModel
 
 	//For handling the import case
-	if state.ID.ValueString() != "" && state.ID.ValueString() != "placeholder" && (state.Name.ValueString() == "" || state.Name.IsNull()) {
+	if state.ID.ValueString() != "" && state.ID.ValueString() != "placeholder" {
 
 		for _, id := range strings.Split(state.ID.ValueString(), ",") {
 			sdcData, err := system.GetSdcByID(id)
@@ -206,22 +199,6 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 				chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 			}
 		}
-	} else if state.Name.ValueString() != "" && !state.Name.IsNull() && state.ID.ValueString() != "" && state.ID.ValueString() != "placeholder" {
-
-		//For handling the single SDC reanme operation
-		singleSdc, err := system.FindSdc("ID", state.ID.ValueString())
-
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Read Powerflex systems-sdcs Read",
-				err.Error(),
-			)
-			return
-		}
-
-		changedSDCDetail := helper.GetSDCState(*singleSdc.Sdc, models.SDCDetailDataModel{})
-
-		chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 	} else if len(sdcDetailList) > 0 {
 
 		//For handling the multiple sdc_details update
@@ -271,6 +248,8 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 				chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 			}
 		}
+	} else if len(sdcDetailList) == 0 {
+		//Dumping same is state
 	} else {
 		resp.Diagnostics.AddError("[Read] Please provide valid SDC ID", "Please provide valid SDC ID")
 
@@ -327,39 +306,25 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 	deletedSDC := helper.FindDeletedSDC(stateSdcDetailList, planSdcDetailList)
 
-	if !(plan.Name.ValueString() != "" && plan.ID.ValueString() != "") {
-		if len(deletedSDC) > 0 {
+	if len(deletedSDC) > 0 {
 
-			for _, sdc := range deletedSDC {
+		for _, sdc := range deletedSDC {
 
-				if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") {
-					err := system.DeleteSdc(sdc.SDCID.ValueString())
+			if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") {
+				err := system.DeleteSdc(sdc.SDCID.ValueString())
 
-					if err != nil {
-						resp.Diagnostics.AddError(
-							"[Update] Unable to Delete SDC by ID:"+sdc.SDCID.ValueString(),
-							err.Error(),
-						)
-						return
-					}
+				if err != nil {
+					resp.Diagnostics.AddError(
+						"[Update] Unable to Delete SDC by ID:"+sdc.SDCID.ValueString(),
+						err.Error(),
+					)
+					return
 				}
 			}
 		}
 	}
 
-	if plan.Name.ValueString() != "" && plan.ID.ValueString() != "" {
-
-		nameChng, err := system.ChangeSdcName(plan.ID.ValueString(), plan.Name.ValueString())
-
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"[Update] Unable to Change name Powerflex sdc",
-				err.Error(),
-			)
-			return
-		}
-
-		tflog.Debug(ctx, "[POWERFLEX] nameChng Result :-- "+helper.PrettyJSON(nameChng))
+	if plan.ID.ValueString() != "" && plan.ID.ValueString() != "placeholder" {
 
 		finalSDC, err := system.GetSdcByID(plan.ID.ValueString())
 		if err != nil {
@@ -426,7 +391,8 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 		return
 	} else {
-		resp.State.RemoveResource(ctx)
+		diags = resp.State.Set(ctx, plan)
+		resp.Diagnostics.Append(diags...)
 
 		tflog.Info(ctx, "SDC Details deleted from state file successfully")
 	}

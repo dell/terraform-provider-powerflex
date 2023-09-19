@@ -93,8 +93,8 @@ func UpdateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan *models.
 
 	// Set the state once create operation is completed
 	if plan != nil {
-		for _, vol := range mappedVolumes {
-			objVal, dgs := GetVolValue(vol)
+		for index, vol := range mappedVolumes {
+			objVal, dgs := GetVolValue(mappedVolumes[len(mappedVolumes)-1-index])
 			diags = append(diags, dgs...)
 			objectSDCs = append(objectSDCs, objVal)
 			state.Name = types.StringValue(vol.MappedSdcInfo[0].SdcName)

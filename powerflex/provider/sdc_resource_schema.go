@@ -21,7 +21,6 @@ import (
 	"terraform-provider-powerflex/powerflex/helper"
 	"terraform-provider-powerflex/powerflex/models"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -37,20 +36,6 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 	MarkdownDescription: "This terraform resource is used to manage the SDC entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex SDC using this resource. We can also Import an existing SDC from PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"sdc_details": sdcDetailSchema,
-		"name": schema.StringAttribute{
-			DeprecationMessage:  "This attribute will be removed in future release. To rename SDC, use attribute `name` in `sdc_details`.",
-			Description:         "Name of the SDC to manage.  Conflict `sdc_details`, `mdm_password` and `lia_password`.",
-			MarkdownDescription: "Name of the SDC to manage.  Conflict `sdc_details`, `mdm_password` and `lia_password`.",
-			Optional:            true,
-			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
-				stringvalidator.LengthAtMost(31),
-				stringvalidator.AlsoRequires(path.MatchRoot("id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("sdc_details")),
-				stringvalidator.ConflictsWith(path.MatchRoot("mdm_password")),
-				stringvalidator.ConflictsWith(path.MatchRoot("lia_password")),
-			},
-		},
 		"mdm_password": schema.StringAttribute{
 			Description:         "MDM Password to connect MDM Server.",
 			MarkdownDescription: "MDM Password to connect MDM Server.",
@@ -80,19 +65,11 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 			},
 		},
 		"id": schema.StringAttribute{
-			Optional:            true,
 			Computed:            true,
-			Description:         "ID of the SDC to manage. This can be retrieved from the Datasource and PowerFlex Server. Cannot be updated. Conflict `sdc_details`, `mdm_password` and `lia_password`",
-			MarkdownDescription: "ID of the SDC to manage. This can be retrieved from the Datasource and PowerFlex Server. Cannot be updated. Conflict `sdc_details`, `mdm_password` and `lia_password`",
+			Description:         "Placeholder",
+			MarkdownDescription: "Placeholder",
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.UseStateForUnknown(),
-			},
-			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
-				stringvalidator.AlsoRequires(path.MatchRoot("name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("sdc_details")),
-				stringvalidator.ConflictsWith(path.MatchRoot("mdm_password")),
-				stringvalidator.ConflictsWith(path.MatchRoot("lia_password")),
 			},
 		},
 	},
@@ -100,13 +77,9 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 
 // sdcDetailSchema - variable holds schema for CSV Param Details
 var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
-	Description: "List of SDC Expansion Server Details.",
-	Optional:    true,
-	Computed:    true,
-	Validators: []validator.List{
-		listvalidator.AlsoRequires(path.MatchRoot("lia_password")),
-		listvalidator.AlsoRequires(path.MatchRoot("mdm_password")),
-	},
+	Description:         "List of SDC Expansion Server Details.",
+	Optional:            true,
+	Computed:            true,
 	MarkdownDescription: "List of SDC Expansion Server Details.",
 	NestedObject: schema.NestedAttributeObject{
 		Attributes: map[string]schema.Attribute{
@@ -142,6 +115,8 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 				MarkdownDescription: "Password of the node",
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
+					stringvalidator.AlsoRequires(path.MatchRoot("lia_password")),
+					stringvalidator.AlsoRequires(path.MatchRoot("mdm_password")),
 				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),

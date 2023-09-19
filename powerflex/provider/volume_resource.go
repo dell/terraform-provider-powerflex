@@ -403,7 +403,7 @@ func (r *volumeResource) getProtectionDomainID(plan *models.VolumeResourceModel)
 		if err != nil {
 			diags.AddError(
 				"Error getting protection domain with id",
-				"Could not get protection domain with id: "+plan.ProtectionDomainName.ValueString()+", \n unexpected error: "+err.Error(),
+				"Could not get protection domain with id: "+plan.ProtectionDomainID.ValueString()+", \n unexpected error: "+err.Error(),
 			)
 			return nil, diags
 		}

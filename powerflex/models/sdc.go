@@ -77,7 +77,6 @@ var SdcResourceSchemaDescriptions = struct {
 // SdcResourceModel struct for CSV Data Processing
 type SdcResourceModel struct {
 	ID          types.String `tfsdk:"id"`
-	Name        types.String `tfsdk:"name"`
 	SDCDetails  types.List   `tfsdk:"sdc_details"`
 	MdmPassword types.String `tfsdk:"mdm_password"`
 	LiaPassword types.String `tfsdk:"lia_password"`

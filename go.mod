@@ -3,7 +3,7 @@ module terraform-provider-powerflex
 go 1.20
 
 require (
-	github.com/dell/goscaleio v1.11.1-0.20230828151549-30aab692dcb6
+	github.com/dell/goscaleio v1.12.1-0.20230911105117-0509b8725a33
 	github.com/hashicorp/terraform-plugin-docs v0.13.0
 	github.com/hashicorp/terraform-plugin-framework v1.3.2
 	github.com/hashicorp/terraform-plugin-framework-validators v0.10.0
@@ -68,7 +68,7 @@ require (
 	github.com/posener/complete v1.2.3 // indirect
 	github.com/russross/blackfriday v1.6.0 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
-	github.com/sirupsen/logrus v1.8.1 // indirect
+	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	github.com/zclconf/go-cty v1.13.2 // indirect

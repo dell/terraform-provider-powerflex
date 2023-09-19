@@ -20,6 +20,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"terraform-provider-powerflex/powerflex/helper"
 	"terraform-provider-powerflex/powerflex/models"
 	"time"
@@ -403,7 +404,7 @@ func (d *mdmClusterResource) Configure(_ context.Context, req resource.Configure
 	d.system = system
 }
 
-func (d *mdmClusterResource) ValidateConfig(ctx context.Context, ipmap map[string]string, plan *models.MdmResourceModel) diag.Diagnostics {
+func (d *mdmClusterResource) ValidateConfig(ctx context.Context, ipmap map[string]string, plan, state *models.MdmResourceModel) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	// Check if valid IP is provided for Primary MDM
@@ -455,6 +456,46 @@ func (d *mdmClusterResource) ValidateConfig(ctx context.Context, ipmap map[strin
 			}
 		}
 	}
+
+	planStandby := make([]models.StandByMdm, 0)
+	diags.Append(plan.StandByMdm.ElementsAs(ctx, &planStandby, true)...)
+
+	if len(planStandby) > 0 {
+		stateStandby := make([]models.StandByMdm, 0)
+		diags.Append(state.StandByMdm.ElementsAs(ctx, &stateStandby, true)...)
+
+		if len(stateStandby) > 0 {
+			stateStandbyMap := make(map[string]models.StandByMdm)
+			for _, mdm := range stateStandby {
+				ips := make([]string, 0)
+				diags.Append(mdm.Ips.ElementsAs(ctx, &ips, true)...)
+				stateStandbyMap[ips[0]] = mdm
+			}
+
+			for _, mdm := range planStandby {
+				ips := make([]string, 0)
+				diags.Append(mdm.Ips.ElementsAs(ctx, &ips, true)...)
+				if stateMdm, ok := stateStandbyMap[ips[0]]; ok {
+					if mdm.Role.ValueString() != stateMdm.Role.ValueString() {
+						diags.AddAttributeError(
+							path.Root("standby_mdm"),
+							"StandBy MDM role cannot be changed",
+							"StandBy MDM role cannot be changed",
+						)
+					}
+
+					if !mdm.Port.IsUnknown() && mdm.Port.ValueInt64() != stateMdm.Port.ValueInt64() {
+						diags.AddAttributeError(
+							path.Root("standby_mdm"),
+							"StandBy MDM port cannot be changed",
+							"StandBy MDM port cannot be changed",
+						)
+					}
+				}
+			}
+		}
+	}
+
 	return diags
 }
 
@@ -479,7 +520,7 @@ func (d *mdmClusterResource) PopulateMdmID(ctx context.Context, plan *models.Mdm
 	// Get the IP with IDs as value
 	ipmap := helper.GetMdmIPMap(mdmDetails)
 
-	diags = d.ValidateConfig(ctx, ipmap, plan)
+	diags = d.ValidateConfig(ctx, ipmap, plan, state)
 	if diags.HasError() {
 		return diags
 	}
@@ -976,6 +1017,12 @@ func (d *mdmClusterResource) AddStandByMdm(ctx context.Context, plan models.MdmR
 			payload.AllowAsymmetricIps = "true"
 		} else {
 			payload.AllowAsymmetricIps = "false"
+		}
+
+		if mdm.Port.ValueInt64() != 0 {
+			payload.Port = strconv.Itoa(int(mdm.Port.ValueInt64()))
+		} else {
+			payload.Port = "9011"
 		}
 
 		_, err := d.system.AddStandByMdm(&payload)
