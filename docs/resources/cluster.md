@@ -65,60 +65,60 @@ limitations under the License.
 resource "powerflex_cluster" "test" {
 
   # Security Related Field
-  mdm_password                            = "Password"
-  lia_password                            = "Password"
+  mdm_password = "Password"
+  lia_password = "Password"
 
   # Advance Security Configuration
   allow_non_secure_communication_with_lia = false
   allow_non_secure_communication_with_mdm = false
   disable_non_mgmt_components_auth        = false
 
-  # Cluster ronfiguration related fields 
+  # Cluster Configuration related fields 
   cluster = [
     {
       # MDM Configuration Fields 
-      ips                     = "10.10.10.1",
-      username                = "root",
-      password                = "Password",
-      operating_system        = "linux",
-      is_mdm_or_tb            = "primary",
-      mdm_ips                 = "10.10.10.1",
-      mdm_mgmt_ip                 = "10.10.10.1",
-      mdm_name                 = "MDM_1",
-      perf_profile_for_mdm                 = "HighPerformance",
-      virtual_ips                 = "10.30.30.1",
-      virtual_ip_nics                 = "ens192",
+      ips                  = "10.10.10.1",
+      username             = "root",
+      password             = "Password",
+      operating_system     = "linux",
+      is_mdm_or_tb         = "primary",
+      mdm_ips              = "10.10.10.1",
+      mdm_mgmt_ip          = "10.10.10.1",
+      mdm_name             = "MDM_1",
+      perf_profile_for_mdm = "HighPerformance",
+      virtual_ips          = "10.30.30.1",
+      virtual_ip_nics      = "ens192",
 
       # SDS Configuration Fields
-      is_sds                  = "yes",
-      sds_name                = "sds1",
-      sds_all_ips= "10.20.20.3",
-      sds_to_sdc_only_ips= "10.20.20.2",
-      sds_to_sds_only_ips= "10.20.20.1",
-      fault_set               = "fs1",
-      protection_domain       = "domain_1"
-      sds_storage_device_list = "/dev/sdb"
+      is_sds                   = "yes",
+      sds_name                 = "sds1",
+      sds_all_ips              = "10.20.20.3", # conflict with sds_to_sds_only_ips,sds_to_sdc_only_ips
+      # sds_to_sdc_only_ips      = "10.20.20.2", 
+      # sds_to_sds_only_ips      = "10.20.20.1",
+      fault_set                = "fs1",
+      protection_domain        = "domain_1"
+      sds_storage_device_list  = "/dev/sdb"
       sds_storage_device_names = "device1"
-      storage_pool_list       = "pool1"
-      perf_profile_for_sds = "HighPerformance"
+      storage_pool_list        = "pool1"
+      perf_profile_for_sds     = "HighPerformance"
 
       # SDC Configuration Fields
-      is_sdc                  = "yes",
-      sdc_name                = "sdc1",
-      perf_profile_for_sdc    = "HighPerformance",
+      is_sdc               = "yes",
+      sdc_name             = "sdc1",
+      perf_profile_for_sdc = "HighPerformance",
 
       # Rfcache Configuration Fields
-      is_rfcache              = "No",
+      is_rfcache               = "No",
       rf_cache_ssd_device_list = "/dev/sdd"
 
       # SDR Configuration Fields
-      is_sdr                  = "Yes",
-      sdr_name ="SDR_1"
-      sdr_port = "2000"
-      sdr_application_ips = "10.20.30.1"
-      sdr_storage_ips  = "10.20.30.2"
-      sdr_external_ips = "10.20.30.3"
-      sdr_all_ips             = "10.10.20.1"
+      is_sdr               = "Yes",
+      sdr_name             = "SDR_1"
+      sdr_port             = "2000"
+      # sdr_application_ips  = "10.20.30.1"
+      # sdr_storage_ips      = "10.20.30.2"
+      # sdr_external_ips     = "10.20.30.3" 
+      sdr_all_ips          = "10.10.20.1" # conflict with sdr_application_ips, sdr_storage_ips, sdr_external_ips
       perf_profile_for_sdr = "Compact"
     },
     {
@@ -152,6 +152,7 @@ resource "powerflex_cluster" "test" {
       is_sdr               = "No",
     },
   ]
+  # Storage Pool Configuration Fields
   storage_pools = [
     {
       media_type                              = "HDD"

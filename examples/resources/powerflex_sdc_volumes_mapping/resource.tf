@@ -29,15 +29,15 @@ resource "powerflex_sdc_volumes_mapping" "mapping-test" {
     {
       # id of the volume which needs to be mapped. 
       # either volume_id or volume_name can be used.
-      volume_id        = "edb2059700000002"
+      volume_id = "edb2059700000002"
 
       # Valid values are 0 or integers greater than 10
-      limit_iops       = 140
+      limit_iops = 140
 
       # Default value is 0
       limit_bw_in_mbps = 19
 
-      access_mode      = "ReadOnly" # ReadOnly/ReadWrite/NoAccess
+      access_mode = "ReadOnly" # ReadOnly/ReadWrite/NoAccess
     },
     {
       volume_name      = "terraform-vol"
