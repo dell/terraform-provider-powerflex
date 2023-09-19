@@ -30,8 +30,8 @@ import (
 
 // ClusterReourceSchema defines the schema for cluster resource
 var ClusterReourceSchema schema.Schema = schema.Schema{
-	Description:         "This terraform resource is used to deploy PowerFlex Cluster. We can Create an Delete the PowerFlex Cluster using this resource. We can also Import an existing Cluster of PowerFlex.",
-	MarkdownDescription: "This terraform resource is used to deploy PowerFlex Cluster. We can Create an Delete the PowerFlex Cluster using this resource. We can also Import an existing Cluster of PowerFlex.",
+	Description:         "This terraform resource is used to deploy PowerFlex Cluster. We can Create and Delete the PowerFlex Cluster using this resource. We can also Import an existing Cluster of PowerFlex.",
+	MarkdownDescription: "This terraform resource is used to deploy PowerFlex Cluster. We can Create and Delete the PowerFlex Cluster using this resource. We can also Import an existing Cluster of PowerFlex.",
 	Attributes:          ClusterResourceModelSchema(),
 }
 
