@@ -90,9 +90,9 @@ resource "powerflex_cluster" "test" {
       virtual_ip_nics      = "ens192",
 
       # SDS Configuration Fields
-      is_sds                   = "yes",
-      sds_name                 = "sds1",
-      sds_all_ips              = "10.20.20.3", # conflict with sds_to_sds_only_ips,sds_to_sdc_only_ips
+      is_sds      = "yes",
+      sds_name    = "sds1",
+      sds_all_ips = "10.20.20.3", # conflict with sds_to_sds_only_ips,sds_to_sdc_only_ips
       # sds_to_sdc_only_ips      = "10.20.20.2", 
       # sds_to_sds_only_ips      = "10.20.20.1",
       fault_set                = "fs1",
@@ -112,9 +112,9 @@ resource "powerflex_cluster" "test" {
       rf_cache_ssd_device_list = "/dev/sdd"
 
       # SDR Configuration Fields
-      is_sdr               = "Yes",
-      sdr_name             = "SDR_1"
-      sdr_port             = "2000"
+      is_sdr   = "Yes",
+      sdr_name = "SDR_1"
+      sdr_port = "2000"
       # sdr_application_ips  = "10.20.30.1"
       # sdr_storage_ips      = "10.20.30.2"
       # sdr_external_ips     = "10.20.30.3" 
