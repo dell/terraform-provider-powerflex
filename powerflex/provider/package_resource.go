@@ -48,8 +48,8 @@ func (r *packageResource) Metadata(_ context.Context, req resource.MetadataReque
 
 func (r *packageResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description:         "This resource can be used to upload packages on a PowerFlex Gateway.",
-		MarkdownDescription: "This resource can be used to upload packages on a PowerFlex Gateway.",
+		Description:         "This resource can be used to upload packages on a PowerFlex Gateway.We can add or remove packages from PowerFlex Gateway. Import functionality is not supported.",
+		MarkdownDescription: "This resource can be used to upload packages on a PowerFlex Gateway.We can add or remove packages from PowerFlex Gateway. Import functionality is not supported.",
 		Attributes: map[string]schema.Attribute{
 			"file_path": schema.ListAttribute{
 				Description:         "The list of path of packages",

@@ -69,8 +69,3 @@ resource "powerflex_sdc" "expansion" {
     },
   ]
 }
-
-# For Import Multiple SDC
-resource "powerflex_sdc" "importing" {
-}
-#terraform import powerflex_sdc.importing ID1,ID2,ID3

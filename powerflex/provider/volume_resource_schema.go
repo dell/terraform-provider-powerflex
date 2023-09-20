@@ -31,8 +31,8 @@ import (
 
 // VolumeResourceSchema variable to define schema for the volume resource
 var VolumeResourceSchema schema.Schema = schema.Schema{
-	Description:         "This resource can be used to manage volumes on a PowerFlex array.",
-	MarkdownDescription: "This resource can be used to manage volumes on a PowerFlex array.",
+	Description:         "This resource is used to manage the Volume entity of PowerFlex Array. We can Create, Update and Delete the volume using this resource. We can also import an existing volume from PowerFlex array.",
+	MarkdownDescription: "This resource is used to manage the Volume entity of PowerFlex Array. We can Create, Update and Delete the volume using this resource. We can also import an existing volume from PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"name": schema.StringAttribute{
 			Description:         "The name of the volume.",

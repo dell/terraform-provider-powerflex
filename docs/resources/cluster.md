@@ -19,13 +19,24 @@ linkTitle: "powerflex_cluster"
 page_title: "powerflex_cluster Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource can be used to install the PowerFlex Cluster.
+  This terraform resource is used to deploy PowerFlex Cluster. We can Create and Delete the PowerFlex Cluster using this resource. We can also Import an existing Cluster of PowerFlex.
 ---
 
 # powerflex_cluster (Resource)
 
-This resource can be used to install the PowerFlex Cluster.
+This terraform resource is used to deploy PowerFlex Cluster. We can Create and Delete the PowerFlex Cluster using this resource. We can also Import an existing Cluster of PowerFlex.
 
+> **Note:**  Gateway server should be installed.
+
+> **Note:** Support is provided for creating, importing, and deleting operations for this resource.
+
+> **Note:** If during installation using a Gateway on one server, all binaries are successfully installed, but another server encounters issues during installation, there won't be any rollback function for the server where the installation was successful.
+
+> **Note:** If any SDR, SDS, or SDC is installed separately and connected to the cluster, during the destroy process, if you encounter any security certificate issues, you will need to resolve them manually by accepting the security certificate.
+
+> **Note:**  During the destroy process, the entire cluster will be destroyed, not just specific individual resources.
+
+> **Note:** To follow the installation process, you can refer to the [Deployment Guide](https://www.dell.com/support/manuals/en-us/scaleio/pfx_deploy_guide_3.6.x/deploy-powerflex?guid=guid-e9f70972-baac-42c9-9ff9-a3d2b0722f54&lang=en-us)
 
 ## Example Usage
 
@@ -52,71 +63,108 @@ limitations under the License.
 
 # To perform Cluster Installation
 resource "powerflex_cluster" "test" {
-	mdm_password =  "Password"
-	lia_password= "Password"
-	allow_non_secure_communication_with_lia= false
-	allow_non_secure_communication_with_mdm= false
-	disable_non_mgmt_components_auth= false
-	cluster = [
-	{
-		ips= "10.10.10.1",
-		username= "root",
-		password= "Password",
-		operating_system= "linux",
-		is_mdm_or_tb= "primary",
-		is_sds= "yes",
-		sds_name= "sds1",
-		is_sdc= "yes",
-		sdc_name= "sdc1",
-		protection_domain = "domain_1"
-		sds_storage_device_list = "/dev/sdb"
-		storage_pool_list = "pool1"
-		perf_profile_for_sdc= "High",
-		ia_rfcache= "No",
-		is_sdr= "Yes",
-		sdr_all_ips = "10.10.20.1"
-	 },
-	 {
-		ips= "10.10.10.2",
-		username= "root",
-		password= "Password",
-		operating_system= "linux",
-		is_mdm_or_tb= "Secondary",
-		protection_domain = "domain_1"
-		sds_storage_device_list = "/dev/sdb"
-		storage_pool_list = "pool1"
-		is_sds= "yes",
-		sds_name= "sds2",
-		is_sdc= "yes",
-		sdc_name= "sdc2",
-		perf_profile_for_sdc= "compact",
-		ia_rfcache= "No",
-		is_sdr= "No",
-	 },
-	 {
-		ips= "10.10.10.3",
-		username= "root",
-		password= "Password",
-		operating_system= "linux",
-		is_mdm_or_tb= "TB",
-		is_sds= "No",
-		is_sdc= "yes",
-		sdc_name= "sdc3",
-		perf_profile_for_sdc= "compact",
-		ia_rfcache= "No",
-		is_sdr= "No",
-	 },
-	]
-	storage_pools = [
-		{
-			media_type = "HDD"
-			protection_domain = "domain_1"
-			storage_pool = "pool1"
-			replication_journal_capacity_percentage = "50"
-		}	
-	]
+
+  # Security Related Field
+  mdm_password = "Password"
+  lia_password = "Password"
+
+  # Advance Security Configuration
+  allow_non_secure_communication_with_lia = false
+  allow_non_secure_communication_with_mdm = false
+  disable_non_mgmt_components_auth        = false
+
+  # Cluster Configuration related fields 
+  cluster = [
+    {
+      # MDM Configuration Fields 
+      ips                  = "10.10.10.1",
+      username             = "root",
+      password             = "Password",
+      operating_system     = "linux",
+      is_mdm_or_tb         = "primary",
+      mdm_ips              = "10.10.10.1",
+      mdm_mgmt_ip          = "10.10.10.1",
+      mdm_name             = "MDM_1",
+      perf_profile_for_mdm = "HighPerformance",
+      virtual_ips          = "10.30.30.1",
+      virtual_ip_nics      = "ens192",
+
+      # SDS Configuration Fields
+      is_sds      = "yes",
+      sds_name    = "sds1",
+      sds_all_ips = "10.20.20.3", # conflict with sds_to_sds_only_ips,sds_to_sdc_only_ips
+      # sds_to_sdc_only_ips      = "10.20.20.2", 
+      # sds_to_sds_only_ips      = "10.20.20.1",
+      fault_set                = "fs1",
+      protection_domain        = "domain_1"
+      sds_storage_device_list  = "/dev/sdb"
+      sds_storage_device_names = "device1"
+      storage_pool_list        = "pool1"
+      perf_profile_for_sds     = "HighPerformance"
+
+      # SDC Configuration Fields
+      is_sdc               = "yes",
+      sdc_name             = "sdc1",
+      perf_profile_for_sdc = "HighPerformance",
+
+      # Rfcache Configuration Fields
+      is_rfcache               = "No",
+      rf_cache_ssd_device_list = "/dev/sdd"
+
+      # SDR Configuration Fields
+      is_sdr   = "Yes",
+      sdr_name = "SDR_1"
+      sdr_port = "2000"
+      # sdr_application_ips  = "10.20.30.1"
+      # sdr_storage_ips      = "10.20.30.2"
+      # sdr_external_ips     = "10.20.30.3" 
+      sdr_all_ips          = "10.10.20.1" # conflict with sdr_application_ips, sdr_storage_ips, sdr_external_ips
+      perf_profile_for_sdr = "Compact"
+    },
+    {
+      ips                     = "10.10.10.2",
+      username                = "root",
+      password                = "Password",
+      operating_system        = "linux",
+      is_mdm_or_tb            = "Secondary",
+      protection_domain       = "domain_1"
+      sds_storage_device_list = "/dev/sdb"
+      storage_pool_list       = "pool1"
+      is_sds                  = "yes",
+      sds_name                = "sds2",
+      is_sdc                  = "yes",
+      sdc_name                = "sdc2",
+      perf_profile_for_sdc    = "compact",
+      is_rfcache              = "No",
+      is_sdr                  = "No",
+    },
+    {
+      ips                  = "10.10.10.3",
+      username             = "root",
+      password             = "Password",
+      operating_system     = "linux",
+      is_mdm_or_tb         = "TB",
+      is_sds               = "No",
+      is_sdc               = "yes",
+      sdc_name             = "sdc3",
+      perf_profile_for_sdc = "compact",
+      is_rfcache           = "No",
+      is_sdr               = "No",
+    },
+  ]
+  # Storage Pool Configuration Fields
+  storage_pools = [
+    {
+      media_type                              = "HDD"
+      protection_domain                       = "domain_1"
+      storage_pool                            = "pool1"
+      replication_journal_capacity_percentage = "50"
+    }
+  ]
 }
 ```
+
+After the execution of above resource block, Cluster would have been created on the PowerFlex array. For more information, Please check the terraform state file.
 
 <!-- schema generated by tfplugindocs -->
 ## Schema
@@ -302,12 +350,19 @@ Read-Only:
 Import is supported using the following syntax:
 
 ```shell
-# Below are the steps to import Cluster :
-# Step 1 - To import a Cluster , we need the MDM IP, MDM Password, LIA Password  of that Cluster 
-# Step 2 - create a tf file with empty resource block . Refer the example below.
-# Example :
-# resource "powerflex_cluster" "resource_block_name" {
-# }
-# Step 3 - execute the command : terraform init && terraform import "powerflex_cluster.resource_block_name" "MDM_IP,MDM_Password,LIA_Password" (resource_block_name must be taken from 2)
-# Step 4 - After successful execution of the command , check the state file
+# /*
+# Copyright (c) 2023 Dell Inc., or its subsidiaries. All Rights Reserved.
+# Licensed under the Mozilla Public License Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#     http://mozilla.org/MPL/2.0/
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# */
+
+# import existing cluster
+terraform import powerflex_cluster.cluster_data "<MDM_IP>,<MDM_Password>,<LIA_Password>"
 ```

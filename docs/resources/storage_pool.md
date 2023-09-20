@@ -19,18 +19,18 @@ linkTitle: "powerflex_storage_pool"
 page_title: "powerflex_storage_pool Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource can be used to manage Storage Pools on a PowerFlex array.
+  This resource is used to manage the Storage Pool entity of PowerFlex Array. We can Create, Update and Delete the storage pool using this resource. We can also import an existing storage pool from PowerFlex array.
 ---
 
 # powerflex_storage_pool (Resource)
 
-This resource can be used to manage Storage Pools on a PowerFlex array.
+This resource is used to manage the Storage Pool entity of PowerFlex Array. We can Create, Update and Delete the storage pool using this resource. We can also import an existing storage pool from PowerFlex array.
 
-!> **Caution:** Storage Pool creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
+> **Caution:** Storage Pool creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 If the taint is not removed, terraform will destroy and recreate the resource.
 
-~> **Note:** Exactly one of `protection_domain_name` and `protection_domain_id` is required.
+> **Note:** Exactly one of `protection_domain_name` or `protection_domain_id` is required. Not both can be provided together. 
 
 ## Example Usage
 
@@ -61,37 +61,57 @@ limitations under the License.
 # To check which attributes of the storage pool can be updated, please refer Product Guide in the documentation
 
 resource "powerflex_storage_pool" "sp" {
-  name = "storagepool3"
-  #protection_domain_id = "202a046600000000"
-  protection_domain_name = "domain1"
-  media_type             = "HDD"
-  use_rmcache            = false
-  use_rfcache            = true
-  #replication_journal_capacity = 34
-  capacity_alert_high_threshold                               = 66
-  capacity_alert_critical_threshold                           = 77
-  zero_padding_enabled                                        = false
+  name                         = "newstoragepool"
+  protection_domain_name       = "domain1"
+  media_type                   = "HDD"
+  use_rmcache                  = false
+  use_rfcache                  = true
+  replication_journal_capacity = 34
+  zero_padding_enabled         = false
+  rebalance_enabled            = false
+
+  # Alert Thresholds
+  # Critical threshold must be greater than high threshold
+  capacity_alert_high_threshold     = 66
+  capacity_alert_critical_threshold = 77
+
+  # Protected Maintenance Mode Parameters
+  # When the policy is set to "favorAppIos", then concurrent IOs and bandwidth limit can be set.
+  # When the policy is set to "limitNumOfConcurrentIos", then only concurrent IOs can be set.
+  # When the policy is set to "unlimited", then concurrent IOs and bandwidth limit can't be set.
   protected_maintenance_mode_io_priority_policy               = "favorAppIos"
   protected_maintenance_mode_num_of_concurrent_ios_per_device = 7
   protected_maintenance_mode_bw_limit_per_device_in_kbps      = 1028
-  rebalance_enabled                                           = false
-  rebalance_io_priority_policy                                = "favorAppIos"
-  rebalance_num_of_concurrent_ios_per_device                  = 7
-  rebalance_bw_limit_per_device_in_kbps                       = 1032
-  vtree_migration_io_priority_policy                          = "favorAppIos"
-  vtree_migration_num_of_concurrent_ios_per_device            = 7
-  vtree_migration_bw_limit_per_device_in_kbps                 = 1030
-  spare_percentage                                            = 66
-  rm_cache_write_handling_mode                                = "Passthrough"
-  rebuild_enabled                                             = true
-  rebuild_rebalance_parallelism                               = 5
-  fragmentation                                               = false
+
+  # Rebalance Parameters
+  # When the policy is set to "favorAppIos", then concurrent IOs and bandwidth limit can be set.
+  # When the policy is set to "limitNumOfConcurrentIos", then only concurrent IOs can be set.
+  # When the policy is set to "unlimited", then concurrent IOs and bandwidth limit can't be set.  
+  rebalance_io_priority_policy               = "favorAppIos"
+  rebalance_num_of_concurrent_ios_per_device = 7
+  rebalance_bw_limit_per_device_in_kbps      = 1032
+
+  #VTree Migration Parameters
+  # When the policy is set to "favorAppIos", then concurrent IOs and bandwidth limit can be set.
+  # When the policy is set to "limitNumOfConcurrentIos", then only concurrent IOs can be set.
+  vtree_migration_io_priority_policy               = "favorAppIos"
+  vtree_migration_num_of_concurrent_ios_per_device = 7
+  vtree_migration_bw_limit_per_device_in_kbps      = 1030
+
+
+  spare_percentage              = 66
+  rm_cache_write_handling_mode  = "Passthrough"
+  rebuild_enabled               = true
+  rebuild_rebalance_parallelism = 5
+  fragmentation                 = false
 }
 
 output "created_storagepool" {
   value = powerflex_storage_pool.sp
 }
 ```
+
+After the execution of above resource block, storage pool would have been created on the PowerFlex array. For more information, Please check the terraform state file.
 
 <!-- schema generated by tfplugindocs -->
 ## Schema
@@ -117,7 +137,7 @@ output "created_storagepool" {
 - `rebalance_num_of_concurrent_ios_per_device` (Number) The maximum number of concurrent rebalance I/Os per device
 - `rebuild_enabled` (Boolean) Enable or disable rebuilds in the specified Storage Pool
 - `rebuild_rebalance_parallelism` (Number) Maximum number of concurrent rebuild and rebalance activities on SDSs in the Storage Pool
-- `replication_journal_capacity` (Number) This defines the maximum percentage of Storage Pool capacity that can be used by replication for the journal.
+- `replication_journal_capacity` (Number) This defines the maximum percentage of Storage Pool capacity that can be used by replication for the journal. Before deleting the storage pool, this has to be set to 0.
 - `rm_cache_write_handling_mode` (String) Sets the Read RAM Cache write handling mode of the specified Storage Pool
 - `spare_percentage` (Number) Sets the spare capacity reservation policy
 - `use_rfcache` (Boolean) Enable/Disable RFcache on a specific storage pool
@@ -136,13 +156,19 @@ output "created_storagepool" {
 Import is supported using the following syntax:
 
 ```shell
-# Below are the steps to import storage pool :
-# Step 1 - To import a storage pool , we need the id of that storage pool 
-# Step 2 - To check the id of the storage pool we can make use of storage pool datasource . Please refer storagepool_datasource.tf for more info.
-# Step 3 - create a tf file with empty resource block . Refer the example below.
-# Example :
-# resource "powerflex_storage_pool" "resource_block_name" {
-# }
-# Step 4 - execute the command: terraform import "powerflex_storage_pool.resource_block_name" "id_of_the_storage_pool" (resource_block_name must be taken from step 3 and id must be taken from step 2)
-# Step 5 - After successful execution of the command , check the state file
+# /*
+# Copyright (c) 2023 Dell Inc., or its subsidiaries. All Rights Reserved.
+# Licensed under the Mozilla Public License Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#     http://mozilla.org/MPL/2.0/
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# */
+
+# import storage pool by it's id
+terraform import powerflex_storage_pool.storage_pool_import_by_id "<id>"
 ```

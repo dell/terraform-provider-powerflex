@@ -18,10 +18,11 @@ limitations under the License.
 # terraform init && terraform plan && terraform apply
 # Create, Update, Delete is supported for this resource
 # Import is supported.
-# name, role and password is the required parameter to create or update
 
 resource "powerflex_user" "newUser" {
-  name = "StorageAdmin"
-  role = "Monitor"
+
+  # name, role and password is the required parameter to create or update. Only role can be updated.
+  name     = "StorageAdmin"
+  role     = "Monitor"
   password = "Password"
 }

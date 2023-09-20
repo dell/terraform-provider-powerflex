@@ -30,8 +30,8 @@ import (
 
 // SnapshotResourceSchema variable to define schema for the snapshot resource
 var SnapshotResourceSchema schema.Schema = schema.Schema{
-	Description:         "This resource can be used to manage snapshots of volumes on a PowerFlex array.",
-	MarkdownDescription: "This resource can be used to manage snapshots of volumes on a PowerFlex array.",
+	Description:         "This resource is used to manage the Snapshot of volumes on PowerFlex Array. We can Create, Update and Delete the snapshots using this resource. We can also import an existing snapshot from PowerFlex array.",
+	MarkdownDescription: "This resource is used to manage the Snapshot of volumes on PowerFlex Array. We can Create, Update and Delete the snapshots using this resource. We can also import an existing snapshot from PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"name": schema.StringAttribute{
 			Description:         "The name of the snapshot.",

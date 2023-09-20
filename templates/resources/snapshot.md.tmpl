@@ -26,11 +26,11 @@ description: |-
 
 {{ .Description | trimspace }}
 
-!> **Caution:** Snapshot creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
+> **Caution:** Snapshot creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 If the taint is not removed, terraform will destroy and recreate the resource.
 
-~> **Note:** Exactly one of `volume_name` and `volume_id` is required.
+> **Note:** Exactly one of `volume_name` and `volume_id` is required.
 In case of partial create/update operation, retention will not be set.
 
 {{ if .HasExample -}}
@@ -38,6 +38,8 @@ In case of partial create/update operation, retention will not be set.
 
 {{tffile .ExampleFile }}
 {{- end }}
+
+After the execution of above resource block, snapshot would have been created on the PowerFlex array. For more information, Please check the terraform state file.
 
 {{ .SchemaMarkdown | trimspace }}
 

@@ -31,8 +31,8 @@ import (
 
 // ProtectionDomainResourceSchema defines the schema for Protection Domain resource
 var ProtectionDomainResourceSchema schema.Schema = schema.Schema{
-	Description:         "This resource can be used to manage protection domains on a PowerFlex array.",
-	MarkdownDescription: "This resource can be used to manage protection domains on a PowerFlex array.",
+	Description:         "This resource is used to manage the Protection Domain entity of PowerFlex Array. We can Create, Update and Delete the protection domain using this resource. We can also import an existing protection domain from PowerFlex array.",
+	MarkdownDescription: "This resource is used to manage the Protection Domain entity of PowerFlex Array. We can Create, Update and Delete the protection domain using this resource. We can also import an existing protection domain from PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "Unique identifier of the protection domain instance.",

@@ -26,17 +26,19 @@ description: |-
 
 {{ .Description | trimspace }}
 
-~> **Note:** Exactly one of `protection_domain_name` and `protection_domain_id` is required.
-
-!> **Caution:** SDS creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
+> **Caution:** SDS creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 If the taint is not removed, terraform will destroy and recreate the resource.
+
+> **Note:** Exactly one of `protection_domain_name` and `protection_domain_id` is required.
 
 {{ if .HasExample -}}
 ## Example Usage
 
 {{tffile .ExampleFile }}
 {{- end }}
+
+After the execution of above resource block, sds would have been created on the PowerFlex array. For more information, Please check the terraform state file.
 
 {{ .SchemaMarkdown | trimspace }}
 

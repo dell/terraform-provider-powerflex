@@ -15,7 +15,7 @@
 # limitations under the License.
 
 title: "{{.Name }} {{.Type | lower}}"
-linkTitle: "{{.Name }}"
+linkTitle: "{{.Name}}"
 page_title: "{{.Name}} {{.Type}} - {{.ProviderName}}"
 subcategory: ""
 description: |-
@@ -26,15 +26,7 @@ description: |-
 
 {{ .Description | trimspace }}
 
-> **Caution:** Device creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
-One can manually remove the taint and try applying the configuration (after making necessary adjustments).
-If the taint is not removed, terraform will destroy and recreate the resource.
-
-> **Note:** Exactly one of `storage_pool_name` and `storage_pool_id` is required. Not both can be provided together. 
-
-> **Note:** Exactly one of `sds_name` and `sds_id` is required. Not both can be provided together.
-
-> **Note:** If `storage_pool_name` is mentioned, we have to specify `protection_domain_id` or `protection_domain_name`.
+> **Note:** Only one of `name` and `id` can be provided at a time.
 
 {{ if .HasExample -}}
 ## Example Usage
@@ -42,15 +34,8 @@ If the taint is not removed, terraform will destroy and recreate the resource.
 {{tffile .ExampleFile }}
 {{- end }}
 
-After the execution of above resource block, device would have been created on the PowerFlex array. For more information, Please check the terraform state file.
+After the successful execution of above said block, We can see the output by executing `terraform output` command. Also, we can fetch information via the variable: `data.powerflex_device.dev.attribute_name` where attribute_name is the attribute which user wants to fetch.
 
 {{ .SchemaMarkdown | trimspace }}
 
-{{ if .HasImport -}}
-## Import
 
-Import is supported using the following syntax:
-
-{{codefile "shell" .ImportFile }}
-
-{{- end }}

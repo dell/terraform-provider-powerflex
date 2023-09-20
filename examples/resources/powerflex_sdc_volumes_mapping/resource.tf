@@ -23,13 +23,21 @@ limitations under the License.
 # To check which attributes of the sdc_volumes_mappping resource can be updated, please refer Product Guide in the documentation
 
 resource "powerflex_sdc_volumes_mapping" "mapping-test" {
+  # SDC id
   id = "e3ce1fb600000001"
   volume_list = [
     {
-      volume_id        = "edb2059700000002"
-      limit_iops       = 140
+      # id of the volume which needs to be mapped. 
+      # either volume_id or volume_name can be used.
+      volume_id = "edb2059700000002"
+
+      # Valid values are 0 or integers greater than 10
+      limit_iops = 140
+
+      # Default value is 0
       limit_bw_in_mbps = 19
-      access_mode      = "ReadOnly"
+
+      access_mode = "ReadOnly" # ReadOnly/ReadWrite/NoAccess
     },
     {
       volume_name      = "terraform-vol"
@@ -42,7 +50,7 @@ resource "powerflex_sdc_volumes_mapping" "mapping-test" {
 
 # To unmap all the volumes mapped to SDC, below config can be used. 
 
-resource "powerflex_sdc_volumes_mapping" "mapping-test" {
-  id          = "e3ce1fb600000001"
-  volume_list = []
-}
+# resource "powerflex_sdc_volumes_mapping" "mapping-test" {
+#   id          = "e3ce1fb600000001"
+#   volume_list = []
+# }

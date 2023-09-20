@@ -53,8 +53,8 @@ func (r *userResource) Metadata(_ context.Context, req resource.MetadataRequest,
 
 func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description:         "This resource can be used to manage user on a PowerFlex array.",
-		MarkdownDescription: "This resource can be used to manage user on a PowerFlex array.",
+		Description:         "This resource is used to manage the User entity of PowerFlex Array. We can Create, Update and Delete the user using this resource. We can also import an existing user from PowerFlex array. However, password cannot be updated using this resource.",
+		MarkdownDescription: "This resource is used to manage the User entity of PowerFlex Array. We can Create, Update and Delete the user using this resource. We can also import an existing user from PowerFlex array.However, password cannot be updated using this resource.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Description:         "The ID of the user.",

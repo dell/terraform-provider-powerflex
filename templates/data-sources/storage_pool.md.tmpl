@@ -26,15 +26,17 @@ description: |-
 
 {{ .Description | trimspace }}
 
-~> **Note:** Exactly one of `protection_domain_name` and `protection_domain_id` is required.
+> **Note:** Exactly one of `protection_domain_name` and `protection_domain_id` is required.
 
-~> **Note:** Only one of `storage_pool_names` and `storage_pool_ids` can be provided at a time.
+> **Note:** Only one of `storage_pool_names` and `storage_pool_ids` can be provided at a time.
 
 {{ if .HasExample -}}
 ## Example Usage
 
 {{tffile .ExampleFile }}
 {{- end }}
+
+After the successful execution of above said block, We can see the output by executing `terraform output` command. Also, we can fetch information via the variable: `data.powerflex_storage_pool.example.attribute_name` where attribute_name is the attribute which user wants to fetch.
 
 {{ .SchemaMarkdown | trimspace }}
 
