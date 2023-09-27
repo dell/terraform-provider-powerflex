@@ -49,7 +49,7 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
 
 | **Terraform Provider** | **PowerFlex/VxFlex OS Version** | **OS** | **Terraform** | **Golang** |
 |---------------------|-----------------------|-------|--------------------|--------------------------|
-| v1.1.0 | 3.6 | ubuntu22.04 <br> rhel8.x <br> rhel7.x | 1.3.2 <br> 1.2.9 <br> | 1.19.x
+| v1.2.0 | 3.6 | ubuntu22.04 <br> rhel8.x <br> rhel9.x | 1.3.x <br> 1.5.x <br> | 1.20.x
 
 ## List of DataSources in Terraform Provider for Dell PowerFlex
   * [SDC](docs/data-sources/sdc.md)

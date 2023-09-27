@@ -1,6 +1,22 @@
+# v1.2.0 (September 27, 2023)
+## Release Summary
+The release supports resources and data sources mentioned in the Features section for Dell PowerFlex.
+## Features
+
+### Resources
+* `powerflex_cluster` for deploying PowerFlex cluster.
+* `powerflex_mdm_cluster` for managing MDM cluster in PowerFlex.
+* `powerflex_user` for managing users in PowerFlex.
+
+### Data Sources:
+* `powerflex_vtree` for reading VTree details in PowerFlex.
+
+### Notes:
+* `name` attribute is removed from sdc resource.
+
 # v1.1.0 (June 28, 2023)
 ## Release Summary
-The release supports resources mentioned in the Features section for Dell PowerFlex.
+The release supports resources and data sources mentioned in the Features section for Dell PowerFlex.
 ## Features
 
 ### Resources
