@@ -59,6 +59,7 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
   * [Protection Domain](docs/data-sources/protection_domain.md)
   * [Snapshot Policy](docs/data-sources/snapshot_policy.md)
   * [Device](docs/data-sources/device.md)
+  * [VTree](docs/data-sources/vtree.md)
 
 ## List of Resources in Terraform Provider for Dell PowerFlex
   * [SDC](docs/resources/sdc.md)
@@ -70,6 +71,9 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
   * [SDC Volume Mapping](docs/resources/sdc_volumes_mapping.md)
   * [Device](docs/resources/device.md)
   * [Package](docs/resources/package.md)
+  * [Cluster](docs/resources/cluster.md)
+  * [MDM Cluster](docs/resources/mdm_cluster.md)
+  * [User](docs/resources/user.md)
 
 ## Installation and execution of Terraform Provider for Dell PowerFlex
 The installation and execution steps of Terraform Provider for Dell PowerFlex can be found [here](about/INSTALLATION.md).
