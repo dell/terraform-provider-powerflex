@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+// GetAllFaultSetState returns the state for fault set data source
 func GetAllFaultSetState(faultSet scaleiotypes.FaultSet, sdsDetails []models.SdsDataModel) (response models.FaultSet) {
 	response = models.FaultSet{
 		ID:                 faultSet.ID,
