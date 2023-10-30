@@ -23,9 +23,9 @@ import (
 
 // FaultSetDataSourceModel maps the struct to FaultSet data source schema
 type FaultSetDataSourceModel struct {
-	FaultSetIDs     types.Set    `tfsdk:"faultset_ids"`
-	FaultSetNames   types.Set    `tfsdk:"faultset_names"`
-	FaultSetDetails []FaultSet   `tfsdk:"faultset_details"`
+	FaultSetIDs     types.Set    `tfsdk:"fault_set_ids"`
+	FaultSetNames   types.Set    `tfsdk:"fault_set_names"`
+	FaultSetDetails []FaultSet   `tfsdk:"fault_set_details"`
 	ID              types.String `tfsdk:"id"`
 }
 

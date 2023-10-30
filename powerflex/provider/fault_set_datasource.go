@@ -51,7 +51,7 @@ type faultSetDataSource struct {
 }
 
 func (d *faultSetDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_faultset"
+	resp.TypeName = req.ProviderTypeName + "_fault_set"
 }
 
 func (d *faultSetDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
@@ -82,7 +82,7 @@ func (d *faultSetDataSource) Configure(_ context.Context, req datasource.Configu
 
 // GetSdsDetails fetches the SDS details associated with fault set
 func (d *faultSetDataSource) GetSdsDetails(id string) ([]scaleiotypes.Sds, error) {
-	sdsDetails, err := d.system.GetAllFaultSetsSds(id)
+	sdsDetails, err := d.system.GetAllSDSByFaultSetID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -114,14 +114,14 @@ func (d *faultSetDataSource) Read(ctx context.Context, req datasource.ReadReques
 			faultSet, err := d.system.GetFaultSetByID(faultSetID)
 			if err != nil {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting faultset details using id %v", faultSetID), err.Error(),
+					fmt.Sprintf("Error in getting fault set details using id %v", faultSetID), err.Error(),
 				)
 				return
 			}
 			sdsDetails, err := d.GetSdsDetails(faultSet.ID)
 			if err != nil {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting SDS details connected to faultset details using id %v", faultSet.ID), err.Error(),
+					fmt.Sprintf("Error in getting SDS details connected to fault set details using id %v", faultSet.ID), err.Error(),
 				)
 				return
 			}
@@ -142,14 +142,14 @@ func (d *faultSetDataSource) Read(ctx context.Context, req datasource.ReadReques
 			faultSet, err := d.system.GetFaultSetByName(faultSetName)
 			if err != nil {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting faultset details using name %v", faultSetName), err.Error(),
+					fmt.Sprintf("Error in getting fault set details using name %v", faultSetName), err.Error(),
 				)
 				return
 			}
 			sdsDetails, err := d.GetSdsDetails(faultSet.ID)
 			if err != nil {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting SDS details connected to faultset details using id %v", faultSet.ID), err.Error(),
+					fmt.Sprintf("Error in getting SDS details connected to fault set details using id %v", faultSet.ID), err.Error(),
 				)
 				return
 			}
@@ -175,7 +175,7 @@ func (d *faultSetDataSource) Read(ctx context.Context, req datasource.ReadReques
 			sdsDetails, err := d.GetSdsDetails(faultSet.ID)
 			if err != nil {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting SDS details connected to faultset details using id %v", faultSet.ID), err.Error(),
+					fmt.Sprintf("Error in getting SDS details connected to fault set details using id %v", faultSet.ID), err.Error(),
 				)
 				return
 			}
@@ -208,20 +208,20 @@ var FaultSetDataSourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Placeholder attribute.",
 			Computed:            true,
 		},
-		"faultset_ids": schema.SetAttribute{
+		"fault_set_ids": schema.SetAttribute{
 			Description:         "List of fault set IDs",
 			MarkdownDescription: "List of fault set IDs",
 			Optional:            true,
 			ElementType:         types.StringType,
 			Validators: []validator.Set{
 				setvalidator.ConflictsWith(
-					path.MatchRoot("faultset_names"),
+					path.MatchRoot("fault_set_names"),
 				),
 				setvalidator.SizeAtLeast(1),
 				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
 			},
 		},
-		"faultset_names": schema.SetAttribute{
+		"fault_set_names": schema.SetAttribute{
 			Description:         "List of fault set names",
 			MarkdownDescription: "List of fault set names",
 			Optional:            true,
@@ -231,7 +231,7 @@ var FaultSetDataSourceSchema schema.Schema = schema.Schema{
 				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
 			},
 		},
-		"faultset_details": schema.SetNestedAttribute{
+		"fault_set_details": schema.SetNestedAttribute{
 			Description:         "Fault set details",
 			MarkdownDescription: "Fault set details",
 			Computed:            true,

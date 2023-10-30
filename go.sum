@@ -28,6 +28,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dell/goscaleio v1.12.1-0.20231026132856-970807afd308 h1:OMWEWs2O1SZZBLsHjqBNiyb7QMdU+S60LYsEXoh1EgE=
 github.com/dell/goscaleio v1.12.1-0.20231026132856-970807afd308/go.mod h1:dt4Xy5Pnx8MEBza+ODOKiwNFBipcnzEXWgTnFy0+jTw=
+github.com/dell/goscaleio v1.12.1-0.20231030141135-bfa243f15f73 h1:SaTHZaWGhMHWCG350vEWXtkV1qg9+4+4BQP7yFJYOTk=
+github.com/dell/goscaleio v1.12.1-0.20231030141135-bfa243f15f73/go.mod h1:dt4Xy5Pnx8MEBza+ODOKiwNFBipcnzEXWgTnFy0+jTw=
 github.com/emirpasic/gods v1.18.1 h1:FXtiHYKDGKCW2KzwZKx0iC0PQmdlorYgdFG9jPXJ1Bc=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fatih/color v1.13.0 h1:8LOYc1KYPPmyKMuN8QV2DNRWNbLo6LZ0iLs8+mlH53w=

@@ -17,16 +17,16 @@ limitations under the License.
 
 # commands to run this tf file : terraform init && terraform apply --auto-approve
 
-# Get all faultset details present on the cluster
-data "powerflex_faultset" "example1" {
+# Get all fault set details present on the cluster
+data "powerflex_fault_set" "example1" {
 }
 
-# Get faultset details using faultset IDs
-data "powerflex_faultset" "example2" {
-  faultset_ids = ["FaultSet_ID1", "FaultSet_ID2"]
+# Get fault set details using fault set IDs
+data "powerflex_fault_set" "example2" {
+  fault_set_ids = ["FaultSet_ID1", "FaultSet_ID2"]
 }
 
-# Get faultset details using faultset names
-data "powerflex_faultset" "example3" {
-  faultset_names = ["FaultSet_Name1", "FaultSet_Name2"]
+# Get fault set details using fault set names
+data "powerflex_fault_set" "example3" {
+  fault_set_names = ["FaultSet_Name1", "FaultSet_Name2"]
 }

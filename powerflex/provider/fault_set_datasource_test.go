@@ -25,32 +25,32 @@ import (
 )
 
 var FaultSetDataSourceConfig1 = `
-data "powerflex_faultset" "example" {						
+data "powerflex_fault_set" "example" {						
 }
 `
 
 // To-Do: Remove hard-coded values once fault set resource gets merged
 var FaultSetDataSourceConfig2 = `
-data "powerflex_faultset" "example" {						
-	faultset_ids = ["2dd6640800000000"]
+data "powerflex_fault_set" "example" {						
+	fault_set_ids = ["2dd6640800000000"]
 }
 `
 
 var FaultSetDataSourceConfig3 = `
-data "powerflex_faultset" "example" {						
-	faultset_names = ["terraform_fault_set"]
+data "powerflex_fault_set" "example" {						
+	fault_set_names = ["terraform_fault_set"]
 }
 `
 
 var FaultSetDataSourceConfig4 = `
-data "powerflex_faultset" "example" {						
-	faultset_ids = ["invalid"]
+data "powerflex_fault_set" "example" {						
+	fault_set_ids = ["invalid"]
 }
 `
 
 var FaultSetDataSourceConfig5 = `
-data "powerflex_faultset" "example" {						
-	faultset_names = ["invalid"]
+data "powerflex_fault_set" "example" {						
+	fault_set_names = ["invalid"]
 }
 `
 
@@ -65,22 +65,22 @@ func TestAccFaultSetDataSource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + FaultSetDataSourceConfig2,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_faultset.example", "faultset_details.0.id", "2dd6640800000000"),
+					resource.TestCheckResourceAttr("data.powerflex_fault_set.example", "fault_set_details.0.id", "2dd6640800000000"),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + FaultSetDataSourceConfig3,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_faultset.example", "faultset_details.0.name", "terraform_fault_set"),
+					resource.TestCheckResourceAttr("data.powerflex_fault_set.example", "fault_set_details.0.name", "terraform_fault_set"),
 				),
 			},
 			{
 				Config:      ProviderConfigForTesting + FaultSetDataSourceConfig4,
-				ExpectError: regexp.MustCompile(`.*Error in getting faultset details using id.*`),
+				ExpectError: regexp.MustCompile(`.*Error in getting fault set details using id.*`),
 			},
 			{
 				Config:      ProviderConfigForTesting + FaultSetDataSourceConfig5,
-				ExpectError: regexp.MustCompile(`.*Error in getting faultset details using name.*`),
+				ExpectError: regexp.MustCompile(`.*Error in getting fault set details using name.*`),
 			},
 		},
 	})
