@@ -127,8 +127,8 @@ func (d *faultSetDataSource) Read(ctx context.Context, req datasource.ReadReques
 			}
 
 			var sdsStateModels []models.SdsDataModel
-			for _, sds := range sdsDetails {
-				sdsState := getSdsState(&sds)
+			for index := range sdsDetails {
+				sdsState := getSdsState(&sdsDetails[index])
 				sdsStateModels = append(sdsStateModels, sdsState)
 			}
 			faultSetsModel = append(faultSetsModel, helper.GetAllFaultSetState(*faultSet, sdsStateModels))
@@ -155,8 +155,8 @@ func (d *faultSetDataSource) Read(ctx context.Context, req datasource.ReadReques
 			}
 
 			var sdsStateModels []models.SdsDataModel
-			for _, sds := range sdsDetails {
-				sdsState := getSdsState(&sds)
+			for index := range sdsDetails {
+				sdsState := getSdsState(&sdsDetails[index])
 				sdsStateModels = append(sdsStateModels, sdsState)
 			}
 			faultSetsModel = append(faultSetsModel, helper.GetAllFaultSetState(*faultSet, sdsStateModels))
@@ -181,8 +181,8 @@ func (d *faultSetDataSource) Read(ctx context.Context, req datasource.ReadReques
 			}
 
 			var sdsStateModels []models.SdsDataModel
-			for _, sds := range sdsDetails {
-				sdsState := getSdsState(&sds)
+			for index := range sdsDetails {
+				sdsState := getSdsState(&sdsDetails[index])
 				sdsStateModels = append(sdsStateModels, sdsState)
 			}
 			faultSetsModel = append(faultSetsModel, helper.GetAllFaultSetState(faultSet, sdsStateModels))
