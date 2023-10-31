@@ -156,7 +156,7 @@ var SdsDataSourceSchema schema.Schema = schema.Schema{
 						MarkdownDescription: "Presence on VMware.",
 						Computed:            true,
 					},
-					"faultset_id": schema.StringAttribute{
+					"fault_set_id": schema.StringAttribute{
 						Description:         "Fault set ID.",
 						MarkdownDescription: "Fault set ID.",
 						Computed:            true,
