@@ -61,6 +61,10 @@ data "powerflex_fault_set" "example2" {
 data "powerflex_fault_set" "example3" {
   fault_set_names = ["FaultSet_Name1", "FaultSet_Name2"]
 }
+
+output "fault_set_result" {
+  value = data.powerflex_fault_set.example1.fault_set_details
+}
 ```
 
 After the successful execution of above said block, we can see the output by executing `terraform output` command. Also, we can fetch information via the variable: `data.powerflex_fault_set.datasource_block_name.attribute_name` where datasource_block_name is the name of the data source block and attribute_name is the attribute which user wants to fetch.

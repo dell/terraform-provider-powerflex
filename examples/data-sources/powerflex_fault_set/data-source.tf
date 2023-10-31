@@ -30,3 +30,7 @@ data "powerflex_fault_set" "example2" {
 data "powerflex_fault_set" "example3" {
   fault_set_names = ["FaultSet_Name1", "FaultSet_Name2"]
 }
+
+output "fault_set_result" {
+  value = data.powerflex_fault_set.example1.fault_set_details
+}
