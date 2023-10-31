@@ -28,6 +28,7 @@ func TestAccFaultSetResource(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
+	resourceName := "powerflex_fault_set.newFs"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -38,12 +39,24 @@ func TestAccFaultSetResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_fault_set.newFs", "name", "fault-set-create"),
 				),
 			},
+			// check that import is creating correct state
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 			// Update fault set Test
 			{
 				Config: ProviderConfigForTesting + FaultSetResourceUpdate,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_fault_set.newFs", "name", "fault-set-update"),
 				),
+			},
+			// check that import is creating correct state
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -60,6 +73,11 @@ func TestAccFaultSetCreateNegative(t *testing.T) {
 			{
 				Config:      ProviderConfigForTesting + FaultSetResourceCreateNegative,
 				ExpectError: regexp.MustCompile(`.*Error getting Protection Domain.*`),
+			},
+			// Create fault set Test negative
+			{
+				Config:      ProviderConfigForTesting + FaultSetResourceCreateNegative2,
+				ExpectError: regexp.MustCompile(`.*Error creating fault set.*`),
 			},
 		},
 	})
@@ -78,6 +96,10 @@ func TestAccFaultSetUpdateNegative(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_fault_set.newFs", "name", "fault-set-create"),
 				),
+			},
+			{
+				Config:      ProviderConfigForTesting + FaultSetResourceCreateNegative,
+				ExpectError: regexp.MustCompile(`.*Error getting Protection Domain.*`),
 			},
 			{
 				Config:      ProviderConfigForTesting + FaultSetResourceUpdateNegative,
@@ -105,6 +127,13 @@ var FaultSetResourceCreateNegative = `
 resource "powerflex_fault_set" "newFs" {
 	name = "fault-set-create"
 	protection_domain_id = "Invalid"
+}
+`
+
+var FaultSetResourceCreateNegative2 = `
+resource "powerflex_fault_set" "newFs" {
+	name = "fault set create"
+	protection_domain_id = "` + protectionDomainID1 + `"
 }
 `
 
