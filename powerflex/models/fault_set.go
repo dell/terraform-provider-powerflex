@@ -27,3 +27,20 @@ type FaultSetResourceModel struct {
 	ProtectionDomainID types.String `tfsdk:"protection_domain_id"`
 	Name               types.String `tfsdk:"name"`
 }
+
+// FaultSetDataSourceModel maps the struct to FaultSet data source schema
+type FaultSetDataSourceModel struct {
+	FaultSetIDs     types.Set    `tfsdk:"fault_set_ids"`
+	FaultSetNames   types.Set    `tfsdk:"fault_set_names"`
+	FaultSetDetails []FaultSet   `tfsdk:"fault_set_details"`
+	ID              types.String `tfsdk:"id"`
+}
+
+// FaultSet maps the struct to FaultSet schema
+type FaultSet struct {
+	ProtectionDomainID string         `tfsdk:"protection_domain_id"`
+	Name               string         `tfsdk:"name"`
+	ID                 string         `tfsdk:"id"`
+	Links              []*LinkModel   `tfsdk:"links"`
+	SdsDetails         []SdsDataModel `tfsdk:"sds_details"`
+}

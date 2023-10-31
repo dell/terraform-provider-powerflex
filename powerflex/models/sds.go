@@ -128,7 +128,7 @@ type SdsDataModel struct {
 	RmcacheSize                                 types.Int64            `tfsdk:"rmcache_size"`
 	RmcacheFrozen                               types.Bool             `tfsdk:"rmcache_frozen"`
 	OnVmware                                    types.Bool             `tfsdk:"on_vmware"`
-	FaultsetID                                  types.String           `tfsdk:"faultset_id"`
+	FaultsetID                                  types.String           `tfsdk:"fault_set_id"`
 	NumIOBuffers                                types.Int64            `tfsdk:"num_io_buffers"`
 	RmcacheMemoryAllocationState                types.String           `tfsdk:"rmcache_memory_allocation_state"`
 	PerformanceProfile                          types.String           `tfsdk:"performance_profile"`

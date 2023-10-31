@@ -98,7 +98,7 @@ Read-Only:
 - `certificate_info` (Attributes) Certificate Information. (see [below for nested schema](#nestedatt--sds_details--certificate_info))
 - `configured_drl_mode` (String) Configured DRL mode.
 - `drl_mode` (String) DRL mode.
-- `faultset_id` (String) Fault set ID.
+- `fault_set_id` (String) Fault set ID.
 - `fgl_metadata_cache_size` (Number) FGL metadata cache size.
 - `fgl_metadata_cache_state` (String) FGL metadata cache state.
 - `fgl_num_concurrent_writes` (Number) FGL concurrent writes.

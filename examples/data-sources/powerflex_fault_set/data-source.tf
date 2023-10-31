@@ -15,17 +15,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-# Command to run this tf file : terraform init && terraform plan && terraform apply
-# Create, Update, Delete is supported for this resource
-# To import , check import.sh for more info
-# name and protection_domain_id is the required parameter to create or update 
-# To check which attributes of the fault set can be updated, please refer Product Guide in the documentation
+# commands to run this tf file : terraform init && terraform apply --auto-approve
 
+# Get all fault set details present on the cluster
+data "powerflex_fault_set" "example1" {
+}
 
-resource "powerflex_fault_set" "avengers-fs-create" {
-  # Name of the fault set
-  name = "avengers-fs-create2"
+# Get fault set details using fault set IDs
+data "powerflex_fault_set" "example2" {
+  fault_set_ids = ["FaultSet_ID1", "FaultSet_ID2"]
+}
 
-  # To create / update, protection_domain_id is required
-  protection_domain_id = "202a046600000000"
+# Get fault set details using fault set names
+data "powerflex_fault_set" "example3" {
+  fault_set_names = ["FaultSet_Name1", "FaultSet_Name2"]
+}
+
+output "fault_set_result" {
+  value = data.powerflex_fault_set.example1.fault_set_details
 }
