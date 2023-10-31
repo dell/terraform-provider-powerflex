@@ -48,17 +48,5 @@ var FaultSetResourceSchema schema.Schema = schema.Schema{
 				stringvalidator.LengthAtLeast(1),
 			},
 		},
-		"performance_profile": schema.StringAttribute{
-			Description: "Performance Profile of the fault set" +
-				" Accepted values are 'HighPerformance' and 'Compact'.",
-			MarkdownDescription: "Performance Profile of the fault set" +
-				" Accepted values are 'HighPerformance' and 'Compact'.",
-			Optional: true,
-			Computed: true,
-			Validators: []validator.String{stringvalidator.OneOf(
-				"HighPerformance",
-				"Compact",
-			)},
-		},
 	},
 }

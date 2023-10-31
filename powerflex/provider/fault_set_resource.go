@@ -112,10 +112,6 @@ func (r *faultSetResource) Create(ctx context.Context, req resource.CreateReques
 		)
 		return
 	}
-	// set the performance profile
-	if !plan.PerformanceProfile.IsNull() {
-		pd.ModifyFaultSetPerfProfile(fsID, plan.PerformanceProfile.ValueString())
-	}
 	response, err := r.system.GetFaultSetByID(fsID)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -126,9 +122,6 @@ func (r *faultSetResource) Create(ctx context.Context, req resource.CreateReques
 	}
 
 	state := helper.UpdateFaultSetState(response, plan)
-	if !plan.PerformanceProfile.IsNull() {
-		state.PerformanceProfile = plan.PerformanceProfile
-	}
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -200,16 +193,6 @@ func (r *faultSetResource) Update(ctx context.Context, req resource.UpdateReques
 			)
 		}
 	}
-
-	if plan.PerformanceProfile.ValueString() != state.PerformanceProfile.ValueString() {
-		err := pd.ModifyFaultSetPerfProfile(state.ID.ValueString(), plan.PerformanceProfile.ValueString())
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error while updating performance profile of fault set", err.Error(),
-			)
-		}
-	}
-
 	response, err := r.system.GetFaultSetByID(state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -219,9 +202,6 @@ func (r *faultSetResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 
 	state1 := helper.UpdateFaultSetState(response, state)
-	if plan.PerformanceProfile.ValueString() != state.PerformanceProfile.ValueString() {
-		state1.PerformanceProfile = plan.PerformanceProfile
-	}
 	diags = resp.State.Set(ctx, state1)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

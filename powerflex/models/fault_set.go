@@ -26,5 +26,4 @@ type FaultSetResourceModel struct {
 	ID                 types.String `tfsdk:"id"`
 	ProtectionDomainID types.String `tfsdk:"protection_domain_id"`
 	Name               types.String `tfsdk:"name"`
-	PerformanceProfile types.String `tfsdk:"performance_profile"`
 }

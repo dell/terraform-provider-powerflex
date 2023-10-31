@@ -29,5 +29,4 @@ resource "powerflex_fault_set" "avengers-fs-create" {
 
   # To create / update, protection_domain_id is required
   protection_domain_id = "202a046600000000"
-  performance_profile = "HighPerformance"
 }

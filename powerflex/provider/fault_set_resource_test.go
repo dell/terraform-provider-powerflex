@@ -36,7 +36,6 @@ func TestAccFaultSetResource(t *testing.T) {
 				Config: ProviderConfigForTesting + FaultSetResourceCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_fault_set.newFs", "name", "fault-set-create"),
-					resource.TestCheckResourceAttr("powerflex_fault_set.newFs", "performance_profile", "HighPerformance"),
 				),
 			},
 			// Update fault set Test
@@ -44,7 +43,6 @@ func TestAccFaultSetResource(t *testing.T) {
 				Config: ProviderConfigForTesting + FaultSetResourceUpdate,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_fault_set.newFs", "name", "fault-set-update"),
-					resource.TestCheckResourceAttr("powerflex_fault_set.newFs", "performance_profile", "Compact"),
 				),
 			},
 		},
@@ -79,7 +77,6 @@ func TestAccFaultSetUpdateNegative(t *testing.T) {
 				Config: ProviderConfigForTesting + FaultSetResourceCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_fault_set.newFs", "name", "fault-set-create"),
-					resource.TestCheckResourceAttr("powerflex_fault_set.newFs", "performance_profile", "HighPerformance"),
 				),
 			},
 			{
@@ -90,26 +87,10 @@ func TestAccFaultSetUpdateNegative(t *testing.T) {
 	})
 }
 
-func TestAccFaultSetCreateNegative2(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config:      ProviderConfigForTesting + FaultSetResourceCreateNegative2,
-				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value Match.*`),
-			},
-		},
-	})
-}
-
 var FaultSetResourceCreate = `
 resource "powerflex_fault_set" "newFs" {
 	name = "fault-set-create"
 	protection_domain_id = "` + protectionDomainID1 + `"
-	performance_profile = "HighPerformance"
 }
 `
 
@@ -117,7 +98,6 @@ var FaultSetResourceUpdate = `
 resource "powerflex_fault_set" "newFs" {
 	name = "fault-set-update"
 	protection_domain_id = "` + protectionDomainID1 + `"
-	performance_profile = "Compact"
 }
 `
 
@@ -125,7 +105,6 @@ var FaultSetResourceCreateNegative = `
 resource "powerflex_fault_set" "newFs" {
 	name = "fault-set-create"
 	protection_domain_id = "Invalid"
-	performance_profile = "HighPerformance"
 }
 `
 
@@ -133,14 +112,5 @@ var FaultSetResourceUpdateNegative = `
 resource "powerflex_fault_set" "newFs" {
 	name = "fault set update"
 	protection_domain_id = "` + protectionDomainID1 + `"
-	performance_profile = "Compact"
-}
-`
-
-var FaultSetResourceCreateNegative2 = `
-resource "powerflex_fault_set" "newFs" {
-	name = "fault-set-create"
-	protection_domain_id = "` + protectionDomainID1 + `"
-	performance_profile = "Invalid"
 }
 `

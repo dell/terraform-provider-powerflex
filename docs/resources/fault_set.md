@@ -61,7 +61,6 @@ resource "powerflex_fault_set" "avengers-fs-create" {
 
   # To create / update, protection_domain_id is required
   protection_domain_id = "202a046600000000"
-  performance_profile = "HighPerformance"
 }
 ```
 
@@ -72,10 +71,6 @@ resource "powerflex_fault_set" "avengers-fs-create" {
 
 - `name` (String) Name of the Fault set
 - `protection_domain_id` (String) ID of the Protection Domain under which the fault set will be created. Cannot be updated.
-
-### Optional
-
-- `performance_profile` (String) Performance Profile of the fault set Accepted values are 'HighPerformance' and 'Compact'.
 
 ### Read-Only
 
