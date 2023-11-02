@@ -30,7 +30,7 @@ This resource is used to manage the Snapshot of volumes on PowerFlex Array. We c
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
 If the taint is not removed, terraform will destroy and recreate the resource.
 
-> **Note:** Either `volume_name` and `volume_id` is required. But not both.
+> **Note:** Either `volume_name` or `volume_id` is required. But not both.
 <span style='color: red;' >In case of partial create/update operation, retention will not be set.</span>
 
 ## Example Usage
