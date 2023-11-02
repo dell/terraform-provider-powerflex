@@ -26,9 +26,9 @@ description: |-
 
 This datasource is used to query the existing storage pools from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 
-> **Note:** Either `protection_domain_name` and `protection_domain_id` is required. But not both.
+> **Note:** Either `protection_domain_name` or `protection_domain_id` is required. But not both.
 
-> **Note:** Either `storage_pool_names` and `storage_pool_ids` is required. But not both.
+> **Note:** Either `storage_pool_names` or `storage_pool_ids` is required. But not both.
 
 ## Example Usage
 
