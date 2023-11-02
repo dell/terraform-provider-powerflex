@@ -21,6 +21,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+// FaultSetResourceModel defines struct fault set resource
+type FaultSetResourceModel struct {
+	ID                 types.String `tfsdk:"id"`
+	ProtectionDomainID types.String `tfsdk:"protection_domain_id"`
+	Name               types.String `tfsdk:"name"`
+}
+
 // FaultSetDataSourceModel maps the struct to FaultSet data source schema
 type FaultSetDataSourceModel struct {
 	FaultSetIDs     types.Set    `tfsdk:"fault_set_ids"`
