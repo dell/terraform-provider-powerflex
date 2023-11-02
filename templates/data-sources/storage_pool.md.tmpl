@@ -26,9 +26,9 @@ description: |-
 
 {{ .Description | trimspace }}
 
-> **Note:** Exactly one of `protection_domain_name` and `protection_domain_id` is required.
+> **Note:** Either `protection_domain_name` and `protection_domain_id` is required. But not both.
 
-> **Note:** Only one of `storage_pool_names` and `storage_pool_ids` can be provided at a time.
+> **Note:** Either `storage_pool_names` and `storage_pool_ids` is required. But not both.
 
 {{ if .HasExample -}}
 ## Example Usage

@@ -21,7 +21,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-U can use the count meta-argument to create multiple volumes.
+You can use the count meta-argument to create multiple volumes.
 
 ## Example
 
