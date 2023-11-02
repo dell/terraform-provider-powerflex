@@ -209,7 +209,7 @@ func (r *faultSetResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 }
 
-// Function used to Delete Storagepool Resource
+// Function used to Delete Fault Set Resource
 func (r *faultSetResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
 	var state models.FaultSetResourceModel
