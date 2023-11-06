@@ -46,6 +46,7 @@ func StoragepoolResource() resource.Resource {
 
 type storagepoolResource struct {
 	client *goscaleio.Client
+	system *goscaleio.System
 }
 
 func (r *storagepoolResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -67,6 +68,15 @@ func (r *storagepoolResource) Configure(_ context.Context, req resource.Configur
 	}
 
 	r.client = req.ProviderData.(*powerflexProvider).client
+	system, err := helper.GetFirstSystem(r.client)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Read Powerflex System",
+			err.Error(),
+		)
+		return
+	}
+	r.system = system
 }
 
 func (r *storagepoolResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
@@ -213,8 +223,10 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		)
 		return
 	}
+	if plan.ProtectionDomainName.ValueString() != "" {
+		plan.ProtectionDomainName = types.StringValue(pd.ProtectionDomain.Name)
+	}
 
-	plan.ProtectionDomainName = types.StringValue(pd.ProtectionDomain.Name)
 	payload := &scaleiotypes.StoragePoolParam{
 		Name:      plan.Name.ValueString(),
 		MediaType: plan.MediaType.ValueString(),
@@ -433,15 +445,15 @@ func (r *storagepoolResource) Read(ctx context.Context, req resource.ReadRequest
 		return
 	}
 
-	system, err := helper.GetFirstSystem(r.client)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error in getting system instance on the PowerFlex cluster", err.Error(),
-		)
-		return
-	}
+	// system, err := helper.GetFirstSystem(r.client)
+	// if err != nil {
+	// 	resp.Diagnostics.AddError(
+	// 		"Error in getting system instance on the PowerFlex cluster", err.Error(),
+	// 	)
+	// 	return
+	// }
 
-	spr, err := system.GetStoragePoolByID(state.ID.ValueString())
+	spr, err := r.system.GetStoragePoolByID(state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("Could not get storagepool by ID %s", state.ID.ValueString()),
@@ -451,17 +463,17 @@ func (r *storagepoolResource) Read(ctx context.Context, req resource.ReadRequest
 	}
 	spResponse := helper.UpdateStoragepoolState(spr, state)
 
-	if state.ProtectionDomainName.IsNull() {
-		protectionDomain, err := system.FindProtectionDomain(spr.ProtectionDomainID, "", "")
-		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Unable to read name of protection domain of ID %s for Storagepool %s", spr.ProtectionDomainID, spr.Name),
-				err.Error(),
-			)
-		} else {
-			spResponse.ProtectionDomainName = types.StringValue(protectionDomain.Name)
-		}
-	}
+	//if state.ProtectionDomainName.IsNull() {
+		// protectionDomain, err := r.system.FindProtectionDomain(spr.ProtectionDomainID, "", "")
+		// if err != nil {
+		// 	resp.Diagnostics.AddError(
+		// 		fmt.Sprintf("Unable to read name of protection domain of ID %s for Storagepool %s", spr.ProtectionDomainID, spr.Name),
+		// 		err.Error(),
+		// 	)
+		// } else {
+		// 	spResponse.ProtectionDomainName = types.StringValue(protectionDomain.Name)
+		// }
+	//}
 
 	tflog.Debug(ctx, "Read Storagepool :-- "+helper.PrettyJSON(spr))
 	diags = resp.State.Set(ctx, spResponse)
@@ -678,6 +690,14 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 	}
 
 	state1 := helper.UpdateStoragepoolState(spResponse, state)
+	pdnameUpdate, err := r.system.FindProtectionDomain(spResponse.ProtectionDomainID, "", "")
+	if err != nil {
+		resp.Diagnostics.AddError(
+			fmt.Sprintf("Unable to read name of protection domain of ID %s for Storagepool %s", spResponse.ProtectionDomainID, spResponse.Name),
+			err.Error(),
+		)
+	}
+	state1.ProtectionDomainName = types.StringValue(pdnameUpdate.Name)
 	tflog.Debug(ctx, "Update Storagepool :-- "+helper.PrettyJSON(spResponse))
 	diags = resp.State.Set(ctx, state1)
 	resp.Diagnostics.Append(diags...)

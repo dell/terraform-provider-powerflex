@@ -56,7 +56,7 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 				" Conflicts with `protection_domain_id`." +
 				" Cannot be updated.",
 			Optional: true,
-			Computed: true,
+			//Computed: true,
 		},
 		"name": schema.StringAttribute{
 			Description:         "Name of the Storage pool",
