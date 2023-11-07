@@ -20,6 +20,10 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
+
 	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -27,9 +31,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"strings"
-	"terraform-provider-powerflex/powerflex/helper"
-	"terraform-provider-powerflex/powerflex/models"
 )
 
 var (
@@ -54,7 +55,7 @@ func (r *userResource) Metadata(_ context.Context, req resource.MetadataRequest,
 func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description:         "This resource is used to manage the User entity of PowerFlex Array. We can Create, Update and Delete the user using this resource. We can also import an existing user from PowerFlex array. However, password cannot be updated using this resource.",
-		MarkdownDescription: "This resource is used to manage the User entity of PowerFlex Array. We can Create, Update and Delete the user using this resource. We can also import an existing user from PowerFlex array.However, password cannot be updated using this resource.",
+		MarkdownDescription: "This resource is used to manage the User entity of PowerFlex Array. We can Create, Update and Delete the user using this resource. We can also import an existing user from PowerFlex array. However, password cannot be updated using this resource.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Description:         "The ID of the user.",

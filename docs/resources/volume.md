@@ -26,9 +26,9 @@ description: |-
 
 This resource is used to manage the Volume entity of PowerFlex Array. We can Create, Update and Delete the volume using this resource. We can also import an existing volume from PowerFlex array.
 
-> **Caution:** Volume creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
+> **Caution:** <span style='color: red;' >Volume creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
-If the taint is not removed, terraform will destroy and recreate the resource.
+If the taint is not removed, terraform will destroy and recreate the resource.</span>
 
 > **Note:** Either `protection_domain_name` or `protection_domain_id` is required. But not both. 
 > **Note:** Either `storage_pool_name` or `storage_pool_id` is required. But not both. 

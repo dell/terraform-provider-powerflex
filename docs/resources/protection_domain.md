@@ -26,9 +26,9 @@ description: |-
 
 This resource is used to manage the Protection Domain entity of PowerFlex Array. We can Create, Update and Delete the protection domain using this resource. We can also import an existing protection domain from PowerFlex array.
 
-> **Caution:** Protection Domain creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
+> **Caution:** <span style='color: red;' >Protection Domain creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
-If the taint is not removed, terraform will destroy and recreate the resource.
+If the taint is not removed, terraform will destroy and recreate the resource.</span>
 
 ## Example Usage
 

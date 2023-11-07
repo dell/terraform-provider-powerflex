@@ -50,8 +50,8 @@ limitations under the License.
 # Command to run this tf file : terraform init && terraform plan && terraform apply.
 # Create, Update, Read, Delete and Import operations are supported for this resource.
 
-# To perform Multiple SDC Detail Update and SDC Expansion
-resource "powerflex_sdc" "expansion" {
+# Example for adding MDMs as SDCs
+resource "powerflex_sdc" "sdc-example" {
   mdm_password = "Password"
   lia_password = "Password"
   sdc_details = [
@@ -61,10 +61,9 @@ resource "powerflex_sdc" "expansion" {
       password            = "Password"
       operating_system    = "linux"
       is_mdm_or_tb        = "Primary"
-      is_sdc              = "No"
+      is_sdc              = "Yes"
       name                = "SDC_NAME"
       performance_profile = "HighPerformance"
-      sdc_id              = "sdc_id"
     },
     {
       ip                  = "IP"
@@ -75,7 +74,6 @@ resource "powerflex_sdc" "expansion" {
       is_sdc              = "Yes"
       name                = "SDC_NAME"
       performance_profile = "Compact"
-      sdc_id              = "sdc_id"
     },
     {
       ip                  = "IP"
@@ -86,18 +84,71 @@ resource "powerflex_sdc" "expansion" {
       is_sdc              = "Yes"
       name                = "SDC_NAME"
       performance_profile = "Compact"
-      sdc_id              = "sdc_id"
+    }
+  ]
+}
+
+# Example for deleting all MDMs installed as SDCs
+resource "powerflex_sdc" "expansion" {
+  mdm_password = "Password"
+  lia_password = "Password"
+  sdc_details = []
+}
+
+# Example for installing non-MDM node as SDC
+resource "powerflex_sdc" "sdc-example" {
+  mdm_password = "Password"
+  lia_password = "Password"
+  sdc_details = [
+    {
+      ip                  = "IP"
+      username            = "Username"
+      password            = "Password"
+      operating_system    = "linux"
+      is_mdm_or_tb        = "Primary"
+      is_sdc              = "No"
     },
     {
       ip                  = "IP"
       username            = "Username"
       password            = "Password"
       operating_system    = "linux"
-      is_mdm_or_tb        = "Standby"
+      is_mdm_or_tb        = "Secondary"
+      is_sdc              = "No"
+    },
+    {
+      ip                  = "IP"
+      username            = "Username"
+      password            = "Password"
+      operating_system    = "linux"
+      is_mdm_or_tb        = "TB"
+      is_sdc              = "No"
+    },
+    {
+      ip                  = "IP"
+      username            = "Username"
+      password            = "Password"
+      operating_system    = "linux"
       is_sdc              = "Yes"
-      name                = "SDC_NAME"
-      performance_profile = "Compact"
-      sdc_id              = "sdc_id"
+    }
+  ]
+}
+
+# Example for renaming existing SDC using ID
+data "powerflex_sdc" "all" {
+}
+
+locals {
+  matching_sdc = [for sdc in data.powerflex_sdc.all.sdcs : sdc if sdc.sdc_ip == "IP address of the SDC node to get SDC ID"]
+}
+
+resource "powerflex_sdc" "test" {
+  mdm_password = "Password"
+  lia_password = "Password"
+  sdc_details = [
+    {
+      sdc_id = local.matching_sdc[0].id
+      name = "rename_sdc"
     },
   ]
 }

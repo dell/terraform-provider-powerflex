@@ -26,9 +26,9 @@ description: |-
 
 This resource is used to manage the Snapshot of volumes on PowerFlex Array. We can Create, Update and Delete the snapshots using this resource. We can also import an existing snapshot from PowerFlex array.
 
-> **Caution:** Snapshot creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
+> **Caution:** <span style='color: red;' >Snapshot creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
-If the taint is not removed, terraform will destroy and recreate the resource.
+If the taint is not removed, terraform will destroy and recreate the resource.</span>
 
 > **Note:** Either `volume_name` or `volume_id` is required. But not both.
 <span style='color: red;' >In case of partial create/update operation, retention will not be set.</span>

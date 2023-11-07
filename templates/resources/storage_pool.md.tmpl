@@ -26,9 +26,9 @@ description: |-
 
 {{ .Description | trimspace }}
 
-> **Caution:** Storage Pool creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
+> **Caution:** <span style='color: red;' >Storage Pool creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
-If the taint is not removed, terraform will destroy and recreate the resource.
+If the taint is not removed, terraform will destroy and recreate the resource.</span>
 
 > **Note:** Either `protection_domain_name` or `protection_domain_id` is required. But not both. 
 
