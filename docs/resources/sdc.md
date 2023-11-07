@@ -50,8 +50,8 @@ limitations under the License.
 # Command to run this tf file : terraform init && terraform plan && terraform apply.
 # Create, Update, Read, Delete and Import operations are supported for this resource.
 
-# To perform Multiple SDC Detail Update and SDC Expansion
-resource "powerflex_sdc" "expansion" {
+# To perform Multiple SDC Detail Update and SDC Installation
+resource "powerflex_sdc" "sdc_test" {
   mdm_password = "Password"
   lia_password = "Password"
   sdc_details = [
@@ -64,7 +64,6 @@ resource "powerflex_sdc" "expansion" {
       is_sdc              = "No"
       name                = "SDC_NAME"
       performance_profile = "HighPerformance"
-      sdc_id              = "sdc_id"
     },
     {
       ip                  = "IP"
@@ -75,7 +74,6 @@ resource "powerflex_sdc" "expansion" {
       is_sdc              = "Yes"
       name                = "SDC_NAME"
       performance_profile = "Compact"
-      sdc_id              = "sdc_id"
     },
     {
       ip                  = "IP"
@@ -86,7 +84,6 @@ resource "powerflex_sdc" "expansion" {
       is_sdc              = "Yes"
       name                = "SDC_NAME"
       performance_profile = "Compact"
-      sdc_id              = "sdc_id"
     },
     {
       ip                  = "IP"
@@ -101,6 +98,23 @@ resource "powerflex_sdc" "expansion" {
     },
   ]
 }
+
+
+# To perform Multiple SDC Detail Update only
+resource "powerflex_sdc" "sdc_update" {
+  sdc_details = [
+    {
+      sdc_id              = "sdc_id"
+      name                = "SDC_NAME"
+      performance_profile = "HighPerformance"
+    },
+    {
+      sdc_id              = "sdc_id"
+      name                = "SDC_NAME"
+      performance_profile = "HighPerformance"
+    },
+  ]
+}
 ```
 
 After the execution of above resource block, sdc would have been created on the PowerFlex array. For more information, Please check the terraform state file.
@@ -112,7 +126,7 @@ After the execution of above resource block, sdc would have been created on the 
 
 - `lia_password` (String, Sensitive) LIA Password to connect MDM Server.
 - `mdm_password` (String, Sensitive) MDM Password to connect MDM Server.
-- `sdc_details` (Attributes List) List of SDC Expansion Server Details. (see [below for nested schema](#nestedatt--sdc_details))
+- `sdc_details` (Attributes List, Deprecated) List of SDC Expansion Server Details. (see [below for nested schema](#nestedatt--sdc_details))
 
 ### Read-Only
 

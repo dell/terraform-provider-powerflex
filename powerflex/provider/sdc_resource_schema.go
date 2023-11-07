@@ -80,6 +80,7 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 	Description:         "List of SDC Expansion Server Details.",
 	Optional:            true,
 	Computed:            true,
+	DeprecationMessage:  "In future releases, this field will be considered solely as an input field, and another field will be introduced to serve as the output list of SDCs.",
 	MarkdownDescription: "List of SDC Expansion Server Details.",
 	NestedObject: schema.NestedAttributeObject{
 		Attributes: map[string]schema.Attribute{

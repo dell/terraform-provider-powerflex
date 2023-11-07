@@ -18,8 +18,8 @@ limitations under the License.
 # Command to run this tf file : terraform init && terraform plan && terraform apply.
 # Create, Update, Read, Delete and Import operations are supported for this resource.
 
-# To perform Multiple SDC Detail Update and SDC Expansion
-resource "powerflex_sdc" "expansion" {
+# To perform Multiple SDC Detail Update and SDC Installation
+resource "powerflex_sdc" "sdc_test" {
   mdm_password = "Password"
   lia_password = "Password"
   sdc_details = [
@@ -32,7 +32,6 @@ resource "powerflex_sdc" "expansion" {
       is_sdc              = "No"
       name                = "SDC_NAME"
       performance_profile = "HighPerformance"
-      sdc_id              = "sdc_id"
     },
     {
       ip                  = "IP"
@@ -43,7 +42,6 @@ resource "powerflex_sdc" "expansion" {
       is_sdc              = "Yes"
       name                = "SDC_NAME"
       performance_profile = "Compact"
-      sdc_id              = "sdc_id"
     },
     {
       ip                  = "IP"
@@ -54,7 +52,6 @@ resource "powerflex_sdc" "expansion" {
       is_sdc              = "Yes"
       name                = "SDC_NAME"
       performance_profile = "Compact"
-      sdc_id              = "sdc_id"
     },
     {
       ip                  = "IP"
@@ -66,6 +63,23 @@ resource "powerflex_sdc" "expansion" {
       name                = "SDC_NAME"
       performance_profile = "Compact"
       sdc_id              = "sdc_id"
+    },
+  ]
+}
+
+
+# To perform Multiple SDC Detail Update only
+resource "powerflex_sdc" "sdc_update" {
+  sdc_details = [
+    {
+      sdc_id              = "sdc_id"
+      name                = "SDC_NAME"
+      performance_profile = "HighPerformance"
+    },
+    {
+      sdc_id              = "sdc_id"
+      name                = "SDC_NAME"
+      performance_profile = "HighPerformance"
     },
   ]
 }
