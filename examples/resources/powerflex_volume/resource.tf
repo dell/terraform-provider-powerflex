@@ -22,7 +22,7 @@ limitations under the License.
 # other  atrributes like : capacity_unit, volume_type, use_rm_cache, compression_method, access_mode, remove_mode are optional 
 # To check which attributes of the volume can be updated, please refer Product Guide in the documentation
 
-
+# Example for creating volume. After successful execution, volume will be created with 8 GB size.
 resource "powerflex_volume" "avengers-volume-create" {
   name = "avengers-volume-create"
 
@@ -34,7 +34,7 @@ resource "powerflex_volume" "avengers-volume-create" {
 
   # The unit of size of the volume is defined by capacity_unit whose default value is "GB".
   size          = 8
-  capacity_unit = "GB"
+  capacity_unit = "GB" # GB/TB
 
   use_rm_cache = true
   volume_type  = "ThickProvisioned"      # ThickProvisioned/ThinProvisioned volume type

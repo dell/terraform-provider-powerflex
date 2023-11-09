@@ -17,10 +17,11 @@ limitations under the License.
 
 # Command to run this tf file : terraform init && terraform plan && terraform apply.
 
+# Example for adding device. After successful execution, device will be added to the specified storage pool
 resource "powerflex_device" "test-device" {
   device_path            = "/dev/sdc"
   storage_pool_name      = "pool1"
   protection_domain_name = "domain1"
   sds_name               = "SDS_2"
-  media_type             = "HDD"
+  media_type             = "HDD" # HDD/SSD
 }

@@ -26,9 +26,9 @@ description: |-
 
 This resource can be used to manage MDM cluster on a PowerFlex array. Supports adding or removing standby MDMs, migrate from 3-node to 5-node cluster or vice-versa, changing MDM ownership, changing performance profile, and renaming MDMs.
 
-> **Caution:** MDM cluster creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
+> **Caution:** <span style='color: red;' >MDM cluster creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
-If the taint is not removed, terraform will destroy and recreate the resource.
+If the taint is not removed, terraform will destroy and recreate the resource.</span>
 
 > **Note:** Use of MDM cluster resource requires the presence of the MDM cluster. The purpose of this resource is to update MDM cluster, not create or delete. Import operation is not supported for MDM cluster.
 
@@ -61,7 +61,7 @@ limitations under the License.
 
 # Example for adding standby MDMs. Before adding standby MDMs, MDM package must be installed on VM with respective role. 
 resource "powerflex_mdm_cluster" "test-mdm-cluster" {
-  cluster_mode = "ThreeNodes"
+  cluster_mode = "ThreeNodes" # ThreeNodes/FiveNodes
   primary_mdm = {
     id = "7f328d0b71711801"
   }
@@ -74,7 +74,7 @@ resource "powerflex_mdm_cluster" "test-mdm-cluster" {
   standby_mdm = [
     {
       ips  = ["10.xxx.xx.xxx"]
-      role = "Manager"
+      role = "Manager" # Manager/TieBreaker
     },
     {
       ips  = ["10.yyy.yy.yyy"]
