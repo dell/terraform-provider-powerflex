@@ -24,7 +24,7 @@ limitations under the License.
 
 # Example for adding standby MDMs. Before adding standby MDMs, MDM package must be installed on VM with respective role. 
 resource "powerflex_mdm_cluster" "test-mdm-cluster" {
-  cluster_mode = "ThreeNodes"
+  cluster_mode = "ThreeNodes" # ThreeNodes/FiveNodes
   primary_mdm = {
     id = "7f328d0b71711801"
   }
@@ -37,7 +37,7 @@ resource "powerflex_mdm_cluster" "test-mdm-cluster" {
   standby_mdm = [
     {
       ips  = ["10.xxx.xx.xxx"]
-      role = "Manager"
+      role = "Manager" # Manager/TieBreaker
     },
     {
       ips  = ["10.yyy.yy.yyy"]

@@ -18,7 +18,7 @@ limitations under the License.
 # Command to run this tf file : terraform init && terraform plan && terraform apply.
 # Create, Update, Read, Delete and Import operations are supported for this resource.
 
-# Example for adding MDMs as SDCs
+# Example for adding MDMs as SDCs. After successful execution, three SDCs will be added.
 resource "powerflex_sdc" "sdc-example" {
   mdm_password = "Password"
   lia_password = "Password"
@@ -56,14 +56,14 @@ resource "powerflex_sdc" "sdc-example" {
   ]
 }
 
-# Example for deleting all MDMs installed as SDCs
+# Example for deleting all MDMs installed as SDCs. After successful execution, SDCs will be removed from the cluster. 
 resource "powerflex_sdc" "expansion" {
   mdm_password = "Password"
   lia_password = "Password"
   sdc_details = []
 }
 
-# Example for installing non-MDM node as SDC
+# Example for installing non-MDM node as SDC. After successful execution, one SDC will be added.
 resource "powerflex_sdc" "sdc-example" {
   mdm_password = "Password"
   lia_password = "Password"
@@ -102,7 +102,7 @@ resource "powerflex_sdc" "sdc-example" {
   ]
 }
 
-# Example for renaming existing SDC using ID
+# Example for renaming existing SDC using ID. After successful execution, SDC will be renamed.
 data "powerflex_sdc" "all" {
 }
 

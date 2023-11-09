@@ -138,8 +138,8 @@ func ClusterModelSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 
 		"ips": schema.StringAttribute{
-			MarkdownDescription: "IP address to be used for multiple purposes. Use this field to designate one IP address that will be assigned to all of the following: MDM IP, MDM Mgmt IP and SDS All IP. This option is provided for use cases where separate networks for data and management are not required.",
-			Description:         "IP address to be used for multiple purposes. Use this field to designate one IP address that will be assigned to all of the following: MDM IP, MDM Mgmt IP and SDS All IP. This option is provided for use cases where separate networks for data and management are not required.",
+			MarkdownDescription: "Use this field to assign a single IP address for all the MDM IP, MDM Mgmt IP, and SDS All IP. This option is useful when separate networks for data and management are not required.",
+			Description:         "Use this field to assign a single IP address for all the MDM IP, MDM Mgmt IP, and SDS All IP. This option is useful when separate networks for data and management are not required.",
 			Optional:            true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
@@ -147,8 +147,8 @@ func ClusterModelSchema() map[string]schema.Attribute {
 		},
 
 		"username": schema.StringAttribute{
-			MarkdownDescription: "Enter name either root or a non-root sudo user",
-			Description:         "Enter name either root or a non-root sudo user",
+			MarkdownDescription: "The value can be either `root` or any non-root user name with appropriate permissions.",
+			Description:         "The value can be either 'root' or any non-root user name with appropriate permissions.",
 			Optional:            true,
 			Computed:            true,
 			PlanModifiers: []planmodifier.String{
@@ -194,8 +194,8 @@ func ClusterModelSchema() map[string]schema.Attribute {
 		},
 
 		"mdm_mgmt_ip": schema.StringAttribute{
-			MarkdownDescription: "The IP address for the management-only network.The management IP address is not required for: Tiebreaker, Standby Tiebreaker, and any host that is not an MDM. In such cases, leave this field blank.",
-			Description:         "The IP address for the management-only network.The management IP address is not required for: Tiebreaker, Standby Tiebreaker, and any host that is not an MDM. In such cases, leave this field blank.",
+			MarkdownDescription: "This IP address is for the management-only network. The management ip is not required for Tiebreaker MDM, Standby Tiebreaker MDM and any host that is not an MDM.",
+			Description:         "This IP address is for the management-only network. The management ip is not required for Tiebreaker MDM, Standby Tiebreaker MDM and any host that is not an MDM.",
 			Optional:            true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
