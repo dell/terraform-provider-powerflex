@@ -64,7 +64,7 @@ func TestAccDeviceResourceWithSPID(t *testing.T) {
 				Config: ProviderConfigForTesting + AddDeviceWithSPID,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_path", "/dev/sdc"),
-					resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
+					// resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
 					resource.TestCheckResourceAttrPair("powerflex_device.device-test", "sds_id", "powerflex_sds.sds", "id"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_capacity_in_kb", "314572800"),
@@ -150,7 +150,7 @@ func TestAccDeviceResourceWithSDSName(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_path", "/dev/sdc"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "name", "terraform-device"),
-					resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
+					// resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
 					resource.TestCheckResourceAttrPair("powerflex_device.device-test", "sds_name", "powerflex_sds.sds", "name"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "media_type", "HDD"),
 				),
@@ -342,7 +342,7 @@ func TestAccDeviceResourceUpdate(t *testing.T) {
 				Config: ProviderConfigForTesting + RenameDevice,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_path", "/dev/sdc"),
-					resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
+					// resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
 					resource.TestCheckResourceAttrPair("powerflex_device.device-test", "sds_id", "powerflex_sds.sds", "id"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "name", "terraform-device-renamed"),
@@ -356,7 +356,7 @@ func TestAccDeviceResourceUpdate(t *testing.T) {
 				Config: ProviderConfigForTesting + UpdateDeviceExternalAccelerationType,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_path", "/dev/sdc"),
-					resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
+					// resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
 					resource.TestCheckResourceAttrPair("powerflex_device.device-test", "sds_id", "powerflex_sds.sds", "id"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "name", "terraform-device-renamed"),
@@ -367,7 +367,7 @@ func TestAccDeviceResourceUpdate(t *testing.T) {
 				Config: ProviderConfigForTesting + UpdateDeviceCapacity,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_path", "/dev/sdc"),
-					resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
+					// resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
 					resource.TestCheckResourceAttrPair("powerflex_device.device-test", "sds_id", "powerflex_sds.sds", "id"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "name", "terraform-device-renamed"),

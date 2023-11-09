@@ -131,9 +131,6 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
-	// set the protection domain name in the plan so that it gets propagated to the state
-	plan.ProtectionDomainName = types.StringValue(pdm.ProtectionDomain.Name)
-
 	sdsName := plan.Name.ValueString()
 	iplist := plan.GetIPList(ctx)
 
@@ -246,19 +243,6 @@ func (r *sdsResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	// when SDS is imported, protection domain name is not known and this causes a non empty plan
-	if state.ProtectionDomainName.IsNull() {
-		protectionDomain, err := system.FindProtectionDomain(rsp.ProtectionDomainID, "", "")
-		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Unable to read name of protection domain of ID %s for SDS %s", rsp.ProtectionDomainID, rsp.Name),
-				err.Error(),
-			)
-		} else {
-			state.ProtectionDomainName = types.StringValue(protectionDomain.Name)
-		}
-	}
-
 	// Set refreshed state
 	state, dgs := helper.UpdateSdsState(&rsp, state)
 	resp.Diagnostics.Append(dgs...)
@@ -270,7 +254,12 @@ func (r *sdsResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Retrieve values from plan
-	var plan models.SdsResourceModel
+	var (
+		plan             models.SdsResourceModel
+		state            models.SdsResourceModel
+		protectionDomain *scaleiotypes.ProtectionDomain
+	)
+
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -278,11 +267,38 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	}
 
 	// Retrieve values from state
-	var state models.SdsResourceModel
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	system, err := helper.GetFirstSystem(r.client)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Read Powerflex System",
+			err.Error(),
+		)
+		return
+	}
+
+	if !plan.ProtectionDomainID.IsUnknown() && plan.ProtectionDomainID.ValueString() != state.ProtectionDomainID.ValueString() {
+		resp.Diagnostics.AddError(
+			"Protection domain ID cannot be updated",
+			"Protection domain ID cannot be updated")
+		return
+	}
+
+	if !plan.ProtectionDomainName.IsNull() && plan.ProtectionDomainName.ValueString() != state.ProtectionDomainName.ValueString() {
+		protectionDomain, err = system.FindProtectionDomain("", plan.ProtectionDomainName.ValueString(), "")
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Unable to Read Powerflex Protection domain by name %v", plan.ProtectionDomainName.ValueString()),
+				err.Error(),
+			)
+			return
+		}
+		state.ProtectionDomainName = types.StringValue(protectionDomain.Name)
 	}
 
 	// if rm cache size is provided

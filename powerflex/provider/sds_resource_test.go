@@ -1500,3 +1500,122 @@ func TestSDSResourceRename(t *testing.T) {
 		},
 	})
 }
+
+func TestSDSResoureUpdateProtectionDomainIDNegative(t *testing.T) {
+	var createSDSMandatoryParams = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = "` + protectionDomainID1 + `"
+			ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			}
+			]
+	}
+	`
+
+	var updateProtectionDomainID = `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_id = ""
+			ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			}
+			]
+		}
+	`
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + createSDSMandatoryParams,
+			},
+			{
+				Config:      ProviderConfigForTesting + updateProtectionDomainID,
+				ExpectError: regexp.MustCompile(`.*Protection domain ID cannot be updated.*`),
+			},
+		},
+	})
+}
+
+func TestSDSResoureUpdateProtectionDomainName(t *testing.T) {
+	var createProtectionDomain = `
+	resource "powerflex_protection_domain" "pd" {
+		name = "Terraform-AccTest-PD"
+	 }
+	`
+
+	var updateProtectionDomain = `
+	resource "powerflex_protection_domain" "pd" {
+		name = "Terraform-AccTest-PD-Renamed"
+	 }
+	`
+
+	var createSDSMandatoryParams = createProtectionDomain + `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_name = resource.powerflex_protection_domain.pd.name
+			ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			}
+			]
+	}
+	`
+
+	var updateProtectionDomainName = updateProtectionDomain + `
+		resource "powerflex_sds" "sds" {
+			name = "Terraform_SDS"
+			protection_domain_name = resource.powerflex_protection_domain.pd.name
+			ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			}
+			]
+		}
+	`
+
+	var updateProtectionDomainNameNegative = updateProtectionDomain + `
+		resource "powerflex_sds" "sds" {
+			depends_on = [resource.powerflex_protection_domain.pd]
+			name = "Terraform_SDS"
+			protection_domain_name = "random_name"
+			ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			}
+			]
+		}
+	`
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + createSDSMandatoryParams,
+			},
+			{
+				Config: ProviderConfigForTesting + updateProtectionDomainName,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
+					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_name", "Terraform-AccTest-PD-Renamed"),
+					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
+						"ip":   SdsResourceTestData.SdsIP2,
+						"role": "all",
+					}),
+				),
+			},
+			{
+				Config:      ProviderConfigForTesting + updateProtectionDomainNameNegative,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex Protection domain by name.*`),
+			},
+		},
+	})
+}
