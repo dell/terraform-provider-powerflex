@@ -50,6 +50,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+# Example for creating protection domain. After successful execution, protection domain will be created on the cluster.
 resource "powerflex_protection_domain" "pd" {
   # required paramaters  ======
 
@@ -74,7 +75,7 @@ resource "powerflex_protection_domain" "pd" {
 
   # Read Flash cache
   rf_cache_enabled          = true
-  rf_cache_operational_mode = "ReadAndWrite"
+  rf_cache_operational_mode = "ReadAndWrite" # Read/Write/ReadAndWrite/WriteMiss
   rf_cache_page_size_kb     = 16
   rf_cache_max_io_size_kb   = 32
 }

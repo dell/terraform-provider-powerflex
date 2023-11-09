@@ -60,10 +60,11 @@ limitations under the License.
 # other  atrributes like : use_rmcache, use_rfcache, replication_journal_capacity, capacity_alert_high_threshold, capacity_alert_critical_threshold etc. are optional 
 # To check which attributes of the storage pool can be updated, please refer Product Guide in the documentation
 
+# Example for creating storage pool. After successful execution, storage pool will be created under a specified protection domain.
 resource "powerflex_storage_pool" "sp" {
   name                         = "newstoragepool"
   protection_domain_name       = "domain1"
-  media_type                   = "HDD"
+  media_type                   = "HDD" # HDD/SSD/Transitional
   use_rmcache                  = false
   use_rfcache                  = true
   replication_journal_capacity = 34
@@ -79,7 +80,7 @@ resource "powerflex_storage_pool" "sp" {
   # When the policy is set to "favorAppIos", then concurrent IOs and bandwidth limit can be set.
   # When the policy is set to "limitNumOfConcurrentIos", then only concurrent IOs can be set.
   # When the policy is set to "unlimited", then concurrent IOs and bandwidth limit can't be set.
-  protected_maintenance_mode_io_priority_policy               = "favorAppIos"
+  protected_maintenance_mode_io_priority_policy               = "favorAppIos" # favorAppIos/limitNumOfConcurrentIos/unlimited
   protected_maintenance_mode_num_of_concurrent_ios_per_device = 7
   protected_maintenance_mode_bw_limit_per_device_in_kbps      = 1028
 
@@ -87,14 +88,14 @@ resource "powerflex_storage_pool" "sp" {
   # When the policy is set to "favorAppIos", then concurrent IOs and bandwidth limit can be set.
   # When the policy is set to "limitNumOfConcurrentIos", then only concurrent IOs can be set.
   # When the policy is set to "unlimited", then concurrent IOs and bandwidth limit can't be set.  
-  rebalance_io_priority_policy               = "favorAppIos"
+  rebalance_io_priority_policy               = "favorAppIos" # favorAppIos/limitNumOfConcurrentIos/unlimited
   rebalance_num_of_concurrent_ios_per_device = 7
   rebalance_bw_limit_per_device_in_kbps      = 1032
 
   #VTree Migration Parameters
   # When the policy is set to "favorAppIos", then concurrent IOs and bandwidth limit can be set.
   # When the policy is set to "limitNumOfConcurrentIos", then only concurrent IOs can be set.
-  vtree_migration_io_priority_policy               = "favorAppIos"
+  vtree_migration_io_priority_policy               = "favorAppIos" # favorAppIos/limitNumOfConcurrentIos
   vtree_migration_num_of_concurrent_ios_per_device = 7
   vtree_migration_bw_limit_per_device_in_kbps      = 1030
 

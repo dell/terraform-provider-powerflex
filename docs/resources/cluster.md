@@ -26,7 +26,7 @@ description: |-
 
 This terraform resource is used to deploy PowerFlex Cluster. We can Create and Delete the PowerFlex Cluster using this resource. We can also Import an existing Cluster of PowerFlex.
 
-> **Note:** Gateway server should be configured. Required packages should be uploaded to the gateway. Package resource can be used for uploading packages to the gateway. 
+> **Note:** Gateway server should have been installed. This is a pre-requisite for using this cluster resource. Required packages should be uploaded to the gateway. Package resource can be used for uploading packages to the gateway. 
 
 > **Note:** Support is provided for creating, importing, and deleting operations for this resource.
 
@@ -63,7 +63,7 @@ limitations under the License.
 # Command to run this tf file : terraform init && terraform plan && terraform apply.
 # Create, Read, Delete and Import operations are supported for this resource.
 
-# To perform Cluster Installation
+# Example for deploying cluster. After successful execution, 3 node MDM cluster will be deployed with 3 SDCs and 2 SDS.
 resource "powerflex_cluster" "test" {
 
   # Security Related Field
@@ -205,13 +205,13 @@ Required:
 Optional:
 
 - `fault_set` (String) Fault Set
-- `ips` (String) IP address to be used for multiple purposes. Use this field to designate one IP address that will be assigned to all of the following: MDM IP, MDM Mgmt IP and SDS All IP. This option is provided for use cases where separate networks for data and management are not required.
+- `ips` (String) Use this field to assign a single IP address for all the MDM IP, MDM Mgmt IP, and SDS All IP. This option is useful when separate networks for data and management are not required.
 - `is_rfcache` (String) Is RFCache. The acceptable values are `Yes` and `No`. Default value is `No`.
 - `is_sdc` (String) Is Sdc. The acceptable values are `Yes` and `No`. Default value is `No`.
 - `is_sdr` (String) Is SDR. The acceptable values are `Yes` and `No`. Default value is `No`.
 - `is_sds` (String) Is Sds. The acceptable values are `Yes` and `No`. Default value is `No`.
 - `mdm_ips` (String) MDM IP addresses used to communicate with other PowerFlex components in the storage network. This is required for all MDMs, Tiebreakers and Standbys.Leave this field blank for hosts that are not part of the MDM cluster.
-- `mdm_mgmt_ip` (String) The IP address for the management-only network.The management IP address is not required for: Tiebreaker, Standby Tiebreaker, and any host that is not an MDM. In such cases, leave this field blank.
+- `mdm_mgmt_ip` (String) This IP address is for the management-only network. The management ip is not required for Tiebreaker MDM, Standby Tiebreaker MDM and any host that is not an MDM.
 - `mdm_name` (String) MDMName
 - `perf_profile_for_mdm` (String) Performance Profile For MDM
 - `perf_profile_for_sdc` (String) Performance Profile For SDC
@@ -233,7 +233,7 @@ Optional:
 - `sds_to_sdc_only_ips` (String) SDS IP addresses to be used for communication among SDS and SDC nodes only.
 - `sds_to_sds_only_ips` (String) SDS IP addresses to be used for communication among SDS nodes. When the replication feature is used, these addresses are also used for SDS-SDR communication.
 - `storage_pool_list` (String) Sets Storage Pool names
-- `username` (String) Enter name either root or a non-root sudo user
+- `username` (String) The value can be either `root` or any non-root user name with appropriate permissions.
 - `virtual_ip_nics` (String) The NIC to which the virtual IP addresses are mapped.
 - `virtual_ips` (String) Virtual IPs
 

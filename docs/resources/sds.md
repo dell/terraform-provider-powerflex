@@ -60,17 +60,18 @@ limitations under the License.
 # other  atrributes like : performance_profile, port, drl_mode, rmcache_enabled, rfcache_enabled, rmcache_size_in_mb are optional 
 # To check which attributes can be updated, please refer Product Guide in the documentation
 
+# Example for adding SDS. After successful execution, SDS will be added to the protection domain.
 resource "powerflex_sds" "create" {
   name                   = "demo-sds-test-01"
   protection_domain_name = "demo-sds-pd"
   ip_list = [
     {
       ip   = "10.10.10.12"
-      role = "sdsOnly"
+      role = "sdsOnly" # all/sdsOnly/sdcOnly
     },
     {
       ip   = "10.10.10.11"
-      role = "sdcOnly"
+      role = "sdcOnly" # all/sdsOnly/sdcOnly
     },
   ]
 }

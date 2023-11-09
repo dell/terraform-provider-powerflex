@@ -50,11 +50,12 @@ limitations under the License.
 # Create, Update, Delete is supported for this resource
 # Import is supported.
 
+# Example for creating user. After successful execution, user will be created with Monitor role.
 resource "powerflex_user" "newUser" {
 
   # name, role and password is the required parameter to create or update. Only role can be updated.
   name     = "StorageAdmin"
-  role     = "Monitor"
+  role     = "Monitor" # Administrator/Monitor/Configure/Security/FrontendConfig/BackendConfig
   password = "Password"
 }
 ```
