@@ -20,7 +20,6 @@ package provider
 import (
 	"context"
 	"strconv"
-
 	"terraform-provider-powerflex/powerflex/helper"
 	"terraform-provider-powerflex/powerflex/models"
 
@@ -47,6 +46,7 @@ func NewVolumeResource() resource.Resource {
 // volumeResource is the resource implementation.
 type volumeResource struct {
 	client *goscaleio.Client
+	system *goscaleio.System
 }
 
 // Metadata returns the resource type name.
@@ -71,6 +71,15 @@ func (r *volumeResource) Configure(_ context.Context, req resource.ConfigureRequ
 	}
 
 	r.client = req.ProviderData.(*powerflexProvider).client
+	system, err := helper.GetFirstSystem(r.client)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Read Powerflex System",
+			err.Error(),
+		)
+		return
+	}
+	r.system = system
 
 }
 
@@ -224,6 +233,7 @@ func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, res
 func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Get plan values
 	var plan models.VolumeResourceModel
+	var pdr *goscaleio.ProtectionDomain
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -327,6 +337,30 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 	vol := vols[0]
 	dgs := helper.RefreshVolumeState(vol, &state)
+	if plan.ProtectionDomainName.ValueString() != state.ProtectionDomainName.ValueString(){
+		pdnameUpdate, err := r.system.FindProtectionDomain("", plan.ProtectionDomainName.ValueString(), "")
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to read name of protection domain of ID",
+			err.Error(),
+		)
+	}
+	state.ProtectionDomainName = types.StringValue(pdnameUpdate.Name)
+	pdr.ProtectionDomain = pdnameUpdate
+	}
+	
+	if plan.StoragePoolName.ValueString() != state.StoragePoolName.ValueString(){
+		storagePool, err := pdr.FindStoragePool("", plan.StoragePoolName.ValueString(), "")
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error getting storage pool with id",
+			"Could not get storage pool with with id: "+state.StoragePoolID.ValueString()+", \n unexpected error: "+err.Error(),
+		)
+		return
+	}
+	state.StoragePoolName = types.StringValue(storagePool.Name)
+	}
+	
 	resp.Diagnostics.Append(dgs...)
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -387,7 +421,7 @@ func (r *volumeResource) getProtectionDomainID(plan *models.VolumeResourceModel)
 
 	pdr := goscaleio.NewProtectionDomain(r.client)
 
-	if !plan.ProtectionDomainName.IsUnknown() {
+	if plan.ProtectionDomainName.ValueString() != "" {
 		protectionDomain, err := sr.FindProtectionDomain("", plan.ProtectionDomainName.ValueString(), "")
 		if err != nil {
 			diags.AddError(
@@ -398,24 +432,25 @@ func (r *volumeResource) getProtectionDomainID(plan *models.VolumeResourceModel)
 		}
 		pdr.ProtectionDomain = protectionDomain
 		plan.ProtectionDomainID = types.StringValue(protectionDomain.ID)
-	} else if !plan.ProtectionDomainID.IsUnknown() {
-		protectionDomain, err := sr.FindProtectionDomain(plan.ProtectionDomainID.ValueString(), "", "")
-		if err != nil {
-			diags.AddError(
-				"Error getting protection domain with id",
-				"Could not get protection domain with id: "+plan.ProtectionDomainID.ValueString()+", \n unexpected error: "+err.Error(),
-			)
-			return nil, diags
-		}
-		pdr.ProtectionDomain = protectionDomain
-		plan.ProtectionDomainName = types.StringValue(protectionDomain.Name)
 	}
+	// else if !plan.ProtectionDomainID.IsUnknown() {
+	// 	protectionDomain, err := sr.FindProtectionDomain(plan.ProtectionDomainID.ValueString(), "", "")
+	// 	if err != nil {
+	// 		diags.AddError(
+	// 			"Error getting protection domain with id",
+	// 			"Could not get protection domain with id: "+plan.ProtectionDomainID.ValueString()+", \n unexpected error: "+err.Error(),
+	// 		)
+	// 		return nil, diags
+	// 	}
+	// 	pdr.ProtectionDomain = protectionDomain
+	// 	plan.ProtectionDomainName = types.StringValue(protectionDomain.Name)
+	// }
 	return pdr, diags
 }
 
 // getStoragePoolID updates the storage pool ID in the plan
 func (r *volumeResource) getStoragePoolID(pdr *goscaleio.ProtectionDomain, plan *models.VolumeResourceModel) (diags diag.Diagnostics) {
-	if !plan.StoragePoolName.IsUnknown() {
+	if plan.StoragePoolName.ValueString() != "" {
 		storagePool, err := pdr.FindStoragePool("", plan.StoragePoolName.ValueString(), "")
 		if err != nil {
 			diags.AddError(
@@ -425,16 +460,17 @@ func (r *volumeResource) getStoragePoolID(pdr *goscaleio.ProtectionDomain, plan 
 			return
 		}
 		plan.StoragePoolID = types.StringValue(storagePool.ID)
-	} else if !plan.StoragePoolID.IsUnknown() {
-		storagePool, err := pdr.FindStoragePool(plan.StoragePoolID.ValueString(), "", "")
-		if err != nil {
-			diags.AddError(
-				"Error getting storage pool with id",
-				"Could not get storage pool with with id: "+plan.StoragePoolID.ValueString()+", \n unexpected error: "+err.Error(),
-			)
-			return
-		}
-		plan.StoragePoolName = types.StringValue(storagePool.Name)
 	}
+	// else if !plan.StoragePoolID.IsUnknown() {
+	// 	storagePool, err := pdr.FindStoragePool(plan.StoragePoolID.ValueString(), "", "")
+	// 	if err != nil {
+	// 		diags.AddError(
+	// 			"Error getting storage pool with id",
+	// 			"Could not get storage pool with with id: "+plan.StoragePoolID.ValueString()+", \n unexpected error: "+err.Error(),
+	// 		)
+	// 		return
+	// 	}
+	// 	plan.StoragePoolName = types.StringValue(storagePool.Name)
+	// }
 	return
 }
