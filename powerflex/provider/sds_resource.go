@@ -46,6 +46,7 @@ func NewSDSResource() resource.Resource {
 // sdsResource is the resource implementation.
 type sdsResource struct {
 	client *goscaleio.Client
+	system *goscaleio.System
 }
 
 func (r *sdsResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -67,6 +68,17 @@ func (r *sdsResource) Configure(_ context.Context, req resource.ConfigureRequest
 	}
 
 	r.client = req.ProviderData.(*powerflexProvider).client
+
+	// Get the system on the PowerFlex cluster
+	system, err := helper.GetFirstSystem(r.client)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error in getting system instance on the PowerFlex cluster",
+			err.Error(),
+		)
+		return
+	}
+	r.system = system
 }
 
 func (r *sdsResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
@@ -216,26 +228,19 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 // Read refreshes the Terraform state with the latest data.
 func (r *sdsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Retrieve values from state
-	var state models.SdsResourceModel
+	var (
+		state models.SdsResourceModel
+		rsp   scaleiotypes.Sds
+		err   error
+	)
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Get the system on the PowerFlex cluster
-	system, err := helper.GetFirstSystem(r.client)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error in getting system instance on the PowerFlex cluster",
-			err.Error(),
-		)
-		return
-	}
-
 	// Get SDS
-	var rsp scaleiotypes.Sds
-	if rsp, err = system.GetSdsByID(state.ID.ValueString()); err != nil {
+	if rsp, err = r.system.GetSdsByID(state.ID.ValueString()); err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("Could not get SDS by ID %s", state.ID.ValueString()),
 			err.Error(),
@@ -258,6 +263,7 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		plan             models.SdsResourceModel
 		state            models.SdsResourceModel
 		protectionDomain *scaleiotypes.ProtectionDomain
+		err              error
 	)
 
 	diags := req.Plan.Get(ctx, &plan)
@@ -273,15 +279,6 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		return
 	}
 
-	system, err := helper.GetFirstSystem(r.client)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex System",
-			err.Error(),
-		)
-		return
-	}
-
 	if !plan.ProtectionDomainID.IsUnknown() && plan.ProtectionDomainID.ValueString() != state.ProtectionDomainID.ValueString() {
 		resp.Diagnostics.AddError(
 			"Protection domain ID cannot be updated",
@@ -290,7 +287,7 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	}
 
 	if !plan.ProtectionDomainName.IsNull() && plan.ProtectionDomainName.ValueString() != state.ProtectionDomainName.ValueString() {
-		protectionDomain, err = system.FindProtectionDomain("", plan.ProtectionDomainName.ValueString(), "")
+		protectionDomain, err = r.system.FindProtectionDomain("", plan.ProtectionDomainName.ValueString(), "")
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("Unable to Read Powerflex Protection domain by name %v", plan.ProtectionDomainName.ValueString()),
