@@ -63,7 +63,6 @@ var SnapshotResourceSchema schema.Schema = schema.Schema{
 				" Conflicts with 'volume_id'." +
 				" Cannot be updated.",
 			Optional: true,
-			//Computed: true,
 			MarkdownDescription: "The volume name for which snapshot is created." +
 				" Conflicts with `volume_id`." +
 				" Cannot be updated.",

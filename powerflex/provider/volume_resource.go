@@ -337,30 +337,30 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 	vol := vols[0]
 	dgs := helper.RefreshVolumeState(vol, &state)
-	if plan.ProtectionDomainName.ValueString() != state.ProtectionDomainName.ValueString(){
+	if plan.ProtectionDomainName.ValueString() != state.ProtectionDomainName.ValueString() {
 		pdnameUpdate, err := r.system.FindProtectionDomain("", plan.ProtectionDomainName.ValueString(), "")
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to read name of protection domain of ID",
-			err.Error(),
-		)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to read name of protection domain of ID",
+				err.Error(),
+			)
+		}
+		state.ProtectionDomainName = types.StringValue(pdnameUpdate.Name)
+		pdr.ProtectionDomain = pdnameUpdate
 	}
-	state.ProtectionDomainName = types.StringValue(pdnameUpdate.Name)
-	pdr.ProtectionDomain = pdnameUpdate
-	}
-	
-	if plan.StoragePoolName.ValueString() != state.StoragePoolName.ValueString(){
+
+	if plan.StoragePoolName.ValueString() != state.StoragePoolName.ValueString() {
 		storagePool, err := pdr.FindStoragePool("", plan.StoragePoolName.ValueString(), "")
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error getting storage pool with id",
-			"Could not get storage pool with with id: "+state.StoragePoolID.ValueString()+", \n unexpected error: "+err.Error(),
-		)
-		return
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error getting storage pool with id",
+				"Could not get storage pool with with id: "+state.StoragePoolID.ValueString()+", \n unexpected error: "+err.Error(),
+			)
+			return
+		}
+		state.StoragePoolName = types.StringValue(storagePool.Name)
 	}
-	state.StoragePoolName = types.StringValue(storagePool.Name)
-	}
-	
+
 	resp.Diagnostics.Append(dgs...)
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

@@ -253,13 +253,6 @@ func (r *snapshotResource) Read(ctx context.Context, req resource.ReadRequest, r
 	snap := snapResponse[0]
 	dgs := helper.RefreshState(snap, &state)
 	resp.Diagnostics.Append(dgs...)
-	// checking for volume from which snapshot is created
-	// vol, errVol := r.client.GetVolume("", state.VolumeID.ValueString(), "", "", false)
-	// if errVol != nil {
-	// 	errMsg["volume_name"] = errVol.Error()
-	// } else {
-	// 	state.VolumeName = types.StringValue(vol[0].Name)
-	// }
 	resp.Diagnostics.Append(diags...)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
@@ -277,6 +270,19 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	errMsg := make(map[string]string, 0)
+
+	if plan.VolumeName.ValueString() != state.VolumeName.ValueString() {
+		volResponse, err3 := r.client.GetVolume("", "", "", plan.VolumeName.ValueString(), false)
+		if err3 != nil {
+			resp.Diagnostics.AddError(
+				"Error getting volume details",
+				"Could not get volume, unexpected error: "+err3.Error(),
+			)
+			return
+		}
+		vol := volResponse[0]
+		state.VolumeName = types.StringValue(vol.Name)
+	}
 
 	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
@@ -365,17 +371,6 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 
 	// refreshing the state
 	dgs := helper.RefreshState(snap, &state)
-	volResponse , err3 := r.client.GetVolume("",state.VolumeID.ValueString(),"","",false)
-	if err3 != nil {
-		resp.Diagnostics.AddError(
-			"Error getting volume details",
-			"Could not get volume, unexpected error: "+err3.Error(),
-		)
-		return
-	}
-
-	vol := volResponse[0]
-	state.VolumeName = types.StringValue(vol.Name)
 	resp.Diagnostics.Append(dgs...)
 	// setting the state
 	diags = resp.State.Set(ctx, state)
@@ -445,18 +440,6 @@ func (r *snapshotResource) getVolumeID(ctx context.Context, plan *models.Snapsho
 			return
 		}
 		plan.VolumeID = types.StringValue(snapResponse[0].ID)
-	} 
-	// else if !plan.VolumeID.IsUnknown() {
-	// 	tflog.Info(ctx, fmt.Sprintf("Volume id is provided: %s", plan.VolumeID.ValueString()))
-	// 	snapResponse, err2 := r.client.GetVolume("", plan.VolumeID.ValueString(), "", "", false)
-	// 	if err2 != nil {
-	// 		diags.AddError(
-	// 			"Error getting volume by id",
-	// 			"unexpected error: "+err2.Error(),
-	// 		)
-	// 		return
-	// 	}
-	// 	plan.VolumeName = types.StringValue(snapResponse[0].Name)
-	// }
+	}
 	return
 }
