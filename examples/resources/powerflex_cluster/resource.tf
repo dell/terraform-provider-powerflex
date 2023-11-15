@@ -18,7 +18,7 @@ limitations under the License.
 # Command to run this tf file : terraform init && terraform plan && terraform apply.
 # Create, Read, Delete and Import operations are supported for this resource.
 
-# To perform Cluster Installation
+# Example for deploying cluster. After successful execution, 3 node MDM cluster will be deployed with 3 SDCs and 2 SDS.
 resource "powerflex_cluster" "test" {
 
   # Security Related Field
