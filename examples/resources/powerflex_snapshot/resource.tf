@@ -23,18 +23,20 @@ limitations under the License.
 # other  atrributes like : access_mode, size, capacity_unit, lock_auto_snapshot, desired_retention, retention_unit, remove_mode are optional 
 # To check which attributes of the snapshot can be updated, please refer Product Guide in the documentation
 
+# Example for creating snapshot with mandatory params. After successful execution, snapshot will be created of the same size as volume.
 resource "powerflex_snapshot" "snapshots-create" {
   name      = "snapshots-create"
   volume_id = "4577c84000000120"
 }
 
+# Example for creating snapshot with optional params. After successful execution, snapshot will be created with the specified size.
 resource "powerflex_snapshot" "snapshots-create-01" {
   name          = "snapshots-create-epsilon"
   volume_id     = "4577c84000000120"
-  access_mode   = "ReadWrite"
+  access_mode   = "ReadWrite" # ReadOnly/ReadWrite
   size          = 16
-  capacity_unit = "GB"
-  remove_mode   = "INCLUDING_DESCENDANTS"
+  capacity_unit = "GB" # GB/TB
+  remove_mode   = "INCLUDING_DESCENDANTS" # INCLUDING_DESCENDANTS/ONLY_ME
 }
 
 

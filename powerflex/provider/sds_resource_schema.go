@@ -53,7 +53,6 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 				" Conflicts with 'protection_domain_id'." +
 				" Cannot be updated.",
 			Optional: true,
-			Computed: true,
 			MarkdownDescription: "Name of the Protection Domain under which the SDS will be created." +
 				" Conflicts with `protection_domain_id`." +
 				" Cannot be updated.",

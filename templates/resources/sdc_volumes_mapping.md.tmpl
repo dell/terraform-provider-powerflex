@@ -26,13 +26,13 @@ description: |-
 
 {{ .Description | trimspace }}
 
-> **Caution:** SDC Volume mapping creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
+> **Caution:** <span style='color: red;' >SDC Volume mapping creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).
-If the taint is not removed, terraform will destroy and recreate the resource.
+If the taint is not removed, terraform will destroy and recreate the resource.</span>
 
-> **Note:** Exactly one of `id` or `name` is required. Not both can be provided together.
+> **Note:** Either `id` or `name` is required. But not both.
 
-> **Note:** Exactly one of `volume_id` or `volume_name` is required. Not both can be provided together.
+> **Note:** Either `volume_id` or `volume_name` is required. But not both.
 
 {{ if .HasExample -}}
 ## Example Usage
@@ -40,7 +40,7 @@ If the taint is not removed, terraform will destroy and recreate the resource.
 {{tffile .ExampleFile }}
 {{- end }}
 
-After the execution of above resource block, two volumes would have been mapped to SDC on the PowerFlex array. For more information, Please check the terraform state file
+After the execution of above resource block, two volumes would have been unmapped from SDC on the PowerFlex array. For more information, please check the terraform state file
 
 {{ .SchemaMarkdown | trimspace }}
 
@@ -51,4 +51,10 @@ Import is supported using the following syntax:
 
 {{codefile "shell" .ImportFile }}
 
+1. This will import the SDC instance with specified ID into your Terraform state.
+2. After successful import, you can run terraform state list to ensure the resource has been imported successfully.
+3. Now, you can fill in the resource block with the appropriate arguments and settings that match the imported resource's real-world configuration.
+4. Execute terraform plan to see if your configuration and the imported resource are in sync. Make adjustments if needed.
+5. Finally, execute terraform apply to bring the resource fully under Terraform's management.
+6. Now, the resource which was not part of terraform became part of Terraform managed infrastructure.
 {{- end }}
