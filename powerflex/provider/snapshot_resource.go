@@ -241,7 +241,6 @@ func (r *snapshotResource) Read(ctx context.Context, req resource.ReadRequest, r
 	var state models.SnapshotResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	// errMsg := make(map[string]string, 0)
 	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
@@ -371,7 +370,6 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 	snap = snapResponse[0]
-	//snapResource.Volume = snap
 
 	// refreshing the state
 	dgs := helper.RefreshState(snap, &state)
