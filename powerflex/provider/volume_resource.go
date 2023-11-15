@@ -233,8 +233,7 @@ func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, res
 func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Get plan values
 	var plan models.VolumeResourceModel
-	var pdr *goscaleio.ProtectionDomain
-	pdr = goscaleio.NewProtectionDomain(r.client)
+	var pdr *goscaleio.ProtectionDomain = goscaleio.NewProtectionDomain(r.client)
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
