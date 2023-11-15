@@ -671,14 +671,18 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 
 	state1 := helper.UpdateStoragepoolState(spResponse, state)
 	if plan.ProtectionDomainName.ValueString() != state.ProtectionDomainName.ValueString() {
-		pdnameUpdate, err := r.system.FindProtectionDomain("", plan.ProtectionDomainName.ValueString(), "")
-		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Unable to read name of protection domain of ID %s for Storagepool %s", spResponse.ProtectionDomainID, spResponse.Name),
-				err.Error(),
-			)
+		if !plan.ProtectionDomainName.IsNull() {
+			pdnameUpdate, err := r.system.FindProtectionDomain("", plan.ProtectionDomainName.ValueString(), "")
+			if err != nil {
+				resp.Diagnostics.AddError(
+					fmt.Sprintf("Unable to read name of protection domain of ID %s for Storagepool %s", spResponse.ProtectionDomainID, spResponse.Name),
+					err.Error(),
+				)
+			}
+			state1.ProtectionDomainName = types.StringValue(pdnameUpdate.Name)
+		} else if plan.ProtectionDomainName.IsNull() {
+			state1.ProtectionDomainName = types.StringNull()
 		}
-		state1.ProtectionDomainName = types.StringValue(pdnameUpdate.Name)
 	}
 	tflog.Debug(ctx, "Update Storagepool :-- "+helper.PrettyJSON(spResponse))
 	diags = resp.State.Set(ctx, state1)

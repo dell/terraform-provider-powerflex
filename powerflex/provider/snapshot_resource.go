@@ -272,16 +272,20 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	errMsg := make(map[string]string, 0)
 
 	if plan.VolumeName.ValueString() != state.VolumeName.ValueString() {
-		volResponse, err3 := r.client.GetVolume("", "", "", plan.VolumeName.ValueString(), false)
-		if err3 != nil {
-			resp.Diagnostics.AddError(
-				"Error getting volume details",
-				"Could not get volume, unexpected error: "+err3.Error(),
-			)
-			return
+		if !plan.VolumeName.IsNull() {
+			volResponse, err3 := r.client.GetVolume("", "", "", plan.VolumeName.ValueString(), false)
+			if err3 != nil {
+				resp.Diagnostics.AddError(
+					"Error getting volume details",
+					"Could not get volume, unexpected error: "+err3.Error(),
+				)
+				return
+			}
+			vol := volResponse[0]
+			state.VolumeName = types.StringValue(vol.Name)
+		} else if plan.VolumeName.IsNull() {
+			state.VolumeName = types.StringNull()
 		}
-		vol := volResponse[0]
-		state.VolumeName = types.StringValue(vol.Name)
 	}
 
 	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)

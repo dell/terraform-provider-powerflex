@@ -142,7 +142,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 	spr, err0 := helper.GetStoragePoolInstance(r.client, volumeCreate.StoragePoolID, volumeCreate.ProtectionDomainID)
 	if err0 != nil {
 		resp.Diagnostics.AddError(
-			"Error getting storage pool with id: "+volumeCreate.StoragePoolID+" or protection pool with id: "+volumeCreate.ProtectionDomainID,
+			"Error getting storage pool with id: "+volumeCreate.StoragePoolID+" or protection domain with id: "+volumeCreate.ProtectionDomainID,
 			"unexpected error: "+err0.Error(),
 		)
 		return
@@ -249,17 +249,21 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	if !plan.ProtectionDomainName.IsNull() && (plan.ProtectionDomainName.ValueString() != state.ProtectionDomainName.ValueString()) {
-		pdnameUpdate, err := r.system.FindProtectionDomain("", plan.ProtectionDomainName.ValueString(), "")
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Unable to read name of protection domain of ID",
-				err.Error(),
-			)
-			return
+	if plan.ProtectionDomainName.ValueString() != state.ProtectionDomainName.ValueString() {
+		if !plan.ProtectionDomainName.IsNull() {
+			pdnameUpdate, err := r.system.FindProtectionDomain("", plan.ProtectionDomainName.ValueString(), "")
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"Unable to read name of protection domain of ID",
+					err.Error(),
+				)
+				return
+			}
+			state.ProtectionDomainName = types.StringValue(pdnameUpdate.Name)
+			pdr.ProtectionDomain = pdnameUpdate
+		} else if plan.ProtectionDomainName.IsNull() {
+			state.ProtectionDomainName = types.StringNull()
 		}
-		state.ProtectionDomainName = types.StringValue(pdnameUpdate.Name)
-		pdr.ProtectionDomain = pdnameUpdate
 	} else {
 		pd2, err := r.system.FindProtectionDomain(state.ProtectionDomainID.ValueString(), "", "")
 		if err != nil {
@@ -272,16 +276,21 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 		pdr.ProtectionDomain = pd2
 	}
 
-	if !plan.StoragePoolName.IsNull() && plan.StoragePoolName.ValueString() != state.StoragePoolName.ValueString() {
-		storagePool, err := pdr.FindStoragePool("", plan.StoragePoolName.ValueString(), "")
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error getting storage pool with id",
-				"Could not get storage pool with with id: "+state.StoragePoolID.ValueString()+", \n unexpected error: "+err.Error(),
-			)
-			return
+	if plan.StoragePoolName.ValueString() != state.StoragePoolName.ValueString() {
+		if !plan.StoragePoolName.IsNull() {
+			storagePool, err := pdr.FindStoragePool("", plan.StoragePoolName.ValueString(), "")
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"Error getting storage pool with id",
+					"Could not get storage pool with with id: "+state.StoragePoolID.ValueString()+", \n unexpected error: "+err.Error(),
+				)
+				return
+			}
+			state.StoragePoolName = types.StringValue(storagePool.Name)
+		} else if plan.StoragePoolName.IsNull() {
+			state.StoragePoolName = types.StringNull()
 		}
-		state.StoragePoolName = types.StringValue(storagePool.Name)
+
 	}
 
 	volsplan, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
