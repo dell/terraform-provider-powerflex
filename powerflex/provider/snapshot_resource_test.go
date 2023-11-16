@@ -18,10 +18,10 @@ limitations under the License.
 package provider
 
 import (
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"os"
 	"regexp"
 	"testing"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 var create8gbVol = `
@@ -197,7 +197,7 @@ func TestAccSnapshotResource(t *testing.T) {
 			},
 			{
 				Config:      ProviderConfigForTesting + createSnapshotWithInvalidVolumeID,
-				ExpectError: regexp.MustCompile(`.*Error getting volume by id*.`),
+				ExpectError: regexp.MustCompile(`.*Error creating snapshot*.`),
 			},
 			{
 				Config:      ProviderConfigForTesting + createSnapshotWithInvalideVolumeName,
@@ -210,3 +210,50 @@ func TestAccSnapshotResource(t *testing.T) {
 		},
 	})
 }
+
+func TestAccSnapshotResourceDependant(t *testing.T) {
+	if os.Getenv("TF_ACC") == "" {
+		t.Skip("Dont run with units tests because it will try to create the context")
+	}
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + CreateSnapshotWithVolumeName,
+			},
+			{
+				Config: ProviderConfigForTesting + UpdateSnapshotWithVolumeName,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create", "name", "snapshots-create-alpha"),
+					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create", "volume_name", "tfaccp-ssvol-test2"),
+				),
+			},
+		},
+	},
+	)
+}
+
+var CreateSnapshotWithVolumeName = `
+resource "powerflex_volume" "ref-vol"{
+	name = "tfaccp-ssvol-test"
+	protection_domain_name = "domain1"
+	storage_pool_name = "pool1"
+	size = 8
+}
+resource "powerflex_snapshot" "snapshots-create" {
+	name = "snapshots-create-alpha"
+	volume_name = resource.powerflex_volume.ref-vol.name
+}
+`
+var UpdateSnapshotWithVolumeName = `
+resource "powerflex_volume" "ref-vol"{
+	name = "tfaccp-ssvol-test2"
+	protection_domain_name = "domain1"
+	storage_pool_name = "pool1"
+	size = 8
+}
+resource "powerflex_snapshot" "snapshots-create" {
+	name = "snapshots-create-alpha"
+	volume_name = resource.powerflex_volume.ref-vol.name
+}
+`

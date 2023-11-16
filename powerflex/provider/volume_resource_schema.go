@@ -64,7 +64,6 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 				" Conflicts with 'storage_pool_id'." +
 				" Cannot be updated.",
 			Optional: true,
-			Computed: true,
 			MarkdownDescription: "Name of the Storage Pool under which the volume will be created." +
 				" Conflicts with `storage_pool_id`." +
 				" Cannot be updated.",
@@ -101,7 +100,6 @@ var VolumeResourceSchema schema.Schema = schema.Schema{
 				" Conflicts with `protection_domain_id`." +
 				" Cannot be updated.",
 			Optional: true,
-			Computed: true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),
