@@ -492,7 +492,7 @@ func (r *clusterResource) ClusterDeploymentOperations(ctx context.Context, plan 
 
 	if parseCSVError != nil {
 		dia.AddError(
-			"Error while Parsing CSV",
+			"Error During Installation, Error while Parsing CSV",
 			"unexpected error: "+parseCSVError.Error(),
 		)
 		return
