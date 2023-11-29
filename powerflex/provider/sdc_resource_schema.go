@@ -77,10 +77,9 @@ var SDCReourceSchema schema.Schema = schema.Schema{
 
 // sdcDetailSchema - variable holds schema for CSV Param Details
 var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
-	Description:         "List of SDC Expansion Server Details.",
+	Description:         "List of SDC Expansion Server Details. In upcoming releases, this field will be considered only for input, and another field will be introduced for output the list of SDCs.",
 	Optional:            true,
 	Computed:            true,
-	DeprecationMessage:  "In future releases, this field will be considered solely as an input field, and another field will be introduced to serve as the output list of SDCs.",
 	MarkdownDescription: "List of SDC Expansion Server Details.",
 	NestedObject: schema.NestedAttributeObject{
 		Attributes: map[string]schema.Attribute{
