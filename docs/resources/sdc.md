@@ -152,6 +152,23 @@ resource "powerflex_sdc" "test" {
     },
   ]
 }
+
+
+# To perform Multiple SDC Detail Update only
+resource "powerflex_sdc" "sdc_update" {
+  sdc_details = [
+    {
+      sdc_id              = "sdc_id"
+      name                = "SDC_NAME"
+      performance_profile = "HighPerformance"
+    },
+    {
+      sdc_id              = "sdc_id"
+      name                = "SDC_NAME"
+      performance_profile = "HighPerformance"
+    },
+  ]
+}
 ```
 
 After the execution of above resource block, sdc would have been renamed on the PowerFlex array. For more information, please check the terraform state file.
