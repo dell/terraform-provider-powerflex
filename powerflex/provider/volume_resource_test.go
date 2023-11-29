@@ -178,7 +178,7 @@ func TestAccVolumeResource(t *testing.T) {
 			},
 			{
 				Config:      ProviderConfigForTesting + modifyPlanProtectionDomainIDNegTest,
-				ExpectError: regexp.MustCompile(`.*Error getting protection domain with id*.`),
+				ExpectError: regexp.MustCompile(`.*Couldn't find protection domain*.`),
 			},
 			{
 				Config:      ProviderConfigForTesting + modifyPlanStoragePoolNameNegTest,

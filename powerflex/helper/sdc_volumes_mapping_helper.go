@@ -91,8 +91,39 @@ func UpdateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan *models.
 	objectSDCs := []attr.Value{}
 	var diags diag.Diagnostics
 
-	// Set the state once create operation is completed
-	if plan != nil {
+	// Set the state once update operation is completed
+	if plan != nil && oldState != nil {
+		var state models.SdcVolumeMappingResourceModel
+		volMap := make(map[string]*goscaleio_types.Volume)
+		state.Name = oldState.Name
+		state.ID = oldState.ID
+
+		for _, vol := range mappedVolumes {
+			volMap[vol.ID] = vol
+		}
+
+		for _, volID := range nonchangeVolIds {
+			if vol, ok := volMap[volID]; ok {
+				objVal, dgs := GetVolValue(vol)
+				diags = append(diags, dgs...)
+				objectSDCs = append(objectSDCs, objVal)
+			}
+		}
+
+		for _, volID := range planVolIds {
+			if vol, ok := volMap[volID]; ok {
+				objVal, dgs := GetVolValue(vol)
+				diags = append(diags, dgs...)
+				objectSDCs = append(objectSDCs, objVal)
+			}
+		}
+
+		setVal, dgs := types.ListValue(SDCElemType, objectSDCs)
+		diags = append(diags, dgs...)
+		state.VolumeList = setVal
+		return &state, diags
+	} else if plan != nil {
+		// Set the state once create operation is completed
 		for index, vol := range mappedVolumes {
 			objVal, dgs := GetVolValue(mappedVolumes[len(mappedVolumes)-1-index])
 			diags = append(diags, dgs...)
@@ -107,6 +138,8 @@ func UpdateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan *models.
 		// Set the state for the read operation
 		var state models.SdcVolumeMappingResourceModel
 		volMap := make(map[string]*goscaleio_types.Volume)
+		state.Name = oldState.Name
+		state.ID = oldState.ID
 
 		for _, vol := range mappedVolumes {
 			volMap[vol.ID] = vol
@@ -121,8 +154,6 @@ func UpdateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan *models.
 				objVal, dgs := GetVolValue(volDetails)
 				diags = append(diags, dgs...)
 				objectSDCs = append(objectSDCs, objVal)
-				state.Name = types.StringValue(volDetails.MappedSdcInfo[0].SdcName)
-				state.ID = types.StringValue(volDetails.MappedSdcInfo[0].SdcID)
 				delete(volMap, volDetails.ID)
 			}
 		}
@@ -132,41 +163,6 @@ func UpdateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan *models.
 			objVal, dgs := GetVolValue(vol)
 			diags = append(diags, dgs...)
 			objectSDCs = append(objectSDCs, objVal)
-			state.Name = types.StringValue(vol.MappedSdcInfo[0].SdcName)
-			state.ID = types.StringValue(vol.MappedSdcInfo[0].SdcID)
-		}
-
-		setVal, dgs := types.ListValue(SDCElemType, objectSDCs)
-		diags = append(diags, dgs...)
-		state.VolumeList = setVal
-		return &state, diags
-	} else {
-		// Set the state once update operation is completed
-		var state models.SdcVolumeMappingResourceModel
-		volMap := make(map[string]*goscaleio_types.Volume)
-
-		for _, vol := range mappedVolumes {
-			volMap[vol.ID] = vol
-		}
-
-		for _, volID := range nonchangeVolIds {
-			if vol, ok := volMap[volID]; ok {
-				objVal, dgs := GetVolValue(vol)
-				diags = append(diags, dgs...)
-				objectSDCs = append(objectSDCs, objVal)
-				state.Name = types.StringValue(vol.MappedSdcInfo[0].SdcName)
-				state.ID = types.StringValue(vol.MappedSdcInfo[0].SdcID)
-			}
-		}
-
-		for _, volID := range planVolIds {
-			if vol, ok := volMap[volID]; ok {
-				objVal, dgs := GetVolValue(vol)
-				diags = append(diags, dgs...)
-				objectSDCs = append(objectSDCs, objVal)
-				state.Name = types.StringValue(vol.MappedSdcInfo[0].SdcName)
-				state.ID = types.StringValue(vol.MappedSdcInfo[0].SdcID)
-			}
 		}
 
 		setVal, dgs := types.ListValue(SDCElemType, objectSDCs)

@@ -91,7 +91,6 @@ func (r *deviceResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			"storage_pool_name": schema.StringAttribute{
 				Description:         "Name of the storage pool. Conflicts with 'storage_pool_id'. Cannot be updated.",
 				Optional:            true,
-				Computed:            true,
 				MarkdownDescription: "Name of the storage pool. Conflicts with `storage_pool_id`. Cannot be updated.",
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
@@ -128,7 +127,6 @@ func (r *deviceResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Description:         "Name of the SDS. Conflicts with 'sds_id'. Cannot be updated.",
 				MarkdownDescription: "Name of the SDS. Conflicts with `sds_id`. Cannot be updated.",
 				Optional:            true,
-				Computed:            true,
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
@@ -508,7 +506,7 @@ func (r *deviceResource) ImportState(ctx context.Context, req resource.ImportSta
 // getSdsID populates the SDS ID in the plan
 func (r *deviceResource) getSdsID(plan *models.DeviceModel) (diags diag.Diagnostics) {
 	if !plan.SdsID.IsUnknown() {
-		sds, err := r.system.GetSdsByID(plan.SdsID.ValueString())
+		_, err := r.system.GetSdsByID(plan.SdsID.ValueString())
 		if err != nil {
 			diags.AddError(
 				"Error in getting sds details with ID: "+plan.SdsID.ValueString(),
@@ -516,7 +514,6 @@ func (r *deviceResource) getSdsID(plan *models.DeviceModel) (diags diag.Diagnost
 			)
 			return
 		}
-		plan.SdsName = types.StringValue(sds.Name)
 	} else if !plan.SdsName.IsUnknown() {
 		sds, err := r.system.FindSds("Name", plan.SdsName.ValueString())
 		if err != nil {
@@ -558,8 +555,7 @@ func (r *deviceResource) getStoragePoolID(plan *models.DeviceModel) (sp *goscale
 			)
 			return
 		}
-		plan.StoragePoolName = types.StringValue(sp.Name)
-	} else if !plan.StoragePoolName.IsUnknown() {
+	} else if !plan.StoragePoolName.IsNull() {
 		sp, err = pd.FindStoragePool("", plan.StoragePoolName.ValueString(), "")
 		if err != nil {
 			diags.AddError(

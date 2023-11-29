@@ -46,6 +46,7 @@ func NewSDCVolumesMappingResource() resource.Resource {
 // sdsVolumeMappingResource is the resource implementation.
 type sdcVolumeMappingResource struct {
 	client *goscaleio.Client
+	system *goscaleio.System
 }
 
 func (r *sdcVolumeMappingResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -153,18 +154,7 @@ func (r *sdcVolumeMappingResource) Configure(_ context.Context, req resource.Con
 	}
 
 	r.client = req.ProviderData.(*powerflexProvider).client
-}
 
-// ModifyPlan modify resource plan attribute value
-func (r *sdcVolumeMappingResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	if req.Plan.Raw.IsNull() {
-		return
-	}
-	var plan models.SdcVolumeMappingResourceModel
-	diags := req.Plan.Get(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-
-	// Get the system on the PowerFlex cluster
 	system, err := helper.GetFirstSystem(r.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -173,36 +163,7 @@ func (r *sdcVolumeMappingResource) ModifyPlan(ctx context.Context, req resource.
 		)
 		return
 	}
-
-	var sdc *goscaleio.Sdc
-
-	// Populate SDC name in the plan if ID is provided in the config
-	if !plan.ID.IsUnknown() {
-		sdc, err = system.GetSdcByID(plan.ID.ValueString())
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error getting SDC with ID",
-				"Could not get SDC with ID: "+plan.ID.ValueString()+", \n unexpected error: "+err.Error(),
-			)
-			return
-		}
-		plan.Name = types.StringValue(sdc.Sdc.Name)
-	} else if !plan.Name.IsUnknown() {
-		sdc, err = system.FindSdc("Name", plan.Name.ValueString())
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error getting SDC with name",
-				"Could not get SDC with name: "+plan.ID.ValueString()+", \n unexpected error: "+err.Error(),
-			)
-			return
-		}
-		plan.ID = types.StringValue(sdc.Sdc.ID)
-	}
-
-	_ = r.VerifyVolumes(ctx, &plan)
-
-	diags = resp.Plan.Set(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
+	r.system = system
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -212,6 +173,12 @@ func (r *sdcVolumeMappingResource) Create(ctx context.Context, req resource.Crea
 
 	diags := req.Plan.Get(ctx, &plan)
 
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	diags = r.VerifySDCs(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -334,6 +301,12 @@ func (r *sdcVolumeMappingResource) Update(ctx context.Context, req resource.Upda
 	// Get plan values
 	var plan models.SdcVolumeMappingResourceModel
 	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	diags = r.VerifySDCs(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -546,7 +519,7 @@ func (r *sdcVolumeMappingResource) Update(ctx context.Context, req resource.Upda
 	}
 
 	// Set refreshed state
-	state1, dgs := helper.UpdateSDCVolMapState(mappedVolumes, nil, nil, nonchangeVolIds, mapVolIds)
+	state1, dgs := helper.UpdateSDCVolMapState(mappedVolumes, &plan, &state, nonchangeVolIds, mapVolIds)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state1)
@@ -643,4 +616,29 @@ func (r *sdcVolumeMappingResource) VerifyVolumes(ctx context.Context, plan *mode
 		plan.VolumeList = mappedVolumeList
 	}
 	return diags
+}
+
+func (r *sdcVolumeMappingResource) VerifySDCs(ctx context.Context, plan *models.SdcVolumeMappingResourceModel) (diags diag.Diagnostics) {
+	if !plan.ID.IsUnknown() {
+		sdc, err := r.system.GetSdcByID(plan.ID.ValueString())
+		if err != nil {
+			diags.AddError(
+				"Error getting SDC with ID",
+				"Could not get SDC with ID: "+plan.ID.ValueString()+", \n unexpected error: "+err.Error(),
+			)
+			return
+		}
+		plan.Name = types.StringValue(sdc.Sdc.Name)
+	} else if !plan.Name.IsUnknown() {
+		sdc, err := r.system.FindSdc("Name", plan.Name.ValueString())
+		if err != nil {
+			diags.AddError(
+				"Error getting SDC with name",
+				"Could not get SDC with name: "+plan.ID.ValueString()+", \n unexpected error: "+err.Error(),
+			)
+			return
+		}
+		plan.ID = types.StringValue(sdc.Sdc.ID)
+	}
+	return
 }

@@ -465,6 +465,28 @@ func TestAccStoragePoolResourceUpdate(t *testing.T) {
 	)
 }
 
+func TestAccStoragePoolResourceDependant(t *testing.T) {
+	if os.Getenv("TF_ACC") == "" {
+		t.Skip("Dont run with units tests because it will try to create the context")
+	}
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + CreateStoragePoolWithprotectionDomain,
+			},
+			{
+				Config: ProviderConfigForTesting + UpdateStoragePoolWithprotectionDomain,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp", "name", "newstoragepool"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.sp", "protection_domain_name", "domain_1_new2"),
+				),
+			},
+		},
+	},
+	)
+}
+
 var StoragePoolResourceCreate = `
 resource "powerflex_storage_pool" "storagepool" {
 	name = "storage_pool"
@@ -876,4 +898,31 @@ resource "powerflex_storage_pool" "sp3rmcache" {
 	media_type  = "HDD"
 	use_rmcache = true
 }
+`
+
+var CreateStoragePoolWithprotectionDomain = `
+resource "powerflex_protection_domain" "pd" {  
+	name = "domain_1_new"  
+  }
+  
+  resource "powerflex_storage_pool" "sp" {
+	name                         = "newstoragepool"
+	protection_domain_name       = resource.powerflex_protection_domain.pd.name
+	media_type                   = "HDD"
+	use_rmcache                  = false
+	use_rfcache                  = true
+  }
+`
+var UpdateStoragePoolWithprotectionDomain = `
+resource "powerflex_protection_domain" "pd" {  
+	name = "domain_1_new2"
+  }
+  
+  resource "powerflex_storage_pool" "sp" {
+	name                         = "newstoragepool"
+	protection_domain_name       = resource.powerflex_protection_domain.pd.name
+	media_type                   = "HDD"
+	use_rmcache                  = false
+	use_rfcache                  = true
+  }
 `
