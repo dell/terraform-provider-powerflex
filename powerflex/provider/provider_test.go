@@ -160,6 +160,7 @@ var SDCMappingResourceName2 = setDefault(os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPIN
 var SDCVolName = setDefault(os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_NAME"), "tfacc_sdc_volumes_mapping_name")
 var SdsID = setDefault(os.Getenv("POWERFLEX_DEVICE_SDS_ID"), "tfacc_device_sds_id")
 var MDMDataPoints = getMdmDataPointsForTest()
+var StoragePoolName = setDefault(os.Getenv("POWERFLEX_STORAGE_POOL_NAME"), "tfacc_storage_pool_name")
 var ProtectionDomainID = setDefault(os.Getenv("POWERFLEX_PROTECTION_DOMAIN_ID"), "tfacc_protection_domain_id")
 var username = setDefault(os.Getenv("POWERFLEX_USERNAME"), "test")
 var password = setDefault(os.Getenv("POWERFLEX_PASSWORD"), "test")
