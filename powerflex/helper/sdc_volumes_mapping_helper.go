@@ -97,6 +97,7 @@ func UpdateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan *models.
 		volMap := make(map[string]*goscaleio_types.Volume)
 		if len(mappedVolumes) > 0 {
 			state.Name = types.StringValue(mappedVolumes[0].MappedSdcInfo[0].SdcName)
+			state.ID = types.StringValue(mappedVolumes[0].MappedSdcInfo[0].SdcID)
 		}
 
 		for _, vol := range mappedVolumes {
