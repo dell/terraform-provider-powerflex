@@ -275,19 +275,28 @@ func CheckForSwitchCluster(ctx context.Context, standby []models.StandByMdm, sta
 func GetMdmIPMap(mdmDetails *goscaleio_types.MdmCluster) map[string]string {
 	ipmap := make(map[string]string)
 
-	ipmap[mdmDetails.PrimaryMDM.IPs[0]] = mdmDetails.PrimaryMDM.ID
+	for index := range mdmDetails.PrimaryMDM.IPs {
+		ipmap[mdmDetails.PrimaryMDM.IPs[index]] = mdmDetails.PrimaryMDM.ID
+	}
 
 	for _, mdm := range mdmDetails.SecondaryMDM {
-		ipmap[mdm.IPs[0]] = mdm.ID
+		for index := range mdm.IPs {
+			ipmap[mdm.IPs[index]] = mdm.ID
+		}
 	}
 
 	for _, mdm := range mdmDetails.TiebreakerMdm {
-		ipmap[mdm.IPs[0]] = mdm.ID
+		for index := range mdm.IPs {
+			ipmap[mdm.IPs[index]] = mdm.ID
+		}
 	}
 
 	for _, mdm := range mdmDetails.StandByMdm {
-		ipmap[mdm.IPs[0]] = mdm.ID
+		for index := range mdm.IPs {
+			ipmap[mdm.IPs[index]] = mdm.ID
+		}
 	}
+
 	return ipmap
 }
 
