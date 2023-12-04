@@ -27,13 +27,13 @@ import (
 func TestAccPackageResource(t *testing.T) {
 	var packageTest = `
 	resource "powerflex_package" "upload-test" {
-		file_path = ["/root/powerflex_packages/PowerFlex_3.6.700.103_Ubuntu22.04/EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
+		file_path = ["../resource-test/powerflex_packages/EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
 	 }
 	`
 
 	var packageUpdateTest = `
 	resource "powerflex_package" "upload-test" {
-		file_path = ["/root/powerflex_packages/PowerFlex_3.6.700.103_Ubuntu22.04/EMC-ScaleIO-mdm-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
+		file_path = ["../resource-test/powerflex_packages/EMC-ScaleIO-mdm-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
 	 }
 	`
 
@@ -66,13 +66,13 @@ func TestAccPackageNegative(t *testing.T) {
 
 	var InvalidFile = `
 	resource "powerflex_package" "upload-test" {
-		file_path = ["/root/powerflex_packages/abc.txt"]
+		file_path = ["../resource-test/powerflex_packages/abc.txt"]
 	 }
 	`
 
 	var InvalidNameFile = `
 	resource "powerflex_package" "upload-test" {
-		file_path = ["/root/powerflex_packages/abc.rpm"]
+		file_path = ["../resource-test/powerflex_packages/abc.rpm"]
 	 }
 	`
 

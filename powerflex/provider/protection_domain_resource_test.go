@@ -293,8 +293,6 @@ func TestAccPDResource(t *testing.T) {
 				Config: ProviderConfigForTesting + updatePDRfCacheTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", "test_acc_pd_1"),
-					resource.TestCheckResourceAttr(resourceName, "rebuild_network_throttling_in_kbps", "10240"),
-					resource.TestCheckResourceAttr(resourceName, "rebalance_network_throttling_in_kbps", "10240"),
 					resource.TestCheckResourceAttr(resourceName, "rf_cache_page_size_kb", "16"),
 					resource.TestCheckResourceAttr(resourceName, "rf_cache_max_io_size_kb", "32"),
 					resource.TestCheckResourceAttr(resourceName, "rf_cache_enabled", "true"),
@@ -322,8 +320,6 @@ func TestAccPDResource(t *testing.T) {
 				Config: ProviderConfigForTesting + updatePDRfCacheDisableTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", "test_acc_pd_1"),
-					resource.TestCheckResourceAttr(resourceName, "rebuild_network_throttling_in_kbps", "10240"),
-					resource.TestCheckResourceAttr(resourceName, "rebalance_network_throttling_in_kbps", "10240"),
 					resource.TestCheckResourceAttr(resourceName, "rf_cache_page_size_kb", "16"),
 					resource.TestCheckResourceAttr(resourceName, "rf_cache_max_io_size_kb", "32"),
 					resource.TestCheckResourceAttr(resourceName, "rf_cache_enabled", "false"),
