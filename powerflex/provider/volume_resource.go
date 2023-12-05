@@ -442,6 +442,16 @@ func (r *volumeResource) getProtectionDomainID(plan *models.VolumeResourceModel)
 		}
 		pdr.ProtectionDomain = protectionDomain
 		plan.ProtectionDomainID = types.StringValue(protectionDomain.ID)
+	} else if !plan.ProtectionDomainID.IsUnknown() {
+		protectionDomain, err := r.system.FindProtectionDomain(plan.ProtectionDomainID.ValueString(), "", "")
+		if err != nil {
+			diags.AddError(
+				"Error getting protection domain with id",
+				"Could not get protection domain with id: "+plan.ProtectionDomainID.ValueString()+", \n unexpected error: "+err.Error(),
+			)
+			return nil, diags
+		}
+		pdr.ProtectionDomain = protectionDomain
 	}
 	return pdr, diags
 }
@@ -458,6 +468,15 @@ func (r *volumeResource) getStoragePoolID(pdr *goscaleio.ProtectionDomain, plan 
 			return
 		}
 		plan.StoragePoolID = types.StringValue(storagePool.ID)
+	} else if !plan.StoragePoolID.IsUnknown() {
+		_, err := pdr.FindStoragePool(plan.StoragePoolID.ValueString(), "", "")
+		if err != nil {
+			diags.AddError(
+				"Error getting storage pool with id",
+				"Could not get storage pool with with id: "+plan.StoragePoolID.ValueString()+", \n unexpected error: "+err.Error(),
+			)
+			return
+		}
 	}
 	return
 }
