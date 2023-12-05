@@ -99,7 +99,7 @@ func TestAccFaultSetUpdateNegative(t *testing.T) {
 			},
 			{
 				Config:      ProviderConfigForTesting + FaultSetResourceCreateNegative,
-				ExpectError: regexp.MustCompile(`.*Error getting Protection Domain.*`),
+				ExpectError: regexp.MustCompile(`.*Error: Protection Domain ID cannot be updated.*`),
 			},
 			{
 				Config:      ProviderConfigForTesting + FaultSetResourceUpdateNegative,
