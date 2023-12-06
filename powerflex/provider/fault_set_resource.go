@@ -176,6 +176,13 @@ func (r *faultSetResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
+	if plan.ProtectionDomainID.ValueString() != state.ProtectionDomainID.ValueString() {
+		resp.Diagnostics.AddError(
+			"Protection Domain ID cannot be updated",
+			"Protection Domain ID cannot be updated")
+		return
+	}
+
 	pd, err := helper.GetNewProtectionDomainEx(r.client, plan.ProtectionDomainID.ValueString(), "", "")
 	if err != nil {
 		resp.Diagnostics.AddError(
