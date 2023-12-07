@@ -928,7 +928,7 @@ func (d *mdmClusterResource) ChangeMdmOwnerShip(plan, state models.MdmResourceMo
 			dia.AddError(
 				fmt.Sprintf("Could not change MDM ownership with ID %v.", plan.PrimaryMdm.ID.ValueString()), err.Error())
 		}
-		time.Sleep(15 * time.Second)
+		time.Sleep(30 * time.Second)
 	}
 	return dia
 }
