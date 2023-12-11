@@ -248,8 +248,6 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 				chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 			}
 		}
-	} else if len(sdcDetailList) == 0 {
-		//Dumping same is state
 	} else {
 		resp.Diagnostics.AddError("[Read] Please provide valid SDC ID", "Please provide valid SDC ID")
 
