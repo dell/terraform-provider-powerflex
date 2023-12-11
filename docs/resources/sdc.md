@@ -180,7 +180,7 @@ After the execution of above resource block, sdc would have been renamed on the 
 
 - `lia_password` (String, Sensitive) LIA Password to connect MDM Server.
 - `mdm_password` (String, Sensitive) MDM Password to connect MDM Server.
-- `sdc_details` (Attributes List) List of SDC Expansion Server Details. (see [below for nested schema](#nestedatt--sdc_details))
+- `sdc_details` (Attributes List) List of SDC Expansion Server Details. In upcoming releases, this field will be considered only for input, and another field will be introduced for output the list of SDCs. (see [below for nested schema](#nestedatt--sdc_details))
 
 ### Read-Only
 
