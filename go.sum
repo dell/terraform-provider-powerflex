@@ -33,6 +33,16 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dell/goscaleio v1.12.1-0.20231030141135-bfa243f15f73 h1:SaTHZaWGhMHWCG350vEWXtkV1qg9+4+4BQP7yFJYOTk=
 github.com/dell/goscaleio v1.12.1-0.20231030141135-bfa243f15f73/go.mod h1:dt4Xy5Pnx8MEBza+ODOKiwNFBipcnzEXWgTnFy0+jTw=
+github.com/dell/goscaleio v1.12.1-0.20231208083256-6a8bbb2c2c6c h1:9rIYcadsnuZOb5zWmncxnTulkAV0u9RJqQy3EfS2UzY=
+github.com/dell/goscaleio v1.12.1-0.20231208083256-6a8bbb2c2c6c/go.mod h1:dt4Xy5Pnx8MEBza+ODOKiwNFBipcnzEXWgTnFy0+jTw=
+github.com/dell/goscaleio v1.12.1-0.20231211111729-3f9869898a0c h1:KRKE2PzkbCygwFRVLBlEuz9ItS6zYwyGmCNanNM06EQ=
+github.com/dell/goscaleio v1.12.1-0.20231211111729-3f9869898a0c/go.mod h1:dt4Xy5Pnx8MEBza+ODOKiwNFBipcnzEXWgTnFy0+jTw=
+github.com/dell/goscaleio v1.12.1-0.20231211122744-956097487188 h1:EtYQmjHcljqYgT3TtxE/O6Vk9xoMF88PXAuuz3wSHC4=
+github.com/dell/goscaleio v1.12.1-0.20231211122744-956097487188/go.mod h1:dt4Xy5Pnx8MEBza+ODOKiwNFBipcnzEXWgTnFy0+jTw=
+github.com/dell/goscaleio v1.12.1-0.20231212054103-4bef20d6e4f7 h1:WA6LOxr5zrL7DWdI7+hxKJO/Mo2Ejk3U/C33WWn2340=
+github.com/dell/goscaleio v1.12.1-0.20231212054103-4bef20d6e4f7/go.mod h1:dt4Xy5Pnx8MEBza+ODOKiwNFBipcnzEXWgTnFy0+jTw=
+github.com/dell/goscaleio v1.12.1-0.20231212084855-f842d07a0a68 h1:E1G22jPcxdNEe62Zhyh12aP5WQS1CcpnR02/yTAvaXM=
+github.com/dell/goscaleio v1.12.1-0.20231212084855-f842d07a0a68/go.mod h1:dt4Xy5Pnx8MEBza+ODOKiwNFBipcnzEXWgTnFy0+jTw=
 github.com/emirpasic/gods v1.18.1 h1:FXtiHYKDGKCW2KzwZKx0iC0PQmdlorYgdFG9jPXJ1Bc=
 github.com/emirpasic/gods v1.18.1/go.mod h1:8tpGGwCnJ5H4r6BWwaV6OrWmMoPhUl5jm/FMNAnJvWQ=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
