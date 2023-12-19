@@ -1,3 +1,18 @@
+# v1.3.0 (December 22, 2023)
+## Release Summary
+The release supports resources and data sources mentioned in the Features section for Dell PowerFlex.
+## Features
+
+### Resources
+* `powerflex_fault_set` for managing Fault Set in PowerFlex.
+
+### Data Sources:
+* `powerflex_fault_set` for reading Fault Set details in PowerFlex.
+
+### Enhancements:
+* All existing resources and datasources are qualified against PowerFlex v4.5.
+* Support installation for SDC on nodes running RockyLinux OS.
+
 # v1.2.0 (September 27, 2023)
 ## Release Summary
 The release supports resources and data sources mentioned in the Features section for Dell PowerFlex.
