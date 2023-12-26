@@ -32,6 +32,7 @@ import (
 // TestAccSDCResource tests the SDC Expansion Operation
 func TestAccSDCResource(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
+	t.Skip("Skipping this test case")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

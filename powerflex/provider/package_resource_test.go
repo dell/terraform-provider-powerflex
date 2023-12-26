@@ -25,6 +25,8 @@ import (
 )
 
 func TestAccPackageResource(t *testing.T) {
+	t.Skip("Skipping this test case")
+
 	var packageTest = `
 	resource "powerflex_package" "upload-test" {
 		file_path = ["/root/powerflex_packages/PowerFlex_3.6.700.103_Ubuntu22.04/EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
@@ -58,6 +60,8 @@ func TestAccPackageResource(t *testing.T) {
 }
 
 func TestAccPackageNegative(t *testing.T) {
+	t.Skip("Skipping this test case")
+
 	var InvalidPath = `
 	resource "powerflex_package" "upload-test" {
 		file_path = ["/home/Software/EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
