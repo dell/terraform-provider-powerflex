@@ -29,25 +29,25 @@ import (
 )
 
 // TestAccClusterResource tests the SDC Expansion Operation
-func TestAccClusterResource(t *testing.T) {
-	os.Setenv("TF_ACC", "1")
+// func TestAccClusterResource(t *testing.T) {
+// 	os.Setenv("TF_ACC", "1")
 
-	t.Skip("Skipping this test case")
+// 	t.Skip("Skipping this test case")
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			//Create
-			{
-				Config: ProviderConfigForTesting + packageTest + ClusterConfig1,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					validateSDCLength,
-				),
-			},
-		},
-	})
-}
+// 	resource.Test(t, resource.TestCase{
+// 		PreCheck:                 func() { testAccPreCheck(t) },
+// 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+// 		Steps: []resource.TestStep{
+// 			//Create
+// 			{
+// 				Config: ProviderConfigForTesting + packageTest + ClusterConfig1,
+// 				Check: resource.ComposeAggregateTestCheckFunc(
+// 					validateSDCLength,
+// 				),
+// 			},
+// 		},
+// 	})
+// }
 
 func validateSDCLength(state *terraform.State) error {
 	// Retrieve the resource instance
