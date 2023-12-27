@@ -17,93 +17,86 @@ limitations under the License.
 
 package provider
 
-import (
-	"regexp"
-	"testing"
+// func TestAccPackageResource(t *testing.T) {
+// 	t.Skip("Skipping this test case")
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-)
+// 	var packageTest = `
+// 	resource "powerflex_package" "upload-test" {
+// 		file_path = ["/root/powerflex_packages/PowerFlex_3.6.700.103_Ubuntu22.04/EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
+// 	 }
+// 	`
 
-func TestAccPackageResource(t *testing.T) {
-	t.Skip("Skipping this test case")
+// 	var packageUpdateTest = `
+// 	resource "powerflex_package" "upload-test" {
+// 		file_path = ["/root/powerflex_packages/PowerFlex_3.6.700.103_Ubuntu22.04/EMC-ScaleIO-mdm-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
+// 	 }
+// 	`
 
-	var packageTest = `
-	resource "powerflex_package" "upload-test" {
-		file_path = ["/root/powerflex_packages/PowerFlex_3.6.700.103_Ubuntu22.04/EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
-	 }
-	`
+// 	resource.Test(t, resource.TestCase{
+// 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+// 		Steps: []resource.TestStep{
+// 			//Create
+// 			{
+// 				Config: ProviderConfigForTesting + packageTest,
+// 				Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_package.upload-test", "package_details.*", map[string]string{
+// 					"file_name": "EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar",
+// 				}),
+// 			},
+// 			//Update
+// 			{
+// 				Config: ProviderConfigForTesting + packageUpdateTest,
+// 				Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_package.upload-test", "package_details.*", map[string]string{
+// 					"file_name": "EMC-ScaleIO-mdm-3.6-700.103.Ubuntu.22.04.x86_64.tar",
+// 				}),
+// 			},
+// 		}})
+// }
 
-	var packageUpdateTest = `
-	resource "powerflex_package" "upload-test" {
-		file_path = ["/root/powerflex_packages/PowerFlex_3.6.700.103_Ubuntu22.04/EMC-ScaleIO-mdm-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
-	 }
-	`
+// func TestAccPackageNegative(t *testing.T) {
+// 	t.Skip("Skipping this test case")
 
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			//Create
-			{
-				Config: ProviderConfigForTesting + packageTest,
-				Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_package.upload-test", "package_details.*", map[string]string{
-					"file_name": "EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar",
-				}),
-			},
-			//Update
-			{
-				Config: ProviderConfigForTesting + packageUpdateTest,
-				Check: resource.TestCheckTypeSetElemNestedAttrs("powerflex_package.upload-test", "package_details.*", map[string]string{
-					"file_name": "EMC-ScaleIO-mdm-3.6-700.103.Ubuntu.22.04.x86_64.tar",
-				}),
-			},
-		}})
-}
+// 	var InvalidPath = `
+// 	resource "powerflex_package" "upload-test" {
+// 		file_path = ["/home/Software/EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
+// 	 }
+// 	`
 
-func TestAccPackageNegative(t *testing.T) {
-	t.Skip("Skipping this test case")
+// 	var InvalidFile = `
+// 	resource "powerflex_package" "upload-test" {
+// 		file_path = ["/root/powerflex_packages/abc.txt"]
+// 	 }
+// 	`
 
-	var InvalidPath = `
-	resource "powerflex_package" "upload-test" {
-		file_path = ["/home/Software/EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
-	 }
-	`
+// 	var InvalidNameFile = `
+// 	resource "powerflex_package" "upload-test" {
+// 		file_path = ["/root/powerflex_packages/abc.rpm"]
+// 	 }
+// 	`
 
-	var InvalidFile = `
-	resource "powerflex_package" "upload-test" {
-		file_path = ["/root/powerflex_packages/abc.txt"]
-	 }
-	`
+// 	var EmptyList = `
+// 	resource "powerflex_package" "upload-test" {
+// 		file_path = []
+// 	 }
+// 	`
 
-	var InvalidNameFile = `
-	resource "powerflex_package" "upload-test" {
-		file_path = ["/root/powerflex_packages/abc.rpm"]
-	 }
-	`
-
-	var EmptyList = `
-	resource "powerflex_package" "upload-test" {
-		file_path = []
-	 }
-	`
-
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config:      ProviderConfigForTesting + InvalidPath,
-				ExpectError: regexp.MustCompile(`.*Error getting with file path.*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + InvalidFile,
-				ExpectError: regexp.MustCompile(`.*invalid file type, please provide valid file type.*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + EmptyList,
-				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value.*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + InvalidNameFile,
-				ExpectError: regexp.MustCompile(`.*Error getting with file path.*`),
-			},
-		}})
-}
+// 	resource.Test(t, resource.TestCase{
+// 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+// 		Steps: []resource.TestStep{
+// 			{
+// 				Config:      ProviderConfigForTesting + InvalidPath,
+// 				ExpectError: regexp.MustCompile(`.*Error getting with file path.*`),
+// 			},
+// 			{
+// 				Config:      ProviderConfigForTesting + InvalidFile,
+// 				ExpectError: regexp.MustCompile(`.*invalid file type, please provide valid file type.*`),
+// 			},
+// 			{
+// 				Config:      ProviderConfigForTesting + EmptyList,
+// 				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value.*`),
+// 			},
+// 			{
+// 				Config:      ProviderConfigForTesting + InvalidNameFile,
+// 				ExpectError: regexp.MustCompile(`.*Error getting with file path.*`),
+// 			},
+// 		}})
+// }

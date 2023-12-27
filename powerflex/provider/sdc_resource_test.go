@@ -19,7 +19,6 @@ package provider
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 	"testing"
@@ -30,60 +29,60 @@ import (
 )
 
 // TestAccSDCResource tests the SDC Expansion Operation
-func TestAccSDCResource(t *testing.T) {
-	os.Setenv("TF_ACC", "1")
-	t.Skip("Skipping this test case")
+// func TestAccSDCResource(t *testing.T) {
+// 	os.Setenv("TF_ACC", "1")
+// 	t.Skip("Skipping this test case")
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			//Create
-			{
-				Config:      ProviderConfigForTesting + SDCConfig1,
-				ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
-			},
-			//Import
-			{
-				Config:        ProviderConfigForTesting + importTest,
-				ImportState:   true,
-				ImportStateId: "123",
-				ResourceName:  "powerflex_sdc.test",
-				ExpectError:   regexp.MustCompile(`.*Unable to Find SDC.*`),
-			},
-			//Create with Packages
-			{
-				Config: ProviderConfigForTesting + packageTest + SDCConfig2,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.2.ip", GatewayDataPoints.tbIP),
-				),
-			},
-			//Update
-			{
-				Config: ProviderConfigForTesting + packageTest + SDCConfigUpdate,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.3.ip", GatewayDataPoints.sdcServerIP),
-				),
-			},
-			//Reaname
-			{
-				Config: ProviderConfigForTesting + packageTest + SDCConfigRename,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.1.ip", GatewayDataPoints.secondaryMDMIP),
-					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.1.name", time.Now().Weekday().String()),
-				),
-			},
-			//Performance Profile
-			{
-				Config: ProviderConfigForTesting + packageTest + SDCConfigPerProfile,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.1.ip", GatewayDataPoints.secondaryMDMIP),
-					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.1.performance_profile", "HighPerformance"),
-				),
-			},
-		},
-	})
-}
+// 	resource.Test(t, resource.TestCase{
+// 		PreCheck:                 func() { testAccPreCheck(t) },
+// 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+// 		Steps: []resource.TestStep{
+// 			//Create
+// 			{
+// 				Config:      ProviderConfigForTesting + SDCConfig1,
+// 				ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
+// 			},
+// 			//Import
+// 			{
+// 				Config:        ProviderConfigForTesting + importTest,
+// 				ImportState:   true,
+// 				ImportStateId: "123",
+// 				ResourceName:  "powerflex_sdc.test",
+// 				ExpectError:   regexp.MustCompile(`.*Unable to Find SDC.*`),
+// 			},
+// 			//Create with Packages
+// 			{
+// 				Config: ProviderConfigForTesting + packageTest + SDCConfig2,
+// 				Check: resource.ComposeAggregateTestCheckFunc(
+// 					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.2.ip", GatewayDataPoints.tbIP),
+// 				),
+// 			},
+// 			//Update
+// 			{
+// 				Config: ProviderConfigForTesting + packageTest + SDCConfigUpdate,
+// 				Check: resource.ComposeAggregateTestCheckFunc(
+// 					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.3.ip", GatewayDataPoints.sdcServerIP),
+// 				),
+// 			},
+// 			//Reaname
+// 			{
+// 				Config: ProviderConfigForTesting + packageTest + SDCConfigRename,
+// 				Check: resource.ComposeAggregateTestCheckFunc(
+// 					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.1.ip", GatewayDataPoints.secondaryMDMIP),
+// 					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.1.name", time.Now().Weekday().String()),
+// 				),
+// 			},
+// 			//Performance Profile
+// 			{
+// 				Config: ProviderConfigForTesting + packageTest + SDCConfigPerProfile,
+// 				Check: resource.ComposeAggregateTestCheckFunc(
+// 					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.1.ip", GatewayDataPoints.secondaryMDMIP),
+// 					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.1.performance_profile", "HighPerformance"),
+// 				),
+// 			},
+// 		},
+// 	})
+// }
 
 func TestAccSDCResourceMultiNameOperation(t *testing.T) {
 
