@@ -33,7 +33,7 @@ var createSDSForTest = `
 				role = "all"
 			}
 		]
-		protection_domain_id = "` + protectionDomainID1 + `"
+		protection_domain_id = "` + ProtectionDomainID + `"
 	}
 	`
 
@@ -73,11 +73,11 @@ func TestAccDeviceResourceWithSPID(t *testing.T) {
 }
 
 func TestAccDeviceResourceWithSPName(t *testing.T) {
-	var AddDeviceWithSPName = createSDSForTest + `
+	var AddDeviceWithSPName = createSDSForTest + createStoragePool + `
 	resource "powerflex_device" "device-test" {
 		name = "terraform-device"
 		device_path = "/dev/sdc"
-		storage_pool_name = "pool1"
+		storage_pool_name = resource.powerflex_storage_pool.pre-req1.name
 		protection_domain_name = "domain1"
 		sds_id = powerflex_sds.sds.id
 		media_type = "HDD"
@@ -92,7 +92,7 @@ func TestAccDeviceResourceWithSPName(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_path", "/dev/sdc"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "name", "terraform-device"),
-					resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "pool1"),
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
 					resource.TestCheckResourceAttrPair("powerflex_device.device-test", "sds_id", "powerflex_sds.sds", "id"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "protection_domain_name", "domain1"),
@@ -102,12 +102,12 @@ func TestAccDeviceResourceWithSPName(t *testing.T) {
 }
 
 func TestAccDeviceResourceWithPDID(t *testing.T) {
-	var AddDeviceWithSPName = createSDSForTest + `
+	var AddDeviceWithSPName = createSDSForTest + createStoragePool + `
 	resource "powerflex_device" "device-test" {
 		name = "terraform-device"
 		device_path = "/dev/sdc"
-		storage_pool_name = "pool1"
-		protection_domain_id = "202a046600000000"
+		storage_pool_name =  resource.powerflex_storage_pool.pre-req1.name
+		protection_domain_id = "` + ProtectionDomainID + `"
 		sds_id = powerflex_sds.sds.id
 		media_type = "HDD"
 	 }
@@ -121,10 +121,10 @@ func TestAccDeviceResourceWithPDID(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_path", "/dev/sdc"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "name", "terraform-device"),
-					resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "pool1"),
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "storage_pool_name", "terraform-storage-pool"),
 					resource.TestCheckResourceAttrPair("powerflex_device.device-test", "sds_id", "powerflex_sds.sds", "id"),
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "media_type", "HDD"),
-					resource.TestCheckResourceAttr("powerflex_device.device-test", "protection_domain_id", "202a046600000000"),
+					resource.TestCheckResourceAttr("powerflex_device.device-test", "protection_domain_id", ProtectionDomainID),
 				),
 			},
 		}})
@@ -159,7 +159,7 @@ func TestAccDeviceResourceWithSDSName(t *testing.T) {
 func TestAccDeviceNegative(t *testing.T) {
 	var InvalidPath = createStoragePool + `
 	resource "powerflex_device" "device-test" {
-		name = "terraform-device"
+		name = "terraform-device-invalid"
 		device_path = "/dev/sdd"
 		storage_pool_id = resource.powerflex_storage_pool.pre-req1.id
 		sds_name = "SDS_2"
@@ -169,7 +169,7 @@ func TestAccDeviceNegative(t *testing.T) {
 
 	var InvalidConfigWOPD = `
 	resource "powerflex_device" "device-test" {
-		name = "terraform-device"
+		name = "terraform-device-invalid"
 		device_path = "/dev/sdd"
 		storage_pool_name = "akash-pool"
 		sds_name = "SDS_2"
@@ -179,7 +179,7 @@ func TestAccDeviceNegative(t *testing.T) {
 
 	var InvalidPD = `
 	resource "powerflex_device" "device-test" {
-		name = "terraform-device"
+		name = "terraform-device-invalid"
 		device_path = "/dev/sdd"
 		storage_pool_name = "akash-pool"
 		protection_domain_name = "invalid"
@@ -190,7 +190,7 @@ func TestAccDeviceNegative(t *testing.T) {
 
 	var InvalidSPID = `
 	resource "powerflex_device" "device-test" {
-		name = "terraform-device"
+		name = "terraform-device-invalid"
 		device_path = "/dev/sdd"
 		storage_pool_id = "invalid"
 		sds_name = "SDS_2"
@@ -200,7 +200,7 @@ func TestAccDeviceNegative(t *testing.T) {
 
 	var InvalidSPName = `
 	resource "powerflex_device" "device-test" {
-		name = "terraform-device"
+		name = "terraform-device-invalid"
 		device_path = "/dev/sdd"
 		storage_pool_name = "invalid"
 		protection_domain_name = "domain1"
@@ -211,7 +211,7 @@ func TestAccDeviceNegative(t *testing.T) {
 
 	var InvalidSDSID = createStoragePool + `
 	resource "powerflex_device" "device-test" {
-		name = "terraform-device"
+		name = "terraform-device-invalid"
 		device_path = "/dev/sdd"
 		storage_pool_id = resource.powerflex_storage_pool.pre-req1.id
 		sds_id = "invalid"
@@ -221,7 +221,7 @@ func TestAccDeviceNegative(t *testing.T) {
 
 	var InvalidSDSName = createStoragePool + `
 	resource "powerflex_device" "device-test" {
-		name = "terraform-device"
+		name = "terraform-device-invalid"
 		device_path = "/dev/sdd"
 		storage_pool_id = resource.powerflex_storage_pool.pre-req1.id
 		sds_name = "invalid"

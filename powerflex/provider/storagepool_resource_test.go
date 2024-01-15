@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-var testAccStoragePoolName = os.Getenv("POWERFLEX_STORAGE_POOL_NAME")
+var testAccStoragePoolName = StoragePoolName
 
 // TestAccStoragepoolResource
 func TestAccStoragepoolResource(t *testing.T) {
