@@ -25,8 +25,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
+var FaultSetCreate = `
+resource "powerflex_fault_set" "newFs" {
+	name = "fault-set-create-sds"
+	protection_domain_id = "` + protectionDomainID1 + `"
+}
+`
+
 func TestAccSDSResource(t *testing.T) {
-	var createSDSTest = `
+	var createSDSTest = FaultSetCreate + `
 	resource "powerflex_sds" "sds" {
 		name = "Tf_SDS_01"
 		ip_list = [
@@ -44,9 +51,10 @@ func TestAccSDSResource(t *testing.T) {
 		rmcache_size_in_mb = 156
 		drl_mode = "NonVolatile"
 		protection_domain_id = "` + protectionDomainID1 + `"
+		fault_set_id = resource.powerflex_fault_set.newFs.id
 	}
 	`
-	var updateSDSTest = `
+	var updateSDSTest = FaultSetCreate + `
 	resource "powerflex_sds" "sds" {
 		name = "Tf_SDS_02"
 		ip_list = [
@@ -68,7 +76,7 @@ func TestAccSDSResource(t *testing.T) {
 	}
 	`
 
-	var updateSDSTest2 = `
+	var updateSDSTest2 = FaultSetCreate + `
 	resource "powerflex_sds" "sds" {
 		name = "Tf_SDS_02"
 		ip_list = [
@@ -102,6 +110,7 @@ func TestAccSDSResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "rmcache_size_in_mb", "156"),
 					resource.TestCheckResourceAttr(resourceName, "rmcache_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "performance_profile", "Compact"),
+					resource.TestCheckResourceAttrPair("powerflex_sds.sds", "fault_set_id", "powerflex_fault_set.newFs", "id"),
 					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
 						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "all",

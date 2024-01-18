@@ -162,6 +162,9 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	if !plan.Port.IsUnknown() {
 		params.Port = int(plan.Port.ValueInt64())
 	}
+	if !plan.FaultSetID.IsUnknown() {
+		params.FaultSetID = plan.FaultSetID.ValueString()
+	}
 	sdsID, err2 := pdm.CreateSdsWithParams(&params)
 	if err2 != nil {
 		resp.Diagnostics.AddError(

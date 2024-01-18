@@ -94,6 +94,7 @@ After the execution of above resource block, sds would have been created on the 
 ### Optional
 
 - `drl_mode` (String) DRL mode of SDS
+- `fault_set_id` (String) Fault set id of SDS
 - `performance_profile` (String) Performance Profile of SDS. Valid values are `Compact` and `HighPerformance`. Default value is determined by array settings.
 - `port` (Number) Port of SDS
 - `protection_domain_id` (String) ID of the Protection Domain under which the SDS will be created. Conflicts with `protection_domain_name`. Cannot be updated.
@@ -104,7 +105,6 @@ After the execution of above resource block, sds would have been created on the 
 
 ### Read-Only
 
-- `fault_set_id` (String) Fault set id of SDS
 - `id` (String) The id of the SDS
 - `is_on_vmware` (Boolean) Is on vmware state of SDS
 - `mdm_connection_state` (String) Mdm connection state of SDS
