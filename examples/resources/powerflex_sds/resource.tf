@@ -39,6 +39,28 @@ resource "powerflex_sds" "create" {
   ]
 }
 
+# Example for adding SDS with fault set. After successful execution, SDS will be added to the protection domain and fault set.
+resource "powerflex_fault_set" "test" {
+  protection_domain_id = "202a046600000000"
+  name                 = "demo_fault_set"
+}
+
+resource "powerflex_sds" "create" {
+  name                   = "demo-sds-test-01"
+  protection_domain_name = "demo-sds-pd"
+  fault_set_id           = powerflex_fault_set.test.id
+  ip_list = [
+    {
+      ip   = "10.10.10.12"
+      role = "sdsOnly" # all/sdsOnly/sdcOnly
+    },
+    {
+      ip   = "10.10.10.11"
+      role = "sdcOnly" # all/sdsOnly/sdcOnly
+    },
+  ]
+}
+
 output "changed_sds" {
   value = powerflex_sds.create
 }
