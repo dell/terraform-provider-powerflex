@@ -61,3 +61,60 @@ func UpdateSnapshotPolicyState(sps []*scaleiotypes.SnapshotPolicy) (response []m
 	}
 	return
 }
+
+func UpdateSnapshotPolicyResourceState(sps []*scaleiotypes.SnapshotPolicy) (response models.SnapshotPolicyResourceModel) {
+	for _, sp := range sps {
+		response := models.SnapshotPolicyResourceModel{
+			ID:                                    types.StringValue(sp.ID),
+			Name:                                  types.StringValue(sp.Name),
+			AutoSnapshotCreationCadenceInMin:      types.Int64Value((int64)(sp.AutoSnapshotCreationCadenceInMin)),
+			SnapshotAccessMode:                    types.StringValue(sp.SnapshotAccessMode),
+			SecureSnapshots:                       types.BoolValue(sp.SecureSnapshots),
+		}
+		for _, rspl := range sp.NumOfRetainedSnapshotsPerLevel {
+			response.NumOfRetainedSnapshotsPerLevel = append(response.NumOfRetainedSnapshotsPerLevel, types.Int64Value((int64)(rspl)))
+		}
+	}
+	return
+}
+
+// DifferenceMap function to find the state difference b/w sdcs
+func DifferenceArray(a, b []string) ([]string, []string) {
+	var addedItems, removedItems []string
+	//Find added items
+	for _,item := range b {
+		found:= false
+		for _,val := range a {
+			if item ==val {
+				found = true
+				break
+			}
+		}
+		if !found {
+			addedItems = append(addedItems, item)
+		}
+	}
+	// find removed items
+	for _,item := range a {
+		found:= false
+		for _,val := range b {
+			if item ==val {
+				found = true
+				break
+			}
+		}
+		if !found {
+			removedItems = append(removedItems, item)
+		}
+	}
+	return addedItems, removedItems
+}
+
+func ListToSlice(snap models.SnapshotPolicyResourceModel) []string {
+	stringList := make([]string,len(snap.NumOfRetainedSnapshotsPerLevel))
+	for i,v := range snap.NumOfRetainedSnapshotsPerLevel {
+		stringList[i] = v.String()
+	}
+	return stringList
+}
+
