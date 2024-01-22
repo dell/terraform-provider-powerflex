@@ -73,6 +73,7 @@ func TestAccSDSResource(t *testing.T) {
 		rmcache_enabled = true
 		rfcache_enabled = false
 		protection_domain_id = "` + protectionDomainID1 + `"
+		fault_set_id = resource.powerflex_fault_set.newFs.id
 	}
 	`
 
@@ -93,6 +94,7 @@ func TestAccSDSResource(t *testing.T) {
 		rmcache_enabled = false
 		rfcache_enabled = true
 		protection_domain_id = "` + protectionDomainID1 + `"
+		fault_set_id = resource.powerflex_fault_set.newFs.id
 	}
 	`
 
