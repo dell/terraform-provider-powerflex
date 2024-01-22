@@ -32,6 +32,13 @@ resource "powerflex_fault_set" "newFs" {
 }
 `
 
+var FaultSetUpdate = `
+resource "powerflex_fault_set" "newFs1" {
+	name = "fault-set-update-sds"
+	protection_domain_id = "` + protectionDomainID1 + `"
+}
+`
+
 func TestAccSDSResource(t *testing.T) {
 	var createSDSTest = FaultSetCreate + `
 	resource "powerflex_sds" "sds" {
@@ -95,6 +102,27 @@ func TestAccSDSResource(t *testing.T) {
 		rfcache_enabled = true
 		protection_domain_id = "` + protectionDomainID1 + `"
 		fault_set_id = resource.powerflex_fault_set.newFs.id
+	}
+	`
+	var updateFaultSet = FaultSetCreate + FaultSetUpdate + `
+	resource "powerflex_sds" "sds" {
+		depends_on = [powerflex_fault_set.newFs]
+		name = "Tf_SDS_02"
+		ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "sdsOnly"
+			},
+			{
+				ip = "10.10.10.2"
+				role = "sdcOnly"
+			}
+		]
+		performance_profile = "Compact"
+		rmcache_enabled = false
+		rfcache_enabled = true
+		protection_domain_id = "` + protectionDomainID1 + `"
+		fault_set_id = resource.powerflex_fault_set.newFs1.id
 	}
 	`
 
@@ -174,6 +202,10 @@ func TestAccSDSResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "rfcache_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "performance_profile", "Compact"),
 				),
+			},
+			{
+				Config:      ProviderConfigForTesting + updateFaultSet,
+				ExpectError: regexp.MustCompile(`.*Fault set ID cannot be updated.*`),
 			},
 			// check that import is creating correct state
 			{

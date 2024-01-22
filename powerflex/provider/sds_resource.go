@@ -289,6 +289,13 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		return
 	}
 
+	if !plan.FaultSetID.IsUnknown() && plan.FaultSetID.ValueString() != state.FaultSetID.ValueString() {
+		resp.Diagnostics.AddError(
+			"Fault set ID cannot be updated",
+			"Fault set ID cannot be updated")
+		return
+	}
+
 	if !plan.ProtectionDomainName.IsNull() && plan.ProtectionDomainName.ValueString() != state.ProtectionDomainName.ValueString() {
 		protectionDomain, err = r.system.FindProtectionDomain("", plan.ProtectionDomainName.ValueString(), "")
 		if err != nil {
