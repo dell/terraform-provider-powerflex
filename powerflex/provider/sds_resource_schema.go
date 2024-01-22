@@ -121,6 +121,7 @@ var SDSResourceSchema schema.Schema = schema.Schema{
 		},
 		"fault_set_id": schema.StringAttribute{
 			Description:         "Fault set id of SDS",
+			Optional:            true,
 			Computed:            true,
 			MarkdownDescription: "Fault set id of SDS",
 		},
