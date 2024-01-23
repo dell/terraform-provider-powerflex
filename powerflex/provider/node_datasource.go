@@ -85,29 +85,29 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		diags.Append(state.NodeIDs.ElementsAs(ctx, &nodeIDs, true)...)
 
 		for _, nodeID := range nodeIDs {
-			node_details, err := d.client.GetNodeByID(nodeID)
+			nodeDetails, err := d.client.GetNodeByID(nodeID)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					fmt.Sprintf("Error in getting node details using id %v", nodeID), err.Error(),
 				)
 				return
 			}
-			nodeModel = append(nodeModel, helper.GetNodeState(*node_details))
+			nodeModel = append(nodeModel, helper.GetNodeState(*nodeDetails))
 		}
 	} else if !state.IpAddresses.IsNull() {
 		// Fetch Node details if IPs are provided
-		IpAddresses := make([]string, 0)
-		diags.Append(state.IpAddresses.ElementsAs(ctx, &IpAddresses, true)...)
+		IPAddresses := make([]string, 0)
+		diags.Append(state.IpAddresses.ElementsAs(ctx, &IPAddresses, true)...)
 
-		for _, ipAddress := range IpAddresses {
-			node_details, err := d.client.GetNodeByFilters("ipAddress", ipAddress)
+		for _, ipAddress := range IPAddresses {
+			nodeDetails, err := d.client.GetNodeByFilters("ipAddress", ipAddress)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					fmt.Sprintf("Error in getting node details using ip %v", ipAddress), err.Error(),
 				)
 				return
 			}
-			nodeModel = append(nodeModel, helper.GetNodeState(node_details[0]))
+			nodeModel = append(nodeModel, helper.GetNodeState(nodeDetails[0]))
 		}
 	} else if !state.ServiceTags.IsNull() {
 		// Fetch Node details if service tags are provided
@@ -115,14 +115,14 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		diags.Append(state.ServiceTags.ElementsAs(ctx, &serviceTags, true)...)
 
 		for _, serviceTag := range serviceTags {
-			node_details, err := d.client.GetNodeByFilters("serviceTag", serviceTag)
+			nodeDetails, err := d.client.GetNodeByFilters("serviceTag", serviceTag)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					fmt.Sprintf("Error in getting node details using service tag %v", serviceTag), err.Error(),
 				)
 				return
 			}
-			nodeModel = append(nodeModel, helper.GetNodeState(node_details[0]))
+			nodeModel = append(nodeModel, helper.GetNodeState(nodeDetails[0]))
 		}
 	} else if !state.NodePoolIDs.IsNull() {
 		// Fetch Node details if node pool IDs are provided
@@ -130,7 +130,7 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		diags.Append(state.NodePoolIDs.ElementsAs(ctx, &nodePoolIDs, true)...)
 
 		for _, nodePoolID := range nodePoolIDs {
-			node_pool_details, err := d.client.GetNodePoolByID(int(nodePoolID))
+			nodePoolDetails, err := d.client.GetNodePoolByID(int(nodePoolID))
 			if err != nil {
 				resp.Diagnostics.AddError(
 					fmt.Sprintf("Error in getting node pool details using id %v", nodePoolID), err.Error(),
@@ -138,7 +138,7 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 				return
 			}
 
-			for _, node := range node_pool_details.ManagedDeviceList.ManagedDevices {
+			for _, node := range nodePoolDetails.ManagedDeviceList.ManagedDevices {
 				nodeModel = append(nodeModel, helper.GetNodeState(node))
 			}
 		}
@@ -149,7 +149,7 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 
 		for _, nodePoolName := range nodePoolNames {
 			if nodePoolName == "Global" {
-				node_details, err := d.client.GetAllNodes()
+				nodeDetails, err := d.client.GetAllNodes()
 				if err != nil {
 					resp.Diagnostics.AddError(
 						fmt.Sprintf("Error in getting node details"), err.Error(),
@@ -157,13 +157,13 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 					return
 				}
 
-				for _, node := range node_details {
+				for _, node := range nodeDetails {
 					if node.DeviceGroupList.DeviceGroup[0].GroupName == "Global" {
 						nodeModel = append(nodeModel, helper.GetNodeState(node))
 					}
 				}
 			} else {
-				node_pool_details, err := d.client.GetNodePoolByName(nodePoolName)
+				nodePoolDetails, err := d.client.GetNodePoolByName(nodePoolName)
 				if err != nil {
 					resp.Diagnostics.AddError(
 						fmt.Sprintf("Error in getting node pool details using name %v", nodePoolName), err.Error(),
@@ -171,13 +171,13 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 					return
 				}
 
-				for _, node := range node_pool_details.ManagedDeviceList.ManagedDevices {
+				for _, node := range nodePoolDetails.ManagedDeviceList.ManagedDevices {
 					nodeModel = append(nodeModel, helper.GetNodeState(node))
 				}
 			}
 		}
 	} else {
-		node_details, err := d.client.GetAllNodes()
+		nodeDetails, err := d.client.GetAllNodes()
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("Error in getting node details"), err.Error(),
@@ -185,7 +185,7 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 			return
 		}
 
-		for _, node := range node_details {
+		for _, node := range nodeDetails {
 			nodeModel = append(nodeModel, helper.GetNodeState(node))
 		}
 	}
