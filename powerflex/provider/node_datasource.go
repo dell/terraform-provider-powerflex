@@ -94,10 +94,10 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 			}
 			nodeModel = append(nodeModel, helper.GetNodeState(*nodeDetails))
 		}
-	} else if !state.IpAddresses.IsNull() {
+	} else if !state.IPAddresses.IsNull() {
 		// Fetch Node details if IPs are provided
 		IPAddresses := make([]string, 0)
-		diags.Append(state.IpAddresses.ElementsAs(ctx, &IPAddresses, true)...)
+		diags.Append(state.IPAddresses.ElementsAs(ctx, &IPAddresses, true)...)
 
 		for _, ipAddress := range IPAddresses {
 			nodeDetails, err := d.client.GetNodeByFilters("ipAddress", ipAddress)

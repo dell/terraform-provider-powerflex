@@ -25,7 +25,7 @@ import (
 type NodeDataSourceModel struct {
 	NodeIDs       types.Set    `tfsdk:"node_ids"`
 	ServiceTags   types.Set    `tfsdk:"service_tags"`
-	IpAddresses   types.Set    `tfsdk:"ip_addresses"`
+	IPAddresses   types.Set    `tfsdk:"ip_addresses"`
 	NodePoolIDs   types.Set    `tfsdk:"node_pool_ids"`
 	NodePoolNames types.Set    `tfsdk:"node_pool_names"`
 	NodeDetails   []NodeModel  `tfsdk:"node_details"`
