@@ -76,6 +76,14 @@ type mdmDataPoints struct {
 	standByIP2     string
 }
 
+type nodeDataPoints struct {
+	NodeIP       string
+	ServiceTag   string
+	NodeID       string
+	NodePoolID   string
+	NodePoolName string
+}
+
 func getNewSdsDataPointForTest() sdsDataPoints {
 	var SdsResourceTestData sdsDataPoints
 
@@ -153,6 +161,24 @@ func getMdmDataPointsForTest() mdmDataPoints {
 	return MDMDataPoints
 }
 
+func getNodeDataForTest() nodeDataPoints {
+
+	var NodeDataPoints nodeDataPoints
+
+	err := godotenv.Load("powerflex.env")
+	if err != nil {
+		log.Fatal("Error loading .env file: ", err)
+		return NodeDataPoints
+	}
+
+	NodeDataPoints.NodeIP = setDefault(os.Getenv("POWERFLEX_NODE_IP"), "tfacc_node_ip")
+	NodeDataPoints.ServiceTag = setDefault(os.Getenv("POWERFLEX_SERVICE_TAG"), "tfacc_service_tag")
+	NodeDataPoints.NodeID = setDefault(os.Getenv("POWERFLEX_NODE_ID"), "tfacc_node_id")
+	NodeDataPoints.NodePoolID = setDefault(os.Getenv("POWERFLEX_NODE_POOL_ID"), "tfacc_node_pool_id")
+	NodeDataPoints.NodePoolName = setDefault(os.Getenv("POWERFLEX_NODE_POOL_NAME"), "tfacc_node_pool_name")
+	return NodeDataPoints
+}
+
 var SdsResourceTestData = getNewSdsDataPointForTest()
 var GatewayDataPoints = getNewGatewayDataPointForTest()
 var SDCMappingResourceID2 = setDefault(os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_ID2"), "tfacc_sdc_volumes_mapping_id2")
@@ -165,6 +191,7 @@ var ProtectionDomainID = setDefault(os.Getenv("POWERFLEX_PROTECTION_DOMAIN_ID"),
 var username = setDefault(os.Getenv("POWERFLEX_USERNAME"), "test")
 var password = setDefault(os.Getenv("POWERFLEX_PASSWORD"), "test")
 var endpoint = setDefault(os.Getenv("POWERFLEX_ENDPOINT"), "http://localhost:3002")
+var NodeDataPoints = getNodeDataForTest()
 
 func init() {
 	err := godotenv.Load("powerflex.env")
