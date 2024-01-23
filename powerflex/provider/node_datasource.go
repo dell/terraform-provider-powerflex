@@ -152,7 +152,7 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 				nodeDetails, err := d.client.GetAllNodes()
 				if err != nil {
 					resp.Diagnostics.AddError(
-						fmt.Sprintf("Error in getting node details"), err.Error(),
+						"Error in getting node details", err.Error(),
 					)
 					return
 				}
@@ -180,7 +180,7 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		nodeDetails, err := d.client.GetAllNodes()
 		if err != nil {
 			resp.Diagnostics.AddError(
-				fmt.Sprintf("Error in getting node details"), err.Error(),
+				"Error in getting node details", err.Error(),
 			)
 			return
 		}
