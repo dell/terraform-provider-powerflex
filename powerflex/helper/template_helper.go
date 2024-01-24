@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// GetTemplate converts scaleiotypes.Template to models.Template
+// GetTemplateState converts scaleiotypes.Template to models.Template
 func GetTemplateState(input scaleiotypes.TemplateDetails) models.TemplateModel {
 	return models.TemplateModel{
 		ID:                     types.StringValue(input.ID),
