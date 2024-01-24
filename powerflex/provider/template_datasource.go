@@ -99,10 +99,10 @@ func (d *templateDataSource) Read(ctx context.Context, req datasource.ReadReques
 		diags.Append(state.Names.ElementsAs(ctx, &Names, true)...)
 
 		for _, name := range Names {
-			templateDetails, err := d.client.GetTemplateByFilters("Name", name)
+			templateDetails, err := d.client.GetTemplateByFilters("name", name)
 			if err != nil {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting template details using ip %v", name), err.Error(),
+					fmt.Sprintf("Error in getting template details using Name %v", name), err.Error(),
 				)
 				return
 			}
@@ -111,9 +111,7 @@ func (d *templateDataSource) Read(ctx context.Context, req datasource.ReadReques
 	} else {
 		templateDetails, err := d.client.GetAllTemplates()
 		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Error in getting template details"), err.Error(),
-			)
+			resp.Diagnostics.AddError("Error in getting template details", err.Error())
 			return
 		}
 
