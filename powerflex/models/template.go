@@ -24,7 +24,7 @@ import (
 // TemplateDataSourceModel maps the struct to Template data source schema
 type TemplateDataSourceModel struct {
 	TemplateIDs     types.Set       `tfsdk:"template_ids"`
-	Names           types.Set       `tfsdk:"names"`
+	TemplateNames   types.Set       `tfsdk:"template_names"`
 	TemplateDetails []TemplateModel `tfsdk:"template_details"`
 	ID              types.String    `tfsdk:"id"`
 }
@@ -109,7 +109,7 @@ type SoftwareComponents struct {
 	Category            types.String   `tfsdk:"category"`
 	ComponentType       types.String   `tfsdk:"component_type"`
 	OperatingSystem     types.String   `tfsdk:"operating_system"`
-	SystemIDs           []types.String `tfsdk:"system_i_ds"`
+	SystemIDs           []types.String `tfsdk:"system_ids"`
 	Custom              types.Bool     `tfsdk:"custom"`
 	NeedsAttention      types.Bool     `tfsdk:"needs_attention"`
 	Ignore              types.Bool     `tfsdk:"ignore"`

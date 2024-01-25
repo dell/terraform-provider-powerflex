@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2024 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -93,10 +93,10 @@ func (d *templateDataSource) Read(ctx context.Context, req datasource.ReadReques
 			}
 			templateModel = append(templateModel, helper.GetTemplateState(*templateDetails))
 		}
-	} else if !state.Names.IsNull() {
+	} else if !state.TemplateNames.IsNull() {
 		// Fetch Template details if IPs are provided
 		Names := make([]string, 0)
-		diags.Append(state.Names.ElementsAs(ctx, &Names, true)...)
+		diags.Append(state.TemplateNames.ElementsAs(ctx, &Names, true)...)
 
 		for _, name := range Names {
 			templateDetails, err := d.client.GetTemplateByFilters("name", name)

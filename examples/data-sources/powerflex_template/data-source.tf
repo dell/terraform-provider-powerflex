@@ -28,7 +28,7 @@ data "powerflex_template" "example2" {
 
 # Get template details using IP addresses
 data "powerflex_template" "example3" {
-  name = ["Name_1", "Name_2"]
+  template_names = ["Name_1", "Name_2"]
 }
 
 output "template_result" {
