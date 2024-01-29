@@ -52,12 +52,12 @@ limitations under the License.
 data "powerflex_template" "example1" {
 }
 
-# Get template details using template. IDs
+# Get template details using the ID of the template.
 data "powerflex_template" "example2" {
   template_ids = ["ID1", "ID2"]
 }
 
-# Get template details using IP addresses
+# Get template details using the Name of the template.
 data "powerflex_template" "example3" {
   template_names = ["Name_1", "Name_2"]
 }
