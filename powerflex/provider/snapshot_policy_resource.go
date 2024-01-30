@@ -24,11 +24,13 @@ import (
 
 	"terraform-provider-powerflex/powerflex/models"
 
+	"reflect"
+
 	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"reflect"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 var (
@@ -37,7 +39,7 @@ var (
 	_ resource.ResourceWithImportState = &snapshotPolicyResource{}
 )
 
-// NewFaultSetResource - function to return resource interface
+// NewSnapshotPolicyResource - function to return resource interface
 func NewSnapshotPolicyResource() resource.Resource {
 	return &snapshotPolicyResource{}
 }
@@ -88,18 +90,26 @@ func (r *snapshotPolicyResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	// converting a list to slice 
-	stringList := helper.ListToSlice(plan)
-	payload := &scaleiotypes.SnapshotPolicyCreateParam{
-		Name:               plan.Name.ValueString(),
-		AutoSnapshotCreationCadenceInMin: plan.AutoSnapshotCreationCadenceInMin.String(),
-		NumOfRetainedSnapshotsPerLevel: stringList,
-		Paused: plan.Paused.String(),
-		SnapshotAccessMode: plan.SnapshotAccessMode.ValueString(),
-		SecureSnapshots: plan.SecureSnapshots.String(),
+	if !plan.RemoveMode.IsNull() {
+		resp.Diagnostics.AddError(
+			"Remove mode must not be present while creating a snapshot policy",
+			"Eliminate Remove Mode while creating a snapshot policy",
+		)
+		return
 	}
 
-	// create the fault set
+	// converting a list to slice
+	stringList := helper.ListToSlice(plan)
+	payload := &scaleiotypes.SnapshotPolicyCreateParam{
+		Name:                             plan.Name.ValueString(),
+		AutoSnapshotCreationCadenceInMin: plan.AutoSnapshotCreationCadenceInMin.String(),
+		NumOfRetainedSnapshotsPerLevel:   stringList,
+		Paused:                           plan.Paused.String(),
+		SnapshotAccessMode:               plan.SnapshotAccessMode.ValueString(),
+		SecureSnapshots:                  plan.SecureSnapshots.String(),
+	}
+
+	// create the snapshot policy
 	snapID, err := r.system.CreateSnapshotPolicy(payload)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -109,22 +119,23 @@ func (r *snapshotPolicyResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	if !plan.VolumeId.IsNull() {
-		for _,v := range plan.VolumeId.Elements() {
-			payload2 := &scaleiotypes.AssignVolumeToSnapshotPolicyParam{
-				SourceVolumeId: v.String(),
-			}
-			err2 := r.system.AssignVolumeToSnapshotPolicy(payload2, snapID)
-			if err2 != nil {
-				resp.Diagnostics.AddError(
-					"Error assigning volume to snapshot policy",
-					"Error assigning volume to snapshot policy: "+err2.Error(),
-				)
-			}
+	// Assigning volumes to snapshot policy
+	stringListVol := helper.ListToSliceVol(plan)
+	for _, v := range stringListVol {
+		payload2 := &scaleiotypes.AssignVolumeToSnapshotPolicyParam{
+			SourceVolumeId: v,
+		}
+		err2 := r.system.AssignVolumeToSnapshotPolicy(payload2, snapID)
+		if err2 != nil {
+			resp.Diagnostics.AddError(
+				"Error assigning volume to snapshot policy",
+				"Error assigning volume to snapshot policy: "+err2.Error(),
+			)
 		}
 	}
 
-	response, err := r.client.GetSnapshotPolicy("",snapID)
+	// Fetching the details of the snapshot policy
+	response, err := r.client.GetSnapshotPolicy("", snapID)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting snapshot policy after creation",
@@ -132,17 +143,25 @@ func (r *snapshotPolicyResource) Create(ctx context.Context, req resource.Create
 		)
 		return
 	}
-
+	// updating the detils to the state
 	state := helper.UpdateSnapshotPolicyResourceState(response)
-	if !plan.Paused.IsNull(){
-		state.Paused = plan.Paused
+
+	// fetching the list of volumes assigned to a snaphot policy
+	volumes, err := r.system.GetSourceVolume(snapID)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			fmt.Sprintf("Could not get volumes assigned to snapshot policy"),
+			err.Error(),
+		)
+		return
 	}
 
-	if !plan.VolumeId.IsNull(){
-		state.VolumeId = plan.VolumeId
+	// upadting the list of volumes assinged to the state
+	for _, v := range volumes {
+		state.VolumeId = append(state.VolumeId, types.StringValue(v.ID))
 	}
-	
-	
+
+	//setting the state
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -169,15 +188,31 @@ func (r *snapshotPolicyResource) Read(ctx context.Context, req resource.ReadRequ
 		)
 		return
 	}
-	faultsetState := helper.UpdateSnapshotPolicyResourceState(sp)
-	diags = resp.State.Set(ctx, faultsetState)
+	state = helper.UpdateSnapshotPolicyResourceState(sp)
+
+	volumes, err := r.system.GetSourceVolume(state.ID.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			fmt.Sprintf("Could not get volumes assigned to snapshot policy"),
+			err.Error(),
+		)
+		return
+	}
+	stringListVol := helper.ListToSliceVol(state)
+	for _, v := range volumes {
+		if helper.Contains(stringListVol, v.ID) == false {
+			state.VolumeId = append(state.VolumeId, types.StringValue(v.ID))
+		}
+	}
+
+	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 }
 
-// Function used to Update fault set Resource
+// Function used to Update snapshot policy resource
 func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Retrieve values from plan
 	var plan models.SnapshotPolicyResourceModel
@@ -195,6 +230,24 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 		return
 	}
 
+	//  Don't allow update operation for secure snapshots and snapshot access mode.
+	if plan.SecureSnapshots.ValueBool() != state.SecureSnapshots.ValueBool() {
+		resp.Diagnostics.AddError(
+			"Cannot Update Secure Snapshots after creation",
+			"Secure snapshot attribute cannot be updated once it is created.",
+		)
+		return
+	}
+
+	if plan.SnapshotAccessMode.ValueString() != state.SnapshotAccessMode.ValueString() {
+		resp.Diagnostics.AddError(
+			"Cannot Update snapshot access mode after creation",
+			"Snapshot access mode attribute cannot be updated once it is created.",
+		)
+		return
+	}
+
+	// If there is a change in the name of the snapshot policy then update the name
 	if plan.Name.ValueString() != state.Name.ValueString() {
 		err := r.system.RenameSnapshotPolicy(state.ID.ValueString(), plan.Name.ValueString())
 		if err != nil {
@@ -203,13 +256,13 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 			)
 		}
 	}
-
+	// update auto snapshot creation cadence in min or number of retained snapshots per level or both
 	var snapUpdate *scaleiotypes.SnapshotPolicyModifyParam
 	if plan.AutoSnapshotCreationCadenceInMin.ValueInt64() != state.AutoSnapshotCreationCadenceInMin.ValueInt64() && reflect.DeepEqual(plan.NumOfRetainedSnapshotsPerLevel, state.NumOfRetainedSnapshotsPerLevel) {
 		stringList := helper.ListToSlice(plan)
 		snapUpdate = &scaleiotypes.SnapshotPolicyModifyParam{
 			AutoSnapshotCreationCadenceInMin: plan.AutoSnapshotCreationCadenceInMin.String(),
-			NumOfRetainedSnapshotsPerLevel: stringList,
+			NumOfRetainedSnapshotsPerLevel:   stringList,
 		}
 		err := r.system.ModifySnapshotPolicy(snapUpdate, state.ID.ValueString())
 		if err != nil {
@@ -217,11 +270,11 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 				"Error while updating auto snapshot creation cadence ", err.Error(),
 			)
 		}
-	} else if !reflect.DeepEqual(plan.NumOfRetainedSnapshotsPerLevel, state.NumOfRetainedSnapshotsPerLevel) && plan.AutoSnapshotCreationCadenceInMin.ValueInt64() == state.AutoSnapshotCreationCadenceInMin.ValueInt64()  {
+	} else if !reflect.DeepEqual(plan.NumOfRetainedSnapshotsPerLevel, state.NumOfRetainedSnapshotsPerLevel) && plan.AutoSnapshotCreationCadenceInMin.ValueInt64() == state.AutoSnapshotCreationCadenceInMin.ValueInt64() {
 		stringList := helper.ListToSlice(plan)
 		snapUpdate = &scaleiotypes.SnapshotPolicyModifyParam{
 			AutoSnapshotCreationCadenceInMin: state.AutoSnapshotCreationCadenceInMin.String(),
-			NumOfRetainedSnapshotsPerLevel: stringList,
+			NumOfRetainedSnapshotsPerLevel:   stringList,
 		}
 		err := r.system.ModifySnapshotPolicy(snapUpdate, state.ID.ValueString())
 		if err != nil {
@@ -233,65 +286,55 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 		stringList := helper.ListToSlice(plan)
 		snapUpdate = &scaleiotypes.SnapshotPolicyModifyParam{
 			AutoSnapshotCreationCadenceInMin: plan.AutoSnapshotCreationCadenceInMin.String(),
-			NumOfRetainedSnapshotsPerLevel: stringList,
+			NumOfRetainedSnapshotsPerLevel:   stringList,
 		}
 		err := r.system.ModifySnapshotPolicy(snapUpdate, state.ID.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error while updating auto snapshot creation cadence and num of retained snapshots", err.Error(),
 			)
+		}
 	}
-}	
 
-	if plan.Paused.ValueBool() != state.Paused.ValueBool(){
+	// pause or resume snapshot policy
+	if plan.Paused.ValueBool() != state.Paused.ValueBool() {
 		if plan.Paused.ValueBool() {
 			err := r.system.PauseSnapshotPolicy(state.ID.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error while pausing the snapshot policy", err.Error(),
 				)
-		}
+			}
 		} else {
 			err := r.system.ResumeSnapshotPolicy(state.ID.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error while resuming the snapshot policy", err.Error(),
 				)
-		}
-		}
-	}
-
-	var planVolList,stateVolList []string
-
-	diags = plan.VolumeId.ElementsAs(ctx, &planVolList, true)
-	resp.Diagnostics.Append(diags...)
-
-	diags = state.VolumeId.ElementsAs(ctx, &stateVolList, true)
-	resp.Diagnostics.Append(diags...)
-
-	mapVolIds,unmapVolIds := helper.DifferenceArray(planVolList, stateVolList)
-
-	if len(mapVolIds) > 0 {
-		for _,v := range mapVolIds {
-			payload2 := &scaleiotypes.AssignVolumeToSnapshotPolicyParam{
-				SourceVolumeId: v,
-			}
-			err2 := r.system.AssignVolumeToSnapshotPolicy(payload2, state.ID.ValueString())
-			if err2 != nil {
-				resp.Diagnostics.AddError(
-					"Error assigning volume to snapshot policy",
-					"Error assigning volume to snapshot policy: "+err2.Error(),
-				)
 			}
 		}
 	}
 
+	// map or unmap volumes to snapshot policy
+	var planVolList, stateVolList []string
+	planVolList = helper.ListToSliceVol(plan)
+	stateVolList = helper.ListToSliceVol(state)
+
+	mapVolIds, unmapVolIds, _ := helper.DifferenceArray(stateVolList, planVolList)
+
+	if len(unmapVolIds) == 0 && !plan.RemoveMode.IsNull() {
+		resp.Diagnostics.AddError(
+			"Remove mode must only be present while unassigning the volumes from snapshot policy",
+			"Remove mode is only used for unassigning the volumes from snapshot policy.",
+		)
+		return
+	}
 	if len(unmapVolIds) > 0 {
-		if !plan.RemoveMode.IsNull(){
-			for _,v := range unmapVolIds {
+		if !plan.RemoveMode.IsNull() {
+			for _, v := range unmapVolIds {
 				payload2 := &scaleiotypes.AssignVolumeToSnapshotPolicyParam{
-					SourceVolumeId: v,
-					AutoSnapshotRemovalAction: plan.RemoveMode.ValueString() ,
+					SourceVolumeId:            v,
+					AutoSnapshotRemovalAction: plan.RemoveMode.ValueString(),
 				}
 				err2 := r.system.UnassignVolumeFromSnapshotPolicy(payload2, state.ID.ValueString())
 				if err2 != nil {
@@ -306,11 +349,25 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 				"Missing Remove mode",
 				"Missing Remove mode",
 			)
+			return
 		}
-		
+	}
+	if len(mapVolIds) > 0 {
+		for _, v := range mapVolIds {
+			payload2 := &scaleiotypes.AssignVolumeToSnapshotPolicyParam{
+				SourceVolumeId: v,
+			}
+			err2 := r.system.AssignVolumeToSnapshotPolicy(payload2, state.ID.ValueString())
+			if err2 != nil {
+				resp.Diagnostics.AddError(
+					"Error assigning volume to snapshot policy",
+					"Error assigning volume to snapshot policy: "+err2.Error(),
+				)
+			}
+		}
 	}
 
-	response, err := r.client.GetSnapshotPolicy("",state.ID.ValueString())
+	response, err := r.client.GetSnapshotPolicy("", state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting snapshot policy after updation",
@@ -319,29 +376,34 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 		return
 	}
 
-	state2 := helper.UpdateSnapshotPolicyResourceState(response)
-	if plan.Paused.ValueBool() != state.Paused.ValueBool(){
-		state.Paused = plan.Paused
+	state = helper.UpdateSnapshotPolicyResourceState(response)
+	volumes, err := r.system.GetSourceVolume(state.ID.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			fmt.Sprintf("Could not get volumes assigned to snapshot policy"),
+			err.Error(),
+		)
+		return
 	}
 
-	if len(mapVolIds) > 0 || len(unmapVolIds) > 0 {
-		state.VolumeId = plan.VolumeId
+	for _, v := range volumes {
+		state.VolumeId = append(state.VolumeId, types.StringValue(v.ID))
 	}
-	
-	
-	diags = resp.State.Set(ctx, state2)
+
+	if !plan.RemoveMode.IsNull() {
+		state.RemoveMode = plan.RemoveMode
+	}
+	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-
 }
 
-// Function used to Delete Fault Set Resource
+// Function used to Delete Snapshot resource
 func (r *snapshotPolicyResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Retrieve values from state
-	var state models.FaultSetResourceModel
+	var state models.SnapshotPolicyResourceModel
 
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -349,20 +411,29 @@ func (r *snapshotPolicyResource) Delete(ctx context.Context, req resource.Delete
 		return
 	}
 
-	pd, err := helper.GetNewProtectionDomainEx(r.client, state.ProtectionDomainID.ValueString(), "", "")
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error getting Protection Domain",
-			"Could not get Protection Domain, unexpected err: "+err.Error(),
-		)
-		return
+	stateVolList := helper.ListToSliceVol(state)
+
+	if len(stateVolList) > 0 {
+		for _, v := range stateVolList {
+			payload2 := &scaleiotypes.AssignVolumeToSnapshotPolicyParam{
+				SourceVolumeId:            v,
+				AutoSnapshotRemovalAction: "Detach",
+			}
+			err2 := r.system.UnassignVolumeFromSnapshotPolicy(payload2, state.ID.ValueString())
+			if err2 != nil {
+				resp.Diagnostics.AddError(
+					"Error unassigning volume from snapshot policy",
+					"Error unassigning volume from snapshot policy: "+err2.Error(),
+				)
+			}
+		}
 	}
 
-	err = pd.DeleteFaultSet(state.ID.ValueString())
+	err := r.system.RemoveSnapshotPolicy(state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Deleting fault set",
-			"Couldn't Delete fault set "+err.Error(),
+			"Error Deleting Snapshot Policy",
+			"Couldn't Delete Snapshot Policy"+err.Error(),
 		)
 		return
 	}
@@ -373,7 +444,7 @@ func (r *snapshotPolicyResource) Delete(ctx context.Context, req resource.Delete
 	resp.State.RemoveResource(ctx)
 }
 
-// Function used to ImportState for fault set Resource
+// Function used to ImportState for snapshot policy Resource
 func (r *snapshotPolicyResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

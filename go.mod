@@ -3,7 +3,7 @@ module terraform-provider-powerflex
 go 1.20
 
 require (
-	github.com/dell/goscaleio v1.12.1-0.20231214085214-bddf1c450fa1
+	github.com/dell/goscaleio v1.13.1-0.20240130114029-a96ea6928d16
 	github.com/hashicorp/terraform-plugin-docs v0.13.0
 	github.com/hashicorp/terraform-plugin-framework v1.4.1
 	github.com/hashicorp/terraform-plugin-framework-validators v0.10.0
@@ -81,5 +81,3 @@ require (
 	google.golang.org/grpc v1.57.1 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 )
-
-replace github.com/dell/goscaleio => ../goscaleio

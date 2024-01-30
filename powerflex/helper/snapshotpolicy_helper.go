@@ -64,28 +64,33 @@ func UpdateSnapshotPolicyState(sps []*scaleiotypes.SnapshotPolicy) (response []m
 
 func UpdateSnapshotPolicyResourceState(sps []*scaleiotypes.SnapshotPolicy) (response models.SnapshotPolicyResourceModel) {
 	for _, sp := range sps {
-		response := models.SnapshotPolicyResourceModel{
-			ID:                                    types.StringValue(sp.ID),
-			Name:                                  types.StringValue(sp.Name),
-			AutoSnapshotCreationCadenceInMin:      types.Int64Value((int64)(sp.AutoSnapshotCreationCadenceInMin)),
-			SnapshotAccessMode:                    types.StringValue(sp.SnapshotAccessMode),
-			SecureSnapshots:                       types.BoolValue(sp.SecureSnapshots),
+		response = models.SnapshotPolicyResourceModel{
+			ID:                               types.StringValue(string(sp.ID)),
+			Name:                             types.StringValue(sp.Name),
+			AutoSnapshotCreationCadenceInMin: types.Int64Value((int64)(sp.AutoSnapshotCreationCadenceInMin)),
+			SnapshotAccessMode:               types.StringValue(string(sp.SnapshotAccessMode)),
+			SecureSnapshots:                  types.BoolValue(sp.SecureSnapshots),
 		}
 		for _, rspl := range sp.NumOfRetainedSnapshotsPerLevel {
 			response.NumOfRetainedSnapshotsPerLevel = append(response.NumOfRetainedSnapshotsPerLevel, types.Int64Value((int64)(rspl)))
 		}
+		if sp.SnapshotPolicyState == "Active" {
+			response.Paused = types.BoolValue(false)
+		} else {
+			response.Paused = types.BoolValue(true)
+		}
 	}
-	return
+	return response
 }
 
 // DifferenceMap function to find the state difference b/w sdcs
-func DifferenceArray(a, b []string) ([]string, []string) {
-	var addedItems, removedItems []string
+func DifferenceArray(a, b []string) ([]string, []string, []string) {
+	var addedItems, removedItems, nonChangedItems []string
 	//Find added items
-	for _,item := range b {
-		found:= false
-		for _,val := range a {
-			if item ==val {
+	for _, item := range b {
+		found := false
+		for _, val := range a {
+			if item == val {
 				found = true
 				break
 			}
@@ -95,10 +100,10 @@ func DifferenceArray(a, b []string) ([]string, []string) {
 		}
 	}
 	// find removed items
-	for _,item := range a {
-		found:= false
-		for _,val := range b {
-			if item ==val {
+	for _, item := range a {
+		found := false
+		for _, val := range b {
+			if item == val {
 				found = true
 				break
 			}
@@ -107,14 +112,41 @@ func DifferenceArray(a, b []string) ([]string, []string) {
 			removedItems = append(removedItems, item)
 		}
 	}
-	return addedItems, removedItems
+
+	minLength := len(a)
+	if len(b) < minLength {
+		minLength = len(b)
+	}
+
+	for i := 0; i < minLength; i++ {
+		if a[i] == b[i] {
+			nonChangedItems = append(nonChangedItems, a[i])
+		}
+	}
+	return addedItems, removedItems, nonChangedItems
 }
 
 func ListToSlice(snap models.SnapshotPolicyResourceModel) []string {
-	stringList := make([]string,len(snap.NumOfRetainedSnapshotsPerLevel))
-	for i,v := range snap.NumOfRetainedSnapshotsPerLevel {
+	stringList := make([]string, len(snap.NumOfRetainedSnapshotsPerLevel))
+	for i, v := range snap.NumOfRetainedSnapshotsPerLevel {
 		stringList[i] = v.String()
 	}
 	return stringList
 }
 
+func ListToSliceVol(snap models.SnapshotPolicyResourceModel) []string {
+	stringList := make([]string, len(snap.VolumeId))
+	for i, v := range snap.VolumeId {
+		stringList[i] = v.ValueString()
+	}
+	return stringList
+}
+
+func Contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
