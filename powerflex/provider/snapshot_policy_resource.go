@@ -309,7 +309,7 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 		err := r.system.ModifySnapshotPolicy(snapUpdate, state.ID.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error while updating auto snapshot creation cadence and num of retained snapshots", err.Error(),
+				"Error while updating auto snapshot creation cadence or num of retained snapshots", err.Error(),
 			)
 		}
 	}
