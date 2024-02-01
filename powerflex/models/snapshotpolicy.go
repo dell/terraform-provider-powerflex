@@ -65,7 +65,7 @@ type SnapshotPolicyResourceModel struct {
 	NumOfRetainedSnapshotsPerLevel   []types.Int64  `tfsdk:"num_of_retained_snapshots_per_level"`
 	AutoSnapshotCreationCadenceInMin types.Int64    `tfsdk:"auto_snapshot_creation_cadence_in_min"`
 	Paused                           types.Bool     `tfsdk:"paused"`
-	VolumeId                         []types.String `tfsdk:"volume_id"`
+	VolumeIds                        []types.String `tfsdk:"volume_ids"`
 	RemoveMode                       types.String   `tfsdk:"remove_mode"`
 	SecureSnapshots                  types.Bool     `tfsdk:"secure_snapshots"`
 	SnapshotAccessMode               types.String   `tfsdk:"snapshot_access_mode"`

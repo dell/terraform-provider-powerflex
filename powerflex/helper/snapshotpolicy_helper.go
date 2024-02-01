@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2024 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ func UpdateSnapshotPolicyState(sps []*scaleiotypes.SnapshotPolicy) (response []m
 	return
 }
 
-func UpdateSnapshotPolicyResourceState(sps []*scaleiotypes.SnapshotPolicy) (response models.SnapshotPolicyResourceModel) {
+func UpdateSnapshotPolicyResourceState(sps []*scaleiotypes.SnapshotPolicy, volumes []*scaleiotypes.Volume, state *models.SnapshotPolicyResourceModel) (response models.SnapshotPolicyResourceModel) {
 	for _, sp := range sps {
 		response = models.SnapshotPolicyResourceModel{
 			ID:                               types.StringValue(string(sp.ID)),
@@ -80,12 +80,16 @@ func UpdateSnapshotPolicyResourceState(sps []*scaleiotypes.SnapshotPolicy) (resp
 			response.Paused = types.BoolValue(true)
 		}
 	}
+	for _, v := range volumes {
+		response.VolumeIds = append(response.VolumeIds, types.StringValue(v.ID))
+	}
+	response.RemoveMode = state.RemoveMode
 	return response
 }
 
 // DifferenceMap function to find the state difference b/w sdcs
-func DifferenceArray(a, b []string) ([]string, []string, []string) {
-	var addedItems, removedItems, nonChangedItems []string
+func DifferenceArray(a, b []string) ([]string, []string) {
+	var addedItems, removedItems []string
 	//Find added items
 	for _, item := range b {
 		found := false
@@ -112,18 +116,7 @@ func DifferenceArray(a, b []string) ([]string, []string, []string) {
 			removedItems = append(removedItems, item)
 		}
 	}
-
-	minLength := len(a)
-	if len(b) < minLength {
-		minLength = len(b)
-	}
-
-	for i := 0; i < minLength; i++ {
-		if a[i] == b[i] {
-			nonChangedItems = append(nonChangedItems, a[i])
-		}
-	}
-	return addedItems, removedItems, nonChangedItems
+	return addedItems, removedItems
 }
 
 func ListToSlice(snap models.SnapshotPolicyResourceModel) []string {
@@ -135,18 +128,9 @@ func ListToSlice(snap models.SnapshotPolicyResourceModel) []string {
 }
 
 func ListToSliceVol(snap models.SnapshotPolicyResourceModel) []string {
-	stringList := make([]string, len(snap.VolumeId))
-	for i, v := range snap.VolumeId {
+	stringList := make([]string, len(snap.VolumeIds))
+	for i, v := range snap.VolumeIds {
 		stringList[i] = v.ValueString()
 	}
 	return stringList
-}
-
-func Contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
 }

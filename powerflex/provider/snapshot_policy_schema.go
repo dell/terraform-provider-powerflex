@@ -20,10 +20,10 @@ package provider
 import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"terraform-provider-powerflex/powerflex/helper"
 )
 
 // FaultSetResourceSchema - variable holds schema for Fault set
@@ -56,50 +56,50 @@ var SnapshotPolicyResourceSchema schema.Schema = schema.Schema{
 			},
 		},
 		"paused": schema.BoolAttribute{
-			Description:         "Indicates that the snapshot policy should paused or not.",
-			MarkdownDescription: "Indicates that the snapshot policy should paused or not.",
+			Description:         "Indicates that the snapshot policy should paused or not. Default value is `false`.",
+			MarkdownDescription: "Indicates that the snapshot policy should paused or not. Default value is `false`.",
 			Optional:            true,
 			Computed:            true,
-			PlanModifiers: []planmodifier.Bool{
-				helper.BoolDefault(false),
-			},
+			Default:             booldefault.StaticBool(false),
 		},
-		"volume_id": schema.SetAttribute{
+		"volume_ids": schema.SetAttribute{
 			Description:         "List which represents the volume ids which is to be assigned to the snapshot policy.",
 			MarkdownDescription: "List which represents the volume ids which is to be assigned to the snapshot policy.",
 			Optional:            true,
 			ElementType:         types.StringType,
 		},
 		"remove_mode": schema.StringAttribute{
-			Description:         "When removing the source volume from the policy, user must choose how to handle the snapshots created by the policy.",
-			MarkdownDescription: "When removing the source volume from the policy, user must choose how to handle the snapshots created by the policy.",
+			Description:         "When removing the source volume from the policy, user should choose how to handle the snapshots created by the policy. Valid values are 'Remove' and 'Detach'. Default value is `Detach`.",
+			MarkdownDescription: "When removing the source volume from the policy, user should choose how to handle the snapshots created by the policy. Valid values are 'Remove' and 'Detach'. Default value is `Detach`.",
 			Optional:            true,
+			Computed:            true,
 			Validators: []validator.String{stringvalidator.OneOf(
 				"Remove",
 				"Detach",
 			)},
+			Default: stringdefault.StaticString("Detach"),
 		},
 		"secure_snapshots": schema.BoolAttribute{
-			Description:         "The auto snapshots will be created as secure. They cannot be edited or removed prior to their policy expiration time.",
-			MarkdownDescription: "The auto snapshots will be created as secure. They cannot be edited or removed prior to their policy expiration time.",
+			Description:         "The auto snapshots will be created as secure. They cannot be edited or removed prior to their policy expiration time. Default value is `false`." +
+			" Cannot be updated.",
+			MarkdownDescription: "The auto snapshots will be created as secure. They cannot be edited or removed prior to their policy expiration time. Default value is `false`." +
+			" Cannot be updated.",
 			Optional:            true,
 			Computed:            true,
-			PlanModifiers: []planmodifier.Bool{
-				helper.BoolDefault(false),
-			},
+			Default:             booldefault.StaticBool(false),
 		},
 		"snapshot_access_mode": schema.StringAttribute{
-			Description:         "The Access mode of auto snapshot. Valid values are 'ReadOnly' and 'ReadWrite'.",
-			MarkdownDescription: "The Access mode of auto snapshot. Valid values are 'ReadOnly' and 'ReadWrite'.",
+			Description:         "The Access mode of auto snapshot. Valid values are 'ReadOnly' and 'ReadWrite'. Default value is `ReadOnly`" +
+			" Cannot be updated.",
+			MarkdownDescription: "The Access mode of auto snapshot. Valid values are 'ReadOnly' and 'ReadWrite'. Default value is `ReadOnly`" +
+			" Cannot be updated.",
 			Optional:            true,
 			Computed:            true,
 			Validators: []validator.String{stringvalidator.OneOf(
 				"ReadOnly",
 				"ReadWrite",
 			)},
-			PlanModifiers: []planmodifier.String{
-				helper.StringDefault("ReadOnly"),
-			},
+			Default: stringdefault.StaticString("ReadOnly"),
 		},
 	},
 }

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2024 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,11 +27,10 @@ func TestAccSnapshotPolicyResource(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
-	//resourceName := "powerflex_snapshot_policy.avengers-fs-create"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			// Create fault set Test
+			// Create snapshot policy test
 			{
 				Config: ProviderConfigForTesting + SPResourceCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -46,11 +45,10 @@ func TestAccSnapshotPolicyResourceUpadte(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
-	//resourceName := "powerflex_snapshot_policy.avengers-fs-create"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			// Create fault set Test
+			// Create snapshot policy
 			{
 				Config: ProviderConfigForTesting + SPResourceCreateWithVol,
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -78,6 +76,29 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
   }
 `
 
+var SPResourceCreateFail = `
+resource "powerflex_snapshot_policy" "avengers-sp-create" {
+	name = "snap create fail"
+	num_of_retained_snapshots_per_level = [1]
+	auto_snapshot_creation_cadence_in_min = 5
+	paused = false
+	secure_snapshots = false
+	snapshot_access_mode = "ReadOnly"
+  }
+`
+
+var SPResourceCreateWithVolFail = `
+resource "powerflex_snapshot_policy" "avengers-sp-create" {
+	name = "snap-create-fail"
+	num_of_retained_snapshots_per_level = [1]
+	auto_snapshot_creation_cadence_in_min = 5
+	paused = false
+	secure_snapshots = false
+	snapshot_access_mode = "ReadOnly"
+	volume_ids = ["edd2fb3100000007", "edd2fb3200000008"]
+  }
+`
+
 var SPResourceCreateWithVol = `
 resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	name = "snap-create-test"
@@ -86,8 +107,7 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = false
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_id = ["edd2fb3100000007", "edd2fb3200000008"]
-
+	volume_ids = ["edd2fb3200000008"]
   }
 `
 

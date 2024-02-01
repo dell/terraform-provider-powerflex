@@ -31,7 +31,7 @@ This resource is used to manage the Snapshot Policy entity of PowerFlex Array. W
 
 ```terraform
 /*
-Copyright (c) 2023 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2024 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -50,8 +50,7 @@ limitations under the License.
 # Command to run this tf file : terraform init && terraform plan && terraform apply
 # Create, Update, Delete is supported for this resource
 # To import , check import.sh for more info
-# name and protection_domain_id is the required parameter to create or update 
-# To check which attributes of the fault set can be updated, please refer Product Guide in the documentation
+# name, num_of_retained_snapshots_per_level, auto_snapshot_creation_cadence_in_min is the required parameter to create or update 
 
 
 resource "powerflex_snapshot_policy" "sp" {
@@ -61,7 +60,7 @@ resource "powerflex_snapshot_policy" "sp" {
   volume_id = ["edd2fb3100000007", "edd322270000000a"] # assigning or unassigning volumes to snapshot policy
   snapshot_access_mode = "ReadWrite" # Cannot be updated after creation. It only supports two values : ReadOnly / ReadWrite
   secure_snapshots = false # Cannot be updated after creation
-  #remove_mode = "Remove" #remove_mode should only be used while unassingning the volumes from the snapshot policy. This attribute must not be present while creation.It only supports two values : Remove / Detach
+  #remove_mode = "Remove" #remove_mode is applicable while unassingning the volumes from the snapshot policy. It only supports two values : Remove / Detach
 }
 ```
 
@@ -76,11 +75,11 @@ resource "powerflex_snapshot_policy" "sp" {
 
 ### Optional
 
-- `paused` (Boolean) Indicates that the snapshot policy should paused or not.
-- `remove_mode` (String) When removing the source volume from the policy, user must choose how to handle the snapshots created by the policy.
-- `secure_snapshots` (Boolean) The auto snapshots will be created as secure. They cannot be edited or removed prior to their policy expiration time.
-- `snapshot_access_mode` (String) The Access mode of auto snapshot. Valid values are 'ReadOnly' and 'ReadWrite'.
-- `volume_id` (Set of String) List which represents the volume ids which is to be assigned to the snapshot policy.
+- `paused` (Boolean) Indicates that the snapshot policy should paused or not. Default value is `false`.
+- `remove_mode` (String) When removing the source volume from the policy, user should choose how to handle the snapshots created by the policy. Valid values are 'Remove' and 'Detach'. Default value is `Detach`.
+- `secure_snapshots` (Boolean) The auto snapshots will be created as secure. They cannot be edited or removed prior to their policy expiration time. Default value is `false`. Cannot be updated.
+- `snapshot_access_mode` (String) The Access mode of auto snapshot. Valid values are 'ReadOnly' and 'ReadWrite'. Default value is `ReadOnly` Cannot be updated.
+- `volume_ids` (Set of String) List which represents the volume ids which is to be assigned to the snapshot policy.
 
 ### Read-Only
 

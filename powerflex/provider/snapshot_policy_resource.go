@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2024 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import (
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 var (
@@ -90,14 +89,6 @@ func (r *snapshotPolicyResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	if !plan.RemoveMode.IsNull() {
-		resp.Diagnostics.AddError(
-			"Remove mode must not be present while creating a snapshot policy",
-			"Eliminate Remove Mode while creating a snapshot policy",
-		)
-		return
-	}
-
 	// converting a list to slice
 	stringList := helper.ListToSlice(plan)
 	payload := &scaleiotypes.SnapshotPolicyCreateParam{
@@ -120,17 +111,55 @@ func (r *snapshotPolicyResource) Create(ctx context.Context, req resource.Create
 	}
 
 	// Assigning volumes to snapshot policy
+	// If there is an issue while assigning the volumes then delete the entire resource
 	stringListVol := helper.ListToSliceVol(plan)
+	var mappedVols []string
 	for _, v := range stringListVol {
 		payload2 := &scaleiotypes.AssignVolumeToSnapshotPolicyParam{
 			SourceVolumeId: v,
 		}
 		err2 := r.system.AssignVolumeToSnapshotPolicy(payload2, snapID)
 		if err2 != nil {
+			if len(mappedVols) == 0 {
+				err := r.system.RemoveSnapshotPolicy(snapID)
+				if err != nil {
+					resp.Diagnostics.AddError(
+						"Error Deleting Snapshot Policy",
+						"Couldn't Delete Snapshot Policy"+err.Error(),
+					)
+					return
+				}
+			} else if len(mappedVols) > 0 {
+				for _, v := range mappedVols {
+					payload2 := &scaleiotypes.AssignVolumeToSnapshotPolicyParam{
+						SourceVolumeId:            v,
+						AutoSnapshotRemovalAction: plan.RemoveMode.ValueString(),
+					}
+					err2 := r.system.UnassignVolumeFromSnapshotPolicy(payload2, snapID)
+					if err2 != nil {
+						resp.Diagnostics.AddError(
+							"Error unassigning volume from snapshot policy",
+							"Error unassigning volume from snapshot policy: "+err2.Error(),
+						)
+						return
+					}
+				}
+				err := r.system.RemoveSnapshotPolicy(snapID)
+				if err != nil {
+					resp.Diagnostics.AddError(
+						"Error Deleting Snapshot Policy",
+						"Couldn't Delete Snapshot Policy"+err.Error(),
+					)
+					return
+				}
+			}
 			resp.Diagnostics.AddError(
 				"Error assigning volume to snapshot policy",
 				"Error assigning volume to snapshot policy: "+err2.Error(),
 			)
+			return
+		} else {
+			mappedVols = append(mappedVols, v)
 		}
 	}
 
@@ -143,9 +172,6 @@ func (r *snapshotPolicyResource) Create(ctx context.Context, req resource.Create
 		)
 		return
 	}
-	// updating the detils to the state
-	state := helper.UpdateSnapshotPolicyResourceState(response)
-
 	// fetching the list of volumes assigned to a snaphot policy
 	volumes, err := r.system.GetSourceVolume(snapID)
 	if err != nil {
@@ -155,12 +181,10 @@ func (r *snapshotPolicyResource) Create(ctx context.Context, req resource.Create
 		)
 		return
 	}
-
-	// upadting the list of volumes assinged to the state
-	for _, v := range volumes {
-		state.VolumeId = append(state.VolumeId, types.StringValue(v.ID))
-	}
-
+	// updating the detils to the state
+	var state models.SnapshotPolicyResourceModel
+	state = helper.UpdateSnapshotPolicyResourceState(response, volumes, &state)
+	state.RemoveMode = plan.RemoveMode
 	//setting the state
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
@@ -179,7 +203,7 @@ func (r *snapshotPolicyResource) Read(ctx context.Context, req resource.ReadRequ
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
+	// Get the details of the snapshot policy
 	sp, err := r.client.GetSnapshotPolicy("", state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -188,8 +212,7 @@ func (r *snapshotPolicyResource) Read(ctx context.Context, req resource.ReadRequ
 		)
 		return
 	}
-	state = helper.UpdateSnapshotPolicyResourceState(sp)
-
+	// get the volumes assigned to snapshot policy
 	volumes, err := r.system.GetSourceVolume(state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -198,12 +221,7 @@ func (r *snapshotPolicyResource) Read(ctx context.Context, req resource.ReadRequ
 		)
 		return
 	}
-	stringListVol := helper.ListToSliceVol(state)
-	for _, v := range volumes {
-		if helper.Contains(stringListVol, v.ID) == false {
-			state.VolumeId = append(state.VolumeId, types.StringValue(v.ID))
-		}
-	}
+	state = helper.UpdateSnapshotPolicyResourceState(sp, volumes, &state)
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
@@ -320,15 +338,8 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 	planVolList = helper.ListToSliceVol(plan)
 	stateVolList = helper.ListToSliceVol(state)
 
-	mapVolIds, unmapVolIds, _ := helper.DifferenceArray(stateVolList, planVolList)
+	mapVolIds, unmapVolIds := helper.DifferenceArray(stateVolList, planVolList)
 
-	if len(unmapVolIds) == 0 && !plan.RemoveMode.IsNull() {
-		resp.Diagnostics.AddError(
-			"Remove mode must only be present while unassigning the volumes from snapshot policy",
-			"Remove mode is only used for unassigning the volumes from snapshot policy.",
-		)
-		return
-	}
 	if len(unmapVolIds) > 0 {
 		if !plan.RemoveMode.IsNull() {
 			for _, v := range unmapVolIds {
@@ -345,11 +356,19 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 				}
 			}
 		} else {
-			resp.Diagnostics.AddError(
-				"Missing Remove mode",
-				"Missing Remove mode",
-			)
-			return
+			for _, v := range unmapVolIds {
+				payload2 := &scaleiotypes.AssignVolumeToSnapshotPolicyParam{
+					SourceVolumeId:            v,
+					AutoSnapshotRemovalAction: state.RemoveMode.ValueString(),
+				}
+				err2 := r.system.UnassignVolumeFromSnapshotPolicy(payload2, state.ID.ValueString())
+				if err2 != nil {
+					resp.Diagnostics.AddError(
+						"Error unassigning volume from snapshot policy",
+						"Error unassigning volume from snapshot policy: "+err2.Error(),
+					)
+				}
+			}
 		}
 	}
 	if len(mapVolIds) > 0 {
@@ -375,8 +394,6 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 		)
 		return
 	}
-
-	state = helper.UpdateSnapshotPolicyResourceState(response)
 	volumes, err := r.system.GetSourceVolume(state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -385,10 +402,7 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 		)
 		return
 	}
-
-	for _, v := range volumes {
-		state.VolumeId = append(state.VolumeId, types.StringValue(v.ID))
-	}
+	state = helper.UpdateSnapshotPolicyResourceState(response, volumes, &state)
 
 	if !plan.RemoveMode.IsNull() {
 		state.RemoveMode = plan.RemoveMode
@@ -417,7 +431,7 @@ func (r *snapshotPolicyResource) Delete(ctx context.Context, req resource.Delete
 		for _, v := range stateVolList {
 			payload2 := &scaleiotypes.AssignVolumeToSnapshotPolicyParam{
 				SourceVolumeId:            v,
-				AutoSnapshotRemovalAction: "Detach",
+				AutoSnapshotRemovalAction: state.RemoveMode.ValueString(),
 			}
 			err2 := r.system.UnassignVolumeFromSnapshotPolicy(payload2, state.ID.ValueString())
 			if err2 != nil {
