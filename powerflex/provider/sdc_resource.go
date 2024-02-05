@@ -26,7 +26,6 @@ import (
 	"terraform-provider-powerflex/powerflex/models"
 
 	"github.com/dell/goscaleio"
-	goscaleio_types "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -78,6 +77,51 @@ func (r *sdcResource) Configure(_ context.Context, req resource.ConfigureRequest
 	}
 }
 
+// ModifyPlan modify resource plan attribute value
+func (d *sdcResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	if req.Plan.Raw.IsNull() {
+		return
+	}
+	var plan models.SdcResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+
+	planSdcs := make([]models.SDCDetailDataModel, 0)
+	diags.Append(plan.SDCDetails.ElementsAs(ctx, &planSdcs, true)...)
+
+	for index, sdc := range planSdcs {
+		if !sdc.SDCID.IsNull() {
+			system, err := helper.GetFirstSystem(d.client)
+
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"Error in getting system instance on the PowerFlex cluster",
+					err.Error(),
+				)
+				return
+			}
+
+			sdcData, err := system.GetSdcByID(sdc.SDCID.ValueString())
+
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"[Read] Unable to Find SDC by ID:"+sdc.SDCID.ValueString(),
+					err.Error(),
+				)
+				return
+			}
+			planSdcs[index].IP = types.StringValue(sdcData.Sdc.SdcIP)
+		}
+	}
+
+	sdcList, dgs := helper.GetSdcsValue(planSdcs)
+	diags.Append(dgs...)
+	plan.SDCDetails = sdcList
+
+	diags = resp.Plan.Set(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+}
+
 // Create - function to Create for SDC resource.
 func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "[POWERFLEX] Create")
@@ -105,32 +149,11 @@ func (r *sdcResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
-	var chnagedSDCs []models.SDCDetailDataModel
+	var chnagedSDCs []models.SDCStateDataModel
 
-	if plan.ID.ValueString() != "" {
+	if len(sdcDetailList) > 0 {
 
-		finalSDC, err := system.GetSdcByID(plan.ID.ValueString())
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Read Changed SDC",
-				err.Error(),
-			)
-			return
-		}
-
-		changedSDCDetail := helper.GetSDCState(*finalSDC.Sdc, models.SDCDetailDataModel{})
-
-		chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
-
-		data, dgs := helper.UpdateState(chnagedSDCs, plan)
-		resp.Diagnostics.Append(dgs...)
-
-		diags = resp.State.Set(ctx, data)
-		resp.Diagnostics.Append(diags...)
-
-	} else if len(sdcDetailList) > 0 {
-
-		resp.Diagnostics.Append(r.SDCExpansionOperations(ctx, plan, system, sdcDetailList)...)
+		resp.Diagnostics.Append(r.SDCExpansionOperations(ctx, plan, system, sdcDetailList, nil)...)
 		if resp.Diagnostics.HasError() {
 			return
 		}
@@ -164,8 +187,8 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	sdcDetailList := []models.SDCDetailDataModel{}
-	diags = state.SDCDetails.ElementsAs(ctx, &sdcDetailList, true)
+	sdcStateList := []models.SDCStateDataModel{}
+	diags = state.SDCStateDetails.ElementsAs(ctx, &sdcStateList, true)
 	resp.Diagnostics.Append(diags...)
 
 	system, err := helper.GetFirstSystem(r.client)
@@ -177,7 +200,7 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	var chnagedSDCs []models.SDCDetailDataModel
+	var chnagedSDCs []models.SDCStateDataModel
 
 	//For handling the import case
 	if state.ID.ValueString() != "" && state.ID.ValueString() != "placeholder" {
@@ -194,64 +217,56 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 			}
 
 			if sdcData != nil {
-				changedSDCDetail := helper.GetSDCState(*sdcData.Sdc, models.SDCDetailDataModel{})
+				changedSDCDetail := helper.GetSDCState(*sdcData.Sdc)
 
 				chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 			}
 		}
-	} else if len(sdcDetailList) > 0 {
+	} else if len(sdcStateList) > 0 {
 
 		//For handling the multiple sdc_details update
-		for _, sdc := range sdcDetailList {
-
+		for _, sdc := range sdcStateList {
 			var sdcData *goscaleio.Sdc
 
-			if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") {
+			if sdc.SDCID.ValueString() != "" {
+				sdcData, err = system.GetSdcByID(sdc.SDCID.ValueString())
 
-				if sdc.SDCID.ValueString() != "" {
-					sdcData, err = system.GetSdcByID(sdc.SDCID.ValueString())
-
-					if err != nil {
-						resp.Diagnostics.AddError(
-							"[Read] Unable to Find SDC by ID:"+sdc.SDCID.ValueString(),
-							err.Error(),
-						)
-					}
-				} else if sdc.IP.ValueString() != "" {
-					sdcData, err = system.FindSdc("SdcIP", sdc.IP.ValueString())
-
-					if err != nil {
-						resp.Diagnostics.AddError(
-							"[Read] Unable to Find SDC by IP:"+sdc.IP.ValueString(),
-							err.Error(),
-						)
-					}
-				} else if sdc.SDCName.ValueString() != "" {
-					sdcData, err = system.FindSdc("Name", sdc.SDCName.ValueString())
-
-					if err != nil {
-						resp.Diagnostics.AddError(
-							"[Read] Unable to Find SDC by Name:"+sdc.SDCName.ValueString(),
-							err.Error(),
-						)
-					}
+				if err != nil {
+					resp.Diagnostics.AddError(
+						"[Read] Unable to Find SDC by ID:"+sdc.SDCID.ValueString(),
+						err.Error(),
+					)
 				}
+			} else if sdc.IP.ValueString() != "" {
+				sdcData, err = system.FindSdc("SdcIP", sdc.IP.ValueString())
 
-				if sdcData != nil {
-					changedSDCDetail := helper.GetSDCState(*sdcData.Sdc, sdc)
-
-					chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
+				if err != nil {
+					resp.Diagnostics.AddError(
+						"[Read] Unable to Find SDC by IP:"+sdc.IP.ValueString(),
+						err.Error(),
+					)
 				}
-			} else {
-				changedSDCDetail := helper.GetSDCState(goscaleio_types.Sdc{}, sdc)
+			} else if sdc.SDCName.ValueString() != "" {
+				sdcData, err = system.FindSdc("Name", sdc.SDCName.ValueString())
+
+				if err != nil {
+					resp.Diagnostics.AddError(
+						"[Read] Unable to Find SDC by Name:"+sdc.SDCName.ValueString(),
+						err.Error(),
+					)
+				}
+			}
+
+			if sdcData != nil {
+				changedSDCDetail := helper.GetSDCState(*sdcData.Sdc)
 
 				chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 			}
 		}
-	} else {
+	} else if state.ID.ValueString() == "" {
 		resp.Diagnostics.AddError("[Read] Please provide valid SDC ID", "Please provide valid SDC ID")
-
 		return
+	} else if len(sdcStateList) == 0 {
 	}
 
 	data, dgs := helper.UpdateState(chnagedSDCs, state)
@@ -288,8 +303,8 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	diags = plan.SDCDetails.ElementsAs(ctx, &planSdcDetailList, true)
 	resp.Diagnostics.Append(diags...)
 
-	stateSdcDetailList := []models.SDCDetailDataModel{}
-	diags = state.SDCDetails.ElementsAs(ctx, &stateSdcDetailList, true)
+	stateSdcDetailList := []models.SDCStateDataModel{}
+	diags = state.SDCStateDetails.ElementsAs(ctx, &stateSdcDetailList, true)
 	resp.Diagnostics.Append(diags...)
 
 	if err != nil {
@@ -300,54 +315,26 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		return
 	}
 
-	var chnagedSDCs []models.SDCDetailDataModel
-
+	var chnagedSDCs []models.SDCStateDataModel
 	deletedSDC := helper.FindDeletedSDC(stateSdcDetailList, planSdcDetailList)
 
 	if len(deletedSDC) > 0 {
-
 		for _, sdc := range deletedSDC {
+			err := system.DeleteSdc(sdc.SDCID.ValueString())
 
-			if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") {
-				err := system.DeleteSdc(sdc.SDCID.ValueString())
-
-				if err != nil {
-					resp.Diagnostics.AddError(
-						"[Update] Unable to Delete SDC by ID:"+sdc.SDCID.ValueString(),
-						err.Error(),
-					)
-					return
-				}
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"[Update] Unable to Delete SDC by ID:"+sdc.SDCID.ValueString(),
+					err.Error(),
+				)
+				return
 			}
 		}
 	}
 
-	if plan.ID.ValueString() != "" && plan.ID.ValueString() != "placeholder" {
+	if len(planSdcDetailList) > 0 {
 
-		finalSDC, err := system.GetSdcByID(plan.ID.ValueString())
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"[Update] Unable to Read Changed SDC",
-				err.Error(),
-			)
-			return
-		}
-
-		changedSDCDetail := helper.GetSDCState(*finalSDC.Sdc, models.SDCDetailDataModel{})
-
-		chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
-
-		data, dgs := helper.UpdateState(chnagedSDCs, plan)
-		resp.Diagnostics.Append(dgs...)
-
-		diags = resp.State.Set(ctx, data)
-		resp.Diagnostics.Append(diags...)
-
-		return
-
-	} else if len(planSdcDetailList) > 0 {
-
-		resp.Diagnostics.Append(r.SDCExpansionOperations(ctx, plan, system, planSdcDetailList)...)
+		resp.Diagnostics.Append(r.SDCExpansionOperations(ctx, plan, system, planSdcDetailList, stateSdcDetailList)...)
 		if resp.Diagnostics.HasError() {
 
 			//Handling the existing state file data
@@ -357,14 +344,10 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 					sdcData, _ := system.FindSdc("SdcIP", sdc.IP.ValueString())
 
 					if sdcData != nil {
-						changedSDCDetail := helper.GetSDCState(*sdcData.Sdc, sdc)
+						changedSDCDetail := helper.GetSDCState(*sdcData.Sdc)
 
 						chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 					}
-				} else {
-					changedSDCDetail := helper.GetSDCState(goscaleio_types.Sdc{}, sdc)
-
-					chnagedSDCs = append(chnagedSDCs, changedSDCDetail)
 				}
 			}
 
@@ -389,6 +372,9 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 		return
 	} else {
+		plan.SDCStateDetails = types.ListNull(types.ObjectType{
+			AttrTypes: helper.GetSDCStateDetailType(),
+		})
 		diags = resp.State.Set(ctx, plan)
 		resp.Diagnostics.Append(diags...)
 
@@ -406,8 +392,8 @@ func (r *sdcResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 		return
 	}
 
-	sdcDetailList := []models.SDCDetailDataModel{}
-	diags = state.SDCDetails.ElementsAs(ctx, &sdcDetailList, true)
+	sdcDetailList := []models.SDCStateDataModel{}
+	diags = state.SDCStateDetails.ElementsAs(ctx, &sdcDetailList, true)
 	resp.Diagnostics.Append(diags...)
 
 	system, err := helper.GetFirstSystem(r.client)
@@ -421,17 +407,15 @@ func (r *sdcResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 	}
 
 	for _, sdc := range sdcDetailList {
-		if !strings.EqualFold(sdc.IsSdc.ValueString(), "No") {
 
-			err := system.DeleteSdc(sdc.SDCID.ValueString())
+		err := system.DeleteSdc(sdc.SDCID.ValueString())
 
-			if err != nil {
-				resp.Diagnostics.AddError(
-					"[Delete] Unable to Delete SDC by ID:"+sdc.SDCID.ValueString(),
-					err.Error(),
-				)
-				return
-			}
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"[Delete] Unable to Delete SDC by ID:"+sdc.SDCID.ValueString(),
+				err.Error(),
+			)
+			return
 		}
 	}
 
@@ -446,9 +430,9 @@ func (r *sdcResource) ImportState(ctx context.Context, req resource.ImportStateR
 }
 
 // SDCExpansionOperations function for the SDC Expansion Operation Like ParseCSV, Validate MDM and Installation
-func (r *sdcResource) SDCExpansionOperations(ctx context.Context, plan models.SdcResourceModel, system *goscaleio.System, sdcDetails []models.SDCDetailDataModel) (dia diag.Diagnostics) {
+func (r *sdcResource) SDCExpansionOperations(ctx context.Context, plan models.SdcResourceModel, system *goscaleio.System, sdcDetails []models.SDCDetailDataModel, sdcStateDetails []models.SDCStateDataModel) (dia diag.Diagnostics) {
 
-	if helper.CheckForExpansion(sdcDetails) {
+	if helper.CheckForExpansion(sdcDetails, sdcStateDetails) {
 		parsecsvRespose, parseCSVError := helper.ParseCSVOperation(ctx, sdcDetails, r.gatewayClient)
 
 		if parseCSVError != nil {
@@ -520,7 +504,7 @@ func (r *sdcResource) SDCExpansionOperations(ctx context.Context, plan models.Sd
 }
 
 // UpdateSDCNamdPerfProfileOperations function for Update Name and Performance Profile of SDC
-func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sdcDetailList []models.SDCDetailDataModel, system *goscaleio.System, chnagedSDCs *[]models.SDCDetailDataModel) (dia diag.Diagnostics) {
+func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sdcDetailList []models.SDCDetailDataModel, system *goscaleio.System, chnagedSDCs *[]models.SDCStateDataModel) (dia diag.Diagnostics) {
 
 	for _, sdc := range sdcDetailList {
 
@@ -535,7 +519,7 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 			}
 
 			if sdcData != nil {
-				changedSDCDetail := helper.GetSDCState(*sdcData.Sdc, sdc)
+				changedSDCDetail := helper.GetSDCState(*sdcData.Sdc)
 
 				*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
 			}
@@ -607,16 +591,9 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 			}
 
 			if finalSDC != nil {
-				changedSDCDetail := helper.GetSDCState(*finalSDC.Sdc, sdc)
-
+				changedSDCDetail := helper.GetSDCState(*finalSDC.Sdc)
 				*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
 			}
-		} else if strings.EqualFold(sdc.IsSdc.ValueString(), "No") {
-
-			changedSDCDetail := helper.GetSDCState(goscaleio_types.Sdc{}, sdc)
-
-			*chnagedSDCs = append(*chnagedSDCs, changedSDCDetail)
-
 		}
 	}
 

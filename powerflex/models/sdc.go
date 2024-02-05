@@ -76,10 +76,11 @@ var SdcResourceSchemaDescriptions = struct {
 
 // SdcResourceModel struct for CSV Data Processing
 type SdcResourceModel struct {
-	ID          types.String `tfsdk:"id"`
-	SDCDetails  types.List   `tfsdk:"sdc_details"`
-	MdmPassword types.String `tfsdk:"mdm_password"`
-	LiaPassword types.String `tfsdk:"lia_password"`
+	ID              types.String `tfsdk:"id"`
+	SDCDetails      types.List   `tfsdk:"sdc_details"`
+	SDCStateDetails types.List   `tfsdk:"sdc_state_details"`
+	MdmPassword     types.String `tfsdk:"mdm_password"`
+	LiaPassword     types.String `tfsdk:"lia_password"`
 }
 
 // SDCDetailDataModel defines the struct for CSV Parse Data
@@ -93,6 +94,14 @@ type SDCDetailDataModel struct {
 	IsSdc              types.String `tfsdk:"is_sdc"`
 	PerformanceProfile types.String `tfsdk:"performance_profile"`
 	SDCName            types.String `tfsdk:"name"`
+}
+
+type SDCStateDataModel struct {
+	SDCID              types.String `tfsdk:"sdc_id"`
+	IP                 types.String `tfsdk:"ip"`
+	OperatingSystem    types.String `tfsdk:"operating_system"`
+	PerformanceProfile types.String `tfsdk:"performance_profile"`
+	SDCName            types.String `tfsdk:"name"`
 	SystemID           types.String `tfsdk:"system_id"`
 	SdcApproved        types.Bool   `tfsdk:"sdc_approved"`
 	OnVMWare           types.Bool   `tfsdk:"on_vmware"`
@@ -100,7 +109,7 @@ type SDCDetailDataModel struct {
 	MdmConnectionState types.String `tfsdk:"mdm_connection_state"`
 }
 
-// CsvRow desfines the srtuct for the CSV Data
+// CsvRow desfines the struct for the CSV Data
 type CsvRow struct {
 	IP                 string
 	UserName           string
