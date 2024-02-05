@@ -96,6 +96,7 @@ type SDCDetailDataModel struct {
 	SDCName            types.String `tfsdk:"name"`
 }
 
+// SDCStateDataModel defines the struct SDC state
 type SDCStateDataModel struct {
 	SDCID              types.String `tfsdk:"sdc_id"`
 	IP                 types.String `tfsdk:"ip"`

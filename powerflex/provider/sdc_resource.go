@@ -78,7 +78,7 @@ func (r *sdcResource) Configure(_ context.Context, req resource.ConfigureRequest
 }
 
 // ModifyPlan modify resource plan attribute value
-func (d *sdcResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+func (r *sdcResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
 	if req.Plan.Raw.IsNull() {
 		return
 	}
@@ -91,7 +91,7 @@ func (d *sdcResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReq
 
 	for index, sdc := range planSdcs {
 		if !sdc.SDCID.IsNull() {
-			system, err := helper.GetFirstSystem(d.client)
+			system, err := helper.GetFirstSystem(r.client)
 
 			if err != nil {
 				resp.Diagnostics.AddError(
@@ -371,15 +371,17 @@ func (r *sdcResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		tflog.Info(ctx, "SDC Details updated to state file successfully")
 
 		return
-	} else {
-		plan.SDCStateDetails = types.ListNull(types.ObjectType{
-			AttrTypes: helper.GetSDCStateDetailType(),
-		})
-		diags = resp.State.Set(ctx, plan)
-		resp.Diagnostics.Append(diags...)
-
-		tflog.Info(ctx, "SDC Details deleted from state file successfully")
 	}
+
+	// This code addresses the scenario when all SDCs needs to be deleted
+	plan.SDCStateDetails = types.ListNull(types.ObjectType{
+		AttrTypes: helper.GetSDCStateDetailType(),
+	})
+	diags = resp.State.Set(ctx, plan)
+	resp.Diagnostics.Append(diags...)
+
+	tflog.Info(ctx, "SDC Details deleted from state file successfully")
+
 }
 
 // Delete - function to Delete for SDC resource.
