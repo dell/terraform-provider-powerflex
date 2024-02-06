@@ -266,7 +266,6 @@ func (r *sdcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	} else if state.ID.ValueString() == "" {
 		resp.Diagnostics.AddError("[Read] Please provide valid SDC ID", "Please provide valid SDC ID")
 		return
-	} else if len(sdcStateList) == 0 {
 	}
 
 	data, dgs := helper.UpdateState(chnagedSDCs, state)
