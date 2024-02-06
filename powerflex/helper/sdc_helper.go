@@ -95,13 +95,24 @@ func GetAllSdcState(ctx context.Context, client goscaleio.Client, sdcs []goscale
 // GetSDCDetailType returns the SDC Detail type
 func GetSDCDetailType() map[string]attr.Type {
 	return map[string]attr.Type{
+		"ip":                  types.StringType,
+		"username":            types.StringType,
+		"password":            types.StringType,
+		"operating_system":    types.StringType,
+		"is_mdm_or_tb":        types.StringType,
+		"is_sdc":              types.StringType,
+		"performance_profile": types.StringType,
+		"sdc_id":              types.StringType,
+		"name":                types.StringType,
+	}
+}
+
+// GetSDCStateDetailType returns the SDC Detail type
+func GetSDCStateDetailType() map[string]attr.Type {
+	return map[string]attr.Type{
 		"sdc_id":               types.StringType,
 		"ip":                   types.StringType,
-		"username":             types.StringType,
-		"password":             types.StringType,
 		"operating_system":     types.StringType,
-		"is_mdm_or_tb":         types.StringType,
-		"is_sdc":               types.StringType,
 		"performance_profile":  types.StringType,
 		"name":                 types.StringType,
 		"system_id":            types.StringType,
@@ -112,18 +123,14 @@ func GetSDCDetailType() map[string]attr.Type {
 	}
 }
 
-// GetSDCDetailValue returns the SDC Detail model object value
-func GetSDCDetailValue(sdc models.SDCDetailDataModel) (basetypes.ObjectValue, diag.Diagnostics) {
-	return types.ObjectValue(GetSDCDetailType(), map[string]attr.Value{
-		"sdc_id":               types.StringValue(sdc.SDCID.ValueString()),
+// GetSDCStateDetailValue returns the SDC state detail object
+func GetSDCStateDetailValue(sdc models.SDCStateDataModel) (basetypes.ObjectValue, diag.Diagnostics) {
+	return types.ObjectValue(GetSDCStateDetailType(), map[string]attr.Value{
 		"ip":                   types.StringValue(sdc.IP.ValueString()),
-		"username":             types.StringValue(sdc.UserName.ValueString()),
-		"password":             types.StringValue(sdc.Password.ValueString()),
 		"operating_system":     types.StringValue(sdc.OperatingSystem.ValueString()),
-		"is_mdm_or_tb":         types.StringValue(sdc.IsMdmOrTb.ValueString()),
-		"is_sdc":               types.StringValue(sdc.IsSdc.ValueString()),
 		"performance_profile":  types.StringValue(sdc.PerformanceProfile.ValueString()),
 		"name":                 types.StringValue(sdc.SDCName.ValueString()),
+		"sdc_id":               types.StringValue(sdc.SDCID.ValueString()),
 		"system_id":            types.StringValue(sdc.SystemID.ValueString()),
 		"sdc_approved":         types.BoolValue(sdc.SdcApproved.ValueBool()),
 		"on_vmware":            types.BoolValue(sdc.OnVMWare.ValueBool()),
@@ -132,12 +139,27 @@ func GetSDCDetailValue(sdc models.SDCDetailDataModel) (basetypes.ObjectValue, di
 	})
 }
 
+// GetSDCDetailValue returns the SDC detail object
+func GetSDCDetailValue(sdc models.SDCDetailDataModel) (basetypes.ObjectValue, diag.Diagnostics) {
+	return types.ObjectValue(GetSDCDetailType(), map[string]attr.Value{
+		"ip":                  types.StringValue(sdc.IP.ValueString()),
+		"username":            types.StringValue(sdc.UserName.ValueString()),
+		"password":            types.StringValue(sdc.Password.ValueString()),
+		"operating_system":    types.StringValue(sdc.OperatingSystem.ValueString()),
+		"is_mdm_or_tb":        types.StringValue(sdc.IsMdmOrTb.ValueString()),
+		"is_sdc":              types.StringValue(sdc.IsSdc.ValueString()),
+		"performance_profile": types.StringValue(sdc.PerformanceProfile.ValueString()),
+		"name":                types.StringValue(sdc.SDCName.ValueString()),
+		"sdc_id":              types.StringValue(sdc.SDCID.ValueString()),
+	})
+}
+
 // UpdateState - function to update state file for SDC resource.
-func UpdateState(sdcs []models.SDCDetailDataModel, plan models.SdcResourceModel) (models.SdcResourceModel, diag.Diagnostics) {
+func UpdateState(sdcs []models.SDCStateDataModel, plan models.SdcResourceModel) (models.SdcResourceModel, diag.Diagnostics) {
 	state := plan
 	var diags diag.Diagnostics
 
-	SDCAttrTypes := GetSDCDetailType()
+	SDCAttrTypes := GetSDCStateDetailType()
 
 	SDCElemType := types.ObjectType{
 		AttrTypes: SDCAttrTypes,
@@ -145,20 +167,15 @@ func UpdateState(sdcs []models.SDCDetailDataModel, plan models.SdcResourceModel)
 
 	objectSDCs := []attr.Value{}
 	for _, sdc := range sdcs {
-		objVal, dgs := GetSDCDetailValue(sdc)
+		objVal, dgs := GetSDCStateDetailValue(sdc)
 		diags = append(diags, dgs...)
 		objectSDCs = append(objectSDCs, objVal)
 	}
 	setSdcs, dgs := types.ListValue(SDCElemType, objectSDCs)
 	diags = append(diags, dgs...)
 
-	state.SDCDetails = setSdcs
-
-	if plan.ID.ValueString() != "" && len(strings.Split(plan.ID.ValueString(), ",")) == 1 {
-		state.ID = plan.ID
-	} else {
-		state.ID = types.StringValue("placeholder")
-	}
+	state.SDCStateDetails = setSdcs
+	state.ID = types.StringValue("placeholder")
 
 	return state, diags
 }
@@ -177,11 +194,16 @@ func GetMDMIP(ctx context.Context, sdcDetails []models.SDCDetailDataModel) (stri
 }
 
 // CheckForExpansion function is used for check for expansion
-func CheckForExpansion(model []models.SDCDetailDataModel) bool {
+func CheckForExpansion(model []models.SDCDetailDataModel, stateSDCDetails []models.SDCStateDataModel) bool {
 	performaneChangeSdc := false
+	checkIP := make(map[string]bool)
+
+	for _, element := range stateSDCDetails {
+		checkIP[element.IP.ValueString()] = true
+	}
 
 	for _, item := range model {
-		if item.Password.ValueString() != "" && strings.EqualFold(item.IsSdc.ValueString(), "Yes") {
+		if item.Password.ValueString() != "" && !checkIP[item.IP.ValueString()] && strings.EqualFold(item.IsSdc.ValueString(), "Yes") {
 			performaneChangeSdc = true
 			break
 		}
@@ -389,36 +411,19 @@ func CheckForNewSDCIPs(newSDCIPS []string, installedSDCIPs []string) bool {
 }
 
 // GetSDCState - function to return sdc result from goscaleio.
-func GetSDCState(sdc goscaleio_types.Sdc, model models.SDCDetailDataModel) (response models.SDCDetailDataModel) {
+func GetSDCState(sdc goscaleio_types.Sdc) models.SDCStateDataModel {
+	var model models.SDCStateDataModel
 
-	if sdc.ID != "" {
-		model.SDCID = types.StringValue(sdc.ID)
-
-		model.SDCName = types.StringValue(sdc.Name)
-
-		if sdc.SdcGUID != "" {
-			model.SdcGUID = types.StringValue(sdc.SdcGUID)
-		}
-
-		model.SdcApproved = types.BoolValue(sdc.SdcApproved)
-
-		model.OnVMWare = types.BoolValue(sdc.OnVMWare)
-
-		if sdc.SystemID != "" {
-			model.SystemID = types.StringValue(sdc.SystemID)
-		}
-
-		model.PerformanceProfile = types.StringValue(sdc.PerfProfile)
-
-		if sdc.SdcIP != "" {
-			model.IP = types.StringValue(sdc.SdcIP)
-		}
-
-		if sdc.MdmConnectionState != "" {
-			model.MdmConnectionState = types.StringValue(sdc.MdmConnectionState)
-		}
-	}
-
+	model.OperatingSystem = types.StringValue(sdc.OSType)
+	model.SDCID = types.StringValue(sdc.ID)
+	model.SDCName = types.StringValue(sdc.Name)
+	model.SdcGUID = types.StringValue(sdc.SdcGUID)
+	model.SdcApproved = types.BoolValue(sdc.SdcApproved)
+	model.OnVMWare = types.BoolValue(sdc.OnVMWare)
+	model.SystemID = types.StringValue(sdc.SystemID)
+	model.PerformanceProfile = types.StringValue(sdc.PerfProfile)
+	model.IP = types.StringValue(sdc.SdcIP)
+	model.MdmConnectionState = types.StringValue(sdc.MdmConnectionState)
 	return model
 }
 
@@ -435,20 +440,28 @@ func CheckForSDCName(system *goscaleio.System, sdcDetail models.SDCDetailDataMod
 }
 
 // FindDeletedSDC function to find deleted SDC Details in Plan
-func FindDeletedSDC(state, plan []models.SDCDetailDataModel) []models.SDCDetailDataModel {
-	difference := []models.SDCDetailDataModel{}
+func FindDeletedSDC(state []models.SDCStateDataModel, plan []models.SDCDetailDataModel) []models.SDCStateDataModel {
+	difference := []models.SDCStateDataModel{}
+	checkID := make(map[string]bool)
+	checkIP := make(map[string]bool)
+
+	for _, element := range state {
+		checkID[element.SDCID.ValueString()] = true
+		checkIP[element.IP.ValueString()] = true
+	}
 
 	for _, obj1 := range state {
 		found := false
 		for _, obj2 := range plan {
-			if obj2.IP.ValueString() != "" && obj1.IP == obj2.IP {
+			if obj2.IP.ValueString() != "" && checkIP[obj2.IP.ValueString()] {
 				found = true
+				delete(checkIP, obj2.IP.ValueString())
+				delete(checkID, obj2.SDCID.ValueString())
 				break
-			} else if obj2.SDCID.ValueString() != "" && obj1.SDCID == obj2.SDCID {
+			} else if obj2.SDCID.ValueString() != "" && checkID[obj2.SDCID.ValueString()] {
 				found = true
-				break
-			} else if obj2.SDCName.ValueString() != "" && obj1.SDCName == obj2.SDCName {
-				found = true
+				delete(checkIP, obj2.IP.ValueString())
+				delete(checkID, obj2.SDCID.ValueString())
 				break
 			}
 		}
@@ -458,4 +471,33 @@ func FindDeletedSDC(state, plan []models.SDCDetailDataModel) []models.SDCDetailD
 	}
 
 	return difference
+}
+
+// GetSdcsValue returns the SDC list for the plan
+func GetSdcsValue(planSdcs []models.SDCDetailDataModel) (basetypes.ListValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	sdcInfoElemType := types.ObjectType{
+		AttrTypes: GetSDCDetailType(),
+	}
+
+	objectSdcInfos := []attr.Value{}
+	for _, sdc := range planSdcs {
+		obj := map[string]attr.Value{
+			"ip":                  sdc.IP,
+			"username":            sdc.UserName,
+			"password":            sdc.Password,
+			"operating_system":    sdc.OperatingSystem,
+			"is_mdm_or_tb":        sdc.IsMdmOrTb,
+			"is_sdc":              sdc.IsSdc,
+			"performance_profile": sdc.PerformanceProfile,
+			"sdc_id":              sdc.SDCID,
+			"name":                sdc.SDCName,
+		}
+		objVal, dgs := types.ObjectValue(GetSDCDetailType(), obj)
+		diags = append(diags, dgs...)
+		objectSdcInfos = append(objectSdcInfos, objVal)
+	}
+	sdcInfoVal, dgs := types.ListValue(sdcInfoElemType, objectSdcInfos)
+	diags = append(diags, dgs...)
+	return sdcInfoVal, diags
 }
