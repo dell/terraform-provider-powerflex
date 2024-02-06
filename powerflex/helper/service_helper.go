@@ -34,7 +34,8 @@ func GetServiceState(input *scaleiotypes.ServiceResponse) models.ServiceResource
 		Status:                types.StringValue(input.Status),
 		Nodes:                 types.Int64Value(int64(input.ServiceTemplate.ServerCount)),
 		Compliant:             types.BoolValue(input.Compliant),
-		TemplateId:            types.StringValue(input.ServiceTemplate.ID),
+		TemplateId:            types.StringValue(input.ServiceTemplate.OriginalTemplateID),
+		TemplateName:          types.StringValue(input.ServiceTemplate.TemplateName),
 		FirmwareId:            types.StringValue(input.FirmwareRepository.ID),
 	}
 }

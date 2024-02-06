@@ -102,7 +102,7 @@ func (r *serviceResource) Create(ctx context.Context, req resource.CreateRequest
 
 	couterForStopExecution := 0
 
-	deadLineCount := 60 / 12 //TODO
+	deadLineCount := 60 / 5 //TODO
 
 	for couterForStopExecution <= deadLineCount {
 
@@ -110,7 +110,7 @@ func (r *serviceResource) Create(ctx context.Context, req resource.CreateRequest
 
 		tflog.Info(ctx, "Service Details updated to state file successfully")
 
-		deploymentResponse, err = r.gatewayClient.GetServiceDetailsByID(deploymentID)
+		deploymentResponse, err = r.gatewayClient.GetServiceDetailsByID(deploymentID, true)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error in getting service details",
@@ -155,7 +155,7 @@ func (r *serviceResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	//For handling the import case
 	if state.ID.ValueString() != "" && state.ID.ValueString() != "placeholder" {
-		deploymentResponse, err := r.gatewayClient.GetServiceDetailsByID(state.ID.ValueString())
+		deploymentResponse, err := r.gatewayClient.GetServiceDetailsByID(state.ID.ValueString(), false)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error in getting service details",
@@ -214,16 +214,14 @@ func (r *serviceResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	// err := r.gatewayClient.(sdc.SDCID.ValueString())
-
-	// if err != nil {
-	// 	resp.Diagnostics.AddError(
-	// 		"[Delete] Unable to Delete SDC by ID:"+sdc.SDCID.ValueString(),
-	// 		err.Error(),
-	// 	)
-	// 	return
-	// }
-
+	_, err := r.gatewayClient.DeleteService(state.ID.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error in Deleting service details",
+			err.Error(),
+		)
+		return
+	}
 	resp.State.RemoveResource(ctx)
 
 }
