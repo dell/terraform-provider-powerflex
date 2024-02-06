@@ -54,61 +54,6 @@ func TestAccSnapshotPolicyResource(t *testing.T) {
 	})
 }
 
-func TestAccSnapshotPolicyResourceUpadte(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Create snapshot policy
-			{
-				Config: ProviderConfigForTesting + SPResourceCreateWithVol,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_snapshot_policy.avengers-sp-create", "name", "snap-create-test"),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + SPResourceCreateWithVolUpdate,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_snapshot_policy.avengers-sp-create", "name", "snap-upadte-test"),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + SPResourceCreateWithVolUpdate2,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_snapshot_policy.avengers-sp-create", "name", "snap-upadte-test"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccSnapshotPolicyResourceCreateFail(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Create snapshot policy
-			{
-				Config: ProviderConfigForTesting + SPResourceCreateFail,				
-				ExpectError: regexp.MustCompile(`.*Error creating snapshot policy*.`),
-			},
-			{
-				Config: ProviderConfigForTesting + SPResourceCreateWithVolFail,
-				ExpectError: regexp.MustCompile(`.*Error assigning volume to snapshot policy*.`),
-			},
-			{
-				Config: ProviderConfigForTesting + SPResourceCreateWithVolFail2,
-				ExpectError: regexp.MustCompile(`.*Error assigning volume to snapshot policy*.`),
-			},
-		},
-	})
-}
-
-
 func TestAccSnapshotPolicyResourceUpdateFail(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
@@ -155,6 +100,61 @@ func TestAccSnapshotPolicyResourceUpdateFail(t *testing.T) {
 		},
 	})
 }
+
+func TestAccSnapshotPolicyResourceCreateFail(t *testing.T) {
+	if os.Getenv("TF_ACC") == "" {
+		t.Skip("Dont run with units tests because it will try to create the context")
+	}
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Create snapshot policy
+			{
+				Config: ProviderConfigForTesting + SPResourceCreateFail,				
+				ExpectError: regexp.MustCompile(`.*Error creating snapshot policy*.`),
+			},
+			{
+				Config: ProviderConfigForTesting + SPResourceCreateWithVolFail,
+				ExpectError: regexp.MustCompile(`.*Error assigning volume to snapshot policy*.`),
+			},
+			{
+				Config: ProviderConfigForTesting + SPResourceCreateWithVolFail2,
+				ExpectError: regexp.MustCompile(`.*Error assigning volume to snapshot policy*.`),
+			},
+		},
+	})
+}
+
+func TestAccSnapshotPolicyResourceUpadte(t *testing.T) {
+	if os.Getenv("TF_ACC") == "" {
+		t.Skip("Dont run with units tests because it will try to create the context")
+	}
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Create snapshot policy
+			{
+				Config: ProviderConfigForTesting + SPResourceCreateWithVol,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_snapshot_policy.avengers-sp-create", "name", "snap-create-test"),
+				),
+			},
+			{
+				Config: ProviderConfigForTesting + SPResourceCreateWithVolUpdate,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_snapshot_policy.avengers-sp-create", "name", "snap-upadte-test"),
+				),
+			},
+			{
+				Config: ProviderConfigForTesting + SPResourceCreateWithVolUpdate2,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_snapshot_policy.avengers-sp-create", "name", "snap-upadte-test"),
+				),
+			},
+		},
+	})
+}
+
 var SPResourceCreate = `
 resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	name = "snap-create-test"
@@ -195,7 +195,7 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = false
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["edd2fb3100000007","edd2fb3200000008"]
+	volume_ids = ["` + Volume1 + `","` + Volume2 + `"]
   }
 `
 
@@ -207,7 +207,7 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = false
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["edd322270000000a","edd2fb3200000008"]
+	volume_ids = ["` + Volume3 + `","` + Volume2 + `"]
 	remove_mode = "Remove"
   }
 `
@@ -219,7 +219,7 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = false
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["edd2fb3200000008"]
+	volume_ids = ["` + Volume2 + `"]
   }
 `
 var SPResourceCreateFail = `
@@ -241,7 +241,7 @@ resource "powerflex_snapshot_policy" "avengers-sp-create2" {
 	paused = false
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["edd2fb3100000007", "edd2fb3100000010"]
+	volume_ids = ["` + Volume1 + `", "edd2fb3100000010"]
   }
 `
 
@@ -253,7 +253,7 @@ resource "powerflex_snapshot_policy" "avengers-sp-create3" {
 	paused = false
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["Invalid", "edd2fb3100000007"]
+	volume_ids = ["Invalid", "` + Volume1 + `"]
   }
 `
 
@@ -265,7 +265,7 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = true
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["edd2fb3100000007", "edd2fb3200000008"]
+	volume_ids = ["` + Volume1 + `","` + Volume2 + `"]
   }
 `
 
@@ -277,7 +277,7 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = true
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["edd2fb3100000007", "Invalid"]
+	volume_ids = ["` + Volume1 + `", "Invalid"]
   }
 `
 
@@ -289,7 +289,7 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = true
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["edd2fb3100000007", "edd2fb3200000008"]
+	volume_ids = ["` + Volume1 + `","` + Volume2 + `"]
   }
 `
 var SPResourceUpdateWithVolFail4 = `
@@ -300,7 +300,7 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = true
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["edd2fb3100000007", "edd2fb3200000008"]
+	volume_ids = ["` + Volume1 + `","` + Volume2 + `"]
   }
 `
 
@@ -312,7 +312,7 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = true
 	secure_snapshots = true
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["edd2fb3100000007", "edd2fb3200000008"]
+	volume_ids = ["` + Volume1 + `","` + Volume2 + `"]
   }
 `
 
@@ -324,7 +324,7 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = true
 	secure_snapshots = false
 	snapshot_access_mode = "ReadWrite"
-	volume_ids = ["edd2fb3100000007", "edd2fb3200000008"]
+	volume_ids = ["` + Volume1 + `","` + Volume2 + `"]
   }
 `
 
@@ -336,7 +336,7 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = true
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["edd2fb3100000007", "edd2fb3200000008"]
+	volume_ids = ["` + Volume1 + `","` + Volume2 + `"]
   }
 `
 
@@ -348,6 +348,6 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = true
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["edd2fb3100000007", "edd2fb3200000008"]
+	volume_ids = ["` + Volume1 + `","` + Volume2 + `"]
   }
 `
