@@ -76,6 +76,28 @@ resource "powerflex_sds" "create" {
   ]
 }
 
+# Example for adding SDS with fault set. After successful execution, SDS will be added to the protection domain and fault set.
+resource "powerflex_fault_set" "test" {
+  protection_domain_id = "202a046600000000"
+  name                 = "demo_fault_set"
+}
+
+resource "powerflex_sds" "create" {
+  name                   = "demo-sds-test-01"
+  protection_domain_name = "demo-sds-pd"
+  fault_set_id           = powerflex_fault_set.test.id
+  ip_list = [
+    {
+      ip   = "10.10.10.12"
+      role = "sdsOnly" # all/sdsOnly/sdcOnly
+    },
+    {
+      ip   = "10.10.10.11"
+      role = "sdcOnly" # all/sdsOnly/sdcOnly
+    },
+  ]
+}
+
 output "changed_sds" {
   value = powerflex_sds.create
 }
@@ -94,6 +116,7 @@ After the execution of above resource block, sds would have been created on the 
 ### Optional
 
 - `drl_mode` (String) DRL mode of SDS
+- `fault_set_id` (String) Fault set id of SDS
 - `performance_profile` (String) Performance Profile of SDS. Valid values are `Compact` and `HighPerformance`. Default value is determined by array settings.
 - `port` (Number) Port of SDS
 - `protection_domain_id` (String) ID of the Protection Domain under which the SDS will be created. Conflicts with `protection_domain_name`. Cannot be updated.
@@ -104,7 +127,6 @@ After the execution of above resource block, sds would have been created on the 
 
 ### Read-Only
 
-- `fault_set_id` (String) Fault set id of SDS
 - `id` (String) The id of the SDS
 - `is_on_vmware` (Boolean) Is on vmware state of SDS
 - `mdm_connection_state` (String) Mdm connection state of SDS

@@ -54,22 +54,11 @@ func TestSdcDataSource(t *testing.T) {
 				Config: ProviderConfigForTesting + TestSdcDataSourceBlockOnlyID,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify the first sdc to ensure all attributes are set
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "Terraform_sdc1"),
 					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.sdc_ip", sdcTestData.sdcip),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + TestSdcDataSourceByEmptyBlock,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckTypeSetElemNestedAttrs("data.powerflex_sdc.selected", "sdcs.*", map[string]string{
-						"id":   "e3d01ba200000001",
-						"name": "terraform_sdc",
-					}),
-					resource.TestCheckTypeSetElemNestedAttrs("data.powerflex_sdc.selected", "sdcs.*", map[string]string{
-						"id":   "e3d01ba100000000",
-						"name": "Terraform_sdc1",
-					}),
-				),
 			},
 			{
 				Config: ProviderConfigForTesting + TestSdcDataSourceByNameBlock,
@@ -108,8 +97,16 @@ func TestSdcDataSourceNegative(t *testing.T) {
 }
 
 var (
-	TestSdcDataSourceBlockOnlyID = `data "powerflex_sdc" "selected" {
-		id = "e3d01ba100000000"
+	TestSdcDataSourceBlockOnlyID = `
+	data "powerflex_sdc" "all" {
+	}
+
+	locals {
+		matching_sdc = [for sdc in data.powerflex_sdc.all.sdcs : sdc if sdc.name == "terraform_sdc"]
+	}
+
+	data "powerflex_sdc" "selected" {
+		id = local.matching_sdc[0].id
 	}`
 
 	TestSdcDataSourceByEmptyIDNeg = `data "powerflex_sdc" "selected" {

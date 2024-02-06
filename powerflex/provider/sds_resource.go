@@ -162,6 +162,9 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	if !plan.Port.IsUnknown() {
 		params.Port = int(plan.Port.ValueInt64())
 	}
+	if !plan.FaultSetID.IsUnknown() {
+		params.FaultSetID = plan.FaultSetID.ValueString()
+	}
 	sdsID, err2 := pdm.CreateSdsWithParams(&params)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
@@ -283,6 +286,13 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		resp.Diagnostics.AddError(
 			"Protection domain ID cannot be updated",
 			"Protection domain ID cannot be updated")
+		return
+	}
+
+	if !plan.FaultSetID.IsUnknown() && plan.FaultSetID.ValueString() != state.FaultSetID.ValueString() {
+		resp.Diagnostics.AddError(
+			"Fault set ID cannot be updated",
+			"Fault set ID cannot be updated")
 		return
 	}
 
