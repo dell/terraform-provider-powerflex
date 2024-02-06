@@ -64,7 +64,7 @@ func TestAccSDCResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.3.ip", GatewayDataPoints.sdcServerIP),
 				),
 			},
-			//Reaname
+			//Rename
 			{
 				Config: ProviderConfigForTesting + packageTest + SDCConfigRename,
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -77,7 +77,7 @@ func TestAccSDCResource(t *testing.T) {
 				Config: ProviderConfigForTesting + packageTest + SDCConfigPerProfile,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.1.ip", GatewayDataPoints.secondaryMDMIP),
-					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.1.performance_profile", "HighPerformance"),
+					resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.2.performance_profile", "HighPerformance"),
 				),
 			},
 		},
@@ -274,7 +274,7 @@ resource "powerflex_sdc" "test" {
 			operating_system = "linux"
 			is_mdm_or_tb = "TB"
 			is_sdc = "No"
-			performance_profile = "Compact"
+			performance_profile = "HighPerformance"
 	    },
 	    {
 			ip = "` + GatewayDataPoints.sdcServerIP + `"
