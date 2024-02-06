@@ -62,6 +62,7 @@ func UpdateSnapshotPolicyState(sps []*scaleiotypes.SnapshotPolicy) (response []m
 	return
 }
 
+// UpdateSnapshotPolicyResourceState updates the state file attributes for snapshot policy resource.
 func UpdateSnapshotPolicyResourceState(sps []*scaleiotypes.SnapshotPolicy, volumes []*scaleiotypes.Volume, state *models.SnapshotPolicyResourceModel) (response models.SnapshotPolicyResourceModel) {
 	for _, sp := range sps {
 		response = models.SnapshotPolicyResourceModel{
@@ -87,7 +88,7 @@ func UpdateSnapshotPolicyResourceState(sps []*scaleiotypes.SnapshotPolicy, volum
 	return response
 }
 
-// DifferenceMap function to find the state difference b/w sdcs
+// DifferenceArray function to find the state difference b/w volumes
 func DifferenceArray(a, b []string) ([]string, []string) {
 	var addedItems, removedItems []string
 	//Find added items
@@ -119,6 +120,7 @@ func DifferenceArray(a, b []string) ([]string, []string) {
 	return addedItems, removedItems
 }
 
+// ListToSlice converts the list to slice for num of retained snapshots per level
 func ListToSlice(snap models.SnapshotPolicyResourceModel) []string {
 	stringList := make([]string, len(snap.NumOfRetainedSnapshotsPerLevel))
 	for i, v := range snap.NumOfRetainedSnapshotsPerLevel {
@@ -127,6 +129,7 @@ func ListToSlice(snap models.SnapshotPolicyResourceModel) []string {
 	return stringList
 }
 
+// // ListToSliceVol converts the list to slice for volumes
 func ListToSliceVol(snap models.SnapshotPolicyResourceModel) []string {
 	stringList := make([]string, len(snap.VolumeIds))
 	for i, v := range snap.VolumeIds {

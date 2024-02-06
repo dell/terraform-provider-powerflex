@@ -20,8 +20,8 @@ package provider
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"os"
-	"testing"
 	"regexp"
+	"testing"
 )
 
 func TestAccSnapshotPolicyResource(t *testing.T) {
@@ -63,40 +63,39 @@ func TestAccSnapshotPolicyResourceUpdateFail(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create snapshot policy
 			{
-				Config: ProviderConfigForTesting + SPResourceUpdateWithVolFail,				
+				Config: ProviderConfigForTesting + SPResourceUpdateWithVolFail,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_snapshot_policy.avengers-sp-create", "name", "snap-upadte-fail"),
 				),
 			},
 			{
-				Config: ProviderConfigForTesting + SPResourceUpdateWithVolFail2,
+				Config:      ProviderConfigForTesting + SPResourceUpdateWithVolFail2,
 				ExpectError: regexp.MustCompile(`.*Error assigning volume to snapshot policy*.`),
 			},
 			{
-				Config: ProviderConfigForTesting + SPResourceUpdateWithVolFail3,
+				Config:      ProviderConfigForTesting + SPResourceUpdateWithVolFail3,
 				ExpectError: regexp.MustCompile(`.*Error while updating name of snapshot policy*.`),
 			},
 			{
-				Config: ProviderConfigForTesting + SPResourceUpdateWithVolFail4,
+				Config:      ProviderConfigForTesting + SPResourceUpdateWithVolFail4,
 				ExpectError: regexp.MustCompile(`.*Error while updating auto snapshot creation cadence *.`),
 			},
 			{
-				Config: ProviderConfigForTesting + SPResourceUpdateWithVolFail5,
+				Config:      ProviderConfigForTesting + SPResourceUpdateWithVolFail5,
 				ExpectError: regexp.MustCompile(`.*Cannot Update Secure Snapshots after creation*.`),
 			},
 			{
-				Config: ProviderConfigForTesting + SPResourceUpdateWithVolFail6,
+				Config:      ProviderConfigForTesting + SPResourceUpdateWithVolFail6,
 				ExpectError: regexp.MustCompile(`.*Cannot Update snapshot access mode after creation*.`),
 			},
 			{
-				Config: ProviderConfigForTesting + SPResourceUpdateWithVolFail7,
+				Config:      ProviderConfigForTesting + SPResourceUpdateWithVolFail7,
 				ExpectError: regexp.MustCompile(`.*Error while updating auto snapshot creation cadence or num of retained snapshots*.`),
 			},
 			{
-				Config: ProviderConfigForTesting + SPResourceUpdateWithVolFail8,
+				Config:      ProviderConfigForTesting + SPResourceUpdateWithVolFail8,
 				ExpectError: regexp.MustCompile(`.*Error while updating num of retained snapshots per level*.`),
 			},
-			
 		},
 	})
 }
@@ -110,15 +109,15 @@ func TestAccSnapshotPolicyResourceCreateFail(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create snapshot policy
 			{
-				Config: ProviderConfigForTesting + SPResourceCreateFail,				
+				Config:      ProviderConfigForTesting + SPResourceCreateFail,
 				ExpectError: regexp.MustCompile(`.*Error creating snapshot policy*.`),
 			},
 			{
-				Config: ProviderConfigForTesting + SPResourceCreateWithVolFail,
+				Config:      ProviderConfigForTesting + SPResourceCreateWithVolFail,
 				ExpectError: regexp.MustCompile(`.*Error assigning volume to snapshot policy*.`),
 			},
 			{
-				Config: ProviderConfigForTesting + SPResourceCreateWithVolFail2,
+				Config:      ProviderConfigForTesting + SPResourceCreateWithVolFail2,
 				ExpectError: regexp.MustCompile(`.*Error assigning volume to snapshot policy*.`),
 			},
 		},

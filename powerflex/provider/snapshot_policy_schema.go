@@ -26,7 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// FaultSetResourceSchema - variable holds schema for Fault set
+// SnapshotPolicyResourceSchema - variable holds schema for Snapshot Policy
 var SnapshotPolicyResourceSchema schema.Schema = schema.Schema{
 	Description:         "This resource is used to manage the Snapshot Policy entity of PowerFlex Array. We can Create, Update and Delete the snapshot policy using this resource. We can also import an existing snapshot policy from PowerFlex array.",
 	MarkdownDescription: "This resource is used to manage the Snapshot Policy entity of PowerFlex Array. We can Create, Update and Delete the snapshot policy using this resource. We can also import an existing snapshot policy from PowerFlex array.",
@@ -80,21 +80,21 @@ var SnapshotPolicyResourceSchema schema.Schema = schema.Schema{
 			Default: stringdefault.StaticString("Detach"),
 		},
 		"secure_snapshots": schema.BoolAttribute{
-			Description:         "The auto snapshots will be created as secure. They cannot be edited or removed prior to their policy expiration time. Default value is `false`." +
-			" Cannot be updated.",
+			Description: "The auto snapshots will be created as secure. They cannot be edited or removed prior to their policy expiration time. Default value is `false`." +
+				" Cannot be updated.",
 			MarkdownDescription: "The auto snapshots will be created as secure. They cannot be edited or removed prior to their policy expiration time. Default value is `false`." +
-			" Cannot be updated.",
-			Optional:            true,
-			Computed:            true,
-			Default:             booldefault.StaticBool(false),
+				" Cannot be updated.",
+			Optional: true,
+			Computed: true,
+			Default:  booldefault.StaticBool(false),
 		},
 		"snapshot_access_mode": schema.StringAttribute{
-			Description:         "The Access mode of auto snapshot. Valid values are 'ReadOnly' and 'ReadWrite'. Default value is `ReadOnly`" +
-			" Cannot be updated.",
+			Description: "The Access mode of auto snapshot. Valid values are 'ReadOnly' and 'ReadWrite'. Default value is `ReadOnly`" +
+				" Cannot be updated.",
 			MarkdownDescription: "The Access mode of auto snapshot. Valid values are 'ReadOnly' and 'ReadWrite'. Default value is `ReadOnly`" +
-			" Cannot be updated.",
-			Optional:            true,
-			Computed:            true,
+				" Cannot be updated.",
+			Optional: true,
+			Computed: true,
 			Validators: []validator.String{stringvalidator.OneOf(
 				"ReadOnly",
 				"ReadWrite",

@@ -158,9 +158,8 @@ func (r *snapshotPolicyResource) Create(ctx context.Context, req resource.Create
 				"Error assigning volume to snapshot policy: "+err2.Error(),
 			)
 			return
-		} else {
-			mappedVols = append(mappedVols, v)
 		}
+		mappedVols = append(mappedVols, v)
 	}
 
 	// Fetching the details of the snapshot policy
