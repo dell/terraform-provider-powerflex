@@ -129,7 +129,7 @@ func ListToSlice(snap models.SnapshotPolicyResourceModel) []string {
 	return stringList
 }
 
-// // ListToSliceVol converts the list to slice for volumes
+// ListToSliceVol converts the list to slice for volumes
 func ListToSliceVol(snap models.SnapshotPolicyResourceModel) []string {
 	stringList := make([]string, len(snap.VolumeIds))
 	for i, v := range snap.VolumeIds {

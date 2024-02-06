@@ -180,7 +180,7 @@ func (r *snapshotPolicyResource) Create(ctx context.Context, req resource.Create
 		)
 		return
 	}
-	// updating the detils to the state
+	// updating the details to the state
 	var state models.SnapshotPolicyResourceModel
 	state = helper.UpdateSnapshotPolicyResourceState(response, volumes, &state)
 	state.RemoveMode = plan.RemoveMode
