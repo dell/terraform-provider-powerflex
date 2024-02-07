@@ -17,6 +17,7 @@ limitations under the License.
 
 # Command to run this tf file : terraform init && terraform plan && terraform apply.
 # Create, Update, Read, Delete and Import operations are supported for this resource.
+# sdc_details is the required parameter for the SDC resource.
 
 # Example for adding MDMs as SDCs. After successful execution, three SDCs will be added.
 resource "powerflex_sdc" "sdc-example" {
