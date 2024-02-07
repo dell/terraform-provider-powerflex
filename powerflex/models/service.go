@@ -26,8 +26,8 @@ type ServiceResourceModel struct {
 	ID                    types.String `tfsdk:"id"`
 	DeploymentName        types.String `tfsdk:"deployment_name"`
 	DeploymentDescription types.String `tfsdk:"deployment_description"`
-	TemplateId            types.String `tfsdk:"template_id"`
-	FirmwareId            types.String `tfsdk:"firmware_id"`
+	TemplateID            types.String `tfsdk:"template_id"`
+	FirmwareID            types.String `tfsdk:"firmware_id"`
 	Nodes                 types.Int64  `tfsdk:"nodes"`
 	Status                types.String `tfsdk:"status"`
 	Compliant             types.Bool   `tfsdk:"compliant"`

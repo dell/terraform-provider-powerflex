@@ -89,7 +89,7 @@ func (r *serviceResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	deploymentResponse, err := r.gatewayClient.DeployService(plan.DeploymentName.ValueString(), plan.DeploymentDescription.ValueString(), plan.TemplateId.ValueString(), plan.FirmwareId.ValueString())
+	deploymentResponse, err := r.gatewayClient.DeployService(plan.DeploymentName.ValueString(), plan.DeploymentDescription.ValueString(), plan.TemplateID.ValueString(), plan.FirmwareID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error in deploying service",
