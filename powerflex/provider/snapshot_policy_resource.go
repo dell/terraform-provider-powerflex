@@ -175,7 +175,7 @@ func (r *snapshotPolicyResource) Create(ctx context.Context, req resource.Create
 	volumes, err := r.system.GetSourceVolume(snapID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("Could not get volumes assigned to snapshot policy"),
+			"Could not get volumes assigned to snapshot policy",
 			err.Error(),
 		)
 		return
@@ -215,7 +215,7 @@ func (r *snapshotPolicyResource) Read(ctx context.Context, req resource.ReadRequ
 	volumes, err := r.system.GetSourceVolume(state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("Could not get volumes assigned to snapshot policy"),
+			"Could not get volumes assigned to snapshot policy",
 			err.Error(),
 		)
 		return
@@ -396,7 +396,7 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 	volumes, err := r.system.GetSourceVolume(state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("Could not get volumes assigned to snapshot policy"),
+			"Could not get volumes assigned to snapshot policy",
 			err.Error(),
 		)
 		return
