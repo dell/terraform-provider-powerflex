@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2024 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -60,4 +60,80 @@ func UpdateSnapshotPolicyState(sps []*scaleiotypes.SnapshotPolicy) (response []m
 		response = append(response, spState)
 	}
 	return
+}
+
+// UpdateSnapshotPolicyResourceState updates the state file attributes for snapshot policy resource.
+func UpdateSnapshotPolicyResourceState(sps []*scaleiotypes.SnapshotPolicy, volumes []*scaleiotypes.Volume, state *models.SnapshotPolicyResourceModel) (response models.SnapshotPolicyResourceModel) {
+	for _, sp := range sps {
+		response = models.SnapshotPolicyResourceModel{
+			ID:                               types.StringValue(string(sp.ID)),
+			Name:                             types.StringValue(sp.Name),
+			AutoSnapshotCreationCadenceInMin: types.Int64Value((int64)(sp.AutoSnapshotCreationCadenceInMin)),
+			SnapshotAccessMode:               types.StringValue(string(sp.SnapshotAccessMode)),
+			SecureSnapshots:                  types.BoolValue(sp.SecureSnapshots),
+		}
+		for _, rspl := range sp.NumOfRetainedSnapshotsPerLevel {
+			response.NumOfRetainedSnapshotsPerLevel = append(response.NumOfRetainedSnapshotsPerLevel, types.Int64Value((int64)(rspl)))
+		}
+		if sp.SnapshotPolicyState == "Active" {
+			response.Paused = types.BoolValue(false)
+		} else {
+			response.Paused = types.BoolValue(true)
+		}
+	}
+	for _, v := range volumes {
+		response.VolumeIds = append(response.VolumeIds, types.StringValue(v.ID))
+	}
+	response.RemoveMode = state.RemoveMode
+	return response
+}
+
+// DifferenceArray function to find the state difference b/w volumes
+func DifferenceArray(a, b []string) ([]string, []string) {
+	var addedItems, removedItems []string
+	//Find added items
+	for _, item := range b {
+		found := false
+		for _, val := range a {
+			if item == val {
+				found = true
+				break
+			}
+		}
+		if !found {
+			addedItems = append(addedItems, item)
+		}
+	}
+	// find removed items
+	for _, item := range a {
+		found := false
+		for _, val := range b {
+			if item == val {
+				found = true
+				break
+			}
+		}
+		if !found {
+			removedItems = append(removedItems, item)
+		}
+	}
+	return addedItems, removedItems
+}
+
+// ListToSlice converts the list to slice for num of retained snapshots per level
+func ListToSlice(snap models.SnapshotPolicyResourceModel) []string {
+	stringList := make([]string, len(snap.NumOfRetainedSnapshotsPerLevel))
+	for i, v := range snap.NumOfRetainedSnapshotsPerLevel {
+		stringList[i] = v.String()
+	}
+	return stringList
+}
+
+// ListToSliceVol converts the list to slice for volumes
+func ListToSliceVol(snap models.SnapshotPolicyResourceModel) []string {
+	stringList := make([]string, len(snap.VolumeIds))
+	for i, v := range snap.VolumeIds {
+		stringList[i] = v.ValueString()
+	}
+	return stringList
 }
