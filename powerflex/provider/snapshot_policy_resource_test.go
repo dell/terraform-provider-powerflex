@@ -73,13 +73,14 @@ func TestAccSnapshotPolicyResourceUpdateFail(t *testing.T) {
 				ExpectError: regexp.MustCompile(`.*Error assigning volume to snapshot policy*.`),
 			},
 			{
-				Config:      ProviderConfigForTesting + SPResourceUpdateWithVolFail3,
-				ExpectError: regexp.MustCompile(`.*Error while updating name of snapshot policy*.`),
-			},
-			{
 				Config:      ProviderConfigForTesting + SPResourceUpdateWithVolFail4,
 				ExpectError: regexp.MustCompile(`.*Error while updating auto snapshot creation cadence *.`),
 			},
+			{
+				Config:      ProviderConfigForTesting + SPResourceUpdateWithVolFail3,
+				ExpectError: regexp.MustCompile(`.*Error while updating name of snapshot policy*.`),
+			},
+
 			{
 				Config:      ProviderConfigForTesting + SPResourceUpdateWithVolFail5,
 				ExpectError: regexp.MustCompile(`.*Cannot Update Secure Snapshots after creation*.`),
@@ -125,6 +126,42 @@ func TestAccSnapshotPolicyResourceCreateFail(t *testing.T) {
 }
 
 func TestAccSnapshotPolicyResourceUpadte(t *testing.T) {
+	var SPResourceCreateWithVol = createVol1 + createVol2 + createVol3 + `
+		resource "powerflex_snapshot_policy" "avengers-sp-create" {
+			name = "snap-create-test"
+			num_of_retained_snapshots_per_level = [1]
+			auto_snapshot_creation_cadence_in_min = 5
+			paused = false
+			secure_snapshots = false
+			snapshot_access_mode = "ReadOnly"
+			volume_ids = [resource.powerflex_volume.pre-req1.id,resource.powerflex_volume.pre-req2.id]
+		}
+	`
+
+	var SPResourceCreateWithVolUpdate = createVol1 + createVol2 + createVol3 + `
+		resource "powerflex_snapshot_policy" "avengers-sp-create" {
+			name = "snap-upadte-test"
+			num_of_retained_snapshots_per_level = [2,4,6]
+			auto_snapshot_creation_cadence_in_min = 6
+			paused = false
+			secure_snapshots = false
+			snapshot_access_mode = "ReadOnly"
+			volume_ids = [resource.powerflex_volume.pre-req3.id, resource.powerflex_volume.pre-req2.id]
+			remove_mode = "Remove"
+		}
+	`
+
+	var SPResourceCreateWithVolUpdate2 = createVol1 + createVol2 + createVol3 + `
+		resource "powerflex_snapshot_policy" "avengers-sp-create" {
+			name = "snap-upadte-test"
+			num_of_retained_snapshots_per_level = [2,4,6]
+			auto_snapshot_creation_cadence_in_min = 6
+			paused = false
+			secure_snapshots = false
+			snapshot_access_mode = "ReadOnly"
+			volume_ids = [resource.powerflex_volume.pre-req2.id]
+		}
+	`
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -153,6 +190,32 @@ func TestAccSnapshotPolicyResourceUpadte(t *testing.T) {
 		},
 	})
 }
+
+var createVol1 = `
+	resource "powerflex_volume" "pre-req1"{
+		name = "terraform-vol1"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 8
+	}
+`
+var createVol2 = `
+	resource "powerflex_volume" "pre-req2"{
+		name = "terraform-vol2"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 8
+	}
+`
+
+var createVol3 = `
+	resource "powerflex_volume" "pre-req3"{
+		name = "terraform-vol3"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 8
+	}
+`
 
 var SPResourceCreate = `
 resource "powerflex_snapshot_policy" "avengers-sp-create" {
@@ -186,41 +249,6 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
   }
 `
 
-var SPResourceCreateWithVol = `
-resource "powerflex_snapshot_policy" "avengers-sp-create" {
-	name = "snap-create-test"
-	num_of_retained_snapshots_per_level = [1]
-	auto_snapshot_creation_cadence_in_min = 5
-	paused = false
-	secure_snapshots = false
-	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["` + Volume1 + `","` + Volume2 + `"]
-  }
-`
-
-var SPResourceCreateWithVolUpdate = `
-resource "powerflex_snapshot_policy" "avengers-sp-create" {
-	name = "snap-upadte-test"
-	num_of_retained_snapshots_per_level = [2,4,6]
-	auto_snapshot_creation_cadence_in_min = 6
-	paused = false
-	secure_snapshots = false
-	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["` + Volume3 + `","` + Volume2 + `"]
-	remove_mode = "Remove"
-  }
-`
-var SPResourceCreateWithVolUpdate2 = `
-resource "powerflex_snapshot_policy" "avengers-sp-create" {
-	name = "snap-upadte-test"
-	num_of_retained_snapshots_per_level = [2,4,6]
-	auto_snapshot_creation_cadence_in_min = 6
-	paused = false
-	secure_snapshots = false
-	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["` + Volume2 + `"]
-  }
-`
 var SPResourceCreateFail = `
 resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	name = "snap create fail"
@@ -232,7 +260,8 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
   }
 `
 
-var SPResourceCreateWithVolFail = `
+var SPResourceCreateWithVolFail = createVol1 +
+	`
 resource "powerflex_snapshot_policy" "avengers-sp-create2" {
 	name = "snap-create-fail"
 	num_of_retained_snapshots_per_level = [1]
@@ -240,11 +269,12 @@ resource "powerflex_snapshot_policy" "avengers-sp-create2" {
 	paused = false
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["` + Volume1 + `", "edd2fb3100000010"]
+	volume_ids = [resource.powerflex_volume.pre-req1.id, "edd2fb3100000010"]
   }
 `
 
-var SPResourceCreateWithVolFail2 = `
+var SPResourceCreateWithVolFail2 = createVol1 +
+	`
 resource "powerflex_snapshot_policy" "avengers-sp-create3" {
 	name = "snap-create-fail"
 	num_of_retained_snapshots_per_level = [1]
@@ -252,11 +282,12 @@ resource "powerflex_snapshot_policy" "avengers-sp-create3" {
 	paused = false
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["Invalid", "` + Volume1 + `"]
+	volume_ids = ["Invalid", resource.powerflex_volume.pre-req1.id]
   }
 `
 
-var SPResourceUpdateWithVolFail = `
+var SPResourceUpdateWithVolFail = createVol1 + createVol2 +
+	`
 resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	name = "snap-upadte-fail"
 	num_of_retained_snapshots_per_level = [1]
@@ -264,11 +295,12 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = true
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["` + Volume1 + `","` + Volume2 + `"]
+	volume_ids = [resource.powerflex_volume.pre-req1.id,resource.powerflex_volume.pre-req2.id]
   }
 `
 
-var SPResourceUpdateWithVolFail2 = `
+var SPResourceUpdateWithVolFail2 = createVol1 + createVol2 +
+	`
 resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	name = "snap-upadte-fail"
 	num_of_retained_snapshots_per_level = [1]
@@ -276,11 +308,12 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = true
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["` + Volume1 + `", "Invalid"]
+	volume_ids = [resource.powerflex_volume.pre-req1.id, "Invalid"]
   }
 `
 
-var SPResourceUpdateWithVolFail3 = `
+var SPResourceUpdateWithVolFail3 = createVol1 + createVol2 +
+	`
 resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	name = "snap upadte fail"
 	num_of_retained_snapshots_per_level = [1]
@@ -288,22 +321,24 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = true
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["` + Volume1 + `","` + Volume2 + `"]
+	volume_ids = [resource.powerflex_volume.pre-req1.id,resource.powerflex_volume.pre-req2.id]
   }
 `
-var SPResourceUpdateWithVolFail4 = `
+var SPResourceUpdateWithVolFail4 = createVol1 + createVol2 +
+	`
 resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	name = "snap-upadte-fail"
 	num_of_retained_snapshots_per_level = [1]
-	auto_snapshot_creation_cadence_in_min = 1
+	auto_snapshot_creation_cadence_in_min = 4
 	paused = true
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["` + Volume1 + `","` + Volume2 + `"]
+	volume_ids = [resource.powerflex_volume.pre-req1.id,resource.powerflex_volume.pre-req2.id]
   }
 `
 
-var SPResourceUpdateWithVolFail5 = `
+var SPResourceUpdateWithVolFail5 = createVol1 + createVol2 +
+	`
 resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	name = "snap-upadte-fail"
 	num_of_retained_snapshots_per_level = [1]
@@ -311,11 +346,12 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = true
 	secure_snapshots = true
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["` + Volume1 + `","` + Volume2 + `"]
+	volume_ids = [resource.powerflex_volume.pre-req1.id,resource.powerflex_volume.pre-req2.id]
   }
 `
 
-var SPResourceUpdateWithVolFail6 = `
+var SPResourceUpdateWithVolFail6 = createVol1 + createVol2 +
+	`
 resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	name = "snap-upadte-fail"
 	num_of_retained_snapshots_per_level = [1]
@@ -323,11 +359,12 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = true
 	secure_snapshots = false
 	snapshot_access_mode = "ReadWrite"
-	volume_ids = ["` + Volume1 + `","` + Volume2 + `"]
+	volume_ids = [resource.powerflex_volume.pre-req1.id,resource.powerflex_volume.pre-req2.id]
   }
 `
 
-var SPResourceUpdateWithVolFail7 = `
+var SPResourceUpdateWithVolFail7 = createVol1 + createVol2 +
+	`
 resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	name = "snap-upadte-fail"
 	num_of_retained_snapshots_per_level = [1,4,6]
@@ -335,11 +372,12 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = true
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["` + Volume1 + `","` + Volume2 + `"]
+	volume_ids = [resource.powerflex_volume.pre-req1.id,resource.powerflex_volume.pre-req2.id]
   }
 `
 
-var SPResourceUpdateWithVolFail8 = `
+var SPResourceUpdateWithVolFail8 = createVol1 + createVol2 +
+	`
 resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	name = "snap-upadte-fail"
 	num_of_retained_snapshots_per_level = [1,4,6]
@@ -347,6 +385,6 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = true
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
-	volume_ids = ["` + Volume1 + `","` + Volume2 + `"]
+	volume_ids = [resource.powerflex_volume.pre-req1.id,resource.powerflex_volume.pre-req2.id]
   }
 `
