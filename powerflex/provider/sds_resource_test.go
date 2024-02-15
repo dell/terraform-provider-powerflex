@@ -284,6 +284,11 @@ func TestAccSDSResourceDuplicateIP(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "3"),
 				),
 			},
+			// modify sds test invalid
+			{
+				Config:      ProviderConfigForTesting + createSDSTestManyInValid,
+				ExpectError: regexp.MustCompile(`.*The IP .* is configured with .*roles.*`),
+			},
 		},
 	})
 }
