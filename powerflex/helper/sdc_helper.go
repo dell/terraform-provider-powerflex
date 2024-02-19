@@ -235,15 +235,15 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 
 	// Write the header row
 	header := make([]string, 0)
-	var virtualIpFlag bool
+	var virtualIPFlag bool
 	for _, item := range sdcDetails {
 		if item.IsMdmOrTb.ValueString() == "Primary" && !item.VirtualIps.IsNull() {
-			virtualIpFlag = true
+			virtualIPFlag = true
 			break
 		}
 	}
 
-	if virtualIpFlag {
+	if virtualIPFlag {
 		header = []string{"IPs", "Username", "Password", "Operating System", "Is MDM/TB", "Virtual IPs", "Virtual IP NICs", "Is SDC", "perfProfileForSDC"}
 	} else {
 		header = []string{"IPs", "Username", "Password", "Operating System", "Is MDM/TB", "Is SDC", "perfProfileForSDC"}
@@ -260,7 +260,7 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 		if item.Password.ValueString() != "" {
 			var csvStruct models.CsvRow
 			// Add mapped SDC
-			if virtualIpFlag {
+			if virtualIPFlag {
 				csvStruct = models.CsvRow{
 					IP:              item.IP.ValueString(),
 					UserName:        item.UserName.ValueString(),
@@ -292,7 +292,7 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 
 			//Write the data row
 			data := make([]string, 0)
-			if virtualIpFlag {
+			if virtualIPFlag {
 				data = []string{csvStruct.IP, csvStruct.UserName, csvStruct.Password, csvStruct.OperatingSystem, csvStruct.IsMdmOrTb, csvStruct.VirtualIps, csvStruct.VirtualIPNICs, csvStruct.IsSdc, csvStruct.PerformanceProfile} //, csvStruct.SDCName
 			} else {
 				data = []string{csvStruct.IP, csvStruct.UserName, csvStruct.Password, csvStruct.OperatingSystem, csvStruct.IsMdmOrTb, csvStruct.IsSdc, csvStruct.PerformanceProfile}
