@@ -40,7 +40,8 @@ func TemplateDataSource() datasource.DataSource {
 }
 
 type templateDataSource struct {
-	client *goscaleio.Client
+	client        *goscaleio.Client
+	gatewayClient *goscaleio.GatewayClient
 }
 
 func (d *templateDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -56,12 +57,19 @@ func (d *templateDataSource) Configure(_ context.Context, req datasource.Configu
 		return
 	}
 
-	if req.ProviderData.(*powerflexProvider).client == nil {
-		resp.Diagnostics.AddError("Unable to Authenticate Goscaleio API Client", req.ProviderData.(*powerflexProvider).clientError)
-		return
+	if req.ProviderData.(*powerflexProvider).client != nil {
+
+		d.client = req.ProviderData.(*powerflexProvider).client
 	}
 
-	d.client = req.ProviderData.(*powerflexProvider).client
+	if req.ProviderData.(*powerflexProvider).gatewayClient != nil {
+
+		d.gatewayClient = req.ProviderData.(*powerflexProvider).gatewayClient
+	} else {
+		resp.Diagnostics.AddError("Unable to Authenticate Goscaleio API Client", req.ProviderData.(*powerflexProvider).clientError)
+
+		return
+	}
 }
 
 func (d *templateDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -84,7 +92,7 @@ func (d *templateDataSource) Read(ctx context.Context, req datasource.ReadReques
 		diags.Append(state.TemplateIDs.ElementsAs(ctx, &templateIDs, true)...)
 
 		for _, templateID := range templateIDs {
-			templateDetails, err := d.client.GetTemplateByID(templateID)
+			templateDetails, err := d.gatewayClient.GetTemplateByID(templateID)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					fmt.Sprintf("Error in getting template details using id %v", templateID), err.Error(),
@@ -99,7 +107,7 @@ func (d *templateDataSource) Read(ctx context.Context, req datasource.ReadReques
 		diags.Append(state.TemplateNames.ElementsAs(ctx, &Names, true)...)
 
 		for _, name := range Names {
-			templateDetails, err := d.client.GetTemplateByFilters("name", name)
+			templateDetails, err := d.gatewayClient.GetTemplateByFilters("name", name)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					fmt.Sprintf("Error in getting template details using Name %v", name), err.Error(),
@@ -109,7 +117,7 @@ func (d *templateDataSource) Read(ctx context.Context, req datasource.ReadReques
 			templateModel = append(templateModel, helper.GetTemplateState(templateDetails[0]))
 		}
 	} else {
-		templateDetails, err := d.client.GetAllTemplates()
+		templateDetails, err := d.gatewayClient.GetAllTemplates()
 		if err != nil {
 			resp.Diagnostics.AddError("Error in getting template details", err.Error())
 			return

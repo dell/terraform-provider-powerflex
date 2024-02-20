@@ -90,7 +90,7 @@ func (r *serviceResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	deploymentResponse, err := r.gatewayClient.DeployService(plan.DeploymentName.ValueString(), plan.DeploymentDescription.ValueString(), plan.TemplateID.ValueString(), plan.FirmwareID.ValueString())
+	deploymentResponse, err := r.gatewayClient.DeployService(plan.DeploymentName.ValueString(), plan.DeploymentDescription.ValueString(), plan.TemplateID.ValueString(), plan.FirmwareID.ValueString(), plan.Nodes.String())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error in deploying service",
@@ -326,14 +326,15 @@ func (r *serviceResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	// _, err := r.gatewayClient.DeleteService(state.ID.ValueString())
-	// if err != nil {
-	// 	resp.Diagnostics.AddError(
-	// 		"Error in Deleting service details",
-	// 		err.Error(),
-	// 	)
-	// 	return
-	// }
+	_, err := r.gatewayClient.DeleteService(state.ID.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error in Deleting service details",
+			err.Error(),
+		)
+		return
+	}
+
 	resp.State.RemoveResource(ctx)
 
 }
