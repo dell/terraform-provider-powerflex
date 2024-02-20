@@ -27,6 +27,7 @@ import (
 	"terraform-provider-powerflex/powerflex/models"
 
 	"github.com/dell/goscaleio"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -81,14 +82,10 @@ func (r *sdsResource) Configure(_ context.Context, req resource.ConfigureRequest
 	r.system = system
 }
 
-func (r *sdsResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	var data models.SdsResourceModel
-
-	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
+// ValidatePlan - function to validate the SDS create or Update plan by performing checks:
+// - validate that same IP is not added in the set multiple times with different roles
+func (r *sdsResource) ValidatePlan(ctx context.Context, data models.SdsResourceModel) diag.Diagnostics {
+	var d diag.Diagnostics
 
 	// validate that same IP is not added in the set multiple times with different roles
 	iplist := data.GetIPList(ctx)
@@ -102,12 +99,13 @@ func (r *sdsResource) ValidateConfig(ctx context.Context, req resource.ValidateC
 		if count == 1 {
 			continue
 		}
-		resp.Diagnostics.AddAttributeError(
+		d.AddAttributeError(
 			path.Root("ip_list"),
 			"IP Duplication Error",
 			fmt.Sprintf("The IP %s is configured with %d roles, but only 1 role expected.", ip, count),
 		)
 	}
+	return d
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -118,6 +116,12 @@ func (r *sdsResource) Create(ctx context.Context, req resource.CreateRequest, re
 	diags := req.Plan.Get(ctx, &plan)
 
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// check that plan is valid
+	resp.Diagnostics.Append(r.ValidatePlan(ctx, plan)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -271,6 +275,12 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// check that plan is valid
+	resp.Diagnostics.Append(r.ValidatePlan(ctx, plan)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}

@@ -508,15 +508,29 @@ func (r *sdcResource) SDCExpansionOperations(ctx context.Context, plan models.Sd
 func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sdcDetailList []models.SDCDetailDataModel, system *goscaleio.System, chnagedSDCs *[]models.SDCStateDataModel) (dia diag.Diagnostics) {
 
 	for _, sdc := range sdcDetailList {
+		var (
+			sdcData *goscaleio.Sdc
+			err     error
+		)
 
 		if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") && sdc.SDCName.ValueString() == "" && sdc.PerformanceProfile.ValueString() == "" {
-			sdcData, err := system.FindSdc("SdcIP", sdc.IP.ValueString())
 
-			if err != nil {
-				dia.AddError(
-					"[Create] Unable to Find SDC by IP:"+sdc.IP.ValueString(),
-					err.Error(),
-				)
+			if !sdc.DataNetworkIP.IsNull() {
+				sdcData, err = system.FindSdc("SdcIP", sdc.DataNetworkIP.ValueString())
+				if err != nil {
+					dia.AddError(
+						"[Create] Unable to Find SDC by IP: "+sdc.DataNetworkIP.ValueString(),
+						err.Error(),
+					)
+				}
+			} else {
+				sdcData, err = system.FindSdc("SdcIP", sdc.IP.ValueString())
+				if err != nil {
+					dia.AddError(
+						"[Create] Unable to Find SDC by IP: "+sdc.IP.ValueString(),
+						err.Error(),
+					)
+				}
 			}
 
 			if sdcData != nil {
@@ -526,13 +540,24 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 			}
 		} else if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") && (sdc.SDCName.ValueString() != "" || sdc.PerformanceProfile.ValueString() != "") {
 			if sdc.SDCID.ValueString() == "" && sdc.IP.ValueString() != "" {
-				sdcID, err := system.GetSdcIDByIP(sdc.IP.ValueString())
+				var sdcID string
 
-				if err != nil {
-					dia.AddError(
-						"[Create] Unable to Find SDC by IP:"+sdc.IP.ValueString(),
-						err.Error(),
-					)
+				if !sdc.DataNetworkIP.IsNull() {
+					sdcID, err = system.GetSdcIDByIP(sdc.DataNetworkIP.ValueString())
+					if err != nil {
+						dia.AddError(
+							"[Create] Unable to Find SDC by IP:"+sdc.DataNetworkIP.ValueString(),
+							err.Error(),
+						)
+					}
+				} else {
+					sdcID, err = system.GetSdcIDByIP(sdc.IP.ValueString())
+					if err != nil {
+						dia.AddError(
+							"[Create] Unable to Find SDC by IP:"+sdc.IP.ValueString(),
+							err.Error(),
+						)
+					}
 				}
 
 				sdc.SDCID = types.StringValue(sdcID)

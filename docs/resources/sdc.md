@@ -196,6 +196,7 @@ After the execution of above resource block, sdc would have been renamed on the 
 
 Optional:
 
+- `data_network_ip` (String, Sensitive) SDC IP from the data network. This is needed when virtual IP is configured on the data network.
 - `ip` (String, Sensitive) IP of the node. Conflict with `sdc_id`
 - `is_mdm_or_tb` (String) Whether this works as MDM or Tie Breaker,The acceptable value are `Primary`, `Secondary`, `TB`, `Standby` or blank. Default value is blank
 - `is_sdc` (String) Whether this node is to operate as an SDC or not. The acceptable values are `Yes` and `No`. Default value is `Yes`.
@@ -205,6 +206,8 @@ Optional:
 - `performance_profile` (String) Performance Profile of SDC, The acceptable value are `HighPerformance` or `Compact`.
 - `sdc_id` (String) ID of the SDC to manage. This can be retrieved from the Datasource and PowerFlex Server. Cannot be updated. Conflict with `ip`
 - `username` (String) Username of the node
+- `virtual_ip_nics` (String) The NIC to which the virtual IP addresses are mapped.
+- `virtual_ips` (String, Sensitive) Virtual IPs
 
 
 <a id="nestedatt--sdc_state_details"></a>
