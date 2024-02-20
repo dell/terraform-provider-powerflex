@@ -75,8 +75,8 @@ var ServiceReourceSchema schema.Schema = schema.Schema{
 			Computed:            true,
 		},
 		"deployment_timeout": schema.Int64Attribute{
-			MarkdownDescription: "Deployment Timeout",
-			Description:         "Deployment Timeout",
+			MarkdownDescription: "Deployment Timeout, It should be in multiples of 5",
+			Description:         "Deployment Timeout, It should be in multiples of 5",
 			Optional:            true,
 			Computed:            true,
 		},
@@ -86,13 +86,13 @@ var ServiceReourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Deployment ID",
 		},
 		"status": schema.StringAttribute{
-			MarkdownDescription: "status",
-			Description:         "status",
+			MarkdownDescription: "Deployment Status",
+			Description:         "Deployment Status",
 			Computed:            true,
 		},
 		"compliant": schema.BoolAttribute{
-			MarkdownDescription: "compliant",
-			Description:         "compliant",
+			MarkdownDescription: "Deployment Compliant Status",
+			Description:         "Deployment Compliant Status",
 			Computed:            true,
 		},
 	},

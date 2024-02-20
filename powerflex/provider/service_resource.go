@@ -235,65 +235,78 @@ func (r *serviceResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	var deploymentTimeout int
+	if deploymentResponse.Status == "complete" {
+		data, dgs := helper.UpdateServiceState(deploymentResponse, plan)
+		resp.Diagnostics.Append(dgs...)
 
-	if !plan.DeploymentTimeout.IsNull() && plan.DeploymentTimeout.ValueInt64() > 0 {
-		deploymentTimeout, _ = strconv.Atoi(plan.DeploymentTimeout.String())
-	} else {
-		deploymentTimeout = 60 //Default
-	}
-
-	deadLineCount := deploymentTimeout / 5
-
-	deploymentID := deploymentResponse.ID
-
-	couterForStopExecution := 0
-
-	for couterForStopExecution <= deadLineCount {
-
-		time.Sleep(5 * time.Minute)
+		diags = resp.State.Set(ctx, data)
+		resp.Diagnostics.Append(diags...)
 
 		tflog.Info(ctx, "Service Details updated to state file successfully")
 
-		deploymentResponse, err = r.gatewayClient.GetServiceDetailsByID(deploymentID, true)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error in getting service details",
-				err.Error(),
-			)
-			return
+		return
+
+	} else {
+		var deploymentTimeout int
+
+		if !plan.DeploymentTimeout.IsNull() && plan.DeploymentTimeout.ValueInt64() > 0 {
+			deploymentTimeout, _ = strconv.Atoi(plan.DeploymentTimeout.String())
+		} else {
+			deploymentTimeout = 60 //Default
 		}
 
-		if deploymentResponse.Status == "complete" {
+		deadLineCount := deploymentTimeout / 5
 
-			data, dgs := helper.UpdateServiceState(deploymentResponse, plan)
-			resp.Diagnostics.Append(dgs...)
+		deploymentID := deploymentResponse.ID
 
-			diags = resp.State.Set(ctx, data)
-			resp.Diagnostics.Append(diags...)
+		couterForStopExecution := 0
+
+		for couterForStopExecution <= deadLineCount {
+
+			time.Sleep(5 * time.Minute)
 
 			tflog.Info(ctx, "Service Details updated to state file successfully")
 
-			return
-		} else if deploymentResponse.Status == "error" {
+			deploymentResponse, err = r.gatewayClient.GetServiceDetailsByID(deploymentID, true)
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"Error in getting service details",
+					err.Error(),
+				)
+				return
+			}
 
-			var errorMsg string
+			if deploymentResponse.Status == "complete" {
 
-			for _, details := range deploymentResponse.JobDetails {
-				if details.Level == "error" {
-					errorMsg += details.Message + "\n"
+				data, dgs := helper.UpdateServiceState(deploymentResponse, plan)
+				resp.Diagnostics.Append(dgs...)
+
+				diags = resp.State.Set(ctx, data)
+				resp.Diagnostics.Append(diags...)
+
+				tflog.Info(ctx, "Service Details updated to state file successfully")
+
+				return
+			} else if deploymentResponse.Status == "error" {
+
+				var errorMsg string
+
+				for _, details := range deploymentResponse.JobDetails {
+					if details.Level == "error" {
+						errorMsg += details.Message + "\n"
+					}
 				}
+
+				if errorMsg != "" {
+					resp.Diagnostics.AddError("Error in deploying service", errorMsg)
+				}
+
+				return
 			}
 
-			if errorMsg != "" {
-				resp.Diagnostics.AddError("Error in deploying service", errorMsg)
-			}
+			couterForStopExecution++
 
-			return
 		}
-
-		couterForStopExecution++
-
 	}
 
 	resp.Diagnostics.AddError(
