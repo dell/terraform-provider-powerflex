@@ -174,10 +174,10 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 				MarkdownDescription: "Virtual IPs",
 				Description:         "Virtual IPs",
 				Optional:            true,
+				Sensitive:           true,
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 					stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("virtual_ip_nics")),
-					stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("data_network_ip")),
 				},
 			},
 			"virtual_ip_nics": schema.StringAttribute{
@@ -192,6 +192,7 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 				MarkdownDescription: "SDC IP from the data network. This is needed when virtual IP is configured on the data network.",
 				Description:         "SDC IP from the data network. This is needed when virtual IP is configured on the data network.",
 				Optional:            true,
+				Sensitive:           true,
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},

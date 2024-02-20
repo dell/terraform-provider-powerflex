@@ -234,8 +234,11 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 	writer := csv.NewWriter(file)
 
 	// Write the header row
-	header := make([]string, 0)
-	var virtualIPFlag bool
+	var (
+		header        []string
+		virtualIPFlag bool
+	)
+
 	for _, item := range sdcDetails {
 		if item.IsMdmOrTb.ValueString() == "Primary" && !item.VirtualIps.IsNull() {
 			virtualIPFlag = true
@@ -291,7 +294,7 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 			}
 
 			//Write the data row
-			data := make([]string, 0)
+			var data []string
 			if virtualIPFlag {
 				data = []string{csvStruct.IP, csvStruct.UserName, csvStruct.Password, csvStruct.OperatingSystem, csvStruct.IsMdmOrTb, csvStruct.VirtualIps, csvStruct.VirtualIPNICs, csvStruct.IsSdc, csvStruct.PerformanceProfile} //, csvStruct.SDCName
 			} else {
