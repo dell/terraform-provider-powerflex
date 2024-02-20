@@ -176,6 +176,8 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
+					stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("virtual_ip_nics")),
+					stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("data_network_ip")),
 				},
 			},
 			"virtual_ip_nics": schema.StringAttribute{
