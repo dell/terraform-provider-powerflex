@@ -84,13 +84,13 @@ func validateServiceDetails(state *terraform.State) error {
 	}
 
 	// Get the value of the "deployment_name" attribute from the resource instance
-	deployment_name, ok := serviceResource.Primary.Attributes["deployment_name"]
+	deploymentName, ok := serviceResource.Primary.Attributes["deployment_name"]
 	if !ok {
 		return fmt.Errorf("sdc_list attribute not found in state")
 	}
 
 	// Check if the length of the sdc_list is greater than 0
-	if deployment_name == "ABC" {
+	if deploymentName == "ABC" {
 		return fmt.Errorf("sdc_list attribute length is not greater than 0")
 	}
 
