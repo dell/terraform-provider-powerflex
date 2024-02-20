@@ -63,7 +63,7 @@ func TestSdcDataSource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + TestSdcDataSourceByNameBlock,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "terraform_sdc"),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "terraform_sdc_do_not_delete"),
 				),
 			},
 		},
@@ -102,7 +102,7 @@ var (
 	}
 
 	locals {
-		matching_sdc = [for sdc in data.powerflex_sdc.all.sdcs : sdc if sdc.name == "terraform_sdc"]
+		matching_sdc = [for sdc in data.powerflex_sdc.all.sdcs : sdc if sdc.name == "terraform_sdc_do_not_delete"]
 	}
 
 	data "powerflex_sdc" "selected" {
@@ -126,7 +126,7 @@ var (
 	}`
 
 	TestSdcDataSourceByNameBlock = `data "powerflex_sdc" "selected" {
-		name = "terraform_sdc"
+		name = "terraform_sdc_do_not_delete"
 	}`
 
 	TestSdcDataSourceInvalidName = `data "powerflex_sdc" "selected" {

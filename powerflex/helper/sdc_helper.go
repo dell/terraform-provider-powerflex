@@ -104,6 +104,9 @@ func GetSDCDetailType() map[string]attr.Type {
 		"performance_profile": types.StringType,
 		"sdc_id":              types.StringType,
 		"name":                types.StringType,
+		"virtual_ips":         types.StringType,
+		"virtual_ip_nics":     types.StringType,
+		"data_network_ip":     types.StringType,
 	}
 }
 
@@ -231,7 +234,23 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 	writer := csv.NewWriter(file)
 
 	// Write the header row
-	header := []string{"IPs", "Username", "Password", "Operating System", "Is MDM/TB", "Is SDC", "perfProfileForSDC"}
+	var (
+		header        []string
+		virtualIPFlag bool
+	)
+
+	for _, item := range sdcDetails {
+		if item.IsMdmOrTb.ValueString() == "Primary" && !item.VirtualIps.IsNull() {
+			virtualIPFlag = true
+			break
+		}
+	}
+
+	if virtualIPFlag {
+		header = []string{"IPs", "Username", "Password", "Operating System", "Is MDM/TB", "Virtual IPs", "Virtual IP NICs", "Is SDC", "perfProfileForSDC"}
+	} else {
+		header = []string{"IPs", "Username", "Password", "Operating System", "Is MDM/TB", "Is SDC", "perfProfileForSDC"}
+	}
 	err = writer.Write(header)
 	if err != nil {
 		return &parseCSVResponse, fmt.Errorf("Error While Writing Temp CSV is %s", err.Error())
@@ -242,14 +261,28 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 	for _, item := range sdcDetails {
 
 		if item.Password.ValueString() != "" {
+			var csvStruct models.CsvRow
 			// Add mapped SDC
-			csvStruct := models.CsvRow{
-				IP:              item.IP.ValueString(),
-				UserName:        item.UserName.ValueString(),
-				Password:        item.Password.ValueString(),
-				IsMdmOrTb:       item.IsMdmOrTb.ValueString(),
-				OperatingSystem: item.OperatingSystem.ValueString(),
-				IsSdc:           item.IsSdc.ValueString(),
+			if virtualIPFlag {
+				csvStruct = models.CsvRow{
+					IP:              item.IP.ValueString(),
+					UserName:        item.UserName.ValueString(),
+					Password:        item.Password.ValueString(),
+					IsMdmOrTb:       item.IsMdmOrTb.ValueString(),
+					OperatingSystem: item.OperatingSystem.ValueString(),
+					IsSdc:           item.IsSdc.ValueString(),
+					VirtualIps:      item.VirtualIps.ValueString(),
+					VirtualIPNICs:   item.VirtualIPNICs.ValueString(),
+				}
+			} else {
+				csvStruct = models.CsvRow{
+					IP:              item.IP.ValueString(),
+					UserName:        item.UserName.ValueString(),
+					Password:        item.Password.ValueString(),
+					IsMdmOrTb:       item.IsMdmOrTb.ValueString(),
+					OperatingSystem: item.OperatingSystem.ValueString(),
+					IsSdc:           item.IsSdc.ValueString(),
+				}
 			}
 
 			if strings.EqualFold(csvStruct.IsSdc, "Yes") {
@@ -261,7 +294,12 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 			}
 
 			//Write the data row
-			data := []string{csvStruct.IP, csvStruct.UserName, csvStruct.Password, csvStruct.OperatingSystem, csvStruct.IsMdmOrTb, csvStruct.IsSdc, csvStruct.PerformanceProfile} //, csvStruct.SDCName
+			var data []string
+			if virtualIPFlag {
+				data = []string{csvStruct.IP, csvStruct.UserName, csvStruct.Password, csvStruct.OperatingSystem, csvStruct.IsMdmOrTb, csvStruct.VirtualIps, csvStruct.VirtualIPNICs, csvStruct.IsSdc, csvStruct.PerformanceProfile} //, csvStruct.SDCName
+			} else {
+				data = []string{csvStruct.IP, csvStruct.UserName, csvStruct.Password, csvStruct.OperatingSystem, csvStruct.IsMdmOrTb, csvStruct.IsSdc, csvStruct.PerformanceProfile}
+			}
 			err = writer.Write(data)
 			if err != nil {
 				return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
@@ -272,11 +310,6 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 	writer.Flush()
 
 	parsecsvRespose, parseCSVError := gatewayClient.ParseCSV(mydir + "/Minimal.csv")
-
-	deletCSVError := os.Remove(mydir + "/Minimal.csv")
-	if deletCSVError != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Deleting Temp CSV File is %s", deletCSVError.Error())
-	}
 
 	if parseCSVError != nil {
 		return &parseCSVResponse, fmt.Errorf("%s", parseCSVError.Error())
@@ -453,7 +486,7 @@ func FindDeletedSDC(state []models.SDCStateDataModel, plan []models.SDCDetailDat
 	for _, obj1 := range state {
 		found := false
 		for _, obj2 := range plan {
-			if obj2.IP.ValueString() != "" && checkIP[obj2.IP.ValueString()] {
+			if (obj2.IP.ValueString() != "" || obj2.DataNetworkIP.ValueString() != "") && (checkIP[obj2.IP.ValueString()] || checkIP[obj2.DataNetworkIP.ValueString()]) {
 				found = true
 				delete(checkIP, obj2.IP.ValueString())
 				delete(checkID, obj2.SDCID.ValueString())
@@ -492,6 +525,9 @@ func GetSdcsValue(planSdcs []models.SDCDetailDataModel) (basetypes.ListValue, di
 			"performance_profile": sdc.PerformanceProfile,
 			"sdc_id":              sdc.SDCID,
 			"name":                sdc.SDCName,
+			"virtual_ips":         sdc.VirtualIps,
+			"virtual_ip_nics":     sdc.VirtualIPNICs,
+			"data_network_ip":     sdc.DataNetworkIP,
 		}
 		objVal, dgs := types.ObjectValue(GetSDCDetailType(), obj)
 		diags = append(diags, dgs...)

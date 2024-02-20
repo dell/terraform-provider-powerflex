@@ -63,6 +63,11 @@ type gatewayDataPoints struct {
 	clusterPrimaryIP   string
 	clusterSecondaryIP string
 	clusterTBIP        string
+	virtualIP          string
+	virtualInterface   string
+	dataNetworkIP1     string
+	dataNetworkIP2     string
+	dataNetworkIP3     string
 }
 
 type mdmDataPoints struct {
@@ -140,7 +145,11 @@ func getNewGatewayDataPointForTest() gatewayDataPoints {
 	GatewayDataPoints.clusterPrimaryIP = setDefault(os.Getenv("POWERFLEX_CLUSTER_IP_1"), "tfacc_cluster_ip_1")
 	GatewayDataPoints.clusterSecondaryIP = setDefault(os.Getenv("POWERFLEX_CLUSTER_IP_2"), "tfacc_cluster_ip_2")
 	GatewayDataPoints.clusterTBIP = setDefault(os.Getenv("POWERFLEX_CLUSTER_IP_3"), "tfacc_cluster_ip_3")
-
+	GatewayDataPoints.virtualIP = setDefault(os.Getenv("POWERFLEX_VIRTUAL_IP"), "tfacc_cluster_virtual_ip")
+	GatewayDataPoints.virtualInterface = setDefault(os.Getenv("POWERFLEX_VIRTUAL_INTERFACE"), "tfacc_cluster_virtual_interface")
+	GatewayDataPoints.dataNetworkIP1 = setDefault(os.Getenv("POWERFLEX_DATA_NETWORK_IP1"), "tfacc_cluster_data_network_ip1")
+	GatewayDataPoints.dataNetworkIP2 = setDefault(os.Getenv("POWERFLEX_DATA_NETWORK_IP2"), "tfacc_cluster_data_network_ip2")
+	GatewayDataPoints.dataNetworkIP3 = setDefault(os.Getenv("POWERFLEX_DATA_NETWORK_IP3"), "tfacc_cluster_data_network_ip3")
 	return GatewayDataPoints
 }
 
