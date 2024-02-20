@@ -19,6 +19,7 @@ package provider
 
 import (
 	"context"
+	"strconv"
 	"terraform-provider-powerflex/powerflex/helper"
 	"terraform-provider-powerflex/powerflex/models"
 	"time"
@@ -102,7 +103,15 @@ func (r *serviceResource) Create(ctx context.Context, req resource.CreateRequest
 
 	couterForStopExecution := 0
 
-	deadLineCount := 60 / 5 //TODO
+	var deploymentTimeout int
+
+	if !plan.DeploymentTimeout.IsNull() && plan.DeploymentTimeout.ValueInt64() > 0 {
+		deploymentTimeout, _ = strconv.Atoi(plan.DeploymentTimeout.String())
+	} else {
+		deploymentTimeout = 60 //Default
+	}
+
+	deadLineCount := deploymentTimeout / 5
 
 	for couterForStopExecution <= deadLineCount {
 
@@ -128,6 +137,21 @@ func (r *serviceResource) Create(ctx context.Context, req resource.CreateRequest
 			resp.Diagnostics.Append(diags...)
 
 			tflog.Info(ctx, "Service Details updated to state file successfully")
+
+			return
+		} else if deploymentResponse.Status == "error" {
+
+			var errorMsg string
+
+			for _, details := range deploymentResponse.JobDetails {
+				if details.Level == "error" {
+					errorMsg += details.Message + "\n"
+				}
+			}
+
+			if errorMsg != "" {
+				resp.Diagnostics.AddError("Error in deploying service", errorMsg)
+			}
 
 			return
 		}
@@ -202,6 +226,81 @@ func (r *serviceResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
+	deploymentResponse, err := r.gatewayClient.UpdateService(state.ID.ValueString(), plan.DeploymentName.ValueString(), plan.DeploymentDescription.ValueString(), plan.Nodes.String())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error in deploying service",
+			err.Error(),
+		)
+		return
+	}
+
+	var deploymentTimeout int
+
+	if !plan.DeploymentTimeout.IsNull() && plan.DeploymentTimeout.ValueInt64() > 0 {
+		deploymentTimeout, _ = strconv.Atoi(plan.DeploymentTimeout.String())
+	} else {
+		deploymentTimeout = 60 //Default
+	}
+
+	deadLineCount := deploymentTimeout / 5
+
+	deploymentID := deploymentResponse.ID
+
+	couterForStopExecution := 0
+
+	for couterForStopExecution <= deadLineCount {
+
+		time.Sleep(5 * time.Minute)
+
+		tflog.Info(ctx, "Service Details updated to state file successfully")
+
+		deploymentResponse, err = r.gatewayClient.GetServiceDetailsByID(deploymentID, true)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error in getting service details",
+				err.Error(),
+			)
+			return
+		}
+
+		if deploymentResponse.Status == "complete" {
+
+			data, dgs := helper.UpdateServiceState(deploymentResponse, plan)
+			resp.Diagnostics.Append(dgs...)
+
+			diags = resp.State.Set(ctx, data)
+			resp.Diagnostics.Append(diags...)
+
+			tflog.Info(ctx, "Service Details updated to state file successfully")
+
+			return
+		} else if deploymentResponse.Status == "error" {
+
+			var errorMsg string
+
+			for _, details := range deploymentResponse.JobDetails {
+				if details.Level == "error" {
+					errorMsg += details.Message + "\n"
+				}
+			}
+
+			if errorMsg != "" {
+				resp.Diagnostics.AddError("Error in deploying service", errorMsg)
+			}
+
+			return
+		}
+
+		couterForStopExecution++
+
+	}
+
+	resp.Diagnostics.AddError(
+		"Timed Out For Getting the Deployemnt Status",
+		err.Error(),
+	)
+
 }
 
 // Delete - function to Delete for SDC resource.
@@ -214,14 +313,14 @@ func (r *serviceResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	_, err := r.gatewayClient.DeleteService(state.ID.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error in Deleting service details",
-			err.Error(),
-		)
-		return
-	}
+	// _, err := r.gatewayClient.DeleteService(state.ID.ValueString())
+	// if err != nil {
+	// 	resp.Diagnostics.AddError(
+	// 		"Error in Deleting service details",
+	// 		err.Error(),
+	// 	)
+	// 	return
+	// }
 	resp.State.RemoveResource(ctx)
 
 }

@@ -32,4 +32,5 @@ type ServiceResourceModel struct {
 	Status                types.String `tfsdk:"status"`
 	Compliant             types.Bool   `tfsdk:"compliant"`
 	TemplateName          types.String `tfsdk:"template_name"`
+	DeploymentTimeout     types.Int64  `tfsdk:"deployment_timeout"`
 }

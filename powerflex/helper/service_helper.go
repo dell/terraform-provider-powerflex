@@ -47,6 +47,7 @@ func UpdateServiceState(deploymentResponse *scaleiotypes.ServiceResponse, plan m
 
 	state = GetServiceState(deploymentResponse)
 
-	//state.NumberOfNode = plan.NumberOfNode
+	state.DeploymentTimeout = plan.DeploymentTimeout
+
 	return state, diags
 }

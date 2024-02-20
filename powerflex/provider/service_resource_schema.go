@@ -74,6 +74,12 @@ var ServiceReourceSchema schema.Schema = schema.Schema{
 			Optional:            true,
 			Computed:            true,
 		},
+		"deployment_timeout": schema.Int64Attribute{
+			MarkdownDescription: "Deployment Timeout",
+			Description:         "Deployment Timeout",
+			Optional:            true,
+			Computed:            true,
+		},
 		"id": schema.StringAttribute{
 			Computed:            true,
 			Description:         "Deployment ID",
