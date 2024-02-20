@@ -94,6 +94,9 @@ type SDCDetailDataModel struct {
 	IsSdc              types.String `tfsdk:"is_sdc"`
 	PerformanceProfile types.String `tfsdk:"performance_profile"`
 	SDCName            types.String `tfsdk:"name"`
+	VirtualIps         types.String `tfsdk:"virtual_ips"`
+	VirtualIPNICs      types.String `tfsdk:"virtual_ip_nics"`
+	DataNetworkIP      types.String `tfsdk:"data_network_ip"`
 }
 
 // SDCStateDataModel defines the struct SDC state
@@ -119,6 +122,8 @@ type CsvRow struct {
 	IsMdmOrTb          string
 	IsSdc              string
 	PerformanceProfile string
+	VirtualIps         string
+	VirtualIPNICs      string
 }
 
 // SdcDatasourceSchemaDescriptions defines struct for SDC datasource schema description
