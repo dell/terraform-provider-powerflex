@@ -20,6 +20,7 @@ package provider
 import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
@@ -79,6 +80,7 @@ var ServiceReourceSchema schema.Schema = schema.Schema{
 			Description:         "Deployment Timeout, It should be in multiples of 5",
 			Optional:            true,
 			Computed:            true,
+			Default:             int64default.StaticInt64(60),
 		},
 		"id": schema.StringAttribute{
 			Computed:            true,
