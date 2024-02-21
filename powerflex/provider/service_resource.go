@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2024 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,10 +19,8 @@ package provider
 
 import (
 	"context"
-	"strconv"
 	"terraform-provider-powerflex/powerflex/helper"
 	"terraform-provider-powerflex/powerflex/models"
-	"time"
 
 	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -41,23 +39,23 @@ func ServiceResource() resource.Resource {
 	return &serviceResource{}
 }
 
-// serviceResource - struct to define sdc resource
+// serviceResource - struct to define Service resource
 type serviceResource struct {
 	client        *goscaleio.Client
 	gatewayClient *goscaleio.GatewayClient
 }
 
-// Metadata - function to return metadata for SDC resource.
+// Metadata - function to return metadata for Service resource.
 func (r *serviceResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_service"
 }
 
-// Schema - function to return Schema for SDC resource.
+// Schema - function to return Schema for Service resource.
 func (r *serviceResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = ServiceReourceSchema
 }
 
-// Configure - function to return Configuration for SDC resource.
+// Configure - function to return Configuration for Service resource.
 func (r *serviceResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
@@ -78,7 +76,7 @@ func (r *serviceResource) Configure(_ context.Context, req resource.ConfigureReq
 	}
 }
 
-// Create - function to Create for SDC resource.
+// Create - function to Create for Service resource.
 func (r *serviceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "[POWERFLEX] Create")
 
@@ -99,75 +97,23 @@ func (r *serviceResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	deploymentID := deploymentResponse.ID
-
-	couterForStopExecution := 0
-
-	var deploymentTimeout int
-
-	if !plan.DeploymentTimeout.IsNull() && plan.DeploymentTimeout.ValueInt64() > 0 {
-		deploymentTimeout, _ = strconv.Atoi(plan.DeploymentTimeout.String())
-	} else {
-		deploymentTimeout = 60 //Default
+	deploymentResponse, diag := helper.HandleServiceDeployment(ctx, deploymentResponse, plan, r.gatewayClient)
+	if diag.HasError() {
+		resp.Diagnostics.Append(diag...)
+		return
 	}
 
-	deadLineCount := deploymentTimeout / 5
+	data, dgs := helper.UpdateServiceState(deploymentResponse, plan)
+	resp.Diagnostics.Append(dgs...)
 
-	for couterForStopExecution <= deadLineCount {
+	diags = resp.State.Set(ctx, data)
+	resp.Diagnostics.Append(diags...)
 
-		time.Sleep(5 * time.Minute)
-
-		tflog.Info(ctx, "Service Details updated to state file successfully")
-
-		deploymentResponse, err = r.gatewayClient.GetServiceDetailsByID(deploymentID, true)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error in getting service details",
-				err.Error(),
-			)
-			return
-		}
-
-		if deploymentResponse.Status == "complete" {
-
-			data, dgs := helper.UpdateServiceState(deploymentResponse, plan)
-			resp.Diagnostics.Append(dgs...)
-
-			diags = resp.State.Set(ctx, data)
-			resp.Diagnostics.Append(diags...)
-
-			tflog.Info(ctx, "Service Details updated to state file successfully")
-
-			return
-		} else if deploymentResponse.Status == "error" {
-
-			var errorMsg string
-
-			for _, details := range deploymentResponse.JobDetails {
-				if details.Level == "error" {
-					errorMsg += details.Message + "\n"
-				}
-			}
-
-			if errorMsg != "" {
-				resp.Diagnostics.AddError("Error in deploying service", errorMsg)
-			}
-
-			return
-		}
-
-		couterForStopExecution++
-
-	}
-
-	resp.Diagnostics.AddError(
-		"Timed Out For Getting the Deployemnt Status",
-		err.Error(),
-	)
+	tflog.Info(ctx, "Service Details updated to state file successfully")
 
 }
 
-// Read - function to Read for SDC resource.
+// Read - function to Read for Service resource.
 func (r *serviceResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	tflog.Debug(ctx, "[POWERFLEX] Read")
 	var state models.ServiceResourceModel
@@ -178,7 +124,7 @@ func (r *serviceResource) Read(ctx context.Context, req resource.ReadRequest, re
 	}
 
 	//For handling the import case
-	if state.ID.ValueString() != "" && state.ID.ValueString() != "placeholder" {
+	if state.ID.ValueString() != "" {
 		deploymentResponse, err := r.gatewayClient.GetServiceDetailsByID(state.ID.ValueString(), false)
 		if err != nil {
 			resp.Diagnostics.AddError(
@@ -248,75 +194,23 @@ func (r *serviceResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	}
 
-	var deploymentTimeout int
-
-	if !plan.DeploymentTimeout.IsNull() && plan.DeploymentTimeout.ValueInt64() > 0 {
-		deploymentTimeout, _ = strconv.Atoi(plan.DeploymentTimeout.String())
-	} else {
-		deploymentTimeout = 60 //Default
+	deploymentResponse, diag := helper.HandleServiceDeployment(ctx, deploymentResponse, plan, r.gatewayClient)
+	if diag.HasError() {
+		resp.Diagnostics.Append(diag...)
+		return
 	}
 
-	deadLineCount := deploymentTimeout / 5
+	data, dgs := helper.UpdateServiceState(deploymentResponse, plan)
+	resp.Diagnostics.Append(dgs...)
 
-	deploymentID := deploymentResponse.ID
+	diags = resp.State.Set(ctx, data)
+	resp.Diagnostics.Append(diags...)
 
-	couterForStopExecution := 0
-
-	for couterForStopExecution <= deadLineCount {
-
-		time.Sleep(5 * time.Minute)
-
-		tflog.Info(ctx, "Service Details updated to state file successfully")
-
-		deploymentResponse, err = r.gatewayClient.GetServiceDetailsByID(deploymentID, true)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error in getting service details",
-				err.Error(),
-			)
-			return
-		}
-
-		if deploymentResponse.Status == "complete" {
-
-			data, dgs := helper.UpdateServiceState(deploymentResponse, plan)
-			resp.Diagnostics.Append(dgs...)
-
-			diags = resp.State.Set(ctx, data)
-			resp.Diagnostics.Append(diags...)
-
-			tflog.Info(ctx, "Service Details updated to state file successfully")
-
-			return
-		} else if deploymentResponse.Status == "error" {
-
-			var errorMsg string
-
-			for _, details := range deploymentResponse.JobDetails {
-				if details.Level == "error" {
-					errorMsg += details.Message + "\n"
-				}
-			}
-
-			if errorMsg != "" {
-				resp.Diagnostics.AddError("Error in deploying service", errorMsg)
-			}
-
-			return
-		}
-
-		couterForStopExecution++
-
-	}
-
-	resp.Diagnostics.AddError(
-		"Timed Out For Getting the Deployemnt Status",
-		err.Error(),
-	)
+	tflog.Info(ctx, "Service Details updated to state file successfully")
 
 }
 
-// Delete - function to Delete for SDC resource.
+// Delete - function to Delete for Service resource.
 func (r *serviceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	tflog.Debug(ctx, "[POWERFLEX] Delete")
 	var state models.ServiceResourceModel
@@ -339,7 +233,7 @@ func (r *serviceResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 }
 
-// ImportState - function to ImportState for SDC resource.
+// ImportState - function to ImportState for Service resource.
 func (r *serviceResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	tflog.Debug(ctx, "[POWERFLEX] ImportState :-- "+helper.PrettyJSON(req))
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)

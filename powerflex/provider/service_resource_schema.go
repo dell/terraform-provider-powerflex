@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2024 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
-// ServiceReourceSchema - varible holds schema for Service resource
+// ServiceReourceSchema - variable holds schema for Service resource
 var ServiceReourceSchema schema.Schema = schema.Schema{
 	Description:         "This resource is used to manage the Service entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex Service using this resource. We can also Import an existing Service from PowerFlex array.",
 	MarkdownDescription: "This resource is used to manage the Service entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex Service using this resource. We can also Import an existing Service from PowerFlex array.",

@@ -18,11 +18,16 @@ limitations under the License.
 package helper
 
 import (
+	"context"
+	"strconv"
 	"terraform-provider-powerflex/powerflex/models"
+	"time"
 
+	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // GetServiceState converts scaleiotypes.Template to models.Template
@@ -50,4 +55,69 @@ func UpdateServiceState(deploymentResponse *scaleiotypes.ServiceResponse, plan m
 	state.DeploymentTimeout = plan.DeploymentTimeout
 
 	return state, diags
+}
+
+// UpdateServiceState - function to update state file for Service resource.
+func HandleServiceDeployment(ctx context.Context, deploymentResponse *scaleiotypes.ServiceResponse, plan models.ServiceResourceModel, gatewayClient *goscaleio.GatewayClient) (*scaleiotypes.ServiceResponse, diag.Diagnostics) {
+
+	var diags diag.Diagnostics
+
+	deploymentID := deploymentResponse.ID
+
+	couterForStopExecution := 0
+
+	var deploymentTimeout int
+
+	if !plan.DeploymentTimeout.IsNull() && plan.DeploymentTimeout.ValueInt64() > 0 {
+		deploymentTimeout, _ = strconv.Atoi(plan.DeploymentTimeout.String())
+	} else {
+		deploymentTimeout = 60 //Default
+	}
+
+	deadLineCount := deploymentTimeout / 5
+
+	for couterForStopExecution <= deadLineCount {
+
+		time.Sleep(5 * time.Minute)
+
+		deploymentResponse, err := gatewayClient.GetServiceDetailsByID(deploymentID, true)
+		if err != nil {
+			diags.AddError(
+				"Error in getting service details",
+				err.Error(),
+			)
+			return nil, diags
+		}
+
+		tflog.Info(ctx, "Service Deployment Status is ::"+deploymentResponse.Status)
+
+		if deploymentResponse.Status == "complete" {
+
+			tflog.Info(ctx, "Service Details updated to state file successfully")
+
+			return deploymentResponse, diags
+		} else if deploymentResponse.Status == "error" {
+
+			var errorMsg string
+
+			for _, details := range deploymentResponse.JobDetails {
+				if details.Level == "error" {
+					errorMsg += details.Message + "\n"
+				}
+			}
+
+			if errorMsg != "" {
+				diags.AddError("Error in deploying service", errorMsg)
+			}
+
+			return nil, diags
+		}
+
+		couterForStopExecution++
+
+	}
+
+	diags.AddError("Timed Out For Getting the Deployemnt Status", "Timed Out")
+
+	return nil, diags
 }
