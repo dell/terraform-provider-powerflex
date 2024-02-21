@@ -68,11 +68,7 @@ func HandleServiceDeployment(ctx context.Context, deploymentResponse *scaleiotyp
 
 	var deploymentTimeout int
 
-	if !plan.DeploymentTimeout.IsNull() && plan.DeploymentTimeout.ValueInt64() > 0 {
-		deploymentTimeout, _ = strconv.Atoi(plan.DeploymentTimeout.String())
-	} else {
-		deploymentTimeout = 60 //Default
-	}
+	deploymentTimeout, _ = strconv.Atoi(plan.DeploymentTimeout.String())
 
 	deadLineCount := deploymentTimeout / 5
 
