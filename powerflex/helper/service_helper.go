@@ -47,10 +47,9 @@ func GetServiceState(input *scaleiotypes.ServiceResponse) models.ServiceResource
 
 // UpdateServiceState - function to update state file for Service resource.
 func UpdateServiceState(deploymentResponse *scaleiotypes.ServiceResponse, plan models.ServiceResourceModel) (models.ServiceResourceModel, diag.Diagnostics) {
-	state := plan
 	var diags diag.Diagnostics
 
-	state = GetServiceState(deploymentResponse)
+	state := GetServiceState(deploymentResponse)
 
 	state.DeploymentTimeout = plan.DeploymentTimeout
 
