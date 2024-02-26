@@ -358,12 +358,6 @@ type ComponentValid struct {
 	Messages []Messages `tfsdk:"messages"`
 }
 
-// RelatedComponents is the tfsdk model of RelatedComponents
-type RelatedComponents struct {
-	AdditionalProp1 types.String `tfsdk:"additional_prop_1"`
-	AdditionalProp2 types.String `tfsdk:"additional_prop_2"`
-	AdditionalProp3 types.String `tfsdk:"additional_prop_3"`
-}
 
 // DependenciesDetails is the tfsdk model of DependenciesDetails
 type DependenciesDetails struct {
@@ -474,12 +468,6 @@ type ExternalVirtualDisks struct {
 	EncryptionType        types.String         `tfsdk:"encryption_type"`
 }
 
-// SizeToDiskMap is the tfsdk model of SizeToDiskMap
-type SizeToDiskMap struct {
-	AdditionalProp1 types.Int64 `tfsdk:"additional_prop_1"`
-	AdditionalProp2 types.Int64 `tfsdk:"additional_prop_2"`
-	AdditionalProp3 types.Int64 `tfsdk:"additional_prop_3"`
-}
 
 // RaidConfiguration is the tfsdk model of RaidConfiguration
 type RaidConfiguration struct {
@@ -489,15 +477,9 @@ type RaidConfiguration struct {
 	SsdHotSpares         []types.String         `tfsdk:"ssd_hot_spares"`
 	ExternalHddHotSpares []types.String         `tfsdk:"external_hdd_hot_spares"`
 	ExternalSsdHotSpares []types.String         `tfsdk:"external_ssd_hot_spares"`
-	SizeToDiskMap        SizeToDiskMap          `tfsdk:"size_to_disk_map"`
+	SizeToDiskMap        types.Map          `tfsdk:"size_to_disk_map"`
 }
 
-// Attributes is the tfsdk model of Attributes
-type Attributes struct {
-	AdditionalProp1 types.String `tfsdk:"additional_prop_1"`
-	AdditionalProp2 types.String `tfsdk:"additional_prop_2"`
-	AdditionalProp3 types.String `tfsdk:"additional_prop_3"`
-}
 
 // OptionsDetails is the tfsdk model of OptionsDetails
 type OptionsDetails struct {
@@ -505,7 +487,7 @@ type OptionsDetails struct {
 	Name         types.String          `tfsdk:"name"`
 	Value        types.String          `tfsdk:"value"`
 	Dependencies []DependenciesDetails `tfsdk:"dependencies"`
-	Attributes   Attributes            `tfsdk:"attributes"`
+	Attributes   types.Map            `tfsdk:"attributes"`
 }
 
 // ScaleIOStoragePoolDisks is the tfsdk model of ScaleIOStoragePoolDisks
@@ -847,7 +829,7 @@ type ParametersDetails struct {
 	ScaleIODiskConfiguration ScaleIODiskConfiguration   `tfsdk:"scale_io_disk_configuration"`
 	ProtectionDomainSettings []ProtectionDomainSettings `tfsdk:"protection_domain_settings"`
 	FaultSetSettings         []FaultSetSettings         `tfsdk:"fault_set_settings"`
-	Attributes               Attributes                 `tfsdk:"attributes"`
+	Attributes               types.Map                 `tfsdk:"attributes"`
 	VdsConfiguration         VdsConfiguration           `tfsdk:"vds_configuration"`
 	NodeSelection            NodeSelection              `tfsdk:"node_selection"`
 }
@@ -871,7 +853,7 @@ type Components struct {
 	Teardown            types.Bool        `tfsdk:"teardown"`
 	Type                types.String      `tfsdk:"type"`
 	SubType             types.String      `tfsdk:"sub_type"`
-	RelatedComponents   RelatedComponents `tfsdk:"related_components"`
+	RelatedComponents   types.Map `tfsdk:"related_components"`
 	Resources           []Resources       `tfsdk:"resources"`
 	Brownfield          types.Bool        `tfsdk:"brownfield"`
 	PuppetCertName      types.String      `tfsdk:"puppet_cert_name"`
@@ -935,7 +917,7 @@ type Options struct {
 	ID           types.String          `tfsdk:"id"`
 	Name         types.String          `tfsdk:"name"`
 	Dependencies []DependenciesDetails `tfsdk:"dependencies"`
-	Attributes   Attributes            `tfsdk:"attributes"`
+	Attributes   types.Map            `tfsdk:"attributes"`
 }
 
 // Parameters is the tfsdk model of Parameters

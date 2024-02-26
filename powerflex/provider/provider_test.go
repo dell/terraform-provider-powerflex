@@ -94,6 +94,11 @@ type templateDataPoints struct {
 	TemplateName string
 }
 
+type serviceDataPoints struct {
+	ServiceID   string
+	ServiceName string
+}
+
 func getNewSdsDataPointForTest() sdsDataPoints {
 	var SdsResourceTestData sdsDataPoints
 
@@ -190,6 +195,21 @@ func getTemplateDataForTest() templateDataPoints {
 	return TemplateDataPoints
 }
 
+func getServiceDataForTest() serviceDataPoints {
+
+	var ServiceDataPoints serviceDataPoints
+
+	err := godotenv.Load("powerflex.env")
+	if err != nil {
+		log.Fatal("Error loading .env file: ", err)
+		return ServiceDataPoints
+	}
+
+	ServiceDataPoints.ServiceID = setDefault(os.Getenv("POWERFLEX_SERVICE_ID"), "tfacc_service_id")
+	ServiceDataPoints.ServiceName = setDefault(os.Getenv("POWERFLEX_SERVICE_NAME"), "tfacc_service_name")
+	return ServiceDataPoints
+}
+
 func getNodeDataForTest() nodeDataPoints {
 
 	var NodeDataPoints nodeDataPoints
@@ -222,6 +242,7 @@ var password = setDefault(os.Getenv("POWERFLEX_PASSWORD"), "test")
 var endpoint = setDefault(os.Getenv("POWERFLEX_ENDPOINT"), "http://localhost:3002")
 var NodeDataPoints = getNodeDataForTest()
 var TemplateDataPoints = getTemplateDataForTest()
+var ServiceDataPoints = getServiceDataForTest()
 
 func init() {
 	err := godotenv.Load("powerflex.env")

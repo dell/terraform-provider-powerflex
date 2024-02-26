@@ -172,7 +172,7 @@ func (r *serviceResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	deploymentResponse, err := r.gatewayClient.UpdateService(state.ID.ValueString(), plan.DeploymentName.ValueString(), plan.DeploymentDescription.ValueString(), plan.Nodes.String())
+	deploymentResponse, err := r.gatewayClient.UpdateService(state.ID.ValueString(), plan.DeploymentName.ValueString(), plan.DeploymentDescription.ValueString(), plan.Nodes.String(), "dummy")
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error in deploying service",

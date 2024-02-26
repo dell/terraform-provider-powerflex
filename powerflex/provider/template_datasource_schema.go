@@ -1531,26 +1531,6 @@ func ComponentValidSchema() map[string]schema.Attribute {
 	}
 }
 
-// RelatedComponentsSchema is a function that returns the schema for RelatedComponents
-func RelatedComponentsSchema() map[string]schema.Attribute {
-	return map[string]schema.Attribute{
-		"additional_prop_1": schema.StringAttribute{
-			MarkdownDescription: "Additional property 1 for related components.",
-			Description:         "Additional Property 1",
-			Computed:            true,
-		},
-		"additional_prop_2": schema.StringAttribute{
-			MarkdownDescription: "Additional property 2 for related components.",
-			Description:         "Additional Property 2",
-			Computed:            true,
-		},
-		"additional_prop_3": schema.StringAttribute{
-			MarkdownDescription: "Additional property 3 for related components.",
-			Description:         "Additional Property 3",
-			Computed:            true,
-		},
-	}
-}
 
 // DependenciesDetailsSchema is a function that returns the schema for DependenciesDetails
 func DependenciesDetailsSchema() map[string]schema.Attribute {
@@ -1982,26 +1962,6 @@ func ExternalVirtualDisksSchema() map[string]schema.Attribute {
 	}
 }
 
-// SizeToDiskMapSchema is a function that returns the schema for SizeToDiskMap
-func SizeToDiskMapSchema() map[string]schema.Attribute {
-	return map[string]schema.Attribute{
-		"additional_prop_1": schema.Int64Attribute{
-			MarkdownDescription: "Additional property 1 in the size-to-disk map.",
-			Description:         "Additional Property 1",
-			Computed:            true,
-		},
-		"additional_prop_2": schema.Int64Attribute{
-			MarkdownDescription: "Additional property 2 in the size-to-disk map.",
-			Description:         "Additional Property 2",
-			Computed:            true,
-		},
-		"additional_prop_3": schema.Int64Attribute{
-			MarkdownDescription: "Additional property 3 in the size-to-disk map.",
-			Description:         "Additional Property 3",
-			Computed:            true,
-		},
-	}
-}
 
 // RaidConfigurationSchema is a function that returns the schema for RaidConfiguration
 func RaidConfigurationSchema() map[string]schema.Attribute {
@@ -2042,35 +2002,15 @@ func RaidConfigurationSchema() map[string]schema.Attribute {
 			Computed:            true,
 			ElementType:         types.StringType,
 		},
-		"size_to_disk_map": schema.SingleNestedAttribute{
+		"size_to_disk_map": schema.MapAttribute{
 			MarkdownDescription: "Mapping of size to disks in the RAID configuration.",
 			Description:         "Size to Disk Map",
 			Computed:            true,
-			Attributes:          SizeToDiskMapSchema(),
+			ElementType: types.Int64Type,
 		},
 	}
 }
 
-// AttributesSchema is a function that returns the schema for Attributes
-func AttributesSchema() map[string]schema.Attribute {
-	return map[string]schema.Attribute{
-		"additional_prop_1": schema.StringAttribute{
-			MarkdownDescription: "Additional property 1.",
-			Description:         "Additional Property 1",
-			Computed:            true,
-		},
-		"additional_prop_2": schema.StringAttribute{
-			MarkdownDescription: "Additional property 2.",
-			Description:         "Additional Property 2",
-			Computed:            true,
-		},
-		"additional_prop_3": schema.StringAttribute{
-			MarkdownDescription: "Additional property 3.",
-			Description:         "Additional Property 3",
-			Computed:            true,
-		},
-	}
-}
 
 // OptionsDetailsSchema is a function that returns the schema for OptionsDetails
 func OptionsDetailsSchema() map[string]schema.Attribute {
@@ -2096,11 +2036,11 @@ func OptionsDetailsSchema() map[string]schema.Attribute {
 			Computed:            true,
 			NestedObject:        schema.NestedAttributeObject{Attributes: DependenciesDetailsSchema()},
 		},
-		"attributes": schema.SingleNestedAttribute{
+		"attributes": schema.MapAttribute{
 			MarkdownDescription: "Attributes associated with the option.",
 			Description:         "Option Attributes",
 			Computed:            true,
-			Attributes:          AttributesSchema(),
+			ElementType: types.StringType,
 		},
 	}
 }
@@ -3381,11 +3321,11 @@ func ComponentsSchema() map[string]schema.Attribute {
 			Description:         "The sub-type of the component.",
 			Computed:            true,
 		},
-		"related_components": schema.SingleNestedAttribute{
+		"related_components": schema.MapAttribute{
 			MarkdownDescription: "Related components associated with this component.",
 			Description:         "Related components associated with this component.",
 			Computed:            true,
-			Attributes:          RelatedComponentsSchema(),
+			ElementType: types.StringType,
 		},
 		"resources": schema.ListNestedAttribute{
 			MarkdownDescription: "List of resources associated with the component.",
@@ -3637,11 +3577,11 @@ func OptionsSchema() map[string]schema.Attribute {
 			Computed:            true,
 			NestedObject:        schema.NestedAttributeObject{Attributes: DependenciesDetailsSchema()},
 		},
-		"attributes": schema.SingleNestedAttribute{
+		"attributes": schema.MapAttribute{
 			MarkdownDescription: "Attributes associated with the options.",
 			Description:         "Attributes associated with the options.",
 			Computed:            true,
-			Attributes:          AttributesSchema(),
+			ElementType: types.StringType,
 		},
 	}
 }

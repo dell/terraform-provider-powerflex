@@ -174,7 +174,7 @@ Read-Only:
 - `os_puppet_cert_name` (String) The OS Puppet certificate name associated with the component.
 - `puppet_cert_name` (String) The Puppet certificate name associated with the component.
 - `ref_id` (String) The reference identifier associated with the component.
-- `related_components` (Attributes) Related components associated with this component. (see [below for nested schema](#nestedatt--template_details--components--related_components))
+- `related_components` (Map of String) Related components associated with this component.
 - `resources` (Attributes List) List of resources associated with the component. (see [below for nested schema](#nestedatt--template_details--components--resources))
 - `serial_number` (String) The serial number of the component.
 - `sub_type` (String) The sub-type of the component.
@@ -207,16 +207,6 @@ Read-Only:
 - `severity` (String) The severity level of the message (e.g., INFO, WARNING, ERROR).
 - `time_stamp` (String) The timestamp indicating when the message was generated.
 
-
-
-<a id="nestedatt--template_details--components--related_components"></a>
-### Nested Schema for `template_details.components.related_components`
-
-Read-Only:
-
-- `additional_prop_1` (String) Additional property 1 for related components.
-- `additional_prop_2` (String) Additional property 2 for related components.
-- `additional_prop_3` (String) Additional property 3 for related components.
 
 
 <a id="nestedatt--template_details--components--resources"></a>
