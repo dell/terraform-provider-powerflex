@@ -86,6 +86,10 @@ var NodeDataSourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "List of node pool IDs",
 			Optional:            true,
 			ElementType:         types.Int64Type,
+			Validators: []validator.Set{
+				setvalidator.SizeAtLeast(1),
+				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
+			},
 		},
 		"node_pool_names": schema.SetAttribute{
 			Description:         "List of node pool names",
