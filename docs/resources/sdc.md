@@ -93,7 +93,7 @@ resource "powerflex_sdc" "sdc-example" {
 resource "powerflex_sdc" "expansion" {
   mdm_password = "Password"
   lia_password = "Password"
-  sdc_details = []
+  sdc_details  = []
 }
 
 # Example for installing non-MDM node as SDC. After successful execution, one SDC will be added.
@@ -102,35 +102,35 @@ resource "powerflex_sdc" "sdc-example" {
   lia_password = "Password"
   sdc_details = [
     {
-      ip                  = "IP"
-      username            = "Username"
-      password            = "Password"
-      operating_system    = "linux"
-      is_mdm_or_tb        = "Primary"
-      is_sdc              = "No"
+      ip               = "IP"
+      username         = "Username"
+      password         = "Password"
+      operating_system = "linux"
+      is_mdm_or_tb     = "Primary"
+      is_sdc           = "No"
     },
     {
-      ip                  = "IP"
-      username            = "Username"
-      password            = "Password"
-      operating_system    = "linux"
-      is_mdm_or_tb        = "Secondary"
-      is_sdc              = "No"
+      ip               = "IP"
+      username         = "Username"
+      password         = "Password"
+      operating_system = "linux"
+      is_mdm_or_tb     = "Secondary"
+      is_sdc           = "No"
     },
     {
-      ip                  = "IP"
-      username            = "Username"
-      password            = "Password"
-      operating_system    = "linux"
-      is_mdm_or_tb        = "TB"
-      is_sdc              = "No"
+      ip               = "IP"
+      username         = "Username"
+      password         = "Password"
+      operating_system = "linux"
+      is_mdm_or_tb     = "TB"
+      is_sdc           = "No"
     },
     {
-      ip                  = "IP"
-      username            = "Username"
-      password            = "Password"
-      operating_system    = "linux"
-      is_sdc              = "Yes"
+      ip               = "IP"
+      username         = "Username"
+      password         = "Password"
+      operating_system = "linux"
+      is_sdc           = "Yes"
     }
   ]
 }
@@ -149,7 +149,7 @@ resource "powerflex_sdc" "test" {
   sdc_details = [
     {
       sdc_id = local.matching_sdc[0].id
-      name = "rename_sdc"
+      name   = "rename_sdc"
     },
   ]
 }

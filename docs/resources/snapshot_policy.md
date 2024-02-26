@@ -54,12 +54,12 @@ limitations under the License.
 
 
 resource "powerflex_snapshot_policy" "sp" {
-  name = "snap-create"
-  num_of_retained_snapshots_per_level = [2,6,7]
+  name                                  = "snap-create"
+  num_of_retained_snapshots_per_level   = [2, 6, 7]
   auto_snapshot_creation_cadence_in_min = 6
-  volume_ids = ["edd2fb3100000007", "edd322270000000a"] # assigning or unassigning volumes to snapshot policy
-  snapshot_access_mode = "ReadWrite" # Cannot be updated after creation. It only supports two values : ReadOnly / ReadWrite
-  secure_snapshots = false # Cannot be updated after creation
+  volume_ids                            = ["edd2fb3100000007", "edd322270000000a"] # assigning or unassigning volumes to snapshot policy
+  snapshot_access_mode                  = "ReadWrite"                              # Cannot be updated after creation. It only supports two values : ReadOnly / ReadWrite
+  secure_snapshots                      = false                                    # Cannot be updated after creation
   #remove_mode = "Remove" #remove_mode is applicable while unassingning the volumes from the snapshot policy. It only supports two values : Remove / Detach
 }
 ```
