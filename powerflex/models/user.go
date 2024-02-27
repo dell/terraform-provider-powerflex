@@ -21,6 +21,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+const (
+	Version3_x = "3.5"
+)
+
 // UserModel defines struct for User
 type UserModel struct {
 	ID       types.String `tfsdk:"id"`
