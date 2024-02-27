@@ -18,18 +18,28 @@ limitations under the License.
 package helper
 
 import (
+	"terraform-provider-powerflex/powerflex/models"
+
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"terraform-provider-powerflex/powerflex/models"
 )
 
 // UpdateUserState is the helper function that marshals API response to UserModel
-func UpdateUserState(user *scaleiotypes.User, plan models.UserModel) models.UserModel {
+func UpdateUserState(user *scaleiotypes.User, plan models.UserModel, ssoUser *scaleiotypes.SSOUserDetails) models.UserModel {
 	state := plan
-	state.Name = types.StringValue(user.Name)
-	state.Role = types.StringValue(user.UserRole)
-	state.Password = plan.Password
-	state.ID = types.StringValue(user.ID)
-	state.SystemID = types.StringValue(user.SystemID)
+	if user != nil {
+		state.Name = types.StringValue(user.Name)
+		state.Role = types.StringValue(user.UserRole)
+		state.Password = plan.Password
+		state.ID = types.StringValue(user.ID)
+		state.SystemID = types.StringValue(user.SystemID)
+	} else {
+		state.Name = types.StringValue(ssoUser.Username)
+		state.Role = types.StringValue(ssoUser.Permission.Role)
+		state.Password = plan.Password
+		state.ID = types.StringValue(ssoUser.ID)
+		state.SystemID = types.StringNull()
+	}
+
 	return state
 }

@@ -88,6 +88,11 @@ func (r *serviceResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	if plan.CloneFromHost.ValueString() != "" {
+		resp.Diagnostics.AddError("No need to pass clone_from_host during the deployment of service", "please validate your inputs")
+		return
+	}
+
 	deploymentResponse, err := r.gatewayClient.DeployService(plan.DeploymentName.ValueString(), plan.DeploymentDescription.ValueString(), plan.TemplateID.ValueString(), plan.FirmwareID.ValueString(), plan.Nodes.String())
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -172,7 +177,12 @@ func (r *serviceResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	deploymentResponse, err := r.gatewayClient.UpdateService(state.ID.ValueString(), plan.DeploymentName.ValueString(), plan.DeploymentDescription.ValueString(), plan.Nodes.String(), "dummy")
+	if plan.Nodes.String() != state.Nodes.String() && plan.CloneFromHost.ValueString() == "" {
+		resp.Diagnostics.AddError("Please provide clone_from_host for adding the resource", "please validate your inputs")
+		return
+	}
+
+	deploymentResponse, err := r.gatewayClient.UpdateService(state.ID.ValueString(), plan.DeploymentName.ValueString(), plan.DeploymentDescription.ValueString(), plan.Nodes.String(), plan.CloneFromHost.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error in deploying service",

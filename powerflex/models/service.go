@@ -28,6 +28,7 @@ type ServiceResourceModel struct {
 	DeploymentDescription types.String `tfsdk:"deployment_description"`
 	TemplateID            types.String `tfsdk:"template_id"`
 	FirmwareID            types.String `tfsdk:"firmware_id"`
+	CloneFromHost         types.String `tfsdk:"clone_from_host"`
 	Nodes                 types.Int64  `tfsdk:"nodes"`
 	Status                types.String `tfsdk:"status"`
 	Compliant             types.Bool   `tfsdk:"compliant"`

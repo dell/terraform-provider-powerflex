@@ -35,7 +35,7 @@ resource "powerflex_snapshot" "snapshots-create-01" {
   volume_id     = "4577c84000000120"
   access_mode   = "ReadWrite" # ReadOnly/ReadWrite
   size          = 16
-  capacity_unit = "GB" # GB/TB
+  capacity_unit = "GB"                    # GB/TB
   remove_mode   = "INCLUDING_DESCENDANTS" # INCLUDING_DESCENDANTS/ONLY_ME
 }
 

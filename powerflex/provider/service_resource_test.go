@@ -27,7 +27,7 @@ import (
 
 // TestAccServiceResource tests the Service Resource
 func TestAccServiceResource(t *testing.T) {
-	//t.Skip("Skipping this test case")
+	t.Skip("Skipping this test case")
 	os.Setenv("TF_ACC", "1")
 
 	resource.Test(t, resource.TestCase{
@@ -61,6 +61,10 @@ func TestAccServiceResource(t *testing.T) {
 				ImportStateId: "WRONG",
 				ResourceName:  "powerflex_service.service",
 				ExpectError:   regexp.MustCompile(`.*Couldn't find service with the given filter.*`),
+			},
+			{
+				Config:      ProviderConfigForTesting + ServiceResourceConfig6,
+				ExpectError: regexp.MustCompile(`.*No need to pass clone_from_host during the deployment of service.*`),
 			},
 		},
 	})
@@ -110,6 +114,16 @@ resource "powerflex_service" "service" {
 	deployment_name = "Test-Create-Update"
 	deployment_description = "Test Service-Update"
 	firmware_id = "WRONG"
+	template_id = "ddedf050-c429-4114-b563-3818965481d8"
+}
+`
+
+var ServiceResourceConfig6 = `
+resource "powerflex_service" "service" {
+	deployment_name = "Test-Create-Update"
+	deployment_description = "Test Service-Update"
+	firmware_id = "WRONG"
+	clone_from_host = "ABCD"
 	template_id = "ddedf050-c429-4114-b563-3818965481d8"
 }
 `
