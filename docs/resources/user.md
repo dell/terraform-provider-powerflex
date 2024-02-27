@@ -67,9 +67,9 @@ After the execution of above resource block, new user would have been created on
 
 ### Required
 
-- `name` (String) The name of the user. Cannot be updated.
-- `password` (String) Password of the user. Cannot be updated.
-- `role` (String) The role of the user. Accepted values are 'Administrator', 'Monitor', 'Configure', 'Security', 'FrontendConfig', 'BackendConfig'.
+- `name` (String) The name of the user. For PowerFlex version 3.6, cannot be updated.
+- `password` (String) Password of the user. For PowerFlex version 3.6, cannot be updated.
+- `role` (String) The role of the user. Accepted values for PowerFlex version 3.6 'Administrator', 'Monitor', 'Configure', 'Security', 'FrontendConfig', 'BackendConfig'. Accepted values for PowerFlex version 4.5 are 'Monitor', 'SuperUser', 'SystemAdmin', 'StorageAdmin', 'LifecycleAdmin', 'ReplicationManager', 'SnapshotManager', 'SecurityAdmin', 'DriveReplacer', 'Technician', 'Support'.
 
 ### Read-Only
 

@@ -35,8 +35,14 @@ github.com/cloudflare/circl v1.3.3/go.mod h1:5XYMA4rFBvNIrhs50XuiBJ15vF2pZn4nnUK
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/dell/goscaleio v1.13.1-0.20240226075834-efeafcfb3ee1 h1:q1LcQ0akzEYA0r0CXe//9oZODMCp/o8cHX/+Y0L5pag=
-github.com/dell/goscaleio v1.13.1-0.20240226075834-efeafcfb3ee1/go.mod h1:W0DAsj7v7ZKkZnBol3i/UmdsYUnIhQY+cpiYw2XA/r0=
+github.com/dell/goscaleio v1.13.1-0.20240206130236-c8190fc708b9 h1:Bo/v7mnglDSvqZxs5aZwT233ctU2rc8ZYzpEon+T1MI=
+github.com/dell/goscaleio v1.13.1-0.20240206130236-c8190fc708b9/go.mod h1:dt4Xy5Pnx8MEBza+ODOKiwNFBipcnzEXWgTnFy0+jTw=
+github.com/dell/goscaleio v1.13.1-0.20240222114611-e42b20005cf4 h1:gfVcyoRFNZzTZMxdTJy+WqIDIgA2x2fzezpjMOs3Evg=
+github.com/dell/goscaleio v1.13.1-0.20240222114611-e42b20005cf4/go.mod h1:dt4Xy5Pnx8MEBza+ODOKiwNFBipcnzEXWgTnFy0+jTw=
+github.com/dell/goscaleio v1.13.1-0.20240223101744-1e76d9279f7b h1:url6vovQPgrQrKzU06aeIh9nMTflR8I5ckM8FdeTkC4=
+github.com/dell/goscaleio v1.13.1-0.20240223101744-1e76d9279f7b/go.mod h1:dt4Xy5Pnx8MEBza+ODOKiwNFBipcnzEXWgTnFy0+jTw=
+github.com/dell/goscaleio v1.13.1-0.20240227065812-c20e91b7c0e6 h1:xOOVJa63T6do1gXUFqeJ4bDWsr1UvMljdZ6oxZD6qQ0=
+github.com/dell/goscaleio v1.13.1-0.20240227065812-c20e91b7c0e6/go.mod h1:W0DAsj7v7ZKkZnBol3i/UmdsYUnIhQY+cpiYw2XA/r0=
 github.com/emirpasic/gods v1.18.1 h1:FXtiHYKDGKCW2KzwZKx0iC0PQmdlorYgdFG9jPXJ1Bc=
 github.com/emirpasic/gods v1.18.1/go.mod h1:8tpGGwCnJ5H4r6BWwaV6OrWmMoPhUl5jm/FMNAnJvWQ=
 github.com/emirpasic/gods v1.18.1/go.mod h1:8tpGGwCnJ5H4r6BWwaV6OrWmMoPhUl5jm/FMNAnJvWQ=

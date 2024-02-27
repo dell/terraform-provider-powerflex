@@ -30,6 +30,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
@@ -44,8 +46,9 @@ func UserResource() resource.Resource {
 }
 
 type userResource struct {
-	client *goscaleio.Client
-	system *goscaleio.System
+	client  *goscaleio.Client
+	system  *goscaleio.System
+	version string
 }
 
 func (r *userResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -61,6 +64,9 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				Description:         "The ID of the user.",
 				Computed:            true,
 				MarkdownDescription: "The ID of the user.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"system_id": schema.StringAttribute{
 				Description:         "The ID of the system.",
@@ -69,22 +75,22 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 			},
 
 			"name": schema.StringAttribute{
-				Description: "The name of the user." +
-					" Cannot be updated.",
-				Required: true,
+				Description: "The name of the user. For PowerFlex version 3.6, cannot be updated.",
+				Required:    true,
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 					stringvalidator.LengthAtMost(31),
 				},
-				MarkdownDescription: "The name of the user." +
-					" Cannot be updated.",
+				MarkdownDescription: "The name of the user. For PowerFlex version 3.6, cannot be updated.",
 			},
 			"role": schema.StringAttribute{
 				Description: "The role of the user." +
-					" Accepted values are 'Administrator', 'Monitor', 'Configure', 'Security', 'FrontendConfig', 'BackendConfig'.",
+					" Accepted values for PowerFlex version 3.6 are 'Administrator', 'Monitor', 'Configure', 'Security', 'FrontendConfig', 'BackendConfig'." +
+					" Accepted values for PowerFlex version 4.5 are 'Monitor', 'SuperUser', 'SystemAdmin', 'StorageAdmin', 'LifecycleAdmin', 'ReplicationManager', 'SnapshotManager', 'SecurityAdmin', 'DriveReplacer', 'Technician', 'Support'.",
 				Required: true,
 				MarkdownDescription: "The role of the user." +
-					" Accepted values are 'Administrator', 'Monitor', 'Configure', 'Security', 'FrontendConfig', 'BackendConfig'.",
+					" Accepted values for PowerFlex version 3.6 'Administrator', 'Monitor', 'Configure', 'Security', 'FrontendConfig', 'BackendConfig'." +
+					" Accepted values for PowerFlex version 4.5 are 'Monitor', 'SuperUser', 'SystemAdmin', 'StorageAdmin', 'LifecycleAdmin', 'ReplicationManager', 'SnapshotManager', 'SecurityAdmin', 'DriveReplacer', 'Technician', 'Support'.",
 				Validators: []validator.String{stringvalidator.OneOf(
 					"Monitor",
 					"Configure",
@@ -92,18 +98,26 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 					"Security",
 					"FrontendConfig",
 					"BackendConfig",
+					"SuperUser",
+					"SystemAdmin",
+					"StorageAdmin",
+					"LifecycleAdmin",
+					"ReplicationManager",
+					"SnapshotManager",
+					"SecurityAdmin",
+					"DriveReplacer",
+					"Technician",
+					"Support",
 				)},
 			},
 			"password": schema.StringAttribute{
-				Description: "Password of the user." +
-					" Cannot be updated.",
-				Required: true,
+				Description: "Password of the user. For PowerFlex version 3.6, cannot be updated.",
+				Required:    true,
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 					stringvalidator.LengthAtMost(31),
 				},
-				MarkdownDescription: "Password of the user." +
-					" Cannot be updated.",
+				MarkdownDescription: "Password of the user. For PowerFlex version 3.6, cannot be updated.",
 			},
 		},
 	}
@@ -130,12 +144,18 @@ func (r *userResource) Configure(_ context.Context, req resource.ConfigureReques
 		return
 	}
 	r.system = system
+	r.version = r.client.GetConfigConnect().Version
 }
 
 // Create creates the resource and sets the initial Terraform state.
 func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
-	var plan models.UserModel
+	var (
+		plan    models.UserModel
+		user    *scaleiotypes.User
+		ssoUser *scaleiotypes.SSOUserDetails
+		err     error
+	)
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -144,32 +164,48 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 
 	// Create the user payload by setting the values from plan
-	payload := &scaleiotypes.UserParam{
-		Name:     plan.Name.ValueString(),
-		UserRole: plan.Role.ValueString(),
-		Password: plan.Password.ValueString(),
-	}
+	if r.version == models.Version3X {
+		payload := &scaleiotypes.UserParam{
+			Name:     plan.Name.ValueString(),
+			UserRole: plan.Role.ValueString(),
+			Password: plan.Password.ValueString(),
+		}
+		// create the user
+		response, err := r.system.CreateUser(payload)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error creating the user", "Could not create user, unexpected error: "+err.Error(),
+			)
+			return
+		}
 
-	// create the user
-	response, err2 := r.system.CreateUser(payload)
-	if err2 != nil {
-		resp.Diagnostics.AddError(
-			"Error creating the user", "Could not create user, unexpected error: "+err2.Error(),
-		)
-		return
-	}
-
-	//fetch the user
-	user, err3 := r.system.GetUserByIDName(response.ID, "")
-	if err3 != nil {
-		resp.Diagnostics.AddError(
-			"Error fetching the user after creation", "Could not fetch user, unexpected error: "+err3.Error(),
-		)
-		return
+		//fetch the user
+		user, err = r.system.GetUserByIDName(response.ID, "")
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error fetching the user after creation", "Could not fetch user, unexpected error: "+err.Error(),
+			)
+			return
+		}
+	} else {
+		payload := &scaleiotypes.SSOUserCreateParam{
+			UserName: plan.Name.ValueString(),
+			Role:     plan.Role.ValueString(),
+			Password: plan.Password.ValueString(),
+			Type:     "Local",
+		}
+		// create the user
+		ssoUser, err = r.client.CreateSSOUser(payload)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error creating the user", "Could not create user, unexpected error: "+err.Error(),
+			)
+			return
+		}
 	}
 
 	// update the state as per the values fetched
-	state := helper.UpdateUserState(user, plan)
+	state := helper.UpdateUserState(user, plan, ssoUser)
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -180,9 +216,14 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 // Read refreshes the Terraform state with the latest data.
 func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state models.UserModel
-	var user *scaleiotypes.User
-	var err error
+	var (
+		state    models.UserModel
+		user     *scaleiotypes.User
+		ssoUser  *scaleiotypes.SSOUserDetails
+		ssoUsers *scaleiotypes.SSOUserList
+		err      error
+	)
+
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -190,7 +231,12 @@ func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	}
 	//fetch the user
 	if !state.ID.IsNull() {
-		user, err = r.system.GetUserByIDName(state.ID.ValueString(), "")
+		if r.version == models.Version3X {
+			user, err = r.system.GetUserByIDName(state.ID.ValueString(), "")
+		} else {
+			ssoUser, err = r.client.GetSSOUser(state.ID.ValueString())
+		}
+
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("Could not get user by ID %s", state.ID.ValueString()), err.Error(),
@@ -199,7 +245,14 @@ func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		}
 
 	} else {
-		user, err = r.system.GetUserByIDName("", state.Name.ValueString())
+		if r.version == models.Version3X {
+			user, err = r.system.GetUserByIDName("", state.Name.ValueString())
+		} else {
+			ssoUsers, err = r.client.GetSSOUserByFilters("username", state.Name.ValueString())
+			if len(ssoUsers.SSOUsers) > 0 {
+				ssoUser = &ssoUsers.SSOUsers[0]
+			}
+		}
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("Could not get user by name %s", state.Name.ValueString()), err.Error(),
@@ -208,7 +261,7 @@ func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		}
 	}
 	// update the state as per the values fetched
-	response := helper.UpdateUserState(user, state)
+	response := helper.UpdateUserState(user, state, ssoUser)
 	diags = resp.State.Set(ctx, response)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -219,7 +272,14 @@ func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 
 // Update updates the resource and sets the updated Terraform state on success.
 func (r *userResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan models.UserModel
+	var (
+		plan     models.UserModel
+		state    models.UserModel
+		response models.UserModel
+		user     *scaleiotypes.User
+		ssoUser  *scaleiotypes.SSOUserDetails
+		err      error
+	)
 
 	// Get the plan
 	diags := req.Plan.Get(ctx, &plan)
@@ -228,7 +288,7 @@ func (r *userResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		return
 	}
 	//Get Current State
-	var state models.UserModel
+
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -236,42 +296,86 @@ func (r *userResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	}
 
 	// check if name is updated and if it's updated then throw the error
-	if !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
+	if r.version == models.Version3X && !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		resp.Diagnostics.AddError(
 			"username cannot be updated once the user is created.", "unexpected error: username change is not supported",
 		)
 	}
 	// check if password is updated and if it's updated then throw the error
-	if !plan.Password.IsUnknown() && !plan.Password.Equal(state.Password) {
+	if r.version == models.Version3X && !plan.Password.IsUnknown() && !plan.Password.Equal(state.Password) {
 		resp.Diagnostics.AddError(
 			"password cannot be updated after user creation.", "unexpected error: password change is not supported",
 		)
 	}
 
 	// check if role is updated and if it's updated then set the role as per the plan
-	if plan.Role.ValueString() != state.Role.ValueString() {
-		payload := &scaleiotypes.UserRoleParam{
-			UserRole: plan.Role.ValueString(),
+	if r.version == models.Version3X {
+		if plan.Role.ValueString() != state.Role.ValueString() {
+			payload := &scaleiotypes.UserRoleParam{
+				UserRole: plan.Role.ValueString(),
+			}
+			err = r.system.SetUserRole(payload, state.ID.ValueString())
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"Error while updating role of the user", err.Error(),
+				)
+			}
 		}
-		err2 := r.system.SetUserRole(payload, state.ID.ValueString())
-		if err2 != nil {
+
+		// fetch the user
+		user, err = r.system.GetUserByIDName(state.ID.ValueString(), "")
+		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error while updating role of the user", err2.Error(),
+				fmt.Sprintf("Could not get user by ID %s", state.ID.ValueString()), err.Error(),
 			)
+			return
 		}
 	}
 
-	// fetch the user
-	user, err := r.system.GetUserByIDName(state.ID.ValueString(), "")
-	if err != nil {
-		resp.Diagnostics.AddError(
-			fmt.Sprintf("Could not get user by ID %s", state.ID.ValueString()), err.Error(),
-		)
-		return
+	if r.version == "4.0" {
+		if plan.Role.ValueString() != state.Role.ValueString() || plan.Name.ValueString() != state.Name.ValueString() {
+			payload := &scaleiotypes.SSOUserModifyParam{
+				UserName: plan.Name.ValueString(),
+				Role:     plan.Role.ValueString(),
+			}
+
+			_, err = r.client.ModifySSOUser(state.ID.ValueString(), payload)
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"Error while updating role/username of the user", err.Error(),
+				)
+			}
+		}
+
+		if plan.Password.ValueString() != state.Password.ValueString() {
+			payload := &scaleiotypes.SSOUserModifyParam{
+				Password: plan.Password.ValueString(),
+			}
+
+			err = r.client.ResetSSOUserPassword(state.ID.ValueString(), payload)
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"Error while updating password of the user", err.Error(),
+				)
+			}
+		}
+
+		// fetch the user
+		ssoUser, err = r.client.GetSSOUser(state.ID.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Could not get user by ID %s", state.ID.ValueString()), err.Error(),
+			)
+			return
+		}
 	}
 
 	// set the state
-	response := helper.UpdateUserState(user, state)
+	if r.version == models.Version3X {
+		response = helper.UpdateUserState(user, state, ssoUser)
+	} else {
+		response = helper.UpdateUserState(user, plan, ssoUser)
+	}
 	diags = resp.State.Set(ctx, response)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -281,7 +385,10 @@ func (r *userResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 // Delete deletes the resource and removes the Terraform state on success.
 func (r *userResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state models.UserModel
+	var (
+		state models.UserModel
+		err   error
+	)
 
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -290,10 +397,15 @@ func (r *userResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 	}
 
 	// delete the user
-	err2 := r.system.RemoveUser(state.ID.ValueString())
-	if err2 != nil {
+	if r.version == models.Version3X {
+		err = r.system.RemoveUser(state.ID.ValueString())
+	} else {
+		err = r.client.DeleteSSOUser(state.ID.ValueString())
+	}
+
+	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Deleting User", "Couldn't Delete User "+err2.Error(),
+			"Error Deleting User", "Couldn't Delete User "+err.Error(),
 		)
 		return
 	}
@@ -321,5 +433,4 @@ func (r *userResource) ImportState(ctx context.Context, req resource.ImportState
 	} else {
 		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
 	}
-
 }
