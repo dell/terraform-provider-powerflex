@@ -1531,7 +1531,6 @@ func ComponentValidSchema() map[string]schema.Attribute {
 	}
 }
 
-
 // DependenciesDetailsSchema is a function that returns the schema for DependenciesDetails
 func DependenciesDetailsSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
@@ -1962,7 +1961,6 @@ func ExternalVirtualDisksSchema() map[string]schema.Attribute {
 	}
 }
 
-
 // RaidConfigurationSchema is a function that returns the schema for RaidConfiguration
 func RaidConfigurationSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
@@ -2006,11 +2004,10 @@ func RaidConfigurationSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Mapping of size to disks in the RAID configuration.",
 			Description:         "Size to Disk Map",
 			Computed:            true,
-			ElementType: types.Int64Type,
+			ElementType:         types.Int64Type,
 		},
 	}
 }
-
 
 // OptionsDetailsSchema is a function that returns the schema for OptionsDetails
 func OptionsDetailsSchema() map[string]schema.Attribute {
@@ -2040,7 +2037,7 @@ func OptionsDetailsSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Attributes associated with the option.",
 			Description:         "Option Attributes",
 			Computed:            true,
-			ElementType: types.StringType,
+			ElementType:         types.StringType,
 		},
 	}
 }
@@ -3325,7 +3322,7 @@ func ComponentsSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Related components associated with this component.",
 			Description:         "Related components associated with this component.",
 			Computed:            true,
-			ElementType: types.StringType,
+			ElementType:         types.StringType,
 		},
 		"resources": schema.ListNestedAttribute{
 			MarkdownDescription: "List of resources associated with the component.",
@@ -3581,7 +3578,7 @@ func OptionsSchema() map[string]schema.Attribute {
 			MarkdownDescription: "Attributes associated with the options.",
 			Description:         "Attributes associated with the options.",
 			Computed:            true,
-			ElementType: types.StringType,
+			ElementType:         types.StringType,
 		},
 	}
 }

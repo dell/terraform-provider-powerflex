@@ -21,8 +21,8 @@ import (
 	"terraform-provider-powerflex/powerflex/models"
 
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
@@ -486,15 +486,15 @@ func GetComponentValid(input scaleiotypes.ComponentValid) models.ComponentValid 
 
 // GetRelatedComponents converts scaleiotypes.RelatedComponents to models.RelatedComponents
 func GetRelatedComponents(input map[string]string) basetypes.MapValue {
-	elements := make(map[string]attr.Value) 
+	elements := make(map[string]attr.Value)
 	for key, val := range input {
 		elements[key] = types.StringValue(val)
 	}
 	var setRelComp basetypes.MapValue
-		setRelComp , _ = types.MapValue(types.StringType, elements) 
+	setRelComp, _ = types.MapValue(types.StringType, elements)
 
-	 return setRelComp	
-	}
+	return setRelComp
+}
 
 // GetDependenciesDetails converts scaleiotypes.DependenciesDetails to models.DependenciesDetails
 func GetDependenciesDetails(input scaleiotypes.DependenciesDetails) models.DependenciesDetails {
@@ -670,14 +670,14 @@ func GetExternalVirtualDisks(input scaleiotypes.ExternalVirtualDisks) models.Ext
 
 // GetSizeToDiskMap converts scaleiotypes.SizeToDiskMap to models.SizeToDiskMap
 func GetSizeToDiskMap(input map[string]int) basetypes.MapValue {
-	elements := make(map[string]attr.Value) 
+	elements := make(map[string]attr.Value)
 	for key, val := range input {
 		elements[key] = types.Int64Value(int64(val))
 	}
 	var setSizeToDisk basetypes.MapValue
-	setSizeToDisk , _ = types.MapValue(types.Int64Type, elements) 
-		
-	 return setSizeToDisk
+	setSizeToDisk, _ = types.MapValue(types.Int64Type, elements)
+
+	return setSizeToDisk
 }
 
 // GetRaidConfiguration converts scaleiotypes.RaidConfiguration to models.RaidConfiguration
@@ -713,14 +713,14 @@ func GetExternalVirtualDisksList(inputs []scaleiotypes.ExternalVirtualDisks) []m
 
 // GetAttributes converts scaleiotypes.Attributes to models.Attributes
 func GetAttributes(input map[string]string) basetypes.MapValue {
-	elements := make(map[string]attr.Value) 
+	elements := make(map[string]attr.Value)
 	for key, val := range input {
 		elements[key] = types.StringValue(val)
 	}
 	var setAttr basetypes.MapValue
-	setAttr , _ = types.MapValue(types.StringType, elements) 
+	setAttr, _ = types.MapValue(types.StringType, elements)
 
-	 return setAttr	
+	return setAttr
 }
 
 // GetOptionsDetails converts scaleiotypes.OptionsDetails to models.OptionsDetails

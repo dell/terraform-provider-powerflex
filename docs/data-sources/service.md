@@ -19,12 +19,12 @@ linkTitle: "powerflex_service"
 page_title: "powerflex_service Data Source - powerflex"
 subcategory: ""
 description: |-
-  This datasource is used to query the existing templates from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
+  This datasource is used to query the existing services from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---
 
 # powerflex_service (Data Source)
 
-This datasource is used to query the existing templates from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
+This datasource is used to query the existing services from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 
 ## Example Usage
 
@@ -85,72 +85,72 @@ output "service_result" {
 
 Read-Only:
 
-- `all_users_allowed` (Boolean) all_users_allowed
-- `assigned_users` (Attributes List) assigned_users (see [below for nested schema](#nestedatt--service_details--assigned_users))
-- `brownfield` (Boolean) brownfield
-- `can_migratev_clsv_ms` (Boolean) can_migratev_clsv_ms
-- `compliant` (Boolean) compliant
-- `configuration_change` (Boolean) configuration_change
-- `created_by` (String) created_by
-- `created_date` (String) created_date
-- `current_batch_count` (String) current_batch_count
-- `current_step_count` (String) current_step_count
-- `current_step_message` (String) current_step_message
-- `custom_image` (String) custom_image
+- `all_users_allowed` (Boolean) Indicates whether all users are allowed for the deployment.
+- `assigned_users` (Attributes List) List of users assigned to the deployment. (see [below for nested schema](#nestedatt--service_details--assigned_users))
+- `brownfield` (Boolean) Indicates whether the deployment involves brownfield operations.
+- `can_migratev_clsv_ms` (Boolean) Indicates whether migration of cluster virtual machines is allowed.
+- `compliant` (Boolean) Indicates whether the deployment is compliant.
+- `configuration_change` (Boolean) Specifies whether there has been a change in the deployment configuration.
+- `created_by` (String) The user who created the deployment.
+- `created_date` (String) The date when the deployment was created.
+- `current_batch_count` (String) The current batch count during deployment.
+- `current_step_count` (String) The current step count during deployment.
+- `current_step_message` (String) The message associated with the current step during deployment.
+- `custom_image` (String) The custom image used for deployment.
 - `deployment_description` (String) The description of the service
-- `deployment_device` (Attributes List) deployment_device (see [below for nested schema](#nestedatt--service_details--deployment_device))
-- `deployment_finished_date` (String) deployment_finished_date
-- `deployment_health_status_type` (String) deployment_health_status_type
+- `deployment_device` (Attributes List) List of devices associated with the deployment. (see [below for nested schema](#nestedatt--service_details--deployment_device))
+- `deployment_finished_date` (String) The date when the deployment finished.
+- `deployment_health_status_type` (String) The type of health status associated with the deployment.
 - `deployment_name` (String) The name of the service
-- `deployment_scheduled_date` (String) deployment_scheduled_date
-- `deployment_started_date` (String) deployment_started_date
+- `deployment_scheduled_date` (String) The scheduled date for the deployment.
+- `deployment_started_date` (String) The date when the deployment started.
 - `deployment_valid` (Attributes) Details about the validity of the service (see [below for nested schema](#nestedatt--service_details--deployment_valid))
-- `deployment_validation_response` (Attributes) deployment_validation_response (see [below for nested schema](#nestedatt--service_details--deployment_validation_response))
-- `detail_message` (String) detail_message
-- `disruptive_firmware` (Boolean) disruptive_firmware
-- `error` (String) error
-- `firmware_init` (Boolean) firmware_init
-- `firmware_repository` (Attributes) firmware_repository (see [below for nested schema](#nestedatt--service_details--firmware_repository))
-- `firmware_repository_id` (String) firmware_repository_id
+- `deployment_validation_response` (Attributes) Details about the validation response for the deployment. (see [below for nested schema](#nestedatt--service_details--deployment_validation_response))
+- `detail_message` (String) Detailed Message
+- `disruptive_firmware` (Boolean) Indicates whether disruptive firmware actions are allowed.
+- `error` (String) Error
+- `firmware_init` (Boolean) Indicates whether firmware initialization is performed during deployment.
+- `firmware_repository` (Attributes) Details about the firmware repository used by the template. (see [below for nested schema](#nestedatt--service_details--firmware_repository))
+- `firmware_repository_id` (String) The ID of the firmware repository associated with the deployment.
 - `id` (String) The unique identifier for the service
-- `individual_teardown` (Boolean) individual_teardown
-- `job_details` (Attributes List) job_details (see [below for nested schema](#nestedatt--service_details--job_details))
-- `license_repository` (Attributes) license_repository (see [below for nested schema](#nestedatt--service_details--license_repository))
-- `license_repository_id` (String) license_repository_id
-- `lifecycle_mode` (Boolean) lifecycle_mode
-- `lifecycle_mode_reasons` (List of String) lifecycle_mode_reasons
-- `messages` (Attributes List) messages (see [below for nested schema](#nestedatt--service_details--messages))
-- `no_op` (Boolean) no_op
-- `number_of_deployments` (Number) number_of_deployments
-- `operation_data` (String) operation_data
-- `operation_status` (String) operation_status
-- `operation_type` (String) operation_type
-- `original_deployment_id` (String) original_deployment_id
-- `overall_device_health` (String) overall_device_health
-- `owner` (String) owner
-- `path` (String) path
-- `precalculated_device_health` (String) precalculated_device_health
-- `preconfigure_svm` (Boolean) preconfigure_svm
-- `preconfigure_svm_and_update` (Boolean) preconfigure_svm_and_update
-- `remove_service` (Boolean) remove_service
+- `individual_teardown` (Boolean) Indicates whether to perform individual teardown for the deployment.
+- `job_details` (Attributes List) List of job details associated with the deployment. (see [below for nested schema](#nestedatt--service_details--job_details))
+- `license_repository` (Attributes) Details about the license repository associated with the deployment. (see [below for nested schema](#nestedatt--service_details--license_repository))
+- `license_repository_id` (String) The ID of the license repository associated with the deployment.
+- `lifecycle_mode` (Boolean) Indicates whether the deployment is in lifecycle mode.
+- `lifecycle_mode_reasons` (List of String) List of reasons for the lifecycle mode of the deployment.
+- `messages` (Attributes List) Messages (see [below for nested schema](#nestedatt--service_details--messages))
+- `no_op` (Boolean) Indicates whether the deployment is a no-op (no operation).
+- `number_of_deployments` (Number) The total number of deployments.
+- `operation_data` (String) Additional data associated with the operation.
+- `operation_status` (String) The status of the operation associated with the deployment.
+- `operation_type` (String) The type of operation associated with the deployment.
+- `original_deployment_id` (String) The ID of the original deployment.
+- `overall_device_health` (String) The overall health status of the device in the deployment.
+- `owner` (String) The owner of the deployment.
+- `path` (String) Path
+- `precalculated_device_health` (String) The precalculated health of devices associated with the deployment.
+- `preconfigure_svm` (Boolean) Indicates whether to preconfigure SVM (Storage Virtual Machine).
+- `preconfigure_svm_and_update` (Boolean) Indicates whether to preconfigure SVM and perform an update.
+- `remove_service` (Boolean) Indicates whether the associated service should be removed.
 - `retry` (Boolean) Indicates whether the deployment should be retried.
-- `scale_up` (Boolean) scale_up
-- `schedule_date` (String) schedule_date
-- `service_template` (Attributes) service_template (see [below for nested schema](#nestedatt--service_details--service_template))
-- `services_deployed` (String) services_deployed
-- `status` (String) status
+- `scale_up` (Boolean) Indicates whether the deployment involves scaling up.
+- `schedule_date` (String) The date when the deployment is scheduled.
+- `service_template` (Attributes) Template details (see [below for nested schema](#nestedatt--service_details--service_template))
+- `services_deployed` (String) Details about the services deployed during the deployment.
+- `status` (String) The status of the deployment.
 - `teardown` (Boolean) teardown
-- `teardown_after_cancel` (Boolean) teardown_after_cancel
-- `template_valid` (Boolean) template_valid
-- `timestamp` (String) timestamp
-- `total_batch_count` (String) total_batch_count
-- `total_num_of_steps` (String) total_num_of_steps
-- `update_server_firmware` (Boolean) update_server_firmware
-- `updated_by` (String) updated_by
-- `updated_date` (String) updated_date
-- `use_default_catalog` (Boolean) use_default_catalog
-- `vds` (Boolean) vds
-- `vms` (Attributes List) vms (see [below for nested schema](#nestedatt--service_details--vms))
+- `teardown_after_cancel` (Boolean) Indicates whether teardown should occur after canceling the deployment.
+- `template_valid` (Boolean) Details about the validity of the template.
+- `timestamp` (String) The timestamp indicating when the message was generated.
+- `total_batch_count` (String) The total number of batches involved in the deployment.
+- `total_num_of_steps` (String) The total number of steps involved in the deployment.
+- `update_server_firmware` (Boolean) Indicates whether to update server firmware during the deployment.
+- `updated_by` (String) The user who last updated the deployment.
+- `updated_date` (String) The date when the deployment was last updated.
+- `use_default_catalog` (Boolean) Indicates whether to use the default catalog for the deployment.
+- `vds` (Boolean) Specifies whether the deployment involves Virtual Desktop Infrastructure (VDI) configuration.
+- `vms` (Attributes List) List of virtual machines associated with the deployment. (see [below for nested schema](#nestedatt--service_details--vms))
 
 <a id="nestedatt--service_details--assigned_users"></a>
 ### Nested Schema for `service_details.assigned_users`

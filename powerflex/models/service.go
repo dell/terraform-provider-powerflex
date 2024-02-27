@@ -35,15 +35,15 @@ type ServiceResourceModel struct {
 	DeploymentTimeout     types.Int64  `tfsdk:"deployment_timeout"`
 }
 
-// TemplateDataSourceModel maps the struct to Template data source schema
+// ServiceDataSourceModel is the tfsdk model of service data source schema
 type ServiceDataSourceModel struct {
-	ServiceIDs     types.Set       `tfsdk:"service_ids"`
-	ServiceNames   types.Set       `tfsdk:"service_names"`
+	ServiceIDs     types.Set      `tfsdk:"service_ids"`
+	ServiceNames   types.Set      `tfsdk:"service_names"`
 	ServiceDetails []ServiceModel `tfsdk:"service_details"`
-	ID              types.String    `tfsdk:"id"`
+	ID             types.String   `tfsdk:"id"`
 }
 
-// ServiceResponse is the tfsdk model of ServiceResponse
+// ServiceModel is the tfsdk model of Service Details
 type ServiceModel struct {
 	ID                           types.String                 `tfsdk:"id"`
 	DeploymentName               types.String                 `tfsdk:"deployment_name"`
@@ -63,7 +63,7 @@ type ServiceModel struct {
 	ScheduleDate                 types.String                 `tfsdk:"schedule_date"`
 	Status                       types.String                 `tfsdk:"status"`
 	Compliant                    types.Bool                   `tfsdk:"compliant"`
-	ServiceTemplate              TemplateModel              `tfsdk:"service_template"`
+	ServiceTemplate              TemplateModel                `tfsdk:"service_template"`
 	DeploymentDevice             []DeploymentDevice           `tfsdk:"deployment_device"`
 	Vms                          []Vms                        `tfsdk:"vms"`
 	UpdateServerFirmware         types.Bool                   `tfsdk:"update_server_firmware"`

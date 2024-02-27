@@ -40,7 +40,7 @@ func ServiceDataSource() datasource.DataSource {
 }
 
 type serviceDataSource struct {
-	client *goscaleio.Client
+	client        *goscaleio.Client
 	gatewayClient *goscaleio.GatewayClient
 }
 
@@ -76,7 +76,7 @@ func (d *serviceDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	tflog.Info(ctx, "Started service data source read method")
 
 	var (
-		state         models.ServiceDataSourceModel
+		state        models.ServiceDataSourceModel
 		serviceModel []models.ServiceModel
 	)
 
@@ -102,7 +102,7 @@ func (d *serviceDataSource) Read(ctx context.Context, req datasource.ReadRequest
 			serviceModel = append(serviceModel, helper.GetDataSourceServiceState(*serviceDetails))
 		}
 	} else if !state.ServiceNames.IsNull() {
-		// Fetch Service details if IPs are provided
+		// Fetch Service details if names are provided
 		Names := make([]string, 0)
 		diags.Append(state.ServiceNames.ElementsAs(ctx, &Names, true)...)
 
@@ -117,6 +117,7 @@ func (d *serviceDataSource) Read(ctx context.Context, req datasource.ReadRequest
 			serviceModel = append(serviceModel, helper.GetDataSourceServiceState(serviceDetails[0]))
 		}
 	} else {
+		//Fetch all the details
 		serviceDetails, err := d.gatewayClient.GetAllServiceDetails()
 		if err != nil {
 			resp.Diagnostics.AddError("Error in getting service details", err.Error())

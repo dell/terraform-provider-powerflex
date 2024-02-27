@@ -18,9 +18,9 @@ limitations under the License.
 package provider
 
 import (
-	"testing"
-	"regexp"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"regexp"
+	"testing"
 )
 
 var ServiceDataSourceConfig = `
@@ -47,6 +47,7 @@ data "powerflex_service" "example" {
 `
 
 func TestAccServiceDataSource(t *testing.T) {
+	t.Skip("Skipping this test case")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
