@@ -58,7 +58,7 @@ func UpdateServiceState(deploymentResponse *scaleiotypes.ServiceResponse, plan m
 	return state, diags
 }
 
-// UpdateServiceState - function to update state file for Service resource.
+// HandleServiceDeployment - function to handle service deployment.
 func HandleServiceDeployment(ctx context.Context, deploymentResponse *scaleiotypes.ServiceResponse, plan models.ServiceResourceModel, gatewayClient *goscaleio.GatewayClient) (*scaleiotypes.ServiceResponse, diag.Diagnostics) {
 
 	var diags diag.Diagnostics
