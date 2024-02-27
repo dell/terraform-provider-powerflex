@@ -40,7 +40,8 @@ func NodeDataSource() datasource.DataSource {
 }
 
 type nodeDataSource struct {
-	client *goscaleio.Client
+	client        *goscaleio.Client
+	gatewayClient *goscaleio.GatewayClient
 }
 
 func (d *nodeDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -56,12 +57,19 @@ func (d *nodeDataSource) Configure(_ context.Context, req datasource.ConfigureRe
 		return
 	}
 
-	if req.ProviderData.(*powerflexProvider).client == nil {
-		resp.Diagnostics.AddError("Unable to Authenticate Goscaleio API Client", req.ProviderData.(*powerflexProvider).clientError)
-		return
+	if req.ProviderData.(*powerflexProvider).client != nil {
+
+		d.client = req.ProviderData.(*powerflexProvider).client
 	}
 
-	d.client = req.ProviderData.(*powerflexProvider).client
+	if req.ProviderData.(*powerflexProvider).gatewayClient != nil {
+
+		d.gatewayClient = req.ProviderData.(*powerflexProvider).gatewayClient
+	} else {
+		resp.Diagnostics.AddError("Unable to Authenticate Goscaleio API Client", req.ProviderData.(*powerflexProvider).clientError)
+
+		return
+	}
 }
 
 // Read refreshes the Terraform state with the latest data.
@@ -85,7 +93,7 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		diags.Append(state.NodeIDs.ElementsAs(ctx, &nodeIDs, true)...)
 
 		for _, nodeID := range nodeIDs {
-			nodeDetails, err := d.client.GetNodeByID(nodeID)
+			nodeDetails, err := d.gatewayClient.GetNodeByID(nodeID)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					fmt.Sprintf("Error in getting node details using id %v", nodeID), err.Error(),
@@ -100,7 +108,7 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		diags.Append(state.IPAddresses.ElementsAs(ctx, &IPAddresses, true)...)
 
 		for _, ipAddress := range IPAddresses {
-			nodeDetails, err := d.client.GetNodeByFilters("ipAddress", ipAddress)
+			nodeDetails, err := d.gatewayClient.GetNodeByFilters("ipAddress", ipAddress)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					fmt.Sprintf("Error in getting node details using ip %v", ipAddress), err.Error(),
@@ -115,7 +123,7 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		diags.Append(state.ServiceTags.ElementsAs(ctx, &serviceTags, true)...)
 
 		for _, serviceTag := range serviceTags {
-			nodeDetails, err := d.client.GetNodeByFilters("serviceTag", serviceTag)
+			nodeDetails, err := d.gatewayClient.GetNodeByFilters("serviceTag", serviceTag)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					fmt.Sprintf("Error in getting node details using service tag %v", serviceTag), err.Error(),
@@ -130,7 +138,7 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		diags.Append(state.NodePoolIDs.ElementsAs(ctx, &nodePoolIDs, true)...)
 
 		for _, nodePoolID := range nodePoolIDs {
-			nodePoolDetails, err := d.client.GetNodePoolByID(int(nodePoolID))
+			nodePoolDetails, err := d.gatewayClient.GetNodePoolByID(int(nodePoolID))
 			if err != nil {
 				resp.Diagnostics.AddError(
 					fmt.Sprintf("Error in getting node pool details using id %v", nodePoolID), err.Error(),
@@ -149,7 +157,7 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 
 		for _, nodePoolName := range nodePoolNames {
 			if nodePoolName == "Global" {
-				nodeDetails, err := d.client.GetAllNodes()
+				nodeDetails, err := d.gatewayClient.GetAllNodes()
 				if err != nil {
 					resp.Diagnostics.AddError(
 						"Error in getting node details", err.Error(),
@@ -163,7 +171,7 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 					}
 				}
 			} else {
-				nodePoolDetails, err := d.client.GetNodePoolByName(nodePoolName)
+				nodePoolDetails, err := d.gatewayClient.GetNodePoolByName(nodePoolName)
 				if err != nil {
 					resp.Diagnostics.AddError(
 						fmt.Sprintf("Error in getting node pool details using name %v", nodePoolName), err.Error(),
@@ -177,7 +185,7 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 			}
 		}
 	} else {
-		nodeDetails, err := d.client.GetAllNodes()
+		nodeDetails, err := d.gatewayClient.GetAllNodes()
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error in getting node details", err.Error(),
