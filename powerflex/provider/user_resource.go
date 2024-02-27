@@ -164,7 +164,7 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 
 	// Create the user payload by setting the values from plan
-	if r.version == models.Version3_x {
+	if r.version == models.Version3X {
 		payload := &scaleiotypes.UserParam{
 			Name:     plan.Name.ValueString(),
 			UserRole: plan.Role.ValueString(),
@@ -231,7 +231,7 @@ func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	}
 	//fetch the user
 	if !state.ID.IsNull() {
-		if r.version == models.Version3_x {
+		if r.version == models.Version3X {
 			user, err = r.system.GetUserByIDName(state.ID.ValueString(), "")
 		} else {
 			ssoUser, err = r.client.GetSSOUser(state.ID.ValueString())
@@ -245,7 +245,7 @@ func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		}
 
 	} else {
-		if r.version == models.Version3_x {
+		if r.version == models.Version3X {
 			user, err = r.system.GetUserByIDName("", state.Name.ValueString())
 		} else {
 			ssoUsers, err = r.client.GetSSOUserByFilters("username", state.Name.ValueString())
@@ -296,20 +296,20 @@ func (r *userResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	}
 
 	// check if name is updated and if it's updated then throw the error
-	if r.version == models.Version3_x && !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
+	if r.version == models.Version3X && !plan.Name.IsUnknown() && !plan.Name.Equal(state.Name) {
 		resp.Diagnostics.AddError(
 			"username cannot be updated once the user is created.", "unexpected error: username change is not supported",
 		)
 	}
 	// check if password is updated and if it's updated then throw the error
-	if r.version == models.Version3_x && !plan.Password.IsUnknown() && !plan.Password.Equal(state.Password) {
+	if r.version == models.Version3X && !plan.Password.IsUnknown() && !plan.Password.Equal(state.Password) {
 		resp.Diagnostics.AddError(
 			"password cannot be updated after user creation.", "unexpected error: password change is not supported",
 		)
 	}
 
 	// check if role is updated and if it's updated then set the role as per the plan
-	if r.version == models.Version3_x {
+	if r.version == models.Version3X {
 		if plan.Role.ValueString() != state.Role.ValueString() {
 			payload := &scaleiotypes.UserRoleParam{
 				UserRole: plan.Role.ValueString(),
@@ -371,7 +371,7 @@ func (r *userResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	}
 
 	// set the state
-	if r.version == models.Version3_x {
+	if r.version == models.Version3X {
 		response = helper.UpdateUserState(user, state, ssoUser)
 	} else {
 		response = helper.UpdateUserState(user, plan, ssoUser)
@@ -397,7 +397,7 @@ func (r *userResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 	}
 
 	// delete the user
-	if r.version == models.Version3_x {
+	if r.version == models.Version3X {
 		err = r.system.RemoveUser(state.ID.ValueString())
 	} else {
 		err = r.client.DeleteSSOUser(state.ID.ValueString())
