@@ -61,6 +61,7 @@ resource "powerflex_service" "service" {
   template_id            = "453c41eb-d72a-4ed1-ad16-bacdffbdd766"
   firmware_id            = "8aaaee208c8c467e018cd37813250614"
   nodes                  = 5
+  clone_from_host        = "pfmc-k8s-20230809-160"
   deployment_timeout     = 50
 }
 ```
@@ -79,6 +80,7 @@ After the execution of above resource block, service would have been deployed on
 
 ### Optional
 
+- `clone_from_host` (String) Resource to Duplicate From Host
 - `deployment_timeout` (Number) Deployment Timeout, It should be in multiples of 5
 - `nodes` (Number) Number of Nodes
 

@@ -53,6 +53,8 @@ func UpdateServiceState(deploymentResponse *scaleiotypes.ServiceResponse, plan m
 
 	state.DeploymentTimeout = plan.DeploymentTimeout
 
+	state.CloneFromHost = plan.CloneFromHost
+
 	return state, diags
 }
 

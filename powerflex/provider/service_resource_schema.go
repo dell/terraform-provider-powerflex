@@ -69,6 +69,14 @@ var ServiceReourceSchema schema.Schema = schema.Schema{
 				stringvalidator.LengthAtLeast(1),
 			},
 		},
+		"clone_from_host": schema.StringAttribute{
+			Description:         "Resource to Duplicate From Host",
+			MarkdownDescription: "Resource to Duplicate From Host",
+			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
+		},
 		"nodes": schema.Int64Attribute{
 			MarkdownDescription: "Number of Nodes",
 			Description:         "Number of Nodes",
