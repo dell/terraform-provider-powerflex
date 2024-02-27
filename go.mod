@@ -1,6 +1,6 @@
 module terraform-provider-powerflex
 
-go 1.21
+go 1.22
 
 require (
 	github.com/dell/goscaleio v1.13.1-0.20240227065812-c20e91b7c0e6
