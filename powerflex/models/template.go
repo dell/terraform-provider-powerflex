@@ -358,13 +358,6 @@ type ComponentValid struct {
 	Messages []Messages `tfsdk:"messages"`
 }
 
-// RelatedComponents is the tfsdk model of RelatedComponents
-type RelatedComponents struct {
-	AdditionalProp1 types.String `tfsdk:"additional_prop_1"`
-	AdditionalProp2 types.String `tfsdk:"additional_prop_2"`
-	AdditionalProp3 types.String `tfsdk:"additional_prop_3"`
-}
-
 // DependenciesDetails is the tfsdk model of DependenciesDetails
 type DependenciesDetails struct {
 	ID               types.String `tfsdk:"id"`
@@ -474,13 +467,6 @@ type ExternalVirtualDisks struct {
 	EncryptionType        types.String         `tfsdk:"encryption_type"`
 }
 
-// SizeToDiskMap is the tfsdk model of SizeToDiskMap
-type SizeToDiskMap struct {
-	AdditionalProp1 types.Int64 `tfsdk:"additional_prop_1"`
-	AdditionalProp2 types.Int64 `tfsdk:"additional_prop_2"`
-	AdditionalProp3 types.Int64 `tfsdk:"additional_prop_3"`
-}
-
 // RaidConfiguration is the tfsdk model of RaidConfiguration
 type RaidConfiguration struct {
 	VirtualDisks         []VirtualDisks         `tfsdk:"virtual_disks"`
@@ -489,14 +475,7 @@ type RaidConfiguration struct {
 	SsdHotSpares         []types.String         `tfsdk:"ssd_hot_spares"`
 	ExternalHddHotSpares []types.String         `tfsdk:"external_hdd_hot_spares"`
 	ExternalSsdHotSpares []types.String         `tfsdk:"external_ssd_hot_spares"`
-	SizeToDiskMap        SizeToDiskMap          `tfsdk:"size_to_disk_map"`
-}
-
-// Attributes is the tfsdk model of Attributes
-type Attributes struct {
-	AdditionalProp1 types.String `tfsdk:"additional_prop_1"`
-	AdditionalProp2 types.String `tfsdk:"additional_prop_2"`
-	AdditionalProp3 types.String `tfsdk:"additional_prop_3"`
+	SizeToDiskMap        types.Map              `tfsdk:"size_to_disk_map"`
 }
 
 // OptionsDetails is the tfsdk model of OptionsDetails
@@ -505,7 +484,7 @@ type OptionsDetails struct {
 	Name         types.String          `tfsdk:"name"`
 	Value        types.String          `tfsdk:"value"`
 	Dependencies []DependenciesDetails `tfsdk:"dependencies"`
-	Attributes   Attributes            `tfsdk:"attributes"`
+	Attributes   types.Map             `tfsdk:"attributes"`
 }
 
 // ScaleIOStoragePoolDisks is the tfsdk model of ScaleIOStoragePoolDisks
@@ -847,7 +826,7 @@ type ParametersDetails struct {
 	ScaleIODiskConfiguration ScaleIODiskConfiguration   `tfsdk:"scale_io_disk_configuration"`
 	ProtectionDomainSettings []ProtectionDomainSettings `tfsdk:"protection_domain_settings"`
 	FaultSetSettings         []FaultSetSettings         `tfsdk:"fault_set_settings"`
-	Attributes               Attributes                 `tfsdk:"attributes"`
+	Attributes               types.Map                  `tfsdk:"attributes"`
 	VdsConfiguration         VdsConfiguration           `tfsdk:"vds_configuration"`
 	NodeSelection            NodeSelection              `tfsdk:"node_selection"`
 }
@@ -861,32 +840,32 @@ type Resources struct {
 
 // Components is the tfsdk model of Components
 type Components struct {
-	ID                  types.String      `tfsdk:"id"`
-	ComponentID         types.String      `tfsdk:"component_id"`
-	Identifier          types.String      `tfsdk:"identifier"`
-	ComponentValid      ComponentValid    `tfsdk:"component_valid"`
-	Name                types.String      `tfsdk:"name"`
-	HelpText            types.String      `tfsdk:"help_text"`
-	ClonedFromID        types.String      `tfsdk:"cloned_from_id"`
-	Teardown            types.Bool        `tfsdk:"teardown"`
-	Type                types.String      `tfsdk:"type"`
-	SubType             types.String      `tfsdk:"sub_type"`
-	RelatedComponents   RelatedComponents `tfsdk:"related_components"`
-	Resources           []Resources       `tfsdk:"resources"`
-	Brownfield          types.Bool        `tfsdk:"brownfield"`
-	PuppetCertName      types.String      `tfsdk:"puppet_cert_name"`
-	OsPuppetCertName    types.String      `tfsdk:"os_puppet_cert_name"`
-	ManagementIPAddress types.String      `tfsdk:"management_ip_address"`
-	SerialNumber        types.String      `tfsdk:"serial_number"`
-	AsmGUID             types.String      `tfsdk:"asm_guid"`
-	Cloned              types.Bool        `tfsdk:"cloned"`
-	ConfigFile          types.String      `tfsdk:"config_file"`
-	ManageFirmware      types.Bool        `tfsdk:"manage_firmware"`
-	Instances           types.Int64       `tfsdk:"instances"`
-	RefID               types.String      `tfsdk:"ref_id"`
-	ClonedFromAsmGUID   types.String      `tfsdk:"cloned_from_asm_guid"`
-	Changed             types.Bool        `tfsdk:"changed"`
-	IP                  types.String      `tfsdk:"ip"`
+	ID                  types.String   `tfsdk:"id"`
+	ComponentID         types.String   `tfsdk:"component_id"`
+	Identifier          types.String   `tfsdk:"identifier"`
+	ComponentValid      ComponentValid `tfsdk:"component_valid"`
+	Name                types.String   `tfsdk:"name"`
+	HelpText            types.String   `tfsdk:"help_text"`
+	ClonedFromID        types.String   `tfsdk:"cloned_from_id"`
+	Teardown            types.Bool     `tfsdk:"teardown"`
+	Type                types.String   `tfsdk:"type"`
+	SubType             types.String   `tfsdk:"sub_type"`
+	RelatedComponents   types.Map      `tfsdk:"related_components"`
+	Resources           []Resources    `tfsdk:"resources"`
+	Brownfield          types.Bool     `tfsdk:"brownfield"`
+	PuppetCertName      types.String   `tfsdk:"puppet_cert_name"`
+	OsPuppetCertName    types.String   `tfsdk:"os_puppet_cert_name"`
+	ManagementIPAddress types.String   `tfsdk:"management_ip_address"`
+	SerialNumber        types.String   `tfsdk:"serial_number"`
+	AsmGUID             types.String   `tfsdk:"asm_guid"`
+	Cloned              types.Bool     `tfsdk:"cloned"`
+	ConfigFile          types.String   `tfsdk:"config_file"`
+	ManageFirmware      types.Bool     `tfsdk:"manage_firmware"`
+	Instances           types.Int64    `tfsdk:"instances"`
+	RefID               types.String   `tfsdk:"ref_id"`
+	ClonedFromAsmGUID   types.String   `tfsdk:"cloned_from_asm_guid"`
+	Changed             types.Bool     `tfsdk:"changed"`
+	IP                  types.String   `tfsdk:"ip"`
 }
 
 // IPRange is the tfsdk model of IPRange
@@ -935,7 +914,7 @@ type Options struct {
 	ID           types.String          `tfsdk:"id"`
 	Name         types.String          `tfsdk:"name"`
 	Dependencies []DependenciesDetails `tfsdk:"dependencies"`
-	Attributes   Attributes            `tfsdk:"attributes"`
+	Attributes   types.Map             `tfsdk:"attributes"`
 }
 
 // Parameters is the tfsdk model of Parameters
