@@ -35,16 +35,29 @@ func TestAccServiceResource(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
+				PlanOnly:    true,
 				Config:      ProviderConfigForTesting + ServiceResourceConfig1,
 				ExpectError: regexp.MustCompile(`.*"firmware_id" is required.*`),
 			},
 			{
+				PlanOnly:    true,
 				Config:      ProviderConfigForTesting + ServiceResourceConfig2,
 				ExpectError: regexp.MustCompile(`.*"template_id" is required.*`),
 			},
 			{
+				PlanOnly:    true,
 				Config:      ProviderConfigForTesting + ServiceResourceConfig3,
 				ExpectError: regexp.MustCompile(`.*"deployment_name" is required.*`),
+			},
+			{
+				PlanOnly:    true,
+				Config:      ProviderConfigForTesting + ServiceResourceWrongDeplTime,
+				ExpectError: regexp.MustCompile(`.*Attribute deployment_timeout value must be at least 10, got: 5.*`),
+			},
+			{
+				PlanOnly:    true,
+				Config:      ProviderConfigForTesting + ServiceResourceWrongNodes,
+				ExpectError: regexp.MustCompile(`.*Attribute nodes value must be at least 1, got: 0.*`),
 			},
 			{
 				Config:      ProviderConfigForTesting + ServiceResourceConfig4,
@@ -115,6 +128,26 @@ resource "powerflex_service" "service" {
 	deployment_description = "Test Service-Update"
 	firmware_id = "WRONG"
 	template_id = "ddedf050-c429-4114-b563-3818965481d8"
+}
+`
+
+var ServiceResourceWrongDeplTime = `
+resource "powerflex_service" "service" {
+	deployment_name = "Test-Create-Update"
+	deployment_description = "Test Service-Update"
+	firmware_id = "WRONG"
+	template_id = "ddedf050-c429-4114-b563-3818965481d8"
+	deployment_timeout     = 5
+}
+`
+
+var ServiceResourceWrongNodes = `
+resource "powerflex_service" "service" {
+	deployment_name = "Test-Create-Update"
+	deployment_description = "Test Service-Update"
+	firmware_id = "WRONG"
+	template_id = "ddedf050-c429-4114-b563-3818965481d8"
+	nodes     = 0
 }
 `
 

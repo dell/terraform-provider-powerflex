@@ -88,16 +88,6 @@ func (r *serviceResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	if plan.Nodes.ValueInt64() < 0 {
-		resp.Diagnostics.AddError("Node Value should be greater than or equal 0", "please validate your inputs")
-		return
-	}
-
-	if plan.DeploymentTimeout.ValueInt64() < 10 {
-		resp.Diagnostics.AddError("Deployment Timeout Value should be greater than or equal 10", "please validate your inputs")
-		return
-	}
-
 	if plan.CloneFromHost.ValueString() != "" {
 		resp.Diagnostics.AddError("No need to pass clone_from_host during the deployment of service", "please validate your inputs")
 		return
@@ -187,33 +177,23 @@ func (r *serviceResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	if plan.Nodes.ValueInt64() < 0 {
-		resp.Diagnostics.AddError("Node Value should be greater than or equal 0", "please validate your inputs")
-		return
-	}
-
-	if plan.DeploymentTimeout.ValueInt64() < 10 {
-		resp.Diagnostics.AddError("Deployment Timeout Value should be greater than or equal 10", "please validate your inputs")
-		return
-	}
-
 	if plan.Nodes.ValueInt64() < state.Nodes.ValueInt64() {
 		resp.Diagnostics.AddError("Removing node(s) is not supported", "please validate your inputs")
-		return
 	}
 
 	if plan.Nodes.String() != state.Nodes.String() && plan.CloneFromHost.ValueString() == "" {
 		resp.Diagnostics.AddError("Please provide clone_from_host for adding the resource", "please validate your inputs")
-		return
 	}
 
 	if plan.TemplateID.String() != state.TemplateID.String() {
 		resp.Diagnostics.AddError("Changing of template_id is not supported", "please validate your inputs")
-		return
 	}
 
 	if plan.FirmwareID.String() != state.FirmwareID.String() {
 		resp.Diagnostics.AddError("Changing of firmware_id is not supported", "please validate your inputs")
+	}
+
+	if resp.Diagnostics.HasError() {
 		return
 	}
 

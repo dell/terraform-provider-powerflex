@@ -20,6 +20,7 @@ package provider
 import (
 	"terraform-provider-powerflex/powerflex/helper"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
@@ -85,6 +86,9 @@ var ServiceReourceSchema schema.Schema = schema.Schema{
 			Description:         "Number of Nodes",
 			Optional:            true,
 			Computed:            true,
+			Validators: []validator.Int64{
+				int64validator.AtLeast(1),
+			},
 		},
 		"deployment_timeout": schema.Int64Attribute{
 			MarkdownDescription: "Deployment Timeout, It should be in multiples of 5",
@@ -92,6 +96,9 @@ var ServiceReourceSchema schema.Schema = schema.Schema{
 			Optional:            true,
 			Computed:            true,
 			Default:             int64default.StaticInt64(60),
+			Validators: []validator.Int64{
+				int64validator.AtLeast(10),
+			},
 		},
 		"id": schema.StringAttribute{
 			Computed:            true,
