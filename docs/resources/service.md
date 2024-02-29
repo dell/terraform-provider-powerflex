@@ -81,7 +81,6 @@ After the execution of above resource block, service would have been deployed on
 ### Optional
 
 - `clone_from_host` (String) Resource to Duplicate From Host
-- `clone_from_host` (String) Resource to Duplicate From Host
 - `deployment_timeout` (Number) Deployment Timeout, It should be in multiples of 5
 - `nodes` (Number) Number of Nodes
 - `servers_in_inventory` (String) After Delete the Service, Servers in inventory `Keep` or `Remove`.  Default value is `Keep`
