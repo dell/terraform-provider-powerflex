@@ -70,6 +70,7 @@ var SnapshotPolicyResourceSchema schema.Schema = schema.Schema{
 			ElementType:         types.StringType,
 			Validators: []validator.Set{
 				setvalidator.SizeAtLeast(1),
+				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
 			},
 		},
 		"remove_mode": schema.StringAttribute{
