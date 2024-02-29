@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 )
 
 // SnapshotPolicyResourceSchema - variable holds schema for Snapshot Policy
@@ -67,6 +68,9 @@ var SnapshotPolicyResourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "List which represents the volume ids which is to be assigned to the snapshot policy.",
 			Optional:            true,
 			ElementType:         types.StringType,
+			Validators: []validator.Set{
+				setvalidator.SizeAtLeast(1),
+			},
 		},
 		"remove_mode": schema.StringAttribute{
 			Description:         "When removing the source volume from the policy, user should choose how to handle the snapshots created by the policy. Valid values are 'Remove' and 'Detach'. Default value is `Detach`.",
