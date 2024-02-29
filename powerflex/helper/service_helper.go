@@ -55,6 +55,10 @@ func UpdateServiceState(deploymentResponse *scaleiotypes.ServiceResponse, plan m
 
 	state.CloneFromHost = plan.CloneFromHost
 
+	state.ServersInInventory = plan.ServersInInventory
+
+	state.ServersManagedState = plan.ServersManagedState
+
 	return state, diags
 }
 

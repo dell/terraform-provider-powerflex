@@ -60,9 +60,9 @@ resource "powerflex_service" "service" {
   deployment_description = "Test Service-U1"
   template_id            = "453c41eb-d72a-4ed1-ad16-bacdffbdd766"
   firmware_id            = "8aaaee208c8c467e018cd37813250614"
-  nodes                  = 5
+  nodes                  = 0
   clone_from_host        = "pfmc-k8s-20230809-160"
-  deployment_timeout     = 50
+  deployment_timeout     = 0
 }
 ```
 
@@ -83,6 +83,8 @@ After the execution of above resource block, service would have been deployed on
 - `clone_from_host` (String) Resource to Duplicate From Host
 - `deployment_timeout` (Number) Deployment Timeout, It should be in multiples of 5
 - `nodes` (Number) Number of Nodes
+- `servers_in_inventory` (String) After Delete the Service, Servers in inventory `Keep` or `Remove`.  Default value is `Keep`
+- `servers_managed_state` (String) After Delete the Service, Servers's state `Managed` or `Unmanaged`. Default value is `Unmanaged`.
 
 ### Read-Only
 

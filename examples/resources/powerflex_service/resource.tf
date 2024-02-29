@@ -28,7 +28,7 @@ resource "powerflex_service" "service" {
   deployment_description = "Test Service-U1"
   template_id            = "453c41eb-d72a-4ed1-ad16-bacdffbdd766"
   firmware_id            = "8aaaee208c8c467e018cd37813250614"
-  nodes                  = 5
+  nodes                  = 0
   clone_from_host        = "pfmc-k8s-20230809-160"
-  deployment_timeout     = 50
+  deployment_timeout     = 0
 }
