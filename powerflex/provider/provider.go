@@ -279,6 +279,7 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 		FaultSetDataSource,
 		NodeDataSource,
 		TemplateDataSource,
+		ServiceDataSource,
 	}
 }
 

@@ -21,6 +21,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+// Version3X specifies PowerFlex version 3.5
+const (
+	Version3X = "3.5"
+)
+
 // UserModel defines struct for User
 type UserModel struct {
 	ID       types.String `tfsdk:"id"`

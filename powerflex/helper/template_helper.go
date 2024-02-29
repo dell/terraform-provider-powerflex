@@ -21,7 +21,9 @@ import (
 	"terraform-provider-powerflex/powerflex/models"
 
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 // GetTemplateState converts scaleiotypes.Template to models.Template
@@ -483,12 +485,15 @@ func GetComponentValid(input scaleiotypes.ComponentValid) models.ComponentValid 
 }
 
 // GetRelatedComponents converts scaleiotypes.RelatedComponents to models.RelatedComponents
-func GetRelatedComponents(input scaleiotypes.RelatedComponents) models.RelatedComponents {
-	return models.RelatedComponents{
-		AdditionalProp1: types.StringValue(input.AdditionalProp1),
-		AdditionalProp2: types.StringValue(input.AdditionalProp2),
-		AdditionalProp3: types.StringValue(input.AdditionalProp3),
+func GetRelatedComponents(input map[string]string) basetypes.MapValue {
+	elements := make(map[string]attr.Value)
+	for key, val := range input {
+		elements[key] = types.StringValue(val)
 	}
+	var setRelComp basetypes.MapValue
+	setRelComp, _ = types.MapValue(types.StringType, elements)
+
+	return setRelComp
 }
 
 // GetDependenciesDetails converts scaleiotypes.DependenciesDetails to models.DependenciesDetails
@@ -664,12 +669,15 @@ func GetExternalVirtualDisks(input scaleiotypes.ExternalVirtualDisks) models.Ext
 }
 
 // GetSizeToDiskMap converts scaleiotypes.SizeToDiskMap to models.SizeToDiskMap
-func GetSizeToDiskMap(input scaleiotypes.SizeToDiskMap) models.SizeToDiskMap {
-	return models.SizeToDiskMap{
-		AdditionalProp1: types.Int64Value(int64(input.AdditionalProp1)),
-		AdditionalProp2: types.Int64Value(int64(input.AdditionalProp2)),
-		AdditionalProp3: types.Int64Value(int64(input.AdditionalProp3)),
+func GetSizeToDiskMap(input map[string]int) basetypes.MapValue {
+	elements := make(map[string]attr.Value)
+	for key, val := range input {
+		elements[key] = types.Int64Value(int64(val))
 	}
+	var setSizeToDisk basetypes.MapValue
+	setSizeToDisk, _ = types.MapValue(types.Int64Type, elements)
+
+	return setSizeToDisk
 }
 
 // GetRaidConfiguration converts scaleiotypes.RaidConfiguration to models.RaidConfiguration
@@ -704,12 +712,15 @@ func GetExternalVirtualDisksList(inputs []scaleiotypes.ExternalVirtualDisks) []m
 }
 
 // GetAttributes converts scaleiotypes.Attributes to models.Attributes
-func GetAttributes(input scaleiotypes.Attributes) models.Attributes {
-	return models.Attributes{
-		AdditionalProp1: types.StringValue(input.AdditionalProp1),
-		AdditionalProp2: types.StringValue(input.AdditionalProp2),
-		AdditionalProp3: types.StringValue(input.AdditionalProp3),
+func GetAttributes(input map[string]string) basetypes.MapValue {
+	elements := make(map[string]attr.Value)
+	for key, val := range input {
+		elements[key] = types.StringValue(val)
 	}
+	var setAttr basetypes.MapValue
+	setAttr, _ = types.MapValue(types.StringType, elements)
+
+	return setAttr
 }
 
 // GetOptionsDetails converts scaleiotypes.OptionsDetails to models.OptionsDetails
