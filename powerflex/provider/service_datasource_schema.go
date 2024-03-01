@@ -19,6 +19,7 @@ package provider
 
 import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -42,6 +43,7 @@ var ServiceDataSourceSchema schema.Schema = schema.Schema{
 			ElementType:         types.StringType,
 			Validators: []validator.Set{
 				setvalidator.SizeAtLeast(1),
+				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
 				setvalidator.ConflictsWith(
 					path.MatchRoot("service_names"),
 				),
@@ -54,6 +56,7 @@ var ServiceDataSourceSchema schema.Schema = schema.Schema{
 			ElementType:         types.StringType,
 			Validators: []validator.Set{
 				setvalidator.SizeAtLeast(1),
+				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
 			},
 		},
 		"service_details": schema.SetNestedAttribute{
