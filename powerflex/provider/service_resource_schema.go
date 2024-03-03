@@ -18,9 +18,14 @@ limitations under the License.
 package provider
 
 import (
+	"terraform-provider-powerflex/powerflex/helper"
+
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
@@ -82,6 +87,12 @@ var ServiceReourceSchema schema.Schema = schema.Schema{
 			Description:         "Number of Nodes",
 			Optional:            true,
 			Computed:            true,
+			Validators: []validator.Int64{
+				int64validator.AtLeast(1),
+			},
+			PlanModifiers: []planmodifier.Int64{
+				int64planmodifier.UseStateForUnknown(),
+			},
 		},
 		"deployment_timeout": schema.Int64Attribute{
 			MarkdownDescription: "Deployment Timeout, It should be in multiples of 5",
@@ -89,6 +100,9 @@ var ServiceReourceSchema schema.Schema = schema.Schema{
 			Optional:            true,
 			Computed:            true,
 			Default:             int64default.StaticInt64(60),
+			Validators: []validator.Int64{
+				int64validator.AtLeast(10),
+			},
 		},
 		"id": schema.StringAttribute{
 			Computed:            true,
@@ -104,6 +118,32 @@ var ServiceReourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Deployment Compliant Status",
 			Description:         "Deployment Compliant Status",
 			Computed:            true,
+		},
+		"servers_in_inventory": schema.StringAttribute{
+			MarkdownDescription: "After Delete the Service, Servers in inventory `Keep` or `Remove`.  Default value is `Keep`",
+			Description:         "After Delete the Service, Servers in inventory `Keep` or `Remove`.  Default value is `Keep`",
+			Optional:            true,
+			Computed:            true,
+			Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
+				"remove",
+				"keep",
+			)},
+			PlanModifiers: []planmodifier.String{
+				helper.StringDefault("keep"),
+			},
+		},
+		"servers_managed_state": schema.StringAttribute{
+			MarkdownDescription: "After Delete the Service, Servers's state `Managed` or `Unmanaged`. Default value is `Unmanaged`.",
+			Description:         "After Delete the Service, Servers's state `Managed` or `Unmanaged`. Default value is `Unmanaged`.",
+			Optional:            true,
+			Computed:            true,
+			Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
+				"managed",
+				"unmanaged",
+			)},
+			PlanModifiers: []planmodifier.String{
+				helper.StringDefault("unmanaged"),
+			},
 		},
 	},
 }

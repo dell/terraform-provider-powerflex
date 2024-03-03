@@ -177,8 +177,23 @@ func (r *serviceResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
+	if plan.Nodes.ValueInt64() < state.Nodes.ValueInt64() {
+		resp.Diagnostics.AddError("Removing node(s) is not supported", "please validate your inputs")
+	}
+
 	if plan.Nodes.String() != state.Nodes.String() && plan.CloneFromHost.ValueString() == "" {
 		resp.Diagnostics.AddError("Please provide clone_from_host for adding the resource", "please validate your inputs")
+	}
+
+	if plan.TemplateID.String() != state.TemplateID.String() {
+		resp.Diagnostics.AddError("Changing of template_id is not supported", "please validate your inputs")
+	}
+
+	if plan.FirmwareID.String() != state.FirmwareID.String() {
+		resp.Diagnostics.AddError("Changing of firmware_id is not supported", "please validate your inputs")
+	}
+
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -230,7 +245,7 @@ func (r *serviceResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	_, err := r.gatewayClient.DeleteService(state.ID.ValueString())
+	_, err := r.gatewayClient.DeleteService(state.ID.ValueString(), state.ServersInInventory.ValueString(), state.ServersManagedState.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error in Deleting service details",

@@ -70,6 +70,32 @@ func TestAccServiceResource(t *testing.T) {
 	})
 }
 
+func TestAccServiceResourcePositive(t *testing.T) {
+	t.Skip("Skipping this test case, only for Unit test")
+	os.Setenv("TF_ACC", "1")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			//Create
+			{
+				Config: ProviderConfigForTesting + ServiceResourceCreateConfig,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_service.service", "deployment_name", "Block-Storage-Hardware"),
+				),
+			},
+			//Update
+			{
+				Config: ProviderConfigForTesting + ServiceResourceUpdateConfig,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_service.service", "deployment_name", "Block-Storage-Hardware-Update"),
+				),
+			},
+		},
+	})
+}
+
 var importServiceTest = `
 resource "powerflex_service" "service"  {
 	
@@ -125,5 +151,23 @@ resource "powerflex_service" "service" {
 	firmware_id = "WRONG"
 	clone_from_host = "ABCD"
 	template_id = "ddedf050-c429-4114-b563-3818965481d8"
+}
+`
+
+var ServiceResourceCreateConfig = `
+resource "powerflex_service" "service" {
+	deployment_name = "Block-Storage-Hardware"
+	deployment_description = "Block-Storage-Hardware"
+	template_id = "4f4b69de-debb-4a5f-8f3f-44aca8259596"
+	firmware_id = "8aaa804a8b4d6b5a018b4d77a75900e9"
+}
+`
+
+var ServiceResourceUpdateConfig = `
+resource "powerflex_service" "service" {
+	deployment_name = "Block-Storage-Hardware-Update"
+	deployment_description = "Block-Storage-Hardware-Update"
+	template_id = "4f4b69de-debb-4a5f-8f3f-44aca8259596"
+	firmware_id = "8aaa804a8b4d6b5a018b4d77a75900e9"
 }
 `
