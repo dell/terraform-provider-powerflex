@@ -18,10 +18,11 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"os"
 	"regexp"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 var create8gbVol = `
@@ -231,6 +232,56 @@ func TestAccSnapshotResourceDependant(t *testing.T) {
 		},
 	},
 	)
+}
+
+func TestAccSnapshotPolicyResourceUnit(t *testing.T) {
+
+	t.Skip("Unit Test Case")
+
+	var SPResourceCreateWithVol = `
+		resource "powerflex_snapshot_policy" "avengers-sp-create" {
+			name = "sample_snap_policy_1"
+			num_of_retained_snapshots_per_level = [5]
+			auto_snapshot_creation_cadence_in_min = 50400
+			paused = true
+			secure_snapshots = false
+			snapshot_access_mode = "ReadOnly"
+			volume_ids = ["5f54577100000004","5f5437c200000003"]
+		}
+	`
+
+	var SPResourceCreateWithVolUpdate = `
+		resource "powerflex_snapshot_policy" "avengers-sp-create" {
+			name = "sample_snap_policy_update"
+			num_of_retained_snapshots_per_level = [2,4,6]
+			auto_snapshot_creation_cadence_in_min = 6
+			paused = true
+			secure_snapshots = false
+			snapshot_access_mode = "ReadOnly"
+			volume_ids = ["5f54577100000004","5f5437c200000003"]
+			remove_mode = "Remove"
+		}
+	`
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Create snapshot policy
+			{
+				Config: ProviderConfigForTesting + SPResourceCreateWithVol,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_snapshot_policy.avengers-sp-create", "name", "sample_snap_policy_1"),
+				),
+			},
+			// Update snapshot policy
+			{
+				Config: ProviderConfigForTesting + SPResourceCreateWithVolUpdate,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_snapshot_policy.avengers-sp-create", "name", "sample_snap_policy_update"),
+				),
+			},
+		},
+	})
 }
 
 var CreateSnapshotWithVolumeName = `

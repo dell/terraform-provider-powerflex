@@ -18,10 +18,11 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"os"
 	"regexp"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 // TestAccSnapshotPolicyDataSource tests the snapshot policy data source
@@ -57,8 +58,8 @@ func TestAccSnapshotPolicyDataSource(t *testing.T) {
 				Config: ProviderConfigForTesting + SnapshotPolicyDataSourceConfig3,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify the first snapshot policy to ensure attributes are correctly set
-					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp3", "snapshotpolicies.0.id", "896a535800000001"),
-					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp3", "snapshotpolicies.0.name", "sample_snap_policy"),
+					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp3", "snapshotpolicies.0.id", "896a535700000000"),
+					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp3", "snapshotpolicies.0.name", "sample_snap_policy_1"),
 				),
 			},
 			//retrieving snapshot policy with empty snapshot policy id
