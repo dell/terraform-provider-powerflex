@@ -55,9 +55,17 @@ func UpdateServiceState(deploymentResponse *scaleiotypes.ServiceResponse, plan m
 
 	state.CloneFromHost = plan.CloneFromHost
 
-	state.ServersInInventory = plan.ServersInInventory
+	if plan.ServersInInventory.ValueString() != "" {
+		state.ServersInInventory = plan.ServersInInventory
+	} else {
+		state.ServersInInventory = types.StringValue("keep")
+	}
 
-	state.ServersManagedState = plan.ServersManagedState
+	if plan.ServersManagedState.ValueString() != "" {
+		state.ServersManagedState = plan.ServersManagedState
+	} else {
+		state.ServersManagedState = types.StringValue("unmanaged")
+	}
 
 	return state, diags
 }
