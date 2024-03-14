@@ -88,7 +88,6 @@ var NodeDataSourceSchema schema.Schema = schema.Schema{
 			ElementType:         types.Int64Type,
 			Validators: []validator.Set{
 				setvalidator.SizeAtLeast(1),
-				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
 			},
 		},
 		"node_pool_names": schema.SetAttribute{
