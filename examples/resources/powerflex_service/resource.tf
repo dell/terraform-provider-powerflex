@@ -45,8 +45,8 @@ data "powerflex_template" "template_data" {
 resource "powerflex_service" "service" {
   deployment_name        = "Test-Create-U1"
   deployment_description = "Test Service-U1"
-  template_id            = data.powerflex_template.template_data.template_details[0].id
-  firmware_id            = data.powerflex_template.template_data.template_details[0].firmware_id
+  template_id            = tolist(data.powerflex_template.template_data.template_details)[0].id
+  firmware_id            = tolist(data.powerflex_template.template_data.template_details)[0].firmware_id
   nodes                  = 0
   clone_from_host        = "pfmc-k8s-20230809-160"
   deployment_timeout     = 0
