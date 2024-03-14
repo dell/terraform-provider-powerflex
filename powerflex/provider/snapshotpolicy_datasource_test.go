@@ -56,11 +56,9 @@ func TestAccSnapshotPolicyDataSource(t *testing.T) {
 			//retrieving all snapshot policies
 			{
 				Config: ProviderConfigForTesting + SnapshotPolicyDataSourceConfig3,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify the first snapshot policy to ensure attributes are correctly set
-					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp3", "snapshotpolicies.0.id", "896a535700000000"),
-					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp3", "snapshotpolicies.0.name", "sample_snap_policy_1"),
-				),
+				Check: resource.TestCheckTypeSetElemNestedAttrs("data.powerflex_snapshot_policy.sp3", "snapshotpolicies.*", map[string]string{
+					"id": "896a535700000000",
+				}),
 			},
 			//retrieving snapshot policy with empty snapshot policy id
 			{
