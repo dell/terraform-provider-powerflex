@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2023-2024 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import (
 	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -147,6 +148,53 @@ func (r *userResource) Configure(_ context.Context, req resource.ConfigureReques
 	r.version = r.client.GetConfigConnect().Version
 }
 
+// ValidateConfig validates the configuration for the user resource.
+func (r *userResource) ValidateConfig(plan models.UserModel) diag.Diagnostics {
+	roleMap := make(map[string][]string)
+	var diags diag.Diagnostics
+	var flag bool
+
+	roleMap["3.5"] = []string{"Monitor", "Configure", "Administrator", "Security", "FrontendConfig", "BackendConfig"}
+	roleMap["4.0"] = []string{"Monitor", "SuperUser", "SystemAdmin", "StorageAdmin", "LifecycleAdmin", "ReplicationManager", "SnapshotManager", "SecurityAdmin", "DriveReplacer", "Technician", "Support"}
+
+	if r.version == models.Version3X {
+		roles := roleMap[models.Version3X]
+
+		for _, value := range roles {
+			if value == plan.Role.ValueString() {
+				flag = true
+				break
+			}
+		}
+
+		if !flag {
+			diags.AddAttributeError(
+				path.Root("role"),
+				"Invalid user role",
+				"Supported values for role in PowerFlex version 3.6 are 'Administrator', 'Monitor', 'Configure', 'Security', 'FrontendConfig', 'BackendConfig'",
+			)
+		}
+	} else {
+		roles := roleMap["4.0"]
+
+		for _, value := range roles {
+			if value == plan.Role.ValueString() {
+				flag = true
+				break
+			}
+		}
+
+		if !flag {
+			diags.AddAttributeError(
+				path.Root("role"),
+				"Invalid user role",
+				"Supported values for role in PowerFlex version 4.5 are 'Monitor', 'SuperUser', 'SystemAdmin', 'StorageAdmin', 'LifecycleAdmin', 'ReplicationManager', 'SnapshotManager', 'SecurityAdmin', 'DriveReplacer', 'Technician', 'Support'",
+			)
+		}
+	}
+	return diags
+}
+
 // Create creates the resource and sets the initial Terraform state.
 func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
@@ -158,6 +206,12 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 	)
 
 	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	diags = r.ValidateConfig(plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -290,6 +344,12 @@ func (r *userResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	//Get Current State
 
 	diags = req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	diags = r.ValidateConfig(plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
