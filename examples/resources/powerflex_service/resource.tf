@@ -23,6 +23,8 @@ limitations under the License.
 # other  atrributes like : nodes, port, deployment_timeout are optional 
 # To check which attributes can be updated, please refer Product Guide in the documentation
 
+
+# example 1: Service Resource
 resource "powerflex_service" "service" {
   deployment_name        = "Test-Create-U1"
   deployment_description = "Test Service-U1"
@@ -31,4 +33,21 @@ resource "powerflex_service" "service" {
   nodes                  = 0
   clone_from_host        = "pfmc-k8s-20230809-160"
   deployment_timeout     = 0
+}
+
+
+# example 2: Get Template ID and Firmware ID from Template Datasource
+
+data "powerflex_template" "template_data" {
+  template_names = ["Teample_Name"]
+}
+
+resource "powerflex_service" "service" {
+  deployment_name        = "Test-Create-U1"
+  deployment_description = "Test Service-U1"
+  template_id            = tolist(data.powerflex_template.template_data.template_details)[0].id
+  firmware_id            = tolist(data.powerflex_template.template_data.template_details)[0].firmware_id
+  nodes                  = 3
+  clone_from_host        = "pfmc-k8s-20230809-160"
+  deployment_timeout     = 60
 }

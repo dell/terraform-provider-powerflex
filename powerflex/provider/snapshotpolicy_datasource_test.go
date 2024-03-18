@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2023-2024 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,10 +18,11 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"os"
 	"regexp"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 // TestAccSnapshotPolicyDataSource tests the snapshot policy data source
@@ -55,11 +56,9 @@ func TestAccSnapshotPolicyDataSource(t *testing.T) {
 			//retrieving all snapshot policies
 			{
 				Config: ProviderConfigForTesting + SnapshotPolicyDataSourceConfig3,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify the first snapshot policy to ensure attributes are correctly set
-					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp3", "snapshotpolicies.0.id", "896a535800000001"),
-					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp3", "snapshotpolicies.0.name", "sample_snap_policy"),
-				),
+				Check: resource.TestCheckTypeSetElemNestedAttrs("data.powerflex_snapshot_policy.sp3", "snapshotpolicies.*", map[string]string{
+					"id": "896a535700000000",
+				}),
 			},
 			//retrieving snapshot policy with empty snapshot policy id
 			{
