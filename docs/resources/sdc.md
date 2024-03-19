@@ -26,6 +26,7 @@ description: |-
 
 This resource is used to manage the SDC entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex SDC using this resource. We can also Import an existing SDC from PowerFlex array.
 
+>**Note:** If a cluster is configured with a virtual IP, then it is necessary to provide `virtual_ips` and `virtual_ip_nics` while specifying the primary and secondary MDM details.
 
 ## Example Usage
 
@@ -88,6 +89,53 @@ resource "powerflex_sdc" "sdc-example" {
     }
   ]
 }
+
+# Example demonstrating the use of the Package Resource and Virtual IP configuration 
+
+resource "powerflex_package" "upload-test" {
+  file_path = ["/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-lia-3.6-700.103.el7.x86_64.rpm",
+    "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-mdm-3.6-700.103.el7.x86_64.rpm",
+    "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sds-3.6-700.103.el7.x86_64.rpm",
+    "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdc-3.6-700.103.el7.x86_64.rpm",
+    "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdr-3.6-700.103.el7.x86_64.rpm"]
+}
+
+resource "powerflex_sdc" "test" {
+  depends_on   = [powerflex_package.upload-test]
+  mdm_password = "mdm_password"
+  lia_password = "lia_password"
+  sdc_details = [
+    {
+      ip               = "primary_mdm_ip"
+      password         = "vm_password"
+      operating_system = "linux"
+      is_mdm_or_tb     = "Primary"
+      is_sdc           = "Yes"
+      virtual_ips      = "virtual_ip"
+      virtual_ip_nics  = "virtual_nic"
+      data_network_ip  = "data_network_ip_pmdm"
+    },
+    {
+      ip               = "secondary_mdm_ip"
+      password         = "vm_password"
+      operating_system = "linux"
+      is_mdm_or_tb     = "Secondary"
+      is_sdc           = "Yes"
+      virtual_ips      = "virtual_ip"
+      virtual_ip_nics  = "virtual_nic"
+      data_network_ip  = "data_network_ip_smdm"
+    },
+    {
+      ip               = "tiebreaker_mdm"
+      password         = "vm_password"
+      operating_system = "linux"
+      is_mdm_or_tb     = "TB"
+      is_sdc           = "No"
+      data_network_ip  = "data_network_ip_tmdm"
+    }
+  ]
+}
+
 
 # Example for deleting all MDMs installed as SDCs. After successful execution, SDCs will be removed from the cluster. 
 resource "powerflex_sdc" "expansion" {
