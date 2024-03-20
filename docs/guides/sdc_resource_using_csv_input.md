@@ -5,7 +5,7 @@ linkTitle: "Deploying a PowerFlex SDC using a CSV Topology File"
 ---
 
 <!--
-Copyright (c) 2023 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2024 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,8 +29,7 @@ This guide explains how to use a CSV file as input for an SDC Resource.
 
 ~> **Note:** In the CSV file, provide only Cluster Node-related details as shown in the example below:
 
-**[sdc_input_minimal.csv](https://dell-my.sharepoint.com/:x:/p/krunal_thakkar/Eb6I5vEbfANCpsf2BCC1AC4BfZzMsNzkyI1Vfv6CPUypQw?e=UX8WPg)**  &&  **[sdc_complete_config.csv](https://dell-my.sharepoint.com/:x:/p/krunal_thakkar/EYYDXGjdIRNCtPxqAPk0rNcBMCvbf3ogB2m-bPOg4DkLJw?e=Nwp1TU)**
-
+**sdc_input.csv**
 ```
 IPs,Password,Operating System,Is MDM/TB,Is SDC,perfProfileForSDC,SDC Name
 10.10.10.10,password,linux,Primary,Yes,HighPerformance,SDC1
