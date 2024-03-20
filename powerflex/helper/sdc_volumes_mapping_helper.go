@@ -80,7 +80,7 @@ func GetVolValue(vol *goscaleio_types.Volume) (basetypes.ObjectValue, diag.Diagn
 }
 
 // UpdateSDCVolMapState updates the state
-func UpdateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan *models.SdcVolumeMappingResourceModel, oldState *models.SdcVolumeMappingResourceModel, nonchangeVolIds, planVolIds map[string]string) (*models.SdcVolumeMappingResourceModel, diag.Diagnostics) {
+func UpdateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan *models.SdcVolumeMappingResourceModel, oldState *models.SdcVolumeMappingResourceModel, planVolIds []string) (*models.SdcVolumeMappingResourceModel, diag.Diagnostics) {
 	state := plan
 	SDCAttrTypes := GetVolType()
 
@@ -102,14 +102,6 @@ func UpdateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan *models.
 
 		for _, vol := range mappedVolumes {
 			volMap[vol.ID] = vol
-		}
-
-		for _, volID := range nonchangeVolIds {
-			if vol, ok := volMap[volID]; ok {
-				objVal, dgs := GetVolValue(vol)
-				diags = append(diags, dgs...)
-				objectSDCs = append(objectSDCs, objVal)
-			}
 		}
 
 		for _, volID := range planVolIds {

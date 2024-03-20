@@ -253,7 +253,7 @@ func (r *sdcVolumeMappingResource) Create(ctx context.Context, req resource.Crea
 	}
 
 	// Set refreshed state
-	state, dgs := helper.UpdateSDCVolMapState(mappedVolumes, &plan, nil, nil, nil)
+	state, dgs := helper.UpdateSDCVolMapState(mappedVolumes, &plan, nil, nil)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state)
@@ -289,7 +289,7 @@ func (r *sdcVolumeMappingResource) Read(ctx context.Context, req resource.ReadRe
 	}
 
 	// Set refreshed state
-	state1, dgs := helper.UpdateSDCVolMapState(mappedVolumes, nil, &state, nil, nil)
+	state1, dgs := helper.UpdateSDCVolMapState(mappedVolumes, nil, &state, nil)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state1)
@@ -346,11 +346,13 @@ func (r *sdcVolumeMappingResource) Update(ctx context.Context, req resource.Upda
 	resp.Diagnostics.Append(diags...)
 
 	planVolIds := make(map[string]string)
+	planVolIdsOrder := make([]string, 0)
 	stateVolIds := make(map[string]string)
 
 	// Populate planVolIds with the volume IDs defined in plan
 	for _, vol := range planVolList {
 		planVolIds[vol.VolumeID.ValueString()] = vol.VolumeID.ValueString()
+		planVolIdsOrder = append(planVolIdsOrder, vol.VolumeID.ValueString())
 	}
 
 	// Populate stateVolIds with the volume IDs stored in state
@@ -519,7 +521,7 @@ func (r *sdcVolumeMappingResource) Update(ctx context.Context, req resource.Upda
 	}
 
 	// Set refreshed state
-	state1, dgs := helper.UpdateSDCVolMapState(mappedVolumes, &plan, &state, nonchangeVolIds, mapVolIds)
+	state1, dgs := helper.UpdateSDCVolMapState(mappedVolumes, &plan, &state, planVolIdsOrder)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state1)
