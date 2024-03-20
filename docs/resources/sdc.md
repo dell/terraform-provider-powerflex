@@ -26,7 +26,7 @@ description: |-
 
 This resource is used to manage the SDC entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex SDC using this resource. We can also Import an existing SDC from PowerFlex array.
 
->**Note:** If a cluster is configured with a virtual IP, then it is necessary to provide `virtual_ips` and `virtual_ip_nics` while specifying the primary and secondary MDM details.
+> **Note:** If a cluster is configured with a virtual IP, then it is necessary to provide `virtual_ips` and `virtual_ip_nics` while specifying the primary and secondary MDM details.
 
 ## Example Usage
 

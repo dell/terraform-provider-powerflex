@@ -32,11 +32,11 @@ description: |-
 
 > **Note:** Support is provided for creating, importing, and deleting operations for this resource.
 
-> **Note:** If you use a Gateway to install on multiple servers and one server installs successfully while another faces issues, the successful installation won't be automatically rolled back.
+> **Note:** In multi-node cluster deployments, when some of the component installations fail, the partial deployment will not be rolled back.
 
 > **Note:** If you've separately installed any SDR, SDS, or SDC and connected it to the cluster and if you face any security certificate issues during the destroy process, you'll have to manually accept the security certificate to resolve them.
 
-> **Note:** During the destroy process, the entire cluster will be destroyed, not just specific individual resources.
+> **Note:** During the destroy process, the entire cluster will be destroyed, not just specific individual resources. After destroy need to follow cleanup process.
 
 > **Note:** `ips` attribute is used in minimal csv configuration whereas `mdm_ips` attribute is used in complete csv configuration.
 
