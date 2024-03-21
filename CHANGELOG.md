@@ -41,7 +41,7 @@ The release supports resources and data sources mentioned in the Features sectio
   
 ### Bug Fixes
 
-* Fixed the change in value of is_sdc from No to Yes which was previously giving an error: Provider produced inconsistent results after apply.
+* For SDC Resource, Fixed the change in value of is_sdc from No to Yes, which was previously giving an error "Provider produced inconsistent results after apply".
 
 # v1.3.0 (December 22, 2023)
 
