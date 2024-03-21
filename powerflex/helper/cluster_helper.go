@@ -790,10 +790,10 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 
 	parsecsvRespose, parseCSVError := gatewayClient.ParseCSV(mydir + "/Minimal.csv")
 
-	deletCSVError := os.Remove(mydir + "/Minimal.csv")
-	if deletCSVError != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Deleting Temp CSV File is %s", deletCSVError.Error())
-	}
+	// deletCSVError := os.Remove(mydir + "/Minimal.csv")
+	// if deletCSVError != nil {
+	// 	return &parseCSVResponse, fmt.Errorf("Error While Deleting Temp CSV File is %s", deletCSVError.Error())
+	// }
 
 	if parseCSVError != nil {
 		return &parseCSVResponse, fmt.Errorf("%s", parseCSVError.Error())
@@ -834,7 +834,7 @@ func getFieldFromStorage(item models.StoragePoolDataModel, header string) string
 func getFieldFromItem(item models.ClusterModel, header string) string {
 	switch header {
 	case "IPs":
-		return item.IP.ValueString()
+		return "\"" + item.IP.ValueString() + "\""
 	case "Username":
 		return item.UserName.ValueString()
 	case "Password":
@@ -842,39 +842,39 @@ func getFieldFromItem(item models.ClusterModel, header string) string {
 	case "Operating System":
 		return item.OperatingSystem.ValueString()
 	case "Is MDM/TB":
-		return item.IsMdmOrTb.ValueString()
+		return "\"" + item.IsMdmOrTb.ValueString() + "\""
 	case "MDM Mgmt IP":
-		return item.MDMMgmtIP.ValueString()
+		return "\"" + item.MDMMgmtIP.ValueString() + "\""
 	case "MDM IPs":
-		return item.MDMIP.ValueString()
+		return "\"" + item.MDMIP.ValueString() + "\""
 	case "MDM Name":
 		return item.MDMName.ValueString()
 	case "perfProfileForMDM":
 		return item.PerfProfileForMDM.ValueString()
 	case "Virtual IPs":
-		return item.VirtualIPs.ValueString()
+		return "\"" + item.VirtualIPs.ValueString() + "\""
 	case "Virtual IP NICs":
-		return item.VirtualIPNICs.ValueString()
+		return "\"" + item.VirtualIPNICs.ValueString() + "\""
 	case "Is SDS":
 		return item.IsSds.ValueString()
 	case "SDS Name":
 		return item.SDSName.ValueString()
 	case "SDS All IPs":
-		return item.SDSAllIPs.ValueString()
+		return "\"" + item.SDSAllIPs.ValueString() + "\""
 	case "SDS-SDS Only IPs":
-		return item.SDSToSDSOnlyIPs.ValueString()
+		return "\"" + item.SDSToSDSOnlyIPs.ValueString() + "\""
 	case "SDS-SDC Only IPs":
-		return item.SDSToSDCOnlyIPs.ValueString()
+		return "\"" + item.SDSToSDCOnlyIPs.ValueString() + "\""
 	case "Protection Domain":
 		return item.ProtectionDomain.ValueString()
 	case "Fault Set":
 		return item.FaultSet.ValueString()
 	case "SDS Storage Device List":
-		return item.SDSStorageDeviceList.ValueString()
+		return "\"" + item.SDSStorageDeviceList.ValueString() + "\""
 	case "StoragePool List":
-		return item.StoragePoolList.ValueString()
+		return "\"" + item.StoragePoolList.ValueString() + "\""
 	case "SDS Storage Device Names":
-		return item.SDSStorageDeviceNames.ValueString()
+		return "\"" + item.SDSStorageDeviceNames.ValueString() + "\""
 	case "perfProfileForSDS":
 		return item.PerfProfileForSDS.ValueString()
 	case "Is SDC":
@@ -886,21 +886,21 @@ func getFieldFromItem(item models.ClusterModel, header string) string {
 	case "RFcache":
 		return item.IsRFCache.ValueString()
 	case "RFcache SSD Device List":
-		return item.RFcacheSSDDeviceList.ValueString()
+		return "\"" + item.RFcacheSSDDeviceList.ValueString() + "\""
 	case "Is SDR":
 		return item.IsSdr.ValueString()
 	case "SDR Name":
 		return item.SDRName.ValueString()
 	case "SDR Port":
-		return item.SDRPort.ValueString()
+		return "\"" + item.SDRPort.ValueString() + "\""
 	case "SDR Application IPs":
-		return item.SDRApplicationIPs.ValueString()
+		return "\"" + item.SDRApplicationIPs.ValueString() + "\""
 	case "SDR Storage IPs":
-		return item.SDRStorageIPs.ValueString()
+		return "\"" + item.SDRStorageIPs.ValueString() + "\""
 	case "SDR External IPs":
-		return item.SDRExternalIPs.ValueString()
+		return "\"" + item.SDRExternalIPs.ValueString() + "\""
 	case "SDR All IPs":
-		return item.SDRAllIPS.ValueString()
+		return "\"" + item.SDRAllIPS.ValueString() + "\""
 	case "perfProfileForSDR":
 		return item.PerfProfileForSDR.ValueString()
 	default:
