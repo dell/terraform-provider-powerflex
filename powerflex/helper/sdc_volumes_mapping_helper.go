@@ -80,7 +80,7 @@ func GetVolValue(vol *goscaleio_types.Volume) (basetypes.ObjectValue, diag.Diagn
 }
 
 // UpdateSDCVolMapState updates the state
-func UpdateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan *models.SdcVolumeMappingResourceModel, oldState *models.SdcVolumeMappingResourceModel, nonchangeVolIds, planVolIds map[string]string) (*models.SdcVolumeMappingResourceModel, diag.Diagnostics) {
+func UpdateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan *models.SdcVolumeMappingResourceModel, oldState *models.SdcVolumeMappingResourceModel, planVolIds []string) (*models.SdcVolumeMappingResourceModel, diag.Diagnostics) {
 	state := plan
 	SDCAttrTypes := GetVolType()
 
@@ -104,14 +104,6 @@ func UpdateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan *models.
 			volMap[vol.ID] = vol
 		}
 
-		for _, volID := range nonchangeVolIds {
-			if vol, ok := volMap[volID]; ok {
-				objVal, dgs := GetVolValue(vol)
-				diags = append(diags, dgs...)
-				objectSDCs = append(objectSDCs, objVal)
-			}
-		}
-
 		for _, volID := range planVolIds {
 			if vol, ok := volMap[volID]; ok {
 				objVal, dgs := GetVolValue(vol)
@@ -126,12 +118,23 @@ func UpdateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan *models.
 		return &state, diags
 	} else if plan != nil {
 		// Set the state once create operation is completed
-		for index, vol := range mappedVolumes {
-			objVal, dgs := GetVolValue(mappedVolumes[len(mappedVolumes)-1-index])
-			diags = append(diags, dgs...)
-			objectSDCs = append(objectSDCs, objVal)
-			state.Name = types.StringValue(vol.MappedSdcInfo[0].SdcName)
-			state.ID = types.StringValue(vol.MappedSdcInfo[0].SdcID)
+		volMap := make(map[string]*goscaleio_types.Volume)
+		for _, vol := range mappedVolumes {
+			volMap[vol.ID] = vol
+		}
+
+		planVolList := []models.SdcVolumeModel{}
+		// Populate stateVolList with volumes stored in state
+		diags.Append(plan.VolumeList.ElementsAs(context.TODO(), &planVolList, true)...)
+
+		for _, vol := range planVolList {
+			if volDetails, ok := volMap[vol.VolumeID.ValueString()]; ok {
+				objVal, dgs := GetVolValue(volDetails)
+				diags = append(diags, dgs...)
+				objectSDCs = append(objectSDCs, objVal)
+				state.Name = types.StringValue(plan.Name.ValueString())
+				state.ID = types.StringValue(plan.ID.ValueString())
+			}
 		}
 		setVal, dgs := types.ListValue(SDCElemType, objectSDCs)
 		diags = append(diags, dgs...)
