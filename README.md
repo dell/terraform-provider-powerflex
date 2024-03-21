@@ -80,6 +80,7 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
   * [User](docs/resources/user.md)
   * [Fault Set](docs/resources/fault_set.md)
   * [Service](docs/resources/service.md)
+  * [Snapshot Policy](docs/resources/snapshot_policy.md)
 
 ## List of Modules in Terraform Provider for Dell PowerFlex
   * [User](https://registry.terraform.io/modules/dell/modules/powerflex/latest/submodules/user) 
