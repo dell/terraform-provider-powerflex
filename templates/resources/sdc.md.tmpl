@@ -26,6 +26,7 @@ description: |-
 
 {{ .Description | trimspace }}
 
+> **Note:** If a cluster is configured with a virtual IP, then it is necessary to provide `virtual_ips` and `virtual_ip_nics` while specifying the primary and secondary MDM details.
 
 {{ if .HasExample -}}
 ## Example Usage

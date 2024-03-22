@@ -26,6 +26,7 @@ description: |-
 
 This resource can be used to upload packages on a PowerFlex Gateway. We can add or remove packages from PowerFlex Gateway. Import functionality is not supported.
 
+>**Note:** This resource can be used to upload packages to a PowerFlex Manager (4.x) or Gateway Server (3.x). We can add or remove packages from PowerFlex Manager or Gateway. Import functionality is not supported.
 
 ## Example Usage
 

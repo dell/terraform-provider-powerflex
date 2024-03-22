@@ -19,7 +19,17 @@ limitations under the License.
 # Create, Read, Delete and Import operations are supported for this resource.
 
 # Example for deploying cluster. After successful execution, 3 node MDM cluster will be deployed with 3 SDCs and 2 SDS.
+resource "powerflex_package" "upload-test" {
+  file_path = ["/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-lia-3.6-700.103.el7.x86_64.rpm",
+    "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-mdm-3.6-700.103.el7.x86_64.rpm",
+    "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sds-3.6-700.103.el7.x86_64.rpm",
+    "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdc-3.6-700.103.el7.x86_64.rpm",
+    "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdr-3.6-700.103.el7.x86_64.rpm"]
+}
+
 resource "powerflex_cluster" "test" {
+
+  depends_on   = [powerflex_package.upload-test]
 
   # Security Related Field
   mdm_password = "Password"
