@@ -26,19 +26,23 @@ description: |-
 
 This terraform resource is used to deploy PowerFlex Cluster. We can Create and Delete the PowerFlex Cluster using this resource. We can also Import an existing Cluster of PowerFlex.
 
-> **Note:** Gateway server should have been installed. This is a pre-requisite for using this cluster resource. Required packages should be uploaded to the gateway. Package resource can be used for uploading packages to the gateway. 
+> **Note:** For PowerFlex 4.x, the PowerFlex Manager must be installed as a prerequisite. The required packages should be uploaded to the PowerFlex Manager.
+
+> **Note:** For PowerFlex 3.x, a Gateway server is a prerequisite. The required packages should be uploaded to the gateway. The Package resource can be used for uploading packages to the gateway.
 
 > **Note:** Support is provided for creating, importing, and deleting operations for this resource.
 
-> **Note:** If you use a Gateway to install on multiple servers and one server installs successfully while another faces issues, the successful installation won't be automatically rolled back.
+> **Note:** In multi-node cluster deployments, when some of the component installations fail, the partial deployment will not be rolled back.
 
 > **Note:** If you've separately installed any SDR, SDS, or SDC and connected it to the cluster and if you face any security certificate issues during the destroy process, you'll have to manually accept the security certificate to resolve them.
 
-> **Note:** During the destroy process, the entire cluster will be destroyed, not just specific individual resources.
+> **Note:** During the destroy process, the entire cluster will be destroyed, not just specific individual resources. After destroy need to follow cleanup process.
 
 > **Note:** `ips` attribute is used in minimal csv configuration whereas `mdm_ips` attribute is used in complete csv configuration.
 
-> **Note:** To follow the installation process, you can refer to the [Deployment Guide](https://www.dell.com/support/manuals/en-us/scaleio/pfx_deploy_guide_3.6.x/deploy-powerflex?guid=guid-e9f70972-baac-42c9-9ff9-a3d2b0722f54&lang=en-us)
+> **Note:** For PowerFlex 4.x, there's no need to mention `allow_non_secure_communication_with_lia`, `allow_non_secure_communication_with_mdm`, and `disable_non_mgmt_components_auth`. And, **Rfcache** is not supported.
+
+> **Note:** To follow the installation process, you can refer to the [Deployment Guide 3.x](https://www.dell.com/support/manuals/en-us/scaleio/pfx_deploy_guide_3.6.x/deploy-powerflex?guid=guid-e9f70972-baac-42c9-9ff9-a3d2b0722f54&lang=en-us) & [Deployment Guide 4.x](https://www.dell.com/support/manuals/en-us/scaleio/powerflex_install_upgrade_guide_4.5.x/introduction?guid=guid-e798f431-7df4-450c-8f86-60ee7f3d1e3e&lang=en-us)
 
 ## Example Usage
 
@@ -64,7 +68,17 @@ limitations under the License.
 # Create, Read, Delete and Import operations are supported for this resource.
 
 # Example for deploying cluster. After successful execution, 3 node MDM cluster will be deployed with 3 SDCs and 2 SDS.
+resource "powerflex_package" "upload-test" {
+  file_path = ["/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-lia-3.6-700.103.el7.x86_64.rpm",
+    "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-mdm-3.6-700.103.el7.x86_64.rpm",
+    "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sds-3.6-700.103.el7.x86_64.rpm",
+    "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdc-3.6-700.103.el7.x86_64.rpm",
+    "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdr-3.6-700.103.el7.x86_64.rpm"]
+}
+
 resource "powerflex_cluster" "test" {
+
+  depends_on   = [powerflex_package.upload-test]
 
   # Security Related Field
   mdm_password = "Password"
