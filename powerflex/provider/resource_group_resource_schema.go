@@ -29,11 +29,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
-// ServiceReourceSchema - variable holds schema for Service resource
-var ServiceReourceSchema schema.Schema = schema.Schema{
-	DeprecationMessage:  "Service Resource is deprecated. Use Resource Group Resource instead.",
-	Description:         "This resource is used to manage the Service entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex Service using this resource. We can also Import an existing Service from PowerFlex array.",
-	MarkdownDescription: "This resource is used to manage the Service entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex Service using this resource. We can also Import an existing Service from PowerFlex array.",
+// ResourceGroupReourceSchema - variable holds schema for ResourceGroup resource
+var ResourceGroupReourceSchema schema.Schema = schema.Schema{
+	Description:         "This resource is used to manage the ResourceGroup entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex ResourceGroup using this resource. We can also Import an existing ResourceGroup from PowerFlex array.",
+	MarkdownDescription: "This resource is used to manage the ResourceGroup entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex ResourceGroup using this resource. We can also Import an existing ResourceGroup from PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"deployment_name": schema.StringAttribute{
 			Description:         "Deployment Name",

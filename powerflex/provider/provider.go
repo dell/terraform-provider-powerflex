@@ -280,6 +280,7 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 		NodeDataSource,
 		TemplateDataSource,
 		ServiceDataSource,
+		ResourceGroupDataSource,
 	}
 }
 
@@ -300,6 +301,7 @@ func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resou
 		NewClusterResource,
 		NewFaultSetResource,
 		ServiceResource,
+		ResourceGroupResource,
 		NewSnapshotPolicyResource,
 	}
 }

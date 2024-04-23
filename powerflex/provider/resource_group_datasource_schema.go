@@ -26,20 +26,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// ServiceDataSourceSchema defines the schema for service datasource
-var ServiceDataSourceSchema schema.Schema = schema.Schema{
-	DeprecationMessage:  "Service Datasource is deprecated. Use Resource Group Datasource instead.",
-	Description:         "This datasource is used to query the existing services from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
-	MarkdownDescription: "This datasource is used to query the existing services from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
+// ResourceGroupDataSourceSchema defines the schema for ResourceGroup datasource
+var ResourceGroupDataSourceSchema schema.Schema = schema.Schema{
+	Description:         "This datasource is used to query the existing ResourceGroup from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
+	MarkdownDescription: "This datasource is used to query the existing ResourceGroup from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "Placeholder attribute.",
 			MarkdownDescription: "Placeholder attribute.",
 			Computed:            true,
 		},
-		"service_ids": schema.SetAttribute{
-			Description:         "List of service IDs",
-			MarkdownDescription: "List of service IDs",
+		"resource_group_ids": schema.SetAttribute{
+			Description:         "List of Resource Group IDs",
+			MarkdownDescription: "List of Resource Group IDs",
 			Optional:            true,
 			ElementType:         types.StringType,
 			Validators: []validator.Set{
@@ -50,9 +49,9 @@ var ServiceDataSourceSchema schema.Schema = schema.Schema{
 				),
 			},
 		},
-		"service_names": schema.SetAttribute{
-			Description:         "List of service names",
-			MarkdownDescription: "List of service names",
+		"resource_group_names": schema.SetAttribute{
+			Description:         "List of Resource Group names",
+			MarkdownDescription: "List of Resource Group names",
 			Optional:            true,
 			ElementType:         types.StringType,
 			Validators: []validator.Set{
@@ -60,35 +59,35 @@ var ServiceDataSourceSchema schema.Schema = schema.Schema{
 				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
 			},
 		},
-		"service_details": schema.SetNestedAttribute{
-			Description:         "Service details",
-			MarkdownDescription: "Service details",
+		"resource_group_details": schema.SetNestedAttribute{
+			Description:         "Resource Group details",
+			MarkdownDescription: "Resource Group details",
 			Computed:            true,
-			NestedObject:        schema.NestedAttributeObject{Attributes: ServiceResponseSchema()},
+			NestedObject:        schema.NestedAttributeObject{Attributes: ResourceGroupResponseSchema()},
 		},
 	},
 }
 
-// ServiceResponseSchema is a function that returns the schema for service details
-func ServiceResponseSchema() map[string]schema.Attribute {
+// ResourceGroupResponseSchema is a function that returns the schema for ResourceGroup details
+func ResourceGroupResponseSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"id": schema.StringAttribute{
-			MarkdownDescription: "The unique identifier for the service",
-			Description:         "Service ID",
+			MarkdownDescription: "The unique identifier for the Resource Group",
+			Description:         "Resource Group ID",
 			Computed:            true,
 		},
 		"deployment_name": schema.StringAttribute{
-			MarkdownDescription: "The name of the service",
-			Description:         "Service Name",
+			MarkdownDescription: "The name of the ResourceGroup",
+			Description:         "Resource Group Name",
 			Computed:            true,
 		},
 		"deployment_description": schema.StringAttribute{
-			MarkdownDescription: "The description of the service",
-			Description:         "Service Description",
+			MarkdownDescription: "The description of the ResourceGroup",
+			Description:         "Resource Group Description",
 			Computed:            true,
 		},
 		"deployment_valid": schema.SingleNestedAttribute{
-			MarkdownDescription: "Details about the validity of the service",
+			MarkdownDescription: "Details about the validity of the Resource Group",
 			Description:         "Deployment Validity",
 			Computed:            true,
 			Attributes:          DeploymentValidSchema(),
