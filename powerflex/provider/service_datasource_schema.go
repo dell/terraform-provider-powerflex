@@ -28,7 +28,7 @@ import (
 
 // ServiceDataSourceSchema defines the schema for service datasource
 var ServiceDataSourceSchema schema.Schema = schema.Schema{
-	DeprecationMessage:  "Service Datasource is deprecated. Use Resource Group Datasource instead.",
+	DeprecationMessage:  " The `Service` datasource is deprecated and will be removed in a future release. Please migrate to the `Resource Group` datasource.",
 	Description:         "This datasource is used to query the existing services from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
 	MarkdownDescription: "This datasource is used to query the existing services from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
 	Attributes: map[string]schema.Attribute{

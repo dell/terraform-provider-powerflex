@@ -31,7 +31,7 @@ import (
 
 // ServiceReourceSchema - variable holds schema for Service resource
 var ServiceReourceSchema schema.Schema = schema.Schema{
-	DeprecationMessage:  "Service Resource is deprecated. Use Resource Group Resource instead.",
+	DeprecationMessage:  " The `Service` resource is deprecated and will be removed in a future release. Please migrate to the `Resource Group` resource.",
 	Description:         "This resource is used to manage the Service entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex Service using this resource. We can also Import an existing Service from PowerFlex array.",
 	MarkdownDescription: "This resource is used to manage the Service entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex Service using this resource. We can also Import an existing Service from PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
