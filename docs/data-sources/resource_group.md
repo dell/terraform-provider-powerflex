@@ -48,7 +48,7 @@ limitations under the License.
 
 # commands to run this tf file : terraform init && terraform apply --auto-approve
 
-# Get all Resource Group details present on the Resource Group
+# Get all Resource Group details present in the PowerFlex
 data "powerflex_resource_group" "example1" {
 }
 
