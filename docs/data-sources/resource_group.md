@@ -48,21 +48,21 @@ limitations under the License.
 
 # commands to run this tf file : terraform init && terraform apply --auto-approve
 
-# Get all Resource Group details present on the cluster
+# Get all Resource Group details present on the Resource Group
 data "powerflex_resource_group" "example1" {
 }
 
-# Get Resource Group details using the ID of the service.
+# Get Resource Group details using the ID of the Resource Group
 data "powerflex_resource_group" "example2" {
-  service_ids = ["ID1", "ID2"]
+  resource_group_ids = ["ID1", "ID2"]
 }
 
-# Get Resource Group details using the Name of the service.
+# Get Resource Group details using the Name of the Resource Group
 data "powerflex_resource_group" "example3" {
-  service_names = ["Name_1", "Name_2"]
+  resource_group_names = ["Name_1", "Name_2"]
 }
 
-output "service_result" {
+output "resource_group_result" {
   value = data.powerflex_resource_group.example1.resource_group_details
 }
 ```
