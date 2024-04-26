@@ -80,9 +80,14 @@ func (config *SshProvisionerConfig) getSshConfig() (*ssh.ClientConfig, error) {
 	return sshConfig, nil
 }
 
+type Logger interface {
+	Printf(string, ...any)
+	Println(...any)
+}
+
 type SshProvisioner struct {
 	sshClient *ssh.Client
-	logger    *log.Logger
+	logger    Logger
 
 	// in case we need to reconnect
 	config *ssh.ClientConfig
@@ -155,7 +160,7 @@ func (p *SshProvisioner) Ping() error {
 	return fmt.Errorf("failed to reach host IP %s within timeout", hostIP)
 }
 
-func NewSshProvisioner(config SshProvisionerConfig, logger *log.Logger) (*SshProvisioner, error) {
+func NewSshProvisioner(config SshProvisionerConfig, logger Logger) (*SshProvisioner, error) {
 	if logger == nil {
 		logger = log.Default()
 	}

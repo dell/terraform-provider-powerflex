@@ -4,14 +4,13 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"log"
 	"strings"
 
 	scp "github.com/bramvdbogaerde/go-scp"
 )
 
 type ScpProvisioner struct {
-	logger *log.Logger
+	logger Logger
 	client *scp.Client
 }
 
