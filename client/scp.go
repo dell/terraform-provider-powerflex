@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"os"
 	"strings"
 
 	scp "github.com/bramvdbogaerde/go-scp"
@@ -22,11 +23,12 @@ func NewScpProvisioner(prov *SshProvisioner) *ScpProvisioner {
 	}
 }
 
-func (p *ScpProvisioner) Upload(srcB64, dst, perm string) error {
-	p.logger.Printf("Decoding input file")
-	fileContent, err := decodeString(srcB64)
+func (p *ScpProvisioner) Upload(src, dst, perm string) error {
+	p.logger.Printf("Reading input file")
+	// read src file
+	fileContent, err := os.ReadFile(src)
 	if err != nil {
-		return fmt.Errorf("failed to decode input file as base64: %w", err)
+		return fmt.Errorf("failed to read file: %w", err)
 	}
 
 	if perm == "" {
