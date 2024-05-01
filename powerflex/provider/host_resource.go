@@ -23,6 +23,7 @@ import (
 	"terraform-provider-powerflex/powerflex/models"
 
 	"github.com/dell/goscaleio"
+	goscaleio_types "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -42,8 +43,7 @@ func HostResource() resource.Resource {
 
 // hostResource - struct to define Host Resource
 type hostResource struct {
-	client        *goscaleio.Client
-	gatewayClient *goscaleio.GatewayClient
+	client *goscaleio.Client
 }
 
 // Metadata - function to return metadata for Host Resource.
@@ -64,8 +64,6 @@ func (r *hostResource) Configure(_ context.Context, req resource.ConfigureReques
 
 	if req.ProviderData.(*powerflexProvider).client != nil {
 		r.client = req.ProviderData.(*powerflexProvider).client
-
-		r.gatewayClient = req.ProviderData.(*powerflexProvider).gatewayClient
 	} else {
 		resp.Diagnostics.AddError("Unable to Authenticate Goscaleio API Client", req.ProviderData.(*powerflexProvider).clientError)
 
@@ -131,38 +129,68 @@ func (r *hostResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
+	credential := []models.CredentialModel{}
+	diags = plan.Credential.ElementsAs(ctx, &credential, true)
+	resp.Diagnostics.Append(diags...)
+
 	hostDetailList := []models.HostDetailModel{}
 	diags = plan.HostDetails.ElementsAs(ctx, &hostDetailList, true)
 	resp.Diagnostics.Append(diags...)
 
-	//system, err := helper.GetFirstSystem(r.client)
+	system, err := helper.GetFirstSystem(r.client)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error in getting system instance on the PowerFlex cluster",
+			err.Error(),
+		)
+		return
+	}
 
-	// if err != nil {
-	// 	resp.Diagnostics.AddError(
-	// 		"Error in getting system instance on the PowerFlex cluster",
-	// 		err.Error(),
-	// 	)
-	// 	return
-	// }
+	//Checking that SDC exist or not
+	sdcData, _ := system.FindSdc("SdcIP", plan.IP.ValueString())
+	if sdcData != nil {
+		resp.Diagnostics.AddError(
+			"SDC Host is already Connected with PowerFlex cluster",
+			"SDC Host is already Connected with PowerFlex cluster",
+		)
+		return
+	}
+
+	mdmIP := []string{}
+	if !plan.MdmIPs.IsNull() && len(plan.MdmIPs.Elements()) > 0 {
+		diags = plan.MdmIPs.ElementsAs(ctx, &mdmIP, true)
+	} else {
+		mdmDetails, err := system.GetMDMClusterDetails()
+
+		mdmIP = GetMdmIPList(mdmDetails)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error in getting MDM Details on the PowerFlex cluster",
+				err.Error(),
+			)
+			return
+		}
+	}
 
 	//var chnagedSDCs []models.HostResourceModel
 
+	if plan.OSFamily.ValueString() == "windows" {
+		hostDetailList, _ = helper.HostWindowsOperations(ctx, *r.client, plan, mdmIP, credential[0], system)
+	} else if plan.OSFamily.ValueString() == "linux" {
+
+	} else if plan.OSFamily.ValueString() == "esxi" {
+
+	}
+
 	if len(hostDetailList) > 0 {
 
-		// resp.Diagnostics.Append(r.SDCExpansionOperations(ctx, plan, system, hostDetailList, nil)...)
-		// if resp.Diagnostics.HasError() {
-		// 	return
-		// }
+		data, dgs := helper.UpdateHostState(hostDetailList, plan)
+		resp.Diagnostics.Append(dgs...)
 
-		// resp.Diagnostics.Append(r.UpdateSDCNamdPerfProfileOperations(ctx, hostDetailList, system, &chnagedSDCs)...)
+		diags = resp.State.Set(ctx, data)
+		resp.Diagnostics.Append(diags...)
 
-		// data, dgs := helper.UpdateState(chnagedSDCs, plan)
-		// resp.Diagnostics.Append(dgs...)
-
-		// diags = resp.State.Set(ctx, data)
-		// resp.Diagnostics.Append(diags...)
-
-		// tflog.Info(ctx, "SDC Details updated to state file successfully")
+		tflog.Info(ctx, "Host Details updated to state file successfully")
 
 		// return
 	}
@@ -171,6 +199,22 @@ func (r *hostResource) Create(ctx context.Context, req resource.CreateRequest, r
 		"Please provide valid inputs",
 		"Please provide valid inputs",
 	)
+}
+
+func GetMdmIPList(mdmDetails *goscaleio_types.MdmCluster) []string {
+	var ipmap []string
+
+	for index := range mdmDetails.PrimaryMDM.IPs {
+		ipmap = append(ipmap, mdmDetails.PrimaryMDM.IPs[index])
+	}
+
+	for _, mdm := range mdmDetails.SecondaryMDM {
+		for index := range mdm.IPs {
+			ipmap = append(ipmap, mdm.IPs[index])
+		}
+	}
+
+	return ipmap
 }
 
 // Read - function to Read for Host Resource.

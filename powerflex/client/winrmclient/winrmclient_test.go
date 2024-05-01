@@ -64,7 +64,13 @@ func TestWinRMClientFileUpload(t *testing.T) {
 
 		fmt.Println(ouptut)
 
-		winRMClient.Upload("C:\\krunal.txt", "S3J1bmFsIFRoYWtrYXIKCgoKCgoKCgoKCgoKCgoKCgpHb29kIEJ5ZSEK")
+		//winRMClient.Upload("C:/EMC-ScaleIO-sdc.msi", "/root/powerflex_packages/EMC-ScaleIO-sdc-4.5-0.287.msi")
+
+		ouptut = winRMClient.ExecuteCommand("msiexec.exe /x \"C:\\EMC-ScaleIO-sdc.msi\" MDM_IP=\"10.247.103.160,10.247.103.161\" /q")
+
+		if ouptut == "SUCCESS" {
+			fmt.Println(ouptut)
+		}
 
 	}
 

@@ -18,9 +18,14 @@ limitations under the License.
 package provider
 
 import (
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // HostReourceSchema - varible holds schema for Host resource
@@ -42,11 +47,17 @@ var HostReourceSchema schema.Schema = schema.Schema{
 			Required:            true,
 			Description:         "IP of the Host",
 			MarkdownDescription: "IP of the Host",
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 		"os_family": schema.StringAttribute{
 			Required:            true,
 			Description:         "OS Family of the Host",
 			MarkdownDescription: "OS Family of the Host",
+			Validators: []validator.String{
+				stringvalidator.OneOf("linux", "windows", "esxi"),
+			},
 		},
 		"name": schema.StringAttribute{
 			Required:            true,
@@ -57,21 +68,45 @@ var HostReourceSchema schema.Schema = schema.Schema{
 			Optional:            true,
 			Description:         "GUID of the Host",
 			MarkdownDescription: "GUID of the Host",
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
+			PlanModifiers: []planmodifier.String{
+				stringplanmodifier.UseStateForUnknown(),
+			},
 		},
 		"performance_profile": schema.StringAttribute{
 			Required:            true,
 			Description:         "Performance Profile of the Host",
 			MarkdownDescription: "Performance Profile of the Host",
+			Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
+				"HighPerformance",
+				"Compact",
+			)},
 		},
-		"package_encoding": schema.StringAttribute{
+		"package_path": schema.StringAttribute{
 			Required:            true,
-			Description:         "Package Encoding of the Host",
-			MarkdownDescription: "Package Encoding of the Host",
+			Description:         "Package Path of the Host",
+			MarkdownDescription: "Package Path of the Host",
 		},
-		"driver_encoding": schema.StringAttribute{
-			Required:            true,
-			Description:         "Driver Encoding of the Host",
-			MarkdownDescription: "Driver Encoding of the Host",
+		"driver_cfg_path": schema.StringAttribute{
+			Optional:            true,
+			Description:         "Driver Path of the Host",
+			MarkdownDescription: "Driver Path of the Host",
+		},
+		"mdm_ips": schema.ListAttribute{
+			Description:         "List of MDM IPs to be assigned to the SDC.",
+			MarkdownDescription: "List of MDM IPs to be assigned to the SDC.",
+			Optional:            true,
+			Computed:            true,
+			ElementType:         types.StringType,
+			Validators: []validator.List{
+				listvalidator.SizeAtLeast(1),
+				listvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
+			},
+			PlanModifiers: []planmodifier.List{
+				listplanmodifier.UseStateForUnknown(),
+			},
 		},
 	},
 }
@@ -104,12 +139,12 @@ var hostStateDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribut
 				Description:         "ID of the Host to manage. This can be retrieved from the Datasource and PowerFlex Server.",
 				MarkdownDescription: "ID of the Host to manage. This can be retrieved from the Datasource and PowerFlex Server.",
 			},
-			"name": schema.StringAttribute{
+			"host_name": schema.StringAttribute{
 				Computed:            true,
 				Description:         "Name of the HOST to manage.",
 				MarkdownDescription: "Name of the HOST to manage.",
 			},
-			"guid": schema.StringAttribute{
+			"host_guid": schema.StringAttribute{
 				Description:         "GUID of the HOST",
 				MarkdownDescription: "GUID of the HOST",
 				Computed:            true,

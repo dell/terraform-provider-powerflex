@@ -28,11 +28,12 @@ type HostResourceModel struct {
 	OSFamily           types.String `tfsdk:"os_family"`
 	Name               types.String `tfsdk:"name"`
 	PerformanceProfile types.String `tfsdk:"performance_profile"`
-	PackageEncoding    types.String `tfsdk:"package_encoding"`
-	DriverEncoding     types.String `tfsdk:"driver_encoding"`
-	Connection         types.List   `tfsdk:"credential"`
+	PackagePath        types.String `tfsdk:"package_path"`
+	DriverConfigPath   types.String `tfsdk:"driver_cfg_path"`
+	Credential         types.List   `tfsdk:"credential"`
 	IP                 types.String `tfsdk:"ip"`
 	GUID               types.String `tfsdk:"guid"`
+	MdmIPs             types.List   `tfsdk:"mdm_ips"` // list(string)
 }
 
 // HostDetailDataModel defines the struct for CSV Parse Data
@@ -41,7 +42,7 @@ type HostDetailModel struct {
 	IP                 types.String `tfsdk:"ip"`
 	OperatingSystem    types.String `tfsdk:"operating_system"`
 	PerformanceProfile types.String `tfsdk:"performance_profile"`
-	HostName           types.String `tfsdk:"name"`
+	HostName           types.String `tfsdk:"host_name"`
 	SystemID           types.String `tfsdk:"system_id"`
 	IsApproved         types.Bool   `tfsdk:"is_approved"`
 	OnVMWare           types.Bool   `tfsdk:"on_vmware"`
@@ -49,8 +50,8 @@ type HostDetailModel struct {
 	MdmConnectionState types.String `tfsdk:"mdm_connection_state"`
 }
 
-// ConnectionModel defines the struct for Connection Data
-type ConnectionModel struct {
+// CredentialModel defines the struct for Connection Data
+type CredentialModel struct {
 	UserName types.String `tfsdk:"user_name"`
 	Password types.String `tfsdk:"password"`
 }
