@@ -123,9 +123,10 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				MarkdownDescription: "Performance profile of the SDC.",
 				Optional:            true,
 				Computed:            true,
-				Validators: []validator.String{
-					stringvalidator.LengthAtLeast(1),
-				},
+				Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
+					"HighPerformance",
+					"Compact",
+				)},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -182,7 +183,7 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			"drv_cfg_path": schema.StringAttribute{
 				Description:         "Full path (on local machine) of the driver Configuration file for the SDC.",
 				MarkdownDescription: "Full path (on local machine) of the driver Configuration file for the SDC.",
-				Required:            true,
+				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
@@ -190,17 +191,38 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			"mdm_ips": schema.ListAttribute{
 				Description:         "List of MDM IPs to be assigned to the SDC.",
 				MarkdownDescription: "List of MDM IPs to be assigned to the SDC.",
-				// TODO: Make Optional + Computed
-				Required:    true,
-				ElementType: types.StringType,
+				Optional:            true,
+				Computed:            true,
+				ElementType:         types.StringType,
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
 				},
-				// TODO
-				// PlanModifiers: []planmodifier.List{
-				// 	listplanmodifier.UseStateForUnknown(),
-				// },
+			},
+			"guid": schema.StringAttribute{
+				Description:         "GUID of the HOST",
+				MarkdownDescription: "GUID of the HOST",
+				Computed:            true,
+			},
+			"on_vmware": schema.BoolAttribute{
+				Description:         "Is Host on VMware",
+				MarkdownDescription: "Is Host on VMware",
+				Computed:            true,
+			},
+			"is_approved": schema.BoolAttribute{
+				Description:         "Is Host Approved",
+				MarkdownDescription: "Is Host Approved",
+				Computed:            true,
+			},
+			"system_id": schema.StringAttribute{
+				Description:         "System ID of the Host",
+				MarkdownDescription: "System ID of the Host",
+				Computed:            true,
+			},
+			"mdm_connection_state": schema.StringAttribute{
+				Description:         "MDM Connection State",
+				MarkdownDescription: "MDM Connection State",
+				Computed:            true,
 			},
 		},
 	}
@@ -242,6 +264,16 @@ func (r *sdcHostResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	//Checking that SDC exist or not
+	sdcData, _ := r.system.FindSdc("SdcIP", plan.Host.ValueString())
+	if sdcData != nil {
+		resp.Diagnostics.AddError(
+			"SDC Host is already Connected with PowerFlex cluster",
+			"SDC Host is already Connected with PowerFlex cluster",
+		)
+		return
+	}
+
 	resHelper := helper.SdcHostResource{
 		System: r.system,
 	}
@@ -249,6 +281,8 @@ func (r *sdcHostResource) Create(ctx context.Context, req resource.CreateRequest
 	// install software
 	if plan.OS.ValueString() == "esxi" {
 		resp.Diagnostics.Append(resHelper.CreateEsxi(ctx, plan)...)
+	} else if plan.OS.ValueString() == "windows" {
+		resp.Diagnostics.Append(resHelper.CreateWindows(ctx, plan)...)
 	}
 
 	if resp.Diagnostics.HasError() {
@@ -406,6 +440,8 @@ func (r *sdcHostResource) Delete(ctx context.Context, req resource.DeleteRequest
 	// remove software
 	if state.OS.ValueString() == "esxi" {
 		resp.Diagnostics.Append(resHelper.DeleteEsxi(ctx, state)...)
+	} else if state.OS.ValueString() == "windows" {
+		resp.Diagnostics.Append(resHelper.DeleteWindows(ctx, state)...)
 	}
 
 	if resp.Diagnostics.HasError() {

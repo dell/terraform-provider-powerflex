@@ -17,6 +17,13 @@ type SdcHostModel struct {
 
 	// optional, os specific
 	Esxi types.Object `tfsdk:"esxi"`
+
+	//Computed
+	SystemID           types.String `tfsdk:"system_id"`
+	IsApproved         types.Bool   `tfsdk:"is_approved"`
+	OnVMWare           types.Bool   `tfsdk:"on_vmware"`
+	GUID               types.String `tfsdk:"guid"`
+	MdmConnectionState types.String `tfsdk:"mdm_connection_state"`
 }
 
 type SdcHostRemoteModel struct {

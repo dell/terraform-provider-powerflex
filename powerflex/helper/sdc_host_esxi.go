@@ -82,9 +82,20 @@ func (r *SdcHostResource) CreateEsxi(ctx context.Context, plan models.SdcHostMod
 	if respDiagnostics.HasError() {
 		return respDiagnostics
 	}
+
+	mdmIPs, err := r.GetMdmIps(ctx, plan)
+
+	if err != nil {
+		respDiagnostics.AddError(
+			"Error getting MDM IPs",
+			err.Error()+"\n"+op,
+		)
+		return respDiagnostics
+	}
+
 	params := map[string]string{
 		"IoctlIniGuidStr":        esxiInput.Guid.ValueString(),
-		"IoctlMdmIPStr":          strings.Join(r.GetMdmIps(ctx, plan), ","),
+		"IoctlMdmIPStr":          strings.Join(mdmIPs, ","),
 		"bBlkDevIsPdlActive":     "1",
 		"blkDevPdlTimeoutMillis": "60000",
 	}
@@ -195,3 +206,111 @@ func (r *SdcHostResource) DeleteEsxi(ctx context.Context, state models.SdcHostMo
 
 	return respDiagnostics
 }
+
+// // CreateWindows creates an windows SDC host
+// func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHostModel) diag.Diagnostics {
+// 	var respDiagnostics diag.Diagnostics
+
+// 	var remote models.SdcHostRemoteModel
+// 	plan.Remote.As(ctx, &remote, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
+
+// 	winRMClient := &winrmclient.WinRMClient{}
+
+// 	var contexts map[string]string
+
+// 	_ = json.Unmarshal(byteData, &contexts)
+
+// 	context := make(map[string]string)
+
+// 	context["username"] = remote.User
+
+// 	context["password"] = *remote.Password
+
+// 	context["host"] = plan.Host.ValueString()
+
+// 	winRMClient.GetConnection(context, false)
+
+// 	// defer winRMClient.Close() TODO
+
+// 	mdmIPs, err := r.GetMdmIps(ctx, plan)
+
+// 	if err != nil {
+// 		respDiagnostics.AddError(
+// 			"Error getting MDM IPs",
+// 			err.Error(),
+// 		)
+// 		return respDiagnostics
+// 	}
+
+// 	if winRMClient.Init() {
+// 		winRMClient.Upload("C:\\EMC-ScaleIO-sdc.msi", plan.Pkg.ValueString())
+
+// 		ouptut := winRMClient.ExecuteCommand("msiexec.exe /i \"C:\\EMC-ScaleIO-sdc.msi\" MDM_IP=\"" + strings.Join(mdmIPs, ",") + "\" /q")
+
+// 		if ouptut == "SUCCESS" {
+
+// 			time.Sleep(30 * time.Second)
+
+// 			tflog.Info(ctx, "Installed SDC Package")
+
+// 		} else {
+
+// 			respDiagnostics.AddError(
+// 				"Error while installing command",
+// 				winRMClient.Errors[0]["message"],
+// 			)
+// 			return respDiagnostics
+// 		}
+// 	}
+
+// 	return respDiagnostics
+// }
+
+// // DeleteWindows - function to uninstall SDC package in Windows host
+// func (r *SdcHostResource) DeleteWindows(ctx context.Context, state models.SdcHostModel) diag.Diagnostics {
+// 	var respDiagnostics diag.Diagnostics
+// 	// Disconnect from PowerFlex
+// 	tflog.Info(ctx, "Logging into host...")
+
+// 	var remote models.SdcHostRemoteModel
+// 	state.Remote.As(ctx, &remote, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
+
+// 	winRMClient := &winrmclient.WinRMClient{}
+
+// 	var contexts map[string]string
+
+// 	_ = json.Unmarshal(byteData, &contexts)
+
+// 	context := make(map[string]string)
+
+// 	context["username"] = remote.User
+
+// 	context["password"] = *remote.Password
+
+// 	context["host"] = state.Host.ValueString()
+
+// 	winRMClient.GetConnection(context, false)
+
+// 	// defer winRMClient.Close() TODO
+
+// 	if winRMClient.Init() {
+// 		ouptut := winRMClient.ExecuteCommand("msiexec.exe /x \"C:\\EMC-ScaleIO-sdc.msi\" /q")
+
+// 		if ouptut == "SUCCESS" {
+
+// 			time.Sleep(10 * time.Second)
+
+// 			tflog.Info(ctx, "Uninstalled SDC Package")
+
+// 		} else {
+
+// 			respDiagnostics.AddError(
+// 				"Error while installing command",
+// 				winRMClient.Errors[0]["message"],
+// 			)
+// 			return respDiagnostics
+// 		}
+// 	}
+
+// 	return respDiagnostics
+// }
