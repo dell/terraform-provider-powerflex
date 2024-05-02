@@ -83,13 +83,10 @@ func (r *SdcHostResource) CreateEsxi(ctx context.Context, plan models.SdcHostMod
 		return respDiagnostics
 	}
 
-	mdmIPs, err := r.GetMdmIps(ctx, plan)
+	mdmIPs, dgs := r.GetMdmIps(ctx, plan)
 
-	if err != nil {
-		respDiagnostics.AddError(
-			"Error getting MDM IPs",
-			err.Error()+"\n"+op,
-		)
+	if dgs.HasError() {
+		respDiagnostics = append(respDiagnostics, dgs...)
 		return respDiagnostics
 	}
 

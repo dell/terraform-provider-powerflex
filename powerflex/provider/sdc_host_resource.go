@@ -20,9 +20,9 @@ import (
 )
 
 var (
-	_ resource.Resource              = &sdcHostResource{}
-	_ resource.ResourceWithConfigure = &sdcHostResource{}
-	// _ resource.ResourceWithImportState = &sdcHostResource{}
+	_ resource.Resource                = &sdcHostResource{}
+	_ resource.ResourceWithConfigure   = &sdcHostResource{}
+	_ resource.ResourceWithImportState = &sdcHostResource{}
 )
 
 // NewSDCResource is a helper function to simplify the provider implementation.
@@ -48,10 +48,10 @@ func (r *sdcHostResource) ConfigValidators(ctx context.Context) []resource.Confi
 			remotePath.AtName("private_key"),
 		),
 		// TODO: Add CA Cert validation
-		// resourcevalidator.Conflicting(
-		// 	remotePath.AtName("password"),
-		// 	remotePath.AtName("ca_cert"),
-		// ),
+		resourcevalidator.Conflicting(
+			remotePath.AtName("password"),
+			remotePath.AtName("ca_cert"),
+		),
 	}
 }
 
@@ -149,6 +149,16 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					"private_key": schema.StringAttribute{
 						Description:         "Remote Login private key of the SDC server.",
 						MarkdownDescription: "Remote Login private key of the SDC server.",
+						Optional:            true,
+					},
+					"ca_cert": schema.StringAttribute{
+						Description:         "Remote Login CA certificate of the SDC server.",
+						MarkdownDescription: "Remote Login CA certificate of the SDC server.",
+						Optional:            true,
+					},
+					"host_key": schema.StringAttribute{
+						Description:         "Remote Login host key of the SDC server.",
+						MarkdownDescription: "Remote Login host key of the SDC server.",
 						Optional:            true,
 					},
 					"dir": schema.StringAttribute{

@@ -8,6 +8,7 @@ import (
 
 	"github.com/dell/goscaleio"
 	goscaleio_types "github.com/dell/goscaleio/types/v1"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -48,43 +49,37 @@ func (r *SdcHostResource) getSshProvisioner(ctx context.Context, plan models.Sdc
 		Username:   remote.User,
 		Password:   remote.Password,
 		PrivateKey: remote.PrivateKey,
+		HostKey:    remote.HostKey,
+		CaCert:     remote.CaCert,
 	}, &provisionerLogger{ctx: ctx})
 	return prov, dir, err
 }
 
-func (r *SdcHostResource) GetMdmIps(ctx context.Context, plan models.SdcHostModel) ([]string, error) {
+func (r *SdcHostResource) GetMdmIps(ctx context.Context, plan models.SdcHostModel) ([]string, diag.Diagnostics) {
 	var mdmIps []string
 	if !plan.MdmIPs.IsNull() && len(plan.MdmIPs.Elements()) > 0 {
 		diags := plan.MdmIPs.ElementsAs(ctx, &mdmIps, true)
 		if diags.HasError() {
-			return nil, fmt.Errorf("Error in getting MDM Details", diags.Errors())
+			return nil, diags
 		}
 	} else {
 		mdmDetails, err := r.System.GetMDMClusterDetails()
-
-		mdmIps = GetMdmIPList(mdmDetails)
 		if err != nil {
-			return nil, fmt.Errorf("Error in getting MDM Details on the PowerFlex cluster", err.Error())
-
+			var diags diag.Diagnostics
+			diags.AddError("Error in getting MDM Details on the PowerFlex cluster", err.Error())
+			return nil, diags
 		}
+		mdmIps = GetMdmIPList(mdmDetails)
 	}
 
 	return mdmIps, nil
 }
 
 func GetMdmIPList(mdmDetails *goscaleio_types.MdmCluster) []string {
-	var ipmap []string
-
-	for index := range mdmDetails.PrimaryMDM.IPs {
-		ipmap = append(ipmap, mdmDetails.PrimaryMDM.IPs[index])
-	}
-
+	ipmap := mdmDetails.PrimaryMDM.IPs
 	for _, mdm := range mdmDetails.SecondaryMDM {
-		for index := range mdm.IPs {
-			ipmap = append(ipmap, mdm.IPs[index])
-		}
+		ipmap = append(ipmap, mdm.IPs...)
 	}
-
 	return ipmap
 }
 

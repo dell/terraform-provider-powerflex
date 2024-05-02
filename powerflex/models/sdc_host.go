@@ -30,6 +30,8 @@ type SdcHostRemoteModel struct {
 	User       string  `tfsdk:"user"`
 	Password   *string `tfsdk:"password"`
 	PrivateKey *string `tfsdk:"private_key"`
+	CaCert     *string `tfsdk:"ca_cert"`
+	HostKey    *string `tfsdk:"host_key"`
 	Dir        *string `tfsdk:"dir"`
 }
 

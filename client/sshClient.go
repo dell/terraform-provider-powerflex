@@ -70,7 +70,7 @@ func (config *SshProvisionerConfig) getSshConfig() (*ssh.ClientConfig, error) {
 		if err != nil {
 			return nil, err
 		}
-		hostKeyPub, err := ssh.ParsePublicKey(hostKey)
+		hostKeyPub, _, _, _, err := ssh.ParseAuthorizedKey(hostKey)
 		if err != nil {
 			return nil, err
 		}
@@ -152,7 +152,7 @@ func (p *SshProvisioner) Ping() error {
 		conn, err := net.DialTimeout("tcp", net.JoinHostPort(hostIP, "22"), 5*time.Second)
 		if err == nil {
 			conn.Close()
-			fmt.Printf("Host IP is available.\n")
+			p.logger.Printf("Host IP is available.\n")
 			return nil
 		}
 		time.Sleep(10 * time.Second)
