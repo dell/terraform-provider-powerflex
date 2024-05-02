@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 	"terraform-provider-powerflex/client"
-	winrmclient "terraform-provider-powerflex/powerflex/client"
 	"terraform-provider-powerflex/powerflex/models"
 	"time"
 
@@ -147,7 +146,7 @@ func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHost
 	var remote models.SdcHostRemoteModel
 	plan.Remote.As(ctx, &remote, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
 
-	winRMClient := &winrmclient.WinRMClient{}
+	winRMClient := &client.WinRMClient{}
 
 	var contexts map[string]string
 
@@ -222,7 +221,7 @@ func (r *SdcHostResource) DeleteWindows(ctx context.Context, state models.SdcHos
 	var remote models.SdcHostRemoteModel
 	state.Remote.As(ctx, &remote, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
 
-	winRMClient := &winrmclient.WinRMClient{}
+	winRMClient := &client.WinRMClient{}
 
 	var contexts map[string]string
 

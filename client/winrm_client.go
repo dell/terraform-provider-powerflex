@@ -1,7 +1,6 @@
 package client
 
 import (
-	"encoding/base64"
 	"fmt"
 	"os"
 	"strconv"
@@ -266,13 +265,4 @@ func (winRMClient *WinRMClient) Upload(dstPath string, srcPath string) error {
 		return err
 	}
 	return nil
-}
-
-// Function to decode base64 encoded string to byte slice
-func decodeString(encodedString string) ([]byte, error) {
-	decodedBytes, err := base64.StdEncoding.DecodeString(encodedString)
-	if err != nil {
-		return nil, err
-	}
-	return decodedBytes, nil
 }
