@@ -190,13 +190,7 @@ func (winRMClient *WinRMClient) Init() (result bool) {
 
 		result = true
 
-		// tflog.Debug(nil, string(fmt.Sprintf("Connected to %s:%d", winRMClient.target, winRMClient.port)))
-
 	} else if err != nil {
-
-		// tflog.Warn(nil, string(fmt.Sprintf("error %v occurred for %v host...", err.Error(), winRMClient.target)))
-
-		// tflog.Debug(nil, string(fmt.Sprintf("Failed to establish %s connection on %s:%d", "WinRM", winRMClient.target, winRMClient.port)))
 
 		if strings.Contains(string(err.Error()), "connection refused") || strings.Contains(string(err.Error()), "invalid port") {
 
@@ -214,8 +208,6 @@ func (winRMClient *WinRMClient) Init() (result bool) {
 			errorMessage = fmt.Sprintf("Invalid port %d, Please verify that port %d is up", winRMClient.Port, winRMClient.Port)
 
 		}
-
-		//tflog.Warn(nil, string(errorMessage))
 
 		winRMClient.Errors = append(winRMClient.Errors, map[string]string{
 			Error:   err.Error(),
