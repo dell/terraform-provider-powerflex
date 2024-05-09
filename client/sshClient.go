@@ -166,12 +166,14 @@ func (p *SshProvisioner) UntarUnix(filename, dir string) ([]string, error) {
 	return lines, nil
 }
 
-func (p *SshProvisioner) ListDirUnix(dir string) ([]string, error) {
+func (p *SshProvisioner) ListDirUnix(dir string, logOp bool) ([]string, error) {
 	op, err := p.Run(fmt.Sprintf("ls %s", dir))
 	if err != nil {
 		return nil, fmt.Errorf("failed to run list directory command: %w: %s", err, op)
 	}
-	p.logger.Printf("List Directory output: %s", op)
+	if logOp {
+		p.logger.Printf("List Directory output: %s", op)
+	}
 	lines := GetLinesUnix(op)
 	return lines, nil
 }

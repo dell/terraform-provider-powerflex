@@ -13,10 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-const (
-	sciniv = "5.15.0-105-generic"
-)
-
 type UbuntuSdcPackage struct {
 	Siob        string
 	Sig         string
@@ -59,31 +55,6 @@ func GetUbuntuSdcPackage(files []string) (*UbuntuSdcPackage, error) {
 	}
 	return &pkg, err
 
-}
-
-func verifySciniPkg(files []string) error {
-	if l := len(files); l != 2 {
-		return fmt.Errorf("invalid number of files: %d, expecting 2 files", l)
-	}
-	found := false
-	for _, file := range files {
-		if file == "scini.siob" {
-			found = true
-		}
-	}
-	if !found {
-		return fmt.Errorf("scini.siob file not found")
-	}
-	found = false
-	for _, file := range files {
-		if file == "scini.siob.sig" {
-			found = true
-		}
-	}
-	if !found {
-		return fmt.Errorf("scini.siob.sig file not found")
-	}
-	return nil
 }
 
 // CreateEsxi creates an esxi SDC host
@@ -131,44 +102,6 @@ func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostM
 	}
 	tflog.Info(ctx, op)
 
-	// upload kernel specific scini file
-	sciniTarget := filepath.Join(dir, "scini.tar")
-	err = scpProv.Upload(plan.DrvCfg.ValueString(), sciniTarget, "")
-	if err != nil {
-		respDiagnostics.AddError(
-			"Error uploading scini package",
-			err.Error(),
-		)
-		return respDiagnostics
-	}
-	// extract scini
-	scini_files, err := sshP.UntarUnix("scini.tar", dir)
-	if err != nil {
-		respDiagnostics.AddError(
-			"Error extracting package",
-			err.Error(),
-		)
-		return respDiagnostics
-	}
-	err = verifySciniPkg(scini_files)
-	if err != nil {
-		respDiagnostics.AddError(
-			"Extraction of scini tar file did not yield expected files",
-			err.Error(),
-		)
-		return respDiagnostics
-	}
-	// run siob extract
-	op, err = sshP.RunWithDir(dir, fmt.Sprintf("./%s %s", pkg.SiobExtract, "scini.siob"))
-	if err != nil {
-		respDiagnostics.AddError(
-			"Error extracting siob file",
-			op+"\n"+err.Error(),
-		)
-		return respDiagnostics
-	}
-	tflog.Info(ctx, op)
-
 	mdmIPs, dgs := r.GetMdmIps(ctx, plan)
 
 	if dgs.HasError() {
@@ -189,51 +122,6 @@ func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostM
 	}
 	tflog.Info(ctx, op)
 
-	// install scini
-	// list directory
-	pflex_versions, err := sshP.ListDirUnix("/bin/emc/scaleio/scini_sync/driver_cache/Ubuntu")
-	if err != nil {
-		respDiagnostics.AddError(
-			"Error listing directory",
-			err.Error(),
-		)
-		return respDiagnostics
-	}
-	if len(pflex_versions) != 1 {
-		respDiagnostics.AddError(
-			"Error finding PowerFlex version directory",
-			fmt.Sprintf("Expected 1 PowerFlex version directory in scini driver cache, got %d", len(pflex_versions)),
-		)
-	}
-	pflex_version := pflex_versions[0]
-	// make kernel specific scini directory
-	sciniDir := fmt.Sprintf("/bin/emc/scaleio/scini_sync/driver_cache/Ubuntu/%s/%s", pflex_version, sciniv)
-	op, err = sshP.Run(fmt.Sprintf("mkdir -p %s", sciniDir))
-	if err != nil {
-		respDiagnostics.AddError(
-			"Error creating directory",
-			err.Error()+": "+op,
-		)
-		return respDiagnostics
-	}
-	// move scini.ko to scini directory
-	op, err = sshP.RunWithDir(dir, fmt.Sprintf("mv %s %s", "scini.ko", sciniDir))
-	if err != nil {
-		respDiagnostics.AddError(
-			"Error installing scini.ko",
-			op+"\n"+err.Error(),
-		)
-		return respDiagnostics
-	}
-	// restart scini service
-	op, err = sshP.Run("systemctl restart scini")
-	if err != nil {
-		respDiagnostics.AddError(
-			"Error restarting scini service",
-			op+"\n"+err.Error(),
-		)
-		return respDiagnostics
-	}
 	// check that scini status has the log SUCCESS
 	op, err = sshP.Run("systemctl status scini")
 	if err != nil {
@@ -290,18 +178,6 @@ func (r *SdcHostResource) DeleteUbuntu(ctx context.Context, state models.SdcHost
 	if err != nil {
 		respDiagnostics.AddError(
 			"Error uninstalling package",
-			op+"\n"+err.Error(),
-		)
-		return respDiagnostics
-	}
-	tflog.Info(ctx, op)
-
-	// remove scini driver sync
-	tflog.Info(ctx, "Removing scini driver sync files")
-	op, err = sshP.Run("rm -rf /bin/emc/scaleio/scini_sync/driver_cache/Ubuntu")
-	if err != nil {
-		respDiagnostics.AddError(
-			"Error removing scini driver sync files",
 			op+"\n"+err.Error(),
 		)
 		return respDiagnostics

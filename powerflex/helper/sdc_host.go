@@ -146,7 +146,7 @@ func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel,
 	defer sshP.Close()
 
 	// check all files in /etc folder
-	ufiles, err := sshP.ListDirUnix("/etc")
+	ufiles, err := sshP.ListDirUnix("/etc", false)
 	if err != nil {
 		respDiagnostics.AddError(
 			"Error listing /etc directory",
@@ -170,7 +170,7 @@ func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel,
 	if linux_type == "unknown" {
 		respDiagnostics.AddError(
 			"Error determining linux distribution",
-			"Could not determine linux distribution",
+			fmt.Sprintf("Could not determine linux distribution: files in /etc directory were [%s]", strings.Join(ufiles, ", ")),
 		)
 		return respDiagnostics
 	}
