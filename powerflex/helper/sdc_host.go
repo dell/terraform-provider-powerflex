@@ -3,6 +3,7 @@ package helper
 import (
 	"context"
 	"fmt"
+	"strings"
 	"terraform-provider-powerflex/client"
 	"terraform-provider-powerflex/powerflex/models"
 
@@ -94,7 +95,12 @@ func (r *SdcHostResource) ReadSDCHost(ctx context.Context, state models.SdcHostM
 	state.ID = types.StringValue(sdcData.Sdc.ID)
 	state.PerformanceProfile = types.StringValue(sdcData.Sdc.PerfProfile)
 	state.Name = types.StringValue(sdcData.Sdc.Name)
-	state.OS = types.StringValue(sdcData.Sdc.OSType)
+	os := strings.ToLower(sdcData.Sdc.OSType)
+	if strings.HasPrefix(os, "esx") {
+		// both esxi is return as esx from API
+		os = "esxi"
+	}
+	state.OS = types.StringValue(os)
 	state.MdmConnectionState = types.StringValue(sdcData.Sdc.MdmConnectionState)
 	state.IsApproved = types.BoolValue(sdcData.Sdc.SdcApproved)
 	state.SystemID = types.StringValue(sdcData.Sdc.SystemID)
@@ -124,4 +130,65 @@ func (r *SdcHostResource) SetSDCParams(ctx context.Context, plan, state models.S
 	}
 
 	return nil
+}
+
+// LinuxOp creates or deletes a linux SDC host
+func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel, add bool) diag.Diagnostics {
+	var respDiagnostics diag.Diagnostics
+	sshP, dir, err := r.getSshProvisioner(ctx, plan)
+	if err != nil {
+		respDiagnostics.AddError(
+			"Error connecting to host",
+			err.Error(),
+		)
+		return respDiagnostics
+	}
+	defer sshP.Close()
+
+	// check all files in /etc folder
+	ufiles, err := sshP.ListDirUnix("/etc")
+	if err != nil {
+		respDiagnostics.AddError(
+			"Error listing /etc directory",
+			err.Error(),
+		)
+		return respDiagnostics
+	}
+	// check for existence of either of the following files
+	// redhat-release, SuSE-release or debian_version
+	linux_type_checks := map[string]string{
+		"redhat-release": "redhat",
+		"SUSE-release":   "suse",
+		"debian_version": "ubuntu",
+	}
+	linux_type := "unknown"
+	for _, file := range ufiles {
+		if ltype, ok := linux_type_checks[file]; ok {
+			linux_type = ltype
+		}
+	}
+	if linux_type == "unknown" {
+		respDiagnostics.AddError(
+			"Error determining linux distribution",
+			"Could not determine linux distribution",
+		)
+		return respDiagnostics
+	}
+
+	tflog.Info(ctx, fmt.Sprintf("Linux distribution detected: %s", linux_type))
+
+	switch linux_type {
+	// case "redhat":
+	// 	respDiagnostics.Append(r.CreateRhel(ctx, plan, sshP, dir)...)
+	// case "suse":
+	// 	respDiagnostics.Append(r.CreateRhel(ctx, plan, sshP, dir)...)
+	case "ubuntu":
+		if add {
+			respDiagnostics.Append(r.CreateUbuntu(ctx, plan, sshP, dir)...)
+		} else {
+			respDiagnostics.Append(r.DeleteUbuntu(ctx, plan, sshP)...)
+		}
+	}
+
+	return respDiagnostics
 }

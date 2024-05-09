@@ -293,6 +293,8 @@ func (r *sdcHostResource) Create(ctx context.Context, req resource.CreateRequest
 		resp.Diagnostics.Append(resHelper.CreateEsxi(ctx, plan)...)
 	} else if plan.OS.ValueString() == "windows" {
 		resp.Diagnostics.Append(resHelper.CreateWindows(ctx, plan)...)
+	} else if plan.OS.ValueString() == "linux" {
+		resp.Diagnostics.Append(resHelper.LinuxOp(ctx, plan, true)...)
 	}
 
 	if resp.Diagnostics.HasError() {
@@ -452,6 +454,8 @@ func (r *sdcHostResource) Delete(ctx context.Context, req resource.DeleteRequest
 		resp.Diagnostics.Append(resHelper.DeleteEsxi(ctx, state)...)
 	} else if state.OS.ValueString() == "windows" {
 		resp.Diagnostics.Append(resHelper.DeleteWindows(ctx, state)...)
+	} else if state.OS.ValueString() == "linux" {
+		resp.Diagnostics.Append(resHelper.LinuxOp(ctx, state, false)...)
 	}
 
 	if resp.Diagnostics.HasError() {
