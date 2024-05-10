@@ -147,19 +147,25 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						Optional:            true,
 					},
 					"private_key": schema.StringAttribute{
-						Description:         "Remote Login private key of the SDC server.",
-						MarkdownDescription: "Remote Login private key of the SDC server.",
-						Optional:            true,
+						Description: "Remote Login private key of the SDC server." +
+							" Corresponds to the IdentityFile field of OpenSSH.",
+						MarkdownDescription: "Remote Login private key of the SDC server." +
+							" Corresponds to the IdentityFile field of OpenSSH.",
+						Optional: true,
 					},
 					"ca_cert": schema.StringAttribute{
-						Description:         "Remote Login CA certificate of the SDC server.",
-						MarkdownDescription: "Remote Login CA certificate of the SDC server.",
+						Description:         "Remote Login certificate issued by a CA to the remote login user." + 
+							" Must be used with `private_key` and the private key must match the certificate.",
+						MarkdownDescription: "Remote Login certificate issued by a CA to the remote login user." + 
+							" Must be used with `private_key` and the private key must match the certificate.",
 						Optional:            true,
 					},
 					"host_key": schema.StringAttribute{
-						Description:         "Remote Login host key of the SDC server.",
-						MarkdownDescription: "Remote Login host key of the SDC server.",
-						Optional:            true,
+						Description: "Remote Login host key of the SDC server." +
+							" Corresponds to the UserKnownHostsFile field of OpenSSH.",
+						MarkdownDescription: "Remote Login host key of the SDC server." +
+							" Corresponds to the UserKnownHostsFile field of OpenSSH.",
+						Optional: true,
 					},
 					"dir": schema.StringAttribute{
 						Description: "Directory on the SDC server to upload packages to." +

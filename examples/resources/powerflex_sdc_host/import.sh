@@ -11,8 +11,5 @@
 # limitations under the License.
 # */
 
-# import SDC by it's id
-terraform import powerflex_sdc.sdc_data "<id>"
-
-# import SDC by multiple id
-terraform import powerflex_sdc.sdc_data "<id1>,<id2>,<id3>"
+# import SDC by it's IP address
+terraform import powerflex_sdc_host.sdc "<ip>"

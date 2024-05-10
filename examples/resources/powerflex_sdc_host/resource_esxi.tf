@@ -48,9 +48,9 @@ resource powerflex_sdc_host sdc {
   os_family = "esxi"
   esxi = {
     guid = random_uuid.sdc_guid.result
+    drv_cfg_path = "/root/terraform-provider-powerflex/drv_cfg-3.6.500.106-esx7.x"
   }
   name = "sdc-esxi"
-  drv_cfg_path = "/root/terraform-provider-powerflex/drv_cfg-3.6.500.106-esx7.x"
   package_path = "/root/terraform-provider-powerflex/sdc-3.6.500.106-esx7.x.zip"
   mdm_ips = ["10.10.10.5", "10.10.10.6"]
 }
