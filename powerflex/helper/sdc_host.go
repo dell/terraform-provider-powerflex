@@ -145,49 +145,117 @@ func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel,
 	}
 	defer sshP.Close()
 
-	// check all files in /etc folder
-	ufiles, err := sshP.ListDirUnix("/etc", false)
+	op, err := sshP.Run("cat /etc/os-release")
 	if err != nil {
 		respDiagnostics.AddError(
-			"Error listing /etc directory",
-			err.Error(),
+			"Error checking /etc/os-release after restart",
+			op+"\n"+err.Error(),
 		)
 		return respDiagnostics
 	}
-	// check for existence of either of the following files
-	// redhat-release, SuSE-release or debian_version
-	linux_type_checks := map[string]string{
-		"redhat-release": "redhat",
-		"SUSE-release":   "suse",
-		"debian_version": "ubuntu",
-	}
-	linux_type := "unknown"
-	for _, file := range ufiles {
-		if ltype, ok := linux_type_checks[file]; ok {
-			linux_type = ltype
+
+	// Parse the output of "cat /etc/os-release" to determine the Linux distribution type
+	linuxType := "unknown"
+	lines := client.GetLinesUnix(op)
+	for _, line := range lines {
+		if strings.HasPrefix(line, "ID=") {
+			id := strings.TrimPrefix(line, "ID=")
+			linuxType = strings.Trim(id, `"`) // Remove leading and trailing quotes
+			break
 		}
 	}
-	if linux_type == "unknown" {
-		respDiagnostics.AddError(
-			"Error determining linux distribution",
-			fmt.Sprintf("Could not determine linux distribution: files in /etc directory were [%s]", strings.Join(ufiles, ", ")),
-		)
-		return respDiagnostics
+
+	// You may need to customize this mapping based on your specific requirements
+	linuxTypeMap := map[string]string{
+		"ubuntu": "ubuntu",
+		"sles":   "sles",
+		"centos": "centos",
+		"rhel":   "rhel",
+		// Add more mappings as needed
 	}
 
-	tflog.Info(ctx, fmt.Sprintf("Linux distribution detected: %s", linux_type))
+	// Check if the Linux distribution ID is mapped to a standard name
+	standardLinuxType, ok := linuxTypeMap[linuxType]
+	if ok {
+		linuxType = standardLinuxType
+	}
 
-	switch linux_type {
-	// case "redhat":
-	// 	respDiagnostics.Append(r.CreateRhel(ctx, plan, sshP, dir)...)
-	// case "suse":
-	// 	respDiagnostics.Append(r.CreateRhel(ctx, plan, sshP, dir)...)
+	tflog.Info(ctx, fmt.Sprintf("Linux distribution detected: %s", linuxType))
+
+	switch linuxType {
+	case "rhel", "sles", "centos":
+		respDiagnostics.Append(r.CreateRhel(ctx, plan, sshP, dir)...)
 	case "ubuntu":
 		if add {
 			respDiagnostics.Append(r.CreateUbuntu(ctx, plan, sshP, dir)...)
 		} else {
 			respDiagnostics.Append(r.DeleteUbuntu(ctx, plan, sshP)...)
 		}
+	default:
+		respDiagnostics.AddError(
+			"Could not able to find supported linux distribution",
+			linuxType,
+		)
+	}
+
+	return respDiagnostics
+}
+
+func (r *SdcHostResource) DeleteLinux(ctx context.Context, plan models.SdcHostModel, add bool) diag.Diagnostics {
+	var respDiagnostics diag.Diagnostics
+	sshP, _, err := r.getSshProvisioner(ctx, plan)
+	if err != nil {
+		respDiagnostics.AddError(
+			"Error connecting to host",
+			err.Error(),
+		)
+		return respDiagnostics
+	}
+	defer sshP.Close()
+
+	op, err := sshP.Run("cat /etc/os-release")
+	if err != nil {
+		respDiagnostics.AddError(
+			"Error checking /etc/os-release after restart",
+			op+"\n"+err.Error(),
+		)
+		return respDiagnostics
+	}
+
+	// Parse the output of "cat /etc/os-release" to determine the Linux distribution type
+	linuxType := "unknown"
+	lines := strings.Split(op, "\n")
+	for _, line := range lines {
+		if strings.HasPrefix(line, "ID=") {
+			id := strings.TrimPrefix(line, "ID=")
+			linuxType = strings.Trim(id, `"`) // Remove leading and trailing quotes
+			break
+		}
+	}
+
+	// You may need to customize this mapping based on your specific requirements
+	linuxTypeMap := map[string]string{
+		"ubuntu": "ubuntu",
+		"sles":   "sles",
+		"centos": "centos",
+		"rhel":   "rhel",
+		// Add more mappings as needed
+	}
+
+	// Check if the Linux distribution ID is mapped to a standard name
+	standardLinuxType, ok := linuxTypeMap[linuxType]
+	if ok {
+		linuxType = standardLinuxType
+	}
+
+	tflog.Info(ctx, fmt.Sprintf("Linux distribution detected: %s", linuxType))
+
+	switch linuxType {
+	case "rhel", "sles", "centos":
+		respDiagnostics.Append(r.DeleteRhel(ctx, plan, sshP)...)
+	case "ubuntu":
+		respDiagnostics.Append(r.DeleteUbuntu(ctx, plan, sshP)...)
+
 	}
 
 	return respDiagnostics

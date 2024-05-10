@@ -107,7 +107,7 @@ func (p *SshProvisioner) Run(cmd string) (string, error) {
 	defer session.Close()
 	output, err := session.CombinedOutput(cmd)
 	if err != nil {
-		return "", fmt.Errorf("failed to run command: %w", err)
+		return string(output), fmt.Errorf("failed to run command: %w", err)
 	}
 	return string(output), nil
 }

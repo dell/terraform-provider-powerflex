@@ -154,11 +154,11 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						Optional: true,
 					},
 					"ca_cert": schema.StringAttribute{
-						Description:         "Remote Login certificate issued by a CA to the remote login user." + 
+						Description: "Remote Login certificate issued by a CA to the remote login user." +
 							" Must be used with `private_key` and the private key must match the certificate.",
-						MarkdownDescription: "Remote Login certificate issued by a CA to the remote login user." + 
+						MarkdownDescription: "Remote Login certificate issued by a CA to the remote login user." +
 							" Must be used with `private_key` and the private key must match the certificate.",
-						Optional:            true,
+						Optional: true,
 					},
 					"host_key": schema.StringAttribute{
 						Description: "Remote Login host key of the SDC server." +
@@ -458,7 +458,7 @@ func (r *sdcHostResource) Delete(ctx context.Context, req resource.DeleteRequest
 	} else if state.OS.ValueString() == "windows" {
 		resp.Diagnostics.Append(resHelper.DeleteWindows(ctx, state)...)
 	} else if state.OS.ValueString() == "linux" {
-		resp.Diagnostics.Append(resHelper.LinuxOp(ctx, state, false)...)
+		resp.Diagnostics.Append(resHelper.DeleteLinux(ctx, state, false)...)
 	}
 
 	if resp.Diagnostics.HasError() {
