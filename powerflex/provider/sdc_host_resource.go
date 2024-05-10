@@ -20,9 +20,9 @@ import (
 )
 
 var (
-	_ resource.Resource              = &sdcHostResource{}
-	_ resource.ResourceWithConfigure = &sdcHostResource{}
-	// _ resource.ResourceWithImportState = &sdcHostResource{}
+	_ resource.Resource                = &sdcHostResource{}
+	_ resource.ResourceWithConfigure   = &sdcHostResource{}
+	_ resource.ResourceWithImportState = &sdcHostResource{}
 )
 
 // NewSDCResource is a helper function to simplify the provider implementation.
@@ -48,10 +48,10 @@ func (r *sdcHostResource) ConfigValidators(ctx context.Context) []resource.Confi
 			remotePath.AtName("private_key"),
 		),
 		// TODO: Add CA Cert validation
-		// resourcevalidator.Conflicting(
-		// 	remotePath.AtName("password"),
-		// 	remotePath.AtName("ca_cert"),
-		// ),
+		resourcevalidator.Conflicting(
+			remotePath.AtName("password"),
+			remotePath.AtName("ca_cert"),
+		),
 	}
 }
 
@@ -147,9 +147,25 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						Optional:            true,
 					},
 					"private_key": schema.StringAttribute{
-						Description:         "Remote Login private key of the SDC server.",
-						MarkdownDescription: "Remote Login private key of the SDC server.",
+						Description: "Remote Login private key of the SDC server." +
+							" Corresponds to the IdentityFile field of OpenSSH.",
+						MarkdownDescription: "Remote Login private key of the SDC server." +
+							" Corresponds to the IdentityFile field of OpenSSH.",
+						Optional: true,
+					},
+					"ca_cert": schema.StringAttribute{
+						Description:         "Remote Login certificate issued by a CA to the remote login user." + 
+							" Must be used with `private_key` and the private key must match the certificate.",
+						MarkdownDescription: "Remote Login certificate issued by a CA to the remote login user." + 
+							" Must be used with `private_key` and the private key must match the certificate.",
 						Optional:            true,
+					},
+					"host_key": schema.StringAttribute{
+						Description: "Remote Login host key of the SDC server." +
+							" Corresponds to the UserKnownHostsFile field of OpenSSH.",
+						MarkdownDescription: "Remote Login host key of the SDC server." +
+							" Corresponds to the UserKnownHostsFile field of OpenSSH.",
+						Optional: true,
 					},
 					"dir": schema.StringAttribute{
 						Description: "Directory on the SDC server to upload packages to." +
@@ -170,20 +186,20 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						MarkdownDescription: "GUID of the SDC.",
 						Required:            true,
 					},
+					"drv_cfg_path": schema.StringAttribute{
+						Description:         "Full path (on local machine) of the driver Configuration file for the SDC.",
+						MarkdownDescription: "Full path (on local machine) of the driver Configuration file for the SDC.",
+						Required:            true,
+						Validators: []validator.String{
+							stringvalidator.LengthAtLeast(1),
+						},
+					},
 				},
 			},
 			"package_path": schema.StringAttribute{
 				Description:         "Full path (on local machine) of the package to be installed on the SDC.",
 				MarkdownDescription: "Full path (on local machine) of the package to be installed on the SDC.",
 				Required:            true,
-				Validators: []validator.String{
-					stringvalidator.LengthAtLeast(1),
-				},
-			},
-			"drv_cfg_path": schema.StringAttribute{
-				Description:         "Full path (on local machine) of the driver Configuration file for the SDC.",
-				MarkdownDescription: "Full path (on local machine) of the driver Configuration file for the SDC.",
-				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
@@ -283,6 +299,8 @@ func (r *sdcHostResource) Create(ctx context.Context, req resource.CreateRequest
 		resp.Diagnostics.Append(resHelper.CreateEsxi(ctx, plan)...)
 	} else if plan.OS.ValueString() == "windows" {
 		resp.Diagnostics.Append(resHelper.CreateWindows(ctx, plan)...)
+	} else if plan.OS.ValueString() == "linux" {
+		resp.Diagnostics.Append(resHelper.LinuxOp(ctx, plan, true)...)
 	}
 
 	if resp.Diagnostics.HasError() {
@@ -377,7 +395,7 @@ func (r *sdcHostResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	// TODO: check that any the stuff that cannot be updated are not changed
-	// unupdateable fields: os_family, mdm_ips, package, drv_cfg
+	// unupdateable fields: os_family, mdm_ips, package
 	if !currState.OS.IsNull() && !plan.OS.Equal(currState.OS) {
 		resp.Diagnostics.AddError("Error updating SDC", "OS cannot be changed")
 	}
@@ -386,9 +404,6 @@ func (r *sdcHostResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 	if !currState.Pkg.IsNull() && !plan.Pkg.Equal(currState.Pkg) {
 		resp.Diagnostics.AddError("Error updating SDC", "package cannot be changed")
-	}
-	if !currState.DrvCfg.IsNull() && !plan.DrvCfg.Equal(currState.DrvCfg) {
-		resp.Diagnostics.AddError("Error updating SDC", "drv_cfg cannot be changed")
 	}
 
 	if resp.Diagnostics.HasError() {
@@ -442,6 +457,8 @@ func (r *sdcHostResource) Delete(ctx context.Context, req resource.DeleteRequest
 		resp.Diagnostics.Append(resHelper.DeleteEsxi(ctx, state)...)
 	} else if state.OS.ValueString() == "windows" {
 		resp.Diagnostics.Append(resHelper.DeleteWindows(ctx, state)...)
+	} else if state.OS.ValueString() == "linux" {
+		resp.Diagnostics.Append(resHelper.LinuxOp(ctx, state, false)...)
 	}
 
 	if resp.Diagnostics.HasError() {

@@ -70,7 +70,7 @@ func (config *SshProvisionerConfig) getSshConfig() (*ssh.ClientConfig, error) {
 		if err != nil {
 			return nil, err
 		}
-		hostKeyPub, err := ssh.ParsePublicKey(hostKey)
+		hostKeyPub, _, _, _, err := ssh.ParseAuthorizedKey(hostKey)
 		if err != nil {
 			return nil, err
 		}
@@ -112,6 +112,10 @@ func (p *SshProvisioner) Run(cmd string) (string, error) {
 	return string(output), nil
 }
 
+func (p *SshProvisioner) RunWithDir(dir, cmd string) (string, error) {
+	return p.Run(fmt.Sprintf("cd %s && %s", dir, cmd))
+}
+
 func (p *SshProvisioner) RebootUnix() error {
 	cmd := "reboot"
 	p.logger.Printf("Running command: %s", cmd)
@@ -144,6 +148,36 @@ func (p *SshProvisioner) RebootUnix() error {
 	return nil
 }
 
+func GetLinesUnix(op string) []string {
+	lines := lineBreakRegex.Split(strings.TrimSpace(op), -1)
+	for i := range lines {
+		lines[i] = strings.TrimSpace(lines[i])
+	}
+	return lines
+}
+
+func (p *SshProvisioner) UntarUnix(filename, dir string) ([]string, error) {
+	op, err := p.Run(fmt.Sprintf("cd %s && tar -xvf %s", dir, filename))
+	if err != nil {
+		return nil, fmt.Errorf("failed to untar file: %w: %s", err, op)
+	}
+	p.logger.Printf("Untar output: %s", op)
+	lines := GetLinesUnix(op)
+	return lines, nil
+}
+
+func (p *SshProvisioner) ListDirUnix(dir string, logOp bool) ([]string, error) {
+	op, err := p.Run(fmt.Sprintf("ls %s", dir))
+	if err != nil {
+		return nil, fmt.Errorf("failed to run list directory command: %w: %s", err, op)
+	}
+	if logOp {
+		p.logger.Printf("List Directory output: %s", op)
+	}
+	lines := GetLinesUnix(op)
+	return lines, nil
+}
+
 func (p *SshProvisioner) Ping() error {
 	hostIP := p.ip
 	start := time.Now()
@@ -152,7 +186,7 @@ func (p *SshProvisioner) Ping() error {
 		conn, err := net.DialTimeout("tcp", net.JoinHostPort(hostIP, "22"), 5*time.Second)
 		if err == nil {
 			conn.Close()
-			fmt.Printf("Host IP is available.\n")
+			p.logger.Printf("Host IP is available.\n")
 			return nil
 		}
 		time.Sleep(10 * time.Second)

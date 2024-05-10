@@ -8,7 +8,6 @@ type SdcHostModel struct {
 	Host   types.String `tfsdk:"ip"`
 	Pkg    types.String `tfsdk:"package_path"`
 	OS     types.String `tfsdk:"os_family"`
-	DrvCfg types.String `tfsdk:"drv_cfg_path"`
 
 	// optional
 	Name               types.String `tfsdk:"name"`
@@ -30,9 +29,12 @@ type SdcHostRemoteModel struct {
 	User       string  `tfsdk:"user"`
 	Password   *string `tfsdk:"password"`
 	PrivateKey *string `tfsdk:"private_key"`
+	CaCert     *string `tfsdk:"ca_cert"`
+	HostKey    *string `tfsdk:"host_key"`
 	Dir        *string `tfsdk:"dir"`
 }
 
 type SdcHostEsxiModel struct {
-	Guid types.String `tfsdk:"guid"`
+	Guid   types.String `tfsdk:"guid"`
+	DrvCfg types.String `tfsdk:"drv_cfg_path"`
 }

@@ -42,13 +42,10 @@ func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHost
 
 	// defer winRMClient.Close() TODO
 
-	mdmIPs, err := r.GetMdmIps(ctx, plan)
+	mdmIPs, dgs := r.GetMdmIps(ctx, plan)
 
-	if err != nil {
-		respDiagnostics.AddError(
-			"Error getting MDM IPs",
-			err.Error(),
-		)
+	if dgs.HasError() {
+		respDiagnostics = append(respDiagnostics, dgs...)
 		return respDiagnostics
 	}
 

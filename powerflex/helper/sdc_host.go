@@ -3,11 +3,13 @@ package helper
 import (
 	"context"
 	"fmt"
+	"strings"
 	"terraform-provider-powerflex/client"
 	"terraform-provider-powerflex/powerflex/models"
 
 	"github.com/dell/goscaleio"
 	goscaleio_types "github.com/dell/goscaleio/types/v1"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -48,43 +50,37 @@ func (r *SdcHostResource) getSshProvisioner(ctx context.Context, plan models.Sdc
 		Username:   remote.User,
 		Password:   remote.Password,
 		PrivateKey: remote.PrivateKey,
+		HostKey:    remote.HostKey,
+		CaCert:     remote.CaCert,
 	}, &provisionerLogger{ctx: ctx})
 	return prov, dir, err
 }
 
-func (r *SdcHostResource) GetMdmIps(ctx context.Context, plan models.SdcHostModel) ([]string, error) {
+func (r *SdcHostResource) GetMdmIps(ctx context.Context, plan models.SdcHostModel) ([]string, diag.Diagnostics) {
 	var mdmIps []string
 	if !plan.MdmIPs.IsNull() && len(plan.MdmIPs.Elements()) > 0 {
 		diags := plan.MdmIPs.ElementsAs(ctx, &mdmIps, true)
 		if diags.HasError() {
-			return nil, fmt.Errorf("Error in getting MDM Details", diags.Errors())
+			return nil, diags
 		}
 	} else {
 		mdmDetails, err := r.System.GetMDMClusterDetails()
-
-		mdmIps = GetMdmIPList(mdmDetails)
 		if err != nil {
-			return nil, fmt.Errorf("Error in getting MDM Details on the PowerFlex cluster", err.Error())
-
+			var diags diag.Diagnostics
+			diags.AddError("Error in getting MDM Details on the PowerFlex cluster", err.Error())
+			return nil, diags
 		}
+		mdmIps = GetMdmIPList(mdmDetails)
 	}
 
 	return mdmIps, nil
 }
 
 func GetMdmIPList(mdmDetails *goscaleio_types.MdmCluster) []string {
-	var ipmap []string
-
-	for index := range mdmDetails.PrimaryMDM.IPs {
-		ipmap = append(ipmap, mdmDetails.PrimaryMDM.IPs[index])
-	}
-
+	ipmap := mdmDetails.PrimaryMDM.IPs
 	for _, mdm := range mdmDetails.SecondaryMDM {
-		for index := range mdm.IPs {
-			ipmap = append(ipmap, mdm.IPs[index])
-		}
+		ipmap = append(ipmap, mdm.IPs...)
 	}
-
 	return ipmap
 }
 
@@ -99,7 +95,12 @@ func (r *SdcHostResource) ReadSDCHost(ctx context.Context, state models.SdcHostM
 	state.ID = types.StringValue(sdcData.Sdc.ID)
 	state.PerformanceProfile = types.StringValue(sdcData.Sdc.PerfProfile)
 	state.Name = types.StringValue(sdcData.Sdc.Name)
-	state.OS = types.StringValue(sdcData.Sdc.OSType)
+	os := strings.ToLower(sdcData.Sdc.OSType)
+	if strings.HasPrefix(os, "esx") {
+		// both esxi is return as esx from API
+		os = "esxi"
+	}
+	state.OS = types.StringValue(os)
 	state.MdmConnectionState = types.StringValue(sdcData.Sdc.MdmConnectionState)
 	state.IsApproved = types.BoolValue(sdcData.Sdc.SdcApproved)
 	state.SystemID = types.StringValue(sdcData.Sdc.SystemID)
@@ -129,4 +130,65 @@ func (r *SdcHostResource) SetSDCParams(ctx context.Context, plan, state models.S
 	}
 
 	return nil
+}
+
+// LinuxOp creates or deletes a linux SDC host
+func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel, add bool) diag.Diagnostics {
+	var respDiagnostics diag.Diagnostics
+	sshP, dir, err := r.getSshProvisioner(ctx, plan)
+	if err != nil {
+		respDiagnostics.AddError(
+			"Error connecting to host",
+			err.Error(),
+		)
+		return respDiagnostics
+	}
+	defer sshP.Close()
+
+	// check all files in /etc folder
+	ufiles, err := sshP.ListDirUnix("/etc", false)
+	if err != nil {
+		respDiagnostics.AddError(
+			"Error listing /etc directory",
+			err.Error(),
+		)
+		return respDiagnostics
+	}
+	// check for existence of either of the following files
+	// redhat-release, SuSE-release or debian_version
+	linux_type_checks := map[string]string{
+		"redhat-release": "redhat",
+		"SUSE-release":   "suse",
+		"debian_version": "ubuntu",
+	}
+	linux_type := "unknown"
+	for _, file := range ufiles {
+		if ltype, ok := linux_type_checks[file]; ok {
+			linux_type = ltype
+		}
+	}
+	if linux_type == "unknown" {
+		respDiagnostics.AddError(
+			"Error determining linux distribution",
+			fmt.Sprintf("Could not determine linux distribution: files in /etc directory were [%s]", strings.Join(ufiles, ", ")),
+		)
+		return respDiagnostics
+	}
+
+	tflog.Info(ctx, fmt.Sprintf("Linux distribution detected: %s", linux_type))
+
+	switch linux_type {
+	// case "redhat":
+	// 	respDiagnostics.Append(r.CreateRhel(ctx, plan, sshP, dir)...)
+	// case "suse":
+	// 	respDiagnostics.Append(r.CreateRhel(ctx, plan, sshP, dir)...)
+	case "ubuntu":
+		if add {
+			respDiagnostics.Append(r.CreateUbuntu(ctx, plan, sshP, dir)...)
+		} else {
+			respDiagnostics.Append(r.DeleteUbuntu(ctx, plan, sshP)...)
+		}
+	}
+
+	return respDiagnostics
 }
