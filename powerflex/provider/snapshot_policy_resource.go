@@ -116,7 +116,7 @@ func (r *snapshotPolicyResource) Create(ctx context.Context, req resource.Create
 	var mappedVols []string
 	for _, v := range stringListVol {
 		payload2 := &scaleiotypes.AssignVolumeToSnapshotPolicyParam{
-			SourceVolumeId: v,
+			SourceVolumeID: v,
 		}
 		err2 := r.system.AssignVolumeToSnapshotPolicy(payload2, snapID)
 		if err2 != nil {
@@ -132,7 +132,7 @@ func (r *snapshotPolicyResource) Create(ctx context.Context, req resource.Create
 			} else if len(mappedVols) > 0 {
 				for _, v := range mappedVols {
 					payload2 := &scaleiotypes.AssignVolumeToSnapshotPolicyParam{
-						SourceVolumeId:            v,
+						SourceVolumeID:            v,
 						AutoSnapshotRemovalAction: plan.RemoveMode.ValueString(),
 					}
 					err2 := r.system.UnassignVolumeFromSnapshotPolicy(payload2, snapID)
@@ -343,7 +343,7 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 		if !plan.RemoveMode.IsNull() {
 			for _, v := range unmapVolIds {
 				payload2 := &scaleiotypes.AssignVolumeToSnapshotPolicyParam{
-					SourceVolumeId:            v,
+					SourceVolumeID:            v,
 					AutoSnapshotRemovalAction: plan.RemoveMode.ValueString(),
 				}
 				err2 := r.system.UnassignVolumeFromSnapshotPolicy(payload2, state.ID.ValueString())
@@ -357,7 +357,7 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 		} else {
 			for _, v := range unmapVolIds {
 				payload2 := &scaleiotypes.AssignVolumeToSnapshotPolicyParam{
-					SourceVolumeId:            v,
+					SourceVolumeID:            v,
 					AutoSnapshotRemovalAction: state.RemoveMode.ValueString(),
 				}
 				err2 := r.system.UnassignVolumeFromSnapshotPolicy(payload2, state.ID.ValueString())
@@ -373,7 +373,7 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 	if len(mapVolIds) > 0 {
 		for _, v := range mapVolIds {
 			payload2 := &scaleiotypes.AssignVolumeToSnapshotPolicyParam{
-				SourceVolumeId: v,
+				SourceVolumeID: v,
 			}
 			err2 := r.system.AssignVolumeToSnapshotPolicy(payload2, state.ID.ValueString())
 			if err2 != nil {
@@ -429,7 +429,7 @@ func (r *snapshotPolicyResource) Delete(ctx context.Context, req resource.Delete
 	if len(stateVolList) > 0 {
 		for _, v := range stateVolList {
 			payload2 := &scaleiotypes.AssignVolumeToSnapshotPolicyParam{
-				SourceVolumeId:            v,
+				SourceVolumeID:            v,
 				AutoSnapshotRemovalAction: state.RemoveMode.ValueString(),
 			}
 			err2 := r.system.UnassignVolumeFromSnapshotPolicy(payload2, state.ID.ValueString())
