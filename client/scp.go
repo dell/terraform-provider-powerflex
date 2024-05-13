@@ -10,11 +10,13 @@ import (
 	scp "github.com/bramvdbogaerde/go-scp"
 )
 
+// ScpProvisioner - scp client
 type ScpProvisioner struct {
 	logger Logger
 	client *scp.Client
 }
 
+// NewScpProvisioner - creates new scp client
 func NewScpProvisioner(prov *SshProvisioner) *ScpProvisioner {
 	scpClient := scp.NewConfigurer("", nil).SSHClient(prov.sshClient).Create()
 	return &ScpProvisioner{
@@ -23,6 +25,7 @@ func NewScpProvisioner(prov *SshProvisioner) *ScpProvisioner {
 	}
 }
 
+// Upload - uploads file
 func (p *ScpProvisioner) Upload(src, dst, perm string) error {
 	p.logger.Printf("Reading input file")
 	// read src file

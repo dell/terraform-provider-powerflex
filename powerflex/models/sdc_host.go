@@ -26,6 +26,7 @@ type SdcHostModel struct {
 }
 
 type SdcHostRemoteModel struct {
+	Port       string  `tfsdk:"port"`
 	User       string  `tfsdk:"user"`
 	Password   *string `tfsdk:"password"`
 	PrivateKey *string `tfsdk:"private_key"`

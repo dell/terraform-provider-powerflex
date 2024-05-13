@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -136,6 +137,13 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				MarkdownDescription: "Remote login details of the SDC.",
 				Required:            true,
 				Attributes: map[string]schema.Attribute{
+					"port": schema.StringAttribute{
+						Description:         "Remote Login port of the SDC server.",
+						MarkdownDescription: "Remote Login port of the SDC server.",
+						Optional:            true,
+						Computed:            true,
+						Default:             stringdefault.StaticString("22"),
+					},
 					"user": schema.StringAttribute{
 						Description:         "Remote Login username of the SDC server.",
 						MarkdownDescription: "Remote Login username of the SDC server.",
@@ -154,11 +162,11 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						Optional: true,
 					},
 					"ca_cert": schema.StringAttribute{
-						Description:         "Remote Login certificate issued by a CA to the remote login user." + 
+						Description: "Remote Login certificate issued by a CA to the remote login user." +
 							" Must be used with `private_key` and the private key must match the certificate.",
-						MarkdownDescription: "Remote Login certificate issued by a CA to the remote login user." + 
+						MarkdownDescription: "Remote Login certificate issued by a CA to the remote login user." +
 							" Must be used with `private_key` and the private key must match the certificate.",
-						Optional:            true,
+						Optional: true,
 					},
 					"host_key": schema.StringAttribute{
 						Description: "Remote Login host key of the SDC server." +

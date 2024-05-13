@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -50,6 +51,14 @@ type sdsDataPoints struct {
 	sdcName  string
 	sdcName2 string
 	sdcName3 string
+}
+
+type sdcHostDataPoints struct {
+	UbuntuIP       string
+	UbuntuUser     string
+	UbuntuPassword string
+	UbuntuPort     string
+	MdmIPs         []string
 }
 
 type gatewayDataPoints struct {
@@ -128,6 +137,22 @@ func getNewSdsDataPointForTest() sdsDataPoints {
 	SdsResourceTestData.sdcName3 = setDefault(os.Getenv("POWERFLEX_SDC_NAME_3"), "tfacc_sdc_name_3")
 
 	return SdsResourceTestData
+}
+
+func getNewSdcHostDataPointForTest() sdcHostDataPoints {
+	var SdcHostDataPoints sdcHostDataPoints
+	err := godotenv.Load("powerflex.env")
+	if err != nil {
+		log.Fatal("Error loading .env file: ", err)
+		return SdcHostDataPoints
+	}
+
+	SdcHostDataPoints.UbuntuIP = setDefault(os.Getenv("POWERFLEX_SDC_IP_Ubuntu"), "127.0.0.1")
+	SdcHostDataPoints.UbuntuUser = setDefault(os.Getenv("POWERFLEX_SDC_USER_Ubuntu"), "ubuntuRoot")
+	SdcHostDataPoints.UbuntuPassword = setDefault(os.Getenv("POWERFLEX_SDC_PASSWORD_Ubuntu"), "secret")
+	SdcHostDataPoints.UbuntuPort = setDefault(os.Getenv("POWERFLEX_SDC_PORT_Ubuntu"), "2222")
+	SdcHostDataPoints.MdmIPs = strings.Split(setDefault(os.Getenv("POWERFLEX_SDC_MDM_IPs"), "10.10.10.5,10.10.10.6"), ",")
+	return SdcHostDataPoints
 }
 
 func getNewGatewayDataPointForTest() gatewayDataPoints {
@@ -229,6 +254,7 @@ func getNodeDataForTest() nodeDataPoints {
 }
 
 var SdsResourceTestData = getNewSdsDataPointForTest()
+var SdcHostResourceTestData = getNewSdcHostDataPointForTest()
 var GatewayDataPoints = getNewGatewayDataPointForTest()
 var SDCMappingResourceID2 = setDefault(os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_ID2"), "tfacc_sdc_volumes_mapping_id2")
 var SDCMappingResourceName2 = setDefault(os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_NAME2"), "tfacc_sdc_volumes_mapping_name2")

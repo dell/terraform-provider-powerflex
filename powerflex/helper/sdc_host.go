@@ -46,6 +46,7 @@ func (r *SdcHostResource) getSshProvisioner(ctx context.Context, plan models.Sdc
 		dir = *remote.Dir
 	}
 	prov, err := client.NewSshProvisioner(client.SshProvisionerConfig{
+		Port:       remote.Port,
 		IP:         plan.Host.ValueString(),
 		Username:   remote.User,
 		Password:   remote.Password,
