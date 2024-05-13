@@ -89,6 +89,7 @@ func (r *systemResource) Configure(_ context.Context, req resource.ConfigureRequ
 	r.system = system
 }
 
+// SystemResourceSchema defines the schema for system resource
 var SystemResourceSchema schema.Schema = schema.Schema{
 	Description:         "This resource is used to manage the cluster level operations of PowerFlex Array. This resource supports Create, Update and Delete operations.",
 	MarkdownDescription: "This resource is used to manage the cluster level operations of PowerFlex Array. This resource supports Create, Update and Delete operations.",
@@ -218,8 +219,8 @@ func (r *systemResource) Create(ctx context.Context, req resource.CreateRequest,
 	diags.Append(plan.SdcGuids.ElementsAs(ctx, &SdcGuids, true)...)
 
 	if plan.RestrictedMode.ValueString() == "Guid" {
-		for _, sdcGuid := range SdcGuids {
-			diags.Append(r.ApproveSdcGuid(sdcGuid)...)
+		for _, SdcGUID := range SdcGuids {
+			diags.Append(r.ApproveSdcGUID(SdcGUID)...)
 		}
 	}
 
@@ -357,8 +358,8 @@ func (r *systemResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	approveSdcs, _ := helper.DifferenceArray(stateSdcGuids, planSdcGuids)
 
-	for _, sdcGuid := range approveSdcs {
-		diags.Append(r.ApproveSdcGuid(sdcGuid)...)
+	for _, SdcGUID := range approveSdcs {
+		diags.Append(r.ApproveSdcGUID(SdcGUID)...)
 	}
 
 	if !plan.SdcApprovedIPs.IsNull() {
@@ -414,7 +415,7 @@ func (r *systemResource) Update(ctx context.Context, req resource.UpdateRequest,
 		}
 
 		// Set approved IPs for already approved SDCs
-		for key, _ := range planSdcMap {
+		for key := range planSdcMap {
 			if !helper.CompareStringSlice(planSdcMap[key], stateSdcMap[key]) {
 				err = r.system.SetApprovedIps(key, planSdcMap[key])
 				if err != nil {
@@ -497,11 +498,11 @@ func (r *systemResource) PopulateSDCDetails(ctx context.Context, plan *models.Sy
 	return
 }
 
-// ApproveSdcGuid approves the SDC based on given Guid
-func (r *systemResource) ApproveSdcGuid(sdcGuid string) diag.Diagnostics {
+// ApproveSdcGUID approves the SDC based on given Guid
+func (r *systemResource) ApproveSdcGUID(sdcGUID string) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	sdc, err := r.system.FindSdc("SdcGUID", sdcGuid)
+	sdc, err := r.system.FindSdc("SdcGUID", sdcGUID)
 	if err != nil {
 		diags.AddError(
 			"Error getting SDC with GUID: ",
@@ -511,7 +512,7 @@ func (r *systemResource) ApproveSdcGuid(sdcGuid string) diag.Diagnostics {
 	}
 
 	payload := scaleiotypes.ApproveSdcParam{
-		SdcGUID: sdcGuid,
+		SdcGUID: sdcGUID,
 	}
 
 	if sdc.Sdc.SdcApproved == false {
@@ -519,7 +520,7 @@ func (r *systemResource) ApproveSdcGuid(sdcGuid string) diag.Diagnostics {
 		if err != nil {
 			diags.AddError(
 				"Error in approving SDC with GUID",
-				"Error in approving SDC with GUID "+sdcGuid+"+, unexpected err: "+err.Error(),
+				"Error in approving SDC with GUID "+sdcGUID+"+, unexpected err: "+err.Error(),
 			)
 		}
 	}
