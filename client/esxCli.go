@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package client
 
 import (
@@ -25,16 +26,19 @@ import (
 
 var lineBreakRegex = regexp.MustCompile("\r?\n")
 
+// EsxCli is a wrapper around esxcli
 type EsxCli struct {
 	client *SshProvisioner
 }
 
+// NewEsxCli returns a new esxcli wrapper
 func NewEsxCli(prov *SshProvisioner) *EsxCli {
 	return &EsxCli{
 		client: prov,
 	}
 }
 
+// EsxCliSw is a wrapper around esxcli
 type EsxCliSw struct {
 	Name             string
 	Version          string
@@ -43,6 +47,7 @@ type EsxCliSw struct {
 	InstallationDate string
 }
 
+// NewEsxCliSw returns a new esxcli wrapper
 func NewEsxCliSw(txt string) (*EsxCliSw, error) {
 	sw := EsxCliSw{}
 	fields := strings.Fields(txt)
@@ -57,6 +62,7 @@ func NewEsxCliSw(txt string) (*EsxCliSw, error) {
 	return &sw, nil
 }
 
+// SoftwareList returns the list of installed software
 func (e *EsxCli) SoftwareList() ([]*EsxCliSw, error) {
 	op, err := e.client.Run("esxcli software vib list")
 	if err != nil {
@@ -83,6 +89,7 @@ func (e *EsxCli) SoftwareList() ([]*EsxCliSw, error) {
 	return ret, err
 }
 
+// GetSoftwareByNameRegex returns the software with the given name
 func (e *EsxCli) GetSoftwareByNameRegex(name *regexp.Regexp) (*EsxCliSw, error) {
 	sw, err := e.SoftwareList()
 	if err != nil {
@@ -97,11 +104,13 @@ func (e *EsxCli) GetSoftwareByNameRegex(name *regexp.Regexp) (*EsxCliSw, error) 
 	return sw[ind], nil
 }
 
+// VibInstallCommand is a wrapper around esxcli
 type VibInstallCommand struct {
 	ZipFile  string
 	SigCheck bool
 }
 
+// SoftwareInstall installs the given software
 func (e *EsxCli) SoftwareInstall(vib VibInstallCommand) (string, error) {
 	command := fmt.Sprintf("esxcli software vib install -d %s", vib.ZipFile)
 	if !vib.SigCheck {
@@ -110,6 +119,7 @@ func (e *EsxCli) SoftwareInstall(vib VibInstallCommand) (string, error) {
 	return e.client.Run(command)
 }
 
+// SetModuleParameters is a wrapper around esxcli
 func (e *EsxCli) SetModuleParameters(module string, params map[string]string) (string, error) {
 	lparams := make([]string, 0)
 	for k, v := range params {
@@ -120,6 +130,7 @@ func (e *EsxCli) SetModuleParameters(module string, params map[string]string) (s
 	return e.client.Run(fmt.Sprintf(`esxcli system module parameters set -m %s -p "%s"`, module, sparams))
 }
 
+// SoftwareRmv removes the given software
 func (e *EsxCli) SoftwareRmv(name string) (string, error) {
 	return e.client.Run(fmt.Sprintf("esxcli software vib remove -n %s", name))
 }

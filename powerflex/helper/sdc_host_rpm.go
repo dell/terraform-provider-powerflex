@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package helper
 
 import (
@@ -27,6 +28,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
+// CreateRhel creates a RHEL SDC host
 func (r *SdcHostResource) CreateRhel(ctx context.Context, plan models.SdcHostModel, sshP *client.SshProvisioner, dir string) diag.Diagnostics {
 	var respDiagnostics diag.Diagnostics
 
@@ -82,6 +84,7 @@ func (r *SdcHostResource) CreateRhel(ctx context.Context, plan models.SdcHostMod
 	return respDiagnostics
 }
 
+// DeleteRhel - function to uninstall SDC package in RHEL host
 func (r *SdcHostResource) DeleteRhel(ctx context.Context, state models.SdcHostModel, sshP *client.SshProvisioner) diag.Diagnostics {
 	var respDiagnostics diag.Diagnostics
 	// Disconnect from PowerFlex

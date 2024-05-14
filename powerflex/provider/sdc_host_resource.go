@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package provider
 
 import (
@@ -41,7 +42,7 @@ var (
 	_ resource.ResourceWithImportState = &sdcHostResource{}
 )
 
-// NewSDCResource is a helper function to simplify the provider implementation.
+// NewSDCHostResource is a helper function to simplify the provider implementation.
 func NewSDCHostResource() resource.Resource {
 	return &sdcHostResource{}
 }

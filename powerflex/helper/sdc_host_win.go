@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package helper
 
 import (
@@ -55,7 +56,7 @@ func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHost
 
 	winRMClient.GetConnection(context, false)
 
-	// defer winRMClient.Close() TODO
+	defer winRMClient.Destroy()
 
 	mdmIPs, dgs := r.GetMdmIps(ctx, plan)
 
@@ -81,14 +82,14 @@ func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHost
 
 				return respDiagnostics
 
-			} else {
-
-				respDiagnostics.AddError(
-					"Error while installing command",
-					winRMClient.Errors[0]["message"],
-				)
-				return respDiagnostics
 			}
+
+			respDiagnostics.AddError(
+				"Error while installing command",
+				winRMClient.Errors[0]["message"],
+			)
+			return respDiagnostics
+
 		}
 
 		respDiagnostics.AddError(
@@ -127,7 +128,7 @@ func (r *SdcHostResource) DeleteWindows(ctx context.Context, state models.SdcHos
 
 	winRMClient.GetConnection(context, false)
 
-	// defer winRMClient.Close() TODO
+	defer winRMClient.Destroy()
 
 	if winRMClient.Init() {
 		ouptut := winRMClient.ExecuteCommand("msiexec.exe /x \"C:\\EMC-ScaleIO-sdc.msi\" /q")

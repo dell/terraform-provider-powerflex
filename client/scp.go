@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package client
 
 import (
@@ -25,11 +26,13 @@ import (
 	scp "github.com/bramvdbogaerde/go-scp"
 )
 
+// ScpProvisioner is a wrapper around scp.Client
 type ScpProvisioner struct {
 	logger Logger
 	client *scp.Client
 }
 
+// NewScpProvisioner returns a new ScpProvisioner
 func NewScpProvisioner(prov *SshProvisioner) *ScpProvisioner {
 	scpClient := scp.NewConfigurer("", nil).SSHClient(prov.sshClient).Create()
 	return &ScpProvisioner{
@@ -38,6 +41,7 @@ func NewScpProvisioner(prov *SshProvisioner) *ScpProvisioner {
 	}
 }
 
+// Upload Function to upload file to remote host
 func (p *ScpProvisioner) Upload(src, dst, perm string) error {
 	p.logger.Printf("Reading input file")
 	// read src file
@@ -59,7 +63,7 @@ func (p *ScpProvisioner) Upload(src, dst, perm string) error {
 	return p.client.CopyFile(context.Background(), input, dst, perm)
 }
 
-// Function to decode base64 encoded string to byte slice
+// decodeString Function to decode base64 encoded string to byte slice
 func decodeString(encodedString string) ([]byte, error) {
 	decodedBytes, err := base64.StdEncoding.DecodeString(encodedString)
 	if err != nil {

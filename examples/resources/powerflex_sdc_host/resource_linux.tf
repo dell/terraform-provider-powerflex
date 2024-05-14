@@ -23,27 +23,27 @@ limitations under the License.
 # In this example, we are using passwordless ssh authentication using private key and host key.
 
 # load the private key
-data local_sensitive_file ssh_key {
+data "local_sensitive_file" "ssh_key" {
   filename = "/root/.ssh/linux_rsa"
 }
 
 # load the host key
-data local_sensitive_file host_key {
+data "local_sensitive_file" "host_key" {
   filename = "linux_host_ecdsa_key.pub"
 }
 
 # Example for adding an Linux host as SDC.
-resource powerflex_sdc_host sdc_linux {
+resource "powerflex_sdc_host" "sdc_linux" {
   ip = "10.10.10.10"
   remote = {
     user = "root"
     # we are not using password auth here, but it can be used as well
     # password = "password"
     private_key = data.local_sensitive_file.ssh_key.content_base64
-    host_key = data.local_sensitive_file.host_key.content_base64
+    host_key    = data.local_sensitive_file.host_key.content_base64
   }
-  os_family = "linux"
-  name = "sdc-linux"
+  os_family    = "linux"
+  name         = "sdc-linux"
   package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-700.103.Ubuntu.22.04.x86_64.tar" # For Ubuntu
   # package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-700.103.el7.x86_64.rpm" # For RHEL
   # mdm_ips = ["10.10.10.5", "10.10.10.6"]   # Optional 

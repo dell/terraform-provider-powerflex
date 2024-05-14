@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package helper
 
 import (
@@ -52,7 +53,7 @@ type SdcHostResource struct {
 	System *goscaleio.System
 }
 
-func (r *SdcHostResource) getSshProvisioner(ctx context.Context, plan models.SdcHostModel) (*client.SshProvisioner, string, error) {
+func (r *SdcHostResource) getSSHProvisioner(ctx context.Context, plan models.SdcHostModel) (*client.SshProvisioner, string, error) {
 	var remote models.SdcHostRemoteModel
 	plan.Remote.As(ctx, &remote, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
 	dir := ""
@@ -72,6 +73,7 @@ func (r *SdcHostResource) getSshProvisioner(ctx context.Context, plan models.Sdc
 	return prov, dir, err
 }
 
+// GetMdmIps - get mdm ips from plan or from pflex
 func (r *SdcHostResource) GetMdmIps(ctx context.Context, plan models.SdcHostModel) ([]string, diag.Diagnostics) {
 	var mdmIps []string
 	if !plan.MdmIPs.IsNull() && len(plan.MdmIPs.Elements()) > 0 {
@@ -92,6 +94,7 @@ func (r *SdcHostResource) GetMdmIps(ctx context.Context, plan models.SdcHostMode
 	return mdmIps, nil
 }
 
+// GetMdmIPList - get mdm ips from pflex
 func GetMdmIPList(mdmDetails *goscaleio_types.MdmCluster) []string {
 	ipmap := mdmDetails.PrimaryMDM.IPs
 	for _, mdm := range mdmDetails.SecondaryMDM {
@@ -100,6 +103,7 @@ func GetMdmIPList(mdmDetails *goscaleio_types.MdmCluster) []string {
 	return ipmap
 }
 
+// ReadSDCHost - read SDC host and set state
 func (r *SdcHostResource) ReadSDCHost(ctx context.Context, state models.SdcHostModel) (models.SdcHostModel, error) {
 	// get SDC by IP
 	tflog.Info(ctx, "Finding SDC by IP")
@@ -169,7 +173,7 @@ func (r *SdcHostResource) SetSDCParams(ctx context.Context, plan, state models.S
 // LinuxOp creates or deletes a linux SDC host
 func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel, add bool) diag.Diagnostics {
 	var respDiagnostics diag.Diagnostics
-	sshP, dir, err := r.getSshProvisioner(ctx, plan)
+	sshP, dir, err := r.getSSHProvisioner(ctx, plan)
 	if err != nil {
 		respDiagnostics.AddError(
 			"Error connecting to host",
@@ -235,9 +239,10 @@ func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel,
 	return respDiagnostics
 }
 
+// DeleteLinux - delete linux SDC packages
 func (r *SdcHostResource) DeleteLinux(ctx context.Context, plan models.SdcHostModel, add bool) diag.Diagnostics {
 	var respDiagnostics diag.Diagnostics
-	sshP, _, err := r.getSshProvisioner(ctx, plan)
+	sshP, _, err := r.getSSHProvisioner(ctx, plan)
 	if err != nil {
 		respDiagnostics.AddError(
 			"Error connecting to host",

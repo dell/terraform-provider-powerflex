@@ -56,12 +56,12 @@ limitations under the License.
 # In this example, we are using passwordless ssh authentication using private key and host key.
 
 # load the private key
-data local_sensitive_file ssh_key {
+data "local_sensitive_file" "ssh_key" {
   filename = "/root/.ssh/esxi_rsa"
 }
 
 # load the host key
-data local_sensitive_file host_key {
+data "local_sensitive_file" "host_key" {
   filename = "esxi_host_ecdsa_key.pub"
 }
 
@@ -69,53 +69,23 @@ data local_sensitive_file host_key {
 resource "random_uuid" "sdc_guid" {
 }
 
-resource powerflex_sdc_host sdc {
+resource "powerflex_sdc_host" "sdc" {
   ip = "10.10.10.10"
   remote = {
     user = "root"
     # we are not using password auth here, but it can be used as well
     # password = "W0uldntUWannaKn0w!"
     private_key = data.local_sensitive_file.ssh_key.content_base64
-    host_key = data.local_sensitive_file.host_key.content_base64
+    host_key    = data.local_sensitive_file.host_key.content_base64
   }
   os_family = "esxi"
   esxi = {
-    guid = random_uuid.sdc_guid.result
+    guid         = random_uuid.sdc_guid.result
     drv_cfg_path = "/root/terraform-provider-powerflex/drv_cfg-3.6.500.106-esx7.x"
   }
-  name = "sdc-esxi"
+  name         = "sdc-esxi"
   package_path = "/root/terraform-provider-powerflex/sdc-3.6.500.106-esx7.x.zip"
-  mdm_ips = ["10.10.10.5", "10.10.10.6"]
-}
-
-# Example for adding an Linux host as SDC.
-resource powerflex_sdc_host sdc_linux {
-  ip = "10.10.10.10"
-  remote = {
-    user = "root"
-    # we are not using password auth here, but it can be used as well
-    # password = "password"
-    private_key = data.local_sensitive_file.ssh_key.content_base64
-    host_key = data.local_sensitive_file.host_key.content_base64
-  }
-  os_family = "linux"
-  name = "sdc-linux"
-  package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-700.103.Ubuntu.22.04.x86_64.tar" # For Ubuntu
-  # package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-700.103.el7.x86_64.rpm" # For RHEL
-  # mdm_ips = ["10.10.10.5", "10.10.10.6"]   # Optional 
-}
-
-# Example for adding an Windows host as SDC.
-resource powerflex_sdc_host sdc_windows {
-  ip = "10.10.10.10"
-  remote = {
-    user = "username"
-    password = "password"
-  }
-  os_family = "windows"
-  name = "sdc-windows"
-  package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-200.105.msi"
-  # mdm_ips = ["10.10.10.5", "10.10.10.6"]   # Optional 
+  mdm_ips      = ["10.10.10.5", "10.10.10.6"]
 }
 ```
 
@@ -149,27 +119,27 @@ limitations under the License.
 # In this example, we are using passwordless ssh authentication using private key and host key.
 
 # load the private key
-data local_sensitive_file ssh_key {
+data "local_sensitive_file" "ssh_key" {
   filename = "/root/.ssh/linux_rsa"
 }
 
 # load the host key
-data local_sensitive_file host_key {
+data "local_sensitive_file" "host_key" {
   filename = "linux_host_ecdsa_key.pub"
 }
 
 # Example for adding an Linux host as SDC.
-resource powerflex_sdc_host sdc_linux {
+resource "powerflex_sdc_host" "sdc_linux" {
   ip = "10.10.10.10"
   remote = {
     user = "root"
     # we are not using password auth here, but it can be used as well
     # password = "password"
     private_key = data.local_sensitive_file.ssh_key.content_base64
-    host_key = data.local_sensitive_file.host_key.content_base64
+    host_key    = data.local_sensitive_file.host_key.content_base64
   }
-  os_family = "linux"
-  name = "sdc-linux"
+  os_family    = "linux"
+  name         = "sdc-linux"
   package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-700.103.Ubuntu.22.04.x86_64.tar" # For Ubuntu
   # package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-700.103.el7.x86_64.rpm" # For RHEL
   # mdm_ips = ["10.10.10.5", "10.10.10.6"]   # Optional 
@@ -207,14 +177,14 @@ limitations under the License.
 
 
 # Example for adding an Windows host as SDC.
-resource powerflex_sdc_host sdc_windows {
+resource "powerflex_sdc_host" "sdc_windows" {
   ip = "10.10.10.10"
   remote = {
-    user = "username"
+    user     = "username"
     password = "password"
   }
-  os_family = "windows"
-  name = "sdc-windows"
+  os_family    = "windows"
+  name         = "sdc-windows"
   package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-200.105.msi"
   # mdm_ips = ["10.10.10.5", "10.10.10.6"]   # Optional 
 }

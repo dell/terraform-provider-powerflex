@@ -24,14 +24,14 @@ limitations under the License.
 
 
 # Example for adding an Windows host as SDC.
-resource powerflex_sdc_host sdc_windows {
+resource "powerflex_sdc_host" "sdc_windows" {
   ip = "10.10.10.10"
   remote = {
-    user = "username"
+    user     = "username"
     password = "password"
   }
-  os_family = "windows"
-  name = "sdc-windows"
+  os_family    = "windows"
+  name         = "sdc-windows"
   package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-200.105.msi"
   # mdm_ips = ["10.10.10.5", "10.10.10.6"]   # Optional 
 }

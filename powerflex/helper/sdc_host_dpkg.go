@@ -5,8 +5,7 @@ Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://mozilla.org/MPL/2.0/
-
+	http://mozilla.org/MPL/2.0/
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package helper
 
 import (
@@ -29,12 +29,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
+// UbuntuSdcPackage struct
 type UbuntuSdcPackage struct {
 	Siob        string
 	Sig         string
 	SiobExtract string
 }
 
+// GetUbuntuSdcPackage returns the siob, sig and siob_extract files
 func GetUbuntuSdcPackage(files []string) (*UbuntuSdcPackage, error) {
 	if len(files) != 3 {
 		return nil, fmt.Errorf("invalid number of files: %d, expecting 3 files", len(files))
@@ -73,7 +75,7 @@ func GetUbuntuSdcPackage(files []string) (*UbuntuSdcPackage, error) {
 
 }
 
-// CreateEsxi creates an esxi SDC host
+// CreateUbuntu creates an linux ubuntu SDC host
 func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostModel, sshP *client.SshProvisioner, dir string) diag.Diagnostics {
 	var respDiagnostics diag.Diagnostics
 
@@ -158,7 +160,7 @@ func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostM
 	return respDiagnostics
 }
 
-// DeleteEsxi - function to uninstall SDC package in ESXi host
+// DeleteUbuntu - function to uninstall SDC package in Linux Ubuntu host
 func (r *SdcHostResource) DeleteUbuntu(ctx context.Context, state models.SdcHostModel, sshP *client.SshProvisioner) diag.Diagnostics {
 	var respDiagnostics diag.Diagnostics
 	// Disconnect from PowerFlex

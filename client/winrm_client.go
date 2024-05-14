@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package client
 
 import (
@@ -26,6 +27,7 @@ import (
 	"github.com/packer-community/winrmcp/winrmcp"
 )
 
+// Constants
 const (
 	Command = string("powershell -command @@@")
 
@@ -44,6 +46,7 @@ const (
 	Message = "message"
 )
 
+// WinRMClient struct
 type WinRMClient struct {
 	Client *winrm.Client
 
@@ -62,11 +65,12 @@ type WinRMClient struct {
 	Errors []map[string]string
 }
 
+// GetErrors returns errors
 func (winRMClient *WinRMClient) GetErrors() []map[string]string {
-
 	return winRMClient.Errors
 }
 
+// Destroy closes the shell
 func (winRMClient *WinRMClient) Destroy() {
 
 	if winRMClient.Shell != nil {
@@ -78,6 +82,7 @@ func (winRMClient *WinRMClient) Destroy() {
 	}
 }
 
+// setTarget sets the target
 func (winRMClient *WinRMClient) setTarget(context map[string]string, host bool) *WinRMClient {
 
 	if _, found := context[Host]; found {
@@ -90,6 +95,7 @@ func (winRMClient *WinRMClient) setTarget(context map[string]string, host bool) 
 
 }
 
+// setPort sets the port
 func (winRMClient *WinRMClient) setPort(context map[string]string) *WinRMClient {
 
 	if _, found := context[Port]; found {
@@ -107,6 +113,7 @@ func (winRMClient *WinRMClient) setPort(context map[string]string) *WinRMClient 
 
 }
 
+// setUsername sets the username
 func (winRMClient *WinRMClient) setUsername(context map[string]string) *WinRMClient {
 
 	if _, found := context[UserName]; found {
@@ -118,6 +125,7 @@ func (winRMClient *WinRMClient) setUsername(context map[string]string) *WinRMCli
 	return winRMClient
 }
 
+// setPassword sets the password
 func (winRMClient *WinRMClient) setPassword(context map[string]string) *WinRMClient {
 
 	if _, found := context[Password]; found {
@@ -129,6 +137,7 @@ func (winRMClient *WinRMClient) setPassword(context map[string]string) *WinRMCli
 	return winRMClient
 }
 
+// setTimeout sets the timeout
 func (winRMClient *WinRMClient) setTimeout(context map[string]string) *WinRMClient {
 
 	if _, found := context[Timeout]; found {
@@ -146,6 +155,7 @@ func (winRMClient *WinRMClient) setTimeout(context map[string]string) *WinRMClie
 
 }
 
+// GetConnection returns the connection
 func (winRMClient *WinRMClient) GetConnection(context map[string]string, host bool) *WinRMClient {
 
 	return winRMClient.setTarget(context, host).setPort(context).setUsername(context).setPassword(
@@ -153,6 +163,7 @@ func (winRMClient *WinRMClient) GetConnection(context map[string]string, host bo
 
 }
 
+// ExecuteCommand executes the command
 func (winRMClient *WinRMClient) ExecuteCommand(command string) string {
 
 	output, err, _, _ := winRMClient.Client.RunWithString(strings.ReplaceAll(Command, "@@@", command), "")
@@ -177,6 +188,7 @@ func (winRMClient *WinRMClient) ExecuteCommand(command string) string {
 	return output
 }
 
+// Init initializes the connection
 func (winRMClient *WinRMClient) Init() (result bool) {
 
 	result = false
@@ -234,6 +246,7 @@ func (winRMClient *WinRMClient) Init() (result bool) {
 	return
 }
 
+// newCopyClient creates a new copy client
 func (winRMClient *WinRMClient) newCopyClient() (*winrmcp.Winrmcp, error) {
 	addr := fmt.Sprintf("%s:%d", winRMClient.Target, winRMClient.Port)
 
@@ -254,6 +267,7 @@ func (winRMClient *WinRMClient) newCopyClient() (*winrmcp.Winrmcp, error) {
 	return winrmcp.New(addr, &config)
 }
 
+// Upload uploads a file
 func (winRMClient *WinRMClient) Upload(dstPath string, srcPath string) error {
 
 	input, err := os.Open(srcPath)

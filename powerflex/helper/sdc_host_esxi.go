@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package helper
 
 import (
@@ -32,7 +33,7 @@ import (
 // CreateEsxi creates an esxi SDC host
 func (r *SdcHostResource) CreateEsxi(ctx context.Context, plan models.SdcHostModel) diag.Diagnostics {
 	var respDiagnostics diag.Diagnostics
-	sshP, dir, err := r.getSshProvisioner(ctx, plan)
+	sshP, dir, err := r.getSSHProvisioner(ctx, plan)
 	if err != nil {
 		respDiagnostics.AddError(
 			"Error connecting to host",
@@ -106,7 +107,7 @@ func (r *SdcHostResource) CreateEsxi(ctx context.Context, plan models.SdcHostMod
 	}
 
 	params := map[string]string{
-		"IoctlIniGuidStr":        esxiInput.Guid.ValueString(),
+		"IoctlIniGuidStr":        esxiInput.GUID.ValueString(),
 		"IoctlMdmIPStr":          strings.Join(mdmIPs, ","),
 		"bBlkDevIsPdlActive":     "1",
 		"blkDevPdlTimeoutMillis": "60000",
@@ -175,7 +176,7 @@ func (r *SdcHostResource) DeleteEsxi(ctx context.Context, state models.SdcHostMo
 	var respDiagnostics diag.Diagnostics
 	// Disconnect from PowerFlex
 	tflog.Info(ctx, "Logging into host...")
-	sshP, _, err := r.getSshProvisioner(ctx, state)
+	sshP, _, err := r.getSSHProvisioner(ctx, state)
 	if err != nil {
 		respDiagnostics.AddError(
 			"Error connecting to host",

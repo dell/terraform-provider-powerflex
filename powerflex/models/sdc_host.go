@@ -13,10 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package models
 
 import "github.com/hashicorp/terraform-plugin-framework/types"
 
+// SdcHostModel maps the resource schema data.
 type SdcHostModel struct {
 	ID     types.String `tfsdk:"id"`
 	Remote types.Object `tfsdk:"remote"` // SdcHostRemoteModel
@@ -40,6 +42,7 @@ type SdcHostModel struct {
 	MdmConnectionState types.String `tfsdk:"mdm_connection_state"`
 }
 
+// SdcHostRemoteModel maps the remote schema data.
 type SdcHostRemoteModel struct {
 	User       string  `tfsdk:"user"`
 	Password   *string `tfsdk:"password"`
@@ -49,7 +52,8 @@ type SdcHostRemoteModel struct {
 	Dir        *string `tfsdk:"dir"`
 }
 
+// SdcHostEsxiModel maps the esxi resource schema data.
 type SdcHostEsxiModel struct {
-	Guid   types.String `tfsdk:"guid"`
+	GUID   types.String `tfsdk:"guid"`
 	DrvCfg types.String `tfsdk:"drv_cfg_path"`
 }

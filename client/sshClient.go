@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package client
 
 import (
@@ -25,6 +26,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+// SshProvisionerConfig ssh provisioner config
 type SshProvisionerConfig struct {
 	IP         string
 	Username   string
@@ -34,6 +36,7 @@ type SshProvisionerConfig struct {
 	HostKey    *string
 }
 
+// getSshConfig returns ssh config
 func (config *SshProvisionerConfig) getSshConfig() (*ssh.ClientConfig, error) {
 	sshConfig := &ssh.ClientConfig{
 		User:            config.Username,
@@ -95,11 +98,13 @@ func (config *SshProvisionerConfig) getSshConfig() (*ssh.ClientConfig, error) {
 	return sshConfig, nil
 }
 
+// Logger is an interface for logging
 type Logger interface {
 	Printf(string, ...any)
 	Println(...any)
 }
 
+// SshProvisioner ssh provisioner struct
 type SshProvisioner struct {
 	sshClient *ssh.Client
 	logger    Logger
@@ -109,10 +114,12 @@ type SshProvisioner struct {
 	ip     string
 }
 
+// Close closes ssh connection
 func (p *SshProvisioner) Close() error {
 	return p.sshClient.Close()
 }
 
+// Run runs ssh command
 func (p *SshProvisioner) Run(cmd string) (string, error) {
 	p.logger.Printf("Running command: %s", cmd)
 	session, err := p.sshClient.NewSession()
@@ -127,10 +134,12 @@ func (p *SshProvisioner) Run(cmd string) (string, error) {
 	return string(output), nil
 }
 
+// RunWithDir runs ssh command with directory
 func (p *SshProvisioner) RunWithDir(dir, cmd string) (string, error) {
 	return p.Run(fmt.Sprintf("cd %s && %s", dir, cmd))
 }
 
+// RebootUnix reboots host
 func (p *SshProvisioner) RebootUnix() error {
 	cmd := "reboot"
 	p.logger.Printf("Running command: %s", cmd)
@@ -163,6 +172,7 @@ func (p *SshProvisioner) RebootUnix() error {
 	return nil
 }
 
+// GetLinesUnix get lines from string
 func GetLinesUnix(op string) []string {
 	lines := lineBreakRegex.Split(strings.TrimSpace(op), -1)
 	for i := range lines {
@@ -171,6 +181,7 @@ func GetLinesUnix(op string) []string {
 	return lines
 }
 
+// UntarUnix untars file
 func (p *SshProvisioner) UntarUnix(filename, dir string) ([]string, error) {
 	op, err := p.Run(fmt.Sprintf("cd %s && tar -xvf %s", dir, filename))
 	if err != nil {
@@ -181,6 +192,7 @@ func (p *SshProvisioner) UntarUnix(filename, dir string) ([]string, error) {
 	return lines, nil
 }
 
+// ListDirUnix lists directory
 func (p *SshProvisioner) ListDirUnix(dir string, logOp bool) ([]string, error) {
 	op, err := p.Run(fmt.Sprintf("ls %s", dir))
 	if err != nil {
@@ -193,6 +205,7 @@ func (p *SshProvisioner) ListDirUnix(dir string, logOp bool) ([]string, error) {
 	return lines, nil
 }
 
+// Ping pings host
 func (p *SshProvisioner) Ping() error {
 	hostIP := p.ip
 	start := time.Now()
@@ -209,6 +222,7 @@ func (p *SshProvisioner) Ping() error {
 	return fmt.Errorf("failed to reach host IP %s within timeout", hostIP)
 }
 
+// NewSshProvisioner creates new ssh provisioner
 func NewSshProvisioner(config SshProvisionerConfig, logger Logger) (*SshProvisioner, error) {
 	if logger == nil {
 		logger = log.Default()
@@ -245,6 +259,7 @@ func PasswordOnlyKIC(password string) ssh.KeyboardInteractiveChallenge {
 	}
 }
 
+// GetLines get lines from string
 func GetLines(s string) []string {
 	return strings.Split(s, "\n")
 }
