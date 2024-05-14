@@ -34,6 +34,18 @@ description: |-
 
 After the execution of above resource block, the ESXi host would have been addes as an SDC to the PowerFlex array. For more information, please check the terraform state file.
 
+### With Linux
+
+{{tffile "examples/resources/powerflex_sdc_host/resource_linux.tf" }}
+
+After the execution of above resource block, the Linux host would have been addes as an SDC to the PowerFlex array. For more information, please check the terraform state file.
+
+### With Windows
+
+{{tffile "examples/resources/powerflex_sdc_host/resource_windows.tf" }}
+
+After the execution of above resource block, the Windows Server host would have been addes as an SDC to the PowerFlex array. For more information, please check the terraform state file.
+
 {{ .SchemaMarkdown | trimspace }}
 
 {{ if .HasImport -}}

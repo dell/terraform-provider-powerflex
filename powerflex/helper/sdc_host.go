@@ -1,3 +1,18 @@
+/*
+Copyright (c) 2024 Dell Inc., or its subsidiaries. All Rights Reserved.
+
+Licensed under the Mozilla Public License Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://mozilla.org/MPL/2.0/
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 package helper
 
 import (
@@ -9,6 +24,7 @@ import (
 
 	"github.com/dell/goscaleio"
 	goscaleio_types "github.com/dell/goscaleio/types/v1"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -106,6 +122,24 @@ func (r *SdcHostResource) ReadSDCHost(ctx context.Context, state models.SdcHostM
 	state.SystemID = types.StringValue(sdcData.Sdc.SystemID)
 	state.OnVMWare = types.BoolValue(sdcData.Sdc.OnVMWare)
 	state.GUID = types.StringValue(sdcData.Sdc.SdcGUID)
+
+	mdmIPs, diags := r.GetMdmIps(ctx, state)
+	if diags.HasError() {
+		var errStr string
+		for _, diag := range diags {
+			errStr += diag.Summary() + "\n"
+		}
+		return state, fmt.Errorf(errStr)
+	}
+
+	objectMDMs := make([]attr.Value, len(mdmIPs))
+	for i, link := range mdmIPs {
+		obj := types.StringValue(link)
+		objectMDMs[i] = obj
+	}
+
+	listVal, _ := types.ListValue(types.StringType, objectMDMs)
+	state.MdmIPs = listVal
 	return state, nil
 }
 

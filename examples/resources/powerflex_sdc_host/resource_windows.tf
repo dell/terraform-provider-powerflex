@@ -19,39 +19,19 @@ limitations under the License.
 # Create, Update, Read, Delete and Import operations are supported for this resource.
 # sdc_details is the required parameter for the SDC resource.
 
-# Example for adding an ESXi host as SDC.
+# Example for adding an Windows host as SDC.
 # In this example, we are using passwordless ssh authentication using private key and host key.
 
-# load the private key
-data local_sensitive_file ssh_key {
-  filename = "/root/.ssh/esxi_rsa"
-}
 
-# load the host key
-data local_sensitive_file host_key {
-  filename = "esxi_host_ecdsa_key.pub"
-}
-
-# generate a random guid. This is required only for ESXi hosts.
-resource "random_uuid" "sdc_guid" {
-}
-
-resource powerflex_sdc_host sdc {
+# Example for adding an Windows host as SDC.
+resource powerflex_sdc_host sdc_windows {
   ip = "10.10.10.10"
   remote = {
-    user = "root"
-    # we are not using password auth here, but it can be used as well
-    # password = "W0uldntUWannaKn0w!"
-    private_key = data.local_sensitive_file.ssh_key.content_base64
-    host_key = data.local_sensitive_file.host_key.content_base64
+    user = "username"
+    password = "password"
   }
-  os_family = "esxi"
-  esxi = {
-    guid = random_uuid.sdc_guid.result
-    drv_cfg_path = "/root/terraform-provider-powerflex/drv_cfg-3.6.500.106-esx7.x"
-  }
-  name = "sdc-esxi"
-  package_path = "/root/terraform-provider-powerflex/sdc-3.6.500.106-esx7.x.zip"
-  mdm_ips = ["10.10.10.5", "10.10.10.6"]
+  os_family = "windows"
+  name = "sdc-windows"
+  package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-200.105.msi"
+  # mdm_ips = ["10.10.10.5", "10.10.10.6"]   # Optional 
 }
-
