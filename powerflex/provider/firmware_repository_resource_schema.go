@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023-2024 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2024 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
@@ -68,6 +70,15 @@ var FirmwareRepositoryResourceSchema schema.Schema = schema.Schema{
 			Description:         "Whether to approve the unsigned file or not.",
 			MarkdownDescription: "Whether to approve the unsigned file or not.",
 			Optional:            true,
+			Computed:            true,
+			Default:             booldefault.StaticBool(false),
+		},
+		"timeout": schema.Int64Attribute{
+			Description:         "Describes the time in minutes to timeout the job.",
+			MarkdownDescription: "Describes the time in minutes to timeout the job.",
+			Optional:            true,
+			Computed:            true,
+			Default:             int64default.StaticInt64(40),
 		},
 		"name": schema.StringAttribute{
 			Description:         "Name of the Firmware Repository",

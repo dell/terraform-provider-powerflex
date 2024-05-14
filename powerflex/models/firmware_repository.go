@@ -32,4 +32,5 @@ type FirmwareRepositoryResourceModel struct {
 	DiskLocation   types.String `tfsdk:"disk_location"`
 	FileName       types.String `tfsdk:"file_name"`
 	DefaultCatalog types.Bool   `tfsdk:"default_catalog"`
+	Timeout        types.Int64  `tfsdk:"timeout"`
 }

@@ -80,6 +80,7 @@ func (r *firmwareRepositoryResource) Configure(_ context.Context, req resource.C
 func (r *firmwareRepositoryResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "Upload Firmware Repository")
 	// Retrieve values from plan
+	var endTime time.Time
 	var plan models.FirmwareRepositoryResourceModel
 	var frDetails *scaleiotypes.UploadComplianceTopologyDetails
 	diags := req.Plan.Get(ctx, &plan)
@@ -91,7 +92,7 @@ func (r *firmwareRepositoryResource) Create(ctx context.Context, req resource.Cr
 		SourceLocation: plan.SourceLocation.ValueString(),
 	}
 
-	if !plan.Username.IsUnknown() && !plan.Password.IsUnknown() {
+	if !plan.Username.IsNull() && !plan.Password.IsNull() {
 		ucParam.Username = plan.Username.ValueString()
 		ucParam.Password = plan.Password.ValueString()
 	}
@@ -105,9 +106,13 @@ func (r *firmwareRepositoryResource) Create(ctx context.Context, req resource.Cr
 		)
 		return
 	}
+	startTime := time.Now()
 
-	// will loop until the file gets loaded successfully and status becomes available
-	for true {
+	if !plan.Timeout.IsNull() {
+		endTime = startTime.Add(time.Duration(plan.Timeout.ValueInt64()) * time.Minute)
+	}
+	// will loop until the file gets loaded successfully and status becomes available or until it times out
+	for time.Now().Before(endTime) {
 		time.Sleep(1 * time.Minute)
 		frDetails, err = r.gatewayClient.GetUploadComplianceDetails(fr.ID)
 		if err != nil {
@@ -124,7 +129,7 @@ func (r *firmwareRepositoryResource) Create(ctx context.Context, req resource.Cr
 				err := r.gatewayClient.ApproveUnsignedFile(frDetails.ID)
 				if err != nil {
 					resp.Diagnostics.AddError(
-						fmt.Sprintf("Could not Upload the compliance File"),
+						fmt.Sprintf("Could not approve the compliance File"),
 						err.Error(),
 					)
 					return
@@ -180,12 +185,13 @@ func (r *firmwareRepositoryResource) Read(ctx context.Context, req resource.Read
 	}
 }
 
-// Function used to Update fault set Resource
+// Function used to Update firmware repository Resource
 func (r *firmwareRepositoryResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Retrieve values from plan
 	var plan models.FirmwareRepositoryResourceModel
 	var frDetails *scaleiotypes.UploadComplianceTopologyDetails
 	var err error
+	var endTime time.Time
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -226,8 +232,16 @@ func (r *firmwareRepositoryResource) Update(ctx context.Context, req resource.Up
 			"Approve cannot be set to false once it is set to true.")
 		return
 	}
+
+	startTime := time.Now()
+
+	if plan.Timeout.ValueInt64() != state.Timeout.ValueInt64() {
+		endTime = startTime.Add(time.Duration(plan.Timeout.ValueInt64()) * time.Minute)
+	} else {
+		endTime = startTime.Add(time.Duration(state.Timeout.ValueInt64()) * time.Minute)
+	}
 	if plan.Approve.ValueBool() != state.Approve.ValueBool() {
-		for true {
+		for time.Now().Before(endTime) {
 			frDetails, err = r.gatewayClient.GetUploadComplianceDetails(state.ID.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
