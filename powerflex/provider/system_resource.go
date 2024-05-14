@@ -242,7 +242,7 @@ func (r *systemResource) Create(ctx context.Context, req resource.CreateRequest,
 			}
 
 			// Approve SDC if its not approved already
-			if sdc.Sdc.SdcApproved == false {
+			if !sdc.Sdc.SdcApproved {
 				diags.Append(r.ApproveSdcIP(sdc.Sdc.SdcIPs)...)
 			}
 
@@ -406,7 +406,7 @@ func (r *systemResource) Update(ctx context.Context, req resource.UpdateRequest,
 					continue
 				}
 
-				if sdc.Sdc.SdcApproved == false {
+				if !sdc.Sdc.SdcApproved {
 					diags.Append(r.ApproveSdcIP(sdc.Sdc.SdcIPs)...)
 				}
 
@@ -521,7 +521,7 @@ func (r *systemResource) ApproveSdcGUID(sdcGUID string) diag.Diagnostics {
 		SdcGUID: sdcGUID,
 	}
 
-	if sdc.Sdc.SdcApproved == false {
+	if !sdc.Sdc.SdcApproved {
 		_, err := r.system.ApproveSdc(&payload)
 		if err != nil {
 			diags.AddError(
