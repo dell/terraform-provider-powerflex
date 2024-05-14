@@ -27,7 +27,7 @@ import (
 // UpdateFaultSetState updates the State for Fault set Resource
 func UpdateFaultSetState(faultset *scaleiotypes.FaultSet, plan models.FaultSetResourceModel) models.FaultSetResourceModel {
 	state := plan
-	state.ProtectionDomainID = types.StringValue(faultset.ProtectionDomainId)
+	state.ProtectionDomainID = types.StringValue(faultset.ProtectionDomainID)
 	state.ID = types.StringValue(faultset.ID)
 	state.Name = types.StringValue(faultset.Name)
 	return state
@@ -38,7 +38,7 @@ func GetAllFaultSetState(faultSet scaleiotypes.FaultSet, sdsDetails []models.Sds
 	response = models.FaultSet{
 		ID:                 faultSet.ID,
 		Name:               faultSet.Name,
-		ProtectionDomainID: faultSet.ProtectionDomainId,
+		ProtectionDomainID: faultSet.ProtectionDomainID,
 	}
 
 	for _, link := range faultSet.Links {
