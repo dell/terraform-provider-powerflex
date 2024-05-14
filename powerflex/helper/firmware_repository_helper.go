@@ -24,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+// UpdateFrimwareRepositoryState sets the state for the firmware repository resource.
 func UpdateFrimwareRepositoryState(frDetails *scaleiotypes.UploadComplianceTopologyDetails, plan models.FirmwareRepositoryResourceModel) models.FirmwareRepositoryResourceModel {
 	state := plan
 	state.ID = types.StringValue(frDetails.ID)
