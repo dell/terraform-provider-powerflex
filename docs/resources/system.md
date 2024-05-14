@@ -83,7 +83,7 @@ resource "powerflex_system" "test" {
 
 ### Read-Only
 
-- `id` (String) Placeholder
+- `id` (String) System ID
 
 <a id="nestedatt--sdc_approved_ips"></a>
 ### Nested Schema for `sdc_approved_ips`

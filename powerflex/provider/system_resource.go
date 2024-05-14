@@ -96,8 +96,8 @@ var SystemResourceSchema schema.Schema = schema.Schema{
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Computed:            true,
-			Description:         "Placeholder",
-			MarkdownDescription: "Placeholder",
+			Description:         "System ID",
+			MarkdownDescription: "System ID",
 			PlanModifiers: []planmodifier.String{
 				stringplanmodifier.UseStateForUnknown(),
 			},
@@ -218,17 +218,20 @@ func (r *systemResource) Create(ctx context.Context, req resource.CreateRequest,
 	SdcGuids := make([]string, 0)
 	diags.Append(plan.SdcGuids.ElementsAs(ctx, &SdcGuids, true)...)
 
+	// Approve SDCs if restricted mode is set to Guid
 	if plan.RestrictedMode.ValueString() == "Guid" {
 		for _, SdcGUID := range SdcGuids {
 			diags.Append(r.ApproveSdcGUID(SdcGUID)...)
 		}
 	}
 
+	// Approve SDC IPs
 	if !plan.SdcApprovedIPs.IsNull() {
 		planApprovedIPs := make([]models.SdcApprovedIPsModel, 0)
 		diags.Append(plan.SdcApprovedIPs.ElementsAs(ctx, &planApprovedIPs, true)...)
 
 		for _, sdcPlan := range planApprovedIPs {
+			// Check if SDC exists with the given ID
 			sdc, err := r.system.FindSdc("ID", sdcPlan.ID.ValueString())
 			if err != nil {
 				diags.AddError(
@@ -238,6 +241,7 @@ func (r *systemResource) Create(ctx context.Context, req resource.CreateRequest,
 				continue
 			}
 
+			// Approve SDC if its not approved already
 			if sdc.Sdc.SdcApproved == false {
 				diags.Append(r.ApproveSdcIP(sdc.Sdc.SdcIPs)...)
 			}
@@ -332,6 +336,7 @@ func (r *systemResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
+	// Change restricted mode
 	if plan.RestrictedMode.ValueString() != state.RestrictedMode.ValueString() {
 		err = r.system.SetRestrictedMode(plan.RestrictedMode.ValueString())
 		if err != nil {
@@ -388,6 +393,7 @@ func (r *systemResource) Update(ctx context.Context, req resource.UpdateRequest,
 			stateSdcMap[sdc.ID.ValueString()] = stateSdcIPs
 		}
 
+		// Set approved IPs for new SDCs
 		diffSdcs, _ := helper.DifferenceArray(stateSdcIds, planSdcIds)
 		if len(diffSdcs) > 0 {
 			for _, sdcID := range diffSdcs {
