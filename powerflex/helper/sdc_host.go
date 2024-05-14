@@ -53,7 +53,7 @@ type SdcHostResource struct {
 	System *goscaleio.System
 }
 
-func (r *SdcHostResource) getSSHProvisioner(ctx context.Context, plan models.SdcHostModel) (*client.SshProvisioner, string, error) {
+func (r *SdcHostResource) getSSHProvisioner(ctx context.Context, plan models.SdcHostModel) (*client.SSHProvisioner, string, error) {
 	var remote models.SdcHostRemoteModel
 	plan.Remote.As(ctx, &remote, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
 	dir := ""
@@ -62,7 +62,7 @@ func (r *SdcHostResource) getSSHProvisioner(ctx context.Context, plan models.Sdc
 	} else {
 		dir = *remote.Dir
 	}
-	prov, err := client.NewSshProvisioner(client.SshProvisionerConfig{
+	prov, err := client.NewSSHProvisioner(client.SSHProvisionerConfig{
 		IP:         plan.Host.ValueString(),
 		Username:   remote.User,
 		Password:   remote.Password,

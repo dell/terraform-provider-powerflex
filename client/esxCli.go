@@ -28,11 +28,11 @@ var lineBreakRegex = regexp.MustCompile("\r?\n")
 
 // EsxCli is a wrapper around esxcli
 type EsxCli struct {
-	client *SshProvisioner
+	client *SSHProvisioner
 }
 
 // NewEsxCli returns a new esxcli wrapper
-func NewEsxCli(prov *SshProvisioner) *EsxCli {
+func NewEsxCli(prov *SSHProvisioner) *EsxCli {
 	return &EsxCli{
 		client: prov,
 	}
