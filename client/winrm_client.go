@@ -17,6 +17,7 @@ limitations under the License.
 package client
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strconv"
@@ -162,18 +163,19 @@ func (winRMClient *WinRMClient) GetConnection(context map[string]string, host bo
 }
 
 // ExecuteCommand executes the command
-func (winRMClient *WinRMClient) ExecuteCommand(command string) string {
+func (winRMClient *WinRMClient) ExecuteCommand(command string) (string, error) {
 
-	output, err, _, _ := winRMClient.Client.RunWithString(strings.ReplaceAll(Command, "@@@", command), "")
+	ctx, cancel := context.WithCancel(context.Background())
+
+	defer cancel()
+
+	output, err, _, _ := winRMClient.Client.RunWithContextWithString(ctx, strings.ReplaceAll(Command, "@@@", command), "")
 
 	if len(err) > 0 {
 
 		output = "FAIL"
 
-		winRMClient.Errors = append(winRMClient.Errors, map[string]string{
-			Error:   err,
-			Message: "failed to execute command [" + command + "] on target " + winRMClient.Target,
-		})
+		return output, fmt.Errorf("failed to execute command [%s] on target %s", command, winRMClient.Target)
 
 	}
 
@@ -181,7 +183,7 @@ func (winRMClient *WinRMClient) ExecuteCommand(command string) string {
 		output = "SUCCESS"
 	}
 
-	return output
+	return output, nil
 }
 
 // Init initializes the connection
@@ -226,10 +228,6 @@ func (winRMClient *WinRMClient) Init() (result bool) {
 		} else if strings.Contains(string(err.Error()), "http response error: 401") {
 
 			errorMessage = fmt.Sprintf("Invalid Credentials %s:%d", winRMClient.Target, winRMClient.Port)
-		} else {
-
-			errorMessage = fmt.Sprintf("Cannot connect to %s, Please verify that port %d is up", winRMClient.Target, winRMClient.Port)
-
 		}
 
 		winRMClient.Errors = append(winRMClient.Errors, map[string]string{
