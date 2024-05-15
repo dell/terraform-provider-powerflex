@@ -3,6 +3,7 @@ module terraform-provider-powerflex
 go 1.22
 
 require (
+	github.com/bramvdbogaerde/go-scp v1.4.0
 	github.com/dell/goscaleio v1.14.2-0.20240514081428-750aab52b027
 	github.com/hashicorp/terraform-plugin-docs v0.13.0
 	github.com/hashicorp/terraform-plugin-framework v1.4.2
@@ -96,7 +97,7 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	github.com/zclconf/go-cty v1.14.0 // indirect
-	golang.org/x/crypto v0.21.0 // indirect
+	golang.org/x/crypto v0.21.0
 	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
