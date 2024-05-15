@@ -32,5 +32,6 @@ func UpdateFrimwareRepositoryState(frDetails *scaleiotypes.UploadComplianceTopol
 	state.FileName = types.StringValue(frDetails.Filename)
 	state.Name = types.StringValue(frDetails.Name)
 	state.DefaultCatalog = types.BoolValue(frDetails.DefaultCatalog)
+	state.SourceLocation = types.StringValue(frDetails.SourceLocation)
 	return state
 }
