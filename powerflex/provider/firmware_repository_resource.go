@@ -135,7 +135,11 @@ func (r *firmwareRepositoryResource) Create(ctx context.Context, req resource.Cr
 					return
 				}
 			} else {
-				break
+				resp.Diagnostics.AddWarning(
+					fmt.Sprintf("The compliance file is unsigned"),
+					fmt.Sprintf("The compliance file needs approval to proceed ahead."),
+				)
+				return
 			}
 		} else if frDetails.State == "errors" {
 			resp.Diagnostics.AddError(
