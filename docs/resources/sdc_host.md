@@ -230,7 +230,7 @@ Optional:
 - `ca_cert` (String) Remote Login certificate issued by a CA to the remote login user. Must be used with `private_key` and the private key must match the certificate.
 - `dir` (String) Directory on the SDC server to upload packages to. Defaults to `/tmp` on Unix.
 - `host_key` (String) Remote Login host key of the SDC server. Corresponds to the UserKnownHostsFile field of OpenSSH.
-- `password` (String) Remote Login password of the SDC server.
+- `password` (String, Sensitive) Remote Login password of the SDC server.
 - `private_key` (String) Remote Login private key of the SDC server. Corresponds to the IdentityFile field of OpenSSH.
 
 

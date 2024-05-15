@@ -162,6 +162,10 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						Description:         "Remote Login password of the SDC server.",
 						MarkdownDescription: "Remote Login password of the SDC server.",
 						Optional:            true,
+						Sensitive:           true,
+						Validators: []validator.String{
+							stringvalidator.LengthAtLeast(1),
+						},
 					},
 					"private_key": schema.StringAttribute{
 						Description: "Remote Login private key of the SDC server." +
@@ -169,6 +173,9 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						MarkdownDescription: "Remote Login private key of the SDC server." +
 							" Corresponds to the IdentityFile field of OpenSSH.",
 						Optional: true,
+						Validators: []validator.String{
+							stringvalidator.LengthAtLeast(1),
+						},
 					},
 					"ca_cert": schema.StringAttribute{
 						Description: "Remote Login certificate issued by a CA to the remote login user." +
@@ -176,6 +183,9 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						MarkdownDescription: "Remote Login certificate issued by a CA to the remote login user." +
 							" Must be used with `private_key` and the private key must match the certificate.",
 						Optional: true,
+						Validators: []validator.String{
+							stringvalidator.LengthAtLeast(1),
+						},
 					},
 					"host_key": schema.StringAttribute{
 						Description: "Remote Login host key of the SDC server." +
@@ -183,6 +193,9 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						MarkdownDescription: "Remote Login host key of the SDC server." +
 							" Corresponds to the UserKnownHostsFile field of OpenSSH.",
 						Optional: true,
+						Validators: []validator.String{
+							stringvalidator.LengthAtLeast(1),
+						},
 					},
 					"dir": schema.StringAttribute{
 						Description: "Directory on the SDC server to upload packages to." +
@@ -190,6 +203,9 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						MarkdownDescription: "Directory on the SDC server to upload packages to." +
 							" Defaults to `/tmp` on Unix.",
 						Optional: true,
+						Validators: []validator.String{
+							stringvalidator.LengthAtLeast(1),
+						},
 					},
 				},
 			},
