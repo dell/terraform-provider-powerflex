@@ -228,7 +228,7 @@ func (winRMClient *WinRMClient) Init() (result bool) {
 			errorMessage = fmt.Sprintf("Invalid Credentials %s:%d", winRMClient.Target, winRMClient.Port)
 		} else {
 
-			errorMessage = fmt.Sprintf("Cannot connect to %d, Please verify that port %d is up", winRMClient.Target, winRMClient.Port)
+			errorMessage = fmt.Sprintf("Cannot connect to %s, Please verify that port %d is up", winRMClient.Target, winRMClient.Port)
 
 		}
 
