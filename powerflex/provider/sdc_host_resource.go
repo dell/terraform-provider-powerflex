@@ -96,8 +96,8 @@ func (r *sdcHostResource) ValidateConfig(ctx context.Context, req resource.Valid
 
 func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description:         "This resource is used to manage the Storage Data Servers entity of PowerFlex Array. We can Create, Update and Delete the SDC using this resource. We can also import an existing SDC from PowerFlex array.",
-		MarkdownDescription: "This resource is used to manage the Storage Data Servers entity of PowerFlex Array. We can Create, Update and Delete the SDC using this resource. We can also import an existing SDC from PowerFlex array.",
+		Description:         "This resource is used to manage the SDC entity of PowerFlex Array. We can Create, Update and Delete the SDC using this resource. We can also import an existing SDC from PowerFlex array.",
+		MarkdownDescription: "This resource is used to manage the SDC entity of PowerFlex Array. We can Create, Update and Delete the SDC using this resource. We can also import an existing SDC from PowerFlex array.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Description:         "The id of the SDC",

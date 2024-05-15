@@ -19,12 +19,12 @@ linkTitle: "powerflex_sdc_host"
 page_title: "powerflex_sdc_host Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource is used to manage the Storage Data Servers entity of PowerFlex Array. We can Create, Update and Delete the SDC using this resource. We can also import an existing SDC from PowerFlex array.
+  This resource is used to manage the SDC entity of PowerFlex Array. We can Create, Update and Delete the SDC using this resource. We can also import an existing SDC from PowerFlex array.
 ---
 
 # powerflex_sdc_host (Resource)
 
-This resource is used to manage the Storage Data Servers entity of PowerFlex Array. We can Create, Update and Delete the SDC using this resource. We can also import an existing SDC from PowerFlex array.
+This resource is used to manage the SDC entity of PowerFlex Array. We can Create, Update and Delete the SDC using this resource. We can also import an existing SDC from PowerFlex array.
 
 ## Example Usage
 
