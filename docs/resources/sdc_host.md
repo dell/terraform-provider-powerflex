@@ -197,7 +197,7 @@ After the execution of above resource block, the Windows Server host would have 
 
 ### Required
 
-- `ip` (String) IP address of the server to be coonfigured as SDC.
+- `ip` (String) IP address of the server to be configured as SDC.
 - `os_family` (String) Operating System family of the SDC.
 - `package_path` (String) Full path (on local machine) of the package to be installed on the SDC.
 - `remote` (Attributes) Remote login details of the SDC. (see [below for nested schema](#nestedatt--remote))
@@ -248,7 +248,7 @@ Import is supported using the following syntax:
 
 ```shell
 # /*
-# Copyright (c) 2023-2024 Dell Inc., or its subsidiaries. All Rights Reserved.
+# Copyright (c) 2024 Dell Inc., or its subsidiaries. All Rights Reserved.
 # Licensed under the Mozilla Public License Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at

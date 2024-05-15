@@ -108,9 +108,9 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				},
 			},
 			"ip": schema.StringAttribute{
-				Description:         "IP address of the server to be coonfigured as SDC.",
+				Description:         "IP address of the server to be configured as SDC.",
 				Required:            true,
-				MarkdownDescription: "IP address of the server to be coonfigured as SDC.",
+				MarkdownDescription: "IP address of the server to be configured as SDC.",
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},

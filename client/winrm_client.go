@@ -77,8 +77,6 @@ func (winRMClient *WinRMClient) Destroy() {
 
 		_ = winRMClient.Shell.Close()
 
-		// tflog.Debug(nil, string(fmt.Sprintf("disconnecting from %s : %s", winRMClient.target, winRMClient.port)))
-
 	}
 }
 
@@ -177,8 +175,6 @@ func (winRMClient *WinRMClient) ExecuteCommand(command string) string {
 			Message: "failed to execute command [" + command + "] on target " + winRMClient.Target,
 		})
 
-		// tflog.Warn(nil, string(fmt.Sprintf("failed to execute command :%s on target %s with error %s", command, winRMClient.target, err)))
-
 	}
 
 	if output == "" {
@@ -232,7 +228,7 @@ func (winRMClient *WinRMClient) Init() (result bool) {
 			errorMessage = fmt.Sprintf("Invalid Credentials %s:%d", winRMClient.Target, winRMClient.Port)
 		} else {
 
-			errorMessage = fmt.Sprintf("Invalid port %d, Please verify that port %d is up", winRMClient.Port, winRMClient.Port)
+			errorMessage = fmt.Sprintf("Cannot connect to %d, Please verify that port %d is up", winRMClient.Target, winRMClient.Port)
 
 		}
 
