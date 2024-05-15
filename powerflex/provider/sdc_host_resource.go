@@ -33,6 +33,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -91,6 +92,19 @@ func (r *sdcHostResource) ValidateConfig(ctx context.Context, req resource.Valid
 			"Esxi block is required for esxi SDC",
 			"",
 		)
+	}
+
+	if !cfg.OS.IsUnknown() && cfg.OS.ValueString() == "windows" && !cfg.Remote.IsNull() {
+		var remote models.SdcHostRemoteModel
+		cfg.Remote.As(ctx, &remote, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
+
+		if remote.Password == nil {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("remote").AtName("password"),
+				"Password is required for Windows SDC",
+				"",
+			)
+		}
 	}
 }
 
