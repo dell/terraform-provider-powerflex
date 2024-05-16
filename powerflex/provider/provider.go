@@ -304,6 +304,7 @@ func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resou
 		ResourceGroupResource,
 		NewSnapshotPolicyResource,
 		NewFirmwareRepositoryResource,
+		NewSDCHostResource,
 		SystemResource,
 	}
 }
