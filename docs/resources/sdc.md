@@ -146,7 +146,7 @@ resource "powerflex_sdc" "expansion" {
 
 # Example for installing non-MDM node as SDC. After successful execution, one SDC will be added.
 resource "powerflex_sdc" "sdc-example" {
-  mdm_password = "Password"
+  mdm_password = "Terraform123!@#"
   lia_password = "Password"
   sdc_details = [
     {
