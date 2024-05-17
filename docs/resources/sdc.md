@@ -152,7 +152,7 @@ resource "powerflex_sdc" "sdc-example" {
     {
       ip               = "IP"
       username         = "Username"
-      password         = "Password"
+      password         = "Terraform54967"
       operating_system = "linux"
       is_mdm_or_tb     = "Primary"
       is_sdc           = "No"
