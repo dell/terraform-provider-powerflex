@@ -18,7 +18,6 @@ package helper
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -29,59 +28,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-// UbuntuSdcPackage struct
-type UbuntuSdcPackage struct {
-	Siob        string
-	Sig         string
-	SiobExtract string
-}
-
-// GetUbuntuSdcPackage returns the siob, sig and siob_extract files
-func GetUbuntuSdcPackage(files []string) (*UbuntuSdcPackage, error) {
-	if len(files) != 3 {
-		return nil, fmt.Errorf("invalid number of files: %d, expecting 3 files", len(files))
-	}
-	var pkg UbuntuSdcPackage
-	// one of the files must end in .siob
-	for _, file := range files {
-		if strings.HasSuffix(file, ".siob") {
-			pkg.Siob = file
-		}
-	}
-	// one of the files must end in .sig
-	for _, file := range files {
-		if strings.HasSuffix(file, ".sig") {
-			pkg.Sig = file
-		}
-	}
-	// one of the filename must be siob_extract
-	for _, file := range files {
-		if file == "siob_extract" {
-			pkg.SiobExtract = file
-		}
-	}
-
-	var err error
-	if pkg.Siob == "" {
-		err = errors.Join(err, fmt.Errorf("no .siob file found"))
-	}
-	if pkg.Sig == "" {
-		err = errors.Join(err, fmt.Errorf("no .sig file found"))
-	}
-	if pkg.SiobExtract == "" {
-		err = errors.Join(err, fmt.Errorf("no siob_extract file found"))
-	}
-	return &pkg, err
-
-}
-
-// CreateUbuntu creates an linux ubuntu SDC host
-func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostModel, sshP *client.SshProvisioner, dir string) diag.Diagnostics {
+// CreateRhel creates a RHEL SDC host
+func (r *SdcHostResource) CreateRhel(ctx context.Context, plan models.SdcHostModel, sshP *client.SshProvisioner, dir string) diag.Diagnostics {
 	var respDiagnostics diag.Diagnostics
 
 	// upload sw
 	scpProv := client.NewScpProvisioner(sshP)
-	pkgTarget := filepath.Join(dir, "emc-sdc-package.tar")
+	pkgTarget := filepath.Join(dir, "emc-sdc-package.rpm")
 	err := scpProv.Upload(plan.Pkg.ValueString(), pkgTarget, "")
 	if err != nil {
 		respDiagnostics.AddError(
@@ -90,35 +43,6 @@ func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostM
 		)
 		return respDiagnostics
 	}
-
-	// extract software
-	files, err := sshP.UntarUnix("emc-sdc-package.tar", dir)
-	if err != nil {
-		respDiagnostics.AddError(
-			"Error extracting package",
-			err.Error(),
-		)
-		return respDiagnostics
-	}
-	// verify that there are 3 files only - a siob file, a sig file and a file called siob_extract
-	pkg, err := GetUbuntuSdcPackage(files)
-	if err != nil {
-		respDiagnostics.AddError(
-			"Error extracting package",
-			err.Error(),
-		)
-		return respDiagnostics
-	}
-	// run siob extract
-	op, err := sshP.RunWithDir(dir, fmt.Sprintf("./%s %s", pkg.SiobExtract, pkg.Siob))
-	if err != nil {
-		respDiagnostics.AddError(
-			"Error extracting siob file",
-			op+"\n"+err.Error(),
-		)
-		return respDiagnostics
-	}
-	tflog.Info(ctx, op)
 
 	mdmIPs, dgs := r.GetMdmIps(ctx, plan)
 
@@ -129,8 +53,8 @@ func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostM
 
 	// install sw
 	// the software name is same as siob file, but with .deb extension instead of .siob
-	debName := strings.ReplaceAll(pkg.Siob, ".siob", ".deb")
-	op, err = sshP.RunWithDir(dir, fmt.Sprintf("MDM_IP=%s dpkg -i %s", strings.Join(mdmIPs, ","), debName))
+	debName := "emc-sdc-package.rpm"
+	op, err := sshP.RunWithDir(dir, fmt.Sprintf("MDM_IP=%s rpm -i %s", strings.Join(mdmIPs, ","), debName))
 	if err != nil {
 		respDiagnostics.AddError(
 			"Error installing sdc package",
@@ -160,14 +84,14 @@ func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostM
 	return respDiagnostics
 }
 
-// DeleteUbuntu - function to uninstall SDC package in Linux Ubuntu host
-func (r *SdcHostResource) DeleteUbuntu(ctx context.Context, state models.SdcHostModel, sshP *client.SshProvisioner) diag.Diagnostics {
+// DeleteRhel - function to uninstall SDC package in RHEL host
+func (r *SdcHostResource) DeleteRhel(ctx context.Context, state models.SdcHostModel, sshP *client.SshProvisioner) diag.Diagnostics {
 	var respDiagnostics diag.Diagnostics
 	// Disconnect from PowerFlex
 	tflog.Info(ctx, "Logging into host...")
 
 	// list dpkg packages
-	op, err := sshP.Run("dpkg -l")
+	op, err := sshP.Run("rpm -qa | grep EMC")
 	if err != nil {
 		respDiagnostics.AddError(
 			"Error listing installed packages",
@@ -192,7 +116,7 @@ func (r *SdcHostResource) DeleteUbuntu(ctx context.Context, state models.SdcHost
 
 	// remove sdc package
 	tflog.Info(ctx, "Removing installed sdc package")
-	op, err = sshP.Run(fmt.Sprintf("dpkg -P %s", sdcPkg))
+	op, err = sshP.Run(fmt.Sprintf("rpm -e %s", sdcPkg))
 	if err != nil {
 		respDiagnostics.AddError(
 			"Error uninstalling package",

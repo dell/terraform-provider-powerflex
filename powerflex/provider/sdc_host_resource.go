@@ -1,3 +1,19 @@
+/*
+Copyright (c) 2024 Dell Inc., or its subsidiaries. All Rights Reserved.
+
+Licensed under the Mozilla Public License Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://mozilla.org/MPL/2.0/
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package provider
 
 import (
@@ -12,11 +28,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -26,7 +44,7 @@ var (
 	_ resource.ResourceWithImportState = &sdcHostResource{}
 )
 
-// NewSDCResource is a helper function to simplify the provider implementation.
+// NewSDCHostResource is a helper function to simplify the provider implementation.
 func NewSDCHostResource() resource.Resource {
 	return &sdcHostResource{}
 }
@@ -76,12 +94,25 @@ func (r *sdcHostResource) ValidateConfig(ctx context.Context, req resource.Valid
 			"",
 		)
 	}
+
+	if !cfg.OS.IsUnknown() && cfg.OS.ValueString() == "windows" && !cfg.Remote.IsNull() {
+		var remote models.SdcHostRemoteModel
+		cfg.Remote.As(ctx, &remote, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
+
+		if remote.Password == nil {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("remote").AtName("password"),
+				"Password is required for Windows SDC",
+				"",
+			)
+		}
+	}
 }
 
 func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description:         "This resource is used to manage the Storage Data Servers entity of PowerFlex Array. We can Create, Update and Delete the SDC using this resource. We can also import an existing SDC from PowerFlex array.",
-		MarkdownDescription: "This resource is used to manage the Storage Data Servers entity of PowerFlex Array. We can Create, Update and Delete the SDC using this resource. We can also import an existing SDC from PowerFlex array.",
+		Description:         "This resource is used to manage the SDC entity of PowerFlex Array. We can Create, Update and Delete the SDC using this resource. We can also import an existing SDC from PowerFlex array.",
+		MarkdownDescription: "This resource is used to manage the SDC entity of PowerFlex Array. We can Create, Update and Delete the SDC using this resource. We can also import an existing SDC from PowerFlex array.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Description:         "The id of the SDC",
@@ -92,9 +123,9 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				},
 			},
 			"ip": schema.StringAttribute{
-				Description:         "IP address of the server to be coonfigured as SDC.",
+				Description:         "IP address of the server to be configured as SDC.",
 				Required:            true,
-				MarkdownDescription: "IP address of the server to be coonfigured as SDC.",
+				MarkdownDescription: "IP address of the server to be configured as SDC.",
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
@@ -153,6 +184,10 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						Description:         "Remote Login password of the SDC server.",
 						MarkdownDescription: "Remote Login password of the SDC server.",
 						Optional:            true,
+						Sensitive:           true,
+						Validators: []validator.String{
+							stringvalidator.LengthAtLeast(1),
+						},
 					},
 					"private_key": schema.StringAttribute{
 						Description: "Remote Login private key of the SDC server." +
@@ -174,6 +209,9 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						MarkdownDescription: "Remote Login host key of the SDC server." +
 							" Corresponds to the UserKnownHostsFile field of OpenSSH.",
 						Optional: true,
+						Validators: []validator.String{
+							stringvalidator.LengthAtLeast(1),
+						},
 					},
 					"dir": schema.StringAttribute{
 						Description: "Directory on the SDC server to upload packages to." +
@@ -181,6 +219,9 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						MarkdownDescription: "Directory on the SDC server to upload packages to." +
 							" Defaults to `/tmp` on Unix.",
 						Optional: true,
+						Validators: []validator.String{
+							stringvalidator.LengthAtLeast(1),
+						},
 					},
 				},
 			},
@@ -221,6 +262,9 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
+				},
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"guid": schema.StringAttribute{

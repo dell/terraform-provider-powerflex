@@ -1,3 +1,19 @@
+/*
+Copyright (c) 2024 Dell Inc., or its subsidiaries. All Rights Reserved.
+
+Licensed under the Mozilla Public License Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://mozilla.org/MPL/2.0/
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package client
 
 import (
@@ -10,6 +26,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+// SshProvisionerConfig ssh provisioner config
 type SshProvisionerConfig struct {
 	IP         string
 	Port       string
@@ -20,6 +37,7 @@ type SshProvisionerConfig struct {
 	HostKey    *string
 }
 
+// getSSHConfig returns ssh config
 func (config *SshProvisionerConfig) getSshConfig() (*ssh.ClientConfig, error) {
 	sshConfig := &ssh.ClientConfig{
 		User:            config.Username,
@@ -81,13 +99,13 @@ func (config *SshProvisionerConfig) getSshConfig() (*ssh.ClientConfig, error) {
 	return sshConfig, nil
 }
 
-// Logger - interface for logging
+// Logger is an interface for logging
 type Logger interface {
 	Printf(string, ...any)
 	Println(...any)
 }
 
-// SshProvisioner - ssh client
+// SshProvisioner ssh provisioner struct
 type SshProvisioner struct {
 	sshClient *ssh.Client
 	logger    Logger
@@ -97,12 +115,12 @@ type SshProvisioner struct {
 	ip     string
 }
 
-// Close - closes ssh connection
+// Close closes ssh connection
 func (p *SshProvisioner) Close() error {
 	return p.sshClient.Close()
 }
 
-// Run - runs command over SSH
+// Run runs ssh command
 func (p *SshProvisioner) Run(cmd string) (string, error) {
 	p.logger.Printf("Running command: %s", cmd)
 	session, err := p.sshClient.NewSession()
@@ -112,17 +130,17 @@ func (p *SshProvisioner) Run(cmd string) (string, error) {
 	defer session.Close()
 	output, err := session.CombinedOutput(cmd)
 	if err != nil {
-		return "", fmt.Errorf("failed to run command: %w", err)
+		return string(output), fmt.Errorf("failed to run command: %w", err)
 	}
 	return string(output), nil
 }
 
-// RunWithDir - runs command in specified directory
+// RunWithDir runs ssh command with directory
 func (p *SshProvisioner) RunWithDir(dir, cmd string) (string, error) {
 	return p.Run(fmt.Sprintf("cd %s && %s", dir, cmd))
 }
 
-// RebootUnix - reboots Unix host
+// RebootUnix reboots host
 func (p *SshProvisioner) RebootUnix() error {
 	cmd := "reboot"
 	p.logger.Printf("Running command: %s", cmd)
@@ -155,7 +173,7 @@ func (p *SshProvisioner) RebootUnix() error {
 	return nil
 }
 
-// GetLinesUnix - gets lines from multiline Unix command output
+// GetLinesUnix get lines from string output from commands in Unix systems
 func GetLinesUnix(op string) []string {
 	lines := lineBreakRegex.Split(strings.TrimSpace(op), -1)
 	for i := range lines {
@@ -164,9 +182,9 @@ func GetLinesUnix(op string) []string {
 	return lines
 }
 
-// UntarUnix - untars Unix file using the tar utility
+// UntarUnix untars Unix file using the tar utility
 func (p *SshProvisioner) UntarUnix(filename, dir string) ([]string, error) {
-	op, err := p.RunWithDir(dir, fmt.Sprintf("tar -xvf %s", filename))
+	op, err := p.Run(fmt.Sprintf("cd %s && tar -xvf %s", dir, filename))
 	if err != nil {
 		return nil, fmt.Errorf("failed to untar file: %w: %s", err, op)
 	}
@@ -175,7 +193,7 @@ func (p *SshProvisioner) UntarUnix(filename, dir string) ([]string, error) {
 	return lines, nil
 }
 
-// ListDirUnix - lists files in specified directory using the ls utility
+// ListDirUnix lists files in specified directory using the ls utility
 func (p *SshProvisioner) ListDirUnix(dir string, logOp bool) ([]string, error) {
 	op, err := p.Run(fmt.Sprintf("ls %s", dir))
 	if err != nil {
@@ -188,7 +206,7 @@ func (p *SshProvisioner) ListDirUnix(dir string, logOp bool) ([]string, error) {
 	return lines, nil
 }
 
-// Ping - pings host IP and returns error if not available
+// Ping pings host IP and returns error if not available
 func (p *SshProvisioner) Ping() error {
 	hostIP := p.ip
 	start := time.Now()
@@ -205,7 +223,7 @@ func (p *SshProvisioner) Ping() error {
 	return fmt.Errorf("failed to reach host IP %s within timeout", hostIP)
 }
 
-// NewSshProvisioner - creates new ssh provisioner
+// NewSshProvisioner creates new ssh provisioner
 func NewSshProvisioner(config SshProvisionerConfig, logger Logger) (*SshProvisioner, error) {
 	if logger == nil {
 		logger = log.Default()

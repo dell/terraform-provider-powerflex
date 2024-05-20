@@ -1,3 +1,19 @@
+/*
+Copyright (c) 2024 Dell Inc., or its subsidiaries. All Rights Reserved.
+
+Licensed under the Mozilla Public License Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://mozilla.org/MPL/2.0/
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package helper
 
 import (
@@ -9,6 +25,7 @@ import (
 
 	"github.com/dell/goscaleio"
 	goscaleio_types "github.com/dell/goscaleio/types/v1"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -57,6 +74,7 @@ func (r *SdcHostResource) getSshProvisioner(ctx context.Context, plan models.Sdc
 	return prov, dir, err
 }
 
+// GetMdmIps - get mdm ips from plan or from pflex
 func (r *SdcHostResource) GetMdmIps(ctx context.Context, plan models.SdcHostModel) ([]string, diag.Diagnostics) {
 	var mdmIps []string
 	if !plan.MdmIPs.IsNull() && len(plan.MdmIPs.Elements()) > 0 {
@@ -77,6 +95,7 @@ func (r *SdcHostResource) GetMdmIps(ctx context.Context, plan models.SdcHostMode
 	return mdmIps, nil
 }
 
+// GetMdmIPList - get mdm ips from pflex
 func GetMdmIPList(mdmDetails *goscaleio_types.MdmCluster) []string {
 	ipmap := mdmDetails.PrimaryMDM.IPs
 	for _, mdm := range mdmDetails.SecondaryMDM {
@@ -85,6 +104,7 @@ func GetMdmIPList(mdmDetails *goscaleio_types.MdmCluster) []string {
 	return ipmap
 }
 
+// ReadSDCHost - read SDC host and set state
 func (r *SdcHostResource) ReadSDCHost(ctx context.Context, state models.SdcHostModel) (models.SdcHostModel, error) {
 	// get SDC by IP
 	tflog.Info(ctx, "Finding SDC by IP")
@@ -107,6 +127,24 @@ func (r *SdcHostResource) ReadSDCHost(ctx context.Context, state models.SdcHostM
 	state.SystemID = types.StringValue(sdcData.Sdc.SystemID)
 	state.OnVMWare = types.BoolValue(sdcData.Sdc.OnVMWare)
 	state.GUID = types.StringValue(sdcData.Sdc.SdcGUID)
+
+	mdmIPs, diags := r.GetMdmIps(ctx, state)
+	if diags.HasError() {
+		var errStr string
+		for _, diag := range diags {
+			errStr += diag.Summary() + "\n"
+		}
+		return state, fmt.Errorf(errStr)
+	}
+
+	objectMDMs := make([]attr.Value, len(mdmIPs))
+	for i, link := range mdmIPs {
+		obj := types.StringValue(link)
+		objectMDMs[i] = obj
+	}
+
+	listVal, _ := types.ListValue(types.StringType, objectMDMs)
+	state.MdmIPs = listVal
 	return state, nil
 }
 
@@ -146,49 +184,61 @@ func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel,
 	}
 	defer sshP.Close()
 
-	// check all files in /etc folder
-	ufiles, err := sshP.ListDirUnix("/etc", false)
+	op, err := sshP.Run("cat /etc/os-release")
 	if err != nil {
 		respDiagnostics.AddError(
-			"Error listing /etc directory",
-			err.Error(),
+			"Error retrieving contents of /etc/os-release",
+			op+"\n"+err.Error(),
 		)
 		return respDiagnostics
 	}
-	// check for existence of either of the following files
-	// redhat-release, SuSE-release or debian_version
-	linux_type_checks := map[string]string{
-		"redhat-release": "redhat",
-		"SUSE-release":   "suse",
-		"debian_version": "ubuntu",
-	}
-	linux_type := "unknown"
-	for _, file := range ufiles {
-		if ltype, ok := linux_type_checks[file]; ok {
-			linux_type = ltype
+
+	// Parse the output of "cat /etc/os-release" to determine the Linux distribution type
+	linuxType := "unknown"
+	lines := client.GetLinesUnix(op)
+	for _, line := range lines {
+		if strings.HasPrefix(line, "ID=") {
+			id := strings.TrimPrefix(line, "ID=")
+			linuxType = strings.Trim(id, `"`) // Remove leading and trailing quotes
+			break
 		}
 	}
-	if linux_type == "unknown" {
-		respDiagnostics.AddError(
-			"Error determining linux distribution",
-			fmt.Sprintf("Could not determine linux distribution: files in /etc directory were [%s]", strings.Join(ufiles, ", ")),
-		)
-		return respDiagnostics
+
+	// You may need to customize this mapping based on your specific requirements
+	linuxTypeMap := map[string]string{
+		"ubuntu": "ubuntu",
+		"sles":   "sles",
+		"centos": "centos",
+		"rhel":   "rhel",
+		// Add more mappings as needed
 	}
 
-	tflog.Info(ctx, fmt.Sprintf("Linux distribution detected: %s", linux_type))
+	// Check if the Linux distribution ID is mapped to a standard name
+	standardLinuxType, ok := linuxTypeMap[linuxType]
+	if ok {
+		linuxType = standardLinuxType
+	}
 
-	switch linux_type {
-	// case "redhat":
-	// 	respDiagnostics.Append(r.CreateRhel(ctx, plan, sshP, dir)...)
-	// case "suse":
-	// 	respDiagnostics.Append(r.CreateRhel(ctx, plan, sshP, dir)...)
+	tflog.Info(ctx, fmt.Sprintf("Linux distribution detected: %s", linuxType))
+
+	switch linuxType {
+	case "rhel", "sles", "centos":
+		if add {
+			respDiagnostics.Append(r.CreateRhel(ctx, plan, sshP, dir)...)
+		} else {
+			respDiagnostics.Append(r.DeleteRhel(ctx, plan, sshP)...)
+		}
 	case "ubuntu":
 		if add {
 			respDiagnostics.Append(r.CreateUbuntu(ctx, plan, sshP, dir)...)
 		} else {
 			respDiagnostics.Append(r.DeleteUbuntu(ctx, plan, sshP)...)
 		}
+	default:
+		respDiagnostics.AddError(
+			"Could not find supported linux distribution",
+			linuxType,
+		)
 	}
 
 	return respDiagnostics

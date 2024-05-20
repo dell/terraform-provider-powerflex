@@ -11,5 +11,5 @@
 # limitations under the License.
 # */
 
-# import SDC by it's IP address
-terraform import powerflex_sdc_host.sdc "<ip>"
+# import Resource Group by it's id
+terraform import powerflex_resource_group.data "<id>"

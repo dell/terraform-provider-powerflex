@@ -30,8 +30,10 @@ description: |-
 {{ if .HasExample -}}
 ## Example Usage
 
-{{ printf "{{tffile %q}}" .ExampleFile }}
+{{tffile .ExampleFile }}
 {{- end }}
+
+After the execution of above resource block, Resource Group would have been deployed on the PowerFlex Gateway. For more information, please check the terraform state file.
 
 {{ .SchemaMarkdown | trimspace }}
 
@@ -40,6 +42,6 @@ description: |-
 
 Import is supported using the following syntax:
 
-{{ printf "{{codefile \"shell\" %q}}" .ImportFile }}
+{{codefile "shell" .ImportFile }}
 
 {{- end }}
