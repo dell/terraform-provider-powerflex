@@ -51,7 +51,7 @@ func (r *sdcHostResource) ConfigValidators(ctx context.Context) []resource.Confi
 		// TODO: Add CA Cert validation
 		resourcevalidator.Conflicting(
 			remotePath.AtName("password"),
-			remotePath.AtName("ca_cert"),
+			remotePath.AtName("certificate"),
 		),
 	}
 }
@@ -161,7 +161,7 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 							" Corresponds to the IdentityFile field of OpenSSH.",
 						Optional: true,
 					},
-					"ca_cert": schema.StringAttribute{
+					"certificate": schema.StringAttribute{
 						Description: "Remote Login certificate issued by a CA to the remote login user." +
 							" Must be used with `private_key` and the private key must match the certificate.",
 						MarkdownDescription: "Remote Login certificate issued by a CA to the remote login user." +

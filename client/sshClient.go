@@ -31,26 +31,26 @@ func (config *SshProvisionerConfig) getSshConfig() (*ssh.ClientConfig, error) {
 		// if private key is specified, use it
 		privateKey, err := decodeString(*config.PrivateKey)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error decoding private key: %w", err)
 		}
 		signer, err := ssh.ParsePrivateKey(privateKey)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error parsing private key: %w", err)
 		}
 		if config.CaCert != nil {
 			// if CA cert is specified, use it
 			certBytes, err := decodeString(*config.CaCert)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("error decoding CA cert: %w", err)
 			}
-			pk, err := ssh.ParsePublicKey(certBytes)
-			if err != nil {
-				return nil, err
+			certPk, _, _, _, err := ssh.ParseAuthorizedKey(certBytes)
+			if err != nil { /* handle it */
+				return nil, fmt.Errorf("error parsing CA cert: %w", err)
 			}
-			cert := pk.(*ssh.Certificate)
+			cert := certPk.(*ssh.Certificate)
 			signer, err = ssh.NewCertSigner(cert, signer)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("error creating cert signer with CA cert: %w", err)
 			}
 		}
 		sshConfig.Auth = []ssh.AuthMethod{ssh.PublicKeys(signer)}

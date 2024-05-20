@@ -58,6 +58,7 @@ type sdcHostDataPoints struct {
 	UbuntuUser     string
 	UbuntuPassword string
 	UbuntuPort     string
+	UbuntuPkgPath  string
 	MdmIPs         []string
 }
 
@@ -151,6 +152,7 @@ func getNewSdcHostDataPointForTest() sdcHostDataPoints {
 	SdcHostDataPoints.UbuntuUser = setDefault(os.Getenv("POWERFLEX_SDC_USER_Ubuntu"), "ubuntuRoot")
 	SdcHostDataPoints.UbuntuPassword = setDefault(os.Getenv("POWERFLEX_SDC_PASSWORD_Ubuntu"), "secret")
 	SdcHostDataPoints.UbuntuPort = setDefault(os.Getenv("POWERFLEX_SDC_PORT_Ubuntu"), "2222")
+	SdcHostDataPoints.UbuntuPkgPath = setDefault(os.Getenv("POWERFLEX_SDC_PKG_PATH_Ubuntu"), "/tmp/tfaccsdc.tar")
 	SdcHostDataPoints.MdmIPs = strings.Split(setDefault(os.Getenv("POWERFLEX_SDC_MDM_IPs"), "10.10.10.5,10.10.10.6"), ",")
 	return SdcHostDataPoints
 }

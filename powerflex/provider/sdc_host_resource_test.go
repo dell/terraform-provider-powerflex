@@ -20,6 +20,8 @@ package provider
 import (
 	"fmt"
 	"os"
+	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -28,10 +30,7 @@ import (
 // TestAccSDCResource tests the SDC Expansion Operation
 func TestAccSDCHostResource(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
-	cfg := ProviderConfigForTesting + SDCHostConfig1
-	// t.Log(cfg)
-
-	if SdcHostResourceTestData.UbuntuIP == "localhost" {
+	if SdcHostResourceTestData.UbuntuIP == "127.0.0.1" {
 		os.WriteFile("/tmp/tfaccsdc.tar", []byte("Dummy SDC package"), 0644)
 	}
 
@@ -39,65 +38,238 @@ func TestAccSDCHostResource(t *testing.T) {
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			//Create with wrong package path negative
+			{
+				Config: ProviderConfigForTesting + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					os_family = "linux"
+					name = "sdc-ubuntu"
+					package_path = "/tmp/tfaccsdc1.tar" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
+					strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				ExpectError: regexp.MustCompile(`.*no such file or directory.*`),
+			},
+			//Create with unsupported os negative
+			{
+				Config: ProviderConfigForTesting + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					os_family = "mac"
+					name = "sdc-ubuntu"
+					package_path = "%s" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
+					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				ExpectError: regexp.MustCompile(`.*Attribute os_family value must be one of.*`),
+			},
+			//Create with wrong port negative
+			{
+				Config: ProviderConfigForTesting + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					os_family = "linux"
+					name = "sdc-ubuntu"
+					package_path = "%s" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.UbuntuIP, "55", SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
+					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				ExpectError: regexp.MustCompile(`.*connection[[:space:]]refused.*`),
+			},
+			//Create with wrong password negative
+			{
+				Config: ProviderConfigForTesting + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					os_family = "linux"
+					name = "sdc-ubuntu"
+					package_path = "%s" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, "invalid",
+					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				ExpectError: regexp.MustCompile(`.*unable[[:space:]]to[[:space:]]authenticate.*`),
+			},
 			//Create
 			{
-				Config: cfg,
+				Config: ProviderConfigForTesting + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					os_family = "linux"
+					name = "sdc-ubuntu"
+					package_path = "%s" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
+					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
 				// ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
 			},
-			//Import
-			// {
-			// 	Config:        ProviderConfigForTesting + importTest,
-			// 	ImportState:   true,
-			// 	ImportStateId: "123",
-			// 	ResourceName:  "powerflex_sdc.test",
-			// 	ExpectError:   regexp.MustCompile(`.*Unable to Find SDC.*`),
-			// },
-			// //Create with Packages
-			// {
-			// 	Config: ProviderConfigForTesting + packageTest + SDCConfig2,
-			// 	Check: resource.ComposeAggregateTestCheckFunc(
-			// 		resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.2.ip", GatewayDataPoints.tbIP),
-			// 	),
-			// },
-			// //Update
-			// {
-			// 	Config: ProviderConfigForTesting + packageTest + SDCConfigUpdate,
-			// 	Check: resource.ComposeAggregateTestCheckFunc(
-			// 		resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.3.ip", GatewayDataPoints.sdcServerIP),
-			// 	),
-			// },
-			// //Rename
-			// {
-			// 	Config: ProviderConfigForTesting + packageTest + SDCConfigRename,
-			// 	Check: resource.ComposeAggregateTestCheckFunc(
-			// 		resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.1.ip", GatewayDataPoints.secondaryMDMIP),
-			// 		resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.1.name", time.Now().Weekday().String()),
-			// 	),
-			// },
-			// //Performance Profile
-			// {
-			// 	Config: ProviderConfigForTesting + packageTest + SDCConfigPerProfile,
-			// 	Check: resource.ComposeAggregateTestCheckFunc(
-			// 		resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.1.ip", GatewayDataPoints.secondaryMDMIP),
-			// 		resource.TestCheckResourceAttr("powerflex_sdc.test", "sdc_details.2.performance_profile", "HighPerformance"),
-			// 	),
-			// },
+
+			// Import with wrong IP
+			{
+				Config: ProviderConfigForTesting + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					os_family = "linux"
+					name = "sdc-ubuntu"
+					package_path = "%s" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
+					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				ImportState:   true,
+				ImportStateId: "16.16.16.16",
+				ResourceName:  "powerflex_sdc_host.sdc",
+				// ImportStateVerifyIgnore: []string{"package_path", "remote"},
+				ExpectError: regexp.MustCompile(`.*error finding SDC by IP.*`),
+			},
+			// Import
+			{
+				Config: ProviderConfigForTesting + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					os_family = "linux"
+					name = "sdc-ubuntu"
+					package_path = "%s" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
+					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				ImportState:             true,
+				ImportStateId:           SdcHostResourceTestData.UbuntuIP,
+				ResourceName:            "powerflex_sdc_host.sdc",
+				ImportStateVerifyIgnore: []string{"package_path", "remote"},
+			},
+			// Update
+			{
+				Config: ProviderConfigForTesting + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					os_family = "linux"
+					name = "sdc-ubuntu2"
+					package_path = "%s" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
+					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				// ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
+			},
+			// Update mdm ip negative
+			{
+				Config: ProviderConfigForTesting + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					os_family = "linux"
+					name = "sdc-ubuntu2"
+					package_path = "%s" 
+					mdm_ips = ["%s", "10.247.66.68"]
+				}
+				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
+					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				ExpectError: regexp.MustCompile(`.*mdm_ips cannot be changed.*`),
+			},
+			// Update package negative
+			{
+				Config: ProviderConfigForTesting + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					os_family = "linux"
+					name = "sdc-ubuntu2"
+					package_path = "/dummy/tfaccsdc2.tar" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
+					strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				ExpectError: regexp.MustCompile(`.*package cannot be changed.*`),
+			},
+			// Update os negative
+			{
+				Config: ProviderConfigForTesting + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					os_family = "esxi"
+					esxi = {
+						guid = "esxi-guid"
+						drv_cfg_path = "/dummy/drv_cfg-3.6.500.106-esx7.x"
+					}
+					name = "sdc-ubuntu2"
+					package_path = "%s" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
+					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				ExpectError: regexp.MustCompile(`.*OS cannot be changed.*`),
+			},
 		},
 	})
 }
-
-var SDCHostConfig1 = fmt.Sprintf(`
-resource powerflex_sdc_host sdc {
-	# depends_on = [ terraform_data.ubuntu_scini ]
-	ip = "%s"
-	remote = {
-		port = "%s"
-		user = "%s"
-		password = "%s"
-	}
-	os_family = "linux"
-	name = "sdc-ubuntu"
-	package_path = "/tmp/tfaccsdc.tar"  # "EMC-ScaleIO-sdc-3.6-700.103.Ubuntu.22.04.x86_64.tar"
-	mdm_ips = ["10.247.100.214", "10.247.66.67"]
-}
-`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword)
