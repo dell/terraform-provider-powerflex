@@ -59,7 +59,7 @@ var FirmwareRepositoryDataSourceSchema schema.Schema = schema.Schema{
 				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
 			},
 		},
-		"firmware_repository_details": schema.SetNestedAttribute{
+		"firmware_repository_details": schema.ListNestedAttribute{
 			Description:         "Firmware Repository details",
 			MarkdownDescription: "Firmware Repository details",
 			Computed:            true,
@@ -223,14 +223,14 @@ var FirmwareRepositoryDataSourceSchema schema.Schema = schema.Schema{
 	},
 }
 
-//ComponentSchema is a function that returns the schema for Component
+// ComponentSchema is a function that returns the schema for Component
 func ComponentSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			MarkdownDescription: "ID",
 			Description:         "ID",
 			Computed:            true,
-		},      	
+		},
 		"package_id": schema.StringAttribute{
 			MarkdownDescription: "Package ID",
 			Description:         "Package ID",

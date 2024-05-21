@@ -20,10 +20,12 @@ package provider
 import (
 	//"regexp"
 	"encoding/json"
-	"io/ioutil"
+	"os"
+
 	//"log"
 	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
+
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
@@ -47,7 +49,7 @@ func TestAccFRDataSource(t *testing.T) {
 }
 
 func TestAccDummyFRDataSource(t *testing.T) {
-	data, err := ioutil.ReadFile("/root/newworkspace2/terraform-provider-powerflex/powerflex/provider/dummy.json")
+	data, err := os.ReadFile("/root/newworkspace2/terraform-provider-powerflex/powerflex/provider/dummy.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,5 +60,5 @@ func TestAccDummyFRDataSource(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	 t.Log(helper.GetAllFirmwareRepositoryState(&fr))
+	t.Log(helper.GetAllFirmwareRepositoryState(&fr))
 }
