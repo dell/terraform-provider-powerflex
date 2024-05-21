@@ -76,8 +76,8 @@ func (d *firmwareRepositoryDataSource) Configure(_ context.Context, req datasour
 func (d *firmwareRepositoryDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Info(ctx, "Started firmware repository data source read method")
 	var (
-		state          models.FirmwareRepositoryDatasourceModel
-		 firmwareRepositoryModel []models.FirmwareRepositoryDetails
+		state                   models.FirmwareRepositoryDatasourceModel
+		firmwareRepositoryModel []models.FirmwareRepositoryDetails
 	)
 
 	diags := req.Config.Get(ctx, &state)

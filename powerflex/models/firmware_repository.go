@@ -60,7 +60,7 @@ type FirmwareRepositoryDetails struct {
 	Embedded            types.Bool    `tfsdk:"embedded"`
 	State               types.String  `tfsdk:"state"`
 	SoftwareComponents  []Component   `tfsdk:"software_components"`
-	//SoftwareBundles     []Bundle      `tfsdk:"software_bundles"`
+	SoftwareBundles     []Bundle      `tfsdk:"software_bundles"`
 	BundleCount         types.Int64   `tfsdk:"bundle_count"`
 	ComponentCount      types.Int64   `tfsdk:"component_count"`
 	UserBundleCount     types.Int64   `tfsdk:"user_bundle_count"`
@@ -90,38 +90,38 @@ type Component struct {
 	CreatedBy           types.String   `tfsdk:"created_by"`
 	UpdatedDate         types.String   `tfsdk:"updated_date"`
 	UpdatedBy           types.String   `tfsdk:"updated_by"`
-	// Path                types.String   `tfsdk:"path"`
-	// HashMd5             types.String   `tfsdk:"hash_md5"`
-	// Name                types.String   `tfsdk:"name"`
-	// Category            types.String   `tfsdk:"category"`
-	// ComponentType       types.String   `tfsdk:"component_type"`
-	// OperatingSystem     types.String   `tfsdk:"operating_system"`
-	//SystemIDs           []types.String 		`tfsdk:"system_ids"`
-	// Custom              types.Bool     `tfsdk:"custom"`
-	// NeedsAttention      types.Bool     `tfsdk:"needs_attention"`
-	// Ignore              types.Bool     `tfsdk:"ignore"`
-	// OriginalComponentID types.String   `tfsdk:"original_component_id"`
-	// FirmwareRepoName    types.String   `tfsdk:"firmware_repo_name"`
+	Path                types.String   `tfsdk:"path"`
+	HashMd5             types.String   `tfsdk:"hash_md5"`
+	Name                types.String   `tfsdk:"name"`
+	Category            types.String   `tfsdk:"category"`
+	ComponentType       types.String   `tfsdk:"component_type"`
+	OperatingSystem     types.String   `tfsdk:"operating_system"`
+	SystemIDs           []types.String `tfsdk:"system_ids"`
+	Custom              types.Bool     `tfsdk:"custom"`
+	NeedsAttention      types.Bool     `tfsdk:"needs_attention"`
+	Ignore              types.Bool     `tfsdk:"ignore"`
+	OriginalComponentID types.String   `tfsdk:"original_component_id"`
+	FirmwareRepoName    types.String   `tfsdk:"firmware_repo_name"`
 }
 
-// // Bundle is the tfsdk model of Bundle
-// type Bundle struct {
-// 	ID                 types.String `tfsdk:"id"`
-// 	Name               types.String `tfsdk:"name"`
-// 	Version            types.String `tfsdk:"version"`
-// 	BundleDate         types.String `tfsdk:"bundle_date"`
-// 	CreatedDate        types.String `tfsdk:"created_date"`
-// 	CreatedBy          types.String `tfsdk:"created_by"`
-// 	UpdatedDate        types.String `tfsdk:"updated_date"`
-// 	UpdatedBy          types.String `tfsdk:"updated_by"`
-// 	Description        types.String `tfsdk:"description"`
-// 	UserBundle         types.Bool   `tfsdk:"user_bundle"`
-// 	UserBundlePath     types.String `tfsdk:"user_bundle_path"`
-// 	DeviceType         types.String `tfsdk:"device_type"`
-// 	DeviceModel        types.String `tfsdk:"device_model"`
-// 	FwRepositoryID     types.String `tfsdk:"fw_repository_id"`
-// 	BundleType         types.String `tfsdk:"bundle_type"`
-// 	Custom             types.Bool   `tfsdk:"custom"`
-// 	NeedsAttention     types.Bool   `tfsdk:"needs_attention"`
-// 	SoftwareComponents []Component  `tfsdk:"software_components"`
-// }
+// Bundle is the tfsdk model of Bundle
+type Bundle struct {
+	ID                 types.String `tfsdk:"id"`
+	Name               types.String `tfsdk:"name"`
+	Version            types.String `tfsdk:"version"`
+	BundleDate         types.String `tfsdk:"bundle_date"`
+	CreatedDate        types.String `tfsdk:"created_date"`
+	CreatedBy          types.String `tfsdk:"created_by"`
+	UpdatedDate        types.String `tfsdk:"updated_date"`
+	UpdatedBy          types.String `tfsdk:"updated_by"`
+	Description        types.String `tfsdk:"description"`
+	UserBundle         types.Bool   `tfsdk:"user_bundle"`
+	UserBundlePath     types.String `tfsdk:"user_bundle_path"`
+	DeviceType         types.String `tfsdk:"device_type"`
+	DeviceModel        types.String `tfsdk:"device_model"`
+	FwRepositoryID     types.String `tfsdk:"fw_repository_id"`
+	BundleType         types.String `tfsdk:"bundle_type"`
+	Custom             types.Bool   `tfsdk:"custom"`
+	NeedsAttention     types.Bool   `tfsdk:"needs_attention"`
+	SoftwareComponents []Component  `tfsdk:"software_components"`
+}

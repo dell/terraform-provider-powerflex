@@ -18,15 +18,9 @@ limitations under the License.
 package provider
 
 import (
-	//"regexp"
-	"encoding/json"
-	"os"
-
-	//"log"
-	"terraform-provider-powerflex/powerflex/helper"
+	"regexp"
 	"testing"
 
-	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
@@ -36,29 +30,58 @@ data "powerflex_firmware_repository" "test" {
 	}
 `
 
+var FRDataSourceConfig2 = `
+data "powerflex_firmware_repository" "test" {
+	firmware_repository_names = ["PowerFlex 4.5.0.0 (14)", "PowerFlex 4.5.0.0 (16)"]
+	}
+`
+
+var FRDataSourceConfig3 = `
+data "powerflex_firmware_repository" "test" {
+}
+`
+
+var FRDataSourceConfig4 = `
+data "powerflex_firmware_repository" "test" {
+	firmware_repository_ids = ["8aaa3fda8f5c2609018f854266e12865", "Invalid"]
+}
+`
+
+var FRDataSourceConfig5 = `
+data "powerflex_firmware_repository" "test" {
+	firmware_repository_names = ["Invalid", "PowerFlex 4.5.0.0 (16)"]
+}
+`
+
 func TestAccFRDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + FRDataSourceConfig1,
-				//Check:  resource.ComposeAggregateTestCheckFunc(),
+			},
+			{
+				Config: ProviderConfigForTesting + FRDataSourceConfig2,
+			},
+			{
+				Config: ProviderConfigForTesting + FRDataSourceConfig3,
 			},
 		},
 	})
 }
 
-func TestAccDummyFRDataSource(t *testing.T) {
-	data, err := os.ReadFile("/root/newworkspace2/terraform-provider-powerflex/powerflex/provider/dummy.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Unmarshal the JSON data into a struct
-	var fr scaleiotypes.FirmwareRepositoryDetails
-	err = json.Unmarshal(data, &fr)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log(helper.GetAllFirmwareRepositoryState(&fr))
+func TestAccFRDataSourceNegative(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      ProviderConfigForTesting + FRDataSourceConfig4,
+				ExpectError: regexp.MustCompile(`.*Error in getting firmware repository details using id Invalid.*`),
+			},
+			{
+				Config:      ProviderConfigForTesting + FRDataSourceConfig5,
+				ExpectError: regexp.MustCompile(`.*Error in getting firmware repository details using name Invalid.*`),
+			},
+		},
+	})
 }

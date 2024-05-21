@@ -151,12 +151,12 @@ var FirmwareRepositoryDataSourceSchema schema.Schema = schema.Schema{
 						Computed:            true,
 						NestedObject:        schema.NestedAttributeObject{Attributes: ComponentSchema()},
 					},
-					// "software_bundles": schema.ListNestedAttribute{
-					// 	MarkdownDescription: "Software Bundles",
-					// 	Description:         "Software Bundles",
-					// 	Computed:            true,
-					// 	NestedObject:        schema.NestedAttributeObject{Attributes: BundleSchema()},
-					// },
+					"software_bundles": schema.ListNestedAttribute{
+						MarkdownDescription: "Software Bundles",
+						Description:         "Software Bundles",
+						Computed:            true,
+						NestedObject:        schema.NestedAttributeObject{Attributes: BundleSchema()},
+					},
 					"bundle_count": schema.Int64Attribute{
 						MarkdownDescription: "Bundle Count",
 						Description:         "Bundle Count",
@@ -291,163 +291,163 @@ func ComponentSchema() map[string]schema.Attribute {
 			Description:         "Updated By",
 			Computed:            true,
 		},
-		// "path": schema.StringAttribute{
-		// 	MarkdownDescription: "Path",
-		// 	Description:         "Path",
-		// 	Computed:            true,
-		// },
-		// "hash_md5": schema.StringAttribute{
-		// 	MarkdownDescription: "Hash Md5",
-		// 	Description:         "Hash Md5",
-		// 	Computed:            true,
-		// },
-		// "name": schema.StringAttribute{
-		// 	MarkdownDescription: "Name",
-		// 	Description:         "Name",
-		// 	Computed:            true,
-		// },
-		// "category": schema.StringAttribute{
-		// 	MarkdownDescription: "Category",
-		// 	Description:         "Category",
-		// 	Computed:            true,
-		// },
-		// "component_type": schema.StringAttribute{
-		// 	MarkdownDescription: "Component Type",
-		// 	Description:         "Component Type",
-		// 	Computed:            true,
-		// },
-		// "operating_system": schema.StringAttribute{
-		// 	MarkdownDescription: "Operating System",
-		// 	Description:         "Operating System",
-		// 	Computed:            true,
-		// },
-		// "system_ids": schema.ListAttribute{
-		// 	MarkdownDescription: "System IDs",
-		// 	Description:         "System IDs",
-		// 	Computed:            true,
-		// 	ElementType:         types.StringType,
-		// },
-		// "custom": schema.BoolAttribute{
-		// 	MarkdownDescription: "Custom",
-		// 	Description:         "Custom",
-		// 	Computed:            true,
-		// },
-		// "needs_attention": schema.BoolAttribute{
-		// 	MarkdownDescription: "Needs Attention",
-		// 	Description:         "Needs Attention",
-		// 	Computed:            true,
-		// },
-		// "ignore": schema.BoolAttribute{
-		// 	MarkdownDescription: "Ignore",
-		// 	Description:         "Ignore",
-		// 	Computed:            true,
-		// },
-		// "original_component_id": schema.StringAttribute{
-		// 	MarkdownDescription: "Original Component ID",
-		// 	Description:         "Original Component ID",
-		// 	Computed:            true,
-		// },
-		// "firmware_repo_name": schema.StringAttribute{
-		// 	MarkdownDescription: "Firmware Repo Name",
-		// 	Description:         "Firmware Repo Name",
-		// 	Computed:            true,
-		// },
+		"path": schema.StringAttribute{
+			MarkdownDescription: "Path",
+			Description:         "Path",
+			Computed:            true,
+		},
+		"hash_md5": schema.StringAttribute{
+			MarkdownDescription: "Hash Md5",
+			Description:         "Hash Md5",
+			Computed:            true,
+		},
+		"name": schema.StringAttribute{
+			MarkdownDescription: "Name",
+			Description:         "Name",
+			Computed:            true,
+		},
+		"category": schema.StringAttribute{
+			MarkdownDescription: "Category",
+			Description:         "Category",
+			Computed:            true,
+		},
+		"component_type": schema.StringAttribute{
+			MarkdownDescription: "Component Type",
+			Description:         "Component Type",
+			Computed:            true,
+		},
+		"operating_system": schema.StringAttribute{
+			MarkdownDescription: "Operating System",
+			Description:         "Operating System",
+			Computed:            true,
+		},
+		"system_ids": schema.ListAttribute{
+			MarkdownDescription: "System IDs",
+			Description:         "System IDs",
+			Computed:            true,
+			ElementType:         types.StringType,
+		},
+		"custom": schema.BoolAttribute{
+			MarkdownDescription: "Custom",
+			Description:         "Custom",
+			Computed:            true,
+		},
+		"needs_attention": schema.BoolAttribute{
+			MarkdownDescription: "Needs Attention",
+			Description:         "Needs Attention",
+			Computed:            true,
+		},
+		"ignore": schema.BoolAttribute{
+			MarkdownDescription: "Ignore",
+			Description:         "Ignore",
+			Computed:            true,
+		},
+		"original_component_id": schema.StringAttribute{
+			MarkdownDescription: "Original Component ID",
+			Description:         "Original Component ID",
+			Computed:            true,
+		},
+		"firmware_repo_name": schema.StringAttribute{
+			MarkdownDescription: "Firmware Repo Name",
+			Description:         "Firmware Repo Name",
+			Computed:            true,
+		},
 	}
 }
 
 // // BundleSchema is a function that returns the schema for Bundle
-// func BundleSchema() map[string]schema.Attribute {
-// 	return map[string]schema.Attribute{
-// 		"id": schema.StringAttribute{
-// 			MarkdownDescription: "ID",
-// 			Description:         "ID",
-// 			Computed:            true,
-// 		},
-// 		"name": schema.StringAttribute{
-// 			MarkdownDescription: "Name",
-// 			Description:         "Name",
-// 			Computed:            true,
-// 		},
-// 		"version": schema.StringAttribute{
-// 			MarkdownDescription: "Version",
-// 			Description:         "Version",
-// 			Computed:            true,
-// 		},
-// 		"bundle_date": schema.StringAttribute{
-// 			MarkdownDescription: "Bundle Date",
-// 			Description:         "Bundle Date",
-// 			Computed:            true,
-// 		},
-// 		"created_date": schema.StringAttribute{
-// 			MarkdownDescription: "Created Date",
-// 			Description:         "Created Date",
-// 			Computed:            true,
-// 		},
-// 		"created_by": schema.StringAttribute{
-// 			MarkdownDescription: "Created By",
-// 			Description:         "Created By",
-// 			Computed:            true,
-// 		},
-// 		"updated_date": schema.StringAttribute{
-// 			MarkdownDescription: "Updated Date",
-// 			Description:         "Updated Date",
-// 			Computed:            true,
-// 		},
-// 		"updated_by": schema.StringAttribute{
-// 			MarkdownDescription: "Updated By",
-// 			Description:         "Updated By",
-// 			Computed:            true,
-// 		},
-// 		"description": schema.StringAttribute{
-// 			MarkdownDescription: "Description",
-// 			Description:         "Description",
-// 			Computed:            true,
-// 		},
-// 		"user_bundle": schema.BoolAttribute{
-// 			MarkdownDescription: "User Bundle",
-// 			Description:         "User Bundle",
-// 			Computed:            true,
-// 		},
-// 		"user_bundle_path": schema.StringAttribute{
-// 			MarkdownDescription: "User Bundle Path",
-// 			Description:         "User Bundle Path",
-// 			Computed:            true,
-// 		},
-// 		"device_type": schema.StringAttribute{
-// 			MarkdownDescription: "Device Type",
-// 			Description:         "Device Type",
-// 			Computed:            true,
-// 		},
-// 		"device_model": schema.StringAttribute{
-// 			MarkdownDescription: "Device Model",
-// 			Description:         "Device Model",
-// 			Computed:            true,
-// 		},
-// 		"fw_repository_id": schema.StringAttribute{
-// 			MarkdownDescription: "Fw Repository ID",
-// 			Description:         "Fw Repository ID",
-// 			Computed:            true,
-// 		},
-// 		"bundle_type": schema.StringAttribute{
-// 			MarkdownDescription: "Bundle Type",
-// 			Description:         "Bundle Type",
-// 			Computed:            true,
-// 		},
-// 		"custom": schema.BoolAttribute{
-// 			MarkdownDescription: "Custom",
-// 			Description:         "Custom",
-// 			Computed:            true,
-// 		},
-// 		"needs_attention": schema.BoolAttribute{
-// 			MarkdownDescription: "Needs Attention",
-// 			Description:         "Needs Attention",
-// 			Computed:            true,
-// 		},
-// 		"software_components": schema.ListNestedAttribute{
-// 			MarkdownDescription: "Software Components",
-// 			Description:         "Software Components",
-// 			Computed:            true,
-// 			NestedObject:        schema.NestedAttributeObject{Attributes: ComponentSchema()},
-// 		},
-// 	}
-// }
+func BundleSchema() map[string]schema.Attribute {
+	return map[string]schema.Attribute{
+		"id": schema.StringAttribute{
+			MarkdownDescription: "ID",
+			Description:         "ID",
+			Computed:            true,
+		},
+		"name": schema.StringAttribute{
+			MarkdownDescription: "Name",
+			Description:         "Name",
+			Computed:            true,
+		},
+		"version": schema.StringAttribute{
+			MarkdownDescription: "Version",
+			Description:         "Version",
+			Computed:            true,
+		},
+		"bundle_date": schema.StringAttribute{
+			MarkdownDescription: "Bundle Date",
+			Description:         "Bundle Date",
+			Computed:            true,
+		},
+		"created_date": schema.StringAttribute{
+			MarkdownDescription: "Created Date",
+			Description:         "Created Date",
+			Computed:            true,
+		},
+		"created_by": schema.StringAttribute{
+			MarkdownDescription: "Created By",
+			Description:         "Created By",
+			Computed:            true,
+		},
+		"updated_date": schema.StringAttribute{
+			MarkdownDescription: "Updated Date",
+			Description:         "Updated Date",
+			Computed:            true,
+		},
+		"updated_by": schema.StringAttribute{
+			MarkdownDescription: "Updated By",
+			Description:         "Updated By",
+			Computed:            true,
+		},
+		"description": schema.StringAttribute{
+			MarkdownDescription: "Description",
+			Description:         "Description",
+			Computed:            true,
+		},
+		"user_bundle": schema.BoolAttribute{
+			MarkdownDescription: "User Bundle",
+			Description:         "User Bundle",
+			Computed:            true,
+		},
+		"user_bundle_path": schema.StringAttribute{
+			MarkdownDescription: "User Bundle Path",
+			Description:         "User Bundle Path",
+			Computed:            true,
+		},
+		"device_type": schema.StringAttribute{
+			MarkdownDescription: "Device Type",
+			Description:         "Device Type",
+			Computed:            true,
+		},
+		"device_model": schema.StringAttribute{
+			MarkdownDescription: "Device Model",
+			Description:         "Device Model",
+			Computed:            true,
+		},
+		"fw_repository_id": schema.StringAttribute{
+			MarkdownDescription: "Fw Repository ID",
+			Description:         "Fw Repository ID",
+			Computed:            true,
+		},
+		"bundle_type": schema.StringAttribute{
+			MarkdownDescription: "Bundle Type",
+			Description:         "Bundle Type",
+			Computed:            true,
+		},
+		"custom": schema.BoolAttribute{
+			MarkdownDescription: "Custom",
+			Description:         "Custom",
+			Computed:            true,
+		},
+		"needs_attention": schema.BoolAttribute{
+			MarkdownDescription: "Needs Attention",
+			Description:         "Needs Attention",
+			Computed:            true,
+		},
+		"software_components": schema.ListNestedAttribute{
+			MarkdownDescription: "Software Components",
+			Description:         "Software Components",
+			Computed:            true,
+			NestedObject:        schema.NestedAttributeObject{Attributes: ComponentSchema()},
+		},
+	}
+}

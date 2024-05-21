@@ -243,6 +243,7 @@ var endpoint = setDefault(os.Getenv("POWERFLEX_ENDPOINT"), "http://localhost:300
 var NodeDataPoints = getNodeDataForTest()
 var TemplateDataPoints = getTemplateDataForTest()
 var ServiceDataPoints = getServiceDataForTest()
+var SourceLocation = setDefault(os.Getenv("POWERFLEX_SOURCE_LOCATION"), "tfacc_source_location")
 
 func init() {
 	err := godotenv.Load("powerflex.env")
