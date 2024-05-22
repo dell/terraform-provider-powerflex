@@ -26,13 +26,13 @@ import (
 
 var FRDataSourceConfig1 = `
 data "powerflex_firmware_repository" "test" {
-	firmware_repository_ids = ["8aaa3fda8f5c2609018f854266e12865", "8aaa3fda8f5c2609018f857b6c0d2ede"]
+	firmware_repository_ids = ["` + FirmwareRepoID1 + `", "` + FirmwareRepoID2 + `"]
 	}
 `
 
 var FRDataSourceConfig2 = `
 data "powerflex_firmware_repository" "test" {
-	firmware_repository_names = ["PowerFlex 4.5.0.0 (14)", "PowerFlex 4.5.0.0 (16)"]
+	firmware_repository_names = ["` + FirmwareRepoName1 + `", "` + FirmwareRepoName2 + `"]
 	}
 `
 
@@ -43,13 +43,13 @@ data "powerflex_firmware_repository" "test" {
 
 var FRDataSourceConfig4 = `
 data "powerflex_firmware_repository" "test" {
-	firmware_repository_ids = ["8aaa3fda8f5c2609018f854266e12865", "Invalid"]
+	firmware_repository_ids = ["` + FirmwareRepoID1 + `", "Invalid"]
 }
 `
 
 var FRDataSourceConfig5 = `
 data "powerflex_firmware_repository" "test" {
-	firmware_repository_names = ["Invalid", "PowerFlex 4.5.0.0 (16)"]
+	firmware_repository_names = ["Invalid", "` + FirmwareRepoName2 + `"]
 }
 `
 
@@ -60,12 +60,21 @@ func TestAccFRDataSource(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + FRDataSourceConfig1,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_firmware_repository.test", "firmware_repository_details.0.id", FirmwareRepoID1),
+				),
 			},
 			{
 				Config: ProviderConfigForTesting + FRDataSourceConfig2,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_firmware_repository.test", "firmware_repository_details.0.name", FirmwareRepoName1),
+				),
 			},
 			{
 				Config: ProviderConfigForTesting + FRDataSourceConfig3,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.powerflex_firmware_repository.test", "firmware_repository_details.#"),
+				),
 			},
 		},
 	})

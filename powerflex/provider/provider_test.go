@@ -244,6 +244,10 @@ var NodeDataPoints = getNodeDataForTest()
 var TemplateDataPoints = getTemplateDataForTest()
 var ServiceDataPoints = getServiceDataForTest()
 var SourceLocation = setDefault(os.Getenv("POWERFLEX_SOURCE_LOCATION"), "tfacc_source_location")
+var FirmwareRepoID1 = setDefault(os.Getenv("POWERFLEX_FIRMWARE_REPO_ID1"), "tfacc_firmware_repo_id1")
+var FirmwareRepoID2 = setDefault(os.Getenv("POWERFLEX_FIRMWARE_REPO_ID2"), "tfacc_firmware_repo_id2")
+var FirmwareRepoName1 = setDefault(os.Getenv("POWERFLEX_FIRMWARE_REPO_NAME1"), "tfacc_firmware_repo_name1")
+var FirmwareRepoName2 = setDefault(os.Getenv("POWERFLEX_FIRMWARE_REPO_NAME2"), "tfacc_firmware_repo_name2")
 
 func init() {
 	err := godotenv.Load("powerflex.env")

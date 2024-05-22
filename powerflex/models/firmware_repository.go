@@ -35,6 +35,7 @@ type FirmwareRepositoryResourceModel struct {
 	Timeout        types.Int64  `tfsdk:"timeout"`
 }
 
+// FirmwareRepositoryDatasourceModel defines the tfsdk model for firmware repository datasource
 type FirmwareRepositoryDatasourceModel struct {
 	FirmwareRepositoryIDs     types.Set                   `tfsdk:"firmware_repository_ids"`
 	FirmwareRepositoryNames   types.Set                   `tfsdk:"firmware_repository_names"`
@@ -42,6 +43,7 @@ type FirmwareRepositoryDatasourceModel struct {
 	ID                        types.String                `tfsdk:"id"`
 }
 
+// FirmwareRepositoryDetails defines the tfsdk model of firmware repository details
 type FirmwareRepositoryDetails struct {
 	ID                  types.String  `tfsdk:"id"`
 	Name                types.String  `tfsdk:"name"`

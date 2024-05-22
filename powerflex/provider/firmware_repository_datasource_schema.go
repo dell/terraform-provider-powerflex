@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023-2024 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2024 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// FaultSetDataSourceSchema defines the schema for Fault Set datasource
+// FirmwareRepositoryDataSourceSchema defines the schema for Firmware Repository datasource
 var FirmwareRepositoryDataSourceSchema schema.Schema = schema.Schema{
 	Description:         "This datasource is used to query the existing firmware repository from PowerFlex array. The information fetched from this datasource can be used for getting the necessary details regarding the bundles and their components in that firmware repository.",
 	MarkdownDescription: "This datasource is used to query the existing firmware repository from PowerFlex array. The information fetched from this datasource can be used for getting the necessary details regarding the bundles and their components in that firmware repository.",
@@ -355,7 +355,7 @@ func ComponentSchema() map[string]schema.Attribute {
 	}
 }
 
-// // BundleSchema is a function that returns the schema for Bundle
+// BundleSchema is a function that returns the schema for Bundle
 func BundleSchema() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
 		"id": schema.StringAttribute{

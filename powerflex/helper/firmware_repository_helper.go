@@ -36,6 +36,7 @@ func UpdateFrimwareRepositoryState(frDetails *scaleiotypes.UploadComplianceTopol
 	return state
 }
 
+// GetAllFirmwareRepositoryState sets the state for the firmware repository datasource.
 func GetAllFirmwareRepositoryState(input *scaleiotypes.FirmwareRepositoryDetails) models.FirmwareRepositoryDetails {
 	return models.FirmwareRepositoryDetails{
 		ID:                  types.StringValue(input.ID),
@@ -89,7 +90,7 @@ func newBundleList(inputs []scaleiotypes.Bundle) []models.Bundle {
 	return out
 }
 
-// // newComponent converts client.Component to models.Component
+// newComponent converts client.Component to models.Component
 func newComponent(input scaleiotypes.Component) models.Component {
 	return models.Component{
 		ID:                  types.StringValue(input.ID),
@@ -119,15 +120,6 @@ func newComponent(input scaleiotypes.Component) models.Component {
 		SystemIDs:           newSystemIDS(input.SystemIDs),
 	}
 }
-
-// // newtypes.StringList converts list of client.types.String to list of models.types.String
-// // func newStringList(input []client.types.String) []models.types.String {
-// // 	out := make([]models.types.String, 0)
-// // 	for _, input := range inputs {
-// // 			out = append(out, newtypes.String(input))
-// // 	}
-// // 	return out
-// // }
 
 // newBundle converts client.Bundle to models.Bundle
 func newBundle(input scaleiotypes.Bundle) models.Bundle {
