@@ -33,7 +33,7 @@ provider "powerflex" {
 
 # Example for fetching details of the firmware repository using names
 data "powerflex_firmware_repository" "test" {
-firmware_repository_names = ["PowerFlex 4.5.1.0", "Invalid"]
+firmware_repository_names = ["PowerFlex 4.5.1.0", "PowerFlex 4.5.2.0"]
 }
 
 # Example for fetching details of the firmware repository using id

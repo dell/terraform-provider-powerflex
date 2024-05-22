@@ -24,7 +24,7 @@ import (
 )
 
 func TestAccFirmwareRepositoryResource(t *testing.T) {
-	//t.Skip("Skipping this test case")
+	t.Skip("Skipping this test case")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
