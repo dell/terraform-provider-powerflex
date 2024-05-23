@@ -19,7 +19,6 @@ package provider
 
 import (
 	"context"
-	"fmt"
 	"terraform-provider-powerflex/powerflex/helper"
 	"time"
 
@@ -176,7 +175,7 @@ func (r *firmwareRepositoryResource) Read(ctx context.Context, req resource.Read
 	frDetails, err := r.gatewayClient.GetUploadComplianceDetails(state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("Could not get the Firmware Repository Details"),
+			"Could not get the Firmware Repository Details",
 			err.Error(),
 		)
 		return
@@ -261,7 +260,7 @@ func (r *firmwareRepositoryResource) Update(ctx context.Context, req resource.Up
 					err2 := r.gatewayClient.ApproveUnsignedFile(frDetails.ID)
 					if err2 != nil {
 						resp.Diagnostics.AddError(
-							fmt.Sprintf("Could not Upload the compliance File"),
+							"Could not Upload the compliance File",
 							err2.Error(),
 						)
 						return
