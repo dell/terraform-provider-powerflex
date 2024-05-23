@@ -101,7 +101,7 @@ func (r *firmwareRepositoryResource) Create(ctx context.Context, req resource.Cr
 	fr, err := r.gatewayClient.UploadCompliance(ucParam)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("Could not Upload the compliance File"),
+			"Could not Upload the compliance File",
 			err.Error(),
 		)
 		return
@@ -117,7 +117,7 @@ func (r *firmwareRepositoryResource) Create(ctx context.Context, req resource.Cr
 		frDetails, err = r.gatewayClient.GetUploadComplianceDetails(fr.ID)
 		if err != nil {
 			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not get the Firmware Repository Details"),
+				"Could not get the Firmware Repository Details",
 				err.Error(),
 			)
 			return
@@ -129,7 +129,7 @@ func (r *firmwareRepositoryResource) Create(ctx context.Context, req resource.Cr
 				err := r.gatewayClient.ApproveUnsignedFile(frDetails.ID)
 				if err != nil {
 					resp.Diagnostics.AddError(
-						fmt.Sprintf("Could not approve the compliance File"),
+						"Could not approve the compliance File",
 						err.Error(),
 					)
 					return
@@ -144,7 +144,7 @@ func (r *firmwareRepositoryResource) Create(ctx context.Context, req resource.Cr
 		} else if frDetails.State == "errors" {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("Could not Upload the compliance File"),
-				fmt.Sprint("error while uploading compliance file"),
+				"error while uploading compliance file",
 			)
 			return
 		} else if frDetails.State == "copying" {
@@ -230,7 +230,7 @@ func (r *firmwareRepositoryResource) Update(ctx context.Context, req resource.Up
 		return
 	}
 
-	if plan.Approve.ValueBool() == false && state.Approve.ValueBool() == true {
+	if !plan.Approve.ValueBool() && state.Approve.ValueBool() {
 		resp.Diagnostics.AddError(
 			"Approve cannot be set to false once it is set to true.",
 			"Approve cannot be set to false once it is set to true.")
@@ -249,7 +249,7 @@ func (r *firmwareRepositoryResource) Update(ctx context.Context, req resource.Up
 			frDetails, err = r.gatewayClient.GetUploadComplianceDetails(state.ID.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("Could not get the Firmware Repository Details"),
+					"Could not get the Firmware Repository Details",
 					err.Error(),
 				)
 				return
@@ -271,8 +271,8 @@ func (r *firmwareRepositoryResource) Update(ctx context.Context, req resource.Up
 				}
 			} else if frDetails.State == "errors" {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("Could not Upload the compliance File"),
-					fmt.Sprint("error while uploading compliance file"),
+					"Could not Upload the compliance File",
+					"error while uploading compliance file",
 				)
 				return
 			} else if frDetails.State == "copying" || frDetails.State == "pending" {
