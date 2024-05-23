@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -257,7 +258,7 @@ func (winRMClient *WinRMClient) newCopyClient() (*winrmcp.Winrmcp, error) {
 // Upload uploads a file
 func (winRMClient *WinRMClient) Upload(dstPath string, srcPath string) error {
 
-	input, err := os.Open(srcPath)
+	input, err := os.Open(filepath.Clean(srcPath))
 	if err != nil {
 		return err
 	}
@@ -268,7 +269,7 @@ func (winRMClient *WinRMClient) Upload(dstPath string, srcPath string) error {
 		return err
 	}
 
-	err = wcp.Write(dstPath, input)
+	err = wcp.Write(filepath.Clean(dstPath), input)
 	if err != nil {
 		return err
 	}

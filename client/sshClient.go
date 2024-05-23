@@ -40,7 +40,7 @@ type SSHProvisionerConfig struct {
 func (config *SSHProvisionerConfig) getSSHConfig() (*ssh.ClientConfig, error) {
 	sshConfig := &ssh.ClientConfig{
 		User:            config.Username,
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		HostKeyCallback: ssh.FixedHostKey(nil),
 	}
 
 	// password or private key
@@ -213,7 +213,10 @@ func (p *SSHProvisioner) Ping() error {
 		p.logger.Printf("Checkinging for host IP to be available...")
 		conn, err := net.DialTimeout("tcp", net.JoinHostPort(hostIP, "22"), 5*time.Second)
 		if err == nil {
-			conn.Close()
+			err := conn.Close()
+			if err != nil {
+				return err
+			}
 			p.logger.Printf("Host IP is available.\n")
 			return nil
 		}
