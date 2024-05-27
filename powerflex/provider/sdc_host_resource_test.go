@@ -280,7 +280,7 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 		os.WriteFile("/tmp/tfaccsdc.zip", []byte("Dummy SDC package"), 0644)
 	}
 
-	randomGuid := `
+	randomGUID := `
 	resource "random_uuid" "sdc_guid" {
 	}
 	`
@@ -358,7 +358,7 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 			},
 			//Create
 			{
-				Config: ProviderConfigForTesting + randomGuid + fmt.Sprintf(`
+				Config: ProviderConfigForTesting + randomGUID + fmt.Sprintf(`
 				resource powerflex_sdc_host sdc {
 					# depends_on = [ terraform_data.ubuntu_scini ]
 					ip = "%s"
@@ -382,7 +382,7 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 
 			// Import with wrong IP
 			{
-				Config: ProviderConfigForTesting + randomGuid + fmt.Sprintf(`
+				Config: ProviderConfigForTesting + randomGUID + fmt.Sprintf(`
 				resource powerflex_sdc_host sdc {
 					# depends_on = [ terraform_data.ubuntu_scini ]
 					ip = "%s"
@@ -409,7 +409,7 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 			},
 			// Import
 			{
-				Config: ProviderConfigForTesting + randomGuid + fmt.Sprintf(`
+				Config: ProviderConfigForTesting + randomGUID + fmt.Sprintf(`
 				resource powerflex_sdc_host sdc {
 					# depends_on = [ terraform_data.ubuntu_scini ]
 					ip = "%s"
@@ -435,7 +435,7 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 			},
 			// Update
 			{
-				Config: ProviderConfigForTesting + randomGuid + fmt.Sprintf(`
+				Config: ProviderConfigForTesting + randomGUID + fmt.Sprintf(`
 				resource powerflex_sdc_host sdc {
 					# depends_on = [ terraform_data.ubuntu_scini ]
 					ip = "%s"
@@ -458,7 +458,7 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 			},
 			// Update mdm ip negative
 			{
-				Config: ProviderConfigForTesting + randomGuid + fmt.Sprintf(`
+				Config: ProviderConfigForTesting + randomGUID + fmt.Sprintf(`
 				resource powerflex_sdc_host sdc {
 					# depends_on = [ terraform_data.ubuntu_scini ]
 					ip = "%s"
@@ -481,7 +481,7 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 			},
 			// Update package negative
 			{
-				Config: ProviderConfigForTesting + randomGuid + fmt.Sprintf(`
+				Config: ProviderConfigForTesting + randomGUID + fmt.Sprintf(`
 				resource powerflex_sdc_host sdc {
 					# depends_on = [ terraform_data.ubuntu_scini ]
 					ip = "%s"
@@ -504,7 +504,7 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 			},
 			// Update os negative
 			{
-				Config: ProviderConfigForTesting + randomGuid + fmt.Sprintf(`
+				Config: ProviderConfigForTesting + randomGUID + fmt.Sprintf(`
 				resource powerflex_sdc_host sdc {
 					# depends_on = [ terraform_data.ubuntu_scini ]
 					ip = "%s"
