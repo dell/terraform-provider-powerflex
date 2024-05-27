@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -187,11 +188,9 @@ func (winRMClient *WinRMClient) ExecuteCommand(command string) (string, error) {
 }
 
 // Init initializes the connection
-func (winRMClient *WinRMClient) Init() (result bool) {
+func (winRMClient *WinRMClient) Init() (bool, error) {
 
-	result = false
-
-	errorMessage := fmt.Sprintf("Failed to establish %s connection on %s:%d", "WinRM", winRMClient.Target, winRMClient.Port)
+	errorMessage := ""
 
 	endpoint := &winrm.Endpoint{Host: winRMClient.Target, Port: winRMClient.Port, HTTPS: false, Insecure: false, CACert: nil, Cert: nil, Key: nil, Timeout: time.Duration(winRMClient.Timeout) * time.Second}
 
@@ -213,31 +212,26 @@ func (winRMClient *WinRMClient) Init() (result bool) {
 
 	if winRMClient.Shell != nil {
 
-		result = true
-
-	} else if err != nil {
-
-		if strings.Contains(string(err.Error()), "connection refused") || strings.Contains(string(err.Error()), "invalid port") {
-
-			errorMessage = fmt.Sprintf("Invalid port %d, Please verify that port %d is up", winRMClient.Port, winRMClient.Port)
-
-		} else if strings.Contains(string(err.Error()), "i/o timeout") {
-
-			errorMessage = fmt.Sprintf("%s Timed out for %s:%d", "WinRM", winRMClient.Target, winRMClient.Port)
-
-		} else if strings.Contains(string(err.Error()), "http response error: 401") {
-
-			errorMessage = fmt.Sprintf("Invalid Credentials %s:%d", winRMClient.Target, winRMClient.Port)
-		}
-
-		winRMClient.Errors = append(winRMClient.Errors, map[string]string{
-			Error:   err.Error(),
-			Message: errorMessage,
-		})
+		return true, nil
 
 	}
 
-	return
+	errorMessage = fmt.Sprintf("Failed to establish %s connection on %s:%d", "WinRM", winRMClient.Target, winRMClient.Port)
+
+	if strings.Contains(string(err.Error()), "connection refused") || strings.Contains(string(err.Error()), "invalid port") {
+
+		errorMessage = fmt.Sprintf("Invalid port %d, Please verify that port %d is up", winRMClient.Port, winRMClient.Port)
+
+	} else if strings.Contains(string(err.Error()), "i/o timeout") {
+
+		errorMessage = fmt.Sprintf("%s Timed out for %s:%d", "Connection", winRMClient.Target, winRMClient.Port)
+
+	} else if strings.Contains(string(err.Error()), "http response error: 401") {
+
+		errorMessage = fmt.Sprintf("Invalid Credentials %s:%d", winRMClient.Target, winRMClient.Port)
+	}
+
+	return false, fmt.Errorf(errorMessage)
 }
 
 // newCopyClient creates a new copy client
@@ -264,7 +258,7 @@ func (winRMClient *WinRMClient) newCopyClient() (*winrmcp.Winrmcp, error) {
 // Upload uploads a file
 func (winRMClient *WinRMClient) Upload(dstPath string, srcPath string) error {
 
-	input, err := os.Open(srcPath)
+	input, err := os.Open(filepath.Clean(srcPath))
 	if err != nil {
 		return err
 	}
@@ -275,7 +269,7 @@ func (winRMClient *WinRMClient) Upload(dstPath string, srcPath string) error {
 		return err
 	}
 
-	err = wcp.Write(dstPath, input)
+	err = wcp.Write(filepath.Clean(dstPath), input)
 	if err != nil {
 		return err
 	}
