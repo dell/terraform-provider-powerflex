@@ -59,6 +59,11 @@ type sdcHostDataPoints struct {
 	UbuntuPassword string
 	UbuntuPort     string
 	UbuntuPkgPath  string
+	EsxiIP         string
+	EsxiUser       string
+	EsxiPassword   string
+	EsxiPort       string
+	EsxiPkgPath    string
 	MdmIPs         []string
 }
 
@@ -153,6 +158,13 @@ func getNewSdcHostDataPointForTest() sdcHostDataPoints {
 	SdcHostDataPoints.UbuntuPassword = setDefault(os.Getenv("POWERFLEX_SDC_PASSWORD_Ubuntu"), "secret")
 	SdcHostDataPoints.UbuntuPort = setDefault(os.Getenv("POWERFLEX_SDC_PORT_Ubuntu"), "2222")
 	SdcHostDataPoints.UbuntuPkgPath = setDefault(os.Getenv("POWERFLEX_SDC_PKG_PATH_Ubuntu"), "/tmp/tfaccsdc.tar")
+
+	SdcHostDataPoints.EsxiIP = setDefault(os.Getenv("POWERFLEX_SDC_IP_Esxi"), "127.0.0.1")
+	SdcHostDataPoints.EsxiUser = setDefault(os.Getenv("POWERFLEX_SDC_USER_Esxi"), "esxiRoot")
+	SdcHostDataPoints.EsxiPassword = setDefault(os.Getenv("POWERFLEX_SDC_PASSWORD_Esxi"), "secret")
+	SdcHostDataPoints.EsxiPort = setDefault(os.Getenv("POWERFLEX_SDC_PORT_Esxi"), "2222")
+	SdcHostDataPoints.EsxiPkgPath = setDefault(os.Getenv("POWERFLEX_SDC_PKG_PATH_Esxi"), "/tmp/tfaccsdc.tar")
+
 	SdcHostDataPoints.MdmIPs = strings.Split(setDefault(os.Getenv("POWERFLEX_SDC_MDM_IPs"), "10.10.10.5,10.10.10.6"), ",")
 	return SdcHostDataPoints
 }

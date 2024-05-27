@@ -27,8 +27,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-// TestAccSDCResource tests the SDC Expansion Operation
-func TestAccSDCHostResource(t *testing.T) {
+// TestAccSDCResourceUbuntu tests the SDC Expansion Operation on Ubuntu
+func TestAccSDCHostResourceUbuntu(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
 	if SdcHostResourceTestData.UbuntuIP == "127.0.0.1" {
 		os.WriteFile("/tmp/tfaccsdc.tar", []byte("Dummy SDC package"), 0644)
@@ -260,7 +260,6 @@ func TestAccSDCHostResource(t *testing.T) {
 					os_family = "esxi"
 					esxi = {
 						guid = "esxi-guid"
-						drv_cfg_path = "/dummy/drv_cfg-3.6.500.106-esx7.x"
 					}
 					name = "sdc-ubuntu2"
 					package_path = "%s" 
@@ -268,6 +267,280 @@ func TestAccSDCHostResource(t *testing.T) {
 				}
 				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
 					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				ExpectError: regexp.MustCompile(`.*OS cannot be changed.*`),
+			},
+		},
+	})
+}
+
+// TestAccSDCHostResourceEsxi tests the SDC Expansion Operation on Esxi
+// TODO: Covert all SdcHostResourceTestData.Ubuntu to SdcHostResourceTestData.Esxi
+func TestAccSDCHostResourceEsxi(t *testing.T) {
+	os.Setenv("TF_ACC", "1")
+	if SdcHostResourceTestData.UbuntuIP == "127.0.0.1" {
+		os.WriteFile("/tmp/tfaccsdc.zip", []byte("Dummy SDC package"), 0644)
+	}
+
+	randomGuid := `
+	resource "random_uuid" "sdc_guid" {
+	}
+	`
+
+	t.Log(ProviderConfigForTesting + randomGuid + fmt.Sprintf(`
+	resource powerflex_sdc_host sdc {
+		# depends_on = [ terraform_data.ubuntu_scini ]
+		ip = "%s"
+		remote = {
+			port = "%s"
+			user = "%s"
+			password = "%s"
+		}
+		esxi = {
+			guid = random_uuid.sdc_guid.result
+		}
+		os_family = "esxi"
+		name = "sdc-esxi"
+		package_path = "%s" 
+		mdm_ips = ["%s"]
+	}
+	`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
+		SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				Source: "hashicorp/random",
+			},
+		},
+		Steps: []resource.TestStep{
+			//Create without esxi block negative
+			{
+				Config: ProviderConfigForTesting + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					os_family = "esxi"
+					name = "sdc-esxi"
+					package_path = "%s" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
+					SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				ExpectError: regexp.MustCompile(`.*Esxi block is required for esxi SDC.*`),
+			},
+			//Create without guid negative
+			{
+				Config: ProviderConfigForTesting + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					esxi = {}
+					os_family = "esxi"
+					name = "sdc-esxi"
+					package_path = "%s" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
+					SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				ExpectError: regexp.MustCompile(`.*attribute "guid" is required.*`),
+			},
+			//Create with wrong package path negative
+			{
+				Config: ProviderConfigForTesting + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					esxi = {
+						guid = "dummy"
+					}
+					os_family = "esxi"
+					name = "sdc-esxi"
+					package_path = "/tmp/tfaccsdc1.zip" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
+					strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				ExpectError: regexp.MustCompile(`.*no such file or directory.*`),
+			},
+			//Create
+			{
+				Config: ProviderConfigForTesting + randomGuid + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					esxi = {
+						guid = random_uuid.sdc_guid.result
+					}
+					os_family = "esxi"
+					name = "sdc-esxi"
+					package_path = "%s" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
+					SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				// ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
+			},
+
+			// Import with wrong IP
+			{
+				Config: ProviderConfigForTesting + randomGuid + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					esxi = {
+						guid = random_uuid.sdc_guid.result
+					}
+					os_family = "esxi"
+					name = "sdc-esxi"
+					package_path = "%s" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
+					SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				ImportState:   true,
+				ImportStateId: "16.16.16.16",
+				ResourceName:  "powerflex_sdc_host.sdc",
+				// ImportStateVerifyIgnore: []string{"package_path", "remote"},
+				ExpectError: regexp.MustCompile(`.*error finding SDC by IP.*`),
+			},
+			// Import
+			{
+				Config: ProviderConfigForTesting + randomGuid + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					esxi = {
+						guid = random_uuid.sdc_guid.result
+					}
+					os_family = "esxi"
+					name = "sdc-esxi"
+					package_path = "%s" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
+					SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				ImportState:             true,
+				ImportStateId:           SdcHostResourceTestData.EsxiIP,
+				ResourceName:            "powerflex_sdc_host.sdc",
+				ImportStateVerifyIgnore: []string{"package_path", "remote"},
+			},
+			// Update
+			{
+				Config: ProviderConfigForTesting + randomGuid + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					esxi = {
+						guid = random_uuid.sdc_guid.result
+					}
+					os_family = "esxi"
+					name = "sdc-esxi2"
+					package_path = "%s" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
+					SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				// ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
+			},
+			// Update mdm ip negative
+			{
+				Config: ProviderConfigForTesting + randomGuid + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					esxi = {
+						guid = random_uuid.sdc_guid.result
+					}
+					os_family = "esxi"
+					name = "sdc-esxi2"
+					package_path = "%s" 
+					mdm_ips = ["%s", "10.0.6.8"]
+				}
+				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
+					SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				ExpectError: regexp.MustCompile(`.*mdm_ips cannot be changed.*`),
+			},
+			// Update package negative
+			{
+				Config: ProviderConfigForTesting + randomGuid + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					esxi = {
+						guid = random_uuid.sdc_guid.result
+					}
+					os_family = "esxi"
+					name = "sdc-esxi2"
+					package_path = "/dummy/tfaccsdc2.tar" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
+					strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				ExpectError: regexp.MustCompile(`.*package cannot be changed.*`),
+			},
+			// Update os negative
+			{
+				Config: ProviderConfigForTesting + randomGuid + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					# depends_on = [ terraform_data.ubuntu_scini ]
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					os_family = "linux"
+					name = "sdc-esxi2"
+					package_path = "%s" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
+					SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
 				ExpectError: regexp.MustCompile(`.*OS cannot be changed.*`),
 			},
 		},
