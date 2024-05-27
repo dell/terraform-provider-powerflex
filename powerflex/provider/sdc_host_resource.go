@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
 package provider
 
 import (
@@ -28,6 +27,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -235,13 +235,12 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						MarkdownDescription: "GUID of the SDC.",
 						Required:            true,
 					},
-					"drv_cfg_path": schema.StringAttribute{
-						Description:         "Full path (on local machine) of the driver Configuration file for the SDC.",
-						MarkdownDescription: "Full path (on local machine) of the driver Configuration file for the SDC.",
-						Required:            true,
-						Validators: []validator.String{
-							stringvalidator.LengthAtLeast(1),
-						},
+					"verify_vib_signature": schema.BoolAttribute{
+						Description:         "Whether to verify the VIB signature or not.",
+						MarkdownDescription: "Whether to verify the VIB signature or not.",
+						Optional:            true,
+						Computed:            true,
+						Default:             booldefault.StaticBool(true),
 					},
 				},
 			},

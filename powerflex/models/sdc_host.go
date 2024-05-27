@@ -55,6 +55,6 @@ type SdcHostRemoteModel struct {
 
 // SdcHostEsxiModel maps the esxi resource schema data.
 type SdcHostEsxiModel struct {
-	GUID   types.String `tfsdk:"guid"`
-	DrvCfg types.String `tfsdk:"drv_cfg_path"`
+	GUID types.String `tfsdk:"guid"`
+	VerifyVibSign types.Bool `tfsdk:"verify_vib_signature"`
 }

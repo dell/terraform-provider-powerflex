@@ -268,6 +268,7 @@ var ProtectionDomainID = setDefault(os.Getenv("POWERFLEX_PROTECTION_DOMAIN_ID"),
 var username = setDefault(os.Getenv("POWERFLEX_USERNAME"), "test")
 var password = setDefault(os.Getenv("POWERFLEX_PASSWORD"), "test")
 var endpoint = setDefault(os.Getenv("POWERFLEX_ENDPOINT"), "http://localhost:3002")
+var insecure = setDefault(os.Getenv("POWERFLEX_INSECURE"), "false")
 var NodeDataPoints = getNodeDataForTest()
 var TemplateDataPoints = getTemplateDataForTest()
 var ServiceDataPoints = getServiceDataForTest()
@@ -284,8 +285,9 @@ func init() {
 			username = "%s"
 			password = "%s"
 			endpoint = "%s"
+			insecure = %s
 		}
-	`, username, password, endpoint)
+	`, username, password, endpoint, insecure)
 }
 
 var (

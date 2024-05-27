@@ -23,6 +23,7 @@ import (
 	"strings"
 	"terraform-provider-powerflex/client"
 	"terraform-provider-powerflex/powerflex/models"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -52,7 +53,6 @@ func (r *SdcHostResource) CreateRhel(ctx context.Context, plan models.SdcHostMod
 	}
 
 	// install sw
-	// the software name is same as siob file, but with .deb extension instead of .siob
 	debName := "emc-sdc-package.rpm"
 	op, err := sshP.RunWithDir(dir, fmt.Sprintf("MDM_IP=%s rpm -i %s", strings.Join(mdmIPs, ","), debName))
 	if err != nil {
@@ -64,18 +64,21 @@ func (r *SdcHostResource) CreateRhel(ctx context.Context, plan models.SdcHostMod
 	}
 	tflog.Info(ctx, op)
 
+	// wait 30 seconds for scini to configure itself
+	tflog.Info(ctx, "Waiting 30 seconds for scini to configure itself")
+	time.Sleep(30 * time.Second)
 	// check that scini status has the log SUCCESS
 	op, err = sshP.Run("systemctl status scini")
 	if err != nil {
 		respDiagnostics.AddError(
-			"Error checking scini status after restart",
+			"Error checking scini status after installing sdc package",
 			op+"\n"+err.Error(),
 		)
 		return respDiagnostics
 	}
 	if !strings.Contains(op, "SUCCESS") {
 		respDiagnostics.AddError(
-			"scini service did not restart successfully",
+			"scini service did not start successfully",
 			op,
 		)
 		return respDiagnostics

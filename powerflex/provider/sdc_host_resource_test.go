@@ -220,7 +220,7 @@ func TestAccSDCHostResource(t *testing.T) {
 					os_family = "linux"
 					name = "sdc-ubuntu2"
 					package_path = "%s" 
-					mdm_ips = ["%s", "10.247.66.68"]
+					mdm_ips = ["%s", "10.0.6.8"]
 				}
 				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
 					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),

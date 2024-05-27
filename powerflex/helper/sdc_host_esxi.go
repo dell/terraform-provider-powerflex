@@ -24,6 +24,7 @@ import (
 	"strings"
 	"terraform-provider-powerflex/client"
 	"terraform-provider-powerflex/powerflex/models"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -33,6 +34,13 @@ import (
 // CreateEsxi creates an esxi SDC host
 func (r *SdcHostResource) CreateEsxi(ctx context.Context, plan models.SdcHostModel) diag.Diagnostics {
 	var respDiagnostics diag.Diagnostics
+
+	var esxiInput models.SdcHostEsxiModel
+	respDiagnostics.Append(plan.Esxi.As(ctx, &esxiInput, basetypes.ObjectAsOptions{})...)
+	if respDiagnostics.HasError() {
+		return respDiagnostics
+	}
+
 	sshP, dir, err := r.getSshProvisioner(ctx, plan)
 	if err != nil {
 		respDiagnostics.AddError(
@@ -59,7 +67,7 @@ func (r *SdcHostResource) CreateEsxi(ctx context.Context, plan models.SdcHostMod
 	esxi := client.NewEsxCli(sshP)
 	pkgInstallCmd := client.VibInstallCommand{
 		ZipFile:  pkgTarget,
-		SigCheck: true,
+		SigCheck: esxiInput.VerifyVibSign.ValueBool(),
 	}
 	op, err := esxi.SoftwareInstall(pkgInstallCmd)
 	if err != nil {
@@ -93,11 +101,6 @@ func (r *SdcHostResource) CreateEsxi(ctx context.Context, plan models.SdcHostMod
 	tflog.Info(ctx, fmt.Sprintf("Installed SDC package is %s", sdc))
 
 	tflog.Info(ctx, "Setting scini module parameters")
-	var esxiInput models.SdcHostEsxiModel
-	respDiagnostics.Append(plan.Esxi.As(ctx, &esxiInput, basetypes.ObjectAsOptions{})...)
-	if respDiagnostics.HasError() {
-		return respDiagnostics
-	}
 
 	mdmIPs, dgs := r.GetMdmIps(ctx, plan)
 
@@ -120,6 +123,7 @@ func (r *SdcHostResource) CreateEsxi(ctx context.Context, plan models.SdcHostMod
 		return respDiagnostics
 	}
 	tflog.Info(ctx, "Scini module parameters set")
+	tflog.Debug(ctx, op)
 
 	// reboot
 	err = sshP.RebootUnix()
@@ -131,42 +135,20 @@ func (r *SdcHostResource) CreateEsxi(ctx context.Context, plan models.SdcHostMod
 		return respDiagnostics
 	}
 
-	// load esxi kernel modules
-	tflog.Info(ctx, "Loading vmk modules")
-	op, err = sshP.Run("vmkload_mod -l")
+	// list esxi kernel modules
+	tflog.Info(ctx, "Checking for installed scini module")
+	op, err = esxi.GetModuleByName("scini")
 	if err != nil {
 		respDiagnostics.AddError(
-			"Error loading vmk modules",
-			err.Error(),
-		)
-		return respDiagnostics
-	}
-	tflog.Info(ctx, "Finished loading vmk modules")
-	tflog.Debug(ctx, op)
-
-	// upload driver config
-	// recreate scpProvisioner
-	scpProv = client.NewScpProvisioner(sshP)
-	tflog.Info(ctx, "Uploading driver config")
-	drvCfgTarget := filepath.Join(dir, "drv_cfg")
-	err = scpProv.Upload(esxiInput.DrvCfg.ValueString(), drvCfgTarget, "0755")
-	if err != nil {
-		respDiagnostics.AddError(
-			"Error uploading package",
-			err.Error(),
-		)
-		return respDiagnostics
-	}
-	// query mdms via drv cfg
-	tflog.Info(ctx, "Querying mdm ips via drv cfg")
-	op, err = sshP.Run(drvCfgTarget + " --query_mdm")
-	if err != nil {
-		respDiagnostics.AddError(
-			"Error querying mdm ips via drv cfg",
+			"Scini module not found after reboot 2",
 			err.Error()+"\n"+op,
 		)
 		return respDiagnostics
 	}
+	tflog.Info(ctx, "Scini module found: "+op)
+
+	// wait 30 seconds for SDC to connect properly
+	time.Sleep(30 * time.Second)
 
 	return respDiagnostics
 }

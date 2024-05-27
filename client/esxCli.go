@@ -51,7 +51,7 @@ type EsxCliSw struct {
 func NewEsxCliSw(txt string) (*EsxCliSw, error) {
 	sw := EsxCliSw{}
 	fields := strings.Fields(txt)
-	if len(fields) != 5 {
+	if len(fields) < 5 {
 		return nil, fmt.Errorf("invalid software list item :%s", txt)
 	}
 	sw.Name = fields[0]
@@ -104,7 +104,23 @@ func (e *EsxCli) GetSoftwareByNameRegex(name *regexp.Regexp) (*EsxCliSw, error) 
 	return sw[ind], nil
 }
 
-// VinbInstallCommand - esxcli software vib install command model
+func (e *EsxCli) GetModuleByName(name string) (string, error) {
+	op, err := e.client.Run("vmkload_mod -l")
+	if err != nil {
+		return op, fmt.Errorf("error listing vmk modules: %w", err)
+	}
+	mods := GetLinesUnix(op)
+	e.client.logger.Printf("Listed modules: [\n", strings.Join(mods, "\n"), "\n]\n")
+	ind := slices.IndexFunc(mods, func(mod string) bool {
+		return strings.Contains(mod, name)
+	})
+	if ind == -1 {
+		return "Output: \n" + op, fmt.Errorf("%s module not found in installed modules", name)
+	}
+	return mods[ind], nil
+}
+
+// VibInstallCommand - esxcli software vib install command model
 type VibInstallCommand struct {
 	ZipFile  string
 	SigCheck bool
