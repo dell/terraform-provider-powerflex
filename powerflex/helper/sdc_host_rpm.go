@@ -30,7 +30,7 @@ import (
 )
 
 // CreateRhel creates a RHEL SDC host
-func (r *SdcHostResource) CreateRhel(ctx context.Context, plan models.SdcHostModel, sshP *client.SshProvisioner, dir string) diag.Diagnostics {
+func (r *SdcHostResource) CreateRhel(ctx context.Context, plan models.SdcHostModel, sshP *client.SSHProvisioner, dir string) diag.Diagnostics {
 	var respDiagnostics diag.Diagnostics
 
 	// upload sw
@@ -88,7 +88,7 @@ func (r *SdcHostResource) CreateRhel(ctx context.Context, plan models.SdcHostMod
 }
 
 // DeleteRhel - function to uninstall SDC package in RHEL host
-func (r *SdcHostResource) DeleteRhel(ctx context.Context, state models.SdcHostModel, sshP *client.SshProvisioner) diag.Diagnostics {
+func (r *SdcHostResource) DeleteRhel(ctx context.Context, state models.SdcHostModel, sshP *client.SSHProvisioner) diag.Diagnostics {
 	var respDiagnostics diag.Diagnostics
 	// Disconnect from PowerFlex
 	tflog.Info(ctx, "Logging into host...")

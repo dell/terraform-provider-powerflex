@@ -33,7 +33,7 @@ type ScpProvisioner struct {
 }
 
 // NewScpProvisioner - creates new scp client
-func NewScpProvisioner(prov *SshProvisioner) *ScpProvisioner {
+func NewScpProvisioner(prov *SSHProvisioner) *ScpProvisioner {
 	scpClient := scp.NewConfigurer("", nil).SSHClient(prov.sshClient).Create()
 	return &ScpProvisioner{
 		client: &scpClient,

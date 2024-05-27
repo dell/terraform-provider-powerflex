@@ -28,11 +28,11 @@ var lineBreakRegex = regexp.MustCompile("\r?\n")
 
 // EsxCli is a wrapper around esxcli
 type EsxCli struct {
-	client *SshProvisioner
+	client *SSHProvisioner
 }
 
 // NewEsxCli returns a new esxcli wrapper
-func NewEsxCli(prov *SshProvisioner) *EsxCli {
+func NewEsxCli(prov *SSHProvisioner) *EsxCli {
 	return &EsxCli{
 		client: prov,
 	}
@@ -104,6 +104,7 @@ func (e *EsxCli) GetSoftwareByNameRegex(name *regexp.Regexp) (*EsxCliSw, error) 
 	return sw[ind], nil
 }
 
+// GetModuleByName - returns module by name
 func (e *EsxCli) GetModuleByName(name string) (string, error) {
 	op, err := e.client.Run("vmkload_mod -l")
 	if err != nil {

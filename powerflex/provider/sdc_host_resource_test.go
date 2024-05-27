@@ -274,7 +274,6 @@ func TestAccSDCHostResourceUbuntu(t *testing.T) {
 }
 
 // TestAccSDCHostResourceEsxi tests the SDC Expansion Operation on Esxi
-// TODO: Covert all SdcHostResourceTestData.Ubuntu to SdcHostResourceTestData.Esxi
 func TestAccSDCHostResourceEsxi(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
 	if SdcHostResourceTestData.UbuntuIP == "127.0.0.1" {
@@ -285,26 +284,6 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 	resource "random_uuid" "sdc_guid" {
 	}
 	`
-
-	t.Log(ProviderConfigForTesting + randomGuid + fmt.Sprintf(`
-	resource powerflex_sdc_host sdc {
-		# depends_on = [ terraform_data.ubuntu_scini ]
-		ip = "%s"
-		remote = {
-			port = "%s"
-			user = "%s"
-			password = "%s"
-		}
-		esxi = {
-			guid = random_uuid.sdc_guid.result
-		}
-		os_family = "esxi"
-		name = "sdc-esxi"
-		package_path = "%s" 
-		mdm_ips = ["%s"]
-	}
-	`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
-		SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

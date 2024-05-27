@@ -53,7 +53,7 @@ type SdcHostResource struct {
 	System *goscaleio.System
 }
 
-func (r *SdcHostResource) getSshProvisioner(ctx context.Context, plan models.SdcHostModel) (*client.SshProvisioner, string, error) {
+func (r *SdcHostResource) getSSHProvisioner(ctx context.Context, plan models.SdcHostModel) (*client.SSHProvisioner, string, error) {
 	var remote models.SdcHostRemoteModel
 	plan.Remote.As(ctx, &remote, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
 	dir := ""
@@ -62,7 +62,7 @@ func (r *SdcHostResource) getSshProvisioner(ctx context.Context, plan models.Sdc
 	} else {
 		dir = *remote.Dir
 	}
-	prov, err := client.NewSshProvisioner(client.SshProvisionerConfig{
+	prov, err := client.NewSSHProvisioner(client.SSHProvisionerConfig{
 		Port:       remote.Port,
 		IP:         plan.Host.ValueString(),
 		Username:   remote.User,
@@ -174,7 +174,7 @@ func (r *SdcHostResource) SetSDCParams(ctx context.Context, plan, state models.S
 // LinuxOp creates or deletes a linux SDC host
 func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel, add bool) diag.Diagnostics {
 	var respDiagnostics diag.Diagnostics
-	sshP, dir, err := r.getSshProvisioner(ctx, plan)
+	sshP, dir, err := r.getSSHProvisioner(ctx, plan)
 	if err != nil {
 		respDiagnostics.AddError(
 			"Error connecting to host",

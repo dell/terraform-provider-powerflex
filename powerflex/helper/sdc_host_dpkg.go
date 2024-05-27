@@ -76,7 +76,7 @@ func GetUbuntuSdcPackage(files []string) (*UbuntuSdcPackage, error) {
 }
 
 // CreateUbuntu creates an linux ubuntu SDC host
-func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostModel, sshP *client.SshProvisioner, dir string) diag.Diagnostics {
+func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostModel, sshP *client.SSHProvisioner, dir string) diag.Diagnostics {
 	var respDiagnostics diag.Diagnostics
 
 	// upload sw
@@ -161,7 +161,7 @@ func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostM
 }
 
 // DeleteUbuntu - function to uninstall SDC package in Linux Ubuntu host
-func (r *SdcHostResource) DeleteUbuntu(ctx context.Context, state models.SdcHostModel, sshP *client.SshProvisioner) diag.Diagnostics {
+func (r *SdcHostResource) DeleteUbuntu(ctx context.Context, state models.SdcHostModel, sshP *client.SSHProvisioner) diag.Diagnostics {
 	var respDiagnostics diag.Diagnostics
 	// Disconnect from PowerFlex
 	tflog.Info(ctx, "Logging into host...")

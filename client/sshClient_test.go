@@ -17,7 +17,7 @@ func TestSshClientM(t *testing.T) {
 	// t.Log("started ssh server")
 
 	pass := "secret"
-	sshP, err := NewSshProvisioner(SshProvisionerConfig{
+	sshP, err := NewSSHProvisioner(SSHProvisionerConfig{
 		IP:         "localhost",
 		Port:       "2222",
 		Username:   "root",
@@ -50,7 +50,7 @@ func TestSshClientMReboot(t *testing.T) {
 	// t.Log("started ssh server")
 
 	pass := "secret"
-	sshP, err := NewSshProvisioner(SshProvisionerConfig{
+	sshP, err := NewSSHProvisioner(SSHProvisionerConfig{
 		IP:         "localhost",
 		Port:       "2222",
 		Username:   "root",
@@ -81,7 +81,7 @@ func TestSshClientMUntar(t *testing.T) {
 	// t.Log("started ssh server")
 
 	pass := "secret"
-	sshP, err := NewSshProvisioner(SshProvisionerConfig{
+	sshP, err := NewSSHProvisioner(SSHProvisionerConfig{
 		IP:         "localhost",
 		Port:       "2222",
 		Username:   "root",
@@ -109,7 +109,7 @@ func TestSshClientMScp(t *testing.T) {
 	os.Remove("/tmp/testScpFile")
 
 	pass := "secret"
-	sshP, err := NewSshProvisioner(SshProvisionerConfig{
+	sshP, err := NewSSHProvisioner(SSHProvisionerConfig{
 		IP:         "localhost",
 		Port:       "2222",
 		Username:   "root",
@@ -142,7 +142,7 @@ func TestSshClientMScp(t *testing.T) {
 
 func TestSshClientMWrongPass(t *testing.T) {
 	pass := "secret1"
-	_, err := NewSshProvisioner(SshProvisionerConfig{
+	_, err := NewSSHProvisioner(SSHProvisionerConfig{
 		IP:         "localhost",
 		Port:       "2222",
 		Username:   "root",

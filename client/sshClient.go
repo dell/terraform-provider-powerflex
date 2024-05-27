@@ -26,8 +26,8 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// SshProvisionerConfig ssh provisioner config
-type SshProvisionerConfig struct {
+// SSHProvisionerConfig ssh provisioner config
+type SSHProvisionerConfig struct {
 	IP         string
 	Port       string
 	Username   string
@@ -38,7 +38,7 @@ type SshProvisionerConfig struct {
 }
 
 // getSSHConfig returns ssh config
-func (config *SshProvisionerConfig) getSshConfig() (*ssh.ClientConfig, error) {
+func (config *SSHProvisionerConfig) getSSHConfig() (*ssh.ClientConfig, error) {
 	sshConfig := &ssh.ClientConfig{
 		User:            config.Username,
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
@@ -105,8 +105,8 @@ type Logger interface {
 	Println(...any)
 }
 
-// SshProvisioner ssh provisioner struct
-type SshProvisioner struct {
+// SSHProvisioner ssh provisioner struct
+type SSHProvisioner struct {
 	sshClient *ssh.Client
 	logger    Logger
 
@@ -116,12 +116,12 @@ type SshProvisioner struct {
 }
 
 // Close closes ssh connection
-func (p *SshProvisioner) Close() error {
+func (p *SSHProvisioner) Close() error {
 	return p.sshClient.Close()
 }
 
 // Run runs ssh command
-func (p *SshProvisioner) Run(cmd string) (string, error) {
+func (p *SSHProvisioner) Run(cmd string) (string, error) {
 	p.logger.Printf("Running command: %s", cmd)
 	session, err := p.sshClient.NewSession()
 	if err != nil {
@@ -136,12 +136,12 @@ func (p *SshProvisioner) Run(cmd string) (string, error) {
 }
 
 // RunWithDir runs ssh command with directory
-func (p *SshProvisioner) RunWithDir(dir, cmd string) (string, error) {
+func (p *SSHProvisioner) RunWithDir(dir, cmd string) (string, error) {
 	return p.Run(fmt.Sprintf("cd %s && %s", dir, cmd))
 }
 
 // RebootUnix reboots host
-func (p *SshProvisioner) RebootUnix() error {
+func (p *SSHProvisioner) RebootUnix() error {
 	cmd := "reboot"
 	p.logger.Printf("Running command: %s", cmd)
 	session, err := p.sshClient.NewSession()
@@ -183,7 +183,7 @@ func GetLinesUnix(op string) []string {
 }
 
 // UntarUnix untars Unix file using the tar utility
-func (p *SshProvisioner) UntarUnix(filename, dir string) ([]string, error) {
+func (p *SSHProvisioner) UntarUnix(filename, dir string) ([]string, error) {
 	op, err := p.Run(fmt.Sprintf("cd %s && tar -xvf %s", dir, filename))
 	if err != nil {
 		return nil, fmt.Errorf("failed to untar file: %w: %s", err, op)
@@ -194,7 +194,7 @@ func (p *SshProvisioner) UntarUnix(filename, dir string) ([]string, error) {
 }
 
 // ListDirUnix lists files in specified directory using the ls utility
-func (p *SshProvisioner) ListDirUnix(dir string, logOp bool) ([]string, error) {
+func (p *SSHProvisioner) ListDirUnix(dir string, logOp bool) ([]string, error) {
 	op, err := p.Run(fmt.Sprintf("ls %s", dir))
 	if err != nil {
 		return nil, fmt.Errorf("failed to run list directory command: %w: %s", err, op)
@@ -207,7 +207,7 @@ func (p *SshProvisioner) ListDirUnix(dir string, logOp bool) ([]string, error) {
 }
 
 // Ping pings host IP and returns error if not available
-func (p *SshProvisioner) Ping() error {
+func (p *SSHProvisioner) Ping() error {
 	hostIP := p.ip
 	start := time.Now()
 	for time.Since(start) < 10*time.Minute {
@@ -223,13 +223,13 @@ func (p *SshProvisioner) Ping() error {
 	return fmt.Errorf("failed to reach host IP %s within timeout", hostIP)
 }
 
-// NewSshProvisioner creates new ssh provisioner
-func NewSshProvisioner(config SshProvisionerConfig, logger Logger) (*SshProvisioner, error) {
+// NewSSHProvisioner creates new ssh provisioner
+func NewSSHProvisioner(config SSHProvisionerConfig, logger Logger) (*SSHProvisioner, error) {
 	if logger == nil {
 		logger = log.Default()
 	}
 	logger.Printf("Parsing configuration")
-	sshConfig, err := config.getSshConfig()
+	sshConfig, err := config.getSSHConfig()
 	if err != nil {
 		return nil, fmt.Errorf("error parsing ssh configuration: %w", err)
 	}
@@ -243,7 +243,7 @@ func NewSshProvisioner(config SshProvisionerConfig, logger Logger) (*SshProvisio
 		return nil, fmt.Errorf("failed to dial remote host: %w", err)
 	}
 	logger.Println("Connected")
-	return &SshProvisioner{
+	return &SSHProvisioner{
 		sshClient: client,
 		logger:    logger,
 		config:    sshConfig,

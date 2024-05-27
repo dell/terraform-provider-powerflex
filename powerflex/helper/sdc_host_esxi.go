@@ -41,7 +41,7 @@ func (r *SdcHostResource) CreateEsxi(ctx context.Context, plan models.SdcHostMod
 		return respDiagnostics
 	}
 
-	sshP, dir, err := r.getSshProvisioner(ctx, plan)
+	sshP, dir, err := r.getSSHProvisioner(ctx, plan)
 	if err != nil {
 		respDiagnostics.AddError(
 			"Error connecting to host",
@@ -158,7 +158,7 @@ func (r *SdcHostResource) DeleteEsxi(ctx context.Context, state models.SdcHostMo
 	var respDiagnostics diag.Diagnostics
 	// Disconnect from PowerFlex
 	tflog.Info(ctx, "Logging into host...")
-	sshP, _, err := r.getSshProvisioner(ctx, state)
+	sshP, _, err := r.getSSHProvisioner(ctx, state)
 	if err != nil {
 		respDiagnostics.AddError(
 			"Error connecting to host",
