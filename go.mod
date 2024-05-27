@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	github.com/bramvdbogaerde/go-scp v1.4.0
-	github.com/dell/goscaleio v1.14.2-0.20240522101558-09acab364e04
+	github.com/dell/goscaleio v1.14.2-0.20240527062756-acc6ecf03b1b
 	github.com/hashicorp/terraform-plugin-docs v0.13.0
 	github.com/hashicorp/terraform-plugin-framework v1.4.2
 	github.com/hashicorp/terraform-plugin-framework-validators v0.10.0
@@ -105,3 +105,5 @@ require (
 	google.golang.org/grpc v1.57.1 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 )
+
+replace github.com/dell/goscaleio => ../goscaleio
