@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package provider
 
 import (
@@ -131,9 +132,13 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				},
 			},
 			"os_family": schema.StringAttribute{
-				Description:         "Operating System family of the SDC.",
-				Required:            true,
-				MarkdownDescription: "Operating System family of the SDC.",
+				Description: "Operating System family of the SDC." +
+					" Accepted values are 'linux', 'windows' and 'esxi'." +
+					" Cannot be changed once set.",
+				Required: true,
+				MarkdownDescription: "Operating System family of the SDC." +
+					" Accepted values are 'linux', 'windows' and 'esxi'." +
+					" Cannot be changed once set.",
 				Validators: []validator.String{
 					stringvalidator.OneOf("linux", "windows", "esxi"),
 				},
@@ -151,10 +156,12 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				},
 			},
 			"performance_profile": schema.StringAttribute{
-				Description:         "Performance profile of the SDC.",
-				MarkdownDescription: "Performance profile of the SDC.",
-				Optional:            true,
-				Computed:            true,
+				Description: "Performance profile of the SDC." +
+					" Accepted values are 'HighPerformance' and 'Compact'.",
+				MarkdownDescription: "Performance profile of the SDC." +
+					" Accepted values are 'HighPerformance' and 'Compact'.",
+				Optional: true,
+				Computed: true,
 				Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
 					"HighPerformance",
 					"Compact",
@@ -169,8 +176,8 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Required:            true,
 				Attributes: map[string]schema.Attribute{
 					"port": schema.StringAttribute{
-						Description:         "Remote Login port of the SDC server.",
-						MarkdownDescription: "Remote Login port of the SDC server.",
+						Description:         "Remote Login port of the SDC server. Defaults to `22`.",
+						MarkdownDescription: "Remote Login port of the SDC server. Defaults to `22`.",
 						Optional:            true,
 						Computed:            true,
 						Default:             stringdefault.StaticString("22"),
@@ -236,8 +243,8 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						Required:            true,
 					},
 					"verify_vib_signature": schema.BoolAttribute{
-						Description:         "Whether to verify the VIB signature or not.",
-						MarkdownDescription: "Whether to verify the VIB signature or not.",
+						Description:         "Whether to verify the VIB signature or not. Defaults to `true`.",
+						MarkdownDescription: "Whether to verify the VIB signature or not. Defaults to `true`.",
 						Optional:            true,
 						Computed:            true,
 						Default:             booldefault.StaticBool(true),
