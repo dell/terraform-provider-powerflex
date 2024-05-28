@@ -65,14 +65,45 @@ func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHost
 		return respDiagnostics
 	}
 
-	if winRMClient.Init() {
+	connectionStatus, err := winRMClient.Init()
+	if err != nil {
+		respDiagnostics.AddError(
+			"Error while connecting sdc remote host",
+			err.Error(),
+		)
+		return respDiagnostics
+	}
 
-		ouptut := winRMClient.ExecuteCommand("Get-Package -name \"EMC-scaleio-sdc\" -ErrorAction SilentlyContinue")
+	if connectionStatus {
+
+		ouptut, err := winRMClient.ExecuteCommand("Get-Package -name \"EMC-scaleio-sdc\" -ErrorAction SilentlyContinue")
+		if err != nil {
+			respDiagnostics.AddError(
+				"Error while checking for installed sdc package",
+				err.Error(),
+			)
+			return respDiagnostics
+		}
 
 		if ouptut == "SUCCESS" {
-			winRMClient.Upload("C:\\EMC-ScaleIO-sdc.msi", plan.Pkg.ValueString())
+			err := winRMClient.Upload("C:\\EMC-ScaleIO-sdc.msi", plan.Pkg.ValueString())
 
-			ouptut := winRMClient.ExecuteCommand("msiexec.exe /i \"C:\\EMC-ScaleIO-sdc.msi\" MDM_IP=\"" + strings.Join(mdmIPs, ",") + "\" /q")
+			if err != nil {
+				respDiagnostics.AddError(
+					"Error while uploading package",
+					err.Error(),
+				)
+				return respDiagnostics
+			}
+
+			ouptut, err := winRMClient.ExecuteCommand("msiexec.exe /i \"C:\\EMC-ScaleIO-sdc.msi\" MDM_IP=\"" + strings.Join(mdmIPs, ",") + "\" /q")
+			if err != nil {
+				respDiagnostics.AddError(
+					"Error while installing command",
+					err.Error(),
+				)
+				return respDiagnostics
+			}
 
 			if ouptut == "SUCCESS" {
 
@@ -84,12 +115,6 @@ func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHost
 
 			}
 
-			respDiagnostics.AddError(
-				"Error while installing command",
-				winRMClient.Errors[0]["message"],
-			)
-			return respDiagnostics
-
 		}
 
 		respDiagnostics.AddError(
@@ -100,7 +125,12 @@ func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHost
 
 	}
 
+	respDiagnostics.AddError(
+		"Error while connecting sdc remote host",
+		"Error while connecting sdc remote host",
+	)
 	return respDiagnostics
+
 }
 
 // DeleteWindows - function to uninstall SDC package in Windows host
@@ -130,8 +160,24 @@ func (r *SdcHostResource) DeleteWindows(ctx context.Context, state models.SdcHos
 
 	defer winRMClient.Destroy()
 
-	if winRMClient.Init() {
-		ouptut := winRMClient.ExecuteCommand("msiexec.exe /x \"C:\\EMC-ScaleIO-sdc.msi\" /q")
+	connectionStatus, err := winRMClient.Init()
+	if err != nil {
+		respDiagnostics.AddError(
+			"Error while connecting sdc remote host",
+			err.Error(),
+		)
+		return respDiagnostics
+	}
+
+	if connectionStatus {
+		ouptut, err := winRMClient.ExecuteCommand("msiexec.exe /x \"C:\\EMC-ScaleIO-sdc.msi\" /q")
+		if err != nil {
+			respDiagnostics.AddError(
+				"Error while uninstalling sdc package",
+				err.Error(),
+			)
+			return respDiagnostics
+		}
 
 		if ouptut == "SUCCESS" {
 
