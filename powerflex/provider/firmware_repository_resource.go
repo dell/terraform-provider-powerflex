@@ -19,7 +19,6 @@ package provider
 
 import (
 	"context"
-	"fmt"
 	"terraform-provider-powerflex/powerflex/helper"
 	"time"
 
@@ -101,7 +100,7 @@ func (r *firmwareRepositoryResource) Create(ctx context.Context, req resource.Cr
 	fr, err := r.gatewayClient.UploadCompliance(ucParam)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("Could not Upload the compliance File"),
+			"Could not Upload the compliance File",
 			err.Error(),
 		)
 		return
@@ -117,7 +116,7 @@ func (r *firmwareRepositoryResource) Create(ctx context.Context, req resource.Cr
 		frDetails, err = r.gatewayClient.GetUploadComplianceDetails(fr.ID, true)
 		if err != nil {
 			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not get the Firmware Repository Details"),
+				"Could not get the Firmware Repository Details",
 				err.Error(),
 			)
 			return
@@ -129,22 +128,22 @@ func (r *firmwareRepositoryResource) Create(ctx context.Context, req resource.Cr
 				err := r.gatewayClient.ApproveUnsignedFile(frDetails.ID)
 				if err != nil {
 					resp.Diagnostics.AddError(
-						fmt.Sprintf("Could not approve the compliance File"),
+						"Could not approve the compliance File",
 						err.Error(),
 					)
 					return
 				}
 			} else {
 				resp.Diagnostics.AddWarning(
-					fmt.Sprintf("The compliance file is unsigned"),
-					fmt.Sprintf("The compliance file needs approval to proceed ahead."),
+					"The compliance file is unsigned",
+					"The compliance file needs approval to proceed ahead.",
 				)
 				break
 			}
 		} else if frDetails.State == "errors" {
 			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not Upload the compliance File"),
-				fmt.Sprint("error while uploading compliance file"),
+				"Could not Upload the compliance File",
+				"error while uploading compliance file",
 			)
 			return
 		} else if frDetails.State == "copying" {
@@ -176,7 +175,7 @@ func (r *firmwareRepositoryResource) Read(ctx context.Context, req resource.Read
 	frDetails, err := r.gatewayClient.GetUploadComplianceDetails(state.ID.ValueString(), false)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("Could not get the Firmware Repository Details"),
+			"Could not get the Firmware Repository Details",
 			err.Error(),
 		)
 		return
@@ -230,7 +229,7 @@ func (r *firmwareRepositoryResource) Update(ctx context.Context, req resource.Up
 		return
 	}
 
-	if plan.Approve.ValueBool() == false && state.Approve.ValueBool() == true {
+	if !plan.Approve.ValueBool() && state.Approve.ValueBool() {
 		resp.Diagnostics.AddError(
 			"Approve cannot be set to false once it is set to true.",
 			"Approve cannot be set to false once it is set to true.")
@@ -249,7 +248,7 @@ func (r *firmwareRepositoryResource) Update(ctx context.Context, req resource.Up
 			frDetails, err = r.gatewayClient.GetUploadComplianceDetails(state.ID.ValueString(), true)
 			if err != nil {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("Could not get the Firmware Repository Details"),
+					"Could not get the Firmware Repository Details",
 					err.Error(),
 				)
 				return
@@ -261,7 +260,7 @@ func (r *firmwareRepositoryResource) Update(ctx context.Context, req resource.Up
 					err2 := r.gatewayClient.ApproveUnsignedFile(frDetails.ID)
 					if err2 != nil {
 						resp.Diagnostics.AddError(
-							fmt.Sprintf("Could not Upload the compliance File"),
+							"Could not Upload the compliance File",
 							err2.Error(),
 						)
 						return
@@ -271,8 +270,8 @@ func (r *firmwareRepositoryResource) Update(ctx context.Context, req resource.Up
 				}
 			} else if frDetails.State == "errors" {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("Could not Upload the compliance File"),
-					fmt.Sprint("error while uploading compliance file"),
+					"Could not Upload the compliance File",
+					"error while uploading compliance file",
 				)
 				return
 			} else if frDetails.State == "copying" || frDetails.State == "pending" {
