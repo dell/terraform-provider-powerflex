@@ -273,26 +273,13 @@ func TestAccSDCHostResourceUbuntu(t *testing.T) {
 	})
 }
 
-// TestAccSDCHostResourceEsxi tests the SDC Expansion Operation on Esxi
-func TestAccSDCHostResourceEsxi(t *testing.T) {
+// TestAccSDCHostResourceEsxiNeg tests the SDC Expansion Operation on Esxi Negative Validations
+func TestAccSDCHostResourceEsxiNeg(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
-	if SdcHostResourceTestData.UbuntuIP == "127.0.0.1" {
-		os.WriteFile("/tmp/tfaccsdc.zip", []byte("Dummy SDC package"), 0644)
-	}
-
-	randomGUID := `
-	resource "random_uuid" "sdc_guid" {
-	}
-	`
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {
-				Source: "hashicorp/random",
-			},
-		},
 		Steps: []resource.TestStep{
 			//Create without esxi block negative
 			{
@@ -333,6 +320,31 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 					SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
 				ExpectError: regexp.MustCompile(`.*attribute "guid" is required.*`),
 			},
+		},
+	})
+}
+
+// TestAccSDCHostResourceEsxi tests the SDC Expansion Operation on Esxi
+func TestAccSDCHostResourceEsxi(t *testing.T) {
+	os.Setenv("TF_ACC", "1")
+	if SdcHostResourceTestData.UbuntuIP == "127.0.0.1" {
+		os.WriteFile("/tmp/tfaccsdc.zip", []byte("Dummy SDC package"), 0644)
+	}
+
+	randomGUID := `
+	resource "random_uuid" "sdc_guid" {
+	}
+	`
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"random": {
+				Source: "hashicorp/random",
+			},
+		},
+		Steps: []resource.TestStep{
 			//Create with wrong package path negative
 			{
 				Config: ProviderConfigForTesting + fmt.Sprintf(`

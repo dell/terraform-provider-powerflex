@@ -214,8 +214,7 @@ func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel,
 	}
 
 	// Check if the Linux distribution ID is mapped to a standard name
-	standardLinuxType, ok := linuxTypeMap[linuxType]
-	if ok {
+	if standardLinuxType, ok := linuxTypeMap[linuxType]; ok {
 		linuxType = standardLinuxType
 	}
 
