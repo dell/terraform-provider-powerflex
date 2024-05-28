@@ -40,7 +40,7 @@ type SSHProvisionerConfig struct {
 func (config *SSHProvisionerConfig) getSSHConfig() (*ssh.ClientConfig, error) {
 	sshConfig := &ssh.ClientConfig{
 		User:            config.Username,
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), 
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	} // #nosec G106
 
 	// password or private key
