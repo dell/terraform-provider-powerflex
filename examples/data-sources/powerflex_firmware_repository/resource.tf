@@ -15,22 +15,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-terraform {
-  required_providers {
-    powerflex = {
-      version = "1.5.0"
-      source  = "registry.terraform.io/dell/powerflex"
-    }
-  }
-}
-provider "powerflex" {
-  username = "admin"
-  password = "Password123@"
-  endpoint = "https://pflex4env12.pie.lab.emc.com"
-  insecure = true
-  timeout  = 120
-}
-
 # Example for fetching details of the firmware repository using names
 data "powerflex_firmware_repository" "test" {
 firmware_repository_names = ["PowerFlex 4.5.1.0", "PowerFlex 4.5.2.0"]
