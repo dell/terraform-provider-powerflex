@@ -21,6 +21,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	scp "github.com/bramvdbogaerde/go-scp"
@@ -45,7 +46,7 @@ func NewScpProvisioner(prov *SSHProvisioner) *ScpProvisioner {
 func (p *ScpProvisioner) Upload(src, dst, perm string) error {
 	p.logger.Printf("Reading input file")
 	// read src file
-	fileContent, err := os.ReadFile(src)
+	fileContent, err := os.ReadFile(filepath.Clean(src))
 	if err != nil {
 		return fmt.Errorf("failed to read file: %w", err)
 	}
