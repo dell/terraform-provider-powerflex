@@ -113,7 +113,7 @@ func (r *firmwareRepositoryResource) Create(ctx context.Context, req resource.Cr
 	// will loop until the file gets loaded successfully and status becomes available or until it times out
 	for time.Now().Before(endTime) {
 		time.Sleep(1 * time.Minute)
-		frDetails, err = r.gatewayClient.GetUploadComplianceDetails(fr.ID)
+		frDetails, err = r.gatewayClient.GetUploadComplianceDetails(fr.ID, true)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Could not get the Firmware Repository Details",
@@ -172,7 +172,7 @@ func (r *firmwareRepositoryResource) Read(ctx context.Context, req resource.Read
 		return
 	}
 
-	frDetails, err := r.gatewayClient.GetUploadComplianceDetails(state.ID.ValueString())
+	frDetails, err := r.gatewayClient.GetUploadComplianceDetails(state.ID.ValueString(), false)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Could not get the Firmware Repository Details",
@@ -245,7 +245,7 @@ func (r *firmwareRepositoryResource) Update(ctx context.Context, req resource.Up
 	}
 	if plan.Approve.ValueBool() != state.Approve.ValueBool() {
 		for time.Now().Before(endTime) {
-			frDetails, err = r.gatewayClient.GetUploadComplianceDetails(state.ID.ValueString())
+			frDetails, err = r.gatewayClient.GetUploadComplianceDetails(state.ID.ValueString(), true)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Could not get the Firmware Repository Details",

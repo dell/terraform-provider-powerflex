@@ -281,6 +281,7 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 		TemplateDataSource,
 		ServiceDataSource,
 		ResourceGroupDataSource,
+		FirmwareRepositoryDataSource,
 	}
 }
 
