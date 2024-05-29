@@ -198,7 +198,7 @@ After the execution of above resource block, the Windows Server host would have 
 ### Required
 
 - `ip` (String) IP address of the server to be configured as SDC.
-- `os_family` (String) Operating System family of the SDC.
+- `os_family` (String) Operating System family of the SDC. Accepted values are 'linux', 'windows' and 'esxi'. Cannot be changed once set.
 - `package_path` (String) Full path (on local machine) of the package to be installed on the SDC.
 - `remote` (Attributes) Remote login details of the SDC. (see [below for nested schema](#nestedatt--remote))
 
@@ -207,7 +207,7 @@ After the execution of above resource block, the Windows Server host would have 
 - `esxi` (Attributes) Details of the SDC host if the `os_family` is `esxi`. (see [below for nested schema](#nestedatt--esxi))
 - `mdm_ips` (List of String) List of MDM IPs to be assigned to the SDC.
 - `name` (String) Name of SDC.
-- `performance_profile` (String) Performance profile of the SDC.
+- `performance_profile` (String) Performance profile of the SDC. Accepted values are 'HighPerformance' and 'Compact'.
 
 ### Read-Only
 
@@ -227,10 +227,11 @@ Required:
 
 Optional:
 
-- `ca_cert` (String) Remote Login certificate issued by a CA to the remote login user. Must be used with `private_key` and the private key must match the certificate.
+- `certificate` (String) Remote Login certificate issued by a CA to the remote login user. Must be used with `private_key` and the private key must match the certificate.
 - `dir` (String) Directory on the SDC server to upload packages to. Defaults to `/tmp` on Unix.
 - `host_key` (String) Remote Login host key of the SDC server. Corresponds to the UserKnownHostsFile field of OpenSSH.
 - `password` (String, Sensitive) Remote Login password of the SDC server.
+- `port` (String) Remote Login port of the SDC server. Defaults to `22`.
 - `private_key` (String) Remote Login private key of the SDC server. Corresponds to the IdentityFile field of OpenSSH.
 
 
@@ -239,8 +240,11 @@ Optional:
 
 Required:
 
-- `drv_cfg_path` (String) Full path (on local machine) of the driver Configuration file for the SDC.
 - `guid` (String) GUID of the SDC.
+
+Optional:
+
+- `verify_vib_signature` (Boolean) Whether to verify the VIB signature or not. Defaults to `true`.
 
 ## Import
 

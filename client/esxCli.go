@@ -38,7 +38,7 @@ func NewEsxCli(prov *SSHProvisioner) *EsxCli {
 	}
 }
 
-// EsxCliSw is a wrapper around esxcli
+// EsxCliSw - esxcli software model
 type EsxCliSw struct {
 	Name             string
 	Version          string
@@ -47,11 +47,11 @@ type EsxCliSw struct {
 	InstallationDate string
 }
 
-// NewEsxCliSw returns a new esxcli wrapper
+// NewEsxCliSw - creates new esxcli software model from esxcli output
 func NewEsxCliSw(txt string) (*EsxCliSw, error) {
 	sw := EsxCliSw{}
 	fields := strings.Fields(txt)
-	if len(fields) != 5 {
+	if len(fields) < 5 {
 		return nil, fmt.Errorf("invalid software list item :%s", txt)
 	}
 	sw.Name = fields[0]
@@ -62,7 +62,7 @@ func NewEsxCliSw(txt string) (*EsxCliSw, error) {
 	return &sw, nil
 }
 
-// SoftwareList returns the list of installed software
+// SoftwareList - returns list of installed software
 func (e *EsxCli) SoftwareList() ([]*EsxCliSw, error) {
 	op, err := e.client.Run("esxcli software vib list")
 	if err != nil {
@@ -89,7 +89,7 @@ func (e *EsxCli) SoftwareList() ([]*EsxCliSw, error) {
 	return ret, err
 }
 
-// GetSoftwareByNameRegex returns the software with the given name
+// GetSoftwareByNameRegex - returns software by name using regex patterns
 func (e *EsxCli) GetSoftwareByNameRegex(name *regexp.Regexp) (*EsxCliSw, error) {
 	sw, err := e.SoftwareList()
 	if err != nil {
@@ -104,13 +104,30 @@ func (e *EsxCli) GetSoftwareByNameRegex(name *regexp.Regexp) (*EsxCliSw, error) 
 	return sw[ind], nil
 }
 
-// VibInstallCommand is a wrapper around esxcli
+// GetModuleByName - returns module by name
+func (e *EsxCli) GetModuleByName(name string) (string, error) {
+	op, err := e.client.Run("vmkload_mod -l")
+	if err != nil {
+		return op, fmt.Errorf("error listing vmk modules: %w", err)
+	}
+	mods := GetLinesUnix(op)
+	e.client.logger.Printf("Listed modules: [\n", strings.Join(mods, "\n"), "\n]\n")
+	ind := slices.IndexFunc(mods, func(mod string) bool {
+		return strings.Contains(mod, name)
+	})
+	if ind == -1 {
+		return "Output: \n" + op, fmt.Errorf("%s module not found in installed modules", name)
+	}
+	return mods[ind], nil
+}
+
+// VibInstallCommand - esxcli software vib install command model
 type VibInstallCommand struct {
 	ZipFile  string
 	SigCheck bool
 }
 
-// SoftwareInstall installs the given software
+// SoftwareInstall - installs software on the esxi host
 func (e *EsxCli) SoftwareInstall(vib VibInstallCommand) (string, error) {
 	command := fmt.Sprintf("esxcli software vib install -d %s", vib.ZipFile)
 	if !vib.SigCheck {
@@ -119,7 +136,7 @@ func (e *EsxCli) SoftwareInstall(vib VibInstallCommand) (string, error) {
 	return e.client.Run(command)
 }
 
-// SetModuleParameters is a wrapper around esxcli
+// SetModuleParameters - sets module parameters on esxi host
 func (e *EsxCli) SetModuleParameters(module string, params map[string]string) (string, error) {
 	lparams := make([]string, 0)
 	for k, v := range params {
@@ -130,7 +147,7 @@ func (e *EsxCli) SetModuleParameters(module string, params map[string]string) (s
 	return e.client.Run(fmt.Sprintf(`esxcli system module parameters set -m %s -p "%s"`, module, sparams))
 }
 
-// SoftwareRmv removes the given software
+// SoftwareRmv - removes software on the esxi host
 func (e *EsxCli) SoftwareRmv(name string) (string, error) {
 	return e.client.Run(fmt.Sprintf("esxcli software vib remove -n %s", name))
 }

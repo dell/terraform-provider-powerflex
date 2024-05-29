@@ -27,13 +27,13 @@ import (
 	scp "github.com/bramvdbogaerde/go-scp"
 )
 
-// ScpProvisioner is a wrapper around scp.Client
+// ScpProvisioner - scp client
 type ScpProvisioner struct {
 	logger Logger
 	client *scp.Client
 }
 
-// NewScpProvisioner returns a new ScpProvisioner
+// NewScpProvisioner - creates new scp client
 func NewScpProvisioner(prov *SSHProvisioner) *ScpProvisioner {
 	scpClient := scp.NewConfigurer("", nil).SSHClient(prov.sshClient).Create()
 	return &ScpProvisioner{

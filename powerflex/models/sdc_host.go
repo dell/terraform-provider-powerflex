@@ -44,16 +44,17 @@ type SdcHostModel struct {
 
 // SdcHostRemoteModel maps the remote schema data.
 type SdcHostRemoteModel struct {
+	Port       string  `tfsdk:"port"`
 	User       string  `tfsdk:"user"`
 	Password   *string `tfsdk:"password"`
 	PrivateKey *string `tfsdk:"private_key"`
-	CaCert     *string `tfsdk:"ca_cert"`
+	CaCert     *string `tfsdk:"certificate"`
 	HostKey    *string `tfsdk:"host_key"`
 	Dir        *string `tfsdk:"dir"`
 }
 
 // SdcHostEsxiModel maps the esxi resource schema data.
 type SdcHostEsxiModel struct {
-	GUID   types.String `tfsdk:"guid"`
-	DrvCfg types.String `tfsdk:"drv_cfg_path"`
+	GUID          types.String `tfsdk:"guid"`
+	VerifyVibSign types.Bool   `tfsdk:"verify_vib_signature"`
 }

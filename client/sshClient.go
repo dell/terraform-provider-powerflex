@@ -29,6 +29,7 @@ import (
 // SSHProvisionerConfig ssh provisioner config
 type SSHProvisionerConfig struct {
 	IP         string
+	Port       string
 	Username   string
 	Password   *string
 	PrivateKey *string
@@ -48,26 +49,26 @@ func (config *SSHProvisionerConfig) getSSHConfig() (*ssh.ClientConfig, error) {
 		// if private key is specified, use it
 		privateKey, err := decodeString(*config.PrivateKey)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error decoding private key: %w", err)
 		}
 		signer, err := ssh.ParsePrivateKey(privateKey)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error parsing private key: %w", err)
 		}
 		if config.CaCert != nil {
 			// if CA cert is specified, use it
 			certBytes, err := decodeString(*config.CaCert)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("error decoding CA cert: %w", err)
 			}
-			pk, err := ssh.ParsePublicKey(certBytes)
-			if err != nil {
-				return nil, err
+			certPk, _, _, _, err := ssh.ParseAuthorizedKey(certBytes)
+			if err != nil { /* handle it */
+				return nil, fmt.Errorf("error parsing CA cert: %w", err)
 			}
-			cert := pk.(*ssh.Certificate)
+			cert := certPk.(*ssh.Certificate)
 			signer, err = ssh.NewCertSigner(cert, signer)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("error creating cert signer with CA cert: %w", err)
 			}
 		}
 		sshConfig.Auth = []ssh.AuthMethod{ssh.PublicKeys(signer)}
@@ -163,7 +164,7 @@ func (p *SSHProvisioner) RebootUnix() error {
 	time.Sleep(10 * time.Second)
 
 	p.logger.Printf("Connecting to %s via ssh", p.ip)
-	client, err := ssh.Dial("tcp", net.JoinHostPort(p.ip, "22"), p.config)
+	client, err := ssh.Dial("tcp", p.ip, p.config)
 	if err != nil {
 		return fmt.Errorf("failed to dial remote host: %w", err)
 	}
@@ -172,7 +173,7 @@ func (p *SSHProvisioner) RebootUnix() error {
 	return nil
 }
 
-// GetLinesUnix get lines from string
+// GetLinesUnix get lines from string output from commands in Unix systems
 func GetLinesUnix(op string) []string {
 	lines := lineBreakRegex.Split(strings.TrimSpace(op), -1)
 	for i := range lines {
@@ -181,7 +182,7 @@ func GetLinesUnix(op string) []string {
 	return lines
 }
 
-// UntarUnix untars file
+// UntarUnix untars Unix file using the tar utility
 func (p *SSHProvisioner) UntarUnix(filename, dir string) ([]string, error) {
 	op, err := p.Run(fmt.Sprintf("cd %s && tar -xvf %s", dir, filename))
 	if err != nil {
@@ -192,7 +193,7 @@ func (p *SSHProvisioner) UntarUnix(filename, dir string) ([]string, error) {
 	return lines, nil
 }
 
-// ListDirUnix lists directory
+// ListDirUnix lists files in specified directory using the ls utility
 func (p *SSHProvisioner) ListDirUnix(dir string, logOp bool) ([]string, error) {
 	op, err := p.Run(fmt.Sprintf("ls %s", dir))
 	if err != nil {
@@ -205,13 +206,13 @@ func (p *SSHProvisioner) ListDirUnix(dir string, logOp bool) ([]string, error) {
 	return lines, nil
 }
 
-// Ping pings host
+// Ping pings host IP and returns error if not available
 func (p *SSHProvisioner) Ping() error {
 	hostIP := p.ip
 	start := time.Now()
 	for time.Since(start) < 10*time.Minute {
-		p.logger.Printf("Checkinging for host IP to be available...")
-		conn, err := net.DialTimeout("tcp", net.JoinHostPort(hostIP, "22"), 5*time.Second)
+		p.logger.Printf("Checking for host IP to be available...")
+		conn, err := net.DialTimeout("tcp", hostIP, 5*time.Second)
 		if err == nil {
 			p.logger.Printf("Host IP is available.\n")
 			if err := conn.Close(); err != nil {
@@ -234,8 +235,12 @@ func NewSSHProvisioner(config SSHProvisionerConfig, logger Logger) (*SSHProvisio
 	if err != nil {
 		return nil, fmt.Errorf("error parsing ssh configuration: %w", err)
 	}
+	if config.Port == "" {
+		config.Port = "22"
+	}
 	logger.Printf("Connecting to %s", config.IP)
-	client, err := ssh.Dial("tcp", net.JoinHostPort(config.IP, "22"), sshConfig)
+	address := net.JoinHostPort(config.IP, config.Port)
+	client, err := ssh.Dial("tcp", address, sshConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to dial remote host: %w", err)
 	}
@@ -244,7 +249,7 @@ func NewSSHProvisioner(config SSHProvisionerConfig, logger Logger) (*SSHProvisio
 		sshClient: client,
 		logger:    logger,
 		config:    sshConfig,
-		ip:        config.IP,
+		ip:        address,
 	}, nil
 }
 
@@ -259,9 +264,4 @@ func PasswordOnlyKIC(password string) ssh.KeyboardInteractiveChallenge {
 
 		return answers, nil
 	}
-}
-
-// GetLines get lines from string
-func GetLines(s string) []string {
-	return strings.Split(s, "\n")
 }

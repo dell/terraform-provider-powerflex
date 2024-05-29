@@ -28,8 +28,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -68,7 +70,7 @@ func (r *sdcHostResource) ConfigValidators(ctx context.Context) []resource.Confi
 		// TODO: Add CA Cert validation
 		resourcevalidator.Conflicting(
 			remotePath.AtName("password"),
-			remotePath.AtName("ca_cert"),
+			remotePath.AtName("certificate"),
 		),
 	}
 }
@@ -130,9 +132,13 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				},
 			},
 			"os_family": schema.StringAttribute{
-				Description:         "Operating System family of the SDC.",
-				Required:            true,
-				MarkdownDescription: "Operating System family of the SDC.",
+				Description: "Operating System family of the SDC." +
+					" Accepted values are 'linux', 'windows' and 'esxi'." +
+					" Cannot be changed once set.",
+				Required: true,
+				MarkdownDescription: "Operating System family of the SDC." +
+					" Accepted values are 'linux', 'windows' and 'esxi'." +
+					" Cannot be changed once set.",
 				Validators: []validator.String{
 					stringvalidator.OneOf("linux", "windows", "esxi"),
 				},
@@ -150,10 +156,12 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				},
 			},
 			"performance_profile": schema.StringAttribute{
-				Description:         "Performance profile of the SDC.",
-				MarkdownDescription: "Performance profile of the SDC.",
-				Optional:            true,
-				Computed:            true,
+				Description: "Performance profile of the SDC." +
+					" Accepted values are 'HighPerformance' and 'Compact'.",
+				MarkdownDescription: "Performance profile of the SDC." +
+					" Accepted values are 'HighPerformance' and 'Compact'.",
+				Optional: true,
+				Computed: true,
 				Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
 					"HighPerformance",
 					"Compact",
@@ -167,6 +175,13 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				MarkdownDescription: "Remote login details of the SDC.",
 				Required:            true,
 				Attributes: map[string]schema.Attribute{
+					"port": schema.StringAttribute{
+						Description:         "Remote Login port of the SDC server. Defaults to `22`.",
+						MarkdownDescription: "Remote Login port of the SDC server. Defaults to `22`.",
+						Optional:            true,
+						Computed:            true,
+						Default:             stringdefault.StaticString("22"),
+					},
 					"user": schema.StringAttribute{
 						Description:         "Remote Login username of the SDC server.",
 						MarkdownDescription: "Remote Login username of the SDC server.",
@@ -187,19 +202,13 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						MarkdownDescription: "Remote Login private key of the SDC server." +
 							" Corresponds to the IdentityFile field of OpenSSH.",
 						Optional: true,
-						Validators: []validator.String{
-							stringvalidator.LengthAtLeast(1),
-						},
 					},
-					"ca_cert": schema.StringAttribute{
+					"certificate": schema.StringAttribute{
 						Description: "Remote Login certificate issued by a CA to the remote login user." +
 							" Must be used with `private_key` and the private key must match the certificate.",
 						MarkdownDescription: "Remote Login certificate issued by a CA to the remote login user." +
 							" Must be used with `private_key` and the private key must match the certificate.",
 						Optional: true,
-						Validators: []validator.String{
-							stringvalidator.LengthAtLeast(1),
-						},
 					},
 					"host_key": schema.StringAttribute{
 						Description: "Remote Login host key of the SDC server." +
@@ -233,13 +242,12 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						MarkdownDescription: "GUID of the SDC.",
 						Required:            true,
 					},
-					"drv_cfg_path": schema.StringAttribute{
-						Description:         "Full path (on local machine) of the driver Configuration file for the SDC.",
-						MarkdownDescription: "Full path (on local machine) of the driver Configuration file for the SDC.",
-						Required:            true,
-						Validators: []validator.String{
-							stringvalidator.LengthAtLeast(1),
-						},
+					"verify_vib_signature": schema.BoolAttribute{
+						Description:         "Whether to verify the VIB signature or not. Defaults to `true`.",
+						MarkdownDescription: "Whether to verify the VIB signature or not. Defaults to `true`.",
+						Optional:            true,
+						Computed:            true,
+						Default:             booldefault.StaticBool(true),
 					},
 				},
 			},
@@ -508,7 +516,7 @@ func (r *sdcHostResource) Delete(ctx context.Context, req resource.DeleteRequest
 	} else if state.OS.ValueString() == "windows" {
 		resp.Diagnostics.Append(resHelper.DeleteWindows(ctx, state)...)
 	} else if state.OS.ValueString() == "linux" {
-		resp.Diagnostics.Append(resHelper.DeleteLinux(ctx, state, false)...)
+		resp.Diagnostics.Append(resHelper.LinuxOp(ctx, state, false)...)
 	}
 
 	if resp.Diagnostics.HasError() {

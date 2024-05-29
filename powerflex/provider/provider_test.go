@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -50,6 +51,20 @@ type sdsDataPoints struct {
 	sdcName  string
 	sdcName2 string
 	sdcName3 string
+}
+
+type sdcHostDataPoints struct {
+	UbuntuIP       string
+	UbuntuUser     string
+	UbuntuPassword string
+	UbuntuPort     string
+	UbuntuPkgPath  string
+	EsxiIP         string
+	EsxiUser       string
+	EsxiPassword   string
+	EsxiPort       string
+	EsxiPkgPath    string
+	MdmIPs         []string
 }
 
 type gatewayDataPoints struct {
@@ -128,6 +143,30 @@ func getNewSdsDataPointForTest() sdsDataPoints {
 	SdsResourceTestData.sdcName3 = setDefault(os.Getenv("POWERFLEX_SDC_NAME_3"), "tfacc_sdc_name_3")
 
 	return SdsResourceTestData
+}
+
+func getNewSdcHostDataPointForTest() sdcHostDataPoints {
+	var SdcHostDataPoints sdcHostDataPoints
+	err := godotenv.Load("powerflex.env")
+	if err != nil {
+		log.Fatal("Error loading .env file: ", err)
+		return SdcHostDataPoints
+	}
+
+	SdcHostDataPoints.UbuntuIP = setDefault(os.Getenv("POWERFLEX_SDC_IP_Ubuntu"), "127.0.0.1")
+	SdcHostDataPoints.UbuntuUser = setDefault(os.Getenv("POWERFLEX_SDC_USER_Ubuntu"), "ubuntuRoot")
+	SdcHostDataPoints.UbuntuPassword = setDefault(os.Getenv("POWERFLEX_SDC_PASSWORD_Ubuntu"), "secret")
+	SdcHostDataPoints.UbuntuPort = setDefault(os.Getenv("POWERFLEX_SDC_PORT_Ubuntu"), "2222")
+	SdcHostDataPoints.UbuntuPkgPath = setDefault(os.Getenv("POWERFLEX_SDC_PKG_PATH_Ubuntu"), "/tmp/tfaccsdc.tar")
+
+	SdcHostDataPoints.EsxiIP = setDefault(os.Getenv("POWERFLEX_SDC_IP_Esxi"), "127.0.0.1")
+	SdcHostDataPoints.EsxiUser = setDefault(os.Getenv("POWERFLEX_SDC_USER_Esxi"), "esxiRoot")
+	SdcHostDataPoints.EsxiPassword = setDefault(os.Getenv("POWERFLEX_SDC_PASSWORD_Esxi"), "secret")
+	SdcHostDataPoints.EsxiPort = setDefault(os.Getenv("POWERFLEX_SDC_PORT_Esxi"), "2222")
+	SdcHostDataPoints.EsxiPkgPath = setDefault(os.Getenv("POWERFLEX_SDC_PKG_PATH_Esxi"), "/tmp/tfaccsdc.tar")
+
+	SdcHostDataPoints.MdmIPs = strings.Split(setDefault(os.Getenv("POWERFLEX_SDC_MDM_IPs"), "10.10.10.5,10.10.10.6"), ",")
+	return SdcHostDataPoints
 }
 
 func getNewGatewayDataPointForTest() gatewayDataPoints {
@@ -229,6 +268,7 @@ func getNodeDataForTest() nodeDataPoints {
 }
 
 var SdsResourceTestData = getNewSdsDataPointForTest()
+var SdcHostResourceTestData = getNewSdcHostDataPointForTest()
 var GatewayDataPoints = getNewGatewayDataPointForTest()
 var SDCMappingResourceID2 = setDefault(os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_ID2"), "tfacc_sdc_volumes_mapping_id2")
 var SDCMappingResourceName2 = setDefault(os.Getenv("POWERFLEX_SDC_VOLUMES_MAPPING_NAME2"), "tfacc_sdc_volumes_mapping_name2")
@@ -240,6 +280,7 @@ var ProtectionDomainID = setDefault(os.Getenv("POWERFLEX_PROTECTION_DOMAIN_ID"),
 var username = setDefault(os.Getenv("POWERFLEX_USERNAME"), "test")
 var password = setDefault(os.Getenv("POWERFLEX_PASSWORD"), "test")
 var endpoint = setDefault(os.Getenv("POWERFLEX_ENDPOINT"), "http://localhost:3002")
+var insecure = setDefault(os.Getenv("POWERFLEX_INSECURE"), "false")
 var NodeDataPoints = getNodeDataForTest()
 var TemplateDataPoints = getTemplateDataForTest()
 var ServiceDataPoints = getServiceDataForTest()
@@ -261,8 +302,9 @@ func init() {
 			username = "%s"
 			password = "%s"
 			endpoint = "%s"
+			insecure = %s
 		}
-	`, username, password, endpoint)
+	`, username, password, endpoint, insecure)
 }
 
 var (
