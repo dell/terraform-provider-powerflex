@@ -41,13 +41,6 @@ func TestSshClientM(t *testing.T) {
 }
 
 func TestSshClientMReboot(t *testing.T) {
-	// srv, err := getServer()
-	// if err != nil {
-	// 	t.Fatalf(err.Error())
-	// }
-	// defer srv.Close()
-
-	// t.Log("started ssh server")
 
 	pass := "secret"
 	sshP, err := NewSSHProvisioner(SSHProvisionerConfig{
@@ -72,13 +65,6 @@ func TestSshClientMReboot(t *testing.T) {
 }
 
 func TestSshClientMUntar(t *testing.T) {
-	// srv, err := getServer()
-	// if err != nil {
-	// 	t.Fatalf(err.Error())
-	// }
-	// defer srv.Close()
-
-	// t.Log("started ssh server")
 
 	pass := "secret"
 	sshP, err := NewSSHProvisioner(SSHProvisionerConfig{
