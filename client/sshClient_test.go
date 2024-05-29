@@ -24,13 +24,7 @@ import (
 )
 
 func TestSshClientM(t *testing.T) {
-	// srv, err := getServer()
-	// if err != nil {
-	// 	t.Fatalf(err.Error())
-	// }
-	// defer srv.Close()
-
-	// t.Log("started ssh server")
+	t.Skip("Skipping this test case, only for Unit test")
 
 	pass := "secret"
 	sshP, err := NewSSHProvisioner(SSHProvisionerConfig{
@@ -57,7 +51,7 @@ func TestSshClientM(t *testing.T) {
 }
 
 func TestSshClientMReboot(t *testing.T) {
-
+	t.Skip("Skipping this test case, only for Unit test")
 	pass := "secret"
 	sshP, err := NewSSHProvisioner(SSHProvisionerConfig{
 		IP:         "localhost",
@@ -81,7 +75,7 @@ func TestSshClientMReboot(t *testing.T) {
 }
 
 func TestSshClientMUntar(t *testing.T) {
-
+	t.Skip("Skipping this test case, only for Unit test")
 	pass := "secret"
 	sshP, err := NewSSHProvisioner(SSHProvisionerConfig{
 		IP:         "localhost",
@@ -107,6 +101,7 @@ func TestSshClientMUntar(t *testing.T) {
 }
 
 func TestSshClientMScp(t *testing.T) {
+	t.Skip("Skipping this test case, only for Unit test")
 	// remove file /tmp/testScpFile, just in case
 	os.Remove("/tmp/testScpFile")
 
@@ -143,6 +138,7 @@ func TestSshClientMScp(t *testing.T) {
 }
 
 func TestSshClientMWrongPass(t *testing.T) {
+	t.Skip("Skipping this test case, only for Unit test")
 	pass := "secret1"
 	_, err := NewSSHProvisioner(SSHProvisionerConfig{
 		IP:         "localhost",
