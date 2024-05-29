@@ -123,13 +123,14 @@ func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHost
 		)
 		return respDiagnostics
 
-	} else {
-		respDiagnostics.AddError(
-			"Error while connecting sdc remote host",
-			"Error while connecting sdc remote host",
-		)
-		return respDiagnostics
 	}
+
+	respDiagnostics.AddError(
+		"Error while connecting sdc remote host",
+		"Error while connecting sdc remote host",
+	)
+	return respDiagnostics
+
 }
 
 // DeleteWindows - function to uninstall SDC package in Windows host

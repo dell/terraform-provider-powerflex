@@ -40,8 +40,8 @@ type SSHProvisionerConfig struct {
 func (config *SSHProvisionerConfig) getSSHConfig() (*ssh.ClientConfig, error) {
 	sshConfig := &ssh.ClientConfig{
 		User:            config.Username,
-		HostKeyCallback: ssh.FixedHostKey(nil),
-	}
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+	} // #nosec G106
 
 	// password or private key
 	if config.PrivateKey != nil {
@@ -213,11 +213,10 @@ func (p *SSHProvisioner) Ping() error {
 		p.logger.Printf("Checkinging for host IP to be available...")
 		conn, err := net.DialTimeout("tcp", net.JoinHostPort(hostIP, "22"), 5*time.Second)
 		if err == nil {
-			err := conn.Close()
-			if err != nil {
-				return err
-			}
 			p.logger.Printf("Host IP is available.\n")
+			if err := conn.Close(); err != nil {
+				p.logger.Println("[WARN] Failed to close TCP connection", err.Error())
+			}
 			return nil
 		}
 		time.Sleep(10 * time.Second)
