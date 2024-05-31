@@ -54,6 +54,8 @@ func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHost
 
 	context["host"] = plan.Host.ValueString()
 
+	context["port"] = remote.Port
+
 	winRMClient.GetConnection(context, false)
 
 	defer winRMClient.Destroy()
@@ -155,6 +157,8 @@ func (r *SdcHostResource) DeleteWindows(ctx context.Context, state models.SdcHos
 	context["password"] = *remote.Password
 
 	context["host"] = state.Host.ValueString()
+
+	context["port"] = remote.Port
 
 	winRMClient.GetConnection(context, false)
 
