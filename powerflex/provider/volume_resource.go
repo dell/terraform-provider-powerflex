@@ -211,6 +211,12 @@ func (r *volumeResource) Read(ctx context.Context, req resource.ReadRequest, res
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	if state.ID.ValueString() == "" {
+		resp.Diagnostics.AddError("Please provide valid volume ID", "Please provide valid volume ID")
+		return
+	}
+
 	volsResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(

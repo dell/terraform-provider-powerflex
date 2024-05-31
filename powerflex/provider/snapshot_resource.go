@@ -241,6 +241,12 @@ func (r *snapshotResource) Read(ctx context.Context, req resource.ReadRequest, r
 	var state models.SnapshotResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+
+	if state.ID.ValueString() == "" {
+		resp.Diagnostics.AddError("Please provide valid snapshot ID", "Please provide valid snapshot ID")
+		return
+	}
+
 	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
