@@ -27,6 +27,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"sort"
 
 	"terraform-provider-powerflex/powerflex/models"
 
@@ -199,18 +200,50 @@ func GetMDMIP(ctx context.Context, sdcDetails []models.SDCDetailDataModel) (stri
 // CheckForExpansion function is used for check for expansion
 func CheckForExpansion(model []models.SDCDetailDataModel, stateSDCDetails []models.SDCStateDataModel) bool {
 	performaneChangeSdc := false
-	checkIP := make(map[string]bool)
 
-	for _, element := range stateSDCDetails {
-		checkIP[element.IP.ValueString()] = true
-	}
+	if len(model) > 0 && model[0].SDCID.ValueString() == ""{
+		if len(strings.Split(model[0].IP.ValueString(), ",")) == 1 {
+			checkIP := make(map[string]bool)
 
-	for _, item := range model {
-		if item.Password.ValueString() != "" && !checkIP[item.IP.ValueString()] && strings.EqualFold(item.IsSdc.ValueString(), "Yes") {
-			performaneChangeSdc = true
-			break
+			for _, element := range stateSDCDetails {
+				checkIP[element.IP.ValueString()] = true
+			}
+
+			for _, item := range model {
+				if item.Password.ValueString() != "" && !checkIP[item.IP.ValueString()] && strings.EqualFold(item.IsSdc.ValueString(), "Yes") {
+					performaneChangeSdc = true
+					break
+				}
+			}
+		} else {
+			if len(stateSDCDetails) > 0 {
+				var ipList []string
+				for _, element := range stateSDCDetails {
+					ipList = append(ipList, element.IP.ValueString())
+				}
+				//for _, element := range stateSDCDetails {
+				for i, item := range model {
+					if i < len(ipList) {
+						if item.Password.ValueString() != "" && !CompareCommaSeparatedString(item.DataNetworkIP.ValueString(), ipList[i]) && strings.EqualFold(item.IsSdc.ValueString(), "Yes") {
+							performaneChangeSdc = true
+							break
+						}
+					} else if item.Password.ValueString() != "" && strings.EqualFold(item.IsSdc.ValueString(), "Yes") {
+						performaneChangeSdc = true
+						break
+					}
+
+				}
+
+				//}
+			} else {
+				performaneChangeSdc = true
+			}
+
 		}
+
 	}
+
 	return performaneChangeSdc
 }
 
@@ -330,7 +363,7 @@ func ValidateMDMOperation(ctx context.Context, model models.SdcResourceModel, ga
 		"mdmUser":     "admin",
 		"mdmPassword": model.MdmPassword.ValueString(),
 	}
-	mapData["mdmIps"] = []string{mdmIP}
+	mapData["mdmIps"] = strings.Split(mdmIP, ",")
 
 	secureData := map[string]interface{}{
 		"allowNonSecureCommunicationWithMdm": true,
@@ -455,7 +488,11 @@ func GetSDCState(sdc goscaleio_types.Sdc) models.SDCStateDataModel {
 	model.OnVMWare = types.BoolValue(sdc.OnVMWare)
 	model.SystemID = types.StringValue(sdc.SystemID)
 	model.PerformanceProfile = types.StringValue(sdc.PerfProfile)
-	model.IP = types.StringValue(sdc.SdcIP)
+	if len(sdc.SdcIPs) > 1 {
+		model.IP = types.StringValue(strings.Join(sdc.SdcIPs, ","))
+	} else {
+		model.IP = types.StringValue(sdc.SdcIP)
+	}
 	model.MdmConnectionState = types.StringValue(sdc.MdmConnectionState)
 	return model
 }
@@ -475,35 +512,78 @@ func CheckForSDCName(system *goscaleio.System, sdcDetail models.SDCDetailDataMod
 // FindDeletedSDC function to find deleted SDC Details in Plan
 func FindDeletedSDC(state []models.SDCStateDataModel, plan []models.SDCDetailDataModel) []models.SDCStateDataModel {
 	difference := []models.SDCStateDataModel{}
-	checkID := make(map[string]bool)
-	checkIP := make(map[string]bool)
+	if len(strings.Split(plan[0].IP.ValueString(), ",")) == 1 {
 
-	for _, element := range state {
-		checkID[element.SDCID.ValueString()] = true
-		checkIP[element.IP.ValueString()] = true
-	}
+		checkID := make(map[string]bool)
+		checkIP := make(map[string]bool)
 
-	for _, obj1 := range state {
-		found := false
-		for _, obj2 := range plan {
-			if (obj2.IP.ValueString() != "" || obj2.DataNetworkIP.ValueString() != "") && (checkIP[obj2.IP.ValueString()] || checkIP[obj2.DataNetworkIP.ValueString()]) {
-				found = true
-				delete(checkIP, obj2.IP.ValueString())
-				delete(checkID, obj2.SDCID.ValueString())
-				break
-			} else if obj2.SDCID.ValueString() != "" && checkID[obj2.SDCID.ValueString()] {
-				found = true
-				delete(checkIP, obj2.IP.ValueString())
-				delete(checkID, obj2.SDCID.ValueString())
-				break
+		for _, element := range state {
+			checkID[element.SDCID.ValueString()] = true
+			checkIP[element.IP.ValueString()] = true
+		}
+
+		for _, obj1 := range state {
+			found := false
+			for _, obj2 := range plan {
+				if (obj2.IP.ValueString() != "" || obj2.DataNetworkIP.ValueString() != "") && (checkIP[obj2.IP.ValueString()] || checkIP[obj2.DataNetworkIP.ValueString()]) {
+					found = true
+					delete(checkIP, obj2.IP.ValueString())
+					delete(checkID, obj2.SDCID.ValueString())
+					break
+				} else if obj2.SDCID.ValueString() != "" && checkID[obj2.SDCID.ValueString()] {
+					found = true
+					delete(checkIP, obj2.IP.ValueString())
+					delete(checkID, obj2.SDCID.ValueString())
+					break
+				}
+			}
+			if !found {
+				difference = append(difference, obj1)
 			}
 		}
-		if !found {
-			difference = append(difference, obj1)
+	} else {
+		checkID := make(map[string]bool)
+		checkIP := make(map[string]bool)
+
+		for _, element := range state {
+			checkID[element.SDCID.ValueString()] = true
+			checkIP[element.IP.ValueString()] = true
+		}
+
+		for _, obj1 := range state {
+			found := false
+			for _, obj2 := range plan {
+				if (obj2.IP.ValueString() != "" || obj2.DataNetworkIP.ValueString() != "") && (CompareCommaSeparatedString(obj2.DataNetworkIP.ValueString(), obj1.IP.ValueString())) {
+					found = true
+					delete(checkIP, obj2.IP.ValueString())
+					delete(checkID, obj2.SDCID.ValueString())
+					break
+				} else if obj2.SDCID.ValueString() != "" && checkID[obj2.SDCID.ValueString()] {
+					found = true
+					delete(checkIP, obj2.IP.ValueString())
+					delete(checkID, obj2.SDCID.ValueString())
+					break
+				}
+			}
+			if !found {
+				difference = append(difference, obj1)
+			}
 		}
 	}
 
 	return difference
+}
+
+func CompareCommaSeparatedString(str1, str2 string) bool {
+	slice1 := strings.Split(str1, ",")
+	slice2 := strings.Split(str2, ",")
+
+	// Sort the slices
+	sort.Strings(slice1)
+	sort.Strings(slice2)
+
+	// Compare the sorted slices
+	return fmt.Sprintf("%v", slice1) == fmt.Sprintf("%v", slice2)
 }
 
 // GetSdcsValue returns the SDC list for the plan
@@ -536,4 +616,25 @@ func GetSdcsValue(planSdcs []models.SDCDetailDataModel) (basetypes.ListValue, di
 	sdcInfoVal, dgs := types.ListValue(sdcInfoElemType, objectSdcInfos)
 	diags = append(diags, dgs...)
 	return sdcInfoVal, diags
+}
+
+func GetSdcData(system *goscaleio.System, splitsdc []string) (*goscaleio.Sdc, error) {
+	var sdcData *goscaleio.Sdc
+	var err error
+	count := 0
+	for _, v := range splitsdc {
+		sdcData, err = system.FindSdc("SdcIP", v)
+		if sdcData != nil {
+			break
+		}
+		if err != nil {
+			count = count + 1
+			if len(splitsdc) == count {
+				return sdcData, err
+			} else {
+				continue
+			}
+		}
+	}
+	return sdcData, nil
 }
