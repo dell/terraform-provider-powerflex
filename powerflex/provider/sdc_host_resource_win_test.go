@@ -171,6 +171,7 @@ resource "powerflex_sdc_host" "sdc_windows" {
 	remote = {
 	  user     = "` + SdsResourceTestData.sdcHostWinUserName + `"
 	  password =  "` + SdsResourceTestData.sdcHostWinPassword + `"
+	  port = 5985
 	}
 	os_family    = "windows"
 	name          = "SDC_Test"
@@ -185,6 +186,7 @@ resource "powerflex_sdc_host" "sdc_windows" {
 	remote = {
 	  user     = "` + SdsResourceTestData.sdcHostWinUserName + `"
 	  password =  "` + SdsResourceTestData.sdcHostWinPassword + `"
+	  port = 5985
 	}
 	os_family    = "windows"
 	name          = "SDC_Update"
@@ -199,6 +201,7 @@ resource "powerflex_sdc_host" "sdc_linux_rpm" {
 	remote = {
 	  user     = "` + SdsResourceTestData.sdcHostRPMUserName + `"
 	  password =  "` + SdsResourceTestData.sdcHostRPMPassword + `"
+	  port = 5985
 	}
 	os_family    = "linux"
 	name          = "SDC_Test"
@@ -213,6 +216,7 @@ resource "powerflex_sdc_host" "sdc_linux_rpm" {
 	remote = {
 	  user     = "` + SdsResourceTestData.sdcHostRPMUserName + `"
 	  password =  "` + SdsResourceTestData.sdcHostRPMPassword + `"
+	  port = 5985
 	}
 	os_family    = "linux"
 	name          = "SDC_Update"
