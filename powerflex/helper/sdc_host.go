@@ -97,10 +97,18 @@ func (r *SdcHostResource) GetMdmIps(ctx context.Context, plan models.SdcHostMode
 
 // GetMdmIPList - get mdm ips from pflex
 func GetMdmIPList(mdmDetails *goscaleio_types.MdmCluster) []string {
-	ipmap := mdmDetails.PrimaryMDM.IPs
-	for _, mdm := range mdmDetails.SecondaryMDM {
-		ipmap = append(ipmap, mdm.IPs...)
+
+	var ipmap []string
+
+	if mdmDetails.VirtualIPs != nil && len(mdmDetails.VirtualIPs) > 0 {
+		ipmap = mdmDetails.VirtualIPs
+	} else {
+		ipmap = mdmDetails.PrimaryMDM.IPs
+		for _, mdm := range mdmDetails.SecondaryMDM {
+			ipmap = append(ipmap, mdm.IPs...)
+		}
 	}
+
 	return ipmap
 }
 
