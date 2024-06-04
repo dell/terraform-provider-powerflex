@@ -934,7 +934,7 @@ func GetClusterDetails(model models.ClusterResourceModel, gatewayClient *goscale
 		"mdmUser":     "admin",
 		"mdmPassword": model.MdmPassword.ValueString(),
 	}
-	mapData["mdmIps"] = []string{mdmIP}
+	mapData["mdmIps"] = strings.Split(mdmIP, ",")
 
 	secureData := map[string]interface{}{
 		"allowNonSecureCommunicationWithMdm": model.AllowNonSecureCommunicationWithMdm.ValueBool(),

@@ -24,10 +24,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
-	"sort"
 
 	"terraform-provider-powerflex/powerflex/models"
 
@@ -201,7 +201,7 @@ func GetMDMIP(ctx context.Context, sdcDetails []models.SDCDetailDataModel) (stri
 func CheckForExpansion(model []models.SDCDetailDataModel, stateSDCDetails []models.SDCStateDataModel) bool {
 	performaneChangeSdc := false
 
-	if len(model) > 0 && model[0].SDCID.ValueString() == ""{
+	if len(model) > 0 && model[0].SDCID.ValueString() == "" {
 		if len(strings.Split(model[0].IP.ValueString(), ",")) == 1 {
 			checkIP := make(map[string]bool)
 
@@ -346,6 +346,11 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 
 	if parseCSVError != nil {
 		return &parseCSVResponse, fmt.Errorf("%s", parseCSVError.Error())
+	}
+
+	deletCSVError := os.Remove(mydir + "/Minimal.csv")
+	if deletCSVError != nil {
+		return &parseCSVResponse, fmt.Errorf("Error While Deleting Temp CSV File is %s", deletCSVError.Error())
 	}
 
 	parsecsvRespose.Message = strings.Join(sdcIPs, ",")
@@ -512,7 +517,8 @@ func CheckForSDCName(system *goscaleio.System, sdcDetail models.SDCDetailDataMod
 // FindDeletedSDC function to find deleted SDC Details in Plan
 func FindDeletedSDC(state []models.SDCStateDataModel, plan []models.SDCDetailDataModel) []models.SDCStateDataModel {
 	difference := []models.SDCStateDataModel{}
-	if len(strings.Split(plan[0].IP.ValueString(), ",")) == 1 {
+
+	if len(plan) == 0 {
 
 		checkID := make(map[string]bool)
 		checkIP := make(map[string]bool)
@@ -542,31 +548,62 @@ func FindDeletedSDC(state []models.SDCStateDataModel, plan []models.SDCDetailDat
 			}
 		}
 	} else {
-		checkID := make(map[string]bool)
-		checkIP := make(map[string]bool)
+		if len(strings.Split(plan[0].IP.ValueString(), ",")) == 1 {
 
-		for _, element := range state {
-			checkID[element.SDCID.ValueString()] = true
-			checkIP[element.IP.ValueString()] = true
-		}
+			checkID := make(map[string]bool)
+			checkIP := make(map[string]bool)
 
-		for _, obj1 := range state {
-			found := false
-			for _, obj2 := range plan {
-				if (obj2.IP.ValueString() != "" || obj2.DataNetworkIP.ValueString() != "") && (CompareCommaSeparatedString(obj2.DataNetworkIP.ValueString(), obj1.IP.ValueString())) {
-					found = true
-					delete(checkIP, obj2.IP.ValueString())
-					delete(checkID, obj2.SDCID.ValueString())
-					break
-				} else if obj2.SDCID.ValueString() != "" && checkID[obj2.SDCID.ValueString()] {
-					found = true
-					delete(checkIP, obj2.IP.ValueString())
-					delete(checkID, obj2.SDCID.ValueString())
-					break
+			for _, element := range state {
+				checkID[element.SDCID.ValueString()] = true
+				checkIP[element.IP.ValueString()] = true
+			}
+
+			for _, obj1 := range state {
+				found := false
+				for _, obj2 := range plan {
+					if (obj2.IP.ValueString() != "" || obj2.DataNetworkIP.ValueString() != "") && (checkIP[obj2.IP.ValueString()] || checkIP[obj2.DataNetworkIP.ValueString()]) {
+						found = true
+						delete(checkIP, obj2.IP.ValueString())
+						delete(checkID, obj2.SDCID.ValueString())
+						break
+					} else if obj2.SDCID.ValueString() != "" && checkID[obj2.SDCID.ValueString()] {
+						found = true
+						delete(checkIP, obj2.IP.ValueString())
+						delete(checkID, obj2.SDCID.ValueString())
+						break
+					}
+				}
+				if !found {
+					difference = append(difference, obj1)
 				}
 			}
-			if !found {
-				difference = append(difference, obj1)
+		} else {
+			checkID := make(map[string]bool)
+			checkIP := make(map[string]bool)
+
+			for _, element := range state {
+				checkID[element.SDCID.ValueString()] = true
+				checkIP[element.IP.ValueString()] = true
+			}
+
+			for _, obj1 := range state {
+				found := false
+				for _, obj2 := range plan {
+					if (obj2.IP.ValueString() != "" || obj2.DataNetworkIP.ValueString() != "") && (CompareCommaSeparatedString(obj2.DataNetworkIP.ValueString(), obj1.IP.ValueString())) {
+						found = true
+						delete(checkIP, obj2.IP.ValueString())
+						delete(checkID, obj2.SDCID.ValueString())
+						break
+					} else if obj2.SDCID.ValueString() != "" && checkID[obj2.SDCID.ValueString()] {
+						found = true
+						delete(checkIP, obj2.IP.ValueString())
+						delete(checkID, obj2.SDCID.ValueString())
+						break
+					}
+				}
+				if !found {
+					difference = append(difference, obj1)
+				}
 			}
 		}
 	}
