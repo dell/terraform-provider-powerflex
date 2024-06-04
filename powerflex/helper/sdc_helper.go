@@ -611,7 +611,9 @@ func FindDeletedSDC(state []models.SDCStateDataModel, plan []models.SDCDetailDat
 	return difference
 }
 
+// CompareCommaSeparatedString compares the two strings where the value of the string is comma separated and the sequence of the comma separated values doesn't matter
 func CompareCommaSeparatedString(str1, str2 string) bool {
+	// here two strings will be equal if there comma separated values are same irrespective of their sequence.
 	slice1 := strings.Split(str1, ",")
 	slice2 := strings.Split(str2, ",")
 
@@ -655,6 +657,7 @@ func GetSdcsValue(planSdcs []models.SDCDetailDataModel) (basetypes.ListValue, di
 	return sdcInfoVal, diags
 }
 
+// GetSdcData finds the sdc IP in the list of sdc IP's
 func GetSdcData(system *goscaleio.System, splitsdc []string) (*goscaleio.Sdc, error) {
 	var sdcData *goscaleio.Sdc
 	var err error
@@ -668,8 +671,6 @@ func GetSdcData(system *goscaleio.System, splitsdc []string) (*goscaleio.Sdc, er
 			count = count + 1
 			if len(splitsdc) == count {
 				return sdcData, err
-			} else {
-				continue
 			}
 		}
 	}
