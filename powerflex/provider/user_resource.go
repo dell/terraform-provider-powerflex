@@ -120,6 +120,24 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				},
 				MarkdownDescription: "Password of the user. For PowerFlex version 3.6, cannot be updated.",
 			},
+			"first_name": schema.StringAttribute{
+				Description:         "First name of the user. PowerFlex version 3.6 does not support the first_name attribute.",
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "First name of the user. PowerFlex version 3.6 does not support the first_name attribute.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"last_name": schema.StringAttribute{
+				Description:         "Last name of the user. PowerFlex version 3.6 does not support the last_name attribute.",
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "Last name of the user. PowerFlex version 3.6 does not support the last_name attribute.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
 		},
 	}
 }
@@ -159,6 +177,13 @@ func (r *userResource) ValidateConfig(plan models.UserModel) diag.Diagnostics {
 
 	if r.version == models.Version3X {
 		roles := roleMap[models.Version3X]
+
+		if !plan.FirstName.IsUnknown() || !plan.LastName.IsUnknown() {
+			diags.AddError(
+				"PowerFlex version 3.6 does not support the first_name and last_name attributes.",
+				"PowerFlex version 3.6 does not support the first_name and last_name attributes.",
+			)
+		}
 
 		for _, value := range roles {
 			if value == plan.Role.ValueString() {
@@ -243,10 +268,12 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 		}
 	} else {
 		payload := &scaleiotypes.SSOUserCreateParam{
-			UserName: plan.Name.ValueString(),
-			Role:     plan.Role.ValueString(),
-			Password: plan.Password.ValueString(),
-			Type:     "Local",
+			UserName:  plan.Name.ValueString(),
+			Role:      plan.Role.ValueString(),
+			Password:  plan.Password.ValueString(),
+			FirstName: plan.FirstName.ValueString(),
+			LastName:  plan.LastName.ValueString(),
+			Type:      "Local",
 		}
 		// create the user
 		ssoUser, err = r.client.CreateSSOUser(payload)
@@ -393,10 +420,12 @@ func (r *userResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	}
 
 	if r.version == "4.0" {
-		if plan.Role.ValueString() != state.Role.ValueString() || plan.Name.ValueString() != state.Name.ValueString() {
+		if plan.Role.ValueString() != state.Role.ValueString() || plan.Name.ValueString() != state.Name.ValueString() || plan.FirstName.ValueString() != state.FirstName.ValueString() || plan.LastName.ValueString() != state.LastName.ValueString() {
 			payload := &scaleiotypes.SSOUserModifyParam{
-				UserName: plan.Name.ValueString(),
-				Role:     plan.Role.ValueString(),
+				UserName:  plan.Name.ValueString(),
+				Role:      plan.Role.ValueString(),
+				FirstName: plan.FirstName.ValueString(),
+				LastName:  plan.LastName.ValueString(),
 			}
 
 			_, err = r.client.ModifySSOUser(state.ID.ValueString(), payload)

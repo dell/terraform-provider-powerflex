@@ -71,6 +71,11 @@ After the execution of above resource block, new user would have been created on
 - `password` (String) Password of the user. For PowerFlex version 3.6, cannot be updated.
 - `role` (String) The role of the user. Accepted values for PowerFlex version 3.6 'Administrator', 'Monitor', 'Configure', 'Security', 'FrontendConfig', 'BackendConfig'. Accepted values for PowerFlex version 4.5 are 'Monitor', 'SuperUser', 'SystemAdmin', 'StorageAdmin', 'LifecycleAdmin', 'ReplicationManager', 'SnapshotManager', 'SecurityAdmin', 'DriveReplacer', 'Technician', 'Support'.
 
+### Optional
+
+- `first_name` (String) First name of the user. PowerFlex version 3.6 does not support the first_name attribute.
+- `last_name` (String) Last name of the user. PowerFlex version 3.6 does not support the last_name attribute.
+
 ### Read-Only
 
 - `id` (String) The ID of the user.
