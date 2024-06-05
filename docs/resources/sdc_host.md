@@ -182,6 +182,7 @@ resource "powerflex_sdc_host" "sdc_windows" {
   remote = {
     user     = "username"
     password = "password"
+    port = 5985
   }
   os_family    = "windows"
   name         = "sdc-windows"
@@ -228,7 +229,7 @@ Required:
 Optional:
 
 - `certificate` (String) Remote Login certificate issued by a CA to the remote login user. Must be used with `private_key` and the private key must match the certificate.
-- `dir` (String) Directory on the SDC server to upload packages to. Defaults to `/tmp` on Unix.
+- `dir` (String) Directory on the SDC server to upload packages to for Unix. Defaults to `/tmp` on Unix.
 - `host_key` (String) Remote Login host key of the SDC server. Corresponds to the UserKnownHostsFile field of OpenSSH.
 - `password` (String, Sensitive) Remote Login password of the SDC server.
 - `port` (String) Remote Login port of the SDC server. Defaults to `22`.

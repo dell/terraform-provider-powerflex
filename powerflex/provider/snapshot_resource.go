@@ -241,6 +241,7 @@ func (r *snapshotResource) Read(ctx context.Context, req resource.ReadRequest, r
 	var state models.SnapshotResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+
 	snapResponse, err2 := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
 	if err2 != nil {
 		resp.Diagnostics.AddError(
@@ -426,6 +427,11 @@ func (r *snapshotResource) Delete(ctx context.Context, req resource.DeleteReques
 
 func (r *snapshotResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
+	if req.ID == "" {
+		resp.Diagnostics.AddError("Please provide valid snapshot ID", "Please provide valid snapshot ID")
+		return
+	}
+
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 

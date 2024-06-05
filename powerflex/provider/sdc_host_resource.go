@@ -221,9 +221,9 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						},
 					},
 					"dir": schema.StringAttribute{
-						Description: "Directory on the SDC server to upload packages to." +
+						Description: "Directory on the SDC server to upload packages to for Unix." +
 							" Defaults to `/tmp` on Unix.",
-						MarkdownDescription: "Directory on the SDC server to upload packages to." +
+						MarkdownDescription: "Directory on the SDC server to upload packages to for Unix." +
 							" Defaults to `/tmp` on Unix.",
 						Optional: true,
 						Validators: []validator.String{
