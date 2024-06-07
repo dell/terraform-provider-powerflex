@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+// go build -o pre-commit pre-commit.go
+// cp pre-commit ../.git/hooks/.
+// chmod +x ../.git/hooks/pre-commit
+
 // gitleaksEnabled determines if the pre-commit hook for gitleaks is enabled.
 func gitleaksEnabled() bool {
 	cmd := exec.Command("git", "config", "--bool", "hooks.gitleaks")
@@ -20,7 +24,7 @@ func gitleaksEnabled() bool {
 
 func main() {
 	if gitleaksEnabled() {
-		cmd := exec.Command("gitleaks", "protect", "-v", "--staged")
+		cmd := exec.Command("gitleaks", "detect", "--no-git", "--config", "gitleaks.toml")
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		err := cmd.Run()
