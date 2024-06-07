@@ -33,11 +33,23 @@ func UpdateUserState(user *scaleiotypes.User, plan models.UserModel, ssoUser *sc
 		state.Password = plan.Password
 		state.ID = types.StringValue(user.ID)
 		state.SystemID = types.StringValue(user.SystemID)
+		state.FirstName = types.StringNull()
+		state.LastName = types.StringNull()
 	} else {
 		state.Name = types.StringValue(ssoUser.Username)
 		state.Role = types.StringValue(ssoUser.Permission.Role)
 		state.Password = plan.Password
 		state.ID = types.StringValue(ssoUser.ID)
+		if ssoUser.FirstName != "" {
+			state.FirstName = types.StringValue(ssoUser.FirstName)
+		} else {
+			state.FirstName = types.StringNull()
+		}
+		if ssoUser.LastName != "" {
+			state.LastName = types.StringValue(ssoUser.LastName)
+		} else {
+			state.LastName = types.StringNull()
+		}
 		state.SystemID = types.StringNull()
 	}
 
