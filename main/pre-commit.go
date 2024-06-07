@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+// go build -o pre-commit pre-commit.go
+// cp pre-commit ../.git/hooks/.
+// chmod +x ../.git/hooks/pre-commit
+// git config hooks.gitleaks true
+
 // gitleaksEnabled determines if the pre-commit hook for gitleaks is enabled.
 func gitleaksEnabled() bool {
 	cmd := exec.Command("git", "config", "--bool", "hooks.gitleaks")
