@@ -59,7 +59,7 @@ resource "powerflex_cluster" "test" {
       # SDS Configuration Fields
       is_sds      = "yes",
       sds_name    = "sds1",
-      sds_all_ips = "10.247.103.60", # conflict with sds_to_sds_only_ips,sds_to_sdc_only_ips
+      sds_all_ips = "10.20.20.3", # conflict with sds_to_sds_only_ips,sds_to_sdc_only_ips
       # sds_to_sdc_only_ips      = "10.20.20.2", 
       # sds_to_sds_only_ips      = "10.20.20.1",
       fault_set                = "fs1",
