@@ -121,19 +121,19 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				MarkdownDescription: "Password of the user. For PowerFlex version 3.6, cannot be updated.",
 			},
 			"first_name": schema.StringAttribute{
-				Description:         "First name of the user. PowerFlex version 3.6 does not support the first_name attribute.",
+				Description:         "First name of the user. PowerFlex version 3.6 does not support the first_name attribute. It is mandatory for PowerFlex version 4.6.",
 				Optional:            true,
 				Computed:            true,
-				MarkdownDescription: "First name of the user. PowerFlex version 3.6 does not support the first_name attribute.",
+				MarkdownDescription: "First name of the user. PowerFlex version 3.6 does not support the first_name attribute. It is mandatory for PowerFlex version 4.6.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"last_name": schema.StringAttribute{
-				Description:         "Last name of the user. PowerFlex version 3.6 does not support the last_name attribute.",
+				Description:         "Last name of the user. PowerFlex version 3.6 does not support the last_name attribute. It is mandatory for PowerFlex version 4.6.",
 				Optional:            true,
 				Computed:            true,
-				MarkdownDescription: "Last name of the user. PowerFlex version 3.6 does not support the last_name attribute.",
+				MarkdownDescription: "Last name of the user. PowerFlex version 3.6 does not support the last_name attribute. It is mandatory for PowerFlex version 4.6.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

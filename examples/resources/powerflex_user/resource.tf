@@ -19,11 +19,29 @@ limitations under the License.
 # Create, Update, Delete is supported for this resource
 # Import is supported.
 
-# Example for creating user. After successful execution, user will be created with Monitor role.
+# Example for creating user. After successful execution, user will be created with Monitor role. Below example works for PowerFlex version 3.6.
 resource "powerflex_user" "newUser" {
 
   # name, role and password is the required parameter to create or update. Only role can be updated.
-  name     = "StorageAdmin"
+  name     = "terraform"
   role     = "Monitor" # Administrator/Monitor/Configure/Security/FrontendConfig/BackendConfig
   password = "Password"
+}
+
+# Example for creating user. After successful execution, user will be created with SystemAdmin role. Below example works for PowerFlex version 4.5.
+resource "powerflex_user" "newUser" {
+
+  # name, role and password is the required parameter to create or update. first_name and last_name are optional parameters in PowerFlex version 4.5.
+  name     = "terraform"
+  role     = "SystemAdmin" # Monitor/SuperUser/SystemAdmin/StorageAdmin/LifecycleAdmin/ReplicationManager/SnapshotManager/SecurityAdmin/DriveReplacer/Technician/Support
+  password = "Password123@"
+}
+
+# Example for creating user. After successful execution, user will be created with LifecycleAdmin role. Below example works for PowerFlex version 4.6.
+resource "powerflex_user" "test" {
+  name       = "terraform"
+  role       = "LifecycleAdmin" # Monitor/SuperUser/SystemAdmin/StorageAdmin/LifecycleAdmin/ReplicationManager/SnapshotManager/SecurityAdmin/DriveReplacer/Technician/Support
+  password   = "Password123@"
+  first_name = "terraform"
+  last_name  = "terraform"
 }
