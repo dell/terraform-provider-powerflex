@@ -585,6 +585,12 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 							)
 						}
 						sdcID, err = system.GetSdcIDByIP(sdcData.Sdc.SdcIP)
+						if err != nil {
+							dia.AddError(
+								"[Create] Unable to Find SDC by IP:"+sdcData.Sdc.SdcIP,
+								err.Error(),
+							)
+						}
 
 					} else {
 						sdcID, err = system.GetSdcIDByIP(sdc.IP.ValueString())
