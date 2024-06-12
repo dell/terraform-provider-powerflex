@@ -28,9 +28,11 @@ const (
 
 // UserModel defines struct for User
 type UserModel struct {
-	ID       types.String `tfsdk:"id"`
-	Name     types.String `tfsdk:"name"`
-	Role     types.String `tfsdk:"role"`
-	SystemID types.String `tfsdk:"system_id"`
-	Password types.String `tfsdk:"password"`
+	ID        types.String `tfsdk:"id"`
+	Name      types.String `tfsdk:"name"`
+	Role      types.String `tfsdk:"role"`
+	SystemID  types.String `tfsdk:"system_id"`
+	Password  types.String `tfsdk:"password"`
+	FirstName types.String `tfsdk:"first_name"`
+	LastName  types.String `tfsdk:"last_name"`
 }

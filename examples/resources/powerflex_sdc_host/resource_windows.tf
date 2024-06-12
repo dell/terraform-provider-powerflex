@@ -29,6 +29,7 @@ resource "powerflex_sdc_host" "sdc_windows" {
   remote = {
     user     = "username"
     password = "password"
+    port = 5985
   }
   os_family    = "windows"
   name         = "sdc-windows"

@@ -18,10 +18,11 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"os"
 	"regexp"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccUserResource(t *testing.T) {
@@ -39,6 +40,10 @@ func TestAccUserResource(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_user.user", "role", "Monitor"),
 					resource.TestCheckResourceAttr("powerflex_user.user", "password", "Password123"),
 				),
+			},
+			{
+				ResourceName: "powerflex_user.user",
+				ImportState:  true,
 			},
 			// Update user Test
 			{
@@ -93,6 +98,14 @@ func TestAccUserResourceCreateNegative(t *testing.T) {
 				Config:      ProviderConfigForTesting + UserResourceCreate2,
 				ExpectError: regexp.MustCompile(`.*Error creating the user.*`),
 			},
+			{
+				Config:      ProviderConfigForTesting + UserResourceCreate3,
+				ExpectError: regexp.MustCompile(`.*PowerFlex version 3.6 does not support the first_name and last_name attributes.*`),
+			},
+			{
+				Config:      ProviderConfigForTesting + UserResourceCreate4,
+				ExpectError: regexp.MustCompile(`.*Invalid user role.*`),
+			},
 		},
 	})
 }
@@ -138,6 +151,23 @@ resource "powerflex_user" "user" {
 resource "powerflex_user" "user2" {
 	name = "NewUser"
 	role = "Monitor"
+	password = "Password123"
+}
+`
+
+var UserResourceCreate3 = `
+resource "powerflex_user" "user" {
+	name = "NewUser"
+	role = "Monitor"
+	password = "Password123"
+	first_name = "NewUser"
+}
+`
+
+var UserResourceCreate4 = `
+resource "powerflex_user" "user" {
+	name = "NewUser"
+	role = "StorageAdmin"
 	password = "Password123"
 }
 `

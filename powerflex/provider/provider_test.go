@@ -32,25 +32,32 @@ import (
 var ProviderConfigForTesting = ``
 
 type sdsDataPoints struct {
-	SdsIP1   string
-	SdsIP2   string
-	SdsIP3   string
-	SdsIP4   string
-	SdsIP5   string
-	SdsIP6   string
-	SdsIP7   string
-	SdsIP8   string
-	SdsIP9   string
-	SdsIP10  string
-	SdsIP11  string
-	SdcIP    string
-	SdcIP1   string
-	volName  string
-	volName2 string
-	volName3 string
-	sdcName  string
-	sdcName2 string
-	sdcName3 string
+	SdsIP1             string
+	SdsIP2             string
+	SdsIP3             string
+	SdsIP4             string
+	SdsIP5             string
+	SdsIP6             string
+	SdsIP7             string
+	SdsIP8             string
+	SdsIP9             string
+	SdsIP10            string
+	SdsIP11            string
+	SdcIP              string
+	SdcIP1             string
+	volName            string
+	volName2           string
+	volName3           string
+	sdcName            string
+	sdcName2           string
+	sdcName3           string
+	sdcHostExistingIP  string
+	sdcHostWinIP       string
+	sdcHostWinUserName string
+	sdcHostWinPassword string
+	sdcHostRPMIP       string
+	sdcHostRPMUserName string
+	sdcHostRPMPassword string
 }
 
 type sdcHostDataPoints struct {
@@ -141,6 +148,13 @@ func getNewSdsDataPointForTest() sdsDataPoints {
 	SdsResourceTestData.sdcName = setDefault(os.Getenv("POWERFLEX_SDC_NAME"), "tfacc_sdc_name_1")
 	SdsResourceTestData.sdcName2 = setDefault(os.Getenv("POWERFLEX_SDC_NAME_2"), "tfacc_sdc_name_2")
 	SdsResourceTestData.sdcName3 = setDefault(os.Getenv("POWERFLEX_SDC_NAME_3"), "tfacc_sdc_name_3")
+	SdsResourceTestData.sdcHostExistingIP = setDefault(os.Getenv("POWERFLEX_SDC_HOST_EXISTING_IP"), "tfacc_sdc_host_existing_host_ip")
+	SdsResourceTestData.sdcHostWinIP = setDefault(os.Getenv("POWERFLEX_SDC_HOST_WINDOWS_IP"), "127.0.0.1")
+	SdsResourceTestData.sdcHostWinUserName = setDefault(os.Getenv("POWERFLEX_SDC_HOST_WINDOWS_USERNAME"), "tfacc_sdc_host_name")
+	SdsResourceTestData.sdcHostWinPassword = setDefault(os.Getenv("POWERFLEX_SDC_HOST_WINDOWS_PASSWORD"), "tfacc_sdc_host_password")
+	SdsResourceTestData.sdcHostRPMIP = setDefault(os.Getenv("POWERFLEX_SDC_HOST_LINUX_RPM_IP"), "127.0.0.1")
+	SdsResourceTestData.sdcHostRPMUserName = setDefault(os.Getenv("POWERFLEX_SDC_HOST_LINUX_RPM_USERNAME"), "tfacc_sdc_host_name")
+	SdsResourceTestData.sdcHostRPMPassword = setDefault(os.Getenv("POWERFLEX_SDC_HOST_LINUX_RPM_PASSWORD"), "tfacc_sdc_host_password")
 
 	return SdsResourceTestData
 }
