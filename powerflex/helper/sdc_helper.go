@@ -518,6 +518,7 @@ func CheckForSDCName(system *goscaleio.System, sdcDetail models.SDCDetailDataMod
 func FindDeletedSDC(state []models.SDCStateDataModel, plan []models.SDCDetailDataModel) []models.SDCStateDataModel {
 	difference := []models.SDCStateDataModel{}
 
+	// In case when we delete all the sdc's then compare the plan and state and find the difference.
 	if len(plan) == 0 {
 
 		checkID := make(map[string]bool)
@@ -548,6 +549,8 @@ func FindDeletedSDC(state []models.SDCStateDataModel, plan []models.SDCDetailDat
 			}
 		}
 	} else {
+
+		// If it is not multiple value then compare it normally
 		if len(strings.Split(plan[0].IP.ValueString(), ",")) == 1 {
 
 			checkID := make(map[string]bool)
@@ -578,6 +581,8 @@ func FindDeletedSDC(state []models.SDCStateDataModel, plan []models.SDCDetailDat
 				}
 			}
 		} else {
+
+			// If it is multiple value then compare Ip with DataNetwork IP
 			checkID := make(map[string]bool)
 			checkIP := make(map[string]bool)
 
