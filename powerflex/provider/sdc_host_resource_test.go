@@ -230,6 +230,26 @@ func TestAccSDCHostResourceUbuntu(t *testing.T) {
 					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
 				ExpectError: regexp.MustCompile(`.*mdm_ips cannot be changed.*`),
 			},
+			// Update ip negative
+			{
+				Config: ProviderConfigForTesting + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					ip = "10.10.10.10"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					os_family = "linux"
+					name = "sdc-ubuntu2"
+					package_path = "%s" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
+					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile(`.*SDC IP cannot be updated through this resource.*`),
+			},
 			// Update package negative
 			{
 				Config: ProviderConfigForTesting + fmt.Sprintf(`
@@ -521,6 +541,76 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
 					strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
 				ExpectError: regexp.MustCompile(`.*package cannot be changed.*`),
+			},
+			// Update guid negative
+			{
+				Config: ProviderConfigForTesting + randomGUID + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					esxi = {
+						guid = "invalid"
+					}
+					os_family = "esxi"
+					name = "sdc-esxi2"
+					package_path = "/dummy/tfaccsdc2.tar" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
+					strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile(`.*ESXi SDC details cannot be updated.*`),
+			},
+			// Update vib ignore negative
+			{
+				Config: ProviderConfigForTesting + randomGUID + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					ip = "%s"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					esxi = {
+						guid = random_uuid.sdc_guid.result
+						verify_vib_signature = false
+					}
+					os_family = "esxi"
+					name = "sdc-esxi2"
+					package_path = "/dummy/tfaccsdc2.tar" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
+					strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile(`.*ESXi SDC details cannot be updated.*`),
+			},
+			// Update IP negative
+			{
+				Config: ProviderConfigForTesting + randomGUID + fmt.Sprintf(`
+				resource powerflex_sdc_host sdc {
+					ip = "10.10.10.10"
+					remote = {
+						port = "%s"
+						user = "%s"
+						password = "%s"
+					}
+					esxi = {
+						guid = random_uuid.sdc_guid.result
+					}
+					os_family = "esxi"
+					name = "sdc-esxi2"
+					package_path = "/dummy/tfaccsdc2.tar" 
+					mdm_ips = ["%s"]
+				}
+				`, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
+					strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile(`.*SDC IP cannot be updated through this resource.*`),
 			},
 			// Update os negative
 			{

@@ -326,6 +326,52 @@ func (r *sdcHostResource) Configure(_ context.Context, req resource.ConfigureReq
 	r.system = system
 }
 
+// ModifyPlan handles plan modification
+func (r *sdcHostResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	// If the entire plan is null, the resource is planned for destruction. Dont do anything.
+	if req.Plan.Raw.IsNull() {
+		return
+	}
+
+	// Retrieve values from plan
+	var plan models.SdcHostModel
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// if resource is getting created
+	if req.State.Raw.IsNull() {
+		return
+	}
+	// Only update scenarios from here on
+
+	// Retrieve values from state
+	var state models.SdcHostModel
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// if esxi block is getting updated, throw error
+	if helper.Known(state.Esxi, plan.Esxi) && !state.Esxi.Equal(plan.Esxi) {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("esxi"),
+			"ESXi SDC details cannot be updated",
+			"",
+		)
+	}
+
+	// if IP is getting updated, throw error
+	if helper.Known(state.Host, plan.Host) && !state.Host.Equal(plan.Host) {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("ip"),
+			"SDC IP cannot be updated through this resource",
+			"Please update the SDC IP by other means and run terraform refresh",
+		)
+	}
+}
+
 // Create creates the resource and sets the initial Terraform state.
 func (r *sdcHostResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	// Retrieve values from plan
