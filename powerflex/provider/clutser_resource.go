@@ -79,8 +79,19 @@ func (r *clusterResource) ValidateConfig(ctx context.Context, req resource.Valid
 	if !config.Cluster.IsNull() {
 
 		sdrCheck := false
+		presentInPrimary := false
+		presentInSecondary := false
 
 		for _, row := range clusterInstallationDetailsDataModel {
+
+			if row.IsMdmOrTb.ValueString() == "Primary" && !row.VirtualIPs.IsNull() {
+				presentInPrimary = true
+
+			}
+
+			if row.IsMdmOrTb.ValueString() == "Secondary" && !row.VirtualIPs.IsNull() {
+				presentInSecondary = true
+			}
 
 			if row.IsSds.ValueString() == "No" {
 				if !row.SDSName.IsNull() {
@@ -229,6 +240,20 @@ func (r *clusterResource) ValidateConfig(ctx context.Context, req resource.Valid
 					sdrCheck = true
 				}
 			}
+		}
+
+		if presentInPrimary == true && presentInSecondary == false {
+			resp.Diagnostics.AddError(
+				"Virtual IP provided for Primary but not for Secondary",
+				"If a virtual IP is provided for the Primary MDM then it should be provided for the Secondary MDM as well.",
+			)
+		}
+
+		if presentInPrimary == false && presentInSecondary == true {
+			resp.Diagnostics.AddError(
+				"Virtual IP provided for Secondary but not for Primary",
+				"If a virtual IP is provided for the Secondary MDM then it should be provided for the Primary MDM as well.",
+			)
 		}
 
 		if sdrCheck {

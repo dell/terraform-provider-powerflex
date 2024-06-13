@@ -361,8 +361,8 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 			Name:  types.StringValue(mdm.Name),
 			IP:    types.StringValue(strings.Join(mdm.Node.NodeIPs, ",")),
 			MDMIP: types.StringValue(strings.Join(mdm.MdmIPs, ",")),
-			Role:  types.StringValue(string("TieBreaker")),
-			Mode:  types.StringValue(string("Standby")),
+			Role:  types.StringValue("TieBreaker"),
+			Mode:  types.StringValue("Standby"),
 		}
 
 		mdmList = append(mdmList, mdmData)
@@ -380,11 +380,12 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 	mdmData := models.MDMModel{
 		ID:           types.StringValue(id),
 		Name:         types.StringValue(mastMDM.Name),
-		IP:           types.StringValue(strings.Join(mastMDM.Node.NodeIPs, ",")),
+		IP:           types.StringValue(getIP(mastMDM.ManagementIPs, mastMDM.Node.NodeIPs)),
+		MGMTIP:       types.StringValue(strings.Join(mastMDM.ManagementIPs, ",")),
 		MDMIP:        types.StringValue(strings.Join(mastMDM.MdmIPs, ",")),
 		VirtualIPNIC: types.StringValue(strings.Join(mastMDM.VirtIPIntfsList, ",")),
-		Role:         types.StringValue(string("Manager")),
-		Mode:         types.StringValue(string("Primary")),
+		Role:         types.StringValue("Manager"),
+		Mode:         types.StringValue("Primary"),
 	}
 
 	if len(clusteDetailResponse.ClusterDetails.VirtualIPs) > 0 {
@@ -404,6 +405,13 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 	state.MDMList = setMDMs
 
 	return state, diags
+}
+
+func getIP(managementIPs []string, nodeIPs []string) string {
+	if len(managementIPs) > 0 {
+		return strings.Join(managementIPs, ",")
+	}
+	return strings.Join(nodeIPs, ",")
 }
 
 // GetPDType returns the Protection Domain Detail type
@@ -584,7 +592,13 @@ func GetMDMIPFromClusterDetails(clusterInstallationDetailsDataModel []models.Clu
 
 	for _, item := range clusterInstallationDetailsDataModel {
 		if strings.EqualFold(item.IsMdmOrTb.ValueString(), "Primary") {
-			mdmIP = item.IP.ValueString()
+			if item.MDMMgmtIP.ValueString() != "" {
+				mdmIP = item.MDMMgmtIP.ValueString()
+			} else if item.MDMIP.ValueString() != "" {
+				mdmIP = item.MDMIP.ValueString()
+			} else {
+				mdmIP = item.IP.ValueString()
+			}
 			return mdmIP, nil
 		}
 	}
@@ -677,11 +691,17 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 		// Check which columns have non-empty values in the current row
 		var columnsWithValues []int
 		for i, value := range data {
-			if value != "" {
+
+			if i == 2 {
+				//we have to add the Password column no matter if it's value is empty or not.
+				columnsWithValues = append(columnsWithValues, i)
+				filteredHeader = append(filteredHeader, header[i])
+			} else if i != 2 && value != "" {
 				columnsWithValues = append(columnsWithValues, i)
 				// Add the corresponding header to the filteredHeader
 				filteredHeader = append(filteredHeader, header[i])
 			}
+
 		}
 
 		// Update the header indices to write based on the current row's non-empty columns
@@ -834,7 +854,7 @@ func getFieldFromStorage(item models.StoragePoolDataModel, header string) string
 func getFieldFromItem(item models.ClusterModel, header string) string {
 	switch header {
 	case "IPs":
-		return item.IP.ValueString()
+		return "\"" + item.IP.ValueString() + "\""
 	case "Username":
 		return item.UserName.ValueString()
 	case "Password":
@@ -842,39 +862,39 @@ func getFieldFromItem(item models.ClusterModel, header string) string {
 	case "Operating System":
 		return item.OperatingSystem.ValueString()
 	case "Is MDM/TB":
-		return item.IsMdmOrTb.ValueString()
+		return "\"" + item.IsMdmOrTb.ValueString() + "\""
 	case "MDM Mgmt IP":
-		return item.MDMMgmtIP.ValueString()
+		return "\"" + item.MDMMgmtIP.ValueString() + "\""
 	case "MDM IPs":
-		return item.MDMIP.ValueString()
+		return "\"" + item.MDMIP.ValueString() + "\""
 	case "MDM Name":
 		return item.MDMName.ValueString()
 	case "perfProfileForMDM":
 		return item.PerfProfileForMDM.ValueString()
 	case "Virtual IPs":
-		return item.VirtualIPs.ValueString()
+		return "\"" + item.VirtualIPs.ValueString() + "\""
 	case "Virtual IP NICs":
-		return item.VirtualIPNICs.ValueString()
+		return "\"" + item.VirtualIPNICs.ValueString() + "\""
 	case "Is SDS":
 		return item.IsSds.ValueString()
 	case "SDS Name":
 		return item.SDSName.ValueString()
 	case "SDS All IPs":
-		return item.SDSAllIPs.ValueString()
+		return "\"" + item.SDSAllIPs.ValueString() + "\""
 	case "SDS-SDS Only IPs":
-		return item.SDSToSDSOnlyIPs.ValueString()
+		return "\"" + item.SDSToSDSOnlyIPs.ValueString() + "\""
 	case "SDS-SDC Only IPs":
-		return item.SDSToSDCOnlyIPs.ValueString()
+		return "\"" + item.SDSToSDCOnlyIPs.ValueString() + "\""
 	case "Protection Domain":
 		return item.ProtectionDomain.ValueString()
 	case "Fault Set":
 		return item.FaultSet.ValueString()
 	case "SDS Storage Device List":
-		return item.SDSStorageDeviceList.ValueString()
+		return "\"" + item.SDSStorageDeviceList.ValueString() + "\""
 	case "StoragePool List":
-		return item.StoragePoolList.ValueString()
+		return "\"" + item.StoragePoolList.ValueString() + "\""
 	case "SDS Storage Device Names":
-		return item.SDSStorageDeviceNames.ValueString()
+		return "\"" + item.SDSStorageDeviceNames.ValueString() + "\""
 	case "perfProfileForSDS":
 		return item.PerfProfileForSDS.ValueString()
 	case "Is SDC":
@@ -886,21 +906,21 @@ func getFieldFromItem(item models.ClusterModel, header string) string {
 	case "RFcache":
 		return item.IsRFCache.ValueString()
 	case "RFcache SSD Device List":
-		return item.RFcacheSSDDeviceList.ValueString()
+		return "\"" + item.RFcacheSSDDeviceList.ValueString() + "\""
 	case "Is SDR":
 		return item.IsSdr.ValueString()
 	case "SDR Name":
 		return item.SDRName.ValueString()
 	case "SDR Port":
-		return item.SDRPort.ValueString()
+		return "\"" + item.SDRPort.ValueString() + "\""
 	case "SDR Application IPs":
-		return item.SDRApplicationIPs.ValueString()
+		return "\"" + item.SDRApplicationIPs.ValueString() + "\""
 	case "SDR Storage IPs":
-		return item.SDRStorageIPs.ValueString()
+		return "\"" + item.SDRStorageIPs.ValueString() + "\""
 	case "SDR External IPs":
-		return item.SDRExternalIPs.ValueString()
+		return "\"" + item.SDRExternalIPs.ValueString() + "\""
 	case "SDR All IPs":
-		return item.SDRAllIPS.ValueString()
+		return "\"" + item.SDRAllIPS.ValueString() + "\""
 	case "perfProfileForSDR":
 		return item.PerfProfileForSDR.ValueString()
 	default:
@@ -914,7 +934,7 @@ func GetClusterDetails(model models.ClusterResourceModel, gatewayClient *goscale
 		"mdmUser":     "admin",
 		"mdmPassword": model.MdmPassword.ValueString(),
 	}
-	mapData["mdmIps"] = []string{mdmIP}
+	mapData["mdmIps"] = strings.Split(mdmIP, ",")
 
 	secureData := map[string]interface{}{
 		"allowNonSecureCommunicationWithMdm": model.AllowNonSecureCommunicationWithMdm.ValueBool(),

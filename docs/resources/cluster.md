@@ -214,7 +214,6 @@ Required:
 
 - `is_mdm_or_tb` (String) Is Mdm Or Tb
 - `operating_system` (String) Operating System
-- `password` (String, Sensitive) Password used to log in to the node.
 
 Optional:
 
@@ -227,6 +226,7 @@ Optional:
 - `mdm_ips` (String) MDM IP addresses used to communicate with other PowerFlex components in the storage network. This is required for all MDMs, Tiebreakers and Standbys.Leave this field blank for hosts that are not part of the MDM cluster.
 - `mdm_mgmt_ip` (String) This IP address is for the management-only network. The management ip is not required for Tiebreaker MDM, Standby Tiebreaker MDM and any host that is not an MDM.
 - `mdm_name` (String) MDMName
+- `password` (String, Sensitive) Password used to log in to the node.
 - `perf_profile_for_mdm` (String) Performance Profile For MDM
 - `perf_profile_for_sdc` (String) Performance Profile For SDC
 - `perf_profile_for_sdr` (String) Performance Profile For SDR

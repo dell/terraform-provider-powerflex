@@ -516,20 +516,43 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 		if strings.EqualFold(sdc.IsSdc.ValueString(), "Yes") && sdc.SDCName.ValueString() == "" && sdc.PerformanceProfile.ValueString() == "" {
 
 			if !sdc.DataNetworkIP.IsNull() {
-				sdcData, err = system.FindSdc("SdcIP", sdc.DataNetworkIP.ValueString())
-				if err != nil {
-					dia.AddError(
-						"[Create] Unable to Find SDC by IP: "+sdc.DataNetworkIP.ValueString(),
-						err.Error(),
-					)
+				splitDataNetwork := strings.Split(sdc.DataNetworkIP.ValueString(), ",")
+				if len(splitDataNetwork) > 1 {
+					sdcData, err = helper.GetSdcData(system, splitDataNetwork)
+					if err != nil {
+						dia.AddError(
+							"[Create] Unable to Find SDC by any of these IP: "+sdc.DataNetworkIP.ValueString(),
+							err.Error(),
+						)
+					}
+				} else {
+					sdcData, err = system.FindSdc("SdcIP", sdc.DataNetworkIP.ValueString())
+					if err != nil {
+						dia.AddError(
+							"[Create] Unable to Find SDC by IP: "+sdc.DataNetworkIP.ValueString(),
+							err.Error(),
+						)
+					}
 				}
+
 			} else {
-				sdcData, err = system.FindSdc("SdcIP", sdc.IP.ValueString())
-				if err != nil {
-					dia.AddError(
-						"[Create] Unable to Find SDC by IP: "+sdc.IP.ValueString(),
-						err.Error(),
-					)
+				splitIP := strings.Split(sdc.IP.ValueString(), ",")
+				if len(splitIP) > 1 {
+					sdcData, err = helper.GetSdcData(system, splitIP)
+					if err != nil {
+						dia.AddError(
+							"[Create] Unable to Find SDC by any of these IP: "+sdc.IP.ValueString(),
+							err.Error(),
+						)
+					}
+				} else {
+					sdcData, err = system.FindSdc("SdcIP", sdc.IP.ValueString())
+					if err != nil {
+						dia.AddError(
+							"[Create] Unable to Find SDC by IP: "+sdc.IP.ValueString(),
+							err.Error(),
+						)
+					}
 				}
 			}
 
@@ -543,7 +566,8 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 				var sdcID string
 
 				if !sdc.DataNetworkIP.IsNull() {
-					sdcID, err = system.GetSdcIDByIP(sdc.DataNetworkIP.ValueString())
+					splitDataNetwork := strings.Split(sdc.DataNetworkIP.ValueString(), ",")
+					sdcID, err = system.GetSdcIDByIP(splitDataNetwork[0])
 					if err != nil {
 						dia.AddError(
 							"[Create] Unable to Find SDC by IP:"+sdc.DataNetworkIP.ValueString(),
@@ -551,12 +575,25 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 						)
 					}
 				} else {
-					sdcID, err = system.GetSdcIDByIP(sdc.IP.ValueString())
-					if err != nil {
-						dia.AddError(
-							"[Create] Unable to Find SDC by IP:"+sdc.IP.ValueString(),
-							err.Error(),
-						)
+					splitIP := strings.Split(sdc.IP.ValueString(), ",")
+					if len(splitIP) > 1 {
+						sdcData, err = helper.GetSdcData(system, splitIP)
+						if err != nil {
+							dia.AddError(
+								"[Create] Unable to Find SDC by IP:"+sdc.IP.ValueString(),
+								err.Error(),
+							)
+						}
+						sdcID, err = system.GetSdcIDByIP(sdcData.Sdc.SdcIP)
+
+					} else {
+						sdcID, err = system.GetSdcIDByIP(sdc.IP.ValueString())
+						if err != nil {
+							dia.AddError(
+								"[Create] Unable to Find SDC by IP:"+sdc.IP.ValueString(),
+								err.Error(),
+							)
+						}
 					}
 				}
 

@@ -162,7 +162,7 @@ func ClusterModelSchema() map[string]schema.Attribute {
 		"password": schema.StringAttribute{
 			MarkdownDescription: "Password used to log in to the node.",
 			Description:         "Password used to log in to the node.",
-			Required:            true,
+			Optional:            true,
 			Sensitive:           true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
