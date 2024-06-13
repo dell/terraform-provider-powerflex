@@ -19,6 +19,7 @@ package helper
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"terraform-provider-powerflex/client"
 	"terraform-provider-powerflex/powerflex/models"
@@ -32,6 +33,96 @@ import (
 var (
 	byteData []byte
 )
+
+// UpdateWindows updates the mdms on an windows SDC host
+func (r *SdcHostResource) UpdateWindows(ctx context.Context, plan models.SdcHostModel) diag.Diagnostics {
+	var respDiagnostics diag.Diagnostics
+
+	var remote models.SdcHostRemoteModel
+	plan.Remote.As(ctx, &remote, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
+
+	winRMClient := &client.WinRMClient{}
+
+	var contexts map[string]string
+
+	_ = json.Unmarshal(byteData, &contexts)
+
+	context := make(map[string]string)
+
+	context["username"] = remote.User
+
+	context["password"] = *remote.Password
+
+	context["host"] = plan.Host.ValueString()
+
+	winRMClient.GetConnection(context, false)
+
+	defer winRMClient.Destroy()
+
+	connectionStatus, err := winRMClient.Init()
+
+	if err != nil {
+		respDiagnostics.AddError(
+			"Error while connecting sdc remote host",
+			err.Error(),
+		)
+		return respDiagnostics
+	}
+
+	mdms, dgs := r.GetMdmIps(ctx, plan)
+
+	if dgs.HasError() {
+		respDiagnostics = append(respDiagnostics, dgs...)
+		return respDiagnostics
+	}
+
+	if connectionStatus {
+		ouptut, qErr := winRMClient.ExecuteCommand(fmt.Sprintf("cd '%s'; .\\drv_cfg.exe --query_mdms", plan.WindowsDrvCfg.ValueString()))
+		//ouptut, qErr := winRMClient.ExecuteCommand(fmt.Sprintf("\"& {'%s --query_mdms'}\"", plan.WindowsDrvCfg.ValueString()))
+		if qErr != nil {
+			respDiagnostics.AddError(
+				"Error retrieving mdms",
+				qErr.Error(),
+			)
+			return respDiagnostics
+		}
+		tflog.Info(ctx, "Checking if MDMS err: "+ouptut)
+		for _, mdm := range mdms {
+			splitMdms := strings.Split(mdm, ",")
+			tflog.Info(ctx, "Checking if MDMS exists: "+mdm+" "+splitMdms[0])
+			if strings.Contains(ouptut, splitMdms[0]) {
+				tflog.Info(ctx, "Updating MDMS: "+mdm)
+				_, err := winRMClient.ExecuteCommand(fmt.Sprintf("cd '%s'; .\\drv_cfg.exe --mod_mdm_ip --ip=%s --new_mdm_ip=%s", plan.WindowsDrvCfg.ValueString(), splitMdms[0], mdm))
+				if err != nil {
+					respDiagnostics.AddError(
+						"Error updating mdms: "+mdm,
+						err.Error(),
+					)
+					return respDiagnostics
+				}
+				tflog.Info(ctx, "MDMS updated")
+				// Add new MDMs to the sdc
+			} else {
+				tflog.Info(ctx, "Adding MDMS: "+mdm)
+				_, err := winRMClient.ExecuteCommand(fmt.Sprintf("cd '%s'; .\\drv_cfg.exe --add_mdm --ip=%s", plan.WindowsDrvCfg.ValueString(), mdm))
+				if err != nil {
+					respDiagnostics.AddError(
+						"Error adding mdms?: "+mdm,
+						err.Error(),
+					)
+					return respDiagnostics
+				}
+				tflog.Info(ctx, "MDMS Added")
+			}
+		}
+		return respDiagnostics
+	}
+	respDiagnostics.AddError(
+		"Error while connecting sdc remote host",
+		"Error while connecting sdc remote host",
+	)
+	return respDiagnostics
+}
 
 // CreateWindows creates an windows SDC host
 func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHostModel) diag.Diagnostics {
@@ -60,19 +151,20 @@ func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHost
 
 	defer winRMClient.Destroy()
 
-	mdmIPs, dgs := r.GetMdmIps(ctx, plan)
-
-	if dgs.HasError() {
-		respDiagnostics = append(respDiagnostics, dgs...)
-		return respDiagnostics
-	}
-
 	connectionStatus, err := winRMClient.Init()
+
 	if err != nil {
 		respDiagnostics.AddError(
 			"Error while connecting sdc remote host",
 			err.Error(),
 		)
+		return respDiagnostics
+	}
+
+	mdmIPs, dgs := r.GetMdmIps(ctx, plan)
+
+	if dgs.HasError() {
+		respDiagnostics = append(respDiagnostics, dgs...)
 		return respDiagnostics
 	}
 

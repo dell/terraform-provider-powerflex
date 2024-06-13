@@ -162,6 +162,68 @@ func (r *SdcHostResource) SetSDCParams(ctx context.Context, plan, state models.S
 	return nil
 }
 
+// UpdateLinuxHost - update linux SDC host
+func (r *SdcHostResource) UpdateLinuxHost(ctx context.Context, plan models.SdcHostModel) diag.Diagnostics {
+	var respDiagnostics diag.Diagnostics
+	// Create the ssh provisioner
+	sshP, _, err := r.getSSHProvisioner(ctx, plan)
+	if err != nil {
+		respDiagnostics.AddError(
+			"Error connecting to host",
+			err.Error(),
+		)
+		return respDiagnostics
+	}
+	defer sshP.Close()
+	// Check for existing mdms
+	qMdms, qErr := sshP.RunWithDir(plan.LinuxDrvCfg.ValueString(), "./drv_cfg --query_mdms")
+	if qErr != nil {
+		respDiagnostics.AddError(
+			"Error retrieving mdms with",
+			qErr.Error(),
+		)
+		return respDiagnostics
+	}
+	tflog.Info(ctx, "Existing MDMS: "+qMdms)
+	var mdms []string
+	respDiagnostics = append(respDiagnostics, plan.MdmIPs.ElementsAs(ctx, &mdms, true)...)
+	if respDiagnostics.HasError() {
+		return respDiagnostics
+	}
+	// If they already exist, attempt to update them othewise add them
+	for _, mdm := range mdms {
+		splitMdms := strings.Split(mdm, ",")
+		if strings.Contains(qMdms, splitMdms[0]) {
+			tflog.Info(ctx, "Updating MDMS: "+mdm)
+			_, err := sshP.RunWithDir(plan.LinuxDrvCfg.ValueString(), fmt.Sprintf("./drv_cfg --mod_mdm_ip --ip=%s --new_mdm_ip=%s", splitMdms[0], mdm))
+			if err != nil {
+				respDiagnostics.AddError(
+					"Error updating mdms: "+mdm,
+					err.Error(),
+				)
+				return respDiagnostics
+			}
+			tflog.Info(ctx, "MDMS updated")
+			// Add new MDMs to the sdc
+		} else {
+			tflog.Info(ctx, "Adding MDMS: "+mdm)
+			_, err := sshP.RunWithDir(plan.LinuxDrvCfg.ValueString(), fmt.Sprintf("./drv_cfg --add_mdm --ip=%s", mdm))
+			if err != nil {
+				respDiagnostics.AddError(
+					"Error adding mdms?: "+mdm,
+					err.Error(),
+				)
+				return respDiagnostics
+			}
+			tflog.Info(ctx, "MDMS Added")
+		}
+	}
+
+	// If they don't exist, add them to the sdc
+
+	return respDiagnostics
+}
+
 // LinuxOp creates or deletes a linux SDC host
 func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel, add bool) diag.Diagnostics {
 	var respDiagnostics diag.Diagnostics

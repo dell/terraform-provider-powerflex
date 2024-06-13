@@ -72,6 +72,20 @@ type sdcHostDataPoints struct {
 	EsxiPkgPath    string
 }
 
+type sdcHostDataPoints struct {
+	UbuntuIP       string
+	UbuntuUser     string
+	UbuntuPassword string
+	UbuntuPort     string
+	UbuntuPkgPath  string
+	EsxiIP         string
+	EsxiUser       string
+	EsxiPassword   string
+	EsxiPort       string
+	EsxiPkgPath    string
+	MdmIPs         []string
+}
+
 type gatewayDataPoints struct {
 	primaryMDMIP       string
 	secondaryMDMIP     string

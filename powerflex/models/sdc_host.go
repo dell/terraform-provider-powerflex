@@ -33,6 +33,10 @@ type SdcHostModel struct {
 	// optional, os specific
 	Esxi types.Object `tfsdk:"esxi"`
 
+	// Optional Computed with defaults
+	LinuxDrvCfg   types.String `tfsdk:"linux_drv_cfg"`
+	WindowsDrvCfg types.String `tfsdk:"windows_drv_cfg"`
+
 	//Computed
 	SystemID           types.String `tfsdk:"system_id"`
 	IsApproved         types.Bool   `tfsdk:"is_approved"`

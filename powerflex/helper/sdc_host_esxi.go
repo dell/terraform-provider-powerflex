@@ -31,6 +31,33 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
+// UpdateEsxi updates an esxi SDC host
+func (r *SdcHostResource) UpdateEsxi(ctx context.Context, plan models.SdcHostModel) diag.Diagnostics {
+	var respDiagnostics diag.Diagnostics
+	var esxiInput models.SdcHostEsxiModel
+
+	respDiagnostics.Append(plan.Esxi.As(ctx, &esxiInput, basetypes.ObjectAsOptions{})...)
+	if respDiagnostics.HasError() {
+		return respDiagnostics
+	}
+
+	sshP, _, err := r.getSSHProvisioner(ctx, plan)
+	if err != nil {
+		respDiagnostics.AddError(
+			"Error connecting to host",
+			err.Error(),
+		)
+		return respDiagnostics
+	}
+	defer sshP.Close()
+
+	esxi := client.NewEsxCli(sshP)
+	// update mdms
+	respDiagnostics = r.updateMdms(ctx, plan, esxiInput, esxi, sshP)
+
+	return respDiagnostics
+}
+
 // CreateEsxi creates an esxi SDC host
 func (r *SdcHostResource) CreateEsxi(ctx context.Context, plan models.SdcHostModel) diag.Diagnostics {
 	var respDiagnostics diag.Diagnostics
@@ -100,7 +127,16 @@ func (r *SdcHostResource) CreateEsxi(ctx context.Context, plan models.SdcHostMod
 	}
 	tflog.Info(ctx, fmt.Sprintf("Installed SDC package is %s", sdc))
 
+	// update mdms
+	respDiagnostics = r.updateMdms(ctx, plan, esxiInput, esxi, sshP)
+
+	return respDiagnostics
+}
+
+// updateMdms - function to update MDMs
+func (r *SdcHostResource) updateMdms(ctx context.Context, plan models.SdcHostModel, esxiInput models.SdcHostEsxiModel, esxi *client.EsxCli, sshP *client.SSHProvisioner) diag.Diagnostics {
 	tflog.Info(ctx, "Setting scini module parameters")
+	var respDiagnostics diag.Diagnostics
 
 	mdmIPs, dgs := r.GetMdmIps(ctx, plan)
 
@@ -110,12 +146,15 @@ func (r *SdcHostResource) CreateEsxi(ctx context.Context, plan models.SdcHostMod
 	}
 
 	params := map[string]string{
-		"IoctlIniGuidStr":        esxiInput.GUID.ValueString(),
-		"IoctlMdmIPStr":          strings.Join(mdmIPs, ","),
+		"IoctlIniGuidStr": esxiInput.GUID.ValueString(),
+		// for multi cluster this is a comma seperated list with a `+` inbetween clusters
+		"IoctlMdmIPStr":          strings.Join(mdmIPs, "+"),
 		"bBlkDevIsPdlActive":     "1",
 		"blkDevPdlTimeoutMillis": "60000",
 	}
+
 	if op, err := esxi.SetModuleParameters("scini", params); err != nil {
+		tflog.Debug(ctx, op)
 		respDiagnostics.AddError(
 			"Error setting module parameters",
 			err.Error()+"\n"+op,
@@ -123,26 +162,25 @@ func (r *SdcHostResource) CreateEsxi(ctx context.Context, plan models.SdcHostMod
 		return respDiagnostics
 	}
 	tflog.Info(ctx, "Scini module parameters set")
-	tflog.Debug(ctx, op)
 
 	// reboot
-	err = sshP.RebootUnix()
-	if err != nil {
+	errReboot := sshP.RebootUnix()
+	if errReboot != nil {
 		respDiagnostics.AddError(
 			"Error rebooting",
-			err.Error(),
+			errReboot.Error(),
 		)
 		return respDiagnostics
 	}
 
 	// list esxi kernel modules
 	tflog.Info(ctx, "Checking for installed scini module")
-	op, err = esxi.GetModuleByName("scini")
+	op, err := esxi.GetModuleByName("scini")
 	if err != nil {
 		tflog.Info(ctx, "Scini module not found: "+op)
 		respDiagnostics.AddError(
-			"Scini module not found after reboot 2",
-			err.Error()+"\nPlease verify that the input GUID and MDM IPs are correct.",
+			"Scini module not found after second reboot",
+			err.Error()+"\n"+op,
 		)
 		return respDiagnostics
 	}
