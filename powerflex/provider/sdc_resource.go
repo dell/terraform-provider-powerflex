@@ -526,23 +526,13 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 						)
 					}
 				} else {
-					splitDataNetwork := strings.Split(sdc.DataNetworkIP.ValueString(), ",")
-				if len(splitDataNetwork) > 1 {
-					sdcData, err = helper.GetSdcData(system, splitDataNetwork)
+					sdcData, err = system.FindSdc("SdcIP", sdc.DataNetworkIP.ValueString())
 					if err != nil {
 						dia.AddError(
-							"[Create] Unable to Find SDC by any of these IP: "+sdc.DataNetworkIP.ValueString(),
+							"[Create] Unable to Find SDC by IP: "+sdc.DataNetworkIP.ValueString(),
 							err.Error(),
 						)
 					}
-				} else {
-					sdcData, err = system.FindSdc("SdcIP", sdc.DataNetworkIP.ValueString())
-						if err != nil {
-							dia.AddError(
-								"[Create] Unable to Find SDC by IP: "+sdc.DataNetworkIP.ValueString(),
-								err.Error(),
-							)
-						}
 				}
 
 			} else {
@@ -555,26 +545,13 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 							err.Error(),
 						)
 					}
-					}
-
-			} else {
-				splitIP := strings.Split(sdc.IP.ValueString(), ",")
-				if len(splitIP) > 1 {
-					sdcData, err = helper.GetSdcData(system, splitIP)
+				} else {
+					sdcData, err = system.FindSdc("SdcIP", sdc.IP.ValueString())
 					if err != nil {
 						dia.AddError(
-							"[Create] Unable to Find SDC by any of these IP: "+sdc.IP.ValueString(),
+							"[Create] Unable to Find SDC by IP: "+sdc.IP.ValueString(),
 							err.Error(),
 						)
-					}
-				} else {
-						sdcData, err = system.FindSdc("SdcIP", sdc.IP.ValueString())
-						if err != nil {
-							dia.AddError(
-								"[Create] Unable to Find SDC by IP: "+sdc.IP.ValueString(),
-								err.Error(),
-							)
-					}
 					}
 				}
 			}
@@ -589,8 +566,6 @@ func (r *sdcResource) UpdateSDCNamdPerfProfileOperations(ctx context.Context, sd
 				var sdcID string
 
 				if !sdc.DataNetworkIP.IsNull() {
-					splitDataNetwork := strings.Split(sdc.DataNetworkIP.ValueString(), ",")
-					sdcID, err = system.GetSdcIDByIP(splitDataNetwork[0])
 					splitDataNetwork := strings.Split(sdc.DataNetworkIP.ValueString(), ",")
 					sdcID, err = system.GetSdcIDByIP(splitDataNetwork[0])
 					if err != nil {

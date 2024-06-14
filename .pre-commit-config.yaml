@@ -1,36 +1,4 @@
 repos:
-  - repo: dell/common-github-actions/go-code-formatter-linter-vetter
-    rev: v1.0.0
-    hooks:
-      - id: go-code-formatter-linter-vetter
-        name: go-code-formatter-linter-vetter
-        entry: go-code-formatter-linter-vetter
-        language: "golang"
-        types: [go]
-        args: [--directories, ./...]
-        pass_filenames: false
-        exclude_change_type: [added]
-  - repo: dell/common-github-actions/code-sanitizer
-    rev: v1.0.0
-    hooks:
-      - id: code-sanitizer
-        name: code-sanitizer
-        entry: code-sanitizer
-        language: "script"
-        types: [text]
-        args: ["/github/workspace"]
-        pass_filenames: false
-        exclude_change_type: [added]
-  - repo: dell/common-github-actions/malware-scanner
-    rev: v1.0.0
-    hooks:
-      - id: malware-scanner
-        name: malware-scanner
-        entry: malware-scanner
-        language: "script"
-        types: [file]
-        args: [--ri]
-        pass_filenames: true
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.16.1
     hooks:

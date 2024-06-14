@@ -81,8 +81,6 @@ func (r *clusterResource) ValidateConfig(ctx context.Context, req resource.Valid
 		sdrCheck := false
 		presentInPrimary := false
 		presentInSecondary := false
-		presentInPrimary := false
-		presentInSecondary := false
 
 		for _, row := range clusterInstallationDetailsDataModel {
 

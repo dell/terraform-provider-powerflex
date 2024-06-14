@@ -29,6 +29,7 @@ import (
 //go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate --provider-name powerflex
 
 func main() {
+
 	err := providerserver.Serve(context.Background(), provider.New, providerserver.ServeOpts{
 		// NOTE: This is not a typical Terraform Registry provider address,
 		// such as registry.terraform.io/dell/powerflex. This specific
