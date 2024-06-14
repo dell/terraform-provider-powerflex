@@ -113,4 +113,7 @@ Import is supported using the following syntax:
 
 # import system
 terraform import powerflex_system.test ""
+
+# Another way to import system using system ID
+terraform import powerflex_system.test "system_id"
 ```
