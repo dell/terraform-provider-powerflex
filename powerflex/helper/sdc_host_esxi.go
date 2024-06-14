@@ -139,9 +139,10 @@ func (r *SdcHostResource) CreateEsxi(ctx context.Context, plan models.SdcHostMod
 	tflog.Info(ctx, "Checking for installed scini module")
 	op, err = esxi.GetModuleByName("scini")
 	if err != nil {
+		tflog.Info(ctx, "Scini module not found: "+op)
 		respDiagnostics.AddError(
 			"Scini module not found after reboot 2",
-			err.Error()+"\n"+op,
+			err.Error()+"\nPlease verify that the input GUID and MDM IPs are correct.",
 		)
 		return respDiagnostics
 	}
