@@ -459,6 +459,24 @@ func (r *systemResource) Delete(ctx context.Context, req resource.DeleteRequest,
 
 func (r *systemResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	// Retrieve import ID and save to id attribute
+	if req.ID != "" {
+		systems, err := r.client.GetInstance("")
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error in getting system instance on the PowerFlex cluster",
+				"Could not get system instance, unexpected err: "+err.Error(),
+			)
+			return
+		}
+
+		if req.ID != systems[0].ID {
+			resp.Diagnostics.AddError(
+				"Error in importing system",
+				"Could not import system with ID: "+req.ID,
+			)
+			return
+		}
+	}
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
@@ -500,6 +518,18 @@ func (r *systemResource) PopulateSDCDetails(ctx context.Context, plan *models.Sy
 			SdcGuids = append(SdcGuids, sdc.Sdc.SdcGUID)
 		}
 		plan.SdcGuids, _ = types.ListValueFrom(ctx, types.StringType, SdcGuids)
+	} else {
+		diags.Append(plan.SdcGuids.ElementsAs(ctx, &SdcGuids, true)...)
+		for _, guid := range SdcGuids {
+			_, err := r.system.FindSdc("SdcGUID", guid)
+			if err != nil {
+				diags.AddError(
+					"Error getting SDC with GUID: ",
+					"unexpected error: "+err.Error(),
+				)
+				return
+			}
+		}
 	}
 	return
 }
