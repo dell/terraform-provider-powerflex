@@ -367,7 +367,7 @@ func (r *sdcHostResource) ModifyPlan(ctx context.Context, req resource.ModifyPla
 		resp.Diagnostics.AddAttributeError(
 			path.Root("ip"),
 			"SDC IP cannot be updated through this resource",
-			"Please update the SDC IP by other means and run terraform refresh",
+			"Please update the SDC IP by other means and refresh state by running terraform apply -refresh-only",
 		)
 	}
 }
