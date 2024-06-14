@@ -38,6 +38,10 @@ func TestAccSystemResource(t *testing.T) {
 				ExpectError: regexp.MustCompile(".*Error getting SDC with ID.*"),
 			},
 			{
+				Config:      ProviderConfigForTesting + SystemResourceConfig9,
+				ExpectError: regexp.MustCompile(".*Error getting SDC with GUID.*"),
+			},
+			{
 				Config: ProviderConfigForTesting + SystemResourceConfig1,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_system.test", "restricted_mode", "Guid"),
@@ -188,5 +192,11 @@ var SystemResourceConfig8 = SearchSdcBasedOnName + `
 resource "powerflex_system" "test" {
 	restricted_mode = "Guid"
 	sdc_ids = [data.powerflex_sdc.selected.id]
+}
+`
+var SystemResourceConfig9 = `
+resource "powerflex_system" "test" {
+	restricted_mode = "Guid"
+	sdc_guids = ["invalid_guid"]
 }
 `
