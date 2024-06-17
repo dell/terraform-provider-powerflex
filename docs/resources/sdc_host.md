@@ -31,7 +31,7 @@ If that fails for any reason, Terraform, by default, will mark this resource as 
 these issues (caused by invalid inputs, network disruptions, etc.) do not require resource recreation (ie. SDC re-installation) to resolve. 
 If one untaints this resource manually prior to applying again, this resource can start from where it left off and, if the cause of failure
 has been rectified, it can take incremental actions to set the necessary SDC parameters.
-**So please untaint the resource before applying again if you want to prevent unnecessary SDC re-installations.**
+So please untaint the resource before applying again if you want to prevent unnecessary SDC re-installations.
 
 ## Example Usage
 
