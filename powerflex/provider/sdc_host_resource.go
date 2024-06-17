@@ -22,19 +22,16 @@ import (
 	"terraform-provider-powerflex/powerflex/models"
 
 	"github.com/dell/goscaleio"
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/resourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -259,20 +256,6 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
-			"mdm_ips": schema.ListAttribute{
-				Description:         "List of MDM IPs to be assigned to the SDC.",
-				MarkdownDescription: "List of MDM IPs to be assigned to the SDC.",
-				Optional:            true,
-				Computed:            true,
-				ElementType:         types.StringType,
-				Validators: []validator.List{
-					listvalidator.SizeAtLeast(1),
-					listvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
-				},
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.UseStateForUnknown(),
-				},
-			},
 			"guid": schema.StringAttribute{
 				Description:         "GUID of the HOST",
 				MarkdownDescription: "GUID of the HOST",
@@ -385,12 +368,26 @@ func (r *sdcHostResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	//Checking that SDC exist or not
-	sdcData, _ := r.system.FindSdc("SdcIP", plan.Host.ValueString())
-	if sdcData != nil {
-		resp.Diagnostics.AddError(
-			"SDC Host is already Connected with PowerFlex cluster",
-			"SDC Host is already Connected with PowerFlex cluster",
-		)
+	allSdcs, _ := r.system.GetSdc()
+	for _, sdcData := range allSdcs {
+		// check if IP exists
+		if sdcData.SdcIP == plan.Host.ValueString() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("ip"),
+				"SDC Host with given IP already exists",
+				"",
+			)
+		}
+		// check if name exists
+		if helper.Known(plan.Name) && sdcData.Name == plan.Name.ValueString() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("name"),
+				"SDC Host with given name already exists",
+				"",
+			)
+		}
+	}
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -431,7 +428,9 @@ func (r *sdcHostResource) Create(ctx context.Context, req resource.CreateRequest
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error setting SDC parameters",
-			err.Error(),
+			err.Error()+
+				"\n\nThis is a minor issue which does not require resource recreation (ie. SDC re-installation) to resolve. Terraform, by default, will mark this resource as tainted "+
+				"and recreate it on the next apply. Please untaint this resource manually prior to applying again to prevent unnecessary SDC re-installations.",
 		)
 		return
 	}
@@ -499,12 +498,9 @@ func (r *sdcHostResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	// TODO: check that any the stuff that cannot be updated are not changed
-	// unupdateable fields: os_family, mdm_ips, package
+	// unupdateable fields: os_family, package
 	if !currState.OS.IsNull() && !plan.OS.Equal(currState.OS) {
 		resp.Diagnostics.AddError("Error updating SDC", "OS cannot be changed")
-	}
-	if !currState.MdmIPs.IsNull() && !plan.MdmIPs.Equal(currState.MdmIPs) {
-		resp.Diagnostics.AddError("Error updating SDC", "mdm_ips cannot be changed")
 	}
 	if !currState.Pkg.IsNull() && !plan.Pkg.Equal(currState.Pkg) {
 		resp.Diagnostics.AddError("Error updating SDC", "package cannot be changed")

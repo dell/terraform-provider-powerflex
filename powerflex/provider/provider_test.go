@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -71,7 +70,6 @@ type sdcHostDataPoints struct {
 	EsxiPassword   string
 	EsxiPort       string
 	EsxiPkgPath    string
-	MdmIPs         []string
 }
 
 type gatewayDataPoints struct {
@@ -179,7 +177,6 @@ func getNewSdcHostDataPointForTest() sdcHostDataPoints {
 	SdcHostDataPoints.EsxiPort = setDefault(os.Getenv("POWERFLEX_SDC_PORT_Esxi"), "2222")
 	SdcHostDataPoints.EsxiPkgPath = setDefault(os.Getenv("POWERFLEX_SDC_PKG_PATH_Esxi"), "/tmp/tfaccsdc.tar")
 
-	SdcHostDataPoints.MdmIPs = strings.Split(setDefault(os.Getenv("POWERFLEX_SDC_MDM_IPs"), "10.10.10.5,10.10.10.6"), ",")
 	return SdcHostDataPoints
 }
 
