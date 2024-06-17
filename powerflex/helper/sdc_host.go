@@ -116,14 +116,25 @@ func GetMdmIPList(mdmDetails *goscaleio_types.MdmCluster) []string {
 func (r *SdcHostResource) ReadSDCHost(ctx context.Context, state models.SdcHostModel) (models.SdcHostModel, error) {
 	// get SDC by IP
 	tflog.Info(ctx, "Finding SDC by IP")
-	sdcData, err := r.System.FindSdc("SdcIP", state.Host.ValueString())
-	if err != nil {
-		return state, fmt.Errorf("error finding SDC by IP %s: %w", state.Host.ValueString(), err)
+	var sdcData *goscaleio.Sdc
+	var err error
+	if !state.ID.IsNull() && !state.ID.IsUnknown() {
+		sdcData, err = r.System.GetSdcByID(state.ID.ValueString())
+		if err != nil {
+			return state, fmt.Errorf("error finding SDC by ID %s: %w", state.ID.ValueString(), err)
+		}
+	} else {
+		sdcData, err = r.System.FindSdc("SdcIP", state.Host.ValueString())
+		if err != nil {
+			return state, fmt.Errorf("error finding SDC by IP %s: %w", state.Host.ValueString(), err)
+		}
 	}
+
 	tflog.Info(ctx, "Found SDC by IP")
 	state.ID = types.StringValue(sdcData.Sdc.ID)
 	state.PerformanceProfile = types.StringValue(sdcData.Sdc.PerfProfile)
 	state.Name = types.StringValue(sdcData.Sdc.Name)
+	state.Host = types.StringValue(sdcData.Sdc.SdcIP)
 	os := strings.ToLower(sdcData.Sdc.OSType)
 	if strings.HasPrefix(os, "esx") {
 		// both esxi is return as esx from API
