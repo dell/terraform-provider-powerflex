@@ -25,7 +25,6 @@ import (
 
 	"github.com/dell/goscaleio"
 	goscaleio_types "github.com/dell/goscaleio/types/v1"
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -74,25 +73,16 @@ func (r *SdcHostResource) getSSHProvisioner(ctx context.Context, plan models.Sdc
 	return prov, dir, err
 }
 
-// GetMdmIps - get mdm ips from plan or from pflex
+// GetMdmIps - get mdm ips from pflex
 func (r *SdcHostResource) GetMdmIps(ctx context.Context, plan models.SdcHostModel) ([]string, diag.Diagnostics) {
-	var mdmIps []string
-	if !plan.MdmIPs.IsNull() && len(plan.MdmIPs.Elements()) > 0 {
-		diags := plan.MdmIPs.ElementsAs(ctx, &mdmIps, true)
-		if diags.HasError() {
-			return nil, diags
-		}
-	} else {
-		mdmDetails, err := r.System.GetMDMClusterDetails()
-		if err != nil {
-			var diags diag.Diagnostics
-			diags.AddError("Error in getting MDM Details on the PowerFlex cluster", err.Error())
-			return nil, diags
-		}
-		mdmIps = GetMdmIPList(mdmDetails)
+	mdmDetails, err := r.System.GetMDMClusterDetails()
+	if err != nil {
+		var diags diag.Diagnostics
+		diags.AddError("Error in getting MDM Details on the PowerFlex cluster", err.Error())
+		return nil, diags
 	}
 
-	return mdmIps, nil
+	return GetMdmIPList(mdmDetails), nil
 }
 
 // GetMdmIPList - get mdm ips from pflex
@@ -146,24 +136,6 @@ func (r *SdcHostResource) ReadSDCHost(ctx context.Context, state models.SdcHostM
 	state.SystemID = types.StringValue(sdcData.Sdc.SystemID)
 	state.OnVMWare = types.BoolValue(sdcData.Sdc.OnVMWare)
 	state.GUID = types.StringValue(sdcData.Sdc.SdcGUID)
-
-	mdmIPs, diags := r.GetMdmIps(ctx, state)
-	if diags.HasError() {
-		var errStr string
-		for _, diag := range diags {
-			errStr += diag.Summary() + "\n"
-		}
-		return state, fmt.Errorf(errStr)
-	}
-
-	objectMDMs := make([]attr.Value, len(mdmIPs))
-	for i, link := range mdmIPs {
-		obj := types.StringValue(link)
-		objectMDMs[i] = obj
-	}
-
-	listVal, _ := types.ListValue(types.StringType, objectMDMs)
-	state.MdmIPs = listVal
 	return state, nil
 }
 
