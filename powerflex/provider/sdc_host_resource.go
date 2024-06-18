@@ -497,7 +497,7 @@ func (r *sdcHostResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	// TODO: check that any the stuff that cannot be updated are not changed
+	// Check that anything that cannot be updated are not changed
 	// unupdateable fields: os_family, package
 	if !currState.OS.IsNull() && !plan.OS.Equal(currState.OS) {
 		resp.Diagnostics.AddError("Error updating SDC", "OS cannot be changed")
