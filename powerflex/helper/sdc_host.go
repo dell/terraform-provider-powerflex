@@ -73,7 +73,7 @@ func (r *SdcHostResource) getSSHProvisioner(ctx context.Context, plan models.Sdc
 	return prov, dir, err
 }
 
-// GetMdmIps - get mdm ips from pflex
+// GetMdmIps - get mdm ips from PowerFlex
 func (r *SdcHostResource) GetMdmIps(ctx context.Context, plan models.SdcHostModel) ([]string, diag.Diagnostics) {
 	mdmDetails, err := r.System.GetMDMClusterDetails()
 	if err != nil {
@@ -85,7 +85,7 @@ func (r *SdcHostResource) GetMdmIps(ctx context.Context, plan models.SdcHostMode
 	return GetMdmIPList(mdmDetails), nil
 }
 
-// GetMdmIPList - get mdm ips from pflex
+// GetMdmIPList - get mdm ips from PowerFlex
 func GetMdmIPList(mdmDetails *goscaleio_types.MdmCluster) []string {
 
 	var ipmap []string
