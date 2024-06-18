@@ -33,6 +33,11 @@ func UpdateFrimwareRepositoryState(frDetails *scaleiotypes.UploadComplianceTopol
 	state.Name = types.StringValue(frDetails.Name)
 	state.DefaultCatalog = types.BoolValue(frDetails.DefaultCatalog)
 	state.SourceLocation = types.StringValue(frDetails.SourceLocation)
+	if plan.Approve.IsNull() && frDetails.State == "needsApproval" {
+		state.Approve = types.BoolValue(false)
+	} else if plan.Approve.IsNull() && frDetails.State == "available" {
+		state.Approve = types.BoolValue(true)
+	}
 	return state
 }
 

@@ -48,12 +48,29 @@ limitations under the License.
 */
 
 # Example for uploading compliance file. After successful execution, compliance file will be uploaded to the manager.
+
+
+terraform {
+  required_providers {
+    powerflex = {
+      version = "1.5.0"
+      source  = "registry.terraform.io/dell/powerflex"
+    }
+  }
+}
+provider "powerflex" {
+  username = "admin"
+  password = "Password123@"
+  endpoint = "https://pflex4env12.pie.lab.emc.com"
+  insecure = true
+  timeout  = 120
+}
+
+
 resource "powerflex_firmware_repository" "upload-test" {
-  source_location = "https://10.10.10.1/artifactory/Denver/RCMs/SoftwareOnly/PowerFlex_Software_4.5.0.0_287_r1.zip"
-  username = "user" # To be provided in case of CIFS share
-  password = "password" # To be provided in case of CIFS share
-  approve = true # To be used to approve the unsigned file
-  timeout = 45 #controls that till what time the upload compliance will run
+  source_location = "https://100.65.27.72/artifactory/vxfm-yum-release/pfmp20/RCM/Denver/RCMs/SoftwareOnly/PowerFlex_Software_4.5.0.0_287_r1.zip"
+  approve = true
+  timeout = 41
 }
 ```
 
@@ -62,14 +79,14 @@ resource "powerflex_firmware_repository" "upload-test" {
 
 ### Required
 
-- `source_location` (String) Specfies the path from where it will download the compliance file.
+- `source_location` (String) Specfies the path from where it will download the compliance file. Cannot be updated.
 
 ### Optional
 
 - `approve` (Boolean) Whether to approve the unsigned file or not.
-- `password` (String) Password is only used if specifying a CIFS share
+- `password` (String) Password is only used if specifying a CIFS share Cannot be updated.
 - `timeout` (Number) Describes the time in minutes to timeout the job.
-- `username` (String) Username is only used if specifying a CIFS share
+- `username` (String) Username is only used if specifying a CIFS share Cannot be updated.
 
 ### Read-Only
 

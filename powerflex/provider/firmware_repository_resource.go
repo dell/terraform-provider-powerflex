@@ -96,6 +96,15 @@ func (r *firmwareRepositoryResource) Create(ctx context.Context, req resource.Cr
 		ucParam.Password = plan.Password.ValueString()
 	}
 
+	err := r.gatewayClient.TestConnection(ucParam)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Please provide valid credentials",
+			err.Error(),
+		)
+		return
+	}
+
 	// uploading the compliance file
 	fr, err := r.gatewayClient.UploadCompliance(ucParam)
 	if err != nil {
@@ -150,6 +159,23 @@ func (r *firmwareRepositoryResource) Create(ctx context.Context, req resource.Cr
 			continue
 		}
 
+	}
+
+	frDetails, err = r.gatewayClient.GetUploadComplianceDetails(fr.ID, true)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Could not get the Firmware Repository Details",
+			err.Error(),
+		)
+		return
+	}
+
+	if frDetails.State == "copying" || frDetails.State == "pending" {
+		resp.Diagnostics.AddError(
+			"The Operation got timed Out",
+			err.Error(),
+		)
+		return
 	}
 
 	state := helper.UpdateFrimwareRepositoryState(frDetails, plan)
@@ -279,6 +305,21 @@ func (r *firmwareRepositoryResource) Update(ctx context.Context, req resource.Up
 			}
 			time.Sleep(1 * time.Minute)
 		}
+	} else {
+		resp.Diagnostics.AddError(
+			"Approve attribute needs to be updated",
+			"Please modify the approve attribute if you want to approve your unsigned file and proceed with the download."+
+				"if the resource is imported then please check the value of approve in the state file. If it is set to false and you want to approve your unsigned file then update the approve attribute to true and proceed with the download. If it is set to true then no need to update anything.",
+		)
+		return
+	}
+
+	if frDetails.State == "copying" || frDetails.State == "pending" {
+		resp.Diagnostics.AddError(
+			"The Operation got timed Out",
+			err.Error(),
+		)
+		return
 	}
 	state = helper.UpdateFrimwareRepositoryState(frDetails, plan)
 	diags = resp.State.Set(ctx, state)
@@ -298,10 +339,23 @@ func (r *firmwareRepositoryResource) Delete(ctx context.Context, req resource.De
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	err := r.gatewayClient.DeleteFirmwareRepository(state.ID.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Deleting firmware repository",
+			"Couldn't Delete firmware repository "+err.Error(),
+		)
+		return
+	}
 	resp.State.RemoveResource(ctx)
 }
 
 // Function used to ImportState for fault set Resource
 func (r *firmwareRepositoryResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	if req.ID == "" {
+		resp.Diagnostics.AddError("Please provide valid firmware repository ID", "Please provide valid firmware repository ID")
+		return
+	}
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

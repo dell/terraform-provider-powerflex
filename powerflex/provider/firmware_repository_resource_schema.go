@@ -18,6 +18,7 @@ limitations under the License.
 package provider
 
 import (
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -37,17 +38,21 @@ var FirmwareRepositoryResourceSchema schema.Schema = schema.Schema{
 			Computed:            true,
 		},
 		"source_location": schema.StringAttribute{
-			Description:         "Specfies the path from where it will download the compliance file.",
-			MarkdownDescription: "Specfies the path from where it will download the compliance file.",
-			Required:            true,
+			Description: "Specfies the path from where it will download the compliance file." +
+				" Cannot be updated.",
+			MarkdownDescription: "Specfies the path from where it will download the compliance file." +
+				" Cannot be updated.",
+			Required: true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 			},
 		},
 		"username": schema.StringAttribute{
-			Description:         "Username is only used if specifying a CIFS share",
-			MarkdownDescription: "Username is only used if specifying a CIFS share",
-			Optional:            true,
+			Description: "Username is only used if specifying a CIFS share" +
+				" Cannot be updated.",
+			MarkdownDescription: "Username is only used if specifying a CIFS share" +
+				" Cannot be updated.",
+			Optional: true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.AlsoRequires(
@@ -56,9 +61,11 @@ var FirmwareRepositoryResourceSchema schema.Schema = schema.Schema{
 			},
 		},
 		"password": schema.StringAttribute{
-			Description:         "Password is only used if specifying a CIFS share",
-			MarkdownDescription: "Password is only used if specifying a CIFS share",
-			Optional:            true,
+			Description: "Password is only used if specifying a CIFS share" +
+				" Cannot be updated.",
+			MarkdownDescription: "Password is only used if specifying a CIFS share" +
+				" Cannot be updated.",
+			Optional: true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.AlsoRequires(
@@ -79,6 +86,9 @@ var FirmwareRepositoryResourceSchema schema.Schema = schema.Schema{
 			Optional:            true,
 			Computed:            true,
 			Default:             int64default.StaticInt64(40),
+			Validators: []validator.Int64{
+				int64validator.AtLeast(40),
+			},
 		},
 		"name": schema.StringAttribute{
 			Description:         "Name of the Firmware Repository",
