@@ -49,7 +49,7 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
 
 | **Terraform Provider** | **PowerFlex/VxFlex OS Version** | **OS** | **Terraform** | **Golang** |
 |---------------------|-----------------------|-------|--------------------|--------------------------|
-| v1.4.0 | 3.6 <br> 4.5 | ubuntu22.04 <br> rhel9.x | 1.5.x <br> 1.6.x <br>| 1.22.x
+| v1.5.0 | 3.6 <br> 4.5 <br> 4.6 | ubuntu22.04 <br> rhel9.x | 1.6.x <br> 1.7.x <br>| 1.22.x
 
 ## List of DataSources in Terraform Provider for Dell PowerFlex
   * [SDC](docs/data-sources/sdc.md)
@@ -64,6 +64,7 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
   * [Node](docs/data-sources/node.md)
   * [Template](docs/data-sources/template.md)
   * [Service](docs/data-sources/service.md)
+  * [Firmware Repository](docs/data-sources/firmware_repository.md)
 
 ## List of Resources in Terraform Provider for Dell PowerFlex
   * [SDC](docs/resources/sdc.md)
@@ -81,6 +82,9 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
   * [Fault Set](docs/resources/fault_set.md)
   * [Service](docs/resources/service.md)
   * [Snapshot Policy](docs/resources/snapshot_policy.md)
+  * [Firmware Repository](docs/resources/firmware_repository.md)
+  * [SDC Host](docs/resources/sdc_host.md)
+  * [System](docs/resources/system.md)
 
 ## List of Modules in Terraform Provider for Dell PowerFlex
   * [User](https://registry.terraform.io/modules/dell/modules/powerflex/latest/submodules/user) 

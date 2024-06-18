@@ -26,7 +26,7 @@ limitations under the License.
 This guide explains how to import volumes mapped to SDC using sdc_volumes_mapping_resource. Below steps are taken from [this article](https://developer.hashicorp.com/terraform/language/import/generating-configuration).
 
 ### Step 1: Add the import block
-```
+```terraform
     import {
         to = powerflex_sdc_volumes_mapping.test
         id = "sdc_id"
