@@ -1,7 +1,7 @@
 ---
-page_title: "Import volumes mapped to SDC"
-title: "Import volumes mapped to SDC"
-linkTitle: "Import volumes mapped to SDC"
+page_title: "Import existing volume mappings of SDC"
+title: "Import existing volume mappings of SDC"
+linkTitle: "Import existing volume mappings of SDC"
 ---
 
 <!--
@@ -21,7 +21,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-# Importing volumes mapped to SDC using sdc_volumes_mapping resource
+# Importing existing volume mappings of SDC using sdc_volumes_mapping resource
 
 This guide explains how to import volumes mapped to SDC using sdc_volumes_mapping_resource. Below steps are taken from [this article](https://developer.hashicorp.com/terraform/language/import/generating-configuration).
 
