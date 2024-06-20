@@ -34,6 +34,8 @@ If the taint is not removed, terraform will destroy and recreate the resource.</
 
 > **Note:** Either `volume_id` or `volume_name` is required. But not both.
 
+> **Note:** If there are existing volumes mapped to SDC, import the mappings first before performing any operation.
+
 {{ if .HasExample -}}
 ## Example Usage
 

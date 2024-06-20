@@ -14,6 +14,36 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
+# v1.5.0 (June 28, 2024)
+
+## Release Summary
+
+The release supports resources and data sources mentioned in the Features section for Dell PowerFlex.
+
+## Features
+
+### Resources
+
+* `powerflex_firmware_repository` for managing firmware repository in PowerFlex.
+* `powerflex_sdc_host` for managing SDCs in PowerFlex.
+* `powerflex_system` for managing system level configuration in PowerFlex
+
+### Data Sources
+
+* `powerflex_firmware_repository` for reading firmware repository details in PowerFlex.
+  
+### Enhancements
+
+* All existing resources and datasources are qualified against PowerFlex v4.5 on AWS.
+* All existing resources and datasources are qualified against PowerFlex v4.6.
+* Added support for multiple mdm ips in Cluster/SDC resource.
+* Added support for passwordless authentication in Cluster resource.
+
+### Deprecations
+
+* Service Resource/Datasource is deprecated.
+* SDC resource is deprecated.
+
 # v1.4.0 (March 27, 2024)
 
 ## Release Summary

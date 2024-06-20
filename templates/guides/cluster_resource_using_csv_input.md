@@ -78,7 +78,7 @@ resource "powerflex_cluster" "test" {
       is_rfcache           = row["RFcache"]
       is_sdr               = row["Is SDR"]
     }
-    if row["Is MDM/TB"] != ""
+    if row["Is MDM/TB"] != "" # Validates if MDM role is not empty string
   ]
 
   storage_pools = [
