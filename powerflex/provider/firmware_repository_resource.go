@@ -173,7 +173,7 @@ func (r *firmwareRepositoryResource) Create(ctx context.Context, req resource.Cr
 	if frDetails.State == "copying" || frDetails.State == "pending" {
 		resp.Diagnostics.AddError(
 			"The Operation got timed Out",
-			err.Error(),
+			"The Operation got timed Out",
 		)
 		return
 	}
@@ -244,14 +244,14 @@ func (r *firmwareRepositoryResource) Update(ctx context.Context, req resource.Up
 	if plan.Username.ValueString() != state.Username.ValueString() {
 		resp.Diagnostics.AddError(
 			"Username cannot be updated",
-			"Username cannot be updated")
+			"Username cannot be updated. If the resource is imported then username is not required for approving the unsigned file.")
 		return
 	}
 
 	if plan.Password.ValueString() != state.Password.ValueString() {
 		resp.Diagnostics.AddError(
 			"Password cannot be updated",
-			"Password cannot be updated")
+			"Password cannot be updated.  If the resource is imported then password is not required for approving the unsigned file.")
 		return
 	}
 
@@ -317,7 +317,7 @@ func (r *firmwareRepositoryResource) Update(ctx context.Context, req resource.Up
 	if frDetails.State == "copying" || frDetails.State == "pending" {
 		resp.Diagnostics.AddError(
 			"The Operation got timed Out",
-			err.Error(),
+			"The Operation got timed Out",
 		)
 		return
 	}
