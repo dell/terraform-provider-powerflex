@@ -67,7 +67,7 @@ resource "powerflex_firmware_repository" "upload-test" {
 ### Optional
 
 - `approve` (Boolean) Whether to approve the unsigned file or not.
-- `password` (String) Password is only used if specifying a CIFS share Cannot be updated.
+- `password` (String, Sensitive) Password is only used if specifying a CIFS share Cannot be updated.
 - `timeout` (Number) Describes the time in minutes to timeout the job.
 - `username` (String) Username is only used if specifying a CIFS share Cannot be updated.
 
@@ -99,4 +99,11 @@ Import is supported using the following syntax:
 
 # import firmware respository by it's id
 terraform import powerflex_firmware_repository.fr_import_by_id "<id>"
+
+# After Import, username and password is not needed for approving the unsigned file in case of CIFS share. For approving the file in case of import, please refer the below config(change the value as per your use-case):
+resource "powerflex_firmware_repository" "fr_import_by_id" {
+  source_location = "https://10.10.10.1/artifactory/Denver/RCMs/SoftwareOnly/PowerFlex_Software_4.5.0.0_287_r1.zip"
+  approve = true
+  timeout = 45
+}
 ```

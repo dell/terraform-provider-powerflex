@@ -251,7 +251,7 @@ func (r *firmwareRepositoryResource) Update(ctx context.Context, req resource.Up
 	if plan.Password.ValueString() != state.Password.ValueString() {
 		resp.Diagnostics.AddError(
 			"Password cannot be updated",
-			"Password cannot be updated.  If the resource is imported then password is not required for approving the unsigned file.")
+			"Password cannot be updated. If the resource is imported then password is not required for approving the unsigned file.")
 		return
 	}
 

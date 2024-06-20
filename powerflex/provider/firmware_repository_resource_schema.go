@@ -65,7 +65,8 @@ var FirmwareRepositoryResourceSchema schema.Schema = schema.Schema{
 				" Cannot be updated.",
 			MarkdownDescription: "Password is only used if specifying a CIFS share" +
 				" Cannot be updated.",
-			Optional: true,
+			Optional:  true,
+			Sensitive: true,
 			Validators: []validator.String{
 				stringvalidator.LengthAtLeast(1),
 				stringvalidator.AlsoRequires(
