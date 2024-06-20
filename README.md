@@ -21,7 +21,7 @@ limitations under the License.
 
 The Terraform Provider for Dell Technologies (Dell) PowerFlex allows Data Center and IT administrators to use Hashicorp Terraform to automate and orchestrate the provisioning and management of Dell PowerFlex storage systems.
 
-The Terraform Provider can be used to manage SDCs, volumes, snapshots, snapshot-policies, storage pools, SDSs and protection domains.
+The Terraform Provider can be used to manage SDCs, volumes, snapshots, snapshot-policies, storage pools, SDSs, protection domains, devices, users, MDM cluster, fault sets and firmware repository.
 
 ## Table of contents
 
@@ -43,7 +43,7 @@ The Terraform Provider can be used to manage SDCs, volumes, snapshots, snapshot-
 For any Terraform Provider for Dell PowerFlex issues, questions or feedback, please follow our [support process](https://github.com/dell/dell-terraform-providers/blob/main/docs/SUPPORT.md)
 
 ## License
-The Terraform Provider for Dell PowerFlex is released and licensed under the MPL-2.0 license. See [LICENSE](LICENSE) for the full terms.
+The Terraform Provider for Dell PowerFlex is released and licensed under the MPL-2.0 license. See [LICENSE](https://github.com/dell/terraform-provider-powerflex/blob/main/LICENSE) for the full terms.
 
 ## Prerequisites
 
@@ -90,7 +90,7 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
   * [User](https://registry.terraform.io/modules/dell/modules/powerflex/latest/submodules/user) 
 
 ## Installation and execution of Terraform Provider for Dell PowerFlex
-The installation and execution steps of Terraform Provider for Dell PowerFlex can be found [here](about/INSTALLATION.md).
+The installation and execution steps of Terraform Provider for Dell PowerFlex can be found [here](https://github.com/dell/terraform-provider-powerflex/blob/main/about/INSTALLATION.md).
 
 ## Releasing, Maintenance and Deprecation
 
