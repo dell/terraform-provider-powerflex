@@ -39,6 +39,11 @@ The release supports resources and data sources mentioned in the Features sectio
 * Added support for multiple mdm ips in Cluster/SDC resource.
 * Added support for passwordless authentication in Cluster resource.
 
+### Deprecations
+
+* Service Resource/Datasource is deprecated.
+* SDC resource is deprecated.
+
 # v1.4.0 (March 27, 2024)
 
 ## Release Summary
