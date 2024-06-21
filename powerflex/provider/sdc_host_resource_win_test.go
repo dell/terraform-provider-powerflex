@@ -44,11 +44,7 @@ func TestAccSDCHostResourceNegative(t *testing.T) {
 			},
 			{
 				Config:      ProviderConfigForTesting + SDCHostConfig3,
-				ExpectError: regexp.MustCompile(`.*SDC Host is already Connected with PowerFlex cluster.*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + SDCHostConfig4,
-				ExpectError: regexp.MustCompile(`.*Error while connecting sdc remote host.*`),
+				ExpectError: regexp.MustCompile(`.*SDC Host with given IP already exists.*`),
 			},
 			{
 				Config:      ProviderConfigForTesting + SDCHostConfig4,
@@ -119,8 +115,7 @@ resource "powerflex_sdc_host" "sdc_windows" {
 	os_family    = "windows"
 	name         = "sdc-windows-10-118"
 	performance_profile = "Compact"
-	package_path = "/root/powerflex_packages/EMC-ScaleIO-sdc-3.6-200.105.msi"
-	#mdm_ips = ["10.10.10.5", "10.10.10.6"]   # Optional 
+	package_path = "/root/powerflex_packages/EMC-ScaleIO-sdc-3.6-200.105.msi" 
   }
 `
 

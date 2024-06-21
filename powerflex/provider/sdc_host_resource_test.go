@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -55,11 +54,9 @@ func TestAccSDCHostResourceUbuntu(t *testing.T) {
 					}
 					os_family = "linux"
 					name = "sdc-ubuntu"
-					package_path = "/tmp/tfaccsdc1.tar" 
-					mdm_ips = ["%s"]
+					package_path = "/tmp/tfaccsdc1.tar"
 				}
-				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
-					strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword),
 				ExpectError: regexp.MustCompile(`.*no such file or directory.*`),
 			},
 			//Create with unsupported os negative
@@ -75,11 +72,10 @@ func TestAccSDCHostResourceUbuntu(t *testing.T) {
 					}
 					os_family = "mac"
 					name = "sdc-ubuntu"
-					package_path = "%s" 
-					mdm_ips = ["%s"]
+					package_path = "%s"
 				}
 				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
-					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+					SdcHostResourceTestData.UbuntuPkgPath),
 				ExpectError: regexp.MustCompile(`.*Attribute os_family value must be one of.*`),
 			},
 			//Create with wrong port negative
@@ -95,11 +91,10 @@ func TestAccSDCHostResourceUbuntu(t *testing.T) {
 					}
 					os_family = "linux"
 					name = "sdc-ubuntu"
-					package_path = "%s" 
-					mdm_ips = ["%s"]
+					package_path = "%s"
 				}
 				`, SdcHostResourceTestData.UbuntuIP, "55", SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
-					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+					SdcHostResourceTestData.UbuntuPkgPath),
 				ExpectError: regexp.MustCompile(`.*connection[[:space:]]refused.*`),
 			},
 			//Create with wrong password negative
@@ -115,11 +110,10 @@ func TestAccSDCHostResourceUbuntu(t *testing.T) {
 					}
 					os_family = "linux"
 					name = "sdc-ubuntu"
-					package_path = "%s" 
-					mdm_ips = ["%s"]
+					package_path = "%s"
 				}
 				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, "invalid",
-					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+					SdcHostResourceTestData.UbuntuPkgPath),
 				ExpectError: regexp.MustCompile(`.*unable[[:space:]]to[[:space:]]authenticate.*`),
 			},
 			//Create
@@ -135,11 +129,10 @@ func TestAccSDCHostResourceUbuntu(t *testing.T) {
 					}
 					os_family = "linux"
 					name = "sdc-ubuntu"
-					package_path = "%s" 
-					mdm_ips = ["%s"]
+					package_path = "%s"
 				}
 				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
-					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+					SdcHostResourceTestData.UbuntuPkgPath),
 				// ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
 			},
 
@@ -156,11 +149,10 @@ func TestAccSDCHostResourceUbuntu(t *testing.T) {
 					}
 					os_family = "linux"
 					name = "sdc-ubuntu"
-					package_path = "%s" 
-					mdm_ips = ["%s"]
+					package_path = "%s"
 				}
 				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
-					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+					SdcHostResourceTestData.UbuntuPkgPath),
 				ImportState:   true,
 				ImportStateId: "16.16.16.16",
 				ResourceName:  "powerflex_sdc_host.sdc",
@@ -180,11 +172,10 @@ func TestAccSDCHostResourceUbuntu(t *testing.T) {
 					}
 					os_family = "linux"
 					name = "sdc-ubuntu"
-					package_path = "%s" 
-					mdm_ips = ["%s"]
+					package_path = "%s"
 				}
 				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
-					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+					SdcHostResourceTestData.UbuntuPkgPath),
 				ImportState:             true,
 				ImportStateId:           SdcHostResourceTestData.UbuntuIP,
 				ResourceName:            "powerflex_sdc_host.sdc",
@@ -203,32 +194,11 @@ func TestAccSDCHostResourceUbuntu(t *testing.T) {
 					}
 					os_family = "linux"
 					name = "sdc-ubuntu2"
-					package_path = "%s" 
-					mdm_ips = ["%s"]
+					package_path = "%s"
 				}
 				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
-					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+					SdcHostResourceTestData.UbuntuPkgPath),
 				// ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
-			},
-			// Update mdm ip negative
-			{
-				Config: ProviderConfigForTesting + fmt.Sprintf(`
-				resource powerflex_sdc_host sdc {
-					# depends_on = [ terraform_data.ubuntu_scini ]
-					ip = "%s"
-					remote = {
-						port = "%s"
-						user = "%s"
-						password = "%s"
-					}
-					os_family = "linux"
-					name = "sdc-ubuntu2"
-					package_path = "%s" 
-					mdm_ips = ["%s", "10.0.6.8"]
-				}
-				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
-					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
-				ExpectError: regexp.MustCompile(`.*mdm_ips cannot be changed.*`),
 			},
 			// Update ip negative
 			{
@@ -242,11 +212,10 @@ func TestAccSDCHostResourceUbuntu(t *testing.T) {
 					}
 					os_family = "linux"
 					name = "sdc-ubuntu2"
-					package_path = "%s" 
-					mdm_ips = ["%s"]
+					package_path = "%s"
 				}
 				`, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
-					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+					SdcHostResourceTestData.UbuntuPkgPath),
 				PlanOnly:    true,
 				ExpectError: regexp.MustCompile(`.*SDC IP cannot be updated through this resource.*`),
 			},
@@ -263,11 +232,9 @@ func TestAccSDCHostResourceUbuntu(t *testing.T) {
 					}
 					os_family = "linux"
 					name = "sdc-ubuntu2"
-					package_path = "/dummy/tfaccsdc2.tar" 
-					mdm_ips = ["%s"]
+					package_path = "/dummy/tfaccsdc2.tar"
 				}
-				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
-					strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword),
 				ExpectError: regexp.MustCompile(`.*package cannot be changed.*`),
 			},
 			// Update os negative
@@ -286,11 +253,10 @@ func TestAccSDCHostResourceUbuntu(t *testing.T) {
 						guid = "esxi-guid"
 					}
 					name = "sdc-ubuntu2"
-					package_path = "%s" 
-					mdm_ips = ["%s"]
+					package_path = "%s"
 				}
 				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
-					SdcHostResourceTestData.UbuntuPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+					SdcHostResourceTestData.UbuntuPkgPath),
 				ExpectError: regexp.MustCompile(`.*OS cannot be changed.*`),
 			},
 		},
@@ -317,11 +283,10 @@ func TestAccSDCHostResourceEsxiNeg(t *testing.T) {
 					}
 					os_family = "esxi"
 					name = "sdc-esxi"
-					package_path = "%s" 
-					mdm_ips = ["%s"]
+					package_path = "%s"
 				}
 				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
-					SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+					SdcHostResourceTestData.EsxiPkgPath),
 				ExpectError: regexp.MustCompile(`.*Esxi block is required for esxi SDC.*`),
 			},
 			//Create without guid negative
@@ -337,11 +302,10 @@ func TestAccSDCHostResourceEsxiNeg(t *testing.T) {
 					esxi = {}
 					os_family = "esxi"
 					name = "sdc-esxi"
-					package_path = "%s" 
-					mdm_ips = ["%s"]
+					package_path = "%s"
 				}
 				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
-					SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+					SdcHostResourceTestData.EsxiPkgPath),
 				ExpectError: regexp.MustCompile(`.*attribute "guid" is required.*`),
 			},
 		},
@@ -389,11 +353,9 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 					}
 					os_family = "esxi"
 					name = "sdc-esxi"
-					package_path = "/tmp/tfaccsdc1.zip" 
-					mdm_ips = ["%s"]
+					package_path = "/tmp/tfaccsdc1.zip"
 				}
-				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
-					strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword),
 				ExpectError: regexp.MustCompile(`.*no such file or directory.*`),
 			},
 			//Create
@@ -412,11 +374,10 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 					}
 					os_family = "esxi"
 					name = "sdc-esxi"
-					package_path = "%s" 
-					mdm_ips = ["%s"]
+					package_path = "%s"
 				}
 				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
-					SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+					SdcHostResourceTestData.EsxiPkgPath),
 				// ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
 			},
 
@@ -436,11 +397,10 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 					}
 					os_family = "esxi"
 					name = "sdc-esxi"
-					package_path = "%s" 
-					mdm_ips = ["%s"]
+					package_path = "%s"
 				}
 				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
-					SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+					SdcHostResourceTestData.EsxiPkgPath),
 				ImportState:   true,
 				ImportStateId: "16.16.16.16",
 				ResourceName:  "powerflex_sdc_host.sdc",
@@ -463,11 +423,10 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 					}
 					os_family = "esxi"
 					name = "sdc-esxi"
-					package_path = "%s" 
-					mdm_ips = ["%s"]
+					package_path = "%s"
 				}
 				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
-					SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+					SdcHostResourceTestData.EsxiPkgPath),
 				ImportState:             true,
 				ImportStateId:           SdcHostResourceTestData.EsxiIP,
 				ResourceName:            "powerflex_sdc_host.sdc",
@@ -489,35 +448,11 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 					}
 					os_family = "esxi"
 					name = "sdc-esxi2"
-					package_path = "%s" 
-					mdm_ips = ["%s"]
+					package_path = "%s"
 				}
 				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
-					SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+					SdcHostResourceTestData.EsxiPkgPath),
 				// ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
-			},
-			// Update mdm ip negative
-			{
-				Config: ProviderConfigForTesting + randomGUID + fmt.Sprintf(`
-				resource powerflex_sdc_host sdc {
-					# depends_on = [ terraform_data.ubuntu_scini ]
-					ip = "%s"
-					remote = {
-						port = "%s"
-						user = "%s"
-						password = "%s"
-					}
-					esxi = {
-						guid = random_uuid.sdc_guid.result
-					}
-					os_family = "esxi"
-					name = "sdc-esxi2"
-					package_path = "%s" 
-					mdm_ips = ["%s", "10.0.6.8"]
-				}
-				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
-					SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
-				ExpectError: regexp.MustCompile(`.*mdm_ips cannot be changed.*`),
 			},
 			// Update package negative
 			{
@@ -535,11 +470,9 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 					}
 					os_family = "esxi"
 					name = "sdc-esxi2"
-					package_path = "/dummy/tfaccsdc2.tar" 
-					mdm_ips = ["%s"]
+					package_path = "/dummy/tfaccsdc2.tar"
 				}
-				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
-					strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword),
 				ExpectError: regexp.MustCompile(`.*package cannot be changed.*`),
 			},
 			// Update guid negative
@@ -557,11 +490,9 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 					}
 					os_family = "esxi"
 					name = "sdc-esxi2"
-					package_path = "/dummy/tfaccsdc2.tar" 
-					mdm_ips = ["%s"]
+					package_path = "/dummy/tfaccsdc2.tar"
 				}
-				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
-					strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword),
 				PlanOnly:    true,
 				ExpectError: regexp.MustCompile(`.*ESXi SDC details cannot be updated.*`),
 			},
@@ -581,11 +512,9 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 					}
 					os_family = "esxi"
 					name = "sdc-esxi2"
-					package_path = "/dummy/tfaccsdc2.tar" 
-					mdm_ips = ["%s"]
+					package_path = "/dummy/tfaccsdc2.tar"
 				}
-				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
-					strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword),
 				PlanOnly:    true,
 				ExpectError: regexp.MustCompile(`.*ESXi SDC details cannot be updated.*`),
 			},
@@ -604,11 +533,9 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 					}
 					os_family = "esxi"
 					name = "sdc-esxi2"
-					package_path = "/dummy/tfaccsdc2.tar" 
-					mdm_ips = ["%s"]
+					package_path = "/dummy/tfaccsdc2.tar"
 				}
-				`, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
-					strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+				`, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword),
 				PlanOnly:    true,
 				ExpectError: regexp.MustCompile(`.*SDC IP cannot be updated through this resource.*`),
 			},
@@ -625,11 +552,10 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 					}
 					os_family = "linux"
 					name = "sdc-esxi2"
-					package_path = "%s" 
-					mdm_ips = ["%s"]
+					package_path = "%s"
 				}
 				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
-					SdcHostResourceTestData.EsxiPkgPath, strings.Join(SdcHostResourceTestData.MdmIPs, `", "`)),
+					SdcHostResourceTestData.EsxiPkgPath),
 				ExpectError: regexp.MustCompile(`.*OS cannot be changed.*`),
 			},
 		},
