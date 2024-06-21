@@ -26,6 +26,13 @@ description: |-
 
 This resource is used to manage the SDC entity of PowerFlex Array. We can Create, Update and Delete the SDC using this resource. We can also import an existing SDC from PowerFlex array.
 
+~> **Caution:** SDC Host creation is not atomic. This resource sets parameters like name, etc. after SDC installation is complete.
+If that fails for any reason, Terraform, by default, will mark this resource as tainted and recreate it on the next apply. But 
+these issues (caused by invalid inputs, network disruptions, etc.) do not require resource recreation (ie. SDC re-installation) to resolve. 
+If one untaints this resource manually (by running `terraform untaint <resource_name>`) prior to applying again, this resource can start from where it left off and, if the cause of failure
+has been rectified, it can take incremental actions to set the necessary SDC parameters.
+So please untaint the resource before applying again if you want to prevent unnecessary SDC re-installations.
+
 ## Example Usage
 
 ### With ESXi
@@ -81,15 +88,13 @@ resource "powerflex_sdc_host" "sdc" {
   os_family = "esxi"
   esxi = {
     guid         = random_uuid.sdc_guid.result
-    drv_cfg_path = "/root/terraform-provider-powerflex/drv_cfg-3.6.500.106-esx7.x"
   }
   name         = "sdc-esxi"
   package_path = "/root/terraform-provider-powerflex/sdc-3.6.500.106-esx7.x.zip"
-  mdm_ips      = ["10.10.10.5", "10.10.10.6"]
 }
 ```
 
-After the execution of above resource block, the ESXi host would have been addes as an SDC to the PowerFlex array. For more information, please check the terraform state file.
+After the execution of above resource block, the ESXi host would have been added as an SDC to the PowerFlex array. For more information, please check the terraform state file.
 
 ### With Linux
 
@@ -142,7 +147,6 @@ resource "powerflex_sdc_host" "sdc_linux" {
   name         = "sdc-linux"
   package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-700.103.Ubuntu.22.04.x86_64.tar" # For Ubuntu
   # package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-700.103.el7.x86_64.rpm" # For RHEL
-  # mdm_ips = ["10.10.10.5", "10.10.10.6"]   # Optional 
 }
 ```
 
@@ -187,7 +191,6 @@ resource "powerflex_sdc_host" "sdc_windows" {
   os_family    = "windows"
   name         = "sdc-windows"
   package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-200.105.msi"
-  # mdm_ips = ["10.10.10.5", "10.10.10.6"]   # Optional 
 }
 ```
 
@@ -206,7 +209,6 @@ After the execution of above resource block, the Windows Server host would have 
 ### Optional
 
 - `esxi` (Attributes) Details of the SDC host if the `os_family` is `esxi`. (see [below for nested schema](#nestedatt--esxi))
-- `mdm_ips` (List of String) List of MDM IPs to be assigned to the SDC.
 - `name` (String) Name of SDC.
 - `performance_profile` (String) Performance profile of the SDC. Accepted values are 'HighPerformance' and 'Compact'.
 
