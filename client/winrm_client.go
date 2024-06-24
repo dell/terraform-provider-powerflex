@@ -19,6 +19,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -100,8 +101,11 @@ func (winRMClient *WinRMClient) setPort(context map[string]string) *WinRMClient 
 
 	if _, found := context[Port]; found {
 
-		port, _ := strconv.Atoi(context[Port])
-
+		port, err := strconv.Atoi(context[Port])
+		if err != nil {
+			log.Printf("Error converting port to integer: %v", err)
+			winRMClient.Port = 5985
+		}
 		winRMClient.Port = port
 
 	} else {
@@ -142,7 +146,11 @@ func (winRMClient *WinRMClient) setTimeout(context map[string]string) *WinRMClie
 
 	if _, found := context[Timeout]; found {
 
-		timeout, _ := strconv.Atoi(context[Timeout])
+		timeout, err := strconv.Atoi(context[Timeout])
+		if err != nil {
+			log.Printf("Error converting timeout to integer: %v", err)
+			timeout = 60
+		}
 
 		winRMClient.Timeout = timeout
 

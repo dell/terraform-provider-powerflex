@@ -245,3 +245,18 @@ func CompareStringSlice(plan, state []string) bool {
 	}
 	return len(itemAppearsTimes) == 0
 }
+
+// CompareInt64Slice compares two slices of int64 and returns true if the length and elements are same.
+func CompareInt64Slice(plan, state []int64) bool {
+
+	if len(plan) != len(state) {
+		return false
+	}
+
+	for i := range plan {
+		if plan[i] != state[i] {
+			return false
+		}
+	}
+	return true
+}
