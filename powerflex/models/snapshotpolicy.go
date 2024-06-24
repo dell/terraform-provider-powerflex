@@ -62,7 +62,7 @@ type SnapshotPolicyLinkModel struct {
 type SnapshotPolicyResourceModel struct {
 	ID                               types.String   `tfsdk:"id"`
 	Name                             types.String   `tfsdk:"name"`
-	NumOfRetainedSnapshotsPerLevel   []types.Int64  `tfsdk:"num_of_retained_snapshots_per_level"`
+	NumOfRetainedSnapshotsPerLevel   []int64        `tfsdk:"num_of_retained_snapshots_per_level"`
 	AutoSnapshotCreationCadenceInMin types.Int64    `tfsdk:"auto_snapshot_creation_cadence_in_min"`
 	Paused                           types.Bool     `tfsdk:"paused"`
 	VolumeIds                        []types.String `tfsdk:"volume_ids"`
