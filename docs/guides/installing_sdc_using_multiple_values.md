@@ -1,5 +1,3 @@
-
-
 ---
 page_title: "Installing a SDC on a PowerFlex cluster using multiple values for IP"
 title: "Installing a SDC on a PowerFlex cluster using multiple values for IP"
@@ -23,9 +21,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-# Steps for installing a SDC on a PowerFlex cluster using multiple values for IP
+# Installing a SDC on a PowerFlex cluster using multiple values for IP
 
-This guide explains how to install a SDC in cas of multiple values for IP.
+This guide explains how to install a SDC in case of multiple values for IP.
 
 ### Example
 
@@ -56,12 +54,12 @@ resource "powerflex_sdc" "sdc-example" {
       is_sdc              = "Yes"
       name                = "SDC_SECONDARY"
       performance_profile = "HighPerformance"
-      virtual_ips         = "10.10.10.9,10.10.10.10"
+      virtual_ips         = "10.10.10.4,10.10.10.5"
       virtual_ip_nics     = "eth1,eth2"
       data_network_ip     = "10.10.10.7,10.10.10.8"
     },
     {
-      ip                  = "10.10.10.11,10.10.10.12,10.10.10.13" 
+      ip                  = "10.10.10.9,10.10.10.10,10.10.10.11" 
       username            = "user"
       password            = "password"
       operating_system    = "linux"
@@ -69,10 +67,10 @@ resource "powerflex_sdc" "sdc-example" {
       is_sdc              = "Yes"
       name                = "SDC_TB"
       performance_profile = "Compact"
-      data_network_ip     = "10.10.10.12,10.10.10.13"
+      data_network_ip     = "10.10.10.10,10.10.10.11"
     },
     {
-      ip               = "10.10.10.14"
+      ip               = "10.10.10.12"
       username         = "user"
       password         = "password"
       operating_system = "linux"

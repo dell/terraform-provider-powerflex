@@ -21,7 +21,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-# Steps for Deploying a PowerFlex cluster having multiple values for mdm_ips
+# Deploying a PowerFlex cluster having multiple values for mdm_ips
 
 This guide explains how to deploy a cluster which has multiple values for mdm_ips.
 
@@ -74,7 +74,7 @@ resource "powerflex_cluster" "test" {
       mdm_ips                  = "10.10.10.6,10.10.10.7,10.10.10.8",
       mdm_mgmt_ip              = "10.10.10.6",
       perf_profile_for_mdm     = "HighPerformance",
-      virtual_ips              = "10.10.10.9,10.10.10.10",
+      virtual_ips              = "10.10.10.4,10.10.10.5",
       virtual_ip_nics          = "eth1,eth2",
       is_sds                   = "Yes",
       sds_name                 = "sds2",
@@ -83,7 +83,7 @@ resource "powerflex_cluster" "test" {
       sds_storage_device_names = "sdb",
       protection_domain        = "domain_1",
       storage_pool_list        = "pool1",
-    perf_profile_for_sds     = "HighPerformance",
+      perf_profile_for_sds     = "HighPerformance",
       is_sdc                   = "Yes",
       sdc_name                 = "sdc2",
       perf_profile_for_sdc     = "HighPerformance"
@@ -94,19 +94,19 @@ resource "powerflex_cluster" "test" {
       operating_system         = "linux",
       is_mdm_or_tb             = "TB",
       mdm_name                 = "tb1",
-      mdm_ips                  = "10.10.10.11,10.10.10.12,10.01.10.13",
-      mdm_mgmt_ip              = "10.10.10.11",
+      mdm_ips                  = "10.10.10.9,10.10.10.10,10.01.10.11",
+      mdm_mgmt_ip              = "10.10.10.9",
       perf_profile_for_mdm     = "HighPerformance",
       is_sds                   = "Yes",
       sds_name                 = "sds3",
-      sds_all_ips              = "10.10.10.12,10.01.10.13",
+      sds_all_ips              = "10.10.10.10,10.01.10.11",
       sds_storage_device_list  = "/dev/sdb",
       sds_storage_device_names = "sdb",
       protection_domain        = "domain_1",
       storage_pool_list        = "pool1",
       perf_profile_for_sds     = "HighPerformance",
       is_sdc                   = "Yes",
-    sdc_name                 = "sdc3",
+      sdc_name                 = "sdc3",
       perf_profile_for_sdc     = "HighPerformance"
     }
   ]

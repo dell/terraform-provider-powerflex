@@ -21,7 +21,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-# Steps for Deploying a PowerFlex cluster using ssh key for passwordless authentication
+# Deploying a PowerFlex cluster using ssh key for passwordless authentication
 
 This guide explains how to use ssh keys for deploying a cluster using passwordless authentication
 
@@ -35,7 +35,7 @@ This guide explains how to use ssh keys for deploying a cluster using passwordle
 - If the RSA key was created in OpenSSH key format convert to pem format:
     - ssh-keygen -p -m PEM -f ~/.ssh/id_rsa
 - Copy the id_rsa, id_rsa.pub and authorized_keys to ~/.ssh on the rest of the cluster machines
-- Replace the key text in block-legacy-gateway-sshkey.yaml (attached) with the content of id_rsa
+- Replace the key text in block-legacy-gateway-sshkey.yaml (attached below) with the content of id_rsa
 - Delete the secret before setting it:
     - kubectl delete -n powerflex secret platform-nodes-credentials
 - run on the M&O: 
@@ -43,6 +43,19 @@ This guide explains how to use ssh keys for deploying a cluster using passwordle
 - delete block-legacy-gateway pod 
     - legacy_gw=$(kubectl get pods -n powerflex|grep -i legacy-gateway |grep -v mds |awk '{print $1}'); kubectl delete pods -n powerflex $legacy_gw
 - Remove the value (leave empty) from all the "password" fields in the csv file
+
+### Example of block-legacy-gateway-sshkey.yaml file content
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: platform-nodes-credentials
+type: Opaque
+stringData:
+  id_rsa: |
+    -----BEGIN RSA PRIVATE KEY-----
+    PASTE THE RSA KEY HERE
+    -----END RSA PRIVATE KEY-----
 
 ### Example of cluster resource in case of passwordless authentication
 
@@ -99,7 +112,7 @@ resource "powerflex_cluster" "test" {
       sds_storage_device_names = "sdb",
       protection_domain        = "domain_1",
       storage_pool_list        = "pool1",
-    perf_profile_for_sds     = "HighPerformance",
+      perf_profile_for_sds     = "HighPerformance",
       is_sdc                   = "Yes",
       sdc_name                 = "sdc2",
       perf_profile_for_sdc     = "HighPerformance"
@@ -122,7 +135,7 @@ resource "powerflex_cluster" "test" {
       storage_pool_list        = "pool1",
       perf_profile_for_sds     = "HighPerformance",
       is_sdc                   = "Yes",
-    sdc_name                 = "sdc3",
+      sdc_name                 = "sdc3",
       perf_profile_for_sdc     = "HighPerformance"
     }
   ]
