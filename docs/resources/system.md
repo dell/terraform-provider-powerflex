@@ -19,12 +19,12 @@ linkTitle: "powerflex_system"
 page_title: "powerflex_system Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource is used to manage the cluster level operations of PowerFlex Array. This resource supports Create, Update and Delete operations.
+  This resource is used to manage the cluster level operations of the PowerFlex Array. This resource supports Create, Update and Delete operations.
 ---
 
 # powerflex_system (Resource)
 
-This resource is used to manage the cluster level operations of PowerFlex Array. This resource supports Create, Update and Delete operations.
+This resource is used to manage the cluster level operations of the PowerFlex Array. This resource supports Create, Update and Delete operations.
 
 
 ## Example Usage

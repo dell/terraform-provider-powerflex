@@ -18,6 +18,8 @@ limitations under the License.
 package provider
 
 import (
+	"terraform-provider-powerflex/powerflex/helper"
+
 	types "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -26,13 +28,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"terraform-provider-powerflex/powerflex/helper"
 )
 
 // ProtectionDomainResourceSchema defines the schema for Protection Domain resource
 var ProtectionDomainResourceSchema schema.Schema = schema.Schema{
-	Description:         "This resource is used to manage the Protection Domain entity of PowerFlex Array. We can Create, Update and Delete the protection domain using this resource. We can also import an existing protection domain from PowerFlex array.",
-	MarkdownDescription: "This resource is used to manage the Protection Domain entity of PowerFlex Array. We can Create, Update and Delete the protection domain using this resource. We can also import an existing protection domain from PowerFlex array.",
+	Description:         "This resource is used to manage the Protection Domain entity of the PowerFlex Array. We can Create, Update and Delete the protection domain using this resource. We can also import an existing protection domain from the PowerFlex array.",
+	MarkdownDescription: "This resource is used to manage the Protection Domain entity of the PowerFlex Array. We can Create, Update and Delete the protection domain using this resource. We can also import an existing protection domain from the PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "Unique identifier of the protection domain instance.",

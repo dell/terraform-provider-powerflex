@@ -19,12 +19,12 @@ linkTitle: "powerflex_service"
 page_title: "powerflex_service Data Source - powerflex"
 subcategory: ""
 description: |-
-  This datasource is used to query the existing services from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
+  This datasource is used to query the existing services from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---
 
 # powerflex_service (Data Source)
 
-This datasource is used to query the existing services from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
+This datasource is used to query the existing services from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 
 ## Example Usage
 

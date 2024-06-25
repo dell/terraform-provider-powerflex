@@ -19,12 +19,12 @@ linkTitle: "powerflex_cluster"
 page_title: "powerflex_cluster Resource - powerflex"
 subcategory: ""
 description: |-
-  This terraform resource is used to deploy PowerFlex Cluster. We can Create and Delete the PowerFlex Cluster using this resource. We can also Import an existing Cluster of PowerFlex.
+  This terraform resource is used to deploy the PowerFlex Cluster. We can Create and Delete the PowerFlex Cluster using this resource. We can also Import an existing Cluster of the PowerFlex.
 ---
 
 # powerflex_cluster (Resource)
 
-This terraform resource is used to deploy PowerFlex Cluster. We can Create and Delete the PowerFlex Cluster using this resource. We can also Import an existing Cluster of PowerFlex.
+This terraform resource is used to deploy the PowerFlex Cluster. We can Create and Delete the PowerFlex Cluster using this resource. We can also Import an existing Cluster of the PowerFlex.
 
 > **Note:** For PowerFlex 4.x, the PowerFlex Manager must be installed as a prerequisite. The required packages should be uploaded to the PowerFlex Manager.
 

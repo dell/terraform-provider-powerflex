@@ -28,8 +28,8 @@ import (
 
 // FirmwareRepositoryDataSourceSchema defines the schema for Firmware Repository datasource
 var FirmwareRepositoryDataSourceSchema schema.Schema = schema.Schema{
-	Description:         "This datasource is used to query the existing firmware repository from PowerFlex array. The information fetched from this datasource can be used for getting the necessary details regarding the bundles and their components in that firmware repository.",
-	MarkdownDescription: "This datasource is used to query the existing firmware repository from PowerFlex array. The information fetched from this datasource can be used for getting the necessary details regarding the bundles and their components in that firmware repository.",
+	Description:         "This datasource is used to query the existing firmware repository from the PowerFlex array. The information fetched from this datasource can be used for getting the necessary details regarding the bundles and their components in that firmware repository.",
+	MarkdownDescription: "This datasource is used to query the existing firmware repository from the PowerFlex array. The information fetched from this datasource can be used for getting the necessary details regarding the bundles and their components in that firmware repository.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "Placeholder attribute.",

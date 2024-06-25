@@ -19,12 +19,12 @@ linkTitle: "powerflex_protection_domain"
 page_title: "powerflex_protection_domain Data Source - powerflex"
 subcategory: ""
 description: |-
-  This datasource is used to query the existing protection domain from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
+  This datasource is used to query the existing protection domain from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---
 
 # powerflex_protection_domain (Data Source)
 
-This datasource is used to query the existing protection domain from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
+This datasource is used to query the existing protection domain from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 
 > **Note:** Only one of `name` and `id` can be provided at a time.
 

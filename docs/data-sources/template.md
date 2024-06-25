@@ -19,12 +19,12 @@ linkTitle: "powerflex_template"
 page_title: "powerflex_template Data Source - powerflex"
 subcategory: ""
 description: |-
-  This datasource is used to query the existing templates from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
+  This datasource is used to query the existing templates from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---
 
 # powerflex_template (Data Source)
 
-This datasource is used to query the existing templates from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
+This datasource is used to query the existing templates from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 
 ## Example Usage
 

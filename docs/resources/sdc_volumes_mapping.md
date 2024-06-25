@@ -19,12 +19,12 @@ linkTitle: "powerflex_sdc_volumes_mapping"
 page_title: "powerflex_sdc_volumes_mapping Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource can be used to map/unmap volumes to an SDC on a PowerFlex array. User can import an existing SDC and map volumes to it.
+  This resource can be used to map/unmap volumes to an SDC on the PowerFlex array. User can import an existing SDC and map volumes to it.
 ---
 
 # powerflex_sdc_volumes_mapping (Resource)
 
-This resource can be used to map/unmap volumes to an SDC on a PowerFlex array. User can import an existing SDC and map volumes to it.
+This resource can be used to map/unmap volumes to an SDC on the PowerFlex array. User can import an existing SDC and map volumes to it.
 
 > **Caution:** <span style='color: red;' >SDC Volume mapping creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).

@@ -19,12 +19,12 @@ linkTitle: "powerflex_fault_set"
 page_title: "powerflex_fault_set Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource is used to manage the Fault Set entity of PowerFlex Array. We can Create, Update and Delete the fault set using this resource. We can also import an existing fault set from PowerFlex array.
+  This resource is used to manage the Fault Set entity of the PowerFlex Array. We can Create, Update and Delete the fault set using this resource. We can also import an existing fault set from the PowerFlex array.
 ---
 
 # powerflex_fault_set (Resource)
 
-This resource is used to manage the Fault Set entity of PowerFlex Array. We can Create, Update and Delete the fault set using this resource. We can also import an existing fault set from PowerFlex array.
+This resource is used to manage the Fault Set entity of the PowerFlex Array. We can Create, Update and Delete the fault set using this resource. We can also import an existing fault set from the PowerFlex array.
 
 ## Example Usage
 

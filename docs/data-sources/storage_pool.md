@@ -19,12 +19,12 @@ linkTitle: "powerflex_storage_pool"
 page_title: "powerflex_storage_pool Data Source - powerflex"
 subcategory: ""
 description: |-
-  This datasource is used to query the existing storage pools from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
+  This datasource is used to query the existing storage pools from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---
 
 # powerflex_storage_pool (Data Source)
 
-This datasource is used to query the existing storage pools from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
+This datasource is used to query the existing storage pools from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 
 > **Note:** Either `protection_domain_name` or `protection_domain_id` is required. But not both.
 

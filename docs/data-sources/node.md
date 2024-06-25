@@ -19,12 +19,12 @@ linkTitle: "powerflex_node"
 page_title: "powerflex_node Data Source - powerflex"
 subcategory: ""
 description: |-
-  This datasource is used to query the existing nodes from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
+  This datasource is used to query the existing nodes from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---
 
 # powerflex_node (Data Source)
 
-This datasource is used to query the existing nodes from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
+This datasource is used to query the existing nodes from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 
 ## Example Usage
 

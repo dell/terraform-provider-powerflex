@@ -19,12 +19,12 @@ linkTitle: "powerflex_sdc"
 page_title: "powerflex_sdc Data Source - powerflex"
 subcategory: ""
 description: |-
-  This datasource is used to query the existing Storage Data Clients from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
+  This datasource is used to query the existing Storage Data Clients from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---
 
 # powerflex_sdc (Data Source)
 
-This datasource is used to query the existing Storage Data Clients from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
+This datasource is used to query the existing Storage Data Clients from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 
 > **Note:** Only one of `name` and `id` can be provided at a time.
 

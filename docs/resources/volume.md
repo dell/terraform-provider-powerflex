@@ -19,12 +19,12 @@ linkTitle: "powerflex_volume"
 page_title: "powerflex_volume Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource is used to manage the Volume entity of PowerFlex Array. We can Create, Update and Delete the volume using this resource. We can also import an existing volume from PowerFlex array.
+  This resource is used to manage the Volume entity of the PowerFlex Array. We can Create, Update and Delete the volume using this resource. We can also import an existing volume from the PowerFlex array.
 ---
 
 # powerflex_volume (Resource)
 
-This resource is used to manage the Volume entity of PowerFlex Array. We can Create, Update and Delete the volume using this resource. We can also import an existing volume from PowerFlex array.
+This resource is used to manage the Volume entity of the PowerFlex Array. We can Create, Update and Delete the volume using this resource. We can also import an existing volume from the PowerFlex array.
 
 > **Caution:** <span style='color: red;' >Volume creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).

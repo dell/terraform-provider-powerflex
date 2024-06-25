@@ -19,19 +19,19 @@ linkTitle: "powerflex_sdc_host"
 page_title: "powerflex_sdc_host Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource is used to manage the SDC entity of PowerFlex Array. We can Create, Update and Delete the SDC using this resource. We can also import an existing SDC from PowerFlex array.
+  This resource is used to manage the SDC entity of the PowerFlex Array. We can Create, Update and Delete the SDC using this resource. We can also import an existing SDC from the PowerFlex array.
 ---
 
 # powerflex_sdc_host (Resource)
 
-This resource is used to manage the SDC entity of PowerFlex Array. We can Create, Update and Delete the SDC using this resource. We can also import an existing SDC from PowerFlex array.
+This resource is used to manage the SDC entity of the PowerFlex Array. We can Create, Update and Delete the SDC using this resource. We can also import an existing SDC from the PowerFlex array.
 
-~> **Caution:** SDC Host creation is not atomic. This resource sets parameters like name, etc. after SDC installation is complete.
+~> **Caution:** <span style='color: red;' >SDC Host creation is not atomic. This resource sets parameters like name, etc. after SDC installation is complete.
 If that fails for any reason, Terraform, by default, will mark this resource as tainted and recreate it on the next apply. But 
 these issues (caused by invalid inputs, network disruptions, etc.) do not require resource recreation (ie. SDC re-installation) to resolve. 
 If one untaints this resource manually (by running `terraform untaint <resource_name>`) prior to applying again, this resource can start from where it left off and, if the cause of failure
 has been rectified, it can take incremental actions to set the necessary SDC parameters.
-So please untaint the resource before applying again if you want to prevent unnecessary SDC re-installations.
+So please untaint the resource before applying again if you want to prevent unnecessary SDC re-installations.</span>
 
 ## Example Usage
 

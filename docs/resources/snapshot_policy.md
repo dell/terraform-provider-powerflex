@@ -19,12 +19,12 @@ linkTitle: "powerflex_snapshot_policy"
 page_title: "powerflex_snapshot_policy Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource is used to manage the Snapshot Policy entity of PowerFlex Array. We can Create, Update and Delete the snapshot policy using this resource. We can also import an existing snapshot policy from PowerFlex array.
+  This resource is used to manage the Snapshot Policy entity of the PowerFlex Array. We can Create, Update and Delete the snapshot policy using this resource. We can also import an existing snapshot policy from the PowerFlex array.
 ---
 
 # powerflex_snapshot_policy (Resource)
 
-This resource is used to manage the Snapshot Policy entity of PowerFlex Array. We can Create, Update and Delete the snapshot policy using this resource. We can also import an existing snapshot policy from PowerFlex array.
+This resource is used to manage the Snapshot Policy entity of the PowerFlex Array. We can Create, Update and Delete the snapshot policy using this resource. We can also import an existing snapshot policy from the PowerFlex array.
 
 
 ## Example Usage

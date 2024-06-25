@@ -19,12 +19,12 @@ linkTitle: "powerflex_resource_group"
 page_title: "powerflex_resource_group Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource is used to manage the ResourceGroup entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex ResourceGroup using this resource. We can also Import an existing ResourceGroup from PowerFlex array.
+  This resource is used to manage the ResourceGroup entity of the PowerFlex Array. We can Create, Update and Delete the PowerFlex ResourceGroup using this resource. We can also Import an existing ResourceGroup from the PowerFlex array.
 ---
 
 # powerflex_resource_group (Resource)
 
-This resource is used to manage the ResourceGroup entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex ResourceGroup using this resource. We can also Import an existing ResourceGroup from PowerFlex array.
+This resource is used to manage the ResourceGroup entity of the PowerFlex Array. We can Create, Update and Delete the PowerFlex ResourceGroup using this resource. We can also Import an existing ResourceGroup from the PowerFlex array.
 
 
 ## Example Usage

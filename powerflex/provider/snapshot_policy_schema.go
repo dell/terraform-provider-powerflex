@@ -29,8 +29,8 @@ import (
 
 // SnapshotPolicyResourceSchema - variable holds schema for Snapshot Policy
 var SnapshotPolicyResourceSchema schema.Schema = schema.Schema{
-	Description:         "This resource is used to manage the Snapshot Policy entity of PowerFlex Array. We can Create, Update and Delete the snapshot policy using this resource. We can also import an existing snapshot policy from PowerFlex array.",
-	MarkdownDescription: "This resource is used to manage the Snapshot Policy entity of PowerFlex Array. We can Create, Update and Delete the snapshot policy using this resource. We can also import an existing snapshot policy from PowerFlex array.",
+	Description:         "This resource is used to manage the Snapshot Policy entity of the PowerFlex Array. We can Create, Update and Delete the snapshot policy using this resource. We can also import an existing snapshot policy from the PowerFlex array.",
+	MarkdownDescription: "This resource is used to manage the Snapshot Policy entity of the PowerFlex Array. We can Create, Update and Delete the snapshot policy using this resource. We can also import an existing snapshot policy from the PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "ID of the Snapshot Policy.",

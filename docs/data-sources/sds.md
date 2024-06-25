@@ -19,12 +19,12 @@ linkTitle: "powerflex_sds"
 page_title: "powerflex_sds Data Source - powerflex"
 subcategory: ""
 description: |-
-  This datasource is used to query the existing Storage Data Servers from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
+  This datasource is used to query the existing Storage Data Servers from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---
 
 # powerflex_sds (Data Source)
 
-This datasource is used to query the existing Storage Data Servers from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
+This datasource is used to query the existing Storage Data Servers from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 
 > **Note:** Exactly one of `protection_domain_name` and `protection_domain_id` is required.
 
