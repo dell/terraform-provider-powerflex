@@ -24,8 +24,6 @@ import (
 
 	"terraform-provider-powerflex/powerflex/models"
 
-	"reflect"
-
 	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -275,7 +273,7 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 	}
 	// update auto snapshot creation cadence in min or number of retained snapshots per level or both
 	var snapUpdate *scaleiotypes.SnapshotPolicyModifyParam
-	if plan.AutoSnapshotCreationCadenceInMin.ValueInt64() != state.AutoSnapshotCreationCadenceInMin.ValueInt64() && reflect.DeepEqual(plan.NumOfRetainedSnapshotsPerLevel, state.NumOfRetainedSnapshotsPerLevel) {
+	if plan.AutoSnapshotCreationCadenceInMin.ValueInt64() != state.AutoSnapshotCreationCadenceInMin.ValueInt64() && helper.CompareInt64Slice(plan.NumOfRetainedSnapshotsPerLevel, state.NumOfRetainedSnapshotsPerLevel) {
 		stringList := helper.ListToSlice(plan)
 		snapUpdate = &scaleiotypes.SnapshotPolicyModifyParam{
 			AutoSnapshotCreationCadenceInMin: plan.AutoSnapshotCreationCadenceInMin.String(),
@@ -287,7 +285,7 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 				"Error while updating auto snapshot creation cadence ", err.Error(),
 			)
 		}
-	} else if !reflect.DeepEqual(plan.NumOfRetainedSnapshotsPerLevel, state.NumOfRetainedSnapshotsPerLevel) && plan.AutoSnapshotCreationCadenceInMin.ValueInt64() == state.AutoSnapshotCreationCadenceInMin.ValueInt64() {
+	} else if !helper.CompareInt64Slice(plan.NumOfRetainedSnapshotsPerLevel, state.NumOfRetainedSnapshotsPerLevel) && plan.AutoSnapshotCreationCadenceInMin.ValueInt64() == state.AutoSnapshotCreationCadenceInMin.ValueInt64() {
 		stringList := helper.ListToSlice(plan)
 		snapUpdate = &scaleiotypes.SnapshotPolicyModifyParam{
 			AutoSnapshotCreationCadenceInMin: state.AutoSnapshotCreationCadenceInMin.String(),
@@ -299,7 +297,7 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 				"Error while updating num of retained snapshots per level ", err.Error(),
 			)
 		}
-	} else if plan.AutoSnapshotCreationCadenceInMin.ValueInt64() != state.AutoSnapshotCreationCadenceInMin.ValueInt64() && !reflect.DeepEqual(plan.NumOfRetainedSnapshotsPerLevel, state.NumOfRetainedSnapshotsPerLevel) {
+	} else if plan.AutoSnapshotCreationCadenceInMin.ValueInt64() != state.AutoSnapshotCreationCadenceInMin.ValueInt64() && !helper.CompareInt64Slice(plan.NumOfRetainedSnapshotsPerLevel, state.NumOfRetainedSnapshotsPerLevel) {
 		stringList := helper.ListToSlice(plan)
 		snapUpdate = &scaleiotypes.SnapshotPolicyModifyParam{
 			AutoSnapshotCreationCadenceInMin: plan.AutoSnapshotCreationCadenceInMin.String(),

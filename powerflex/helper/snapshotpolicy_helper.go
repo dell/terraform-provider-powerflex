@@ -18,6 +18,7 @@ limitations under the License.
 package helper
 
 import (
+	"strconv"
 	"terraform-provider-powerflex/powerflex/models"
 
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
@@ -73,7 +74,7 @@ func UpdateSnapshotPolicyResourceState(sps []*scaleiotypes.SnapshotPolicy, volum
 			SecureSnapshots:                  types.BoolValue(sp.SecureSnapshots),
 		}
 		for _, rspl := range sp.NumOfRetainedSnapshotsPerLevel {
-			response.NumOfRetainedSnapshotsPerLevel = append(response.NumOfRetainedSnapshotsPerLevel, types.Int64Value((int64)(rspl)))
+			response.NumOfRetainedSnapshotsPerLevel = append(response.NumOfRetainedSnapshotsPerLevel, (int64)(rspl))
 		}
 		if sp.SnapshotPolicyState == "Active" {
 			response.Paused = types.BoolValue(false)
@@ -124,7 +125,7 @@ func DifferenceArray(a, b []string) ([]string, []string) {
 func ListToSlice(snap models.SnapshotPolicyResourceModel) []string {
 	stringList := make([]string, len(snap.NumOfRetainedSnapshotsPerLevel))
 	for i, v := range snap.NumOfRetainedSnapshotsPerLevel {
-		stringList[i] = v.String()
+		stringList[i] = strconv.Itoa((int)(v))
 	}
 	return stringList
 }
