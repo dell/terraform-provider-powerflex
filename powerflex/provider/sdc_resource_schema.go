@@ -124,6 +124,9 @@ var sdcDetailSchema schema.ListNestedAttribute = schema.ListNestedAttribute{
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+				Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
+					"linux",
+				)},
 			},
 			"is_mdm_or_tb": schema.StringAttribute{
 				Description:         "Whether this works as MDM or Tie Breaker,The acceptable value are `Primary`, `Secondary`, `TB`, `Standby` or blank. Default value is blank",
