@@ -19,12 +19,12 @@ linkTitle: "powerflex_firmware_repository"
 page_title: "powerflex_firmware_repository Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource is used to manage the Firmware Repository entity of PowerFlex Array. We can Create and Update the firmware repository using this resource. As part of create operation, we can upload the compliance file and as part of update we can approve the unsigned files.We can also import an existing firmware repository from PowerFlex array.
+  This resource is used to manage the Firmware Repository entity of the PowerFlex Array. We can Create and Update the firmware repository using this resource. As part of create operation, we can upload the compliance file and as part of update we can approve the unsigned files.We can also import an existing firmware repository from the PowerFlex array.
 ---
 
 # powerflex_firmware_repository (Resource)
 
-This resource is used to manage the Firmware Repository entity of PowerFlex Array. We can Create and Update the firmware repository using this resource. As part of create operation, we can upload the compliance file and as part of update we can approve the unsigned files.We can also import an existing firmware repository from PowerFlex array.
+This resource is used to manage the Firmware Repository entity of the PowerFlex Array. We can Create and Update the firmware repository using this resource. As part of create operation, we can upload the compliance file and as part of update we can approve the unsigned files.We can also import an existing firmware repository from the PowerFlex array.
 
 
 ## Example Usage

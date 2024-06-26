@@ -29,8 +29,8 @@ import (
 
 // FirmwareRepositoryResourceSchema - variable holds schema for Firmware Repository
 var FirmwareRepositoryResourceSchema schema.Schema = schema.Schema{
-	Description:         "This resource is used to manage the Firmware Repository entity of PowerFlex Array. We can Create and Update the firmware repository using this resource. As part of create operation, we can upload the compliance file and as part of update we can approve the unsigned files.We can also import an existing firmware repository from PowerFlex array.",
-	MarkdownDescription: "This resource is used to manage the Firmware Repository entity of PowerFlex Array. We can Create and Update the firmware repository using this resource. As part of create operation, we can upload the compliance file and as part of update we can approve the unsigned files.We can also import an existing firmware repository from PowerFlex array.",
+	Description:         "This resource is used to manage the Firmware Repository entity of the PowerFlex Array. We can Create and Update the firmware repository using this resource. As part of create operation, we can upload the compliance file and as part of update we can approve the unsigned files.We can also import an existing firmware repository from the PowerFlex array.",
+	MarkdownDescription: "This resource is used to manage the Firmware Repository entity of the PowerFlex Array. We can Create and Update the firmware repository using this resource. As part of create operation, we can upload the compliance file and as part of update we can approve the unsigned files.We can also import an existing firmware repository from the PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "ID of the Firmware Repository",

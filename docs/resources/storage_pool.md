@@ -19,12 +19,12 @@ linkTitle: "powerflex_storage_pool"
 page_title: "powerflex_storage_pool Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource is used to manage the Storage Pool entity of PowerFlex Array. We can Create, Update and Delete the storage pool using this resource. We can also import an existing storage pool from PowerFlex array.
+  This resource is used to manage the Storage Pool entity of the PowerFlex Array. We can Create, Update and Delete the storage pool using this resource. We can also import an existing storage pool from the PowerFlex array.
 ---
 
 # powerflex_storage_pool (Resource)
 
-This resource is used to manage the Storage Pool entity of PowerFlex Array. We can Create, Update and Delete the storage pool using this resource. We can also import an existing storage pool from PowerFlex array.
+This resource is used to manage the Storage Pool entity of the PowerFlex Array. We can Create, Update and Delete the storage pool using this resource. We can also import an existing storage pool from the PowerFlex array.
 
 > **Caution:** <span style='color: red;' >Storage Pool creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).

@@ -91,8 +91,8 @@ func (r *systemResource) Configure(_ context.Context, req resource.ConfigureRequ
 
 // SystemResourceSchema defines the schema for system resource
 var SystemResourceSchema schema.Schema = schema.Schema{
-	Description:         "This resource is used to manage the cluster level operations of PowerFlex Array. This resource supports Create, Update and Delete operations.",
-	MarkdownDescription: "This resource is used to manage the cluster level operations of PowerFlex Array. This resource supports Create, Update and Delete operations.",
+	Description:         "This resource is used to manage the cluster level operations of the PowerFlex Array. This resource supports Create, Update and Delete operations.",
+	MarkdownDescription: "This resource is used to manage the cluster level operations of the PowerFlex Array. This resource supports Create, Update and Delete operations.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Computed:            true,

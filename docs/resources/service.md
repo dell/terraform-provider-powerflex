@@ -19,12 +19,12 @@ linkTitle: "powerflex_service"
 page_title: "powerflex_service Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource is used to manage the Service entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex Service using this resource. We can also Import an existing Service from PowerFlex array.
+  This resource is used to manage the Service entity of the PowerFlex Array. We can Create, Update and Delete the PowerFlex Service using this resource. We can also Import an existing Service from the PowerFlex array.
 ---
 
 # powerflex_service (Resource)
 
-This resource is used to manage the Service entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex Service using this resource. We can also Import an existing Service from PowerFlex array.
+This resource is used to manage the Service entity of the PowerFlex Array. We can Create, Update and Delete the PowerFlex Service using this resource. We can also Import an existing Service from the PowerFlex array.
 
 
 ## Example Usage

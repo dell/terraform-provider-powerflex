@@ -32,8 +32,8 @@ import (
 // SDCReourceSchema - varible holds schema for SDC resource
 var SDCReourceSchema schema.Schema = schema.Schema{
 	DeprecationMessage:  "Use sdc_host instead",
-	Description:         "This resource is used to manage the SDC entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex SDC using this resource. We can also Import an existing SDC from PowerFlex array.",
-	MarkdownDescription: "This resource is used to manage the SDC entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex SDC using this resource. We can also Import an existing SDC from PowerFlex array.",
+	Description:         "This resource is used to manage the SDC entity of the PowerFlex Array. We can Create, Update and Delete the PowerFlex SDC using this resource. We can also Import an existing SDC from the PowerFlex array.",
+	MarkdownDescription: "This resource is used to manage the SDC entity of the PowerFlex Array. We can Create, Update and Delete the PowerFlex SDC using this resource. We can also Import an existing SDC from the PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"sdc_details":       sdcDetailSchema,
 		"sdc_state_details": sdcStateDetailSchema,

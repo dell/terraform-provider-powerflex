@@ -28,8 +28,8 @@ import (
 
 // DataSourceSchema is the schema for reading the storage pool data
 var DataSourceSchema schema.Schema = schema.Schema{
-	Description:         "This datasource is used to query the existing storage pools from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
-	MarkdownDescription: "This datasource is used to query the existing storage pools from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
+	Description:         "This datasource is used to query the existing storage pools from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
+	MarkdownDescription: "This datasource is used to query the existing storage pools from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "Placeholder identifier attribute.",

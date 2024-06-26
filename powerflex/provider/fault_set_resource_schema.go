@@ -25,8 +25,8 @@ import (
 
 // FaultSetResourceSchema - variable holds schema for Fault set
 var FaultSetResourceSchema schema.Schema = schema.Schema{
-	Description:         "This resource is used to manage the Fault Set entity of PowerFlex Array. We can Create, Update and Delete the fault set using this resource. We can also import an existing fault set from PowerFlex array.",
-	MarkdownDescription: "This resource is used to manage the Fault Set entity of PowerFlex Array. We can Create, Update and Delete the fault set using this resource. We can also import an existing fault set from PowerFlex array.",
+	Description:         "This resource is used to manage the Fault Set entity of the PowerFlex Array. We can Create, Update and Delete the fault set using this resource. We can also import an existing fault set from the PowerFlex array.",
+	MarkdownDescription: "This resource is used to manage the Fault Set entity of the PowerFlex Array. We can Create, Update and Delete the fault set using this resource. We can also import an existing fault set from the PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "ID of the Fault Set",

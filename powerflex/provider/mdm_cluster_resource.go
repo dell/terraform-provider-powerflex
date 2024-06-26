@@ -68,8 +68,8 @@ func (d *mdmClusterResource) Schema(_ context.Context, _ resource.SchemaRequest,
 
 // MdmClusterResourceSchema defines the schema for Mdm resource
 var MdmClusterResourceSchema schema.Schema = schema.Schema{
-	Description:         "This resource can be used to manage MDM cluster on a PowerFlex array. Supports adding or removing standby MDMs, migrate from 3-node to 5-node cluster or vice-versa, changing MDM ownership, changing performance profile, and renaming MDMs.",
-	MarkdownDescription: "This resource can be used to manage MDM cluster on a PowerFlex array. Supports adding or removing standby MDMs, migrate from 3-node to 5-node cluster or vice-versa, changing MDM ownership, changing performance profile, and renaming MDMs.",
+	Description:         "This resource can be used to manage MDM cluster on the PowerFlex array. Supports adding or removing standby MDMs, migrate from 3-node to 5-node cluster or vice-versa, changing MDM ownership, changing performance profile, and renaming MDMs.",
+	MarkdownDescription: "This resource can be used to manage MDM cluster on the PowerFlex array. Supports adding or removing standby MDMs, migrate from 3-node to 5-node cluster or vice-versa, changing MDM ownership, changing performance profile, and renaming MDMs.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "Unique identifier of the MDM cluster.",

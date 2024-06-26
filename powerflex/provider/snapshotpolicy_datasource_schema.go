@@ -27,8 +27,8 @@ import (
 
 // SnapshotPolicyDataSourceSchema is the schema for reading the snapshot policy data
 var SnapshotPolicyDataSourceSchema schema.Schema = schema.Schema{
-	Description:         "This datasource is used to query the existing snapshot policies from PowerFlex array. The information fetched from this datasource can be used for getting the details.",
-	MarkdownDescription: "This datasource is used to query the existing snapshot policies from PowerFlex array. The information fetched from this datasource can be used for getting the details.",
+	Description:         "This datasource is used to query the existing snapshot policies from the PowerFlex array. The information fetched from this datasource can be used for getting the details.",
+	MarkdownDescription: "This datasource is used to query the existing snapshot policies from the PowerFlex array. The information fetched from this datasource can be used for getting the details.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description: "Unique identifier of the snapshot policy instance to fetch." +

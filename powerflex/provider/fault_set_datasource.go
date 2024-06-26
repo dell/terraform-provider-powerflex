@@ -200,8 +200,8 @@ func (d *faultSetDataSource) Read(ctx context.Context, req datasource.ReadReques
 
 // FaultSetDataSourceSchema defines the schema for Fault Set datasource
 var FaultSetDataSourceSchema schema.Schema = schema.Schema{
-	Description:         "This datasource is used to query the existing fault set from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
-	MarkdownDescription: "This datasource is used to query the existing fault set from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
+	Description:         "This datasource is used to query the existing fault set from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
+	MarkdownDescription: "This datasource is used to query the existing fault set from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "Placeholder attribute.",

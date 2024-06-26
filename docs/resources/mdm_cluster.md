@@ -19,12 +19,12 @@ linkTitle: "powerflex_mdm_cluster"
 page_title: "powerflex_mdm_cluster Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource can be used to manage MDM cluster on a PowerFlex array. Supports adding or removing standby MDMs, migrate from 3-node to 5-node cluster or vice-versa, changing MDM ownership, changing performance profile, and renaming MDMs.
+  This resource can be used to manage MDM cluster on the PowerFlex array. Supports adding or removing standby MDMs, migrate from 3-node to 5-node cluster or vice-versa, changing MDM ownership, changing performance profile, and renaming MDMs.
 ---
 
 # powerflex_mdm_cluster (Resource)
 
-This resource can be used to manage MDM cluster on a PowerFlex array. Supports adding or removing standby MDMs, migrate from 3-node to 5-node cluster or vice-versa, changing MDM ownership, changing performance profile, and renaming MDMs.
+This resource can be used to manage MDM cluster on the PowerFlex array. Supports adding or removing standby MDMs, migrate from 3-node to 5-node cluster or vice-versa, changing MDM ownership, changing performance profile, and renaming MDMs.
 
 > **Caution:** <span style='color: red;' >MDM cluster creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).

@@ -159,8 +159,8 @@ func (d *vtreeDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 
 // VTreeDataSourceSchema defines the schema for VTree data source
 var VTreeDataSourceSchema schema.Schema = schema.Schema{
-	Description:         "This datasource is used to query the existing vtrees from PowerFlex array. The information fetched from this datasource can be used for getting the details.",
-	MarkdownDescription: "This datasource is used to query the existing vtrees from PowerFlex array. The information fetched from this datasource can be used for getting the details.",
+	Description:         "This datasource is used to query the existing vtrees from the PowerFlex array. The information fetched from this datasource can be used for getting the details.",
+	MarkdownDescription: "This datasource is used to query the existing vtrees from the PowerFlex array. The information fetched from this datasource can be used for getting the details.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "Placeholder identifier attribute.",

@@ -19,12 +19,12 @@ linkTitle: "powerflex_sds"
 page_title: "powerflex_sds Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource is used to manage the Storage Data Servers entity of PowerFlex Array. We can Create, Update and Delete the SDS using this resource. We can also import an existing SDS from PowerFlex array.
+  This resource is used to manage the Storage Data Servers entity of the PowerFlex Array. We can Create, Update and Delete the SDS using this resource. We can also import an existing SDS from the PowerFlex array.
 ---
 
 # powerflex_sds (Resource)
 
-This resource is used to manage the Storage Data Servers entity of PowerFlex Array. We can Create, Update and Delete the SDS using this resource. We can also import an existing SDS from PowerFlex array.
+This resource is used to manage the Storage Data Servers entity of the PowerFlex Array. We can Create, Update and Delete the SDS using this resource. We can also import an existing SDS from the PowerFlex array.
 
 > **Caution:** <span style='color: red;' >SDS creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
 One can manually remove the taint and try applying the configuration (after making necessary adjustments).

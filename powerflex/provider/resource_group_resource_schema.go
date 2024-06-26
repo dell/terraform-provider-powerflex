@@ -31,8 +31,8 @@ import (
 
 // ResourceGroupReourceSchema - variable holds schema for ResourceGroup resource
 var ResourceGroupReourceSchema schema.Schema = schema.Schema{
-	Description:         "This resource is used to manage the ResourceGroup entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex ResourceGroup using this resource. We can also Import an existing ResourceGroup from PowerFlex array.",
-	MarkdownDescription: "This resource is used to manage the ResourceGroup entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex ResourceGroup using this resource. We can also Import an existing ResourceGroup from PowerFlex array.",
+	Description:         "This resource is used to manage the ResourceGroup entity of the PowerFlex Array. We can Create, Update and Delete the PowerFlex ResourceGroup using this resource. We can also Import an existing ResourceGroup from the PowerFlex array.",
+	MarkdownDescription: "This resource is used to manage the ResourceGroup entity of the PowerFlex Array. We can Create, Update and Delete the PowerFlex ResourceGroup using this resource. We can also Import an existing ResourceGroup from the PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"deployment_name": schema.StringAttribute{
 			Description:         "Deployment Name",

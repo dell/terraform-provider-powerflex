@@ -18,6 +18,8 @@ limitations under the License.
 package provider
 
 import (
+	"terraform-provider-powerflex/powerflex/helper"
+
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -25,13 +27,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"terraform-provider-powerflex/powerflex/helper"
 )
 
 // SnapshotResourceSchema variable to define schema for the snapshot resource
 var SnapshotResourceSchema schema.Schema = schema.Schema{
-	Description:         "This resource is used to manage the Snapshot of volumes on PowerFlex Array. We can Create, Update and Delete the snapshots using this resource. We can also import an existing snapshot from PowerFlex array.",
-	MarkdownDescription: "This resource is used to manage the Snapshot of volumes on PowerFlex Array. We can Create, Update and Delete the snapshots using this resource. We can also import an existing snapshot from PowerFlex array.",
+	Description:         "This resource is used to manage the Snapshot of volumes on the PowerFlex Array. We can Create, Update and Delete the snapshots using this resource. We can also import an existing snapshot from the PowerFlex array.",
+	MarkdownDescription: "This resource is used to manage the Snapshot of volumes on the PowerFlex Array. We can Create, Update and Delete the snapshots using this resource. We can also import an existing snapshot from the PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"name": schema.StringAttribute{
 			Description:         "The name of the snapshot.",

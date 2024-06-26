@@ -28,8 +28,8 @@ import (
 
 // TemplateDataSourceSchema defines the schema for template datasource
 var TemplateDataSourceSchema schema.Schema = schema.Schema{
-	Description:         "This datasource is used to query the existing templates from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
-	MarkdownDescription: "This datasource is used to query the existing templates from PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
+	Description:         "This datasource is used to query the existing templates from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
+	MarkdownDescription: "This datasource is used to query the existing templates from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "Placeholder attribute.",
