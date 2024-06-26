@@ -26,23 +26,25 @@ description: |-
 
 {{ .Description | trimspace }}
 
-> **Note:** For PowerFlex 4.x, the PowerFlex Manager must be installed as a prerequisite. The required packages should be uploaded to the PowerFlex Manager.
+**Please consider below points before using cluster resource.**
 
-> **Note:** For PowerFlex 3.x, a Gateway server is a prerequisite. The required packages should be uploaded to the gateway. The Package resource can be used for uploading packages to the gateway.
+1. For PowerFlex 4.x, the PowerFlex Manager must be installed as a prerequisite. The required packages should be uploaded to the PowerFlex Manager.
 
-> **Note:** Support is provided for creating, importing, and deleting operations for this resource.
+2. For PowerFlex 3.x, a Gateway server is a prerequisite. The required packages should be uploaded to the gateway. The Package resource can be used for uploading packages to the gateway.
 
-> **Note:** In multi-node cluster deployments, when some of the component installations fail, the partial deployment will not be rolled back.
+3. Support is provided for creating, importing, and deleting operations for this resource.
 
-> **Note:** If you've separately installed any SDR, SDS, or SDC and connected it to the cluster and if you face any security certificate issues during the destroy process, you'll have to manually accept the security certificate to resolve them.
+4. In multi-node cluster deployments, when some of the component installations fail, the partial deployment will not be rolled back.
 
-> **Note:** During the destroy process, the entire cluster will be destroyed, not just specific individual resources. After destroy need to follow cleanup process.
+5. If you've separately installed any SDR, SDS, or SDC and connected it to the cluster and if you face any security certificate issues during the destroy process, you'll have to manually accept the security certificate to resolve them.
 
-> **Note:** `ips` attribute is used in minimal csv configuration whereas `mdm_ips` attribute is used in complete csv configuration.
+6. During the destroy process, the entire cluster will be destroyed, not just specific individual resources. After destroy need to follow cleanup process.
 
-> **Note:** For PowerFlex 4.x, there's no need to mention `allow_non_secure_communication_with_lia`, `allow_non_secure_communication_with_mdm`, and `disable_non_mgmt_components_auth`. And, **Rfcache** is not supported.
+7. `ips` attribute is used in minimal csv configuration whereas `mdm_ips` attribute is used in complete csv configuration.
 
-> **Note:** To follow the installation process, you can refer to the [Deployment Guide 3.x](https://www.dell.com/support/manuals/en-us/scaleio/pfx_deploy_guide_3.6.x/deploy-powerflex?guid=guid-e9f70972-baac-42c9-9ff9-a3d2b0722f54&lang=en-us) & [Deployment Guide 4.x](https://www.dell.com/support/manuals/en-us/scaleio/powerflex_install_upgrade_guide_4.5.x/introduction?guid=guid-e798f431-7df4-450c-8f86-60ee7f3d1e3e&lang=en-us)
+8. For PowerFlex 4.x, there's no need to mention `allow_non_secure_communication_with_lia`, `allow_non_secure_communication_with_mdm`, and `disable_non_mgmt_components_auth`. And, **Rfcache** is not supported.
+
+9. To follow the installation process, you can refer to the [Deployment Guide 3.x](https://www.dell.com/support/manuals/en-us/scaleio/pfx_deploy_guide_3.6.x/deploy-powerflex?guid=guid-e9f70972-baac-42c9-9ff9-a3d2b0722f54&lang=en-us) & [Deployment Guide 4.x](https://www.dell.com/support/manuals/en-us/scaleio/powerflex_install_upgrade_guide_4.5.x/introduction?guid=guid-e798f431-7df4-450c-8f86-60ee7f3d1e3e&lang=en-us)
 
 {{ if .HasExample -}}
 ## Example Usage
