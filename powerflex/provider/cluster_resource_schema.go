@@ -176,6 +176,9 @@ func ClusterModelSchema() map[string]schema.Attribute {
 			PlanModifiers: []planmodifier.String{
 				helper.StringDefault("linux"),
 			},
+			Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
+				"linux",
+			)},
 		},
 
 		"is_mdm_or_tb": schema.StringAttribute{
