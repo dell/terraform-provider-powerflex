@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	github.com/bramvdbogaerde/go-scp v1.4.0
-	github.com/dell/goscaleio v1.14.2-0.20240617093037-26a7b353d3c8
+	github.com/dell/goscaleio v1.15.0
 	github.com/hashicorp/terraform-plugin-docs v0.13.0
 	github.com/hashicorp/terraform-plugin-framework v1.4.2
 	github.com/hashicorp/terraform-plugin-framework-validators v0.10.0
