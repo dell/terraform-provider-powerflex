@@ -30,7 +30,7 @@ require (
 	github.com/go-git/go-git/v5 v5.11.0 // indirect
 	github.com/go-logr/logr v1.3.0 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.28.0 // indirect
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.29.0 // indirect
 	github.com/jcmturner/aescts/v2 v2.0.0 // indirect
 	github.com/jcmturner/dnsutils/v2 v2.0.0 // indirect
 	github.com/jcmturner/gofork v1.7.6 // indirect
