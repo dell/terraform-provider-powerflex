@@ -224,7 +224,7 @@ func (winRMClient *WinRMClient) Init() (bool, error) {
 
 	}
 
-	errorMessage = fmt.Sprintf("Failed to establish %s connection on %s:%d", "WinRM", winRMClient.Target, winRMClient.Port)
+	errorMessage = fmt.Sprintf("Failed to establish %s connection on %s:%d error: %s", "WinRM", winRMClient.Target, winRMClient.Port, err.Error())
 
 	if strings.Contains(string(err.Error()), "connection refused") || strings.Contains(string(err.Error()), "invalid port") {
 

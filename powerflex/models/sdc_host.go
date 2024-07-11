@@ -29,9 +29,14 @@ type SdcHostModel struct {
 	// optional
 	Name               types.String `tfsdk:"name"`
 	PerformanceProfile types.String `tfsdk:"performance_profile"`
+	MdmIPs             types.List   `tfsdk:"clusters_mdm_ips"`
 
 	// optional, os specific
 	Esxi types.Object `tfsdk:"esxi"`
+
+	// Optional Computed with defaults
+	LinuxDrvCfg   types.String `tfsdk:"linux_drv_cfg"`
+	WindowsDrvCfg types.String `tfsdk:"windows_drv_cfg"`
 
 	//Computed
 	SystemID           types.String `tfsdk:"system_id"`

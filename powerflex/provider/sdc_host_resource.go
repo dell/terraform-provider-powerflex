@@ -28,10 +28,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -248,12 +250,38 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					},
 				},
 			},
+			"linux_drv_cfg": schema.StringAttribute{
+				Description:         "Path to the drv_cfg for linux, defaults to /opt/emc/scaleio/sdc/bin/",
+				MarkdownDescription: "Path to the drv_cfg for linux, defaults to /opt/emc/scaleio/sdc/bin/",
+				Optional:            true,
+				Computed:            true,
+				Default:             stringdefault.StaticString("/opt/emc/scaleio/sdc/bin/"),
+			},
+			"windows_drv_cfg": schema.StringAttribute{
+				Description:         "Path to the drv_cfg.exe for windows, defaults to C:\\Program Files\\EMC\\scaleio\\sdc\\bin\\",
+				MarkdownDescription: "Path to the drv_cfg.exe config for windows, defaults to C:\\Program Files\\EMC\\scaleio\\sdc\\bin\\",
+				Optional:            true,
+				Computed:            true,
+				Default:             stringdefault.StaticString("C:\\Program Files\\EMC\\scaleio\\sdc\\bin\\"),
+			},
 			"package_path": schema.StringAttribute{
 				Description:         "Full path (on local machine) of the package to be installed on the SDC.",
 				MarkdownDescription: "Full path (on local machine) of the package to be installed on the SDC.",
 				Required:            true,
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
+				},
+			},
+			"clusters_mdm_ips": schema.ListAttribute{
+				Description: "List of MDM IPs (primary,secondary or list of virtual IPs) seperated by cluster, to be assigned to the SDC." +
+					"Each string in the list is a set of Mdm Ips related to a specific cluster. These Ips should be seperated by comma I.E. ['x.x.x.x,y.y.y.y', 'z.z.z.z,a.a.a.a']. ",
+				MarkdownDescription: "List of MDM IPs (primary,secondary or list of virtual IPs) seperated by cluster, to be assigned to the SDC." +
+					"Each string in the list is a set of Mdm Ips related to a specific cluster. These Ips should be seperated by comma I.E. ['x.x.x.x,y.y.y.y', 'z.z.z.z,a.a.a.a']. ",
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"guid": schema.StringAttribute{
@@ -514,6 +542,21 @@ func (r *sdcHostResource) Update(ctx context.Context, req resource.UpdateRequest
 		System: r.system,
 	}
 
+	// Only run this update if the mdms need to be updated
+	if !plan.MdmIPs.Equal(currState.MdmIPs) {
+
+		// if the mdms need to be updated do it for the specific OS
+		if plan.OS.ValueString() == "esxi" {
+			resp.Diagnostics.Append(resHelper.UpdateEsxiMdms(ctx, plan)...)
+		} else if plan.OS.ValueString() == "windows" {
+			resp.Diagnostics.Append(resHelper.UpdateWindowsMdms(ctx, plan)...)
+		} else if plan.OS.ValueString() == "linux" {
+			resp.Diagnostics.Append(resHelper.UpdateLinuxMdms(ctx, plan)...)
+		}
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
 	// configure SDC via API
 	err := resHelper.SetSDCParams(ctx, plan, currState)
 	if err != nil {
@@ -533,6 +576,8 @@ func (r *sdcHostResource) Update(ctx context.Context, req resource.UpdateRequest
 		)
 		return
 	}
+	// This is needed when doing an import then update
+	state.Host = currState.Host
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
