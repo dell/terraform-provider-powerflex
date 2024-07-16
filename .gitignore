@@ -13,3 +13,4 @@ cover*
 test*
 bin/*
 .vscode
+terraform.tfstate*

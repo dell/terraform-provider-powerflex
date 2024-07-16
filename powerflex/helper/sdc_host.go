@@ -22,9 +22,11 @@ import (
 	"strings"
 	"terraform-provider-powerflex/client"
 	"terraform-provider-powerflex/powerflex/models"
+	"time"
 
 	"github.com/dell/goscaleio"
 	goscaleio_types "github.com/dell/goscaleio/types/v1"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -136,6 +138,10 @@ func (r *SdcHostResource) ReadSDCHost(ctx context.Context, state models.SdcHostM
 	state.SystemID = types.StringValue(sdcData.Sdc.SystemID)
 	state.OnVMWare = types.BoolValue(sdcData.Sdc.OnVMWare)
 	state.GUID = types.StringValue(sdcData.Sdc.SdcGUID)
+	if state.MdmIPs.IsUnknown() {
+		// Just make an empty list if not set by user
+		state.MdmIPs, _ = types.ListValue(types.StringType, []attr.Value{})
+	}
 	return state, nil
 }
 
@@ -160,6 +166,89 @@ func (r *SdcHostResource) SetSDCParams(ctx context.Context, plan, state models.S
 	}
 
 	return nil
+}
+
+// UpdateLinuxMdms - update linux SDC host
+func (r *SdcHostResource) UpdateLinuxMdms(ctx context.Context, plan models.SdcHostModel) diag.Diagnostics {
+	var respDiagnostics diag.Diagnostics
+	// Create the ssh provisioner
+	sshP, _, err := r.getSSHProvisioner(ctx, plan)
+	if err != nil {
+		respDiagnostics.AddError(
+			"Error connecting to host",
+			err.Error(),
+		)
+		return respDiagnostics
+	}
+	defer sshP.Close()
+	// Check for existing mdms
+	qMdms, qErr := sshP.RunWithDir(plan.LinuxDrvCfg.ValueString(), "./drv_cfg --query_mdms")
+	if qErr != nil {
+		respDiagnostics.AddError(
+			"Error retrieving mdms with",
+			qErr.Error(),
+		)
+		return respDiagnostics
+	}
+	tflog.Info(ctx, "Existing MDMS: "+qMdms)
+	var mdms []string
+	respDiagnostics = append(respDiagnostics, plan.MdmIPs.ElementsAs(ctx, &mdms, true)...)
+	if respDiagnostics.HasError() {
+		return respDiagnostics
+	}
+	// If they already exist, attempt to update them othewise add them
+	for _, mdm := range mdms {
+		splitMdms := strings.Split(mdm, ",")
+		if strings.Contains(qMdms, splitMdms[0]) {
+			tflog.Info(ctx, "Updating MDMS: "+mdm)
+			_, err := sshP.RunWithDir(plan.LinuxDrvCfg.ValueString(), fmt.Sprintf("./drv_cfg --mod_mdm_ip --ip=%s --new_mdm_ip=%s", splitMdms[0], mdm))
+			if err != nil {
+				respDiagnostics.AddError(
+					"Error updating mdms: "+mdm,
+					err.Error(),
+				)
+				return respDiagnostics
+			}
+			tflog.Info(ctx, "MDMS updated")
+			// Add new MDMs to the sdc
+		} else {
+			tflog.Info(ctx, "Adding MDMS: "+mdm)
+			_, err := sshP.RunWithDir(plan.LinuxDrvCfg.ValueString(), fmt.Sprintf("./drv_cfg --add_mdm --ip=%s", mdm))
+			if err != nil {
+				respDiagnostics.AddError(
+					"Error adding mdms?: "+mdm,
+					err.Error(),
+				)
+				return respDiagnostics
+			}
+			tflog.Info(ctx, "MDMS Added")
+		}
+	}
+
+	// Check to see if all mdms were set properly by the drv_cfg command
+	for _, mdm := range mdms {
+		splitMdms := strings.Split(mdm, ",")
+		qMdmsAfter, qErrAfter := sshP.RunWithDir(plan.LinuxDrvCfg.ValueString(), "./drv_cfg --query_mdms | grep "+splitMdms[0])
+		if qErrAfter != nil {
+			respDiagnostics.AddError(
+				"Error validating mdms",
+				qErrAfter.Error(),
+			)
+			return respDiagnostics
+		}
+		// If it contains 0000000000000000 that means the MDM was not valid
+		if !strings.Contains(qMdmsAfter, splitMdms[0]) || strings.Contains(qMdmsAfter, "0000000000000000") {
+			respDiagnostics.AddError(
+				"Error validating mdms",
+				"MDMS "+mdm+" were invalid please check the configuration and try again",
+			)
+			return respDiagnostics
+		}
+	}
+
+	// After setting the new config let it sleep to make sure it is set
+	time.Sleep(5 * time.Second)
+	return respDiagnostics
 }
 
 // LinuxOp creates or deletes a linux SDC host
@@ -215,12 +304,20 @@ func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel,
 	case "rhel", "sles", "centos":
 		if add {
 			respDiagnostics.Append(r.CreateRhel(ctx, plan, sshP, dir)...)
+			// If the MdmIPs are set in the plan then use the drv_conf to update them
+			if !plan.MdmIPs.IsUnknown() && len(plan.MdmIPs.Elements()) > 0 {
+				respDiagnostics.Append(r.UpdateLinuxMdms(ctx, plan)...)
+			}
 		} else {
 			respDiagnostics.Append(r.DeleteRhel(ctx, plan, sshP)...)
 		}
 	case "ubuntu":
 		if add {
 			respDiagnostics.Append(r.CreateUbuntu(ctx, plan, sshP, dir)...)
+			// If the MdmIPs are set in the plan then use the drv_conf to update them
+			if !plan.MdmIPs.IsUnknown() && len(plan.MdmIPs.Elements()) > 0 {
+				respDiagnostics.Append(r.UpdateLinuxMdms(ctx, plan)...)
+			}
 		} else {
 			respDiagnostics.Append(r.DeleteUbuntu(ctx, plan, sshP)...)
 		}
