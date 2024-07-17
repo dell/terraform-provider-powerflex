@@ -283,6 +283,7 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 		ResourceGroupDataSource,
 		FirmwareRepositoryDataSource,
 		ComplianceReportResourceGroupDataSource,
+		CompatibilityManagementDataSource,
 	}
 }
 
@@ -308,5 +309,6 @@ func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resou
 		NewFirmwareRepositoryResource,
 		NewSDCHostResource,
 		SystemResource,
+		NewCompatibilityManagementResource,
 	}
 }

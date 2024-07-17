@@ -4,7 +4,8 @@ go 1.22
 
 require (
 	github.com/bramvdbogaerde/go-scp v1.4.0
-	github.com/dell/goscaleio v1.15.1-0.20240708055747-b1cdc01d8604
+	// Updating to a commit version temporarily until the next goscaleio release
+	github.com/dell/goscaleio v1.15.1-0.20240718115558-b05601be619b
 	github.com/hashicorp/terraform-plugin-docs v0.13.0
 	github.com/hashicorp/terraform-plugin-framework v1.4.2
 	github.com/hashicorp/terraform-plugin-framework-validators v0.10.0
@@ -16,6 +17,7 @@ require (
 	github.com/masterzen/winrm v0.0.0-20231227165926-e811dad5ac77
 	github.com/packer-community/winrmcp v0.0.0-20221126162354-6e900dd2c68f
 	github.com/stretchr/testify v1.9.0
+	github.com/bytedance/mockey v1.2.10
 )
 
 require (
