@@ -192,7 +192,7 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 		)
 		return
 	}
-	
+
 	if resp.Diagnostics.HasError() {
 		volresource := goscaleio.NewVolume(r.client)
 		volresource.Volume = volsResponse[0]
