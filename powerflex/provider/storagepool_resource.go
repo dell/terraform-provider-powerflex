@@ -415,6 +415,18 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		}
 	}
 
+	if resp.Diagnostics.HasError() {
+		err = pd.DeleteStoragePool(plan.Name.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error Deleting Storagepool",
+				"Couldn't Delete Storagepool "+err.Error(),
+			)
+			return
+		}
+		return
+	}
+
 	spResponse, err := pd.FindStoragePool(sp, "", "")
 	if err != nil {
 		resp.Diagnostics.AddError(

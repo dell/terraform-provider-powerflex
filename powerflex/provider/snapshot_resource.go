@@ -203,6 +203,9 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		errMsg["desired_retention/retention_unit"] = "The specified snapshot can't be retained due to failure in creation."
 	}
 	if (len(errMsg) == 0) && !plan.DesiredRetention.IsNull() {
+		if plan.DesiredRetention.ValueInt64() <= 0 {
+			errMsg["desired_retention/retention_unit"] = "Value of desired retention can't be negative."
+		}
 		errRetention := snapResource.SetSnapshotSecurity(plan.RetentionInMin.ValueString())
 		if errRetention != nil {
 			errMsg["desired_retention/retention_unit"] = errRetention.Error()
@@ -217,10 +220,13 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 	snap = snapResponse[0]
-	dgs := helper.RefreshState(snap, &plan)
-	resp.Diagnostics.Append(dgs...)
-	diags = resp.State.Set(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
+	if len(errMsg) == 0 {
+		dgs := helper.RefreshState(snap, &plan)
+		resp.Diagnostics.Append(dgs...)
+		diags = resp.State.Set(ctx, &plan)
+		resp.Diagnostics.Append(diags...)
+	}
+
 	if len(errMsg) > 0 {
 		failureMessage := ""
 		for key, value := range errMsg {
@@ -230,6 +236,16 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("Failure Message: [%v]", failureMessage),
 			failureMessage)
+		snapshot := goscaleio.NewVolume(r.client)
+		snapshot.Volume = snapResponse[0]
+		err := snapshot.RemoveVolume(plan.RemoveMode.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error Removing Volume",
+				"Couldn't remove volume "+err.Error(),
+			)
+			return
+		}
 	}
 	if resp.Diagnostics.HasError() {
 		return
