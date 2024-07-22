@@ -21,6 +21,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
@@ -293,6 +294,39 @@ func TestAccVolumeResourceImport(t *testing.T) {
 				ResourceName: resourceName,
 				ImportState:  true,
 				// TODO // ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccVolumeResourceWithPDID(t *testing.T) {
+	//resourceName := "powerflex_volume.tf_create"
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Create dummy volume
+			{
+				Config: ProviderConfigForTesting + `
+				resource "powerflex_volume" "tf_create"{
+					name = "volume-create-tf"
+					protection_domain_id = "` + protectionDomainID1 + `"
+					storage_pool_name = "pool1"
+					size = 8
+				}
+				`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_volume.tf_create", "name", "volume-create-tf"),
+					resource.TestCheckResourceAttr("powerflex_volume.tf_create", "protection_domain_id", protectionDomainID1),
+				),
+			},
+			{
+				ResourceName: "powerflex_volume.tf_create",
+				ImportState: true,
+				ImportStateIdFunc: func(_ *terraform.State) (string, error) {
+					return "", nil
+				},
+				ExpectError: regexp.MustCompile(`.*Please provide valid volume ID*.`),
 			},
 		},
 	})
