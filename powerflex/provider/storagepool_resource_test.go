@@ -358,7 +358,7 @@ func TestAccStoragepoolResourceCapacityAlertInvalidValue(t *testing.T) {
 			{
 				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidAttributesValue1,
 				ExpectError: regexp.MustCompile(`.*[capacity_alert_threshold : The high threshold value must be lower than the critical threshold value.].*`),
-			},			
+			},
 		},
 	})
 }

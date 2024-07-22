@@ -21,8 +21,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 func TestAccVolumeResource(t *testing.T) {
@@ -322,7 +322,7 @@ func TestAccVolumeResourceWithPDID(t *testing.T) {
 			},
 			{
 				ResourceName: "powerflex_volume.tf_create",
-				ImportState: true,
+				ImportState:  true,
 				ImportStateIdFunc: func(_ *terraform.State) (string, error) {
 					return "", nil
 				},
