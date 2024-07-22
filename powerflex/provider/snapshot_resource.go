@@ -191,17 +191,13 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 		}
 	}
 	// locking the auto snapshot on finding LockedAutoSnapshot parameter as true
-	if plan.LockAutoSnapshot.ValueBool() {
+	if len(errMsg) == 0 && plan.LockAutoSnapshot.ValueBool() {
 		err := snapResource.LockAutoSnapshot()
 		if err != nil {
 			errMsg["lock_auto_snapshot"] = err.Error()
 		}
 	}
 
-	// disabling retention in case of error with update
-	if (len(errMsg) > 0) && !plan.DesiredRetention.IsNull() {
-		errMsg["desired_retention/retention_unit"] = "The specified snapshot can't be retained due to failure in creation."
-	}
 	if (len(errMsg) == 0) && !plan.DesiredRetention.IsNull() {
 		if plan.DesiredRetention.ValueInt64() <= 0 {
 			errMsg["desired_retention/retention_unit"] = "Value of desired retention can't be negative."
@@ -218,13 +214,6 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 			"Could not get snapshot, unexpected error: "+err2.Error(),
 		)
 		return
-	}
-	snap = snapResponse[0]
-	if len(errMsg) == 0 {
-		dgs := helper.RefreshState(snap, &plan)
-		resp.Diagnostics.Append(dgs...)
-		diags = resp.State.Set(ctx, &plan)
-		resp.Diagnostics.Append(diags...)
 	}
 
 	if len(errMsg) > 0 {
@@ -250,6 +239,12 @@ func (r *snapshotResource) Create(ctx context.Context, req resource.CreateReques
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	snap = snapResponse[0]
+	dgs := helper.RefreshState(snap, &plan)
+	resp.Diagnostics.Append(dgs...)
+	diags = resp.State.Set(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
 }
 
 // Read refreshes the Terraform state with the latest data.

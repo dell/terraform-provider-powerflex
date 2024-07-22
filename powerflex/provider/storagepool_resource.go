@@ -21,6 +21,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"terraform-provider-powerflex/powerflex/helper"
 
 	"terraform-provider-powerflex/powerflex/models"
@@ -208,7 +209,7 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 	tflog.Debug(ctx, "Create storagepool")
 	// Retrieve values from plan
 	var plan models.StoragepoolResourceModel
-
+	errMsg := make(map[string]string, 0)
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -287,27 +288,24 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 	if !plan.ReplicationJournalCapacity.IsUnknown() && !plan.ReplicationJournalCapacity.IsNull() {
 		err := pd.SetReplicationJournalCapacity(sp, plan.ReplicationJournalCapacity.String())
 		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set replication Journal capacity to %s", plan.ReplicationJournalCapacity.String()),
-				err.Error(),
-			)
+			errMsg["replication_journal_capacity"] = err.Error()
 		}
 	}
 
 	// set the capacity alert threshold - high or critical
-	if capacityAlertThresholdParam, ok := helper.IsCritcalAlert(plan, initialState); !ok {
-		errSetCapacityAlertThreshold := pd.SetCapacityAlertThreshold(initialSpResponse.ID, capacityAlertThresholdParam)
-		if errSetCapacityAlertThreshold != nil {
-			resp.Diagnostics.AddError(
-				"Error while updating Capacity Alert Thresholds of Storagepool", errSetCapacityAlertThreshold.Error(),
-			)
+	if len(errMsg) == 0 {
+		if capacityAlertThresholdParam, ok := helper.IsCritcalAlert(plan, initialState); !ok {
+			errSetCapacityAlertThreshold := pd.SetCapacityAlertThreshold(initialSpResponse.ID, capacityAlertThresholdParam)
+			if errSetCapacityAlertThreshold != nil {
+				errMsg["capacity_alert_threshold"] = errSetCapacityAlertThreshold.Error()
+			}
 		}
 	}
 
 	// set the protected maintenance mode IO priority policy
-	if (!plan.ProtectedMaintenanceModeIoPriorityPolicy.IsUnknown() && !plan.ProtectedMaintenanceModeIoPriorityPolicy.IsNull()) ||
+	if (len(errMsg) == 0) && ((!plan.ProtectedMaintenanceModeIoPriorityPolicy.IsUnknown() && !plan.ProtectedMaintenanceModeIoPriorityPolicy.IsNull()) ||
 		(!plan.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.IsUnknown() && !plan.ProtectedMaintenanceModeNumOfConcurrentIosPerDevice.IsNull()) ||
-		(!plan.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.IsUnknown() && !plan.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.IsNull()) {
+		(!plan.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.IsUnknown() && !plan.ProtectedMaintenanceModeBwLimitPerDeviceInKbps.IsNull())) {
 		protectedMaintenance := &scaleiotypes.ProtectedMaintenanceModeParam{
 			Policy: plan.ProtectedMaintenanceModeIoPriorityPolicy.ValueString(),
 		}
@@ -320,28 +318,22 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		}
 		err := pd.SetProtectedMaintenanceModeIoPriorityPolicy(sp, protectedMaintenance)
 		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set protected maintenance mode Io priority policy  to %s", plan.ProtectedMaintenanceModeIoPriorityPolicy.String()),
-				err.Error(),
-			)
+			errMsg["protected_maintenance_mode"] = err.Error()
 		}
 	}
 
 	// set rebalance enabled
-	if !plan.RebalanceEnabled.IsUnknown() && !plan.RebalanceEnabled.IsNull() {
+	if len(errMsg) == 0 && !plan.RebalanceEnabled.IsUnknown() && !plan.RebalanceEnabled.IsNull() {
 		err := pd.SetRebalanceEnabled(sp, plan.RebalanceEnabled.String())
 		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set rebalance enabled to %s", plan.RebalanceEnabled.String()),
-				err.Error(),
-			)
+			errMsg["rebalance_enabled"] = err.Error()
 		}
 	}
 
 	// set the rebalance IO priority policy
-	if (!plan.RebalanceIoPriorityPolicy.IsUnknown() && !plan.RebalanceIoPriorityPolicy.IsNull()) ||
+	if (len(errMsg) == 0) && ((!plan.RebalanceIoPriorityPolicy.IsUnknown() && !plan.RebalanceIoPriorityPolicy.IsNull()) ||
 		(!plan.RebalanceNumOfConcurrentIosPerDevice.IsUnknown() && !plan.RebalanceNumOfConcurrentIosPerDevice.IsNull()) ||
-		(!plan.RebalanceBwLimitPerDeviceInKbps.IsUnknown() && !plan.RebalanceBwLimitPerDeviceInKbps.IsNull()) {
+		(!plan.RebalanceBwLimitPerDeviceInKbps.IsUnknown() && !plan.RebalanceBwLimitPerDeviceInKbps.IsNull())) {
 		rebalanceIoPriorityPolicy := &scaleiotypes.ProtectedMaintenanceModeParam{
 			Policy: plan.RebalanceIoPriorityPolicy.ValueString(),
 		}
@@ -353,17 +345,14 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		}
 		err := pd.SetRebalanceIoPriorityPolicy(sp, rebalanceIoPriorityPolicy)
 		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set rebalance Io priority policy  to %s", plan.RebalanceIoPriorityPolicy.String()),
-				err.Error(),
-			)
+			errMsg["rebalance_io_priority_policy"] = err.Error()
 		}
 	}
 
 	// set vtree migration IO priority policy
-	if (!plan.VtreeMigrationIoPriorityPolicy.IsUnknown() && !plan.VtreeMigrationIoPriorityPolicy.IsNull()) ||
+	if len(errMsg) == 0 && ((!plan.VtreeMigrationIoPriorityPolicy.IsUnknown() && !plan.VtreeMigrationIoPriorityPolicy.IsNull()) ||
 		(!plan.VtreeMigrationNumOfConcurrentIosPerDevice.IsUnknown() && !plan.VtreeMigrationNumOfConcurrentIosPerDevice.IsNull()) ||
-		(!plan.VtreeMigrationBwLimitPerDeviceInKbps.IsUnknown() && !plan.VtreeMigrationBwLimitPerDeviceInKbps.IsNull()) {
+		(!plan.VtreeMigrationBwLimitPerDeviceInKbps.IsUnknown() && !plan.VtreeMigrationBwLimitPerDeviceInKbps.IsNull())) {
 		vtreeMigrationPolicy := &scaleiotypes.ProtectedMaintenanceModeParam{
 			Policy: plan.VtreeMigrationIoPriorityPolicy.ValueString(),
 		}
@@ -375,56 +364,63 @@ func (r *storagepoolResource) Create(ctx context.Context, req resource.CreateReq
 		}
 		err := pd.SetVTreeMigrationIOPriorityPolicy(sp, vtreeMigrationPolicy)
 		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set Vtree migration Io priority policy  to %s", plan.VtreeMigrationIoPriorityPolicy.String()),
-				err.Error(),
-			)
+			errMsg["vtree_migration_io_priority_policy"] = err.Error()
 		}
 	}
 
 	// set rebuild enabled
-	if !plan.RebuildEnabled.IsUnknown() && !plan.RebuildEnabled.IsNull() {
+	if (len(errMsg) == 0) && !plan.RebuildEnabled.IsUnknown() && !plan.RebuildEnabled.IsNull() {
 		err := pd.SetRebuildEnabled(sp, plan.RebuildEnabled.String())
 		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set rebuild enabled to %s", plan.RebuildEnabled.String()),
-				err.Error(),
-			)
+			errMsg["rebuild_enabled"] = err.Error()
 		}
 	}
 
 	// set rebuild rebalance parallelism
-	if !plan.RebuildRebalanceParallelism.IsUnknown() && !plan.RebuildRebalanceParallelism.IsNull() {
+	if (len(errMsg) == 0) && !plan.RebuildRebalanceParallelism.IsUnknown() && !plan.RebuildRebalanceParallelism.IsNull() {
 		err := pd.SetRebuildRebalanceParallelismParam(sp, plan.RebuildRebalanceParallelism.String())
 		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set rebuild rebalance parallelism to %s", plan.RebuildRebalanceParallelism.String()),
-				err.Error(),
-			)
+			errMsg["rebuild_rebalance_parallelism"] = err.Error()
 		}
 	}
 
 	// set the fragmentation
-	if !plan.Fragmentation.IsUnknown() {
+	if (len(errMsg) == 0) && !plan.Fragmentation.IsUnknown() {
 		err := pd.Fragmentation(sp, plan.Fragmentation.ValueBool())
 		if err != nil {
-			resp.Diagnostics.AddError(
-				fmt.Sprintf("Could not set fragmentation to %s", plan.Fragmentation.String()),
-				err.Error(),
-			)
+			errMsg["fragmentation"] = err.Error()
 		}
 	}
 
-	if resp.Diagnostics.HasError() {
+	if len(errMsg) > 0 {
+		failureMessage := ""
+		for key, value := range errMsg {
+			failureMessage += key + " : " + value + ", "
+		}
+		failureMessage = strings.TrimSuffix(failureMessage, ", ")
+		resp.Diagnostics.AddError(
+			fmt.Sprintf("Failure Message: [%v]", failureMessage),
+			failureMessage)
+		if !plan.ReplicationJournalCapacity.IsNull() && plan.ReplicationJournalCapacity.ValueInt64() != 0 {
+			errReplicationSetting := pd.SetReplicationJournalCapacity(sp, "0")
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"Error setting replication journal capacity",
+					"Error setting replication journal capacity to 0 as the creation was not successful "+errReplicationSetting.Error(),
+				)
+			}
+		}
+
 		err = pd.DeleteStoragePool(plan.Name.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error Deleting Storagepool",
 				"Couldn't Delete Storagepool "+err.Error(),
 			)
+		} else {
 			return
 		}
-		return
+
 	}
 
 	spResponse, err := pd.FindStoragePool(sp, "", "")
