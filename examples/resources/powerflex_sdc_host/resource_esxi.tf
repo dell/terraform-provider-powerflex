@@ -51,5 +51,7 @@ resource "powerflex_sdc_host" "sdc" {
   }
   name         = "sdc-esxi"
   package_path = "/root/terraform-provider-powerflex/sdc-3.6.500.106-esx7.x.zip"
+  # Optional all the mdms(either primary,secondary or virtual ips) in a comma separated list by cluster if unset will use the mdms of the cluster set in the provider block
+  # clusters_mdm_ips = ["10.10.10.5,10.10.10.6", "10.10.10.7,10.10.10.8"] 
 }
 

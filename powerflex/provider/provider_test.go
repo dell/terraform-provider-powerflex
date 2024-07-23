@@ -70,6 +70,9 @@ type sdcHostDataPoints struct {
 	EsxiPassword   string
 	EsxiPort       string
 	EsxiPkgPath    string
+	MdmIPs         []string
+	CLS1           string
+	CLS2           string
 }
 
 type gatewayDataPoints struct {
@@ -176,6 +179,8 @@ func getNewSdcHostDataPointForTest() sdcHostDataPoints {
 	SdcHostDataPoints.EsxiPassword = setDefault(os.Getenv("POWERFLEX_SDC_PASSWORD_Esxi"), "secret")
 	SdcHostDataPoints.EsxiPort = setDefault(os.Getenv("POWERFLEX_SDC_PORT_Esxi"), "2222")
 	SdcHostDataPoints.EsxiPkgPath = setDefault(os.Getenv("POWERFLEX_SDC_PKG_PATH_Esxi"), "/tmp/tfaccsdc.tar")
+	SdcHostDataPoints.CLS1 = setDefault(os.Getenv("POWERFLEX_SDC_CLS_1"), "1.1.1.1,2.2.2.2")
+	SdcHostDataPoints.CLS2 = setDefault(os.Getenv("POWERFLEX_SDC_CLS_2"), "3.3.3.3,4.4.4.4")
 
 	return SdcHostDataPoints
 }

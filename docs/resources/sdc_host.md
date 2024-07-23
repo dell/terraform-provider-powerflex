@@ -91,6 +91,8 @@ resource "powerflex_sdc_host" "sdc" {
   }
   name         = "sdc-esxi"
   package_path = "/root/terraform-provider-powerflex/sdc-3.6.500.106-esx7.x.zip"
+  # Optional all the mdms(either primary,secondary or virtual ips) in a comma separated list by cluster if unset will use the mdms of the cluster set in the provider block
+  # clusters_mdm_ips = ["10.10.10.5,10.10.10.6", "10.10.10.7,10.10.10.8"] 
 }
 ```
 
@@ -147,6 +149,9 @@ resource "powerflex_sdc_host" "sdc_linux" {
   name         = "sdc-linux"
   package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-700.103.Ubuntu.22.04.x86_64.tar" # For Ubuntu
   # package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-700.103.el7.x86_64.rpm" # For RHEL
+  # Optional all the mdms (either primary,secondary or virtual ips) in a comma separated list by cluster if unset will use the mdms of the cluster set in the provider block
+  # Removal of mdms is not supported for linux, if you wish to remove a cluster from the sdc please follow steps here: https://www.dell.com/support/kbdoc/en-us/000167031/how-do-i-remove-the-mdm-entry-from-the-sdc-as-displayed-in-the-output-of-drv-cfg-binary-in-query-mdms-on-the-sdc-on-windows-or-linux-os#:~:text=Resolution%201%20For%20Linux%20SDC%20host%2C%20open%20%2Fbin%2Femc%2Fscaleio%2Fdrv_cfg.txt,4%20Reboot%20Linux%20SDC%20host%20to%20apply%20changes.?msockid=0ee30a4c8e9f67f610c21ecc8f89664a
+  # clusters_mdm_ips = ["10.10.10.5,10.10.10.6", "10.10.10.7,10.10.10.8"] 
 }
 ```
 
@@ -191,6 +196,9 @@ resource "powerflex_sdc_host" "sdc_windows" {
   os_family    = "windows"
   name         = "sdc-windows"
   package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-200.105.msi"
+  # Optional all the mdms(either primary,secondary or virtual ips) in a comma separated list by cluster if unset will use the mdms of the cluster set in the provider block
+  # Removal of mdms is not supported for windows, if you wish to remove a cluster from the sdc please follow steps here: https://www.dell.com/support/kbdoc/en-us/000167031/how-do-i-remove-the-mdm-entry-from-the-sdc-as-displayed-in-the-output-of-drv-cfg-binary-in-query-mdms-on-the-sdc-on-windows-or-linux-os#:~:text=Resolution%201%20For%20Linux%20SDC%20host%2C%20open%20%2Fbin%2Femc%2Fscaleio%2Fdrv_cfg.txt,4%20Reboot%20Linux%20SDC%20host%20to%20apply%20changes.?msockid=0ee30a4c8e9f67f610c21ecc8f89664a
+  # clusters_mdm_ips = ["10.10.10.5,10.10.10.6", "10.10.10.7,10.10.10.8"]   
 }
 ```
 
@@ -208,9 +216,12 @@ After the execution of above resource block, the Windows Server host would have 
 
 ### Optional
 
+- `clusters_mdm_ips` (List of String) List of MDM IPs (primary,secondary or list of virtual IPs) seperated by cluster, to be assigned to the SDC.Each string in the list is a set of Mdm Ips related to a specific cluster. These Ips should be seperated by comma I.E. ['x.x.x.x,y.y.y.y', 'z.z.z.z,a.a.a.a'].
 - `esxi` (Attributes) Details of the SDC host if the `os_family` is `esxi`. (see [below for nested schema](#nestedatt--esxi))
+- `linux_drv_cfg` (String) Path to the drv_cfg for linux, defaults to /opt/emc/scaleio/sdc/bin/
 - `name` (String) Name of SDC.
 - `performance_profile` (String) Performance profile of the SDC. Accepted values are 'HighPerformance' and 'Compact'.
+- `windows_drv_cfg` (String) Path to the drv_cfg.exe config for windows, defaults to C:\Program Files\EMC\scaleio\sdc\bin\
 
 ### Read-Only
 

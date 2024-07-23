@@ -195,9 +195,10 @@ func TestAccSDCHostResourceUbuntu(t *testing.T) {
 					os_family = "linux"
 					name = "sdc-ubuntu2"
 					package_path = "%s"
+					clusters_mdm_ips = ["%s", "%s"]
 				}
 				`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword,
-					SdcHostResourceTestData.UbuntuPkgPath),
+					SdcHostResourceTestData.UbuntuPkgPath, SdcHostResourceTestData.CLS1, SdcHostResourceTestData.CLS2),
 				// ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
 			},
 			// Update ip negative
@@ -449,10 +450,10 @@ func TestAccSDCHostResourceEsxi(t *testing.T) {
 					os_family = "esxi"
 					name = "sdc-esxi2"
 					package_path = "%s"
+					clusters_mdm_ips = ["%s", "%s"]
 				}
 				`, SdcHostResourceTestData.EsxiIP, SdcHostResourceTestData.EsxiPort, SdcHostResourceTestData.EsxiUser, SdcHostResourceTestData.EsxiPassword,
-					SdcHostResourceTestData.EsxiPkgPath),
-				// ExpectError: regexp.MustCompile(`.*Error During Installation.*`),
+					SdcHostResourceTestData.EsxiPkgPath, SdcHostResourceTestData.CLS1, SdcHostResourceTestData.CLS2),
 			},
 			// Update package negative
 			{
