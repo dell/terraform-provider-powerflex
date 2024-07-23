@@ -138,6 +138,14 @@ resource "powerflex_snapshot" "snapshots-create" {
 }
 `
 
+var createSnapshotWithInvalidRetention = createVolForSs + `
+resource "powerflex_snapshot" "snapshots-create" {
+	name = "snapshotInvalidRetention"
+	volume_id = resource.powerflex_volume.ref-vol.id
+	desired_retention = -1
+}
+`
+
 func TestAccSnapshotResource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -207,6 +215,10 @@ func TestAccSnapshotResource(t *testing.T) {
 			{
 				Config:      ProviderConfigForTesting + createSnapshotWithInvalidSnapshotName,
 				ExpectError: regexp.MustCompile(`.*given name exceeds the allowed length of 31 characters*.`),
+			},
+			{
+				Config:      ProviderConfigForTesting + createSnapshotWithInvalidRetention,
+				ExpectError: regexp.MustCompile(`.*Value of desired retention can't be negative*.`),
 			},
 		},
 	})

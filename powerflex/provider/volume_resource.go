@@ -192,6 +192,21 @@ func (r *volumeResource) Create(ctx context.Context, req resource.CreateRequest,
 		)
 		return
 	}
+
+	if resp.Diagnostics.HasError() {
+		volresource := goscaleio.NewVolume(r.client)
+		volresource.Volume = volsResponse[0]
+		err := volresource.RemoveVolume(plan.RemoveMode.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error Removing Volume",
+				"Couldn't remove volume "+err.Error(),
+			)
+			return
+		}
+		return
+	}
+
 	vol = volsResponse[0]
 	dgs := helper.RefreshVolumeState(vol, &plan)
 	resp.Diagnostics.Append(dgs...)

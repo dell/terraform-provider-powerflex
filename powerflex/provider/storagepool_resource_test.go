@@ -357,7 +357,7 @@ func TestAccStoragepoolResourceCapacityAlertInvalidValue(t *testing.T) {
 			// Create Storagepool Test Negative
 			{
 				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidAttributesValue1,
-				ExpectError: regexp.MustCompile(`.*Error while updating Capacity Alert Thresholds of Storagepool.*`),
+				ExpectError: regexp.MustCompile(`.*[capacity_alert_threshold : The high threshold value must be lower than the critical threshold value.].*`),
 			},
 		},
 	})
@@ -382,6 +382,10 @@ func TestAccStoragepoolResourceInvalidAttributesValue(t *testing.T) {
 			{
 				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidAttributesValue4,
 				ExpectError: regexp.MustCompile(`.*Attribute Error.*`),
+			},
+			{
+				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidReplicationJournalCap,
+				ExpectError: regexp.MustCompile(`.*[replication_journal_capacity : Wrong command parameters. Check the PowerFlex user documentation for this command to see the correct parameters.].*`),
 			},
 		},
 	})
@@ -712,6 +716,17 @@ resource "powerflex_storage_pool" "sp1" {
 	media_type  = "HDD"
 	capacity_alert_high_threshold = 78
 	capacity_alert_critical_threshold = 77
+  }
+`
+
+var CreateStoragePoolInvalidReplicationJournalCap = `
+resource "powerflex_storage_pool" "spnew" {
+	name                 = "storagepool10"
+	protection_domain_name = "domain1"
+	media_type  = "HDD"
+	use_rmcache = false
+	use_rfcache = true
+	replication_journal_capacity = -1
   }
 `
 
