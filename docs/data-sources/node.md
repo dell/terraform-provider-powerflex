@@ -160,15 +160,15 @@ Read-Only:
 - `updated_date` (String) Updated date.
 
 <a id="nestedatt--node_details--device_group_list--device_group--group_user_list"></a>
-### Nested Schema for `node_details.device_group_list.device_group.updated_date`
+### Nested Schema for `node_details.device_group_list.device_group.group_user_list`
 
 Read-Only:
 
-- `group_users` (Attributes List) Group user information. (see [below for nested schema](#nestedatt--node_details--device_group_list--device_group--updated_date--group_users))
+- `group_users` (Attributes List) Group user information. (see [below for nested schema](#nestedatt--node_details--device_group_list--device_group--group_user_list--group_users))
 - `total_records` (Number) Total number of records.
 
-<a id="nestedatt--node_details--device_group_list--device_group--updated_date--group_users"></a>
-### Nested Schema for `node_details.device_group_list.device_group.updated_date.group_users`
+<a id="nestedatt--node_details--device_group_list--device_group--group_user_list--group_users"></a>
+### Nested Schema for `node_details.device_group_list.device_group.group_user_list.group_users`
 
 Read-Only:
 

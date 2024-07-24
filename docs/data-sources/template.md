@@ -190,7 +190,7 @@ Read-Only:
 - `valid` (Boolean) Indicates whether the component is valid.
 
 <a id="nestedatt--template_details--components--component_valid--messages"></a>
-### Nested Schema for `template_details.components.component_valid.valid`
+### Nested Schema for `template_details.components.component_valid.messages`
 
 Read-Only:
 
@@ -350,7 +350,7 @@ Read-Only:
 - `vms` (Attributes List) List of virtual machines associated with the deployment. (see [below for nested schema](#nestedatt--template_details--firmware_repository--deployments--vms))
 
 <a id="nestedatt--template_details--firmware_repository--deployments--assigned_users"></a>
-### Nested Schema for `template_details.firmware_repository.deployments.vms`
+### Nested Schema for `template_details.firmware_repository.deployments.assigned_users`
 
 Read-Only:
 
@@ -378,7 +378,7 @@ Read-Only:
 
 
 <a id="nestedatt--template_details--firmware_repository--deployments--deployment_device"></a>
-### Nested Schema for `template_details.firmware_repository.deployments.vms`
+### Nested Schema for `template_details.firmware_repository.deployments.deployment_device`
 
 Read-Only:
 
@@ -408,15 +408,15 @@ Read-Only:
 
 
 <a id="nestedatt--template_details--firmware_repository--deployments--deployment_valid"></a>
-### Nested Schema for `template_details.firmware_repository.deployments.vms`
+### Nested Schema for `template_details.firmware_repository.deployments.deployment_valid`
 
 Read-Only:
 
-- `messages` (Attributes List) List of messages related to the deployment. (see [below for nested schema](#nestedatt--template_details--firmware_repository--deployments--vms--messages))
+- `messages` (Attributes List) List of messages related to the deployment. (see [below for nested schema](#nestedatt--template_details--firmware_repository--deployments--deployment_valid--messages))
 - `valid` (Boolean) Indicates whether the deployment is valid.
 
-<a id="nestedatt--template_details--firmware_repository--deployments--vms--messages"></a>
-### Nested Schema for `template_details.firmware_repository.deployments.vms.messages`
+<a id="nestedatt--template_details--firmware_repository--deployments--deployment_valid--messages"></a>
+### Nested Schema for `template_details.firmware_repository.deployments.deployment_valid.messages`
 
 Read-Only:
 
@@ -436,7 +436,7 @@ Read-Only:
 
 
 <a id="nestedatt--template_details--firmware_repository--deployments--deployment_validation_response"></a>
-### Nested Schema for `template_details.firmware_repository.deployments.vms`
+### Nested Schema for `template_details.firmware_repository.deployments.deployment_validation_response`
 
 Read-Only:
 
@@ -458,7 +458,7 @@ Read-Only:
 
 
 <a id="nestedatt--template_details--firmware_repository--deployments--job_details"></a>
-### Nested Schema for `template_details.firmware_repository.deployments.vms`
+### Nested Schema for `template_details.firmware_repository.deployments.job_details`
 
 Read-Only:
 
@@ -470,7 +470,7 @@ Read-Only:
 
 
 <a id="nestedatt--template_details--firmware_repository--deployments--license_repository"></a>
-### Nested Schema for `template_details.firmware_repository.deployments.vms`
+### Nested Schema for `template_details.firmware_repository.deployments.license_repository`
 
 Read-Only:
 
@@ -527,7 +527,7 @@ Read-Only:
 - `version` (String) The version of the software bundle.
 
 <a id="nestedatt--template_details--firmware_repository--software_bundles--software_components"></a>
-### Nested Schema for `template_details.firmware_repository.software_bundles.version`
+### Nested Schema for `template_details.firmware_repository.software_bundles.software_components`
 
 Read-Only:
 
@@ -641,7 +641,7 @@ Read-Only:
 - `subnet` (String) The subnet for the static network configuration.
 
 <a id="nestedatt--template_details--networks--static_network_configuration--ip_range"></a>
-### Nested Schema for `template_details.networks.static_network_configuration.subnet`
+### Nested Schema for `template_details.networks.static_network_configuration.ip_range`
 
 Read-Only:
 
@@ -652,7 +652,7 @@ Read-Only:
 
 
 <a id="nestedatt--template_details--networks--static_network_configuration--static_route"></a>
-### Nested Schema for `template_details.networks.static_network_configuration.subnet`
+### Nested Schema for `template_details.networks.static_network_configuration.static_route`
 
 Read-Only:
 

@@ -26,7 +26,6 @@ description: |-
 
 This resource is used to manage the Firmware Repository entity of the PowerFlex Array. We can Create and Update the firmware repository using this resource. As part of create operation, we can upload the compliance file and as part of update we can approve the unsigned files.We can also import an existing firmware repository from the PowerFlex array.
 
-
 ## Example Usage
 
 ```terraform
@@ -107,3 +106,10 @@ resource "powerflex_firmware_repository" "fr_import_by_id" {
   timeout = 45
 }
 ```
+
+1. This will import the protection domain instance with specified ID into your Terraform state.
+2. After successful import, you can run terraform state list to ensure the resource has been imported successfully.
+3. Now, you can fill in the resource block with the appropriate arguments and settings that match the imported resource's real-world configuration.
+4. Execute terraform plan to see if your configuration and the imported resource are in sync. Make adjustments if needed.
+5. Finally, execute terraform apply to bring the resource fully under Terraform's management.
+6. Now, the resource which was not part of terraform became part of Terraform managed infrastructure.
