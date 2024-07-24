@@ -23,12 +23,14 @@ import (
 	"os"
 	"testing"
 
+	. "github.com/bytedance/mockey"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/joho/godotenv"
 )
 
 var ProviderConfigForTesting = ``
+var FunctionMocker *Mocker
 
 type sdsDataPoints struct {
 	SdsIP1             string
@@ -120,6 +122,15 @@ type templateDataPoints struct {
 type serviceDataPoints struct {
 	ServiceID   string
 	ServiceName string
+}
+
+type complianceReportDataPoints struct {
+	ResourceGroupID string
+	IPAddress       string
+	Compliant       string
+	HostName        string
+	ResourceID      string
+	ServiceTag      string
 }
 
 func getNewSdsDataPointForTest() sdsDataPoints {
@@ -265,6 +276,22 @@ func getServiceDataForTest() serviceDataPoints {
 	return ServiceDataPoints
 }
 
+func getComplianceReportDataForTest() complianceReportDataPoints {
+	var ComplianceReportDataPoints complianceReportDataPoints
+	err := godotenv.Load("powerflex.env")
+	if err != nil {
+		log.Fatal("Error loading .env file: ", err)
+		return ComplianceReportDataPoints
+	}
+	ComplianceReportDataPoints.Compliant = setDefault(os.Getenv("POWERFLEX_COMP_REP_COMPLIANT"), "true")
+	ComplianceReportDataPoints.ResourceID = setDefault(os.Getenv("POWERFLEX_COMP_REP_ID"), "tfacc_compliance_report_id")
+	ComplianceReportDataPoints.ResourceGroupID = setDefault(os.Getenv("POWERFLEX_COMP_REP_GROUP_ID"), "tfacc_compliance_report_group_id")
+	ComplianceReportDataPoints.HostName = setDefault(os.Getenv("POWERFLEX_COMP_REP_HOST_NAME"), "tfacc_compliance_report_host_name")
+	ComplianceReportDataPoints.ServiceTag = setDefault(os.Getenv("POWERFLEX_COMP_REP_SERVICE_TAG"), "tfacc_compliance_report_service_tag")
+	ComplianceReportDataPoints.IPAddress = setDefault(os.Getenv("POWERFLEX_COMP_REP_IP_ADDRESS"), "tfacc_compliance_report_ip_address")
+	return ComplianceReportDataPoints
+}
+
 func getNodeDataForTest() nodeDataPoints {
 
 	var NodeDataPoints nodeDataPoints
@@ -305,6 +332,7 @@ var FirmwareRepoID1 = setDefault(os.Getenv("POWERFLEX_FIRMWARE_REPO_ID1"), "tfac
 var FirmwareRepoID2 = setDefault(os.Getenv("POWERFLEX_FIRMWARE_REPO_ID2"), "tfacc_firmware_repo_id2")
 var FirmwareRepoName1 = setDefault(os.Getenv("POWERFLEX_FIRMWARE_REPO_NAME1"), "tfacc_firmware_repo_name1")
 var FirmwareRepoName2 = setDefault(os.Getenv("POWERFLEX_FIRMWARE_REPO_NAME2"), "tfacc_firmware_repo_name2")
+var ComplianceReportDataPoints = getComplianceReportDataForTest()
 
 func init() {
 	err := godotenv.Load("powerflex.env")
@@ -344,6 +372,10 @@ func testAccPreCheck(t *testing.T) {
 
 	if v := endpoint; v == "" {
 		t.Fatal("POWERFLEX_ENDPOINT must be set for acceptance tests")
+	}
+	// Make sure to unpatch before each new test is run
+	if FunctionMocker != nil {
+		FunctionMocker.UnPatch()
 	}
 }
 
