@@ -203,14 +203,16 @@ func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHost
 		}
 
 		if ouptut == "SUCCESS" {
-			err := winRMClient.Upload("C:\\EMC-ScaleIO-sdc.msi", plan.Pkg.ValueString())
+			if !plan.UseRemotePath.ValueBool() {
+				err := winRMClient.Upload("C:\\EMC-ScaleIO-sdc.msi", plan.Pkg.ValueString())
 
-			if err != nil {
-				respDiagnostics.AddError(
-					"Error while uploading package",
-					err.Error(),
-				)
-				return respDiagnostics
+				if err != nil {
+					respDiagnostics.AddError(
+						"Error while uploading package",
+						err.Error(),
+					)
+					return respDiagnostics
+				}
 			}
 
 			ouptut, err := winRMClient.ExecuteCommand("msiexec.exe /i \"C:\\EMC-ScaleIO-sdc.msi\" MDM_IP=\"" + strings.Join(mdmIPs, ",") + "\" /q")

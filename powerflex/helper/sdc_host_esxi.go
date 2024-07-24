@@ -78,16 +78,18 @@ func (r *SdcHostResource) CreateEsxi(ctx context.Context, plan models.SdcHostMod
 	}
 	defer sshP.Close()
 
-	// upload sw
-	scpProv := client.NewScpProvisioner(sshP)
 	pkgTarget := filepath.Join(dir, "emc-sdc-package.zip")
-	err = scpProv.Upload(plan.Pkg.ValueString(), pkgTarget, "")
-	if err != nil {
-		respDiagnostics.AddError(
-			"Error uploading package",
-			err.Error(),
-		)
-		return respDiagnostics
+	if !plan.UseRemotePath.ValueBool() {
+		// upload sw
+		scpProv := client.NewScpProvisioner(sshP)
+		err = scpProv.Upload(plan.Pkg.ValueString(), pkgTarget, "")
+		if err != nil {
+			respDiagnostics.AddError(
+				"Error uploading package",
+				err.Error(),
+			)
+			return respDiagnostics
+		}
 	}
 
 	// install sw

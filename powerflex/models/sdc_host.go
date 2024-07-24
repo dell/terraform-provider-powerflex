@@ -30,6 +30,7 @@ type SdcHostModel struct {
 	Name               types.String `tfsdk:"name"`
 	PerformanceProfile types.String `tfsdk:"performance_profile"`
 	MdmIPs             types.List   `tfsdk:"clusters_mdm_ips"`
+	UseRemotePath      types.Bool   `tfsdk:"use_remote_path"`
 
 	// optional, os specific
 	Esxi types.Object `tfsdk:"esxi"`
