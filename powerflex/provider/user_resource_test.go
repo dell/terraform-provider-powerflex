@@ -45,6 +45,47 @@ func TestAccUserResource(t *testing.T) {
 				ResourceName: "powerflex_user.user",
 				ImportState:  true,
 			},
+			{
+				ResourceName:  "powerflex_user.user",
+				ImportState:   true,
+				ImportStateId: "name:NewUser",
+			},
+			{
+				ResourceName:  "powerflex_user.user",
+				ImportState:   true,
+				ImportStateId: "id:",
+				ExpectError:   regexp.MustCompile("Empty import identifier"),
+			},
+			{
+				ResourceName:  "powerflex_user.user",
+				ImportState:   true,
+				ImportStateId: "name:",
+				ExpectError:   regexp.MustCompile("Empty import identifier"),
+			},
+			{
+				ResourceName:  "powerflex_user.user",
+				ImportState:   true,
+				ImportStateId: "name:invalid",
+				ExpectError:   regexp.MustCompile("Could not get user"),
+			},
+			{
+				ResourceName:  "powerflex_user.user",
+				ImportState:   true,
+				ImportStateId: "id:invalid",
+				ExpectError:   regexp.MustCompile("Could not get user"),
+			},
+			{
+				ResourceName:  "powerflex_user.user",
+				ImportState:   true,
+				ImportStateId: "invalid",
+				ExpectError:   regexp.MustCompile("Could not get user"),
+			},
+			{
+				ResourceName:  "powerflex_user.user",
+				ImportState:   true,
+				ImportStateId: "lastName:dontCare",
+				ExpectError:   regexp.MustCompile("Expected import identifier format"),
+			},
 			// Update user Test
 			{
 				Config: ProviderConfigForTesting + UserResourceUpdate,

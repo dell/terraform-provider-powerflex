@@ -19,6 +19,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"terraform-provider-powerflex/powerflex/helper"
@@ -330,8 +331,10 @@ func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 			user, err = r.system.GetUserByIDName("", state.Name.ValueString())
 		} else {
 			ssoUsers, err = r.client.GetSSOUserByFilters("username", state.Name.ValueString())
-			if len(ssoUsers.SSOUsers) > 0 {
+			if ssoUsers != nil && len(ssoUsers.SSOUsers) > 0 {
 				ssoUser = &ssoUsers.SSOUsers[0]
+			} else {
+				err = errors.Join(err, errors.New("no SSO users found in query response"))
 			}
 		}
 		if err != nil {
@@ -507,19 +510,28 @@ func (r *userResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 
 func (r *userResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 
-	if strings.Contains(req.ID, ":") {
-		parts := strings.Split(req.ID, ":")
-		if len(parts) == 2 && parts[0] == "id" {
-			resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), parts[1])...)
-		} else if len(parts) == 2 && parts[0] == "name" {
-			resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), parts[1])...)
-		} else {
+	id, field := req.ID, "id"
+	// try to cut at the first occurrence of a semicolon
+	if prefix, suffixID, found := strings.Cut(req.ID, ":"); found {
+		if prefix != "id" && prefix != "name" {
 			resp.Diagnostics.AddError(
 				"Unexpected Import Identifier",
-				fmt.Sprintf("Expected import identifier format: id:userId or name:userName. Got: %q", req.ID),
+				fmt.Sprintf("Expected import identifier format: id:userId or name:userName. Got: %s", req.ID),
 			)
+			return
 		}
-	} else {
-		resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
+		id, field = suffixID, prefix
 	}
+
+	// goscaleio functions fetch all users if both ID and name are empty
+	// so better run ID length check at import itself
+	if len(id) == 0 {
+		resp.Diagnostics.AddError(
+			"Unexpected Import Identifier",
+			"Empty import identifier",
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root(field), id)...)
 }
