@@ -45,10 +45,10 @@ github.com/cyphar/filepath-securejoin v0.2.4/go.mod h1:aPGpWjXOXUn2NCNjFvBE6aRxG
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/dell/goscaleio v1.15.0 h1:DzI1ZlQhdIR+V4AKGOMwz1Viu2bAtj3N6kTyixB0Qg8=
-github.com/dell/goscaleio v1.15.0/go.mod h1:h7SCmReARG/szFWBMQGETGkZObknhS45lQipQbtdmJ8=
-github.com/dell/goscaleio v1.15.1-0.20240718115558-b05601be619b h1:DWIc3xHmhgmtxBSoR/nCRQS+I6mqpxsmWWveYy8z5gw=
-github.com/dell/goscaleio v1.15.1-0.20240718115558-b05601be619b/go.mod h1:h7SCmReARG/szFWBMQGETGkZObknhS45lQipQbtdmJ8=
+github.com/dell/goscaleio v1.15.1-0.20240729212458-1c86902b1f40 h1:a9DzRZNogp4mI/PmDDf6LNkqh0ohB/879DpcgGjZ16M=
+github.com/dell/goscaleio v1.15.1-0.20240729212458-1c86902b1f40/go.mod h1:h7SCmReARG/szFWBMQGETGkZObknhS45lQipQbtdmJ8=
+github.com/dell/goscaleio v1.15.1-0.20240731163309-fc34c462e859 h1:galqZMJcS+fNpGNqp7+U0P8b1pk3Dycnp8EVFkmdTPw=
+github.com/dell/goscaleio v1.15.1-0.20240731163309-fc34c462e859/go.mod h1:h7SCmReARG/szFWBMQGETGkZObknhS45lQipQbtdmJ8=
 github.com/dylanmei/iso8601 v0.1.0 h1:812NGQDBcqquTfH5Yeo7lwR0nzx/cKdsmf3qMjPURUI=
 github.com/dylanmei/iso8601 v0.1.0/go.mod h1:w9KhXSgIyROl1DefbMYIE7UVSIvELTbMrCfx+QkYnoQ=
 github.com/emirpasic/gods v1.18.1 h1:FXtiHYKDGKCW2KzwZKx0iC0PQmdlorYgdFG9jPXJ1Bc=

@@ -310,5 +310,6 @@ func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resou
 		NewSDCHostResource,
 		SystemResource,
 		NewCompatibilityManagementResource,
+		NewOsRepositoryResource,
 	}
 }

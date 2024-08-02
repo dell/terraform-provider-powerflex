@@ -333,6 +333,7 @@ var FirmwareRepoID2 = setDefault(os.Getenv("POWERFLEX_FIRMWARE_REPO_ID2"), "tfac
 var FirmwareRepoName1 = setDefault(os.Getenv("POWERFLEX_FIRMWARE_REPO_NAME1"), "tfacc_firmware_repo_name1")
 var FirmwareRepoName2 = setDefault(os.Getenv("POWERFLEX_FIRMWARE_REPO_NAME2"), "tfacc_firmware_repo_name2")
 var ComplianceReportDataPoints = getComplianceReportDataForTest()
+var OSRepoSourcePath = setDefault(os.Getenv("POWERFLEX_OS_REPO_SOURCE_PATH"), "tfacc_os_repo_source_path")
 
 func init() {
 	err := godotenv.Load("powerflex.env")
