@@ -147,6 +147,7 @@ resource "powerflex_sdc_host" "sdc_linux" {
   }
   os_family    = "linux"
   name         = "sdc-linux"
+  use_remote_path = false
   package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-700.103.Ubuntu.22.04.x86_64.tar" # For Ubuntu
   # package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-700.103.el7.x86_64.rpm" # For RHEL
   # Optional all the mdms (either primary,secondary or virtual ips) in a comma separated list by cluster if unset will use the mdms of the cluster set in the provider block
@@ -221,6 +222,7 @@ After the execution of above resource block, the Windows Server host would have 
 - `linux_drv_cfg` (String) Path to the drv_cfg for linux, defaults to /opt/emc/scaleio/sdc/bin/
 - `name` (String) Name of SDC.
 - `performance_profile` (String) Performance profile of the SDC. Accepted values are 'HighPerformance' and 'Compact'.
+- `use_remote_path` (Boolean) Use path on remote server where SDC is installed. Defaults to `false`.
 - `windows_drv_cfg` (String) Path to the drv_cfg.exe config for windows, defaults to C:\Program Files\EMC\scaleio\sdc\bin\
 
 ### Read-Only

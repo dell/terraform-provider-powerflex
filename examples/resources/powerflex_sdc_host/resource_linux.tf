@@ -44,6 +44,7 @@ resource "powerflex_sdc_host" "sdc_linux" {
   }
   os_family    = "linux"
   name         = "sdc-linux"
+  use_remote_path = false
   package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-700.103.Ubuntu.22.04.x86_64.tar" # For Ubuntu
   # package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-700.103.el7.x86_64.rpm" # For RHEL
   # Optional all the mdms (either primary,secondary or virtual ips) in a comma separated list by cluster if unset will use the mdms of the cluster set in the provider block

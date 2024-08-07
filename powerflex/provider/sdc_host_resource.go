@@ -169,6 +169,13 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"use_remote_path": schema.BoolAttribute{
+				Description:         "Use path on remote server where SDC is installed. Defaults to `false`.",
+				MarkdownDescription: "Use path on remote server where SDC is installed. Defaults to `false`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+			},
 			"remote": schema.SingleNestedAttribute{
 				Description:         "Remote login details of the SDC.",
 				MarkdownDescription: "Remote login details of the SDC.",

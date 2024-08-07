@@ -24,6 +24,7 @@ import (
 	"strings"
 	"terraform-provider-powerflex/client"
 	"terraform-provider-powerflex/powerflex/models"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -79,18 +80,20 @@ func GetUbuntuSdcPackage(files []string) (*UbuntuSdcPackage, error) {
 func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostModel, sshP *client.SSHProvisioner, dir string) diag.Diagnostics {
 	var respDiagnostics diag.Diagnostics
 
-	// upload sw
-	scpProv := client.NewScpProvisioner(sshP)
-	pkgTarget := filepath.Join(dir, "emc-sdc-package.tar")
-	err := scpProv.Upload(plan.Pkg.ValueString(), pkgTarget, "")
-	if err != nil {
-		respDiagnostics.AddError(
-			"Error uploading package",
-			err.Error(),
-		)
-		return respDiagnostics
-	}
+	if !plan.UseRemotePath.ValueBool() {
 
+		// upload sw
+		scpProv := client.NewScpProvisioner(sshP)
+		pkgTarget := filepath.Join(dir, "emc-sdc-package.tar")
+		err := scpProv.Upload(plan.Pkg.ValueString(), pkgTarget, "")
+		if err != nil {
+			respDiagnostics.AddError(
+				"Error uploading package",
+				err.Error(),
+			)
+			return respDiagnostics
+		}
+	}
 	// extract software
 	files, err := sshP.UntarUnix("emc-sdc-package.tar", dir)
 	if err != nil {
@@ -139,7 +142,7 @@ func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostM
 		return respDiagnostics
 	}
 	tflog.Info(ctx, op)
-
+	time.Sleep(30 * time.Second)
 	// check that scini status has the log SUCCESS
 	op, err = sshP.Run("systemctl status scini")
 	if err != nil {
