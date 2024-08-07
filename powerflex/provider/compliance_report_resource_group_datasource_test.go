@@ -36,44 +36,56 @@ data "powerflex_compliance_report_resource_group" "complianceReport" {
 var ComplianceFilterIPAddressConfig = `
 data "powerflex_compliance_report_resource_group" "complianceReport" {
 	 resource_group_id = "` + ComplianceReportDataPoints.ResourceGroupID + `"
-	 ip_addresses = ["` + ComplianceReportDataPoints.IPAddress + `"]
+	 filter {
+		ip_addresses = ["` + ComplianceReportDataPoints.IPAddress + `"]
+	 }
 }
 `
 
 var ComplianceFilterCompliantConfig = `
 data "powerflex_compliance_report_resource_group" "complianceReport" {
 	 resource_group_id = "` + ComplianceReportDataPoints.ResourceGroupID + `"
-	 compliant = true
+	 filter {
+		compliant = true
+	 }
 }
 `
 var ComplianceFilterHostNamesConfig = `
 data "powerflex_compliance_report_resource_group" "complianceReport" {
 	 resource_group_id = "` + ComplianceReportDataPoints.ResourceGroupID + `"
-	 host_names = ["` + ComplianceReportDataPoints.HostName + `"]
+	 filter {
+		 host_names = ["` + ComplianceReportDataPoints.HostName + `"]
+	 }
 }
 `
 var ComplianceFilterServiceTagsConfig = `
 data "powerflex_compliance_report_resource_group" "complianceReport" {
 	 resource_group_id = "` + ComplianceReportDataPoints.ResourceGroupID + `"
-	 service_tags = ["` + ComplianceReportDataPoints.ServiceTag + `"]
+	 filter {
+	 	service_tags = ["` + ComplianceReportDataPoints.ServiceTag + `"]
+	 }
 }
 `
 
 var ComplianceFilterResourceIdsConfig = `
 data "powerflex_compliance_report_resource_group" "complianceReport" {
 	 resource_group_id = "` + ComplianceReportDataPoints.ResourceGroupID + `"
-	 resource_ids = ["` + ComplianceReportDataPoints.ResourceID + `"]
+	 filter {
+		resource_ids = ["` + ComplianceReportDataPoints.ResourceID + `"]
+	 }
 }
 `
 var ComplianceGetAllError = `
 data "powerflex_compliance_report_resource_group" "complianceReport" {
 }
 `
-var ComplianceFilterError = `
+var ComplianceFilterMultiple = `
 data "powerflex_compliance_report_resource_group" "complianceReport" {
 	 resource_group_id = "` + ComplianceReportDataPoints.ResourceGroupID + `"
-	 ip_addresses = ["` + ComplianceReportDataPoints.IPAddress + `"]
-	 compliant = true
+	 filter {
+		ip_addresses = ["` + ComplianceReportDataPoints.IPAddress + `"]
+		compliant = true
+	 }
 }
 `
 
@@ -117,6 +129,12 @@ func TestAccComplianceReportDataSource(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.powerflex_compliance_report_resource_group.complianceReport", "compliance_reports.#"),
 				),
 			},
+			{
+				Config: ProviderConfigForTesting + ComplianceFilterMultiple,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.powerflex_compliance_report_resource_group.complianceReport", "compliance_reports.#"),
+				),
+			},
 		},
 	})
 }
@@ -130,15 +148,11 @@ func TestAccComplianceReportDataSourceNegative(t *testing.T) {
 				ExpectError: regexp.MustCompile(`.*Missing required argument.*`),
 			},
 			{
-				Config:      ProviderConfigForTesting + ComplianceFilterError,
-				ExpectError: regexp.MustCompile(`.*Invalid Attribute Combination*`),
-			},
-			{
 				PreConfig: func() {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.GetFilteredComplianceReport).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetFilteredComplianceReports).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + ComplianceFilterCompliantConfig,
 				ExpectError: regexp.MustCompile(`.*Error in getting compliance report for resource group for given filter.*`),

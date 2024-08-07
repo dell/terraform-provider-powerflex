@@ -20,6 +20,7 @@ package helper
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"bytes"
 	"encoding/json"
@@ -259,4 +260,16 @@ func CompareInt64Slice(plan, state []int64) bool {
 		}
 	}
 	return true
+}
+
+// SetContains is a helper function to check if a Set contains a value
+func SetContains(set types.Set, value string) bool {
+	value = strings.Trim(value, `"`)
+	for _, v := range set.Elements() {
+		elementStr := strings.Trim(v.String(), `"`)
+		if elementStr == value {
+			return true
+		}
+	}
+	return false
 }

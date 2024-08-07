@@ -19,7 +19,6 @@ package helper
 
 import (
 	"fmt"
-	"strconv"
 	"terraform-provider-powerflex/powerflex/models"
 
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
@@ -83,35 +82,25 @@ func GetComplianceReportComponentVersionInfo(versionInfo scaleiotypes.Compliance
 	}
 }
 
-// GetFilteredComplianceReport returns the first compliance report that matches the filter and value
-func GetFilteredComplianceReport(complianceReports []scaleiotypes.ComplianceReport, filter, value string) (*scaleiotypes.ComplianceReport, error) {
+// GetFilteredComplianceReports returns a list of compliance reports that match the filter
+func GetFilteredComplianceReports(complianceReports []scaleiotypes.ComplianceReport, filter models.ComplianceReportFilterType) ([]scaleiotypes.ComplianceReport, error) {
+	var matchingReports []scaleiotypes.ComplianceReport
+
 	for _, report := range complianceReports {
-		switch filter {
-		case "IpAddress":
-			if report.IPAddress == value {
-				return &report, nil
-			}
-		case "ServiceTag":
-			if report.ServiceTag == value {
-				return &report, nil
-			}
-		case "HostName":
-			if report.HostName == value {
-				return &report, nil
-			}
-		case "ID":
-			if report.ID == value {
-				return &report, nil
-			}
-		case "Compliant":
-			compliant, err := strconv.ParseBool(value)
-			if err != nil {
-				return nil, fmt.Errorf("invalid value for Compliant filter: %w", err)
-			}
-			if report.Compliant == compliant {
-				return &report, nil
-			}
+		ipAddressesMatch := filter.IPAddresses.IsNull() || SetContains(filter.IPAddresses, report.IPAddress)
+		serviceTagsMatch := filter.ServiceTags.IsNull() || SetContains(filter.ServiceTags, report.ServiceTag)
+		hostNamesMatch := filter.HostNames.IsNull() || SetContains(filter.HostNames, report.HostName)
+		resourceIDsMatch := filter.ResourceIDs.IsNull() || SetContains(filter.ResourceIDs, report.ID)
+		compliantMatch := filter.Compliant.IsNull() || filter.Compliant.ValueBool() == report.Compliant
+
+		if ipAddressesMatch && serviceTagsMatch && hostNamesMatch && resourceIDsMatch && compliantMatch {
+			matchingReports = append(matchingReports, report)
 		}
 	}
-	return nil, fmt.Errorf("no compliance report found matching the filter: %s with value: %s", filter, value)
+
+	if len(matchingReports) == 0 {
+		return nil, fmt.Errorf("no compliance reports found matching the filter: %+v", filter)
+	}
+
+	return matchingReports, nil
 }

@@ -48,6 +48,17 @@ limitations under the License.
 
 # commands to run this tf file : terraform init && terraform apply --auto-approve
 
+# To get the resource_group_id you can use the powerflex_resource_group data source as shown below:
+
+# Get all Resource Group details present in the PowerFlex
+data "powerflex_resource_group" "example1" {
+}
+
+# Get Resource Group details using the Name of the Resource Group
+data "powerflex_resource_group" "example3" {
+  resource_group_names = ["Name_1", "Name_2"]
+}
+
 # Get all compliance report details for the given resource group
 data "powerflex_compliance_report_resource_group" "complianceReport" {
     resource_group_id = "ID"
@@ -56,31 +67,62 @@ data "powerflex_compliance_report_resource_group" "complianceReport" {
 # Get compliance report details for the given resource group filtered by given ipaddresses
 data "powerflex_compliance_report_resource_group" "complianceReport" {
   resource_group_id = "ID"
-  ip_addresses = ["10.xxx.xxx.xx","10.xxx.xxx.xx"]
+  # this datasource supports multiple filters like ip_addresses, host_names, service_tags, resource_ids, compliant
+  # and gives an intersection of the results
+  filter {
+    ip_addresses = ["10.xxx.xxx.xx","10.xxx.xxx.xx"]
+  }
+}
+
+# Get compliance report details for the given resource group filtered by resource ids and compliant status
+data "powerflex_compliance_report_resource_group" "complianceReport" {
+  resource_group_id = "ID"
+  # this datasource supports multiple filters like ip_addresses, host_names, service_tags, resource_ids, compliant
+  # and gives an intersection of the results
+  filter {
+    resource_ids = ["resourceid1","resourceid2"]
+    compliant = true
+  }
 }
 
 # Get compliance report details for the given resource group filtered by compliant resources
 data "powerflex_compliance_report_resource_group" "complianceReport" {
   resource_group_id = "ID"
-  compliant = true
+  # this datasource supports multiple filters like ip_addresses, host_names, service_tags, resource_ids, compliant
+  # and gives an intersection of the results
+  filter {
+    compliant = true
+  }
 }
 
 # Get compliance report details for the given resource group filtered by hostnames
 data "powerflex_compliance_report_resource_group" "complianceReport" {
   resource_group_id = "ID"
-  host_names = ["hostname1","hostname2"]
+  # this datasource supports multiple filters like ip_addresses, host_names, service_tags, resource_ids, compliant
+  # and gives an intersection of the results
+  filter {
+    host_names = ["hostname1","hostname2"]
+  }
 }
 
 # Get compliance report details for the given resource group filtered by service tags
 data "powerflex_compliance_report_resource_group" "complianceReport" {
   resource_group_id = "ID"
-  service_tags = ["servicetag1","servicetag2"]
+  # this datasource supports multiple filters like ip_addresses, host_names, service_tags, resource_ids, compliant
+  # and gives an intersection of the results
+  filter {
+    service_tags = ["servicetag1","servicetag2"]
+  }
 }
 
 # Get compliance report details for the given resource group filtered by resource ids
 data "powerflex_compliance_report_resource_group" "complianceReport" {
   resource_group_id = "ID"
-  resource_ids = ["resourceid1","resourceid2"]
+  # this datasource supports multiple filters like ip_addresses, host_names, service_tags, resource_ids, compliant
+  # and gives an intersection of the results
+  filter {
+    resource_ids = ["resourceid1","resourceid2"]
+  }
 }
 
 output "result" {
@@ -99,16 +141,24 @@ After the successful execution of above said block, we can see the output by exe
 
 ### Optional
 
-- `compliant` (Boolean) Compliant status for resources. Conflicts with 'ip_addresses', 'service_tags','host_names', 'resource_ids'.
-- `host_names` (Set of String) List of host names for resources. Conflicts with 'ip_addresses', 'compliant','service_tags', 'resource_ids'.
-- `ip_addresses` (Set of String) List of Ip Address for resources. Conflicts with 'service_tags', 'compliant','host_names', 'resource_ids'.
-- `resource_ids` (Set of String) List of resource ids. Conflicts with 'ip_addresses', 'compliant','host_names', 'service_tags'.
-- `service_tags` (Set of String) List of service tags for resources. Conflicts with 'ip_addresses', 'compliant','host_names', 'resource_ids'.
+- `filter` (Block, Optional) (see [below for nested schema](#nestedblock--filter))
 
 ### Read-Only
 
 - `compliance_reports` (Attributes List) List of compliance report. (see [below for nested schema](#nestedatt--compliance_reports))
 - `id` (String) Unique identifier Of The compliance report Datasource.
+
+<a id="nestedblock--filter"></a>
+### Nested Schema for `filter`
+
+Optional:
+
+- `compliant` (Boolean) Compliant status for resources.
+- `host_names` (Set of String) List of host names for resources.
+- `ip_addresses` (Set of String) List of Ip Address for resources.
+- `resource_ids` (Set of String) List of resource ids.
+- `service_tags` (Set of String) List of service tags for resources.
+
 
 <a id="nestedatt--compliance_reports"></a>
 ### Nested Schema for `compliance_reports`
