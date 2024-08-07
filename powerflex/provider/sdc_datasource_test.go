@@ -45,7 +45,7 @@ func init() {
 	sdcTestData.sdcip = os.Getenv("POWERFLEX_SDC_IP1")
 }
 
-func TestSdcDataSource(t *testing.T) {
+func TestAccDatasourceSdc(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -70,12 +70,11 @@ func TestSdcDataSource(t *testing.T) {
 	})
 }
 
-func TestSdcDataSourceNegative(t *testing.T) {
+func TestDatasourceSdcNegative(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// Read testing
-			// Error here = https://github.com/hashicorp/terraform-plugin-sdk/pull/1077
 			{
 				Config:      ProviderConfigForTesting + TestSdcDataSourceByEmptyIDNeg,
 				ExpectError: regexp.MustCompile(".*Invalid Attribute Value Length.*"),

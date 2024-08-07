@@ -41,7 +41,7 @@ func init() {
 // TestAccVolumeDataSource tests the volume data source
 // where it fetches the volumes based on volume id/name or storage pool id/name
 // and if nothing is mentioned , then return all volumes
-func TestAccVolumeDataSource(t *testing.T) {
+func TestAccDatasourceVolume(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

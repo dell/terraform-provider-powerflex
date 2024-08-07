@@ -212,7 +212,7 @@ resource "powerflex_mdm_cluster" "test" {
 
 var switchPrimaryMdm2 = createMdmConfig
 
-func TestAccMdmClusterResource(t *testing.T) {
+func TestAccResourceMdmCluster(t *testing.T) {
 	var mdmClusterResourceBlock = "powerflex_mdm_cluster.test"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -251,7 +251,7 @@ func TestAccMdmClusterResource(t *testing.T) {
 		}})
 }
 
-func TestAccMdmClusterSwitchClusterMode(t *testing.T) {
+func TestAccResourceMdmClusterSwitchClusterMode(t *testing.T) {
 	var mdmClusterResourceBlock = "powerflex_mdm_cluster.test"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -318,7 +318,7 @@ func TestAccMdmClusterSwitchClusterMode(t *testing.T) {
 		}})
 }
 
-func TestAccMdmClusterSwitchPrimaryMdm(t *testing.T) {
+func TestAccResourceMdmClusterSwitchPrimaryMdm(t *testing.T) {
 	var mdmClusterResourceBlock = "powerflex_mdm_cluster.test"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

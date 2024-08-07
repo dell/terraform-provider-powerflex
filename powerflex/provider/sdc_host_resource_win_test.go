@@ -25,8 +25,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-// TestAccSDCResource tests the SDC Expansion Operation
-func TestAccSDCHostResourceNegative(t *testing.T) {
+// TestAccResourceSDC tests the SDC Expansion Operation
+func TestAccResourceSDCHostNegative(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
 
 	resource.Test(t, resource.TestCase{
@@ -54,7 +54,7 @@ func TestAccSDCHostResourceNegative(t *testing.T) {
 	})
 }
 
-func TestAccSDCHostResourcePositive(t *testing.T) {
+func TestAccResourceSDCHostPositive(t *testing.T) {
 	t.Skip("Skipping this test case for real environment")
 	os.Setenv("TF_ACC", "1")
 	resource.Test(t, resource.TestCase{
@@ -79,7 +79,7 @@ func TestAccSDCHostResourcePositive(t *testing.T) {
 	})
 }
 
-func TestAccSDCHostResourceRPMPositive(t *testing.T) {
+func TestAccResourceSDCHostRPMPositive(t *testing.T) {
 	t.Skip("Skipping this test case for real environment")
 	os.Setenv("TF_ACC", "1")
 

@@ -81,7 +81,7 @@ data "powerflex_vtree" "example" {
 }
 `
 
-func TestAccVTreeDataSource(t *testing.T) {
+func TestAccDatasourceVTree(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{

@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccUserResource(t *testing.T) {
+func TestAccResourceUser(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -99,7 +99,7 @@ func TestAccUserResource(t *testing.T) {
 	})
 }
 
-func TestAccUserResourceNegative(t *testing.T) {
+func TestAccResourceUserNegative(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -128,7 +128,7 @@ func TestAccUserResourceNegative(t *testing.T) {
 	})
 }
 
-func TestAccUserResourceCreateNegative(t *testing.T) {
+func TestAccResourceUserCreateNegative(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}

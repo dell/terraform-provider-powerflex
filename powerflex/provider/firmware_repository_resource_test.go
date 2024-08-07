@@ -18,12 +18,13 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"regexp"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccFirmwareRepositoryResource(t *testing.T) {
+func TestAccResourceFirmwareRepository(t *testing.T) {
 	t.Skip("Skipping this test case")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -45,7 +46,7 @@ func TestAccFirmwareRepositoryResource(t *testing.T) {
 	})
 }
 
-func TestAccFirmwareRepositoryCreateNegative(t *testing.T) {
+func TestAccResourceFirmwareRepositoryCreateNegative(t *testing.T) {
 	t.Skip("Skipping this test case")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -65,7 +66,7 @@ func TestAccFirmwareRepositoryCreateNegative(t *testing.T) {
 	})
 }
 
-func TestAccFirmwareRepositoryUpdateNegative(t *testing.T) {
+func TestAccResourceFirmwareRepositoryUpdateNegative(t *testing.T) {
 	t.Skip("Skipping this test case")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

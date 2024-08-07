@@ -29,8 +29,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
-// TestAccSDCResource tests the SDC Expansion Operation
-func TestAccSDCResource(t *testing.T) {
+// TestAccResourceSDC tests the SDC Expansion Operation
+func TestAccResourceSDC(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
 
 	resource.Test(t, resource.TestCase{
@@ -84,7 +84,7 @@ func TestAccSDCResource(t *testing.T) {
 	})
 }
 
-func TestAccSDCResourceMultiNameOperation(t *testing.T) {
+func TestAccResourceSDCMultiNameOperation(t *testing.T) {
 
 	var sdcID string // Variable to store the SDC IP
 
@@ -166,7 +166,7 @@ func TestAccSDCResourceMultiNameOperation(t *testing.T) {
 		}})
 }
 
-func TestAccSDCResourceNegative(t *testing.T) {
+func TestAccResourceSDCNegative(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

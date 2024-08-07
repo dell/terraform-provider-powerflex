@@ -18,13 +18,14 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"os"
 	"regexp"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccSnapshotPolicyResource(t *testing.T) {
+func TestAccResourceSnapshotPolicy(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -54,7 +55,7 @@ func TestAccSnapshotPolicyResource(t *testing.T) {
 	})
 }
 
-func TestAccSnapshotPolicyResourceUpdateFail(t *testing.T) {
+func TestAccResourceSnapshotPolicyUpdateFail(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -101,7 +102,7 @@ func TestAccSnapshotPolicyResourceUpdateFail(t *testing.T) {
 	})
 }
 
-func TestAccSnapshotPolicyResourceCreateFail(t *testing.T) {
+func TestAccResourceSnapshotPolicyCreateFail(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -125,7 +126,7 @@ func TestAccSnapshotPolicyResourceCreateFail(t *testing.T) {
 	})
 }
 
-func TestAccSnapshotPolicyResourceUpadte(t *testing.T) {
+func TestAccResourceSnapshotPolicyUpadte(t *testing.T) {
 	var SPResourceCreateWithVol = createVol1 + createVol2 + createVol3 + `
 		resource "powerflex_snapshot_policy" "avengers-sp-create" {
 			name = "snap-create-test"
