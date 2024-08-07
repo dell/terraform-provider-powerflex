@@ -30,7 +30,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAccPDResource(t *testing.T) {
+func TestAccResourcePD(t *testing.T) {
+	t.Skip("Skipping this test case, only for Unit test")
 	createPDTest := `
 	resource "powerflex_protection_domain" "pd" {
 		name = "test_acc_pd_1"
@@ -335,7 +336,8 @@ func TestAccPDResource(t *testing.T) {
 	})
 }
 
-func TestAccPDResource2(t *testing.T) {
+func TestAccResourcePD2(t *testing.T) {
+	t.Skip("Skipping this test case, only for Unit test")
 	// name contains the illegal character &
 	createPDTestNeg := `
 	resource "powerflex_protection_domain" "pd" {

@@ -28,8 +28,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
-// TestAccClusterResource tests the SDC Expansion Operation
-func TestAccClusterResource(t *testing.T) {
+// TestAccResourceCluster tests the SDC Expansion Operation
+func TestAccResourceCluster(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
 
 	t.Skip("Skipping this test case")
@@ -76,7 +76,7 @@ func validateSDCLength(state *terraform.State) error {
 	return nil
 }
 
-func TestAccClusterResourceValidation(t *testing.T) {
+func TestAccResourceClusterValidation(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
 
 	resource.Test(t, resource.TestCase{
@@ -132,6 +132,12 @@ func TestAccClusterResourceValidation(t *testing.T) {
 		},
 	})
 }
+
+var packageTest = `
+resource "powerflex_package" "upload-test" {
+	file_path = ["../resource-test/powerflex_packages/EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
+ }
+`
 
 var importClusterTest = `
 resource "powerflex_cluster" "test"  {

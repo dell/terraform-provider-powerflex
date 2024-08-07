@@ -28,7 +28,7 @@ import (
 // TestAccSnapshotPolicyDataSource tests the snapshot policy data source
 // where it fetches the snapshot policies based on snapshot policy id/name
 // and if nothing is mentioned , then return all snapshot policies
-func TestAccSnapshotPolicyDataSource(t *testing.T) {
+func TestAccDatasourceSnapshotPolicy(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

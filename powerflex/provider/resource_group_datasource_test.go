@@ -47,7 +47,7 @@ data "powerflex_resource_group" "example" {
 }
 `
 
-func TestAccResourceGroupDataSource(t *testing.T) {
+func TestAccDatasourceResourceGroup(t *testing.T) {
 	t.Skip("Skipping this test case")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

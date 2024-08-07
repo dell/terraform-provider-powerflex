@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccSystemResource(t *testing.T) {
+func TestAccResourceSystem(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -74,7 +74,7 @@ func TestAccSystemResource(t *testing.T) {
 	})
 }
 
-func TestAccSystemResource1(t *testing.T) {
+func TestAccResourceSystem1(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{

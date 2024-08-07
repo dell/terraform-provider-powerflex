@@ -39,9 +39,9 @@ import (
 )
 
 var (
-	_ resource.Resource                = &sdcResource{}
-	_ resource.ResourceWithConfigure   = &sdcResource{}
-	_ resource.ResourceWithImportState = &sdcResource{}
+	_ resource.Resource                = &systemResource{}
+	_ resource.ResourceWithConfigure   = &systemResource{}
+	_ resource.ResourceWithImportState = &systemResource{}
 )
 
 // SystemResource - function to return resource interface

@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccDeviceDatasource(t *testing.T) {
+func TestAccDatasourceDevice(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -114,7 +114,7 @@ func TestAccDeviceDatasource(t *testing.T) {
 	})
 }
 
-func TestAccDeviceDatasourcePDC(t *testing.T) {
+func TestAccDatasourceDevicePDC(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

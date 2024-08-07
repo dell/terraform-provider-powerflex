@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
-func TestAccVolumeResource(t *testing.T) {
+func TestAccResourceVolume(t *testing.T) {
 	var modifyPlanProtectionDomainNegTest = `
 	resource "powerflex_volume" "avengers-volume-protection-domain-name"{
 		name = "avengers-volume-protection-domain-name"
@@ -243,7 +243,7 @@ func TestAccVolumeResource(t *testing.T) {
 	})
 }
 
-func TestAccVolumeResourceImport(t *testing.T) {
+func TestAccResourceVolumeImport(t *testing.T) {
 	resourceName := "powerflex_volume.tf_create"
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -299,7 +299,7 @@ func TestAccVolumeResourceImport(t *testing.T) {
 	})
 }
 
-func TestAccVolumeResourceWithPDID(t *testing.T) {
+func TestAccResourceVolumeWithPDID(t *testing.T) {
 	//resourceName := "powerflex_volume.tf_create"
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

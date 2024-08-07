@@ -367,7 +367,7 @@ Read-Only:
 - `vms` (Attributes List) List of virtual machines associated with the deployment. (see [below for nested schema](#nestedatt--resource_group_details--firmware_repository--deployments--vms))
 
 <a id="nestedatt--resource_group_details--firmware_repository--deployments--assigned_users"></a>
-### Nested Schema for `resource_group_details.firmware_repository.deployments.vms`
+### Nested Schema for `resource_group_details.firmware_repository.deployments.assigned_users`
 
 Read-Only:
 
@@ -395,7 +395,7 @@ Read-Only:
 
 
 <a id="nestedatt--resource_group_details--firmware_repository--deployments--deployment_device"></a>
-### Nested Schema for `resource_group_details.firmware_repository.deployments.vms`
+### Nested Schema for `resource_group_details.firmware_repository.deployments.deployment_device`
 
 Read-Only:
 
@@ -425,15 +425,15 @@ Read-Only:
 
 
 <a id="nestedatt--resource_group_details--firmware_repository--deployments--deployment_valid"></a>
-### Nested Schema for `resource_group_details.firmware_repository.deployments.vms`
+### Nested Schema for `resource_group_details.firmware_repository.deployments.deployment_valid`
 
 Read-Only:
 
-- `messages` (Attributes List) List of messages related to the deployment. (see [below for nested schema](#nestedatt--resource_group_details--firmware_repository--deployments--vms--messages))
+- `messages` (Attributes List) List of messages related to the deployment. (see [below for nested schema](#nestedatt--resource_group_details--firmware_repository--deployments--deployment_valid--messages))
 - `valid` (Boolean) Indicates whether the deployment is valid.
 
-<a id="nestedatt--resource_group_details--firmware_repository--deployments--vms--messages"></a>
-### Nested Schema for `resource_group_details.firmware_repository.deployments.vms.messages`
+<a id="nestedatt--resource_group_details--firmware_repository--deployments--deployment_valid--messages"></a>
+### Nested Schema for `resource_group_details.firmware_repository.deployments.deployment_valid.messages`
 
 Read-Only:
 
@@ -453,7 +453,7 @@ Read-Only:
 
 
 <a id="nestedatt--resource_group_details--firmware_repository--deployments--deployment_validation_response"></a>
-### Nested Schema for `resource_group_details.firmware_repository.deployments.vms`
+### Nested Schema for `resource_group_details.firmware_repository.deployments.deployment_validation_response`
 
 Read-Only:
 
@@ -475,7 +475,7 @@ Read-Only:
 
 
 <a id="nestedatt--resource_group_details--firmware_repository--deployments--job_details"></a>
-### Nested Schema for `resource_group_details.firmware_repository.deployments.vms`
+### Nested Schema for `resource_group_details.firmware_repository.deployments.job_details`
 
 Read-Only:
 
@@ -487,7 +487,7 @@ Read-Only:
 
 
 <a id="nestedatt--resource_group_details--firmware_repository--deployments--license_repository"></a>
-### Nested Schema for `resource_group_details.firmware_repository.deployments.vms`
+### Nested Schema for `resource_group_details.firmware_repository.deployments.license_repository`
 
 Read-Only:
 
@@ -544,7 +544,7 @@ Read-Only:
 - `version` (String) The version of the software bundle.
 
 <a id="nestedatt--resource_group_details--firmware_repository--software_bundles--software_components"></a>
-### Nested Schema for `resource_group_details.firmware_repository.software_bundles.version`
+### Nested Schema for `resource_group_details.firmware_repository.software_bundles.software_components`
 
 Read-Only:
 
@@ -760,15 +760,15 @@ Read-Only:
 - `type` (String) The type of the component.
 
 <a id="nestedatt--resource_group_details--service_template--components--component_valid"></a>
-### Nested Schema for `resource_group_details.service_template.components.type`
+### Nested Schema for `resource_group_details.service_template.components.component_valid`
 
 Read-Only:
 
-- `messages` (Attributes List) List of messages associated with the component validity. (see [below for nested schema](#nestedatt--resource_group_details--service_template--components--type--messages))
+- `messages` (Attributes List) List of messages associated with the component validity. (see [below for nested schema](#nestedatt--resource_group_details--service_template--components--component_valid--messages))
 - `valid` (Boolean) Indicates whether the component is valid.
 
-<a id="nestedatt--resource_group_details--service_template--components--type--messages"></a>
-### Nested Schema for `resource_group_details.service_template.components.type.messages`
+<a id="nestedatt--resource_group_details--service_template--components--component_valid--messages"></a>
+### Nested Schema for `resource_group_details.service_template.components.component_valid.messages`
 
 Read-Only:
 
@@ -788,7 +788,7 @@ Read-Only:
 
 
 <a id="nestedatt--resource_group_details--service_template--components--resources"></a>
-### Nested Schema for `resource_group_details.service_template.components.type`
+### Nested Schema for `resource_group_details.service_template.components.resources`
 
 Read-Only:
 
@@ -813,7 +813,7 @@ Read-Only:
 - `virtual_disk_fqdd` (String) Fully Qualified Device Descriptor (FQDD) of the virtual disk in the configuration.
 
 <a id="nestedatt--resource_group_details--service_template--configuration--categories"></a>
-### Nested Schema for `resource_group_details.service_template.configuration.virtual_disk_fqdd`
+### Nested Schema for `resource_group_details.service_template.configuration.categories`
 
 Read-Only:
 
@@ -863,12 +863,12 @@ Read-Only:
 - `username` (String) The username associated with the firmware repository.
 
 <a id="nestedatt--resource_group_details--service_template--firmware_repository--deployments"></a>
-### Nested Schema for `resource_group_details.service_template.firmware_repository.username`
+### Nested Schema for `resource_group_details.service_template.firmware_repository.deployments`
 
 Read-Only:
 
 - `all_users_allowed` (Boolean) Indicates whether all users are allowed for the deployment.
-- `assigned_users` (Attributes List) List of users assigned to the deployment. (see [below for nested schema](#nestedatt--resource_group_details--service_template--firmware_repository--username--assigned_users))
+- `assigned_users` (Attributes List) List of users assigned to the deployment. (see [below for nested schema](#nestedatt--resource_group_details--service_template--firmware_repository--deployments--assigned_users))
 - `brownfield` (Boolean) Indicates whether the deployment involves brownfield operations.
 - `can_migratev_clsv_ms` (Boolean) Indicates whether migration of cluster virtual machines is allowed.
 - `compliant` (Boolean) Indicates whether the deployment is compliant.
@@ -880,21 +880,21 @@ Read-Only:
 - `current_step_message` (String) The message associated with the current step during deployment.
 - `custom_image` (String) The custom image used for deployment.
 - `deployment_description` (String) The description of the deployment.
-- `deployment_device` (Attributes List) List of devices associated with the deployment. (see [below for nested schema](#nestedatt--resource_group_details--service_template--firmware_repository--username--deployment_device))
+- `deployment_device` (Attributes List) List of devices associated with the deployment. (see [below for nested schema](#nestedatt--resource_group_details--service_template--firmware_repository--deployments--deployment_device))
 - `deployment_finished_date` (String) The date when the deployment finished.
 - `deployment_health_status_type` (String) The type of health status associated with the deployment.
 - `deployment_name` (String) The name of the deployment.
 - `deployment_scheduled_date` (String) The scheduled date for the deployment.
 - `deployment_started_date` (String) The date when the deployment started.
-- `deployment_valid` (Attributes) Details about the validity of the deployment. (see [below for nested schema](#nestedatt--resource_group_details--service_template--firmware_repository--username--deployment_valid))
-- `deployment_validation_response` (Attributes) Details about the validation response for the deployment. (see [below for nested schema](#nestedatt--resource_group_details--service_template--firmware_repository--username--deployment_validation_response))
+- `deployment_valid` (Attributes) Details about the validity of the deployment. (see [below for nested schema](#nestedatt--resource_group_details--service_template--firmware_repository--deployments--deployment_valid))
+- `deployment_validation_response` (Attributes) Details about the validation response for the deployment. (see [below for nested schema](#nestedatt--resource_group_details--service_template--firmware_repository--deployments--deployment_validation_response))
 - `disruptive_firmware` (Boolean) Indicates whether disruptive firmware actions are allowed.
 - `firmware_init` (Boolean) Indicates whether firmware initialization is performed during deployment.
 - `firmware_repository_id` (String) The ID of the firmware repository associated with the deployment.
 - `id` (String) The unique identifier of the deployment.
 - `individual_teardown` (Boolean) Indicates whether to perform individual teardown for the deployment.
-- `job_details` (Attributes List) List of job details associated with the deployment. (see [below for nested schema](#nestedatt--resource_group_details--service_template--firmware_repository--username--job_details))
-- `license_repository` (Attributes) Details about the license repository associated with the deployment. (see [below for nested schema](#nestedatt--resource_group_details--service_template--firmware_repository--username--license_repository))
+- `job_details` (Attributes List) List of job details associated with the deployment. (see [below for nested schema](#nestedatt--resource_group_details--service_template--firmware_repository--deployments--job_details))
+- `license_repository` (Attributes) Details about the license repository associated with the deployment. (see [below for nested schema](#nestedatt--resource_group_details--service_template--firmware_repository--deployments--license_repository))
 - `license_repository_id` (String) The ID of the license repository associated with the deployment.
 - `lifecycle_mode` (Boolean) Indicates whether the deployment is in lifecycle mode.
 - `lifecycle_mode_reasons` (List of String) List of reasons for the lifecycle mode of the deployment.
@@ -925,10 +925,10 @@ Read-Only:
 - `updated_date` (String) The date when the deployment was last updated.
 - `use_default_catalog` (Boolean) Indicates whether to use the default catalog for the deployment.
 - `vds` (Boolean) Specifies whether the deployment involves Virtual Desktop Infrastructure (VDI) configuration.
-- `vms` (Attributes List) List of virtual machines associated with the deployment. (see [below for nested schema](#nestedatt--resource_group_details--service_template--firmware_repository--username--vms))
+- `vms` (Attributes List) List of virtual machines associated with the deployment. (see [below for nested schema](#nestedatt--resource_group_details--service_template--firmware_repository--deployments--vms))
 
-<a id="nestedatt--resource_group_details--service_template--firmware_repository--username--assigned_users"></a>
-### Nested Schema for `resource_group_details.service_template.firmware_repository.username.assigned_users`
+<a id="nestedatt--resource_group_details--service_template--firmware_repository--deployments--assigned_users"></a>
+### Nested Schema for `resource_group_details.service_template.firmware_repository.deployments.assigned_users`
 
 Read-Only:
 
@@ -955,8 +955,8 @@ Read-Only:
 - `user_seq_id` (Number) The sequential ID of the assigned user.
 
 
-<a id="nestedatt--resource_group_details--service_template--firmware_repository--username--deployment_device"></a>
-### Nested Schema for `resource_group_details.service_template.firmware_repository.username.deployment_device`
+<a id="nestedatt--resource_group_details--service_template--firmware_repository--deployments--deployment_device"></a>
+### Nested Schema for `resource_group_details.service_template.firmware_repository.deployments.deployment_device`
 
 Read-Only:
 
@@ -985,16 +985,16 @@ Read-Only:
 - `status_start_time` (String) The start time of the status for the deployment device.
 
 
-<a id="nestedatt--resource_group_details--service_template--firmware_repository--username--deployment_valid"></a>
-### Nested Schema for `resource_group_details.service_template.firmware_repository.username.deployment_valid`
+<a id="nestedatt--resource_group_details--service_template--firmware_repository--deployments--deployment_valid"></a>
+### Nested Schema for `resource_group_details.service_template.firmware_repository.deployments.deployment_valid`
 
 Read-Only:
 
-- `messages` (Attributes List) List of messages related to the deployment. (see [below for nested schema](#nestedatt--resource_group_details--service_template--firmware_repository--username--deployment_valid--messages))
+- `messages` (Attributes List) List of messages related to the deployment. (see [below for nested schema](#nestedatt--resource_group_details--service_template--firmware_repository--deployments--deployment_valid--messages))
 - `valid` (Boolean) Indicates whether the deployment is valid.
 
-<a id="nestedatt--resource_group_details--service_template--firmware_repository--username--deployment_valid--messages"></a>
-### Nested Schema for `resource_group_details.service_template.firmware_repository.username.deployment_valid.valid`
+<a id="nestedatt--resource_group_details--service_template--firmware_repository--deployments--deployment_valid--messages"></a>
+### Nested Schema for `resource_group_details.service_template.firmware_repository.deployments.deployment_valid.messages`
 
 Read-Only:
 
@@ -1013,8 +1013,8 @@ Read-Only:
 
 
 
-<a id="nestedatt--resource_group_details--service_template--firmware_repository--username--deployment_validation_response"></a>
-### Nested Schema for `resource_group_details.service_template.firmware_repository.username.deployment_validation_response`
+<a id="nestedatt--resource_group_details--service_template--firmware_repository--deployments--deployment_validation_response"></a>
+### Nested Schema for `resource_group_details.service_template.firmware_repository.deployments.deployment_validation_response`
 
 Read-Only:
 
@@ -1035,8 +1035,8 @@ Read-Only:
 - `warning_messages` (List of String) A list of warning messages associated with the deployment validation.
 
 
-<a id="nestedatt--resource_group_details--service_template--firmware_repository--username--job_details"></a>
-### Nested Schema for `resource_group_details.service_template.firmware_repository.username.job_details`
+<a id="nestedatt--resource_group_details--service_template--firmware_repository--deployments--job_details"></a>
+### Nested Schema for `resource_group_details.service_template.firmware_repository.deployments.job_details`
 
 Read-Only:
 
@@ -1047,8 +1047,8 @@ Read-Only:
 - `timestamp` (String) The timestamp of the job execution.
 
 
-<a id="nestedatt--resource_group_details--service_template--firmware_repository--username--license_repository"></a>
-### Nested Schema for `resource_group_details.service_template.firmware_repository.username.license_repository`
+<a id="nestedatt--resource_group_details--service_template--firmware_repository--deployments--license_repository"></a>
+### Nested Schema for `resource_group_details.service_template.firmware_repository.deployments.license_repository`
 
 Read-Only:
 
@@ -1065,8 +1065,8 @@ Read-Only:
 - `updated_date` (String) The date when the license repository was last updated.
 
 
-<a id="nestedatt--resource_group_details--service_template--firmware_repository--username--vms"></a>
-### Nested Schema for `resource_group_details.service_template.firmware_repository.username.vms`
+<a id="nestedatt--resource_group_details--service_template--firmware_repository--deployments--vms"></a>
+### Nested Schema for `resource_group_details.service_template.firmware_repository.deployments.vms`
 
 Read-Only:
 
@@ -1079,7 +1079,7 @@ Read-Only:
 
 
 <a id="nestedatt--resource_group_details--service_template--firmware_repository--software_bundles"></a>
-### Nested Schema for `resource_group_details.service_template.firmware_repository.username`
+### Nested Schema for `resource_group_details.service_template.firmware_repository.software_bundles`
 
 Read-Only:
 
@@ -1096,7 +1096,7 @@ Read-Only:
 - `id` (String) The unique identifier for the software bundle.
 - `name` (String) The name of the software bundle.
 - `needs_attention` (Boolean) Indicates whether the software bundle needs attention.
-- `software_components` (Attributes List) List of software components associated with the software bundle. (see [below for nested schema](#nestedatt--resource_group_details--service_template--firmware_repository--username--software_components))
+- `software_components` (Attributes List) List of software components associated with the software bundle. (see [below for nested schema](#nestedatt--resource_group_details--service_template--firmware_repository--software_bundles--software_components))
 - `updated_by` (String) The user who last updated the software bundle.
 - `updated_date` (String) The date when the software bundle was last updated.
 - `user_bundle` (Boolean) Indicates whether the software bundle is a user-specific bundle.
@@ -1104,8 +1104,8 @@ Read-Only:
 - `user_bundle_path` (String) The path associated with the user-specific software bundle.
 - `version` (String) The version of the software bundle.
 
-<a id="nestedatt--resource_group_details--service_template--firmware_repository--username--software_components"></a>
-### Nested Schema for `resource_group_details.service_template.firmware_repository.username.software_components`
+<a id="nestedatt--resource_group_details--service_template--firmware_repository--software_bundles--software_components"></a>
+### Nested Schema for `resource_group_details.service_template.firmware_repository.software_bundles.software_components`
 
 Read-Only:
 
@@ -1139,7 +1139,7 @@ Read-Only:
 
 
 <a id="nestedatt--resource_group_details--service_template--firmware_repository--software_components"></a>
-### Nested Schema for `resource_group_details.service_template.firmware_repository.username`
+### Nested Schema for `resource_group_details.service_template.firmware_repository.software_components`
 
 Read-Only:
 
@@ -1205,21 +1205,21 @@ Read-Only:
 - `vlan_id` (Number) The VLAN ID associated with the network.
 
 <a id="nestedatt--resource_group_details--service_template--networks--static_network_configuration"></a>
-### Nested Schema for `resource_group_details.service_template.networks.vlan_id`
+### Nested Schema for `resource_group_details.service_template.networks.static_network_configuration`
 
 Read-Only:
 
 - `dns_suffix` (String) The DNS suffix for the static network configuration.
 - `gateway` (String) The gateway for the static network configuration.
 - `ip_address` (String) The IP address associated with the static network configuration.
-- `ip_range` (Attributes List) List of IP ranges associated with the static network configuration. (see [below for nested schema](#nestedatt--resource_group_details--service_template--networks--vlan_id--ip_range))
+- `ip_range` (Attributes List) List of IP ranges associated with the static network configuration. (see [below for nested schema](#nestedatt--resource_group_details--service_template--networks--static_network_configuration--ip_range))
 - `primary_dns` (String) The primary DNS server for the static network configuration.
 - `secondary_dns` (String) The secondary DNS server for the static network configuration.
-- `static_route` (Attributes List) List of static routes associated with the static network configuration. (see [below for nested schema](#nestedatt--resource_group_details--service_template--networks--vlan_id--static_route))
+- `static_route` (Attributes List) List of static routes associated with the static network configuration. (see [below for nested schema](#nestedatt--resource_group_details--service_template--networks--static_network_configuration--static_route))
 - `subnet` (String) The subnet for the static network configuration.
 
-<a id="nestedatt--resource_group_details--service_template--networks--vlan_id--ip_range"></a>
-### Nested Schema for `resource_group_details.service_template.networks.vlan_id.ip_range`
+<a id="nestedatt--resource_group_details--service_template--networks--static_network_configuration--ip_range"></a>
+### Nested Schema for `resource_group_details.service_template.networks.static_network_configuration.ip_range`
 
 Read-Only:
 
@@ -1229,8 +1229,8 @@ Read-Only:
 - `starting_ip` (String) The starting IP address of the range.
 
 
-<a id="nestedatt--resource_group_details--service_template--networks--vlan_id--static_route"></a>
-### Nested Schema for `resource_group_details.service_template.networks.vlan_id.static_route`
+<a id="nestedatt--resource_group_details--service_template--networks--static_network_configuration--static_route"></a>
+### Nested Schema for `resource_group_details.service_template.networks.static_network_configuration.static_route`
 
 Read-Only:
 
@@ -1252,7 +1252,7 @@ Read-Only:
 - `valid` (Boolean) Indicates whether the template is valid.
 
 <a id="nestedatt--resource_group_details--service_template--template_valid--messages"></a>
-### Nested Schema for `resource_group_details.service_template.template_valid.valid`
+### Nested Schema for `resource_group_details.service_template.template_valid.messages`
 
 Read-Only:
 

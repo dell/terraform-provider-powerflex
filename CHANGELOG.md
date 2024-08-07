@@ -14,6 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
+# v1.6.0 (Aug 2024)
+
+### Removed Deprecated Resources
+* `powerflex_service`
+* `powerflex_sdc`
+
+### New Resources and Datasources
+* `powerflex_compatibility_management`
+* `powerflex_compliance_report`
+* `powerflex_os_repositiory`
+
 # v1.5.0 (June 28, 2024)
 
 ## Release Summary
