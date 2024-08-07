@@ -4,20 +4,18 @@ go 1.22
 
 require (
 	github.com/bramvdbogaerde/go-scp v1.4.0
-	// Updating to a commit version temporarily until the next goscaleio release
-	github.com/dell/goscaleio v1.15.1-0.20240718115558-b05601be619b
+	github.com/bytedance/mockey v1.2.10
+	github.com/dell/goscaleio v1.15.1-0.20240731163309-fc34c462e859
 	github.com/hashicorp/terraform-plugin-docs v0.13.0
 	github.com/hashicorp/terraform-plugin-framework v1.4.2
 	github.com/hashicorp/terraform-plugin-framework-validators v0.10.0
 	github.com/hashicorp/terraform-plugin-go v0.19.0
 	github.com/hashicorp/terraform-plugin-log v0.9.0
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.29.0
 	github.com/hashicorp/terraform-plugin-testing v1.5.1
 	github.com/joho/godotenv v1.5.1
 	github.com/masterzen/winrm v0.0.0-20231227165926-e811dad5ac77
 	github.com/packer-community/winrmcp v0.0.0-20221126162354-6e900dd2c68f
 	github.com/stretchr/testify v1.9.0
-	github.com/bytedance/mockey v1.2.10
 )
 
 require (
@@ -34,6 +32,7 @@ require (
 	github.com/go-logr/logr v1.3.0 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 // indirect
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.29.0 // indirect
 	github.com/jcmturner/aescts/v2 v2.0.0 // indirect
 	github.com/jcmturner/dnsutils/v2 v2.0.0 // indirect
 	github.com/jcmturner/gofork v1.7.6 // indirect
@@ -67,7 +66,6 @@ require (
 	github.com/agext/levenshtein v1.2.2 // indirect; indirect731c8425c7bcc68c4c793d0d053ec452ba2b5bb3
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
-	github.com/bytedance/mockey v1.2.10
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
