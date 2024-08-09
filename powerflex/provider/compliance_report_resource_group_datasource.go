@@ -19,7 +19,6 @@ package provider
 
 import (
 	"context"
-	"strconv"
 
 	"terraform-provider-powerflex/powerflex/models"
 
@@ -97,80 +96,12 @@ func (d *complianceReportResourceGroupDataSource) Read(ctx context.Context, req 
 		return
 	}
 	complianceReports := make([]scaleiotypes.ComplianceReport, 0)
-
-	if !state.IPAddress.IsNull() {
-		// Filter based on IP address
-		ipAddresses := make([]string, 0)
-		diags.Append(state.IPAddress.ElementsAs(ctx, &ipAddresses, true)...)
-
-		for _, ip := range ipAddresses {
-			complianceReport, err := helper.GetFilteredComplianceReport(complianceReportList, "IpAddress", ip)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					"Error in getting compliance report for resource group for given filter.",
-					err.Error(),
-				)
-				return
-			}
-			if complianceReport != nil {
-				complianceReports = append(complianceReports, *complianceReport)
-			}
-		}
-	} else if !state.ServiceTags.IsNull() {
-		// Filter based on service tags
-		serviceTags := make([]string, 0)
-		diags.Append(state.ServiceTags.ElementsAs(ctx, &serviceTags, true)...)
-		for _, serviceTag := range serviceTags {
-			complianceReport, err := helper.GetFilteredComplianceReport(complianceReportList, "ServiceTag", serviceTag)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					"Error in getting compliance report for resource group for given filter.",
-					err.Error(),
-				)
-				return
-			}
-			if complianceReport != nil {
-				complianceReports = append(complianceReports, *complianceReport)
-			}
-		}
-	} else if !state.HostNames.IsNull() {
-		// Filter based on host names
-		hostNames := make([]string, 0)
-		diags.Append(state.HostNames.ElementsAs(ctx, &hostNames, true)...)
-		for _, hostName := range hostNames {
-			complianceReport, err := helper.GetFilteredComplianceReport(complianceReportList, "HostName", hostName)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					"Error in getting compliance report for resource group for given filter.",
-					err.Error(),
-				)
-				return
-			}
-			if complianceReport != nil {
-				complianceReports = append(complianceReports, *complianceReport)
-			}
-		}
-	} else if !state.ResourceIDs.IsNull() {
-		// Filter based on ids
-		resourceIDs := make([]string, 0)
-		diags.Append(state.ResourceIDs.ElementsAs(ctx, &resourceIDs, true)...)
-		for _, resourceID := range resourceIDs {
-			complianceReport, err := helper.GetFilteredComplianceReport(complianceReportList, "ID", resourceID)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					"Error in getting compliance report for resource group for given filter.",
-					err.Error(),
-				)
-				return
-			}
-			if complianceReport != nil {
-				complianceReports = append(complianceReports, *complianceReport)
-			}
-		}
-	} else if !state.Compliant.IsNull() {
-		// Filter based on Compliant status
-		compliant := state.Compliant.ValueBool()
-		complianceReport, err := helper.GetFilteredComplianceReport(complianceReportList, "Compliant", strconv.FormatBool(compliant))
+	if state.ComplianceReportFilter == nil {
+		// add all reports
+		complianceReports = append(complianceReports, complianceReportList...)
+	} else {
+		// Get filtered reports
+		complianceReports, err = helper.GetFilteredComplianceReports(complianceReportList, *state.ComplianceReportFilter)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error in getting compliance report for resource group for given filter.",
@@ -178,12 +109,6 @@ func (d *complianceReportResourceGroupDataSource) Read(ctx context.Context, req 
 			)
 			return
 		}
-		if complianceReport != nil {
-			complianceReports = append(complianceReports, *complianceReport)
-		}
-	} else {
-		// add all reports
-		complianceReports = append(complianceReports, complianceReportList...)
 	}
 
 	state.ComplianceReports = helper.GetComplianceReportsModel(complianceReports)
