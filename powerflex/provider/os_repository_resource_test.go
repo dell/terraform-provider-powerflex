@@ -34,7 +34,7 @@ var osResp *scaleiotypes.OSRepository = &scaleiotypes.OSRepository{
 var localMocker1 *Mocker
 var localMocker2 *Mocker
 
-func TestAccOsRepositoryResource(t *testing.T) {
+func TestAccResourceOsRepositoryResource(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

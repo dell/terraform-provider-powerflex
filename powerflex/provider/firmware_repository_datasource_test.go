@@ -53,7 +53,7 @@ data "powerflex_firmware_repository" "test" {
 }
 `
 
-func TestAccFRDataSource(t *testing.T) {
+func TestAccDatasourceFR(t *testing.T) {
 	t.Skip("Skipping this test case")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -80,7 +80,7 @@ func TestAccFRDataSource(t *testing.T) {
 	})
 }
 
-func TestAccFRDataSourceNegative(t *testing.T) {
+func TestAccDatasourceFRNegative(t *testing.T) {
 	t.Skip("Skipping this test case")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

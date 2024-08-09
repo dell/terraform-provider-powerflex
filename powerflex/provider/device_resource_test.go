@@ -55,7 +55,7 @@ var AddDeviceWithSPID = createSDSForTest + createStoragePool + `
 	 }
 `
 
-func TestAccDeviceResourceWithSPID(t *testing.T) {
+func TestAccResourceDeviceWithSPID(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

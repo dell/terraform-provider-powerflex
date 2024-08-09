@@ -26,7 +26,7 @@ import (
 
 var protectionDomainID1 = ProtectionDomainID
 
-func TestSdsDataSource(t *testing.T) {
+func TestAccDatasourceSds(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

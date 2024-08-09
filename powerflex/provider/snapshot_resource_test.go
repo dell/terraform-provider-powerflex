@@ -146,7 +146,7 @@ resource "powerflex_snapshot" "snapshots-create" {
 }
 `
 
-func TestAccSnapshotResource(t *testing.T) {
+func TestAccResourceSnapshot(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -224,7 +224,7 @@ func TestAccSnapshotResource(t *testing.T) {
 	})
 }
 
-func TestAccSnapshotResourceDependant(t *testing.T) {
+func TestAccResourceSnapshotDependant(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -246,7 +246,7 @@ func TestAccSnapshotResourceDependant(t *testing.T) {
 	)
 }
 
-func TestAccSnapshotPolicyResourceUnit(t *testing.T) {
+func TestAccResourceSnapshotPolicyUnit(t *testing.T) {
 
 	t.Skip("Unit Test Case")
 

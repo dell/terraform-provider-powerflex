@@ -28,7 +28,7 @@ import (
 var testAccStoragePoolName = StoragePoolName
 
 // TestAccStoragepoolResource
-func TestAccStoragepoolResource(t *testing.T) {
+func TestAccResourceStoragepool(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -73,7 +73,7 @@ func TestAccStoragepoolResource(t *testing.T) {
 		},
 	})
 }
-func TestAccStoragepoolResourceUpdateRMCache(t *testing.T) {
+func TestAccResourceStoragepoolUpdateRMCache(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -107,7 +107,7 @@ func TestAccStoragepoolResourceUpdateRMCache(t *testing.T) {
 }
 
 // TestAccStoragepoolResourceInvalidCreate
-func TestAccStoragepoolResourceInvalidCreate(t *testing.T) {
+func TestAccResourceStoragepoolInvalidCreate(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -122,8 +122,8 @@ func TestAccStoragepoolResourceInvalidCreate(t *testing.T) {
 	})
 }
 
-// TestAccStoragepoolResourceInvalidProtectionDomainID
-func TestAccStoragepoolResourceInvalidProtectionDomainID(t *testing.T) {
+// TestAccResourceStoragepoolInvalidProtectionDomainID
+func TestAccResourceStoragepoolInvalidProtectionDomainID(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -137,7 +137,7 @@ func TestAccStoragepoolResourceInvalidProtectionDomainID(t *testing.T) {
 		},
 	})
 }
-func TestAccStoragepoolResourceVariousCases(t *testing.T) {
+func TestAccResourceStoragepoolVariousCases(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -163,7 +163,7 @@ func TestAccStoragepoolResourceVariousCases(t *testing.T) {
 		})
 	}
 }
-func TestAccStoragepoolResourceInvalidUpdateProtectionDomainID(t *testing.T) {
+func TestAccResourceStoragepoolInvalidUpdateProtectionDomainID(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -189,7 +189,7 @@ func TestAccStoragepoolResourceInvalidUpdateProtectionDomainID(t *testing.T) {
 		},
 	})
 }
-func TestAccStoragepoolResourceInvalidUpdateName(t *testing.T) {
+func TestAccResourceStoragepoolInvalidUpdateName(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -216,7 +216,7 @@ func TestAccStoragepoolResourceInvalidUpdateName(t *testing.T) {
 	})
 }
 
-func TestAccStoragepoolResourceNegativeCases(t *testing.T) {
+func TestAccResourceStoragepoolNegativeCases(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -233,7 +233,7 @@ func TestAccStoragepoolResourceNegativeCases(t *testing.T) {
 	})
 }
 
-func TestAccStoragepoolResourceInvalidConfig(t *testing.T) {
+func TestAccResourceStoragepoolInvalidConfig(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -282,7 +282,7 @@ func TestAccStoragepoolResourceInvalidConfig(t *testing.T) {
 	})
 }
 
-func TestAccStoragepoolResourceManyAttributes(t *testing.T) {
+func TestAccResourceStoragepoolManyAttributes(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -347,7 +347,7 @@ func TestAccStoragepoolResourceManyAttributes(t *testing.T) {
 	})
 }
 
-func TestAccStoragepoolResourceCapacityAlertInvalidValue(t *testing.T) {
+func TestAccResourceStoragepoolCapacityAlertInvalidValue(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -363,7 +363,7 @@ func TestAccStoragepoolResourceCapacityAlertInvalidValue(t *testing.T) {
 	})
 }
 
-func TestAccStoragepoolResourceInvalidAttributesValue(t *testing.T) {
+func TestAccResourceStoragepoolInvalidAttributesValue(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -391,7 +391,7 @@ func TestAccStoragepoolResourceInvalidAttributesValue(t *testing.T) {
 	})
 }
 
-func TestAccStoragePoolResourceUpdate(t *testing.T) {
+func TestAccResourceStoragePoolUpdate(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -469,7 +469,7 @@ func TestAccStoragePoolResourceUpdate(t *testing.T) {
 	)
 }
 
-func TestAccStoragePoolResourceDependant(t *testing.T) {
+func TestAccResourceStoragePoolDependant(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
