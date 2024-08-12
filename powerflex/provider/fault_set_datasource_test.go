@@ -54,7 +54,7 @@ data "powerflex_fault_set" "example" {
 }
 `
 
-func TestAccFaultSetDataSource(t *testing.T) {
+func TestAccDatasourceFaultSet(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{

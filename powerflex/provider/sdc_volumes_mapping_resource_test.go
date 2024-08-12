@@ -58,7 +58,7 @@ var createVolRW = `
 	}
 `
 
-func TestAccSDCVolumesResource(t *testing.T) {
+func TestAccResourceSDCVolumes(t *testing.T) {
 	var MapSDCVolumesResource = createVolRO + createVolRW + getSDCID + `
 	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
 			id = local.matching_sdc[0].id
@@ -402,7 +402,7 @@ func TestAccSDCVolumesResourceUpdate(t *testing.T) {
 		}})
 }
 
-func TestAccSDCResourceUnknown(t *testing.T) {
+func TestAccResourceSDCUnknown(t *testing.T) {
 	if SdsResourceTestData.SdcIP1 == "" {
 		t.Fatal("POWERFLEX_SDC_IP1 must be set for TestAccSDCResourceUnknown")
 	}

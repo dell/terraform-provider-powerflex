@@ -18,13 +18,14 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"os"
 	"regexp"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccFaultSetResource(t *testing.T) {
+func TestAccResourceFaultSet(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -62,7 +63,7 @@ func TestAccFaultSetResource(t *testing.T) {
 	})
 }
 
-func TestAccFaultSetCreateNegative(t *testing.T) {
+func TestAccResourceFaultSetCreateNegative(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -83,7 +84,7 @@ func TestAccFaultSetCreateNegative(t *testing.T) {
 	})
 }
 
-func TestAccFaultSetUpdateNegative(t *testing.T) {
+func TestAccResourceFaultSetUpdateNegative(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}

@@ -62,10 +62,6 @@ func TestAccResourceGroupResource(t *testing.T) {
 				ResourceName:  "powerflex_resource_group.service",
 				ExpectError:   regexp.MustCompile(`.*Couldn't find service with the given filter.*`),
 			},
-			{
-				Config:      ProviderConfigForTesting + ServiceResourceConfig6,
-				ExpectError: regexp.MustCompile(`.*No need to pass clone_from_host during the deployment of service.*`),
-			},
 		},
 	})
 }

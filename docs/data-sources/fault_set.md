@@ -205,7 +205,7 @@ Read-Only:
 - `short_window` (Attributes) Short Window Parameters. (see [below for nested schema](#nestedatt--fault_set_details--sds_details--sds_configuration_failure--short_window))
 
 <a id="nestedatt--fault_set_details--sds_details--sds_configuration_failure--long_window"></a>
-### Nested Schema for `fault_set_details.sds_details.sds_configuration_failure.short_window`
+### Nested Schema for `fault_set_details.sds_details.sds_configuration_failure.long_window`
 
 Read-Only:
 
@@ -217,7 +217,7 @@ Read-Only:
 
 
 <a id="nestedatt--fault_set_details--sds_details--sds_configuration_failure--medium_window"></a>
-### Nested Schema for `fault_set_details.sds_details.sds_configuration_failure.short_window`
+### Nested Schema for `fault_set_details.sds_details.sds_configuration_failure.medium_window`
 
 Read-Only:
 
@@ -251,7 +251,7 @@ Read-Only:
 - `short_window` (Attributes) Short Window Parameters. (see [below for nested schema](#nestedatt--fault_set_details--sds_details--sds_decoupled--short_window))
 
 <a id="nestedatt--fault_set_details--sds_details--sds_decoupled--long_window"></a>
-### Nested Schema for `fault_set_details.sds_details.sds_decoupled.short_window`
+### Nested Schema for `fault_set_details.sds_details.sds_decoupled.long_window`
 
 Read-Only:
 
@@ -263,7 +263,7 @@ Read-Only:
 
 
 <a id="nestedatt--fault_set_details--sds_details--sds_decoupled--medium_window"></a>
-### Nested Schema for `fault_set_details.sds_details.sds_decoupled.short_window`
+### Nested Schema for `fault_set_details.sds_details.sds_decoupled.medium_window`
 
 Read-Only:
 
@@ -297,7 +297,7 @@ Read-Only:
 - `short_window` (Attributes) Short Window Parameters. (see [below for nested schema](#nestedatt--fault_set_details--sds_details--sds_receive_buffer_allocation_failures--short_window))
 
 <a id="nestedatt--fault_set_details--sds_details--sds_receive_buffer_allocation_failures--long_window"></a>
-### Nested Schema for `fault_set_details.sds_details.sds_receive_buffer_allocation_failures.short_window`
+### Nested Schema for `fault_set_details.sds_details.sds_receive_buffer_allocation_failures.long_window`
 
 Read-Only:
 
@@ -309,7 +309,7 @@ Read-Only:
 
 
 <a id="nestedatt--fault_set_details--sds_details--sds_receive_buffer_allocation_failures--medium_window"></a>
-### Nested Schema for `fault_set_details.sds_details.sds_receive_buffer_allocation_failures.short_window`
+### Nested Schema for `fault_set_details.sds_details.sds_receive_buffer_allocation_failures.medium_window`
 
 Read-Only:
 

@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccPackageResource(t *testing.T) {
+func TestAccResourcePackage(t *testing.T) {
 	var packageTest = `
 	resource "powerflex_package" "upload-test" {
 		file_path = ["../resource-test/powerflex_packages/EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"]
@@ -57,7 +57,7 @@ func TestAccPackageResource(t *testing.T) {
 		}})
 }
 
-func TestAccPackageNegative(t *testing.T) {
+func TestAccResourcePackageNegative(t *testing.T) {
 	var InvalidPath = `
 	resource "powerflex_package" "upload-test" {
 		file_path = ["/home/Software/EMC-ScaleIO-lia-3.6-700.103.Ubuntu.22.04.x86_64.tar"]

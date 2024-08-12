@@ -47,7 +47,7 @@ data "powerflex_template" "example" {
 }
 `
 
-func TestAccTemplateDataSource(t *testing.T) {
+func TestAccDatasourceTemplate(t *testing.T) {
 	t.Skip("Skipping this test case")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

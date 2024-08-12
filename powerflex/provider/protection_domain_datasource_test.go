@@ -57,7 +57,7 @@ var (
 // TestAccProtectionDomainDataSource tests the protectiondomain data source
 // where it fetches the protectiondomains based on protectiondomain id/name
 // and if nothing is mentioned , then return all protectiondomains
-func TestAccProtectionDomainDataSource(t *testing.T) {
+func TestAccDatasourceProtectionDomain(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -141,7 +141,7 @@ func TestNonNullReplicationCapacityMaxRatio(t *testing.T) {
 	}
 }
 
-func TestNegativeScenarios(t *testing.T) {
+func TestAccDatasourcePDNegativeScenarios(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

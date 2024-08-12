@@ -26,8 +26,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-// TestAccSDCResourceUbuntu tests the SDC Expansion Operation on Ubuntu
-func TestAccSDCHostResourceUbuntu(t *testing.T) {
+// TestAccResourceSDCUbuntu tests the SDC Expansion Operation on Ubuntu
+func TestAccResourceSDCHostUbuntu(t *testing.T) {
 	t.Skip("Skipping this test case for real environment")
 	os.Setenv("TF_ACC", "1")
 	if SdcHostResourceTestData.UbuntuIP == "127.0.0.1" {
@@ -264,8 +264,8 @@ func TestAccSDCHostResourceUbuntu(t *testing.T) {
 	})
 }
 
-// TestAccSDCHostResourceEsxiNeg tests the SDC Expansion Operation on Esxi Negative Validations
-func TestAccSDCHostResourceEsxiNeg(t *testing.T) {
+// TestAccResourceSDCHostEsxiNeg tests the SDC Expansion Operation on Esxi Negative Validations
+func TestAccResourceSDCHostsxiNeg(t *testing.T) {
 	os.Setenv("TF_ACC", "1")
 
 	resource.Test(t, resource.TestCase{
@@ -313,8 +313,8 @@ func TestAccSDCHostResourceEsxiNeg(t *testing.T) {
 	})
 }
 
-// TestAccSDCHostResourceEsxi tests the SDC Expansion Operation on Esxi
-func TestAccSDCHostResourceEsxi(t *testing.T) {
+// TestAccResourceSDCHostEsxi tests the SDC Expansion Operation on Esxi
+func TestAccResourceSDCHostEsxi(t *testing.T) {
 	t.Skip("Skipping this test case for real environment")
 	os.Setenv("TF_ACC", "1")
 	if SdcHostResourceTestData.EsxiIP == "127.0.0.1" {
