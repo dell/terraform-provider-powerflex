@@ -338,6 +338,8 @@ var FirmwareRepoName1 = setDefault(globalEnvMap["POWERFLEX_FIRMWARE_REPO_NAME1"]
 var FirmwareRepoName2 = setDefault(globalEnvMap["POWERFLEX_FIRMWARE_REPO_NAME2"], "tfacc_firmware_repo_name2")
 var ComplianceReportDataPoints = getComplianceReportDataForTest()
 var OSRepoSourcePath = setDefault(globalEnvMap["POWERFLEX_OS_REPO_SOURCE_PATH"], "tfacc_os_repo_source_path")
+var OSRepoID1 = setDefault(globalEnvMap["POWERFLEX_OS_REPO_ID1"], "tfacc_os_repo_id1")
+var OSRepoName1 = setDefault(globalEnvMap["POWERFLEX_OS_REPO_NAME1"], "tfacc_os_repo_name1")
 
 func getEnvMap() map[string]string {
 	envMap, err := loadEnvFile("powerflex.env")
