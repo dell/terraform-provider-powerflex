@@ -29,7 +29,7 @@ import (
 )
 
 var osResp *scaleiotypes.OSRepository = &scaleiotypes.OSRepository{
-	Name: "TestTFOS",
+	Name: OSRepoName1,
 }
 var localMocker1 *Mocker
 var localMocker2 *Mocker
@@ -130,7 +130,7 @@ func TestAccResourceOsRepositoryResource(t *testing.T) {
 
 var osRepoResource = `
 resource "powerflex_os_repository" "test" {
-	name = "TestTFOS"
+	name = "` + OSRepoName1 + `"
 	repo_type = "ISO"
 	source_path = "` + OSRepoSourcePath + `"
 	image_type = "vmware_esxi"

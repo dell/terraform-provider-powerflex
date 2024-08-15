@@ -283,6 +283,7 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 		FirmwareRepositoryDataSource,
 		ComplianceReportResourceGroupDataSource,
 		CompatibilityManagementDataSource,
+		OSRepositoryDataSource,
 	}
 }
 
