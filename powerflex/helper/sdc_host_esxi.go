@@ -19,7 +19,6 @@ package helper
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"terraform-provider-powerflex/client"
@@ -78,7 +77,7 @@ func (r *SdcHostResource) CreateEsxi(ctx context.Context, plan models.SdcHostMod
 	}
 	defer sshP.Close()
 
-	pkgTarget := filepath.Join(dir, "emc-sdc-package.zip")
+	pkgTarget := strings.TrimSuffix(dir, "/") + "/" + "emc-sdc-package.zip"
 	if !plan.UseRemotePath.ValueBool() {
 		// upload sw
 		scpProv := client.NewScpProvisioner(sshP)

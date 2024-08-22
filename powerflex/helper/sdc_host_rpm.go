@@ -19,7 +19,6 @@ package helper
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 	"strings"
 	"terraform-provider-powerflex/client"
 	"terraform-provider-powerflex/powerflex/models"
@@ -36,7 +35,7 @@ func (r *SdcHostResource) CreateRhel(ctx context.Context, plan models.SdcHostMod
 	if !plan.UseRemotePath.ValueBool() {
 		// upload sw
 		scpProv := client.NewScpProvisioner(sshP)
-		pkgTarget := filepath.Join(dir, "emc-sdc-package.rpm")
+		pkgTarget := strings.TrimSuffix(dir, "/") + "/" + "emc-sdc-package.rpm"
 		err := scpProv.Upload(plan.Pkg.ValueString(), pkgTarget, "")
 		if err != nil {
 			respDiagnostics.AddError(

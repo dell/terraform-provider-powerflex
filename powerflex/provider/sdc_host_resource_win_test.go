@@ -36,7 +36,7 @@ func TestAccResourceSDCHostNegative(t *testing.T) {
 			//Create
 			{
 				Config:      ProviderConfigForTesting + SDCHostConfig1,
-				ExpectError: regexp.MustCompile(`.*Password is required for Windows SDC.*`),
+				ExpectError: regexp.MustCompile(`.*Exactly one of these attributes must be configured.*`),
 			},
 			{
 				Config:      ProviderConfigForTesting + SDCHostConfig2,

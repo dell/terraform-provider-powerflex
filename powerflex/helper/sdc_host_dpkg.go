@@ -20,7 +20,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"path/filepath"
 	"strings"
 	"terraform-provider-powerflex/client"
 	"terraform-provider-powerflex/powerflex/models"
@@ -84,7 +83,7 @@ func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostM
 
 		// upload sw
 		scpProv := client.NewScpProvisioner(sshP)
-		pkgTarget := filepath.Join(dir, "emc-sdc-package.tar")
+		pkgTarget := strings.TrimSuffix(dir, "/") + "/" + "emc-sdc-package.tar"
 		err := scpProv.Upload(plan.Pkg.ValueString(), pkgTarget, "")
 		if err != nil {
 			respDiagnostics.AddError(

@@ -95,18 +95,6 @@ func (r *sdcHostResource) ValidateConfig(ctx context.Context, req resource.Valid
 		)
 	}
 
-	if !cfg.OS.IsUnknown() && cfg.OS.ValueString() == "windows" && !cfg.Remote.IsNull() {
-		var remote models.SdcHostRemoteModel
-		cfg.Remote.As(ctx, &remote, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
-
-		if remote.Password == nil {
-			resp.Diagnostics.AddAttributeError(
-				path.Root("remote").AtName("password"),
-				"Password is required for Windows SDC",
-				"",
-			)
-		}
-	}
 }
 
 func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
@@ -402,6 +390,19 @@ func (r *sdcHostResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	if !plan.OS.IsUnknown() && plan.OS.ValueString() == "windows" && !plan.Remote.IsNull() {
+		var remote models.SdcHostRemoteModel
+		plan.Remote.As(ctx, &remote, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
+
+		if remote.Password == nil {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("remote").AtName("password"),
+				"Password is required for Windows SDC",
+				"",
+			)
+			return
+		}
+	}
 	//Checking that SDC exist or not
 	allSdcs, _ := r.system.GetSdc()
 	for _, sdcData := range allSdcs {
@@ -598,6 +599,19 @@ func (r *sdcHostResource) Delete(ctx context.Context, req resource.DeleteRequest
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+	if !state.OS.IsUnknown() && state.OS.ValueString() == "windows" && !state.Remote.IsNull() {
+		var remote models.SdcHostRemoteModel
+		state.Remote.As(ctx, &remote, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
+
+		if remote.Password == nil {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("remote").AtName("password"),
+				"Password is required for Windows SDC",
+				"",
+			)
+			return
+		}
 	}
 
 	resHelper := helper.SdcHostResource{
