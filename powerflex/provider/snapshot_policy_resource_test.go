@@ -25,7 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccResourceSnapshotPolicy(t *testing.T) {
+func TestAccResourceSnapshotPolicya(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Dont run with units tests because it will try to create the context")
 	}
@@ -226,6 +226,7 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = false
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
+	volume_ids = ["5f54577100000004","5f5437c200000003"]
   }
 `
 
@@ -237,6 +238,7 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = true
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
+	volume_ids = ["5f54577100000004","5f5437c200000003"]
   }
 `
 var SPResourceUpdate3 = `
@@ -247,6 +249,7 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = false
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
+	volume_ids = ["5f54577100000004","5f5437c200000003"]
   }
 `
 
@@ -258,6 +261,7 @@ resource "powerflex_snapshot_policy" "avengers-sp-create" {
 	paused = false
 	secure_snapshots = false
 	snapshot_access_mode = "ReadOnly"
+	volume_ids = ["5f54577100000004","5f5437c200000003"]
   }
 `
 

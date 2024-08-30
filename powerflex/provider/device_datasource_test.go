@@ -57,7 +57,7 @@ func TestAccDatasourceDevice(t *testing.T) {
 				Config: ProviderConfigForTesting + deviceDataWithStoragePoolName,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_device.dev5", "protection_domain_name", "domain1"),
-					resource.TestCheckResourceAttr("data.powerflex_device.dev5", "storage_pool_name", "pool1"),
+					resource.TestCheckResourceAttr("data.powerflex_device.dev5", "storage_pool_name", "terraform-storage-pool"),
 				),
 			},
 			{
@@ -155,7 +155,7 @@ data "powerflex_device" "dev4" {
 var deviceDataWithStoragePoolName = `
 data "powerflex_device" "dev5" {
 	protection_domain_name = "domain1"
-	storage_pool_name = "pool1"
+	storage_pool_name = "terraform-storage-pool"
   }
 `
 

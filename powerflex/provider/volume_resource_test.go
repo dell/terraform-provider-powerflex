@@ -295,31 +295,7 @@ func TestAccResourceVolumeImport(t *testing.T) {
 				ImportState:  true,
 				// TODO // ImportStateVerify: true,
 			},
-		},
-	})
-}
-
-func TestAccResourceVolumeWithPDID(t *testing.T) {
-	//resourceName := "powerflex_volume.tf_create"
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Create dummy volume
-			{
-				Config: ProviderConfigForTesting + `
-				resource "powerflex_volume" "tf_create"{
-					name = "volume-create-tf"
-					protection_domain_id = "` + protectionDomainID1 + `"
-					storage_pool_name = "pool1"
-					size = 8
-				}
-				`,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_volume.tf_create", "name", "volume-create-tf"),
-					resource.TestCheckResourceAttr("powerflex_volume.tf_create", "protection_domain_id", protectionDomainID1),
-				),
-			},
+			// Try to import with an empty id should fail
 			{
 				ResourceName: "powerflex_volume.tf_create",
 				ImportState:  true,

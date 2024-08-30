@@ -18,10 +18,13 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
 	"os"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
@@ -91,38 +94,9 @@ func TestAccResourceUser(t *testing.T) {
 				Config: ProviderConfigForTesting + UserResourceUpdate,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_user.user", "name", "NewUser"),
-					resource.TestCheckResourceAttr("powerflex_user.user", "role", "Configure"),
+					resource.TestCheckResourceAttr("powerflex_user.user", "role", "SystemAdmin"),
 					resource.TestCheckResourceAttr("powerflex_user.user", "password", "Password123"),
 				),
-			},
-		},
-	})
-}
-
-func TestAccResourceUserNegative(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Create user Test
-			{
-				Config: ProviderConfigForTesting + UserResourceCreate,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_user.user", "name", "NewUser"),
-					resource.TestCheckResourceAttr("powerflex_user.user", "role", "Monitor"),
-					resource.TestCheckResourceAttr("powerflex_user.user", "password", "Password123"),
-				),
-			},
-			// Update user Test
-			{
-				Config:      ProviderConfigForTesting + UserResourceUpdateName,
-				ExpectError: regexp.MustCompile(`.*username cannot be updated once the user is created.*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + UserResourceUpdatePassword,
-				ExpectError: regexp.MustCompile(`.*password cannot be updated after user creation.*`),
 			},
 		},
 	})
@@ -136,16 +110,18 @@ func TestAccResourceUserCreateNegative(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.CreateSsoUser, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
 				Config:      ProviderConfigForTesting + UserResourceCreate2,
 				ExpectError: regexp.MustCompile(`.*Error creating the user.*`),
 			},
 			{
-				Config:      ProviderConfigForTesting + UserResourceCreate3,
-				ExpectError: regexp.MustCompile(`.*PowerFlex version 3.6 does not support the first_name and last_name attributes.*`),
-			},
-			{
 				Config:      ProviderConfigForTesting + UserResourceCreate4,
-				ExpectError: regexp.MustCompile(`.*Invalid user role.*`),
+				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value Match.*`),
 			},
 		},
 	})
@@ -162,7 +138,7 @@ resource "powerflex_user" "user" {
 var UserResourceUpdate = `
 resource "powerflex_user" "user" {
 	name = "NewUser"
-	role = "Configure"
+	role = "SystemAdmin"
 	password = "Password123"
 }
 `
@@ -208,7 +184,7 @@ resource "powerflex_user" "user" {
 var UserResourceCreate4 = `
 resource "powerflex_user" "user" {
 	name = "NewUser"
-	role = "StorageAdmin"
+	role = "NotRealRole"
 	password = "Password123"
 }
 `

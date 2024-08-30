@@ -18,6 +18,7 @@ limitations under the License.
 package provider
 
 import (
+	"log"
 	"os"
 	"regexp"
 	"testing"
@@ -37,12 +38,17 @@ type sdcDataPoints struct {
 var sdcTestData sdcDataPoints
 
 func init() {
+	envMap, err := loadEnvFile("powerflex.env")
+	if err != nil {
+		log.Fatal("Error loading .env file: ", err)
+		return
+	}
 	sdcTestData.noOfSdc = "1"
 	sdcTestData.noOflinks = "4"
 	sdcTestData.name = ""
 	sdcTestData.sdcguid = "123"
 	sdcTestData.systemid = "456"
-	sdcTestData.sdcip = os.Getenv("POWERFLEX_SDC_IP1")
+	sdcTestData.sdcip = setDefault(envMap["POWERFLEX_SDC_IP1"], "tfacc_sdc_host_existing_host_ip")
 }
 
 func TestAccDatasourceSdc(t *testing.T) {

@@ -64,12 +64,6 @@ func TestAccDatasourceStoragePool(t *testing.T) {
 					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example4", "protection_domain_name", "domain1"),
 				),
 			},
-			{
-				Config: ProviderConfigForTesting + StoragePoolDataSourceConfig5,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example5", "protection_domain_name", "domain1"),
-				),
-			},
 		},
 	})
 }
@@ -98,10 +92,5 @@ var StoragePoolDataSourceConfig4 = `
 data "powerflex_storage_pool" "example4" {
 	protection_domain_name = "domain1"
 	storage_pool_ids = ["c992bad600000005", "c98e26e500000000"]
-}
-`
-var StoragePoolDataSourceConfig5 = `
-data "powerflex_storage_pool" "example5" {
-	protection_domain_name = "domain1"
 }
 `

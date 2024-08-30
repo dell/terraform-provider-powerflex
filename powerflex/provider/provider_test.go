@@ -340,6 +340,7 @@ var ComplianceReportDataPoints = getComplianceReportDataForTest()
 var OSRepoSourcePath = setDefault(globalEnvMap["POWERFLEX_OS_REPO_SOURCE_PATH"], "tfacc_os_repo_source_path")
 var OSRepoID1 = setDefault(globalEnvMap["POWERFLEX_OS_REPO_ID1"], "tfacc_os_repo_id1")
 var OSRepoName1 = setDefault(globalEnvMap["POWERFLEX_OS_REPO_NAME1"], "tfacc_os_repo_name1")
+var FaultSetId = setDefault(globalEnvMap["POWERFLEX_FAULT_SET_ID"], "1EE7752911111111")
 
 func getEnvMap() map[string]string {
 	envMap, err := loadEnvFile("powerflex.env")

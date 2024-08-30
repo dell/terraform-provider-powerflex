@@ -509,7 +509,7 @@ func (r *storagepoolResource) Update(ctx context.Context, req resource.UpdateReq
 	}
 
 	if plan.Name.ValueString() != state.Name.ValueString() {
-		_, err := pd.ModifyStoragePoolName(state.ID.ValueString(), plan.Name.ValueString())
+		_, err := helper.ModifyStoragePoolName(pd, state.ID.ValueString(), plan.Name.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error while updating name of Storagepool", err.Error(),
