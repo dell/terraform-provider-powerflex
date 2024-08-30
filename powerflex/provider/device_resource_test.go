@@ -26,7 +26,7 @@ import (
 
 var createSDSForTest = `
 	resource "powerflex_sds" "sds" {
-		name = "Tf_SDS_01"
+		name = "Tf_SDS_01_DV"
 		ip_list = [
 			{
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
@@ -72,7 +72,7 @@ func TestAccResourceDeviceWithSPID(t *testing.T) {
 		}})
 }
 
-func TestAccDeviceResourceWithSPName(t *testing.T) {
+func TestAccResourceDeviceWithSPName(t *testing.T) {
 	var AddDeviceWithSPName = createSDSForTest + createStoragePool + `
 	resource "powerflex_device" "device-test" {
 		name = "terraform-device"
@@ -101,7 +101,7 @@ func TestAccDeviceResourceWithSPName(t *testing.T) {
 		}})
 }
 
-func TestAccDeviceResourceWithPDID(t *testing.T) {
+func TestAccResourceDeviceWithPDID(t *testing.T) {
 	var AddDeviceWithSPName = createSDSForTest + createStoragePool + `
 	resource "powerflex_device" "device-test" {
 		name = "terraform-device"
@@ -130,7 +130,7 @@ func TestAccDeviceResourceWithPDID(t *testing.T) {
 		}})
 }
 
-func TestAccDeviceResourceWithSDSName(t *testing.T) {
+func TestAccResourceDeviceWithSDSName(t *testing.T) {
 	var AddDeviceWithSDSName = createSDSForTest + createStoragePool + `
 	resource "powerflex_device" "device-test" {
 		name = "terraform-device"
@@ -156,7 +156,7 @@ func TestAccDeviceResourceWithSDSName(t *testing.T) {
 		}})
 }
 
-func TestAccDeviceNegative(t *testing.T) {
+func TestAccResourceDeviceNegative(t *testing.T) {
 	var InvalidPath = createStoragePool + `
 	resource "powerflex_device" "device-test" {
 		name = "terraform-device-invalid"

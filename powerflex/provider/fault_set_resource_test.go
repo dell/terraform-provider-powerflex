@@ -18,17 +18,16 @@ limitations under the License.
 package provider
 
 import (
-	"os"
+	"fmt"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestAccResourceFaultSet(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
 	resourceName := "powerflex_fault_set.newFs"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -37,7 +36,7 @@ func TestAccResourceFaultSet(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + FaultSetResourceCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_fault_set.newFs", "name", "fault-set-create"),
+					resource.TestCheckResourceAttr("powerflex_fault_set.newFs", "name", "fault-set-create-test"),
 				),
 			},
 			// check that import is creating correct state
@@ -50,7 +49,7 @@ func TestAccResourceFaultSet(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + FaultSetResourceUpdate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_fault_set.newFs", "name", "fault-set-update"),
+					resource.TestCheckResourceAttr("powerflex_fault_set.newFs", "name", "fault-set-update-test"),
 				),
 			},
 			// check that import is creating correct state
@@ -59,50 +58,19 @@ func TestAccResourceFaultSet(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-		},
-	})
-}
-
-func TestAccResourceFaultSetCreateNegative(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Create fault set Test negative
+			// Update to invalid protection domain should fail
 			{
-				Config:      ProviderConfigForTesting + FaultSetResourceCreateNegative,
-				ExpectError: regexp.MustCompile(`.*Error getting Protection Domain.*`),
-			},
-			// Create fault set Test negative
-			{
-				Config:      ProviderConfigForTesting + FaultSetResourceCreateNegative2,
-				ExpectError: regexp.MustCompile(`.*Error creating fault set.*`),
-			},
-		},
-	})
-}
-
-func TestAccResourceFaultSetUpdateNegative(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Create fault set Test
-			{
-				Config: ProviderConfigForTesting + FaultSetResourceCreate,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_fault_set.newFs", "name", "fault-set-create"),
-				),
-			},
-			{
-				Config:      ProviderConfigForTesting + FaultSetResourceCreateNegative,
+				Config:      ProviderConfigForTesting + FaultSetResourceInvalidPNegative,
 				ExpectError: regexp.MustCompile(`.*Error: Protection Domain ID cannot be updated.*`),
 			},
+			// Should show failure if unable to update the name of the fault set
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.ModifyFaultSetName, OptGeneric).Return(fmt.Errorf("Mock error")).Build()
+				},
 				Config:      ProviderConfigForTesting + FaultSetResourceUpdateNegative,
 				ExpectError: regexp.MustCompile(`.*Error while updating name of fault set.*`),
 			},
@@ -110,21 +78,51 @@ func TestAccResourceFaultSetUpdateNegative(t *testing.T) {
 	})
 }
 
+func TestAccResourceFaultSetCreateNegative(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Create fault set Test negative
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetNewProtectionDomainEx).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + FaultSetResourceInvalidPNegative,
+				ExpectError: regexp.MustCompile(`.*Error getting Protection Domain.*`),
+			},
+			// Create fault set Test negative
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.CreateFaultSet, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + FaultSetResourceCreateNegative2,
+				ExpectError: regexp.MustCompile(`.*Error creating fault set.*`),
+			},
+		},
+	})
+}
+
 var FaultSetResourceCreate = `
 resource "powerflex_fault_set" "newFs" {
-	name = "fault-set-create"
+	name = "fault-set-create-test"
 	protection_domain_id = "` + protectionDomainID1 + `"
 }
 `
 
 var FaultSetResourceUpdate = `
 resource "powerflex_fault_set" "newFs" {
-	name = "fault-set-update"
+	name = "fault-set-update-test"
 	protection_domain_id = "` + protectionDomainID1 + `"
 }
 `
 
-var FaultSetResourceCreateNegative = `
+var FaultSetResourceInvalidPNegative = `
 resource "powerflex_fault_set" "newFs" {
 	name = "fault-set-create"
 	protection_domain_id = "Invalid"

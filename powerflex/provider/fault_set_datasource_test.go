@@ -32,7 +32,7 @@ data "powerflex_fault_set" "example" {
 // To-Do: Remove hard-coded values once fault set resource gets merged
 var FaultSetDataSourceConfig2 = `
 data "powerflex_fault_set" "example" {						
-	fault_set_ids = ["2dd6640800000000"]
+	fault_set_ids = ["` + FaultSetID + `"]
 }
 `
 
@@ -65,7 +65,7 @@ func TestAccDatasourceFaultSet(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + FaultSetDataSourceConfig2,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_fault_set.example", "fault_set_details.0.id", "2dd6640800000000"),
+					resource.TestCheckResourceAttr("data.powerflex_fault_set.example", "fault_set_details.0.id", FaultSetID),
 				),
 			},
 			{

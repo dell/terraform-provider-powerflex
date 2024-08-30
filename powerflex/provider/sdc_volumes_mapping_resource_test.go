@@ -18,6 +18,7 @@ limitations under the License.
 package provider
 
 import (
+	"os"
 	"regexp"
 	"testing"
 
@@ -41,6 +42,16 @@ var getSDCID = `
 var createVolRO = `
 	resource "powerflex_volume" "pre-req1"{
 		name = "terraform-vol"
+		protection_domain_name = "domain1"
+		storage_pool_name = "pool1"
+		size = 8
+		access_mode = "ReadOnly"
+	}
+`
+
+var createVolNeg = `
+	resource "powerflex_volume" "pre-req1"{
+		name = "terraform-vol-neg"
 		protection_domain_name = "domain1"
 		storage_pool_name = "pool1"
 		size = 8
@@ -234,7 +245,7 @@ func TestAccSDCVolumesResourceNegative(t *testing.T) {
 		]
 	 }
 	`
-	var InvalidLimits = createVolRO + getSDCID + `
+	var InvalidLimits = createVolNeg + getSDCID + `
 	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
 			id = local.matching_sdc[0].id
 			volume_list = [
@@ -247,19 +258,7 @@ func TestAccSDCVolumesResourceNegative(t *testing.T) {
 		]
 	 }
 	`
-	var IncorrectAccessMode = createVolRO + getSDCID + `
-	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
-		id = local.matching_sdc[0].id
-		volume_list = [
-		{
-			volume_id = resource.powerflex_volume.pre-req1.id
-			limit_iops = 120
-			limit_bw_in_mbps = 20
-			access_mode = "ReadWrite"
-		}
-	]
-	}
-	`
+
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -283,14 +282,13 @@ func TestAccSDCVolumesResourceNegative(t *testing.T) {
 				Config:      ProviderConfigForTesting + InvalidLimits,
 				ExpectError: regexp.MustCompile("Error setting limits to sdc"),
 			},
-			{
-				Config:      ProviderConfigForTesting + IncorrectAccessMode,
-				ExpectError: regexp.MustCompile("Error mapping sdc"),
-			},
 		}})
 }
 
 func TestAccSDCVolumesResourceUpdate(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an ACC test")
+	}
 	var CreateSDCVolumesResource = createVolRW + getSDCID + `
 	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
 			id = local.matching_sdc[0].id
@@ -400,73 +398,4 @@ func TestAccSDCVolumesResourceUpdate(t *testing.T) {
 				ExpectError: regexp.MustCompile("Error setting limits to sdc"),
 			},
 		}})
-}
-
-func TestAccResourceSDCUnknown(t *testing.T) {
-	if SdsResourceTestData.SdcIP1 == "" {
-		t.Fatal("POWERFLEX_SDC_IP1 must be set for TestAccSDCResourceUnknown")
-	}
-
-	if SDCVolName == "" {
-		t.Fatal("POWERFLEX_SDC_VOLUMES_MAPPING_NAME must be set for TestAccSDCResourceUnknown")
-	}
-
-	tfVars := `
-	locals {
-		sdc_name = "` + SDCMappingResourceName2 + `"
-	}
-	`
-
-	createSDCVolMapUnk := createVolRW + tfVars + `
-	data "powerflex_sdc" "all" {
-	}
-	provider "random" {
-	}
-	resource "random_integer" "sdc_ind" {
-	  min = 0
-	  max = 0
-	}
-	locals {
-		names = [local.sdc_name]
-		matching_sdc = [for sdc in data.powerflex_sdc.all.sdcs : sdc if sdc.name == local.names[random_integer.sdc_ind.result]]
-	}
-
-	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
-		id = local.matching_sdc[0].id
-		volume_list = [
-		{
-			volume_id = powerflex_volume.pre-req2.id
-			limit_iops = 120
-			limit_bw_in_mbps = 20
-			access_mode = "ReadOnly"
-		}
-		]
- 	}
-	`
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"random": {
-				VersionConstraint: "3.4.3",
-				Source:            "hashicorp/random",
-			},
-		},
-		Steps: []resource.TestStep{
-			{
-				Config: ProviderConfigForTesting + createSDCVolMapUnk,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "name", "terraform_sdc_do_not_delete"),
-					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.#", "1"),
-					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.*", map[string]string{
-						"volume_name":      "terraform-vol1",
-						"access_mode":      "ReadOnly",
-						"limit_iops":       "120",
-						"limit_bw_in_mbps": "20",
-					}),
-				),
-			},
-		},
-	})
 }

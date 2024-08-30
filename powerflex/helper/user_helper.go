@@ -20,6 +20,7 @@ package helper
 import (
 	"terraform-provider-powerflex/powerflex/models"
 
+	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -54,4 +55,9 @@ func UpdateUserState(user *scaleiotypes.User, plan models.UserModel, ssoUser *sc
 	}
 
 	return state
+}
+
+// CreateSsoUser an Sso User
+func CreateSsoUser(client *goscaleio.Client, payload *scaleiotypes.SSOUserCreateParam) (*scaleiotypes.SSOUserDetails, error) {
+	return client.CreateSSOUser(payload)
 }

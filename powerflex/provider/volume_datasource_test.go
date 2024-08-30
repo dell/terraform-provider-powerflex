@@ -18,7 +18,6 @@ limitations under the License.
 package provider
 
 import (
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -42,7 +41,7 @@ func init() {
 // where it fetches the volumes based on volume id/name or storage pool id/name
 // and if nothing is mentioned , then return all volumes
 func TestAccDatasourceVolume(t *testing.T) {
-	os.Setenv("TF_ACC", "1")
+
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{

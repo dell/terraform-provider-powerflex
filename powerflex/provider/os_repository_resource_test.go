@@ -35,7 +35,6 @@ var localMocker1 *Mocker
 var localMocker2 *Mocker
 
 func TestAccResourceOsRepositoryResource(t *testing.T) {
-	t.Skip("Skipping this test case, only use on 4.x or greater")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{

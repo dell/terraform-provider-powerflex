@@ -28,7 +28,6 @@ import (
 )
 
 func TestAccDatasourceCompatibilityManagement(t *testing.T) {
-	t.Skip("Skipping this test case, only use on 4.x or greater")
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

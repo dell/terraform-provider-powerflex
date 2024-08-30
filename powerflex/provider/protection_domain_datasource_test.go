@@ -18,7 +18,6 @@ limitations under the License.
 package provider
 
 import (
-	"os"
 	"regexp"
 	"terraform-provider-powerflex/powerflex/helper"
 	"terraform-provider-powerflex/powerflex/models"
@@ -39,8 +38,8 @@ type pdDataPoints struct {
 var protectiondomainTestData pdDataPoints = pdDataPoints{
 	id:    ProtectionDomainID,
 	name:  "domain1",
-	name2: "domain2",
-	name3: "domain_1",
+	name2: "sds-unit-test-protection-domain",
+	name3: "domain2",
 }
 
 var (
@@ -58,7 +57,6 @@ var (
 // where it fetches the protectiondomains based on protectiondomain id/name
 // and if nothing is mentioned , then return all protectiondomains
 func TestAccDatasourceProtectionDomain(t *testing.T) {
-	os.Setenv("TF_ACC", "1")
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -142,7 +140,6 @@ func TestNonNullReplicationCapacityMaxRatio(t *testing.T) {
 }
 
 func TestAccDatasourcePDNegativeScenarios(t *testing.T) {
-	os.Setenv("TF_ACC", "1")
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

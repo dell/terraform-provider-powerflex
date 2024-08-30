@@ -18,6 +18,7 @@ limitations under the License.
 package provider
 
 import (
+	"os"
 	"regexp"
 	"testing"
 
@@ -252,6 +253,9 @@ func TestAccResourceMdmCluster(t *testing.T) {
 }
 
 func TestAccResourceMdmClusterSwitchClusterMode(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an ACC test")
+	}
 	var mdmClusterResourceBlock = "powerflex_mdm_cluster.test"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -319,6 +323,9 @@ func TestAccResourceMdmClusterSwitchClusterMode(t *testing.T) {
 }
 
 func TestAccResourceMdmClusterSwitchPrimaryMdm(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an ACC test")
+	}
 	var mdmClusterResourceBlock = "powerflex_mdm_cluster.test"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

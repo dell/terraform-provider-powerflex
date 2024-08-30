@@ -166,7 +166,7 @@ func (d *faultSetDataSource) Read(ctx context.Context, req datasource.ReadReques
 		faultSets, err = d.system.GetAllFaultSets()
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error in getting vTree details", err.Error(),
+				"Error in getting Fault Set details", err.Error(),
 			)
 			return
 		}

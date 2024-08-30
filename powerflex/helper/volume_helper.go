@@ -166,3 +166,13 @@ func UpdateVolumeState(volumes []*scaleiotypes.Volume) (response []models.Volume
 	}
 	return
 }
+
+// SetMappedSdcLimits setsMapped SDC limits
+func SetMappedSdcLimits(volType *goscaleio.Volume, limitType scaleiotypes.SetMappedSdcLimitsParam) error {
+	return volType.SetMappedSdcLimits(&limitType)
+}
+
+// MapVolumeSdc Map Volume to SDC
+func MapVolumeSdc(volType *goscaleio.Volume, mapType scaleiotypes.MapVolumeSdcParam) error {
+	return volType.MapVolumeSdc(&mapType)
+}

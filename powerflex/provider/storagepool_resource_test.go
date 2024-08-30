@@ -18,20 +18,20 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
 	"os"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 var testAccStoragePoolName = StoragePoolName
 
 // TestAccStoragepoolResource
-func TestAccResourceStoragepool(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
+func TestAccResourceStoragepoola(t *testing.T) {
 	resourceName := "powerflex_storage_pool.storagepool"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -40,8 +40,8 @@ func TestAccResourceStoragepool(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + StoragePoolResourceCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "name", "storage_pool"),
-					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "protection_domain_id", protectionDomainID1),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "name", "terraform-storage-pool"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "protection_domain_id", ProtectionDomainID),
 					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rmcache", "true"),
 					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rfcache", "true"),
@@ -58,7 +58,7 @@ func TestAccResourceStoragepool(t *testing.T) {
 				Config: ProviderConfigForTesting + StoragePoolResourceUpdate,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "name", "storage_pool_new"),
-					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "protection_domain_id", protectionDomainID1),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "protection_domain_id", ProtectionDomainID),
 					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rmcache", "true"),
 					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rfcache", "true"),
@@ -70,13 +70,32 @@ func TestAccResourceStoragepool(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			// Update Storagepool Test Name Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.ModifyStoragePoolName, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + CreateInvalidName,
+				ExpectError: regexp.MustCompile(`.*Error while updating name of Storagepool.*`),
+			},
+			// Update Storagepool Test InvalidProtectionDomainID
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
+				Config:      ProviderConfigForTesting + CreateInvalidProtectionDomainID,
+				ExpectError: regexp.MustCompile(`.*Error getting Protection Domain.*`),
+			},
 		},
 	})
 }
+
 func TestAccResourceStoragepoolUpdateRMCache(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -84,8 +103,8 @@ func TestAccResourceStoragepoolUpdateRMCache(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + StoragePoolResourceCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "name", "storage_pool"),
-					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "protection_domain_id", protectionDomainID1),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "name", "terraform-storage-pool"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "protection_domain_id", ProtectionDomainID),
 					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rmcache", "true"),
 					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rfcache", "true"),
@@ -95,7 +114,7 @@ func TestAccResourceStoragepoolUpdateRMCache(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + StoragePoolResourceCreateRMCacheFalse,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "name", "storage_pool"),
+					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "name", "terraform-storage-pool"),
 					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "protection_domain_name", "domain1"),
 					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "media_type", "HDD"),
 					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rmcache", "false"),
@@ -108,9 +127,6 @@ func TestAccResourceStoragepoolUpdateRMCache(t *testing.T) {
 
 // TestAccStoragepoolResourceInvalidCreate
 func TestAccResourceStoragepoolInvalidCreate(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -122,31 +138,12 @@ func TestAccResourceStoragepoolInvalidCreate(t *testing.T) {
 	})
 }
 
-// TestAccResourceStoragepoolInvalidProtectionDomainID
-func TestAccResourceStoragepoolInvalidProtectionDomainID(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config:      ProviderConfigForTesting + CreateInvalidProtectionDomainID,
-				ExpectError: regexp.MustCompile(`.*Error getting Protection Domain.*`),
-			},
-		},
-	})
-}
 func TestAccResourceStoragepoolVariousCases(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
-
 	tests := []resource.TestStep{
 		{
 			Config: ProviderConfigForTesting + StoragePoolResourceCreateRMCacheFalse,
 			Check: resource.ComposeAggregateTestCheckFunc(
-				resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "name", "storage_pool"),
+				resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "name", "terraform-storage-pool"),
 				resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "protection_domain_name", "domain1"),
 				resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "media_type", "HDD"),
 				resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rmcache", "false"),
@@ -163,64 +160,8 @@ func TestAccResourceStoragepoolVariousCases(t *testing.T) {
 		})
 	}
 }
-func TestAccResourceStoragepoolInvalidUpdateProtectionDomainID(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Create Storagepool Test
-			{
-				Config: ProviderConfigForTesting + StoragePoolResourceCreate,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "name", "storage_pool"),
-					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "protection_domain_id", protectionDomainID1),
-					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "media_type", "HDD"),
-					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rmcache", "true"),
-					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rfcache", "true"),
-				),
-			},
-			// Update Storagepool Test
-			{
-				Config:      ProviderConfigForTesting + CreateInvalidProtectionDomainID,
-				ExpectError: regexp.MustCompile(`.*Error getting Protection Domain.*`),
-			},
-		},
-	})
-}
-func TestAccResourceStoragepoolInvalidUpdateName(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Create Storagepool Test
-			{
-				Config: ProviderConfigForTesting + StoragePoolResourceCreate,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "name", "storage_pool"),
-					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "protection_domain_id", protectionDomainID1),
-					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "media_type", "HDD"),
-					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rmcache", "true"),
-					resource.TestCheckResourceAttr("powerflex_storage_pool.storagepool", "use_rfcache", "true"),
-				),
-			},
-			// Update Storagepool Test
-			{
-				Config:      ProviderConfigForTesting + CreateInvalidName,
-				ExpectError: regexp.MustCompile(`.*Error while updating name of Storagepool.*`),
-			},
-		},
-	})
-}
 
-func TestAccResourceStoragepoolNegativeCases(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
-
+func TestAccResourceStoragepoolInvalidAndBadConfigs(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -229,19 +170,10 @@ func TestAccResourceStoragepoolNegativeCases(t *testing.T) {
 				Config:      ProviderConfigForTesting + CreateExistingStoragePoolName,
 				ExpectError: regexp.MustCompile(`.*Error creating Storage Pool.*`),
 			},
-		},
-	})
-}
-
-func TestAccResourceStoragepoolInvalidConfig(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
-
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Create Storagepool Test Negative
+			{
+				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidAttributesValue1,
+				ExpectError: regexp.MustCompile(`.*[capacity_alert_threshold : The high threshold value must be lower than the critical threshold value.].*`),
+			},
 			{
 				Config:      ProviderConfigForTesting + CreateStoragePoolWithInvalidConfig1,
 				ExpectError: regexp.MustCompile(`.*With policy as limitNumOfConcurrentIos, it can't add values to bandwidth.*`),
@@ -278,15 +210,27 @@ func TestAccResourceStoragepoolInvalidConfig(t *testing.T) {
 				Config:      ProviderConfigForTesting + CreateStoragePoolWithInvalidConfig9,
 				ExpectError: regexp.MustCompile(`.*vtree_migration_io_priority_policy must be provided.*`),
 			},
+			{
+				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidAttributesValue2,
+				ExpectError: regexp.MustCompile(`.*Attribute Error.*`),
+			},
+			{
+				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidAttributesValue3,
+				ExpectError: regexp.MustCompile(`.*Attribute Error.*`),
+			},
+			{
+				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidAttributesValue4,
+				ExpectError: regexp.MustCompile(`.*Attribute Error.*`),
+			},
+			{
+				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidReplicationJournalCap,
+				ExpectError: regexp.MustCompile(`.*[replication_journal_capacity : Wrong command parameters. Check the PowerFlex user documentation for this command to see the correct parameters.].*`),
+			},
 		},
 	})
 }
 
 func TestAccResourceStoragepoolManyAttributes(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
-
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -347,54 +291,7 @@ func TestAccResourceStoragepoolManyAttributes(t *testing.T) {
 	})
 }
 
-func TestAccResourceStoragepoolCapacityAlertInvalidValue(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Create Storagepool Test Negative
-			{
-				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidAttributesValue1,
-				ExpectError: regexp.MustCompile(`.*[capacity_alert_threshold : The high threshold value must be lower than the critical threshold value.].*`),
-			},
-		},
-	})
-}
-
-func TestAccResourceStoragepoolInvalidAttributesValue(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Create Storagepool Test Negative
-			{
-				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidAttributesValue2,
-				ExpectError: regexp.MustCompile(`.*Attribute Error.*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidAttributesValue3,
-				ExpectError: regexp.MustCompile(`.*Attribute Error.*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidAttributesValue4,
-				ExpectError: regexp.MustCompile(`.*Attribute Error.*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + CreateStoragePoolInvalidReplicationJournalCap,
-				ExpectError: regexp.MustCompile(`.*[replication_journal_capacity : Wrong command parameters. Check the PowerFlex user documentation for this command to see the correct parameters.].*`),
-			},
-		},
-	})
-}
-
 func TestAccResourceStoragePoolUpdate(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -470,9 +367,6 @@ func TestAccResourceStoragePoolUpdate(t *testing.T) {
 }
 
 func TestAccResourceStoragePoolDependant(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -493,8 +387,8 @@ func TestAccResourceStoragePoolDependant(t *testing.T) {
 
 var StoragePoolResourceCreate = `
 resource "powerflex_storage_pool" "storagepool" {
-	name = "storage_pool"
-	protection_domain_id = "` + protectionDomainID1 + `"
+	name = "terraform-storage-pool"
+	protection_domain_id = "` + ProtectionDomainID + `"
 	media_type = "HDD"
 	use_rmcache = true
 	use_rfcache = true
@@ -502,7 +396,7 @@ resource "powerflex_storage_pool" "storagepool" {
 `
 var StoragePoolResourceCreateRMCacheFalse = `
 resource "powerflex_storage_pool" "storagepool" {
-	name = "storage_pool"
+	name = "terraform-storage-pool"
 	protection_domain_name = "domain1"
 	media_type = "HDD"
 	use_rmcache = false
@@ -512,7 +406,7 @@ resource "powerflex_storage_pool" "storagepool" {
 var StoragePoolResourceUpdate = `
 resource "powerflex_storage_pool" "storagepool" {
 	name = "storage_pool_new"
-	protection_domain_id = "` + protectionDomainID1 + `"
+	protection_domain_id = "` + ProtectionDomainID + `"
 	media_type = "HDD"
 	use_rmcache = true
 	use_rfcache = true
@@ -520,8 +414,8 @@ resource "powerflex_storage_pool" "storagepool" {
 `
 var CreateInvalidMediaType = `
   resource "powerflex_storage_pool" "storagepool" {
-	name = "storage_pool"
-	protection_domain_id = "` + protectionDomainID1 + `"
+	name = "terraform-storage-pool"
+	protection_domain_id = "` + ProtectionDomainID + `"
 	media_type = "HSD"
 	use_rmcache = true
 	use_rfcache = true
@@ -529,7 +423,7 @@ var CreateInvalidMediaType = `
 `
 var CreateInvalidProtectionDomainID = `
 resource "powerflex_storage_pool" "storagepool" {
-	name = "storage_pool"
+	name = "terraform-storage-pool"
 	protection_domain_id = "123"
 	media_type = "HDD"
 	use_rmcache = true
@@ -539,7 +433,7 @@ resource "powerflex_storage_pool" "storagepool" {
 var CreateInvalidName = `
 resource "powerflex_storage_pool" "storagepool" {
 	name = "Terraform_POWERFLEX_storage_pool_33"
-	protection_domain_id = "` + protectionDomainID1 + `"
+	protection_domain_id = "` + ProtectionDomainID + `"
 	media_type = "HDD"
 	use_rmcache = true
 	use_rfcache = true
@@ -549,7 +443,7 @@ resource "powerflex_storage_pool" "storagepool" {
 var CreateExistingStoragePoolName = `
 resource "powerflex_storage_pool" "storagepool1" {
 	name = "pool1"
-	protection_domain_id = "` + protectionDomainID1 + `"
+	protection_domain_id = "` + ProtectionDomainID + `"
 	media_type = "HDD"
 	use_rmcache = true
 	use_rfcache = true

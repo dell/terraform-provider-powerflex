@@ -29,7 +29,7 @@ import (
 // TestAccResourceSDCUbuntu tests the SDC Expansion Operation on Ubuntu
 func TestAccResourceSDCHostUbuntu(t *testing.T) {
 	t.Skip("Skipping this test case for real environment")
-	os.Setenv("TF_ACC", "1")
+
 	if SdcHostResourceTestData.UbuntuIP == "127.0.0.1" {
 		err := os.WriteFile("/tmp/tfaccsdc.tar", []byte("Dummy SDC package"), 0644)
 		if err != nil {
@@ -266,7 +266,6 @@ func TestAccResourceSDCHostUbuntu(t *testing.T) {
 
 // TestAccResourceSDCHostEsxiNeg tests the SDC Expansion Operation on Esxi Negative Validations
 func TestAccResourceSDCHostsxiNeg(t *testing.T) {
-	os.Setenv("TF_ACC", "1")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -316,7 +315,7 @@ func TestAccResourceSDCHostsxiNeg(t *testing.T) {
 // TestAccResourceSDCHostEsxi tests the SDC Expansion Operation on Esxi
 func TestAccResourceSDCHostEsxi(t *testing.T) {
 	t.Skip("Skipping this test case for real environment")
-	os.Setenv("TF_ACC", "1")
+
 	if SdcHostResourceTestData.EsxiIP == "127.0.0.1" {
 		err := os.WriteFile("/tmp/tfaccsdc.zip", []byte("Dummy SDC package"), 0644)
 		if err != nil {

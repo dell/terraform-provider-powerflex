@@ -90,7 +90,6 @@ data "powerflex_compliance_report_resource_group" "complianceReport" {
 `
 
 func TestAccComplianceReportDataSource(t *testing.T) {
-	t.Skip("Skipping this test case, only use on 4.x or greater")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -141,7 +140,6 @@ func TestAccComplianceReportDataSource(t *testing.T) {
 }
 
 func TestAccComplianceReportDataSourceNegative(t *testing.T) {
-	t.Skip("Skipping this test case, only use on 4.x or greater")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
