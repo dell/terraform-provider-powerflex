@@ -47,7 +47,7 @@ resource "powerflex_sdc_host" "sdc" {
   }
   os_family = "esxi"
   esxi = {
-    guid         = random_uuid.sdc_guid.result
+    guid = random_uuid.sdc_guid.result
   }
   name         = "sdc-esxi"
   package_path = "/root/terraform-provider-powerflex/sdc-3.6.500.106-esx7.x.zip"

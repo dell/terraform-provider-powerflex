@@ -24,13 +24,13 @@ resource "terraform_data" "always_run" {
 
 # Example for setting compatibility management. After successful execution, device will be added to the specified storage pool
 resource "powerflex_compatibility_management" "test" {
-    # Required Path on your local machine to your gpg file ie(/example/path/secring.gpg)
-    repository_path = "/example/path/example.gpg"
-        
-    // This will allow terraform create process to trigger each time we run terraform apply.
-    lifecycle {
-        replace_triggered_by = [
-         terraform_data.always_run
-        ]
-    }
+  # Required Path on your local machine to your gpg file ie(/example/path/secring.gpg)
+  repository_path = "/example/path/example.gpg"
+
+  // This will allow terraform create process to trigger each time we run terraform apply.
+  lifecycle {
+    replace_triggered_by = [
+      terraform_data.always_run
+    ]
+  }
 }

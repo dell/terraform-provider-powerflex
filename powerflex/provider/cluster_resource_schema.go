@@ -130,6 +130,13 @@ func ClusterResourceModelSchema() map[string]schema.Attribute {
 			Computed:            true,
 			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterProtectionDomainModelSchema()},
 		},
+
+		"sdt_list": schema.SetNestedAttribute{
+			MarkdownDescription: "Cluster SDT Details",
+			Description:         "Cluster SDT Details",
+			Computed:            true,
+			NestedObject:        schema.NestedAttributeObject{Attributes: ClusterSDTModelSchema()},
+		},
 	}
 }
 
@@ -490,6 +497,7 @@ func ClusterModelSchema() map[string]schema.Attribute {
 				stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("sdr_external_ips")),
 			},
 		},
+
 		"perf_profile_for_sdr": schema.StringAttribute{
 			MarkdownDescription: "Performance Profile For SDR",
 			Description:         "Performance Profile For SDR",
@@ -498,6 +506,39 @@ func ClusterModelSchema() map[string]schema.Attribute {
 				"HighPerformance",
 				"Compact",
 			)},
+		},
+
+		"is_sdt": schema.StringAttribute{
+			MarkdownDescription: "Is Sdt. The acceptable values are `Yes` and `No`. Default value is `No`.",
+			Description:         "Is Sdt. The acceptable values are `Yes` and `No`. Default value is `No`.",
+			Optional:            true,
+			Computed:            true,
+			Validators: []validator.String{stringvalidator.OneOfCaseInsensitive(
+				"Yes",
+				"No",
+			)},
+			PlanModifiers: []planmodifier.String{
+				helper.StringDefault("No"),
+			},
+		},
+
+		"sdt_name": schema.StringAttribute{
+			MarkdownDescription: "SDT Name",
+			Description:         "SDT Name",
+			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.LengthAtMost(31),
+			},
+		},
+
+		"sdt_all_ips": schema.StringAttribute{
+			MarkdownDescription: "SDT IP addresses used for both hosts communication and MDM communication (including both roles).",
+			Description:         "SDT IP addresses used for both hosts communication and MDM communication (including both roles).",
+			Optional:            true,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 	}
 }
@@ -877,6 +918,77 @@ func StoragePoolDetailModelSchema() map[string]schema.Attribute {
 		"replication_journal_capacity_percentage": schema.Int64Attribute{
 			MarkdownDescription: "Replication Journal Capacity Percentage",
 			Description:         "Replication Journal Capacity Percentage",
+			Computed:            true,
+		},
+	}
+}
+
+// ClusterSDTModelSchema defines the schema for SDT schema model
+func ClusterSDTModelSchema() map[string]schema.Attribute {
+	return map[string]schema.Attribute{
+		"id": schema.StringAttribute{
+			MarkdownDescription: "ID",
+			Description:         "ID",
+			Computed:            true,
+		},
+
+		"ip": schema.StringAttribute{
+			MarkdownDescription: "SDT Node IP",
+			Description:         "SDT Node IP",
+			Computed:            true,
+		},
+
+		"name": schema.StringAttribute{
+			MarkdownDescription: "Name",
+			Description:         "Name",
+			Computed:            true,
+		},
+
+		"all_ips": schema.StringAttribute{
+			MarkdownDescription: "All IP",
+			Description:         "All IP",
+			Computed:            true,
+		},
+
+		"protection_domain_id": schema.StringAttribute{
+			MarkdownDescription: "Protection Domain Name",
+			Description:         "Protection Domain Name",
+			Computed:            true,
+		},
+
+		"protection_domain_name": schema.StringAttribute{
+			MarkdownDescription: "Protection Domain Name",
+			Description:         "Protection Domain Name",
+			Computed:            true,
+		},
+
+		"storage_only_ips": schema.StringAttribute{
+			MarkdownDescription: "Storage Only IP",
+			Description:         "Storage Only IP",
+			Computed:            true,
+		},
+
+		"host_only_ips": schema.StringAttribute{
+			MarkdownDescription: "Host Only IP",
+			Description:         "Host Only IP",
+			Computed:            true,
+		},
+
+		"storage_port": schema.Int64Attribute{
+			MarkdownDescription: "Storage Port",
+			Description:         "Storage Port",
+			Computed:            true,
+		},
+
+		"nvme_port": schema.Int64Attribute{
+			MarkdownDescription: "NVMe Port",
+			Description:         "NVMe Port",
+			Computed:            true,
+		},
+
+		"discovery_port": schema.Int64Attribute{
+			MarkdownDescription: "Discovery Port",
+			Description:         "Discovery Port",
 			Computed:            true,
 		},
 	}

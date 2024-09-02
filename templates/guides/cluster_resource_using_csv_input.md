@@ -32,11 +32,11 @@ This guide explains how to use CSV file(s) for managing PowerFlex cluster via Te
 
 **cluster_node.csv**
 ```
-IPs,Username,Password,Operating System,Is MDM/TB,Is SDS,SDS Storage Device List,Is SDC
-10.76.60.1,root,Password1,linux,Primary,Yes,/dev/sdb,Yes
-10.76.60.2,root,Password1,linux,Secondary,Yes,/dev/sdb,Yes
-10.76.60.3,root,Password1,linux,TB,Yes,/dev/sdb,Yes
-10.76.60.4,root,Password1,linux,,Yes,/dev/sdb,Yes
+IPs,Username,Password,Operating System,Is MDM/TB,Is SDS,SDS Storage Device List,Is SDC,Is SDT
+10.76.60.1,root,Password1,linux,Primary,Yes,/dev/sdb,Yes,Yes
+10.76.60.2,root,Password1,linux,Secondary,Yes,/dev/sdb,Yes,Yes
+10.76.60.3,root,Password1,linux,TB,Yes,/dev/sdb,Yes,Yes
+10.76.60.4,root,Password1,linux,,Yes,/dev/sdb,Yes,Yes
 ```
 
 **sp_data.csv**
@@ -77,6 +77,7 @@ resource "powerflex_cluster" "test" {
       perf_profile_for_sdc = row.perfProfileForSDC
       is_rfcache           = row["RFcache"]
       is_sdr               = row["Is SDR"]
+      is_sdt               = row["Is SDT"]
     }
     if row["Is MDM/TB"] != "" # Validates if MDM role is not empty string
   ]

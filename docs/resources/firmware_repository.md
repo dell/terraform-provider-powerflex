@@ -49,10 +49,10 @@ limitations under the License.
 # Example for uploading compliance file. After successful execution, compliance file will be uploaded to the manager.
 resource "powerflex_firmware_repository" "upload-test" {
   source_location = "https://10.10.10.1/artifactory/Denver/RCMs/SoftwareOnly/PowerFlex_Software_4.5.0.0_287_r1.zip"
-  username = "user" # To be provided in case of CIFS share
-  password = "password" # To be provided in case of CIFS share
-  approve = true # To be used to approve the unsigned file
-  timeout = 45 #controls that till what time the upload compliance will run
+  username        = "user"     # To be provided in case of CIFS share
+  password        = "password" # To be provided in case of CIFS share
+  approve         = true       # To be used to approve the unsigned file
+  timeout         = 45         #controls that till what time the upload compliance will run
 }
 ```
 

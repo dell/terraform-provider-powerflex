@@ -63,7 +63,9 @@ resource "powerflex_cluster" "test" {
       is_sdc                   = "Yes",
       sdc_name                 = "sdc1",
       perf_profile_for_sdc     = "HighPerformance"
-
+      is_sdt                   = "Yes",
+      sdt_name                 = "sdt1",
+      sdt_all_ips              = "10.10.10.2,10.10.10.3",
     },
     {
       username                 = "user",
@@ -87,6 +89,10 @@ resource "powerflex_cluster" "test" {
       is_sdc                   = "Yes",
       sdc_name                 = "sdc2",
       perf_profile_for_sdc     = "HighPerformance"
+      perf_profile_for_sdc     = "HighPerformance",
+      is_sdt                   = "Yes",
+      sdt_name                 = "sdt2",
+      sdt_all_ips              = "10.10.10.7,10.10.10.8",
     },
     {
       username                 = "user",
@@ -108,6 +114,9 @@ resource "powerflex_cluster" "test" {
       is_sdc                   = "Yes",
       sdc_name                 = "sdc3",
       perf_profile_for_sdc     = "HighPerformance"
+      is_sdt                   = "Yes",
+      sdt_name                 = "sdt3",
+      sdt_all_ips              = "10.10.10.10,10.01.10.11",
     }
   ]
 

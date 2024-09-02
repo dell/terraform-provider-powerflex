@@ -61,7 +61,7 @@ data "powerflex_resource_group" "example3" {
 
 # Get all compliance report details for the given resource group
 data "powerflex_compliance_report_resource_group" "complianceReport" {
-    resource_group_id = "ID"
+  resource_group_id = "ID"
 }
 
 # Get compliance report details for the given resource group filtered by given ipaddresses
@@ -70,7 +70,7 @@ data "powerflex_compliance_report_resource_group" "complianceReport" {
   # this datasource supports multiple filters like ip_addresses, host_names, service_tags, resource_ids, compliant
   # and gives an intersection of the results
   filter {
-    ip_addresses = ["10.xxx.xxx.xx","10.xxx.xxx.xx"]
+    ip_addresses = ["10.xxx.xxx.xx", "10.xxx.xxx.xx"]
   }
 }
 
@@ -80,8 +80,8 @@ data "powerflex_compliance_report_resource_group" "complianceReport" {
   # this datasource supports multiple filters like ip_addresses, host_names, service_tags, resource_ids, compliant
   # and gives an intersection of the results
   filter {
-    resource_ids = ["resourceid1","resourceid2"]
-    compliant = true
+    resource_ids = ["resourceid1", "resourceid2"]
+    compliant    = true
   }
 }
 
@@ -101,7 +101,7 @@ data "powerflex_compliance_report_resource_group" "complianceReport" {
   # this datasource supports multiple filters like ip_addresses, host_names, service_tags, resource_ids, compliant
   # and gives an intersection of the results
   filter {
-    host_names = ["hostname1","hostname2"]
+    host_names = ["hostname1", "hostname2"]
   }
 }
 
@@ -111,7 +111,7 @@ data "powerflex_compliance_report_resource_group" "complianceReport" {
   # this datasource supports multiple filters like ip_addresses, host_names, service_tags, resource_ids, compliant
   # and gives an intersection of the results
   filter {
-    service_tags = ["servicetag1","servicetag2"]
+    service_tags = ["servicetag1", "servicetag2"]
   }
 }
 
@@ -121,7 +121,7 @@ data "powerflex_compliance_report_resource_group" "complianceReport" {
   # this datasource supports multiple filters like ip_addresses, host_names, service_tags, resource_ids, compliant
   # and gives an intersection of the results
   filter {
-    resource_ids = ["resourceid1","resourceid2"]
+    resource_ids = ["resourceid1", "resourceid2"]
   }
 }
 

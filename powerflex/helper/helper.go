@@ -215,6 +215,13 @@ func BoolDefault(defaultValue bool) planmodifier.Bool {
 	}
 }
 
+// RenewInstallationCookie is used to renew the installation cookie, i.e. LEGACYGWCOOKIE.
+// Using the same LEGACYGWCOOKIE ensures that the REST requests are sent to the same GW pod.
+// That would help to get the correct response from the GW pod that stores installation packages.
+func RenewInstallationCookie(gatewayClient *goscaleio.GatewayClient) error {
+	return gatewayClient.RenewInstallationCookie(10)
+}
+
 // ResetInstallerQueue function for the Abort, Clear and Move To Idle Execution
 func ResetInstallerQueue(gatewayClient *goscaleio.GatewayClient) error {
 

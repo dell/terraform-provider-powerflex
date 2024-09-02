@@ -36,6 +36,7 @@ type ClusterResourceModel struct {
 	SDSList                            types.Set    `tfsdk:"sds_list"`
 	SDCList                            types.Set    `tfsdk:"sdc_list"`
 	SDRList                            types.Set    `tfsdk:"sdr_list"`
+	SDTList                            types.Set    `tfsdk:"sdt_list"`
 	ProtectionDomains                  types.List   `tfsdk:"protection_domains"`
 }
 
@@ -76,9 +77,12 @@ type ClusterModel struct {
 	SDRExternalIPs        types.String `tfsdk:"sdr_external_ips"`
 	SDRAllIPS             types.String `tfsdk:"sdr_all_ips"`
 	PerfProfileForSDR     types.String `tfsdk:"perf_profile_for_sdr"`
+	IsSdt                 types.String `tfsdk:"is_sdt"`
+	SDTName               types.String `tfsdk:"sdt_name"`
+	SDTAllIPs             types.String `tfsdk:"sdt_all_ips"`
 }
 
-// StoragePoolDataModel desfines the srtuct for the Storage Pool Data
+// StoragePoolDataModel defines the struct for the Storage Pool Data
 type StoragePoolDataModel struct {
 	ProtectionDomain                     types.String `tfsdk:"protection_domain"`
 	StoragePool                          types.String `tfsdk:"storage_pool"`
@@ -90,7 +94,7 @@ type StoragePoolDataModel struct {
 	ReplicationJournalCapacityPercentage types.String `tfsdk:"replication_journal_capacity_percentage"`
 }
 
-// MDMModel desfines the srtuct for the MDM Data
+// MDMModel defines the struct for the MDM Data
 type MDMModel struct {
 	ID           types.String `tfsdk:"id"`
 	Name         types.String `tfsdk:"name"`
@@ -103,7 +107,7 @@ type MDMModel struct {
 	Mode         types.String `tfsdk:"mode"`
 }
 
-// SDSModel desfines the srtuct for the SDS Data
+// SDSModel defines the struct for the SDS Data
 type SDSModel struct {
 	ID                   types.String `tfsdk:"id"`
 	Name                 types.String `tfsdk:"name"`
@@ -117,7 +121,7 @@ type SDSModel struct {
 	Devices              types.Set    `tfsdk:"devices"`
 }
 
-// DeviceDataModel desfines the srtuct for the Device Data
+// DeviceDataModel defines the struct for the Device Data
 type DeviceDataModel struct {
 	Name            types.String `tfsdk:"name"`
 	Path            types.String `tfsdk:"path"`
@@ -125,7 +129,7 @@ type DeviceDataModel struct {
 	MaxCapacity     types.Int64  `tfsdk:"max_capacity_in_kb"`
 }
 
-// SDCModel desfines the srtuct for the SDC Data
+// SDCModel defines the struct for the SDC Data
 type SDCModel struct {
 	ID   types.String `tfsdk:"id"`
 	GUID types.String `tfsdk:"guid"`
@@ -133,7 +137,7 @@ type SDCModel struct {
 	IP   types.String `tfsdk:"ip"`
 }
 
-// SDRModel desfines the srtuct for the SDR Data
+// SDRModel defines the struct for the SDR Data
 type SDRModel struct {
 	ID            types.String `tfsdk:"id"`
 	Name          types.String `tfsdk:"name"`
@@ -145,13 +149,28 @@ type SDRModel struct {
 	AllIP         types.String `tfsdk:"all_ips"`
 }
 
-// ProtectionDomainDataModel desfines the srtuct for the Protection Domain Data
+// SDTModel defines the struct for the SDT Data
+type SDTModel struct {
+	ID                   types.String `tfsdk:"id"`
+	Name                 types.String `tfsdk:"name"`
+	IP                   types.String `tfsdk:"ip"`
+	AllIP                types.String `tfsdk:"all_ips"`
+	ProtectionDomainID   types.String `tfsdk:"protection_domain_id"`
+	ProtectionDomainName types.String `tfsdk:"protection_domain_name"`
+	StorageOnlyIPs       types.String `tfsdk:"storage_only_ips"`
+	HostOnlyIPs          types.String `tfsdk:"host_only_ips"`
+	StoragePort          types.Int64  `tfsdk:"storage_port"`
+	NvmePort             types.Int64  `tfsdk:"nvme_port"`
+	DiscoveryPort        types.Int64  `tfsdk:"discovery_port"`
+}
+
+// ProtectionDomainDataModel defines the struct for the Protection Domain Data
 type ProtectionDomainDataModel struct {
 	Name         types.String `tfsdk:"name"`
 	StoragePools types.List   `tfsdk:"storage_pool_list"`
 }
 
-// StoragePoolDetailModel desfines the srtuct for the StoragePool Data
+// StoragePoolDetailModel defines the struct for the StoragePool Data
 type StoragePoolDetailModel struct {
 	Name                                 types.String `tfsdk:"name"`
 	MediaType                            types.String `tfsdk:"media_type"`
@@ -162,7 +181,7 @@ type StoragePoolDetailModel struct {
 	ReplicationJournalCapacityPercentage types.Int64  `tfsdk:"replication_journal_capacity_percentage"`
 }
 
-// ClusterCsvRow desfines the srtuct for the Cluster CSV Data
+// ClusterCsvRow defines the struct for the Cluster CSV Data
 type ClusterCsvRow struct {
 	IP                    string
 	UserName              string
@@ -201,7 +220,7 @@ type ClusterCsvRow struct {
 	PerfProfileForSDR     string
 }
 
-// StoragePoolCsvRow desfines the srtuct for the Storage Pool CSV Data
+// StoragePoolCsvRow defines the struct for the Storage Pool CSV Data
 type StoragePoolCsvRow struct {
 	ProtectionDomain                     string
 	StoragePool                          string

@@ -57,7 +57,7 @@ data "powerflex_os_repository" "example2" {
   # this datasource supports filters like os repsoitory ids, names. 
   # Note: If both filters are used simultaneously, the results will include any records that match either of the filters (i.e., union of the both the records)
   filter {
-    os_repo_ids = ["1234","5678"]
+    os_repo_ids = ["1234", "5678"]
   }
 }
 
