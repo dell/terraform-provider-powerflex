@@ -20,6 +20,7 @@ package helper
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"bytes"
@@ -272,4 +273,18 @@ func SetContains(set types.Set, value string) bool {
 		}
 	}
 	return false
+}
+
+// GetDataSourceByValue is a helper function that gathers data based on a specified value, field and all data gathered by the datasource
+func GetDataSourceByValue(fieldValue interface{}, field string, allData interface{}) (interface{}, error) {
+	allDataArray := reflect.ValueOf(allData)
+
+	for i := 0; i < allDataArray.Len(); i++ {
+		allDataValue := allDataArray.Index(i).FieldByName(field)
+		if allDataValue.Interface() == fieldValue {
+			dataSource := allDataArray.Index(i).Interface()
+			return dataSource, nil
+		}
+	}
+	return nil, fmt.Errorf("no value found for %s, value: %v", field, fieldValue)
 }
