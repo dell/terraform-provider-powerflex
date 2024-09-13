@@ -18,7 +18,6 @@ limitations under the License.
 package provider
 
 import (
-	"os"
 	"regexp"
 	"testing"
 
@@ -27,7 +26,6 @@ import (
 
 // TestAccResourceSDC tests the SDC Expansion Operation
 func TestAccResourceSDCHostNegative(t *testing.T) {
-	os.Setenv("TF_ACC", "1")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -56,7 +54,7 @@ func TestAccResourceSDCHostNegative(t *testing.T) {
 
 func TestAccResourceSDCHostPositive(t *testing.T) {
 	t.Skip("Skipping this test case for real environment")
-	os.Setenv("TF_ACC", "1")
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -81,7 +79,6 @@ func TestAccResourceSDCHostPositive(t *testing.T) {
 
 func TestAccResourceSDCHostRPMPositive(t *testing.T) {
 	t.Skip("Skipping this test case for real environment")
-	os.Setenv("TF_ACC", "1")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

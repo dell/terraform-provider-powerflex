@@ -65,7 +65,6 @@ data "powerflex_os_repository" "test" {
 `
 
 func TestAccDatasourceOSRepo(t *testing.T) {
-	t.Skip("Skipping this test case, only use on 4.x or greater")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -92,7 +91,6 @@ func TestAccDatasourceOSRepo(t *testing.T) {
 }
 
 func TestAccDatasourceOSRepoNegative(t *testing.T) {
-	t.Skip("Skipping this test case, only use on 4.x or greater")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{

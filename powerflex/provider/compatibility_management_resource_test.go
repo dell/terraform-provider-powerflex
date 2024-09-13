@@ -29,7 +29,6 @@ import (
 
 func TestAccResourceCompatibilityManagement(t *testing.T) {
 
-	t.Skip("Skipping this test case, only use on 4.x or greater")
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -60,7 +59,7 @@ func TestAccResourceCompatibilityManagement(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.GetCompatibilityManagement).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetCompatibilityManagement, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + compatibilityManagementResource,
 				ExpectError: regexp.MustCompile(`.*Error in getting compatibility management details*.`),

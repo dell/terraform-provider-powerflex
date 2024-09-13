@@ -18,7 +18,6 @@ limitations under the License.
 package provider
 
 import (
-	"os"
 	"regexp"
 	"testing"
 
@@ -28,7 +27,6 @@ import (
 // TestAccResourceGroupResource tests the ResourceGroup Resource
 func TestAccResourceGroupResource(t *testing.T) {
 	t.Skip("Skipping this test case")
-	os.Setenv("TF_ACC", "1")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -68,7 +66,6 @@ func TestAccResourceGroupResource(t *testing.T) {
 
 func TestAccResourceGroupResourcePositive(t *testing.T) {
 	t.Skip("Skipping this test case, only for Unit test")
-	os.Setenv("TF_ACC", "1")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

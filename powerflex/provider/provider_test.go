@@ -324,6 +324,7 @@ var SdsID = setDefault(globalEnvMap["POWERFLEX_DEVICE_SDS_ID"], "tfacc_device_sd
 var MDMDataPoints = getMdmDataPointsForTest()
 var StoragePoolName = setDefault(globalEnvMap["POWERFLEX_STORAGE_POOL_NAME"], "tfacc_storage_pool_name")
 var ProtectionDomainID = setDefault(globalEnvMap["POWERFLEX_PROTECTION_DOMAIN_ID"], "tfacc_protection_domain_id")
+var ProtectionDomainIDSds = setDefault(globalEnvMap["POWERFLEX_PROTECTION_DOMAIN_ID_SDS"], "tfacc_protection_domain_id_sds")
 var username = setDefault(globalEnvMap["POWERFLEX_USERNAME"], "test")
 var password = setDefault(globalEnvMap["POWERFLEX_PASSWORD"], "test")
 var endpoint = setDefault(globalEnvMap["POWERFLEX_ENDPOINT"], "http://localhost:3002")
@@ -340,6 +341,7 @@ var ComplianceReportDataPoints = getComplianceReportDataForTest()
 var OSRepoSourcePath = setDefault(globalEnvMap["POWERFLEX_OS_REPO_SOURCE_PATH"], "tfacc_os_repo_source_path")
 var OSRepoID1 = setDefault(globalEnvMap["POWERFLEX_OS_REPO_ID1"], "tfacc_os_repo_id1")
 var OSRepoName1 = setDefault(globalEnvMap["POWERFLEX_OS_REPO_NAME1"], "tfacc_os_repo_name1")
+var FaultSetID = setDefault(globalEnvMap["POWERFLEX_FAULT_SET_ID"], "1EE7752911111112")
 
 func getEnvMap() map[string]string {
 	envMap, err := loadEnvFile("powerflex.env")
@@ -359,6 +361,8 @@ func init() {
 			insecure = %s
 		}
 	`, username, password, endpoint, insecure)
+	// Set the specific TF_ACC test environment
+	os.Setenv("TF_ACC", globalEnvMap["TF_ACC"])
 }
 
 var (

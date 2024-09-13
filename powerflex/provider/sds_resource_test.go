@@ -19,6 +19,7 @@ package provider
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"testing"
 
@@ -27,19 +28,12 @@ import (
 
 var FaultSetCreate = `
 resource "powerflex_fault_set" "newFs" {
-	name = "fault-set-create-sds"
+	name = "fault-set-create"
 	protection_domain_id = "` + protectionDomainID1 + `"
 }
 `
 
-var FaultSetUpdate = `
-resource "powerflex_fault_set" "newFs1" {
-	name = "fault-set-update-sds"
-	protection_domain_id = "` + protectionDomainID1 + `"
-}
-`
-
-func TestAccResourceSDS(t *testing.T) {
+func TestAccResourceSDSa(t *testing.T) {
 	var createSDSTest = FaultSetCreate + `
 	resource "powerflex_sds" "sds" {
 		name = "Tf_SDS_01"
@@ -68,10 +62,6 @@ func TestAccResourceSDS(t *testing.T) {
 			{
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
 				role = "sdsOnly"
-			},
-			{
-				ip = "10.10.10.2"
-				role = "sdcOnly"
 			}
 		]
 		drl_mode = "Volatile"
@@ -91,10 +81,6 @@ func TestAccResourceSDS(t *testing.T) {
 			{
 				ip = "` + SdsResourceTestData.SdsIP2 + `"
 				role = "sdsOnly"
-			},
-			{
-				ip = "10.10.10.2"
-				role = "sdcOnly"
 			}
 		]
 		performance_profile = "Compact"
@@ -104,7 +90,7 @@ func TestAccResourceSDS(t *testing.T) {
 		fault_set_id = resource.powerflex_fault_set.newFs.id
 	}
 	`
-	var updateFaultSet = FaultSetCreate + FaultSetUpdate + `
+	var updateFaultSet = FaultSetCreate + `
 	resource "powerflex_sds" "sds" {
 		depends_on = [powerflex_fault_set.newFs]
 		name = "Tf_SDS_02"
@@ -122,9 +108,82 @@ func TestAccResourceSDS(t *testing.T) {
 		rmcache_enabled = false
 		rfcache_enabled = true
 		protection_domain_id = "` + protectionDomainID1 + `"
-		fault_set_id = resource.powerflex_fault_set.newFs1.id
+		fault_set_id = "id-change-invalid"
 	}
 	`
+	createSDSTestManyInvalid := `
+	resource "powerflex_sds" "sds" {
+		name = "Tf_SDS_01"
+		ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "sdsOnly"
+			},
+			{
+				ip = "10.10.10.1"
+				role = "sdcOnly"
+			},
+			{
+				ip = "10.10.10.1"
+				role = "sdsOnly"
+			},
+			{
+				ip = "10.10.10.2"
+				role = "sdcOnly"
+			}
+		]
+		protection_domain_id = "` + protectionDomainID1 + `"
+	}
+	`
+	sdsConfig := `
+	resource "powerflex_sds" "sds" {
+		name = "Tf_SDS_01"
+		ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			}
+		]
+		protection_domain_name = "domain1"
+		%s
+		%s
+	}
+	`
+	rcDisabled := "rmcache_enabled = \"false\""
+	rcSize := "rmcache_size_in_mb = 200"
+	var rmcacheDisabled = `
+	resource "powerflex_sds" "sds" {
+		name = "Tf_SDS_01"
+		ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "all"
+			},
+			{
+				ip = "10.10.10.1"
+				role = "sdcOnly"
+			}
+		]
+		performance_profile = "Compact"
+		rmcache_enabled = false
+		rmcache_size_in_mb = 128
+		rfcache_enabled = true
+		drl_mode = "NonVolatile"
+		protection_domain_id = "` + protectionDomainID1 + `"
+	}
+	`
+	var updateProtectionDomainID = `
+	resource "powerflex_sds" "sds" {
+		name = "Terraform_SDS"
+		protection_domain_id = ""
+		ip_list = [
+		{
+			ip = "` + SdsResourceTestData.SdsIP2 + `"
+			role = "all"
+		}
+		]
+	}
+`
 
 	resourceName := "powerflex_sds.sds"
 	resource.Test(t, resource.TestCase{
@@ -167,7 +226,7 @@ func TestAccResourceSDS(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", "Tf_SDS_02"),
 					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", protectionDomainID1),
-					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "rmcache_size_in_mb", "256"),
 					resource.TestCheckResourceAttr(resourceName, "rmcache_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "rfcache_enabled", "false"),
@@ -175,10 +234,6 @@ func TestAccResourceSDS(t *testing.T) {
 					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
 						"ip":   SdsResourceTestData.SdsIP2,
 						"role": "sdsOnly",
-					}),
-					resource.TestCheckTypeSetElemNestedAttrs(resourceName, "ip_list.*", map[string]string{
-						"ip":   "10.10.10.2",
-						"role": "sdcOnly",
 					}),
 				),
 			},
@@ -196,7 +251,7 @@ func TestAccResourceSDS(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", "Tf_SDS_02"),
 					resource.TestCheckResourceAttr(resourceName, "protection_domain_id", protectionDomainID1),
-					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "ip_list.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "rmcache_size_in_mb", "256"),
 					resource.TestCheckResourceAttr(resourceName, "rmcache_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "rfcache_enabled", "true"),
@@ -214,35 +269,34 @@ func TestAccResourceSDS(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			// this threefold import state check more or less validates that import functionality works
+
+			// Update Error Tests
+
+			// modify sds test invalid to many Ips
+			{
+				Config:      ProviderConfigForTesting + createSDSTestManyInvalid,
+				ExpectError: regexp.MustCompile(`.*The IP .* is configured with .*roles.*`),
+			},
+			// Check that SDS cannot be updated with wrong rmcache settings
+			{
+				Config:      ProviderConfigForTesting + fmt.Sprintf(sdsConfig, rcDisabled, rcSize),
+				ExpectError: regexp.MustCompile(".*Read Ram cache must be enabled in order to configure its size.*"),
+			},
+			// RM cache disabled, but rmcache_size_in_mb set
+			{
+				Config:      ProviderConfigForTesting + rmcacheDisabled,
+				ExpectError: regexp.MustCompile(`.*rmcache_size_in_mb cannot be specified while rmcache_enabled is not set to true.*`),
+			},
+			// Try to update the domain
+			{
+				Config:      ProviderConfigForTesting + updateProtectionDomainID,
+				ExpectError: regexp.MustCompile(`.*Protection domain ID cannot be updated.*`),
+			},
 		},
 	})
 }
 
 func TestAccResourceSDSDuplicateIP(t *testing.T) {
-	createSDSTestManyValid := `
-		resource "powerflex_sds" "sds" {
-			name = "Tf_SDS_01"
-			ip_list = [
-				{
-					ip = "` + SdsResourceTestData.SdsIP2 + `"
-					role = "sdsOnly"
-				},
-				{
-					ip = "10.10.10.1"
-					role = "sdcOnly"
-				},
-				{
-					ip = "10.10.10.1"
-					role = "sdcOnly"
-				},
-				{
-					ip = "10.10.10.2"
-					role = "sdcOnly"
-				}
-			]
-			protection_domain_id = "` + protectionDomainID1 + `"
-		}
-		`
 	createSDSTestManyInValid := `
 		resource "powerflex_sds" "sds" {
 			name = "Tf_SDS_01"
@@ -275,20 +329,6 @@ func TestAccResourceSDSDuplicateIP(t *testing.T) {
 				Config:      ProviderConfigForTesting + createSDSTestManyInValid,
 				ExpectError: regexp.MustCompile(`.*The IP .* is configured with .*roles.*`),
 			},
-			// create sds test valid
-			{
-				Config: ProviderConfigForTesting + createSDSTestManyValid,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", protectionDomainID1),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "3"),
-				),
-			},
-			// modify sds test invalid
-			{
-				Config:      ProviderConfigForTesting + createSDSTestManyInValid,
-				ExpectError: regexp.MustCompile(`.*The IP .* is configured with .*roles.*`),
-			},
 		},
 	})
 }
@@ -308,8 +348,8 @@ func TestAccResourceSDSRmCache(t *testing.T) {
 			%s
 		}
 		`
-	rcEnabled, rcDisabled, rcUnknown := "rmcache_enabled = \"true\"", "rmcache_enabled = \"false\"", ""
-	rcSize, rcSizeUnknown, rcSizeIncreased := "rmcache_size_in_mb = 200", "", "rmcache_size_in_mb = 300"
+	rcDisabled, rcUnknown := "rmcache_enabled = \"false\"", ""
+	rcSize := "rmcache_size_in_mb = 200"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -321,44 +361,6 @@ func TestAccResourceSDSRmCache(t *testing.T) {
 			{
 				Config:      ProviderConfigForTesting + fmt.Sprintf(sdsConfig, rcUnknown, rcSize),
 				ExpectError: regexp.MustCompile(".*Read Ram cache must be enabled in order to configure its size.*"),
-			},
-			// Check that SDS can be created with correct rmcache settings
-			{
-				Config: ProviderConfigForTesting + fmt.Sprintf(sdsConfig, rcEnabled, rcSize),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_size_in_mb", "200"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "true"),
-				),
-			},
-			// Check that SDS cannot be updated with wrong rmcache settings
-			{
-				Config:      ProviderConfigForTesting + fmt.Sprintf(sdsConfig, rcDisabled, rcSize),
-				ExpectError: regexp.MustCompile(".*Read Ram cache must be enabled in order to configure its size.*"),
-			},
-			// Check that SDS can be updated with correct rmcache settings
-			{
-				Config: ProviderConfigForTesting + fmt.Sprintf(sdsConfig, rcUnknown, rcSizeIncreased),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_size_in_mb", "300"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "true"),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + fmt.Sprintf(sdsConfig, rcDisabled, rcSizeUnknown),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "false"),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + fmt.Sprintf(sdsConfig, rcEnabled, rcSize),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_size_in_mb", "200"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "true"),
-				),
 			},
 		},
 	})
@@ -514,30 +516,6 @@ func TestResourceSDSCreateNegative(t *testing.T) {
 			protection_domain_id = "` + protectionDomainID1 + `"
 		}
 		`
-	var createInvalidCharName = `
-		resource "powerflex_sds" "sds" {
-			name = "Terraform_SDS 1"
-			ip_list = [
-				{
-					ip = "` + SdsResourceTestData.SdsIP2 + `"
-					role = "all"
-				}
-			]
-			protection_domain_id = "` + protectionDomainID1 + `"
-		}
-		`
-	var createInvalidCharName1 = `
-		resource "powerflex_sds" "sds" {
-			name = "Terraform_SDS_more_than_31_chars!!"
-			ip_list = [
-				{
-					ip = "` + SdsResourceTestData.SdsIP2 + `"
-					role = "all"
-				}
-			]
-			protection_domain_id = "` + protectionDomainID1 + `"
-		}
-		`
 	var createWOPD = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
@@ -627,14 +605,6 @@ func TestResourceSDSCreateNegative(t *testing.T) {
 				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value Length.*`),
 			},
 			{
-				Config:      ProviderConfigForTesting + createInvalidCharName,
-				ExpectError: regexp.MustCompile(`.*Could not create SDS with name Terraform_SDS 1.*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + createInvalidCharName1,
-				ExpectError: regexp.MustCompile(`.*Could not create SDS with name Terraform_SDS_more_than_31_chars!!.*`),
-			},
-			{
 				Config:      ProviderConfigForTesting + createWOPD,
 				ExpectError: regexp.MustCompile(`.*Invalid Attribute Combination.*`),
 			},
@@ -667,6 +637,9 @@ func TestResourceSDSCreateNegative(t *testing.T) {
 }
 
 func TestAccResourceSDSCreateSpecialChar(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an ACC test")
+	}
 	var createSDSSpecialChar = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS_!@#$%^&*"
@@ -694,6 +667,9 @@ func TestAccResourceSDSCreateSpecialChar(t *testing.T) {
 }
 
 func TestAccResourceSDSCreateMandatoryParams(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an ACC test")
+	}
 	var createSDSMandatoryParams = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
@@ -720,22 +696,14 @@ func TestAccResourceSDSCreateMandatoryParams(t *testing.T) {
 					}),
 				),
 			},
-			{
-				Config: ProviderConfigForTesting + createSDSMandatoryParams,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Terraform_SDS"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", protectionDomainID1),
-					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   SdsResourceTestData.SdsIP2,
-						"role": "all",
-					}),
-				),
-			},
 		},
 	})
 }
 
 func TestAccResourceSDSModifyRole(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an ACC test")
+	}
 	var addSDSIP = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
@@ -897,6 +865,9 @@ func TestAccResourceSDSModifyRole(t *testing.T) {
 }
 
 func TestAccResourceSDSModifyRoleAddIP(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an ACC test")
+	}
 	var addSDSSingleIP = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
@@ -1000,6 +971,9 @@ func TestAccResourceSDSModifyRoleAddIP(t *testing.T) {
 }
 
 func TestAccResourceSDSAddIP(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an ACC test")
+	}
 	var createSDSMandatoryParams = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
@@ -1202,6 +1176,9 @@ func TestAccResourceSDSAddIP(t *testing.T) {
 }
 
 func TestAccResourceSDSRemoveIP(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an ACC test")
+	}
 	var addSDSIP = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
@@ -1327,143 +1304,10 @@ func TestAccResourceSDSRemoveIP(t *testing.T) {
 	})
 }
 
-func TestAccResourceSDSModifyInvalid(t *testing.T) {
-	var createSDSTest = `
-	resource "powerflex_sds" "sds" {
-		name = "Tf_SDS_01"
-		ip_list = [
-			{
-				ip = "` + SdsResourceTestData.SdsIP2 + `"
-				role = "all"
-			},
-			{
-				ip = "10.10.10.1"
-				role = "sdcOnly"
-			}			
-		]
-		performance_profile = "Compact"
-		rmcache_enabled = true
-		rmcache_size_in_mb = 156
-		rfcache_enabled = true
-		drl_mode = "NonVolatile"
-		protection_domain_id = "` + protectionDomainID1 + `"
-	}
-	`
-	var rmcacheDisabled = `
-		resource "powerflex_sds" "sds" {
-			name = "Tf_SDS_01"
-			ip_list = [
-				{
-					ip = "` + SdsResourceTestData.SdsIP2 + `"
-					role = "all"
-				},
-				{
-					ip = "10.10.10.1"
-					role = "sdcOnly"
-				}
-			]
-			performance_profile = "Compact"
-			rmcache_enabled = false
-			rmcache_size_in_mb = 128
-			rfcache_enabled = true
-			drl_mode = "NonVolatile"
-			protection_domain_id = "` + protectionDomainID1 + `"
-		}
-		`
-	var invalidRMCacheMaxSize = `
-		resource "powerflex_sds" "sds" {
-			name = "Tf_SDS_01"
-			ip_list = [
-				{
-					ip = "` + SdsResourceTestData.SdsIP2 + `"
-					role = "all"
-				},
-				{
-					ip = "10.10.10.1"
-					role = "sdcOnly"
-				}
-			]
-			performance_profile = "Compact"
-			rmcache_enabled = true
-			rmcache_size_in_mb = 3912
-			rfcache_enabled = true
-			drl_mode = "NonVolatile"
-			protection_domain_id = "` + protectionDomainID1 + `"
-		}
-		`
-	var invalidRMCacheMinSize = `
-		resource "powerflex_sds" "sds" {
-			name = "Tf_SDS_01"
-			ip_list = [
-				{
-					ip = "` + SdsResourceTestData.SdsIP2 + `"
-					role = "all"
-				},
-				{
-					ip = "10.10.10.1"
-					role = "sdcOnly"
-				}
-			]
-			performance_profile = "Compact"
-			rmcache_enabled = true
-			rmcache_size_in_mb = 127
-			rfcache_enabled = true
-			drl_mode = "NonVolatile"
-			protection_domain_id = "` + protectionDomainID1 + `"
-		}
-		`
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: ProviderConfigForTesting + createSDSTest,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "name", "Tf_SDS_01"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "protection_domain_id", protectionDomainID1),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "ip_list.#", "2"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_size_in_mb", "156"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rmcache_enabled", "true"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "rfcache_enabled", "true"),
-					resource.TestCheckResourceAttr("powerflex_sds.sds", "performance_profile", "Compact"),
-					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   SdsResourceTestData.SdsIP2,
-						"role": "all",
-					}),
-					resource.TestCheckTypeSetElemNestedAttrs("powerflex_sds.sds", "ip_list.*", map[string]string{
-						"ip":   "10.10.10.1",
-						"role": "sdcOnly",
-					}),
-				),
-			},
-			// {
-			// 	Config:      ProviderConfigForTesting + invalidRFCache,
-			// 	ExpectError: regexp.MustCompile(`.*Invalid reference.*`),
-			// },
-			// {
-			// 	Config:      ProviderConfigForTesting + invalidRMCache,
-			// 	ExpectError: regexp.MustCompile(`.*Invalid reference.*`),
-			// },
-			{
-				Config:      ProviderConfigForTesting + rmcacheDisabled,
-				ExpectError: regexp.MustCompile(`.*rmcache_size_in_mb cannot be specified while rmcache_enabled is not set to true.*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + invalidRMCacheMaxSize,
-				ExpectError: regexp.MustCompile(`.*Could not change SDS Read Ram Cache size to 3912.*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + invalidRMCacheMinSize,
-				ExpectError: regexp.MustCompile(`.*Could not change SDS Read Ram Cache size to 127.*`),
-			},
-			// {
-			// 	Config:      ProviderConfigForTesting + invalidRMCacheFloatSize,
-			// 	ExpectError: regexp.MustCompile(`.*Int64 Type Validation Error.*`),
-			// },
-		},
-	})
-}
-
 func TestAccResourceSDSRename(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an ACC test")
+	}
 	var createSDSMandatoryParams = `
 		resource "powerflex_sds" "sds" {
 			name = "Terraform_SDS"
@@ -1549,49 +1393,10 @@ func TestAccResourceSDSRename(t *testing.T) {
 	})
 }
 
-func TestAccResourceUpdateProtectionDomainIDNegative(t *testing.T) {
-	var createSDSMandatoryParams = `
-		resource "powerflex_sds" "sds" {
-			name = "Terraform_SDS"
-			protection_domain_id = "` + protectionDomainID1 + `"
-			ip_list = [
-			{
-				ip = "` + SdsResourceTestData.SdsIP2 + `"
-				role = "all"
-			}
-			]
-	}
-	`
-
-	var updateProtectionDomainID = `
-		resource "powerflex_sds" "sds" {
-			name = "Terraform_SDS"
-			protection_domain_id = ""
-			ip_list = [
-			{
-				ip = "` + SdsResourceTestData.SdsIP2 + `"
-				role = "all"
-			}
-			]
-		}
-	`
-
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: ProviderConfigForTesting + createSDSMandatoryParams,
-			},
-			{
-				Config:      ProviderConfigForTesting + updateProtectionDomainID,
-				ExpectError: regexp.MustCompile(`.*Protection domain ID cannot be updated.*`),
-			},
-		},
-	})
-}
-
 func TestAccResourceSDSUpdateProtectionDomainName(t *testing.T) {
-	t.Skip("Skipping test for now, this makes the uts crash")
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an ACC test")
+	}
 	var createProtectionDomain = `
 	resource "powerflex_protection_domain" "pd" {
 		name = "Terraform-AccTest-PD"

@@ -116,7 +116,7 @@ func (r *snapshotPolicyResource) Create(ctx context.Context, req resource.Create
 		payload2 := &scaleiotypes.AssignVolumeToSnapshotPolicyParam{
 			SourceVolumeID: v,
 		}
-		err2 := r.system.AssignVolumeToSnapshotPolicy(payload2, snapID)
+		err2 := helper.AssignVolumeToSnapshotPolicy(r.system, payload2, snapID)
 		if err2 != nil {
 			if len(mappedVols) == 0 {
 				err := r.system.RemoveSnapshotPolicy(snapID)
@@ -161,7 +161,7 @@ func (r *snapshotPolicyResource) Create(ctx context.Context, req resource.Create
 	}
 
 	// Fetching the details of the snapshot policy
-	response, err := r.client.GetSnapshotPolicy("", snapID)
+	response, err := helper.GetSnapshotPolicy(r.client, snapID)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting snapshot policy after creation",
@@ -201,7 +201,7 @@ func (r *snapshotPolicyResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 	// Get the details of the snapshot policy
-	sp, err := r.client.GetSnapshotPolicy("", state.ID.ValueString())
+	sp, err := helper.GetSnapshotPolicy(r.client, state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("Could not get snapshot policy by ID %s", state.ID.ValueString()),
@@ -264,7 +264,7 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 
 	// If there is a change in the name of the snapshot policy then update the name
 	if plan.Name.ValueString() != state.Name.ValueString() {
-		err := r.system.RenameSnapshotPolicy(state.ID.ValueString(), plan.Name.ValueString())
+		err := helper.RenameSnapshotPolicy(r.system, state.ID.ValueString(), plan.Name.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error while updating name of snapshot policy", err.Error(),
@@ -279,7 +279,7 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 			AutoSnapshotCreationCadenceInMin: plan.AutoSnapshotCreationCadenceInMin.String(),
 			NumOfRetainedSnapshotsPerLevel:   stringList,
 		}
-		err := r.system.ModifySnapshotPolicy(snapUpdate, state.ID.ValueString())
+		err := helper.ModifySnapshotPolicy(r.system, snapUpdate, state.ID.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error while updating auto snapshot creation cadence ", err.Error(),
@@ -291,7 +291,7 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 			AutoSnapshotCreationCadenceInMin: state.AutoSnapshotCreationCadenceInMin.String(),
 			NumOfRetainedSnapshotsPerLevel:   stringList,
 		}
-		err := r.system.ModifySnapshotPolicy(snapUpdate, state.ID.ValueString())
+		err := helper.ModifySnapshotPolicy(r.system, snapUpdate, state.ID.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error while updating num of retained snapshots per level ", err.Error(),
@@ -303,7 +303,7 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 			AutoSnapshotCreationCadenceInMin: plan.AutoSnapshotCreationCadenceInMin.String(),
 			NumOfRetainedSnapshotsPerLevel:   stringList,
 		}
-		err := r.system.ModifySnapshotPolicy(snapUpdate, state.ID.ValueString())
+		err := helper.ModifySnapshotPolicy(r.system, snapUpdate, state.ID.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error while updating auto snapshot creation cadence or num of retained snapshots", err.Error(),
@@ -373,7 +373,7 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 			payload2 := &scaleiotypes.AssignVolumeToSnapshotPolicyParam{
 				SourceVolumeID: v,
 			}
-			err2 := r.system.AssignVolumeToSnapshotPolicy(payload2, state.ID.ValueString())
+			err2 := helper.AssignVolumeToSnapshotPolicy(r.system, payload2, state.ID.ValueString())
 			if err2 != nil {
 				resp.Diagnostics.AddError(
 					"Error assigning volume to snapshot policy",
@@ -383,7 +383,7 @@ func (r *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 		}
 	}
 
-	response, err := r.client.GetSnapshotPolicy("", state.ID.ValueString())
+	response, err := helper.GetSnapshotPolicy(r.client, state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error getting snapshot policy after updation",

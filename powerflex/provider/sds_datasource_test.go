@@ -24,7 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-var protectionDomainID1 = ProtectionDomainID
+var protectionDomainID1 = ProtectionDomainIDSds
 
 func TestAccDatasourceSds(t *testing.T) {
 	resource.Test(t, resource.TestCase{
@@ -35,8 +35,8 @@ func TestAccDatasourceSds(t *testing.T) {
 				Config: ProviderConfigForTesting + SdsDataSourceConfig1,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_sds.example1", "sds_details.#", "1"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example1", "sds_details.0.name", "SDS_1"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example1", "sds_details.0.id", "0db7306f00000003"),
+					resource.TestCheckResourceAttr("data.powerflex_sds.example1", "sds_details.0.name", "Tf_SDS_01"),
+					resource.TestCheckResourceAttr("data.powerflex_sds.example1", "sds_details.0.id", "0db7306f00000004"),
 					resource.TestCheckResourceAttr("data.powerflex_sds.example1", "protection_domain_id", protectionDomainID1),
 				),
 			},
@@ -44,8 +44,8 @@ func TestAccDatasourceSds(t *testing.T) {
 				Config: ProviderConfigForTesting + SdsDataSourceConfig2,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "sds_details.#", "1"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "sds_details.0.name", "SDS_1"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "sds_details.0.id", "0db7306f00000003"),
+					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "sds_details.0.name", "Tf_SDS_01"),
+					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "sds_details.0.id", "0db7306f00000004"),
 					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "protection_domain_id", protectionDomainID1),
 				),
 			},
@@ -53,8 +53,8 @@ func TestAccDatasourceSds(t *testing.T) {
 				Config: ProviderConfigForTesting + SdsDataSourceConfig3,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_sds.example3", "sds_details.#", "1"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example3", "sds_details.0.name", "SDS_1"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example3", "sds_details.0.id", "0db7306f00000003"),
+					resource.TestCheckResourceAttr("data.powerflex_sds.example3", "sds_details.0.name", "Tf_SDS_01"),
+					resource.TestCheckResourceAttr("data.powerflex_sds.example3", "sds_details.0.id", "0db7306f00000004"),
 					resource.TestCheckResourceAttr("data.powerflex_sds.example3", "protection_domain_name", "domain1"),
 				),
 			},
@@ -62,8 +62,8 @@ func TestAccDatasourceSds(t *testing.T) {
 				Config: ProviderConfigForTesting + SdsDataSourceConfig4,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_sds.example4", "sds_details.#", "1"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example4", "sds_details.0.name", "SDS_1"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example4", "sds_details.0.id", "0db7306f00000003"),
+					resource.TestCheckResourceAttr("data.powerflex_sds.example4", "sds_details.0.name", "Tf_SDS_01"),
+					resource.TestCheckResourceAttr("data.powerflex_sds.example4", "sds_details.0.id", "0db7306f00000004"),
 					resource.TestCheckResourceAttr("data.powerflex_sds.example4", "protection_domain_name", "domain1"),
 				),
 			},
@@ -88,28 +88,28 @@ func TestAccDatasourceSds(t *testing.T) {
 var SdsDataSourceConfig1 = `
 data "powerflex_sds" "example1" {
 	protection_domain_id = "` + protectionDomainID1 + `"
-	sds_names = ["SDS_1"]
+	sds_names = ["Tf_SDS_01"]
 }
 `
 
 var SdsDataSourceConfig2 = `
 data "powerflex_sds" "example2" {
 	protection_domain_id = "` + protectionDomainID1 + `"
-	sds_ids = ["0db7306f00000003"]
+	sds_ids = ["0db7306f00000004"]
 }
 `
 
 var SdsDataSourceConfig3 = `
 data "powerflex_sds" "example3" {
 	protection_domain_name = "domain1"
-	sds_names = ["SDS_1"]
+	sds_names = ["Tf_SDS_01"]
 }
 `
 
 var SdsDataSourceConfig4 = `
 data "powerflex_sds" "example4" {
 	protection_domain_name = "domain1"
-	sds_ids = ["0db7306f00000003"]
+	sds_ids = ["0db7306f00000004"]
 }
 `
 

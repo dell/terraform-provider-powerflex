@@ -211,26 +211,28 @@ func (r *sdcVolumeMappingResource) Create(ctx context.Context, req resource.Crea
 			AllowMultipleMappings: "true",
 		}
 
-		err = volType.MapVolumeSdc(&mapType)
-		if err != nil {
+		errMap := helper.MapVolumeSdc(volType, mapType)
+		if errMap != nil {
 			resp.Diagnostics.AddError(
 				"Error mapping sdc: "+plan.ID.ValueString(),
-				"unexpected error: "+err.Error(),
+				"unexpected error: "+errMap.Error(),
 			)
-		} else {
-			// setting limits on mapped sdc
-			limitType := goscaleio_types.SetMappedSdcLimitsParam{
-				SdcID:                plan.ID.ValueString(),
-				BandwidthLimitInKbps: strconv.FormatInt(int64(vol.BWLimit.ValueInt64()*1024), 10),
-				IopsLimit:            strconv.FormatInt(int64(vol.IOPSLimit.ValueInt64()), 10),
-			}
-			err = volType.SetMappedSdcLimits(&limitType)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					"Error setting limits to sdc: "+plan.ID.String(),
-					"unexpected error: "+err.Error(),
-				)
-			}
+			return
+		}
+
+		// setting limits on mapped sdc
+		limitType := goscaleio_types.SetMappedSdcLimitsParam{
+			SdcID:                plan.ID.ValueString(),
+			BandwidthLimitInKbps: strconv.FormatInt(int64(vol.BWLimit.ValueInt64()*1024), 10),
+			IopsLimit:            strconv.FormatInt(int64(vol.IOPSLimit.ValueInt64()), 10),
+		}
+		errLimit := helper.SetMappedSdcLimits(volType, limitType)
+		if errLimit != nil {
+			resp.Diagnostics.AddError(
+				"Error setting limits to sdc: "+plan.ID.String(),
+				"unexpected error: "+errLimit.Error(),
+			)
+			return
 		}
 	}
 
@@ -240,6 +242,7 @@ func (r *sdcVolumeMappingResource) Create(ctx context.Context, req resource.Crea
 			"Error Getting SDC type: "+plan.ID.String(),
 			"unexpected error: "+err1.Error(),
 		)
+		return
 	}
 
 	// Get the volumes mapped to SDC
@@ -399,7 +402,7 @@ func (r *sdcVolumeMappingResource) Update(ctx context.Context, req resource.Upda
 					BandwidthLimitInKbps: strconv.FormatInt(planVol.BWLimit.ValueInt64()*1024, 10),
 					IopsLimit:            strconv.FormatInt(planVol.IOPSLimit.ValueInt64(), 10),
 				}
-				err := volType.SetMappedSdcLimits(&smslp)
+				err := helper.SetMappedSdcLimits(volType, smslp)
 				if err != nil {
 					resp.Diagnostics.AddError(
 						"Error setting limits to sdc: "+plan.ID.ValueString(),
@@ -472,7 +475,7 @@ func (r *sdcVolumeMappingResource) Update(ctx context.Context, req resource.Upda
 				return
 			}
 
-			err11 := volType.SetMappedSdcLimits(&smslp)
+			err11 := helper.SetMappedSdcLimits(volType, smslp)
 			if err11 != nil {
 				resp.Diagnostics.AddError(
 					"Error setting limits to sdc: "+plan.ID.ValueString(),

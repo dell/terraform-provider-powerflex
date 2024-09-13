@@ -277,7 +277,7 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 			Type:      "Local",
 		}
 		// create the user
-		ssoUser, err = r.client.CreateSSOUser(payload)
+		ssoUser, err = helper.CreateSsoUser(r.client, payload)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error creating the user", "Could not create user, unexpected error: "+err.Error(),

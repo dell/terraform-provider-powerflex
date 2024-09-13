@@ -57,7 +57,7 @@ func TestAccDatasourceDevice(t *testing.T) {
 				Config: ProviderConfigForTesting + deviceDataWithStoragePoolName,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_device.dev5", "protection_domain_name", "domain1"),
-					resource.TestCheckResourceAttr("data.powerflex_device.dev5", "storage_pool_name", "pool1"),
+					resource.TestCheckResourceAttr("data.powerflex_device.dev5", "storage_pool_name", "terraform-storage-pool"),
 				),
 			},
 			{
@@ -75,7 +75,7 @@ func TestAccDatasourceDevice(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + deviceDataWithSdsID,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev8", "sds_id", "0db7306f00000003"),
+					resource.TestCheckResourceAttr("data.powerflex_device.dev8", "sds_id", "0db7306f00000004"),
 				),
 			},
 			{
@@ -155,7 +155,7 @@ data "powerflex_device" "dev4" {
 var deviceDataWithStoragePoolName = `
 data "powerflex_device" "dev5" {
 	protection_domain_name = "domain1"
-	storage_pool_name = "pool1"
+	storage_pool_name = "terraform-storage-pool"
   }
 `
 
@@ -173,7 +173,7 @@ data "powerflex_device" "dev7" {
 
 var deviceDataWithSdsID = `
 data "powerflex_device" "dev8" {
-	sds_id = "0db7306f00000003"
+	sds_id = "0db7306f00000004"
 }
 `
 

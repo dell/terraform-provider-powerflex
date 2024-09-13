@@ -18,7 +18,6 @@ limitations under the License.
 package provider
 
 import (
-	"os"
 	"regexp"
 	"testing"
 
@@ -29,7 +28,7 @@ import (
 // where it fetches the snapshot policies based on snapshot policy id/name
 // and if nothing is mentioned , then return all snapshot policies
 func TestAccDatasourceSnapshotPolicy(t *testing.T) {
-	os.Setenv("TF_ACC", "1")
+
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -39,7 +38,7 @@ func TestAccDatasourceSnapshotPolicy(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify the first snapshot policy to ensure attributes are correctly set
 					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp1", "snapshotpolicies.0.id", "896a535700000000"),
-					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp1", "snapshotpolicies.0.name", "sample_snap_policy_1"),
+					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp1", "snapshotpolicies.0.name", "snap-create-test"),
 					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp1", "snapshotpolicies.#", "1"),
 				),
 			},
@@ -49,7 +48,7 @@ func TestAccDatasourceSnapshotPolicy(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify the first snapshot policy to ensure attributes are correctly set
 					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp2", "snapshotpolicies.0.id", "896a535700000000"),
-					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp2", "snapshotpolicies.0.name", "sample_snap_policy_1"),
+					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp2", "snapshotpolicies.0.name", "snap-create-test"),
 					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp2", "snapshotpolicies.#", "1"),
 				),
 			},

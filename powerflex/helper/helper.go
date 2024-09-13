@@ -85,6 +85,21 @@ func GetNewProtectionDomainEx(c *goscaleio.Client, pdID string, pdName string, h
 	return pdr, nil
 }
 
+// ModifyStoragePoolName function to modify a storagepool name
+func ModifyStoragePoolName(pd *goscaleio.ProtectionDomain, id string, newName string) (string, error) {
+	return pd.ModifyStoragePoolName(id, newName)
+}
+
+// CreateFaultSet create a new fault set
+func CreateFaultSet(pd *goscaleio.ProtectionDomain, param *scaleiotypes.FaultSetParam) (string, error) {
+	return pd.CreateFaultSet(param)
+}
+
+// ModifyFaultSetName function to modify a fault set name
+func ModifyFaultSetName(pd *goscaleio.ProtectionDomain, id string, newName string) error {
+	return pd.ModifyFaultSetName(id, newName)
+}
+
 // GetStoragePoolType returns storage pool type
 func GetStoragePoolType(r *goscaleio.Client, storagePoolID string) (*goscaleio.StoragePool, error) {
 	system, err := GetFirstSystem(r)

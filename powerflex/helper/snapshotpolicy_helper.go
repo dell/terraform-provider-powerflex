@@ -21,6 +21,7 @@ import (
 	"strconv"
 	"terraform-provider-powerflex/powerflex/models"
 
+	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -61,6 +62,31 @@ func UpdateSnapshotPolicyState(sps []*scaleiotypes.SnapshotPolicy) (response []m
 		response = append(response, spState)
 	}
 	return
+}
+
+// CreateSnapshotPolicy creates snapshot policy
+func CreateSnapshotPolicy(system *goscaleio.System, payload *scaleiotypes.SnapshotPolicyCreateParam) (string, error) {
+	return system.CreateSnapshotPolicy(payload)
+}
+
+// GetSnapshotPolicy gets snapshot policy
+func GetSnapshotPolicy(client *goscaleio.Client, id string) ([]*scaleiotypes.SnapshotPolicy, error) {
+	return client.GetSnapshotPolicy("", id)
+}
+
+// AssignVolumeToSnapshotPolicy assigns volume to snapshot policy
+func AssignVolumeToSnapshotPolicy(system *goscaleio.System, payload *scaleiotypes.AssignVolumeToSnapshotPolicyParam, id string) error {
+	return system.AssignVolumeToSnapshotPolicy(payload, id)
+}
+
+// ModifySnapshotPolicy modifies snapshot policy
+func ModifySnapshotPolicy(system *goscaleio.System, payload *scaleiotypes.SnapshotPolicyModifyParam, id string) error {
+	return system.ModifySnapshotPolicy(payload, id)
+}
+
+// RenameSnapshotPolicy modifies snapshot policy name
+func RenameSnapshotPolicy(system *goscaleio.System, id string, name string) error {
+	return system.RenameSnapshotPolicy(id, name)
 }
 
 // UpdateSnapshotPolicyResourceState updates the state file attributes for snapshot policy resource.

@@ -14,3 +14,4 @@ test*
 bin/*
 .vscode
 terraform.tfstate*
+Minimal.csv

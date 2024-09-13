@@ -20,7 +20,6 @@ package provider
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"regexp"
 	"testing"
 
@@ -30,7 +29,6 @@ import (
 
 // TestAccResourceCluster tests the SDC Expansion Operation
 func TestAccResourceCluster(t *testing.T) {
-	os.Setenv("TF_ACC", "1")
 
 	t.Skip("Skipping this test case")
 
@@ -77,7 +75,6 @@ func validateSDCLength(state *terraform.State) error {
 }
 
 func TestAccResourceClusterValidation(t *testing.T) {
-	os.Setenv("TF_ACC", "1")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

@@ -104,7 +104,7 @@ func (r *faultSetResource) Create(ctx context.Context, req resource.CreateReques
 	}
 
 	// create the fault set
-	fsID, err := pd.CreateFaultSet(payload)
+	fsID, err := helper.CreateFaultSet(pd, payload)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error creating fault set",
@@ -193,7 +193,7 @@ func (r *faultSetResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 
 	if plan.Name.ValueString() != state.Name.ValueString() {
-		err := pd.ModifyFaultSetName(state.ID.ValueString(), plan.Name.ValueString())
+		err := helper.ModifyFaultSetName(pd, state.ID.ValueString(), plan.Name.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error while updating name of fault set", err.Error(),
