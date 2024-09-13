@@ -26,7 +26,7 @@ import (
 )
 
 // Provider documentation generation.
-//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate --provider-name powerflex
+//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@v0.19.4 generate --provider-name powerflex
 
 func main() {
 	err := providerserver.Serve(context.Background(), provider.New, providerserver.ServeOpts{

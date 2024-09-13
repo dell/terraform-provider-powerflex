@@ -6,10 +6,6 @@ require (
 	github.com/bramvdbogaerde/go-scp v1.5.0
 	github.com/bytedance/mockey v1.2.10
 	github.com/dell/goscaleio v1.16.0
-	// Had to comment this out, the user will need to uncomment when they want to generate the docs
-	// Also uncomment this line in tools.go _ "github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs"
-	// This is only used to generate the documentation and it includes a dependecy which has a security risk which has no fix version as of 8/22/2024
-	//github.com/hashicorp/terraform-plugin-docs v0.19.4
 	github.com/hashicorp/terraform-plugin-framework v1.11.0
 	github.com/hashicorp/terraform-plugin-framework-validators v0.13.0
 	github.com/hashicorp/terraform-plugin-go v0.23.0
