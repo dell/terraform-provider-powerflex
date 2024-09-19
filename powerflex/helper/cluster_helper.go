@@ -67,6 +67,12 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 		AttrTypes: SDRAttrTypes,
 	}
 
+	// SDT Data
+	SDTAttrTypes := GetSDTType()
+	SDTElemType := types.ObjectType{
+		AttrTypes: SDTAttrTypes,
+	}
+
 	//MDM Data
 	MDMAttrTypes := GetMDMType()
 	MDMElemType := types.ObjectType{
@@ -218,6 +224,52 @@ func UpdateClusterState(plan models.ClusterResourceModel, gatewayClient *goscale
 	diags = append(diags, dgs...)
 
 	state.SDRList = setSdrs
+
+	// Convert SdtList to SDTDataModel
+	var sdtDataList []models.SDTModel
+	objectSDTs := []attr.Value{}
+	for _, sdt := range clusteDetailResponse.ClusterDetails.SdtList {
+
+		id, error := decimalToTwosComplementHex(sdt.ID)
+
+		if error != nil {
+			diags.AddError(error.Error(), error.Error())
+			return plan, diags
+		}
+
+		protectionDomainID, error := decimalToTwosComplementHex(sdt.ProtectionDomainID)
+
+		if error != nil {
+			diags.AddError(error.Error(), error.Error())
+			return plan, diags
+		}
+
+		sdtData := models.SDTModel{
+			ID:                   types.StringValue(id),
+			Name:                 types.StringValue(sdt.SdtName),
+			IP:                   types.StringValue(strings.Join(sdt.Node.NodeIPs, ",")),
+			AllIP:                types.StringValue(strings.Join(sdt.AllIPs, ",")),
+			StorageOnlyIPs:       types.StringValue(strings.Join(sdt.StorageOnlyIPs, ",")),
+			HostOnlyIPs:          types.StringValue(strings.Join(sdt.HostOnlyIPs, ",")),
+			ProtectionDomainID:   types.StringValue(protectionDomainID),
+			ProtectionDomainName: types.StringValue(sdt.ProtectionDomain),
+			StoragePort:          types.Int64Value(int64(sdt.StoragePort)),
+			NvmePort:             types.Int64Value(int64(sdt.NvmePort)),
+			DiscoveryPort:        types.Int64Value(int64(sdt.DiscoveryPort)),
+		}
+
+		sdtDataList = append(sdtDataList, sdtData)
+	}
+
+	for _, sdt := range sdtDataList {
+		objVal, dgs := GetSDTValue(sdt)
+		diags = append(diags, dgs...)
+		objectSDTs = append(objectSDTs, objVal)
+	}
+	setSdts, dgs := types.SetValue(SDTElemType, objectSDTs)
+	diags = append(diags, dgs...)
+
+	state.SDTList = setSdts
 
 	// Convert pdList to PDDataModel
 	var pdDataList []models.ProtectionDomainDataModel
@@ -566,6 +618,40 @@ func GetSDSValue(sds models.SDSModel) (basetypes.ObjectValue, diag.Diagnostics) 
 	})
 }
 
+// GetSDTType returns the SDT Detail type
+func GetSDTType() map[string]attr.Type {
+	return map[string]attr.Type{
+		"id":                     types.StringType,
+		"ip":                     types.StringType,
+		"name":                   types.StringType,
+		"all_ips":                types.StringType,
+		"protection_domain_id":   types.StringType,
+		"protection_domain_name": types.StringType,
+		"storage_only_ips":       types.StringType,
+		"host_only_ips":          types.StringType,
+		"storage_port":           types.Int64Type,
+		"nvme_port":              types.Int64Type,
+		"discovery_port":         types.Int64Type,
+	}
+}
+
+// GetSDTValue returns the SDT Detail model object value
+func GetSDTValue(sdt models.SDTModel) (basetypes.ObjectValue, diag.Diagnostics) {
+	return types.ObjectValue(GetSDTType(), map[string]attr.Value{
+		"id":                     types.StringValue(sdt.ID.ValueString()),
+		"ip":                     types.StringValue(sdt.IP.ValueString()),
+		"name":                   types.StringValue(sdt.Name.ValueString()),
+		"all_ips":                types.StringValue(sdt.AllIP.ValueString()),
+		"protection_domain_id":   types.StringValue(sdt.ProtectionDomainID.ValueString()),
+		"protection_domain_name": types.StringValue(sdt.ProtectionDomainName.ValueString()),
+		"storage_only_ips":       types.StringValue(sdt.StorageOnlyIPs.ValueString()),
+		"host_only_ips":          types.StringValue(sdt.HostOnlyIPs.ValueString()),
+		"storage_port":           types.Int64Value(sdt.StoragePort.ValueInt64()),
+		"nvme_port":              types.Int64Value(sdt.NvmePort.ValueInt64()),
+		"discovery_port":         types.Int64Value(sdt.DiscoveryPort.ValueInt64()),
+	})
+}
+
 // GetSDCType returns the SDC Detail type
 func GetSDCType() map[string]attr.Type {
 	return map[string]attr.Type{
@@ -638,7 +724,7 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 	writer := NewCustomCSVWriter(file)
 
 	// Write the header row
-	header := []string{"IPs", "Username", "Password", "Operating System", "Is MDM/TB", "MDM Mgmt IP", "MDM IPs", "MDM Name", "perfProfileForMDM", "Virtual IPs", "Virtual IP NICs", "Is SDS", "SDS Name", "SDS All IPs", "SDS-SDS Only IPs", "SDS-SDC Only IPs", "Protection Domain", "Fault Set", "SDS Storage Device List", "StoragePool List", "SDS Storage Device Names", "perfProfileForSDS", "Is SDC", "perfProfileForSDC", "SDC Name", "RFcache", "RFcache SSD Device List", "Is SDR", "SDR Name", "SDR Port", "SDR Application IPs", "SDR Storage IPs", "SDR External IPs", "SDR All IPs", "perfProfileForSDR"}
+	header := []string{"IPs", "Username", "Password", "Operating System", "Is MDM/TB", "MDM Mgmt IP", "MDM IPs", "MDM Name", "perfProfileForMDM", "Virtual IPs", "Virtual IP NICs", "Is SDS", "SDS Name", "SDS All IPs", "SDS-SDS Only IPs", "SDS-SDC Only IPs", "Protection Domain", "Fault Set", "SDS Storage Device List", "StoragePool List", "SDS Storage Device Names", "perfProfileForSDS", "Is SDC", "perfProfileForSDC", "SDC Name", "RFcache", "RFcache SSD Device List", "Is SDR", "SDR Name", "SDR Port", "SDR Application IPs", "SDR Storage IPs", "SDR External IPs", "SDR All IPs", "perfProfileForSDR", "Is SDT", "SDT Name", "SDT All IPs"}
 	var headerIndicesToWrite []int
 
 	for i := range header {
@@ -686,6 +772,9 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 			item.SDRExternalIPs.ValueString(),
 			item.SDRAllIPS.ValueString(),
 			item.PerfProfileForSDR.ValueString(),
+			item.IsSdt.ValueString(),
+			item.SDTName.ValueString(),
+			item.SDTAllIPs.ValueString(),
 		}
 
 		// Check which columns have non-empty values in the current row
@@ -923,6 +1012,12 @@ func getFieldFromItem(item models.ClusterModel, header string) string {
 		return "\"" + item.SDRAllIPS.ValueString() + "\""
 	case "perfProfileForSDR":
 		return item.PerfProfileForSDR.ValueString()
+	case "Is SDT":
+		return item.IsSdt.ValueString()
+	case "SDT Name":
+		return item.SDTName.ValueString()
+	case "SDT All IPs":
+		return "\"" + item.SDTAllIPs.ValueString() + "\""
 	default:
 		return "" // Return empty string for unknown headers
 	}

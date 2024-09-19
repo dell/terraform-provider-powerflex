@@ -235,6 +235,23 @@ func (r *clusterResource) ValidateConfig(ctx context.Context, req resource.Valid
 				}
 			}
 
+			if row.IsSdt.ValueString() == "No" {
+				if !row.SDTName.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("sdt_name"),
+						"sdt_name can be set only when is_sdt is set to yes",
+						"",
+					)
+				}
+				if !row.SDTAllIPs.IsNull() {
+					resp.Diagnostics.AddAttributeError(
+						path.Root("sdt_all_ips"),
+						"sdt_all_ips can be set only when is_sdt is set to yes",
+						"",
+					)
+				}
+			}
+
 			for _, row := range clusterInstallationDetailsDataModel {
 				if strings.EqualFold(row.IsSdr.ValueString(), "Yes") {
 					sdrCheck = true
@@ -319,6 +336,14 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
+	cookieError := helper.RenewInstallationCookie(r.gatewayClient)
+	if cookieError != nil {
+		resp.Diagnostics.AddWarning(
+			"Error for renewing installation cookie.",
+			"unexpected error: "+cookieError.Error(),
+		)
+	}
+
 	clusterInstallationDetailsDataModel := []models.ClusterModel{}
 	diags = plan.Cluster.ElementsAs(ctx, &clusterInstallationDetailsDataModel, true)
 	resp.Diagnostics.Append(diags...)
@@ -355,6 +380,14 @@ func (r *clusterResource) Read(ctx context.Context, req resource.ReadRequest, re
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	cookieError := helper.RenewInstallationCookie(r.gatewayClient)
+	if cookieError != nil {
+		resp.Diagnostics.AddWarning(
+			"Error for renewing installation cookie.",
+			"unexpected error: "+cookieError.Error(),
+		)
 	}
 
 	// to make gateway available for installation

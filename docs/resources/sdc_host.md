@@ -87,7 +87,7 @@ resource "powerflex_sdc_host" "sdc" {
   }
   os_family = "esxi"
   esxi = {
-    guid         = random_uuid.sdc_guid.result
+    guid = random_uuid.sdc_guid.result
   }
   name         = "sdc-esxi"
   package_path = "/root/terraform-provider-powerflex/sdc-3.6.500.106-esx7.x.zip"
@@ -145,10 +145,10 @@ resource "powerflex_sdc_host" "sdc_linux" {
     private_key = data.local_sensitive_file.ssh_key.content_base64
     host_key    = data.local_sensitive_file.host_key.content_base64
   }
-  os_family    = "linux"
-  name         = "sdc-linux"
+  os_family       = "linux"
+  name            = "sdc-linux"
   use_remote_path = false
-  package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-700.103.Ubuntu.22.04.x86_64.tar" # For Ubuntu
+  package_path    = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-700.103.Ubuntu.22.04.x86_64.tar" # For Ubuntu
   # package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-700.103.el7.x86_64.rpm" # For RHEL
   # Optional all the mdms (either primary,secondary or virtual ips) in a comma separated list by cluster if unset will use the mdms of the cluster set in the provider block
   # Removal of mdms is not supported for linux, if you wish to remove a cluster from the sdc please follow steps here: https://www.dell.com/support/kbdoc/en-us/000167031/how-do-i-remove-the-mdm-entry-from-the-sdc-as-displayed-in-the-output-of-drv-cfg-binary-in-query-mdms-on-the-sdc-on-windows-or-linux-os#:~:text=Resolution%201%20For%20Linux%20SDC%20host%2C%20open%20%2Fbin%2Femc%2Fscaleio%2Fdrv_cfg.txt,4%20Reboot%20Linux%20SDC%20host%20to%20apply%20changes.?msockid=0ee30a4c8e9f67f610c21ecc8f89664a
@@ -192,7 +192,7 @@ resource "powerflex_sdc_host" "sdc_windows" {
   remote = {
     user     = "username"
     password = "password"
-    port = 5985
+    port     = 5985
   }
   os_family    = "windows"
   name         = "sdc-windows"

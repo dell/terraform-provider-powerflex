@@ -55,11 +55,11 @@ resource "powerflex_system" "test" {
   restricted_mode = "Guid"
   sdc_approved_ips = [
     {
-      id = "sdc_id1"
+      id  = "sdc_id1"
       ips = ["sdc_ip1", "sdc_ip2"]
     },
     {
-      id = "sdc_id2"
+      id  = "sdc_id2"
       ips = ["sdc_ip3"]
     },
   ]

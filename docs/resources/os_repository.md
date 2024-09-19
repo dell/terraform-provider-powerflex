@@ -55,21 +55,21 @@ resource "terraform_data" "always_run" {
 
 # Example for creating OS repository. After successful execution, OS Repository will be created.
 resource "powerflex_os_repository" "test" {
-   # Required Fields
+  # Required Fields
 
-   # Name of the OS repository
-   name = "TestOsRepo"
-   # Source path of the OS image
-   source_path = "https://pathtoimage.iso"
-   # Supported image types are redhat7, vmware_esxi, sles, windows2016, windows2019
-   image_type = "vmware_esxi"
-        
-    // This will allow terraform create process to trigger each time we run terraform apply.
-    lifecycle {
-        replace_triggered_by = [
-         terraform_data.always_run
-        ]
-    }
+  # Name of the OS repository
+  name = "TestOsRepo"
+  # Source path of the OS image
+  source_path = "https://pathtoimage.iso"
+  # Supported image types are redhat7, vmware_esxi, sles, windows2016, windows2019
+  image_type = "vmware_esxi"
+
+  // This will allow terraform create process to trigger each time we run terraform apply.
+  lifecycle {
+    replace_triggered_by = [
+      terraform_data.always_run
+    ]
+  }
 }
 ```
 

@@ -24,12 +24,13 @@ resource "powerflex_package" "upload-test" {
     "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-mdm-3.6-700.103.el7.x86_64.rpm",
     "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sds-3.6-700.103.el7.x86_64.rpm",
     "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdc-3.6-700.103.el7.x86_64.rpm",
-    "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdr-3.6-700.103.el7.x86_64.rpm"]
+    "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdr-3.6-700.103.el7.x86_64.rpm",
+  "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdt-3.6-700.103.el7.x86_64.rpm"]
 }
 
 resource "powerflex_cluster" "test" {
 
-  depends_on   = [powerflex_package.upload-test]
+  depends_on = [powerflex_package.upload-test]
 
   # Security Related Field
   mdm_password = "Password"
@@ -87,6 +88,11 @@ resource "powerflex_cluster" "test" {
       # sdr_external_ips     = "10.20.30.3" 
       sdr_all_ips          = "10.10.20.1" # conflict with sdr_application_ips, sdr_storage_ips, sdr_external_ips
       perf_profile_for_sdr = "Compact"
+
+      # SDT Configuration Fields
+      is_sdt      = "Yes"
+      sdt_name    = "SDT_1"
+      sdt_all_ips = "10.20.40.1"
     },
     {
       ips                     = "10.10.10.2",
@@ -104,6 +110,9 @@ resource "powerflex_cluster" "test" {
       perf_profile_for_sdc    = "compact",
       is_rfcache              = "No",
       is_sdr                  = "No",
+      is_sdt                  = "Yes"
+      sdt_name                = "SDT_2"
+      sdt_all_ips             = "10.20.40.2"
     },
     {
       ips                  = "10.10.10.3",
@@ -117,6 +126,7 @@ resource "powerflex_cluster" "test" {
       perf_profile_for_sdc = "compact",
       is_rfcache           = "No",
       is_sdr               = "No",
+      is_sdt               = "No"
     },
   ]
   # Storage Pool Configuration Fields

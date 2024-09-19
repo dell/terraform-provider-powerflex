@@ -75,12 +75,13 @@ resource "powerflex_package" "upload-test" {
     "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-mdm-3.6-700.103.el7.x86_64.rpm",
     "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sds-3.6-700.103.el7.x86_64.rpm",
     "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdc-3.6-700.103.el7.x86_64.rpm",
-    "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdr-3.6-700.103.el7.x86_64.rpm"]
+    "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdr-3.6-700.103.el7.x86_64.rpm",
+  "/root/powerflex_packages/PowerFlex_3.6.700.103_RHEL_OEL7/EMC-ScaleIO-sdt-3.6-700.103.el7.x86_64.rpm"]
 }
 
 resource "powerflex_cluster" "test" {
 
-  depends_on   = [powerflex_package.upload-test]
+  depends_on = [powerflex_package.upload-test]
 
   # Security Related Field
   mdm_password = "Password"
@@ -138,6 +139,11 @@ resource "powerflex_cluster" "test" {
       # sdr_external_ips     = "10.20.30.3" 
       sdr_all_ips          = "10.10.20.1" # conflict with sdr_application_ips, sdr_storage_ips, sdr_external_ips
       perf_profile_for_sdr = "Compact"
+
+      # SDT Configuration Fields
+      is_sdt      = "Yes"
+      sdt_name    = "SDT_1"
+      sdt_all_ips = "10.20.40.1"
     },
     {
       ips                     = "10.10.10.2",
@@ -155,6 +161,9 @@ resource "powerflex_cluster" "test" {
       perf_profile_for_sdc    = "compact",
       is_rfcache              = "No",
       is_sdr                  = "No",
+      is_sdt                  = "Yes"
+      sdt_name                = "SDT_2"
+      sdt_all_ips             = "10.20.40.2"
     },
     {
       ips                  = "10.10.10.3",
@@ -168,6 +177,7 @@ resource "powerflex_cluster" "test" {
       perf_profile_for_sdc = "compact",
       is_rfcache           = "No",
       is_sdr               = "No",
+      is_sdt               = "No"
     },
   ]
   # Storage Pool Configuration Fields
@@ -208,6 +218,7 @@ After the execution of above resource block, Cluster would have been created on 
 - `sdc_list` (Attributes Set) Cluster SDC Details (see [below for nested schema](#nestedatt--sdc_list))
 - `sdr_list` (Attributes Set) Cluster SDR Details (see [below for nested schema](#nestedatt--sdr_list))
 - `sds_list` (Attributes Set) Cluster SDS Details (see [below for nested schema](#nestedatt--sds_list))
+- `sdt_list` (Attributes Set) Cluster SDT Details (see [below for nested schema](#nestedatt--sdt_list))
 
 <a id="nestedatt--cluster"></a>
 ### Nested Schema for `cluster`
@@ -225,6 +236,7 @@ Optional:
 - `is_sdc` (String) Is Sdc. The acceptable values are `Yes` and `No`. Default value is `No`.
 - `is_sdr` (String) Is SDR. The acceptable values are `Yes` and `No`. Default value is `No`.
 - `is_sds` (String) Is Sds. The acceptable values are `Yes` and `No`. Default value is `No`.
+- `is_sdt` (String) Is Sdt. The acceptable values are `Yes` and `No`. Default value is `No`.
 - `mdm_ips` (String) MDM IP addresses used to communicate with other PowerFlex components in the storage network. This is required for all MDMs, Tiebreakers and Standbys.Leave this field blank for hosts that are not part of the MDM cluster.
 - `mdm_mgmt_ip` (String) This IP address is for the management-only network. The management ip is not required for Tiebreaker MDM, Standby Tiebreaker MDM and any host that is not an MDM.
 - `mdm_name` (String) MDMName
@@ -248,6 +260,8 @@ Optional:
 - `sds_storage_device_names` (String) Sets names for devices.
 - `sds_to_sdc_only_ips` (String) SDS IP addresses to be used for communication among SDS and SDC nodes only.
 - `sds_to_sds_only_ips` (String) SDS IP addresses to be used for communication among SDS nodes. When the replication feature is used, these addresses are also used for SDS-SDR communication.
+- `sdt_all_ips` (String) SDT IP addresses used for both hosts communication and MDM communication (including both roles).
+- `sdt_name` (String) SDT Name
 - `storage_pool_list` (String) Sets Storage Pool names
 - `username` (String) The value can be either `root` or any non-root user name with appropriate permissions.
 - `virtual_ip_nics` (String) The NIC to which the virtual IP addresses are mapped.
@@ -362,6 +376,25 @@ Read-Only:
 - `name` (String) Name
 - `path` (String) Path
 - `storage_pool` (String) Storage Pool Name
+
+
+
+<a id="nestedatt--sdt_list"></a>
+### Nested Schema for `sdt_list`
+
+Read-Only:
+
+- `all_ips` (String) All IP
+- `discovery_port` (Number) Discovery Port
+- `host_only_ips` (String) Host Only IP
+- `id` (String) ID
+- `ip` (String) SDT Node IP
+- `name` (String) Name
+- `nvme_port` (Number) NVMe Port
+- `protection_domain_id` (String) Protection Domain Name
+- `protection_domain_name` (String) Protection Domain Name
+- `storage_only_ips` (String) Storage Only IP
+- `storage_port` (Number) Storage Port
 
 ## Import
 
