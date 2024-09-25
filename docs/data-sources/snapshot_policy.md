@@ -87,7 +87,7 @@ Read-Only:
 - `id` (String) Unique identifier of the snapshot policy instance.
 - `last_auto_snapshot_creation_failure_reason` (String) Last auto snapshot creation failure reason.
 - `last_auto_snapshot_failure_in_first_level` (Boolean) Last auto snapshot failure in first level.
-- `links` (Attributes List) Specifies the links asscociated for a snapshot policy. (see [below for nested schema](#nestedatt--snapshotpolicies--links))
+- `links` (Attributes List) Specifies the links associated for a snapshot policy. (see [below for nested schema](#nestedatt--snapshotpolicies--links))
 - `max_vtree_auto_snapshots` (Number) Max vtree auto snapshots.
 - `name` (String) Name of the snapshot policy.
 - `next_auto_snapshot_creation_time` (Number) Next auto snapshot creation time.

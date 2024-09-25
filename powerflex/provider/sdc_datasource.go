@@ -96,6 +96,17 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		)
 		return
 	}
+
+	// SDC endpoints returns both SDC and NVMe host. Need to filter out NVMe host
+	n := 0
+	for _, sdc := range sdcs {
+		if sdc.HostType == "SdcHost" {
+			sdcs[n] = sdc
+			n++
+		}
+	}
+	sdcs = sdcs[:n]
+
 	// Set state
 	searchFilter := helper.SdcFilterType.All
 	if !state.Name.IsNull() {

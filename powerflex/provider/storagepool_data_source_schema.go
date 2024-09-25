@@ -427,8 +427,8 @@ var DataSourceSchema schema.Schema = schema.Schema{
 						},
 					},
 					"links": schema.ListNestedAttribute{
-						Description:         "Specifies the links asscociated with storage pool.",
-						MarkdownDescription: "Specifies the links asscociated with storage pool.",
+						Description:         "Specifies the links associated with storage pool.",
+						MarkdownDescription: "Specifies the links associated with storage pool.",
 						Computed:            true,
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{

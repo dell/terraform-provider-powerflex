@@ -93,7 +93,7 @@ Read-Only:
 - `data_layout` (String) Data layout
 - `id` (String) VTree ID
 - `in_deletion` (Boolean) In deletion
-- `links` (Attributes List) Specifies the links asscociated with VTree (see [below for nested schema](#nestedatt--vtree_details--links))
+- `links` (Attributes List) Specifies the links associated with VTree (see [below for nested schema](#nestedatt--vtree_details--links))
 - `name` (String) VTree name
 - `root_volumes` (Set of String) Root volumes
 - `storage_pool_id` (String) Storage pool ID

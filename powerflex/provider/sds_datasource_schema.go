@@ -294,8 +294,8 @@ var SdsDataSourceSchema schema.Schema = schema.Schema{
 						},
 					},
 					"links": schema.ListNestedAttribute{
-						Description:         "Specifies the links asscociated with SDS.",
-						MarkdownDescription: "Specifies the links asscociated with SDS.",
+						Description:         "Specifies the links associated with SDS.",
+						MarkdownDescription: "Specifies the links associated with SDS.",
 						Computed:            true,
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{

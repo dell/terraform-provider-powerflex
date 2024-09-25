@@ -94,7 +94,7 @@ Read-Only:
 - `creation_time` (Number) Specifies the time of creation.
 - `data_layout` (String) Specifies the layout for the data.
 - `id` (String) Unique identifier of the volume instance.
-- `links` (Attributes List) Specifies the links asscociated for a volume. (see [below for nested schema](#nestedatt--volumes--links))
+- `links` (Attributes List) Specifies the links associated for a volume. (see [below for nested schema](#nestedatt--volumes--links))
 - `locked_auto_snapshot` (Boolean) Specifies if it's a locked auto snapshot.
 - `locked_auto_snapshot_marked_for_removal` (Boolean) Specifies if it's a locked auto snapshot marked for removal.
 - `managed_by` (String) Specifies by whom it's managed by.

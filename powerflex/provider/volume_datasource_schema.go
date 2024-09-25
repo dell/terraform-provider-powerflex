@@ -196,8 +196,8 @@ var VolumeDataSourceSchema schema.Schema = schema.Schema{
 						Computed:            true,
 					},
 					"links": schema.ListNestedAttribute{
-						Description:         "Specifies the links asscociated for a volume.",
-						MarkdownDescription: "Specifies the links asscociated for a volume.",
+						Description:         "Specifies the links associated for a volume.",
+						MarkdownDescription: "Specifies the links associated for a volume.",
 						Computed:            true,
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
