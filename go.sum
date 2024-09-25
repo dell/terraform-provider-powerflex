@@ -35,6 +35,10 @@ github.com/dell/goscaleio v1.16.0 h1:dhk5M/ozQTh4ponSKLbL6gTmqQg/lp004s8ZnSeSjo0
 github.com/dell/goscaleio v1.16.0/go.mod h1:h7SCmReARG/szFWBMQGETGkZObknhS45lQipQbtdmJ8=
 github.com/dell/goscaleio v1.16.1-0.20240918034934-cb4945130106 h1:TtD05mxJVBRtFKmYjxW5eLtrweQxm5Z6/kcy4aKEmeg=
 github.com/dell/goscaleio v1.16.1-0.20240918034934-cb4945130106/go.mod h1:b2mbdhG3IHp8YfvDrj7jWHdJNkqyrUhWNDEvo4GVEUc=
+github.com/dell/goscaleio v1.16.1-0.20240924025426-45bb35f7293b h1:d3Iqm4fZaEnOyGJjxldZriGJ9VQFwB0daA0LxWg0+9w=
+github.com/dell/goscaleio v1.16.1-0.20240924025426-45bb35f7293b/go.mod h1:b2mbdhG3IHp8YfvDrj7jWHdJNkqyrUhWNDEvo4GVEUc=
+github.com/dell/goscaleio v1.16.1-0.20240925035458-1239d8cfa3db h1:i97CUrJSg7UToEx3ofr6ZoXwBN6s40LhOhFOgVKF4fc=
+github.com/dell/goscaleio v1.16.1-0.20240925035458-1239d8cfa3db/go.mod h1:b2mbdhG3IHp8YfvDrj7jWHdJNkqyrUhWNDEvo4GVEUc=
 github.com/dylanmei/iso8601 v0.1.0 h1:812NGQDBcqquTfH5Yeo7lwR0nzx/cKdsmf3qMjPURUI=
 github.com/dylanmei/iso8601 v0.1.0/go.mod h1:w9KhXSgIyROl1DefbMYIE7UVSIvELTbMrCfx+QkYnoQ=
 github.com/emirpasic/gods v1.18.1 h1:FXtiHYKDGKCW2KzwZKx0iC0PQmdlorYgdFG9jPXJ1Bc=

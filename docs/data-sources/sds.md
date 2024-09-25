@@ -105,7 +105,7 @@ Read-Only:
 - `id` (String) SDS ID.
 - `ip_list` (Attributes List) List of IPs associated with SDS. (see [below for nested schema](#nestedatt--sds_details--ip_list))
 - `last_upgrade_time` (Number) Last time SDS was upgraded.
-- `links` (Attributes List) Specifies the links asscociated with SDS. (see [below for nested schema](#nestedatt--sds_details--links))
+- `links` (Attributes List) Specifies the links associated with SDS. (see [below for nested schema](#nestedatt--sds_details--links))
 - `maintenance_state` (String) Maintenance state.
 - `maintenance_type` (String) Maintenance type.
 - `mdm_connection_state` (String) MDM connection state.

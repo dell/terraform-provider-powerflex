@@ -5,7 +5,7 @@ go 1.22.0
 require (
 	github.com/bramvdbogaerde/go-scp v1.5.0
 	github.com/bytedance/mockey v1.2.10
-	github.com/dell/goscaleio v1.16.1-0.20240918034934-cb4945130106
+	github.com/dell/goscaleio v1.16.1-0.20240925035458-1239d8cfa3db
 	github.com/hashicorp/terraform-plugin-framework v1.11.0
 	github.com/hashicorp/terraform-plugin-framework-validators v0.13.0
 	github.com/hashicorp/terraform-plugin-go v0.23.0
