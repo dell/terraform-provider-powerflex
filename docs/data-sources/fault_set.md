@@ -88,7 +88,7 @@ After the successful execution of above said block, we can see the output by exe
 Read-Only:
 
 - `id` (String) Fault set ID
-- `links` (Attributes List) Specifies the links asscociated with fault set (see [below for nested schema](#nestedatt--fault_set_details--links))
+- `links` (Attributes List) Specifies the links associated with fault set (see [below for nested schema](#nestedatt--fault_set_details--links))
 - `name` (String) Fault set name
 - `protection_domain_id` (String) Protection Domain ID
 - `sds_details` (Attributes List) List of fetched SDS. (see [below for nested schema](#nestedatt--fault_set_details--sds_details))
@@ -118,7 +118,7 @@ Read-Only:
 - `id` (String) SDS ID.
 - `ip_list` (Attributes List) List of IPs associated with SDS. (see [below for nested schema](#nestedatt--fault_set_details--sds_details--ip_list))
 - `last_upgrade_time` (Number) Last time SDS was upgraded.
-- `links` (Attributes List) Specifies the links asscociated with SDS. (see [below for nested schema](#nestedatt--fault_set_details--sds_details--links))
+- `links` (Attributes List) Specifies the links associated with SDS. (see [below for nested schema](#nestedatt--fault_set_details--sds_details--links))
 - `maintenance_state` (String) Maintenance state.
 - `maintenance_type` (String) Maintenance type.
 - `mdm_connection_state` (String) MDM connection state.

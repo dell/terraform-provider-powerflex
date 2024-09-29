@@ -252,8 +252,8 @@ var VTreeDataSourceSchema schema.Schema = schema.Schema{
 						Computed:            true,
 					},
 					"links": schema.ListNestedAttribute{
-						MarkdownDescription: "Specifies the links asscociated with VTree",
-						Description:         "Specifies the links asscociated with VTree",
+						MarkdownDescription: "Specifies the links associated with VTree",
+						Description:         "Specifies the links associated with VTree",
 						Computed:            true,
 						NestedObject:        schema.NestedAttributeObject{Attributes: LinksSchema()},
 					},

@@ -155,8 +155,8 @@ var SnapshotPolicyDataSourceSchema schema.Schema = schema.Schema{
 						Computed:            true,
 					},
 					"links": schema.ListNestedAttribute{
-						Description:         "Specifies the links asscociated for a snapshot policy.",
-						MarkdownDescription: "Specifies the links asscociated for a snapshot policy.",
+						Description:         "Specifies the links associated for a snapshot policy.",
+						MarkdownDescription: "Specifies the links associated for a snapshot policy.",
 						Computed:            true,
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{

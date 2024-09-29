@@ -116,7 +116,7 @@ Read-Only:
 - `fgl_write_atomicity_size` (Number) FGL write atomicity size.
 - `fragmentation_enabled` (Boolean) Fragmentation Enabled.
 - `id` (String) Storage pool ID.
-- `links` (Attributes List) Specifies the links asscociated with storage pool. (see [below for nested schema](#nestedatt--storage_pools--links))
+- `links` (Attributes List) Specifies the links associated with storage pool. (see [below for nested schema](#nestedatt--storage_pools--links))
 - `media_type` (String) Media type.
 - `name` (String) Storage pool name.
 - `num_of_parallel_rebuild_rebalance_jobs_per_device` (Number) Number of Parallel Rebuild/Rebalance Jobs per Device.

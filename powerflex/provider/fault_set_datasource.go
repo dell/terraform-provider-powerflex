@@ -253,8 +253,8 @@ var FaultSetDataSourceSchema schema.Schema = schema.Schema{
 						Computed:            true,
 					},
 					"links": schema.ListNestedAttribute{
-						MarkdownDescription: "Specifies the links asscociated with fault set",
-						Description:         "Specifies the links asscociated with fault set",
+						MarkdownDescription: "Specifies the links associated with fault set",
+						Description:         "Specifies the links associated with fault set",
 						Computed:            true,
 						NestedObject:        schema.NestedAttributeObject{Attributes: FaultSetLinksSchema()},
 					},
@@ -476,8 +476,8 @@ var FaultSetDataSourceSchema schema.Schema = schema.Schema{
 									},
 								},
 								"links": schema.ListNestedAttribute{
-									Description:         "Specifies the links asscociated with SDS.",
-									MarkdownDescription: "Specifies the links asscociated with SDS.",
+									Description:         "Specifies the links associated with SDS.",
+									MarkdownDescription: "Specifies the links associated with SDS.",
 									Computed:            true,
 									NestedObject: schema.NestedAttributeObject{
 										Attributes: map[string]schema.Attribute{
