@@ -35,19 +35,21 @@ func contains(items []types.String, val string) bool {
 }
 
 // isMatchingFilter checks if the host matches the filter
-func isMatchingFilter(filter *models.IDNameFilter, host goscaleio_types.NvmeHost) bool {
+func isMatchingFilter(filter *models.NvmeHostFilter, host goscaleio_types.NvmeHost) bool {
 	// filter not specified, return all hosts
 	if filter == nil {
 		return true
 	}
 
-	// Check if filter.IDs and filter.Names are both empty
-	if len(filter.IDs) == 0 && len(filter.Names) == 0 {
+	// Check if filter.IDs, filter.Names and filter.Nqns are all empty
+	if len(filter.IDs) == 0 && len(filter.Names) == 0 && len(filter.Nqns) == 0 {
 		return true
 	}
 
-	// Check if filter.IDs or filter.Names contain the corresponding host attributes
-	if (len(filter.IDs) > 0 && contains(filter.IDs, host.ID)) || (len(filter.Names) > 0 && contains(filter.Names, host.Name)) {
+	// Check if filter contains the corresponding host attributes
+	if (len(filter.IDs) > 0 && contains(filter.IDs, host.ID)) ||
+		(len(filter.Names) > 0 && contains(filter.Names, host.Name) ||
+			(len(filter.Nqns) > 0 && contains(filter.Nqns, host.Nqn))) {
 		return true
 	}
 
@@ -55,7 +57,7 @@ func isMatchingFilter(filter *models.IDNameFilter, host goscaleio_types.NvmeHost
 }
 
 // GetNvmeHostState sets the state for the NvmeHost datasource.
-func GetNvmeHostState(hosts []goscaleio_types.NvmeHost, filter *models.IDNameFilter) []models.NvmeHostModel {
+func GetNvmeHostState(hosts []goscaleio_types.NvmeHost, filter *models.NvmeHostFilter) []models.NvmeHostModel {
 	var response []models.NvmeHostModel
 	for _, host := range hosts {
 		if isMatchingFilter(filter, host) {

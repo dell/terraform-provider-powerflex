@@ -67,6 +67,13 @@ data "powerflex_nvme_host" "example3" {
   }
 }
 
+# Get NVMe host details using NVMe host Nqns
+data "powerflex_nvme_host" "example4" {
+  filter {
+    nqns = ["NQN1", "NQN2"]
+  }
+}
+
 output "nvme_host_result" {
   value = data.powerflex_nvme_host.example1
 }
@@ -93,6 +100,7 @@ Optional:
 
 - `ids` (Set of String) List of NVMe host Ids.
 - `names` (Set of String) List of NVMe host names.
+- `nqns` (Set of String) List of NVMe host nqn.
 
 
 <a id="nestedatt--nvme_host_details"></a>

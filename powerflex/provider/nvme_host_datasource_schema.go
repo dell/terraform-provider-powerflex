@@ -64,6 +64,15 @@ var NvmeHostDataSourceSchema schema.Schema = schema.Schema{
 						setvalidator.SizeAtLeast(1),
 					},
 				},
+				"nqns": schema.SetAttribute{
+					Description:         "List of NVMe host nqn.",
+					MarkdownDescription: "List of NVMe host nqn.",
+					ElementType:         types.StringType,
+					Optional:            true,
+					Validators: []validator.Set{
+						setvalidator.SizeAtLeast(1),
+					},
+				},
 			},
 		},
 	},

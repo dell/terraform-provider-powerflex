@@ -35,13 +35,14 @@ type NvmeHostResource struct {
 type NvmeHostDataSource struct {
 	ID      types.String    `tfsdk:"id"`
 	Details []NvmeHostModel `tfsdk:"nvme_host_details"`
-	Filter  *IDNameFilter   `tfsdk:"filter"`
+	Filter  *NvmeHostFilter `tfsdk:"filter"`
 }
 
-// IDNameFilter defines the model for filter IDs or Names
-type IDNameFilter struct {
+// NvmeHostFilter defines the model for NvmeHost filter
+type NvmeHostFilter struct {
 	Names []types.String `tfsdk:"names"`
 	IDs   []types.String `tfsdk:"ids"`
+	Nqns  []types.String `tfsdk:"nqns"`
 }
 
 // NvmeHostModel is the model for NVMe host
