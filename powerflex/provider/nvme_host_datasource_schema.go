@@ -18,10 +18,9 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"github.com/hashicorp/terraform-plugin-framework/types"
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
 )
 
 // NvmeHostDataSourceSchema defines the schema for NvmeHost datasource
@@ -45,26 +44,7 @@ var NvmeHostDataSourceSchema schema.Schema = schema.Schema{
 	},
 	Blocks: map[string]schema.Block{
 		"filter": schema.SingleNestedBlock{
-			Attributes: map[string]schema.Attribute{
-				"ids": schema.SetAttribute{
-					Description:         "List of NVMe host Ids.",
-					MarkdownDescription: "List of NVMe host Ids.",
-					ElementType:         types.StringType,
-					Optional:            true,
-					Validators: []validator.Set{
-						setvalidator.SizeAtLeast(1),
-					},
-				},
-				"names": schema.SetAttribute{
-					Description:         "List of NVMe host names.",
-					MarkdownDescription: "List of NVMe host names.",
-					ElementType:         types.StringType,
-					Optional:            true,
-					Validators: []validator.Set{
-						setvalidator.SizeAtLeast(1),
-					},
-				},
-			},
+			Attributes: helper.GenerateSchemaAttributes(helper.TypeToMap(models.NvmeHostFilter{})),
 		},
 	},
 }

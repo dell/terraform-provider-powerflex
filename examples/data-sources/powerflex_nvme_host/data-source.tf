@@ -21,18 +21,18 @@ limitations under the License.
 data "powerflex_nvme_host" "example1" {
 }
 
-# Get NVMe host details using NVMe host Names
+# Get NVMe host details by NVMe host Name
 data "powerflex_nvme_host" "example2" {
-  filter {
-    names = ["name1", "name2"]
-  }
-}
+  # this datasource supports filters like NVMe host name, id, nqn, max_num_paths, max_num_sys_ports, system_id.
+  # Note: If both filters are used simultaneously, the results will include any records that match either of the filters.
 
-
-# Get NVMe host details using NVMe host IDs
-data "powerflex_nvme_host" "example3" {
   filter {
-    ids = ["ID1", "ID2"]
+    name = ["name1", "name2"]
+    # id = ["ID1", "ID2"]
+    # nqn = ["NQN1", "NQN2"]
+    # max_num_paths = [2]
+    # max_num_sys_ports = [10]
+    # system_id = ["systemID"]
   }
 }
 

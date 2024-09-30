@@ -19,6 +19,9 @@ package provider
 
 import (
 	"context"
+	"fmt"
+
+	scaleiotypes "github.com/dell/goscaleio/types/v1"
 
 	"terraform-provider-powerflex/powerflex/helper"
 	"terraform-provider-powerflex/powerflex/models"
@@ -71,6 +74,7 @@ func (d *nvmeHostDataSource) Configure(_ context.Context, req datasource.Configu
 // Read - function to read sdc values from goscaleio.
 func (d *nvmeHostDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state models.NvmeHostDataSource
+	var models []models.NvmeHostDatasourceModel
 	diags := req.Config.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -97,7 +101,25 @@ func (d *nvmeHostDataSource) Read(ctx context.Context, req datasource.ReadReques
 		return
 	}
 
-	nvmeHostState := helper.GetNvmeHostState(nvmeHosts, state.Filter)
+	if state.Filter == nil {
+		for _, host := range nvmeHosts {
+			models = append(models, helper.GetNvmeHostState(host))
+		}
+	} else {
+		filteredHosts, err := helper.GetDataSourceByValue(*state.Filter, nvmeHosts)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Error in getting NVMe Host details  %v", state.Filter), err.Error(),
+			)
+			return
+		}
+		for i := 0; i < len(filteredHosts); i++ {
+			m := filteredHosts[i].(scaleiotypes.NvmeHost)
+			models = append(models, helper.GetNvmeHostState(m))
+		}
+	}
+
+	nvmeHostState := models
 	state.ID = types.StringValue("nvme_host_datasource")
 	state.Details = nvmeHostState
 	diags = resp.State.Set(ctx, state)

@@ -24,58 +24,21 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// contains checks if the value is in the items slice
-func contains(items []types.String, val string) bool {
-	for _, item := range items {
-		if item.ValueString() == val {
-			return true
-		}
-	}
-	return false
-}
-
-// isMatchingFilter checks if the host matches the filter
-func isMatchingFilter(filter *models.IDNameFilter, host goscaleio_types.NvmeHost) bool {
-	// filter not specified, return all hosts
-	if filter == nil {
-		return true
-	}
-
-	// Check if filter.IDs and filter.Names are both empty
-	if len(filter.IDs) == 0 && len(filter.Names) == 0 {
-		return true
-	}
-
-	// Check if filter.IDs or filter.Names contain the corresponding host attributes
-	if (len(filter.IDs) > 0 && contains(filter.IDs, host.ID)) || (len(filter.Names) > 0 && contains(filter.Names, host.Name)) {
-		return true
-	}
-
-	return false
-}
-
 // GetNvmeHostState sets the state for the NvmeHost datasource.
-func GetNvmeHostState(hosts []goscaleio_types.NvmeHost, filter *models.IDNameFilter) []models.NvmeHostModel {
-	var response []models.NvmeHostModel
-	for _, host := range hosts {
-		if isMatchingFilter(filter, host) {
-			hostState := models.NvmeHostModel{
-				ID:             types.StringValue(host.ID),
-				Name:           types.StringValue(host.Name),
-				Nqn:            types.StringValue(host.Nqn),
-				SystemID:       types.StringValue(host.SystemID),
-				MaxNumPaths:    types.Int64Value(int64(host.MaxNumPaths)),
-				MaxNumSysPorts: types.Int64Value(int64(host.MaxNumSysPorts)),
-			}
-			for _, link := range host.Links {
-				hostState.Links = append(hostState.Links, models.LinkModel{
-					Rel:  types.StringValue(link.Rel),
-					HREF: types.StringValue(link.HREF),
-				})
-			}
-
-			response = append(response, hostState)
-		}
+func GetNvmeHostState(host goscaleio_types.NvmeHost) models.NvmeHostDatasourceModel {
+	model := models.NvmeHostDatasourceModel{
+		ID:             types.StringValue(host.ID),
+		Name:           types.StringValue(host.Name),
+		Nqn:            types.StringValue(host.Nqn),
+		SystemID:       types.StringValue(host.SystemID),
+		MaxNumPaths:    types.Int64Value(int64(host.MaxNumPaths)),
+		MaxNumSysPorts: types.Int64Value(int64(host.MaxNumSysPorts)),
 	}
-	return response
+	for _, link := range host.Links {
+		model.Links = append(model.Links, models.LinkModel{
+			Rel:  types.StringValue(link.Rel),
+			HREF: types.StringValue(link.HREF),
+		})
+	}
+	return model
 }

@@ -40,7 +40,7 @@ func SetCompatibilityManagement(ctx context.Context, client *goscaleio.System, p
 	// Get the byte array of the file
 	data, err := os.ReadFile(plan.RepositoryPath.ValueString())
 	if err != nil {
-		return nil, fmt.Errorf("Could not read repository file, make sure path to gpg file is correct: " + err.Error())
+		return nil, fmt.Errorf("Could not read repository file, make sure path to gpg file is correct: %s", err.Error())
 	}
 
 	return client.SetCompatibilityManagement(&scaleiotypes.CompatibilityManagementPost{
