@@ -36,7 +36,7 @@ func TestSshClientM(t *testing.T) {
 		CaCert:     nil,
 	}, nil)
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatalf("%s", err.Error())
 	}
 	defer sshP.Close()
 
@@ -44,7 +44,7 @@ func TestSshClientM(t *testing.T) {
 
 	op, err := sshP.ListDirUnix("/etc/testDir", true)
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatalf("%s", err.Error())
 	}
 	t.Log(op)
 	assert.Equal(t, []string{"sbc", "lkm", "por"}, op)
@@ -62,7 +62,7 @@ func TestSshClientMReboot(t *testing.T) {
 		CaCert:     nil,
 	}, nil)
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatalf("%s", err.Error())
 	}
 	defer sshP.Close()
 
@@ -70,7 +70,7 @@ func TestSshClientMReboot(t *testing.T) {
 
 	err = sshP.RebootUnix()
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatalf("%s", err.Error())
 	}
 }
 
@@ -86,7 +86,7 @@ func TestSshClientMUntar(t *testing.T) {
 		CaCert:     nil,
 	}, nil)
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatalf("%s", err.Error())
 	}
 	defer sshP.Close()
 
@@ -94,7 +94,7 @@ func TestSshClientMUntar(t *testing.T) {
 
 	op, err := sshP.UntarUnix("testTarFile.tar", "/etc/testTarDir")
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatalf("%s", err.Error())
 	}
 	t.Log(op)
 	assert.Equal(t, []string{"tfFile1", "tfFile2", "tfFile3"}, op)
@@ -115,7 +115,7 @@ func TestSshClientMScp(t *testing.T) {
 		CaCert:     nil,
 	}, nil)
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatalf("%s", err.Error())
 	}
 	defer sshP.Close()
 
@@ -125,12 +125,12 @@ func TestSshClientMScp(t *testing.T) {
 	scpProv := NewScpProvisioner(sshP)
 	err = scpProv.Upload("/root/terraform-provider-powerflex/client/testFile.txt", "/tmp/testScpFile.txt", "")
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatalf("%s", err.Error())
 	}
 	// read /tmp/testScpFile
 	conts, err := os.ReadFile("/tmp/testScpFile")
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatalf("%s", err.Error())
 	}
 	// convert conts to string
 	contsStr := string(conts)

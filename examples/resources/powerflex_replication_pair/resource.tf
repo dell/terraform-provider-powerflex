@@ -18,14 +18,14 @@ limitations under the License.
 terraform {
   required_providers {
     powerflex = {
-      source  = "registry.terraform.io/dell/powerflex"
-      configuration_aliases = [ powerflex.source, powerflex.destination ]
+      source                = "registry.terraform.io/dell/powerflex"
+      configuration_aliases = [powerflex.source, powerflex.destination]
     }
   }
 }
 
 provider "powerflex" {
-  alias = "source"
+  alias    = "source"
   username = var.username_source
   password = var.password_source
   endpoint = var.endpoint_source
@@ -34,7 +34,7 @@ provider "powerflex" {
 }
 
 provider "powerflex" {
-  alias = "destination"
+  alias    = "destination"
   username = var.username_destination
   password = var.password_destination
   endpoint = var.endpoint_destination
@@ -45,13 +45,13 @@ provider "powerflex" {
 # Used to get the id of the source volume
 data "powerflex_volume" "source_volume" {
   provider = powerflex.source
-  name = var.volume_name_source
+  name     = var.volume_name_source
 }
 
 # Used to get the id of the destination volume
 data "powerflex_volume" "destination_volume" {
   provider = powerflex.destination
-  name = var.volume_name_destination
+  name     = var.volume_name_destination
 }
 
 # Used to get the id of the replication consistancy group
@@ -71,10 +71,10 @@ data "powerflex_replication_consistancy_group" "source_replication_consistancy_g
 resource "powerflex_replication_pair" "example" {
   provider = powerflex.source
   # Required values
-  name                              = "example-replication-pair"
-  source_volume_id                  = data.powerflex_volume.source_volume.volumes[0].id
-  destination_volume_id             = data.powerflex_volume.destination_volume.volumes[0].id
-  replication_consistency_group_id  = data.powerflex_replication_consistancy_group.source_replication_consistancy_group.replication_consistency_group_details[0].id
+  name                             = "example-replication-pair"
+  source_volume_id                 = data.powerflex_volume.source_volume.volumes[0].id
+  destination_volume_id            = data.powerflex_volume.destination_volume.volumes[0].id
+  replication_consistency_group_id = data.powerflex_replication_consistancy_group.source_replication_consistancy_group.replication_consistency_group_details[0].id
   # Optional values
   # pause_initial_copy = true # Pauses the replication pair (This will only work during the initial copy process), defaults to false
 }

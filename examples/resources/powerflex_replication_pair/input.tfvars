@@ -16,14 +16,14 @@ limitations under the License.
 */
 
 # Source Vars
-username_source = "example_source_user"
-password_source = "example_source_password"
-endpoint_source = "example_source_endpoint"
-volume_name_source = "example_source_volume_name"
+username_source                           = "example_source_user"
+password_source                           = "example_source_password"
+endpoint_source                           = "example_source_endpoint"
+volume_name_source                        = "example_source_volume_name"
 replication_consistancy_group_name_source = "example_source_replication_consistancy_group_name"
 
 # Destination Vars
-username_destination = "example_destination_user"
-password_destination = "example_destination_password"
-endpoint_destination = "example_destination_endpoint"
+username_destination    = "example_destination_user"
+password_destination    = "example_destination_password"
+endpoint_destination    = "example_destination_endpoint"
 volume_name_destination = "example_destination_volume_name"
