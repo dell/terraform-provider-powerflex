@@ -24,6 +24,7 @@ import (
 	"terraform-provider-powerflex/powerflex/models"
 
 	"github.com/dell/goscaleio"
+	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -88,43 +89,34 @@ func (d *osRepositoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
+	osRepositories, err := helper.GetAllOsRepositories(d.system)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error in getting OS repository details", err.Error(),
+		)
+		return
+	}
+
 	if state.OSRepoFilter == nil {
-		osRepositories, err := helper.GetAllOsRepositories(d.system)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error in getting OS repository details", err.Error(),
-			)
-			return
-		}
 		for _, osRepo := range osRepositories {
 			osRepositoriesModel = append(osRepositoriesModel, helper.GetAllOSRepositoryState(osRepo))
 		}
 	} else {
-		if len(state.OSRepoFilter.IDs) > 0 {
-			for _, osRepoID := range state.OSRepoFilter.IDs {
-				osRepo, err := helper.GetOSRepositoryByID(d.system, osRepoID.ValueString())
-				if err != nil {
-					resp.Diagnostics.AddError(
-						fmt.Sprintf("Error in getting OS repository details using id %v", osRepoID.ValueString()), err.Error(),
-					)
-					return
-				}
-				osRepositoriesModel = append(osRepositoriesModel, helper.GetAllOSRepositoryState(*osRepo))
-			}
+
+		osRepo, err := helper.GetDataSourceByValue(*state.OSRepoFilter, osRepositories)
+
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Error in getting OS repository details  %v", state.OSRepoFilter), err.Error(),
+			)
+			return
+		}
+		for i := 0; i < len(osRepo); i++ {
+			var osRepoCast scaleiotypes.OSRepository = osRepo[i].(scaleiotypes.OSRepository)
+
+			osRepositoriesModel = append(osRepositoriesModel, helper.GetAllOSRepositoryState(osRepoCast))
 		}
 
-		if len(state.OSRepoFilter.Names) > 0 {
-			osRepositories, err := helper.GetOSRepositoriesByNames(d.system, state.OSRepoFilter.Names)
-			if err != nil || len(osRepositories) == 0 {
-				resp.Diagnostics.AddError(
-					"Error in getting OS repository details by names", "OS repositories not found",
-				)
-				return
-			}
-			for _, osRepo := range osRepositories {
-				osRepositoriesModel = append(osRepositoriesModel, helper.GetAllOSRepositoryState(osRepo))
-			}
-		}
 	}
 	state.OSRepositories = osRepositoriesModel
 	state.ID = types.StringValue("placeholder")

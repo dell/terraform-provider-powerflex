@@ -21,23 +21,37 @@ limitations under the License.
 data "powerflex_os_repository" "example1" {
 }
 
-# Get OS Repository details by ID
-data "powerflex_os_repository" "example2" {
-  # this datasource supports filters like os repsoitory ids, names. 
-  # Note: If both filters are used simultaneously, the results will include any records that match either of the filters (i.e., union of the both the records)
-  filter {
-    os_repo_ids = ["1234", "5678"]
-  }
-}
+# # Get OS Repository details by ID
+# data "powerflex_os_repository" "example2" {
+#   # this datasource supports filters like os repsoitory id, name, source path, etc.
+#   # Note: If both filters are used simultaneously, the results will include any records that match either of the filters.
+#   filter {
+#     id = ["1234","5678"]
+#   }
+# }
 
-# Get OS Repository details by Name
-data "powerflex_os_repository" "example3" {
-  # this datasource supports filters like os repsoitory ids, names.
-  # Note: If both filters are used simultaneously, the results will include any records that match either of the filters (i.e., union of the both the records)
-  filter {
-    os_repo_names = ["test"]
-  }
-}
+# # Get OS Repository details by all fields
+# data "powerflex_os_repository" "example3" {
+#   # this datasource supports filters like os repsoitory id, name, source path, etc.
+#   # Note: If both filters are used simultaneously, the results will include any records that match either of the filters.
+#   filter {
+#     base_url = ["http://195.0.0.0:8080"]
+#     created_by = ["system"]
+#     created_date = ["20XX-XX-XXT13:58:13.978+00:00"]
+#     from_web = false
+#     id = ["1234","5678"]
+#     image_type = ["vmwar_esxi"]
+#     in_use = false
+#     name   = ["Dell EMC PowerFlex Embedded OS"]
+#     razor_name = ["DellEMCPowerFlexEmbeddedOS"]
+#     rcm_path = ["c:\\..."]
+#     repo_type  = ["ISO"]
+#     source_path = ["z:\\ESXi\\ESXi-x.x.x-xxxxxx-x_Dell.zip"]
+#     state = ["available"]
+#     username = ["User"]
+#   }
+# }
+
 output "os_repository_result" {
   value = data.powerflex_os_repository.example1
 }

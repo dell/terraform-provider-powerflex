@@ -18,9 +18,12 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
@@ -31,41 +34,30 @@ data "powerflex_os_repository" "test" {
 
 var OSRepoDataSourceConfig2 = `
 data "powerflex_os_repository" "test" {
-	# this datasource supports filters like os repsoitory ids, names
+	# this datasource supports filters like os repsoitory ids, names, source path, etc.
 	filter {
-		os_repo_ids = ["` + OSRepoID1 + `"]
+		id = ["` + OSRepoID1 + `"]
 	}
   }
 `
 
 var OSRepoDataSourceConfig3 = `
 data "powerflex_os_repository" "test" {
-	# this datasource supports filters like os repsoitory ids, names
+	# this datasource supports filters like os repsoitory ids, names, source path, etc.
 	filter {
-		os_repo_names = ["` + OSRepoName1 + `"]
-	}
-  }
-`
-
-var OSRepoDataSourceConfig4 = `
-data "powerflex_os_repository" "test" {
-	# this datasource supports filters like os repsoitory ids, names
-	filter {
-		os_repo_ids = ["invalid_id"]
-	}
-  }
-`
-var OSRepoDataSourceConfig5 = `
-data "powerflex_os_repository" "test" {
-	# this datasource supports filters like os repsoitory ids, names
-	filter {
-		os_repo_names = ["invalid_name"]
+		id = ["` + OSRepoID1 + `"]
+		name = ["` + OSRepoName1 + `"]
+		source_path = ["` + OSRepoSourcePath + `"]
+		repo_type = ["` + OSRepoType + `"]
+		state = ["` + OSRepoState + `"]
+		created_by = ["` + OSRepoCreatedBy + `"]
 	}
   }
 `
 
 func TestAccDatasourceOSRepo(t *testing.T) {
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -83,24 +75,20 @@ func TestAccDatasourceOSRepo(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + OSRepoDataSourceConfig3,
 				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_os_repository.test", "os_repositories.0.id", OSRepoID1),
 					resource.TestCheckResourceAttr("data.powerflex_os_repository.test", "os_repositories.0.name", OSRepoName1),
+					resource.TestCheckResourceAttr("data.powerflex_os_repository.test", "os_repositories.0.source_path", OSRepoSourcePath),
+					resource.TestCheckResourceAttr("data.powerflex_os_repository.test", "os_repositories.0.repo_type", OSRepoType),
+					resource.TestCheckResourceAttr("data.powerflex_os_repository.test", "os_repositories.0.state", OSRepoState),
+					resource.TestCheckResourceAttr("data.powerflex_os_repository.test", "os_repositories.0.created_by", OSRepoCreatedBy),
 				),
 			},
-		},
-	})
-}
-
-func TestAccDatasourceOSRepoNegative(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
 			{
-				Config:      ProviderConfigForTesting + OSRepoDataSourceConfig4,
-				ExpectError: regexp.MustCompile(`.*Error in getting OS repository details using id*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + OSRepoDataSourceConfig5,
-				ExpectError: regexp.MustCompile(`.*Error in getting OS repository details by names*`),
+				PreConfig: func() {
+					FunctionMocker = Mock(helper.GetAllOsRepositories).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + OSRepoDataSourceConfig1,
+				ExpectError: regexp.MustCompile(`.*Error in getting OS repository details*.`),
 			},
 		},
 	})

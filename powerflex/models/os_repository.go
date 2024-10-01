@@ -51,8 +51,20 @@ type OSRepositoryDataSource struct {
 
 // OSRepoFilter defines the model for filters used for OSRepositoryDataSource
 type OSRepoFilter struct {
-	Names []types.String `tfsdk:"os_repo_names"`
-	IDs   []types.String `tfsdk:"os_repo_ids"`
+	ID          []types.String `tfsdk:"id"`
+	CreatedDate []types.String `tfsdk:"created_date"`
+	ImageType   []types.String `tfsdk:"image_type"`
+	SourcePath  []types.String `tfsdk:"source_path"`
+	RazorName   []types.String `tfsdk:"razor_name"`
+	InUse       types.Bool     `tfsdk:"in_use"`
+	UserName    []types.String `tfsdk:"username"`
+	CreatedBy   []types.String `tfsdk:"created_by"`
+	Name        []types.String `tfsdk:"name"`
+	State       []types.String `tfsdk:"state"`
+	RepoType    []types.String `tfsdk:"repo_type"`
+	RCMPath     []types.String `tfsdk:"rcm_path"`
+	BaseURL     []types.String `tfsdk:"base_url"`
+	FromWeb     types.Bool     `tfsdk:"from_web"`
 }
 
 // OSRepositoryModel is the model for OS Repository Model

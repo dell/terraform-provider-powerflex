@@ -18,10 +18,10 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
+
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // OSRepositoryDatasourceSchema - variable holds schema for Os Repository Datasource
@@ -45,26 +45,7 @@ var OSRepositoryDatasourceSchema schema.Schema = schema.Schema{
 	},
 	Blocks: map[string]schema.Block{
 		"filter": schema.SingleNestedBlock{
-			Attributes: map[string]schema.Attribute{
-				"os_repo_ids": schema.SetAttribute{
-					Description:         "List of OS Repository Ids.",
-					MarkdownDescription: "List of OS Repository Ids.",
-					ElementType:         types.StringType,
-					Optional:            true,
-					Validators: []validator.Set{
-						setvalidator.SizeAtLeast(1),
-					},
-				},
-				"os_repo_names": schema.SetAttribute{
-					Description:         "List of OS Repository names.",
-					MarkdownDescription: "List of OS Repository names.",
-					ElementType:         types.StringType,
-					Optional:            true,
-					Validators: []validator.Set{
-						setvalidator.SizeAtLeast(1),
-					},
-				},
-			},
+			Attributes: helper.GenerateSchemaAttributes(helper.TypeToMap(models.OSRepoFilter{})),
 		},
 	},
 }
