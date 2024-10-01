@@ -341,6 +341,10 @@ var ComplianceReportDataPoints = getComplianceReportDataForTest()
 var OSRepoSourcePath = setDefault(globalEnvMap["POWERFLEX_OS_REPO_SOURCE_PATH"], "tfacc_os_repo_source_path")
 var OSRepoID1 = setDefault(globalEnvMap["POWERFLEX_OS_REPO_ID1"], "tfacc_os_repo_id1")
 var OSRepoName1 = setDefault(globalEnvMap["POWERFLEX_OS_REPO_NAME1"], "tfacc_os_repo_name1")
+var OSRepoState = setDefault(globalEnvMap["POWERFLEX_OS_REPO_STATE"], "available")
+var OSRepoImageType = setDefault(globalEnvMap["POWERFLEX_OS_REPO_IMAGE_TYPE"], "vmware_esxi")
+var OSRepoType = setDefault(globalEnvMap["POWERFLEX_OS_REPO_TYPE"], "ISO")
+var OSRepoCreatedBy = setDefault(globalEnvMap["POWERFLEX_OS_REPO_CREATED_BY"], "system")
 var FaultSetID = setDefault(globalEnvMap["POWERFLEX_FAULT_SET_ID"], "1EE7752911111112")
 
 func getEnvMap() map[string]string {

@@ -29,7 +29,7 @@ import (
 
 // GetOsRepositoryID gets the OS repository ID
 func GetOsRepositoryID(client *goscaleio.System, name string) (string, error) {
-	osRepos, err := client.GetAllOSRepositories()
+	osRepos, err := GetAllOsRepositories(client)
 	if err != nil {
 		return "", err
 	}
@@ -86,7 +86,7 @@ func GetAllOsRepositories(client *goscaleio.System) ([]scaleiotypes.OSRepository
 // GetOSRepositoriesByNames gets the OS Repositories filtered by names
 func GetOSRepositoriesByNames(client *goscaleio.System, names []basetypes.StringValue) ([]scaleiotypes.OSRepository, error) {
 	// Get all OS repositories from the client
-	osRepos, err := client.GetAllOSRepositories()
+	osRepos, err := GetAllOsRepositories(client)
 	if err != nil {
 		return nil, fmt.Errorf("error getting all OS repositories: %w", err)
 	}
