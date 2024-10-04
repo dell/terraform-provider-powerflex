@@ -284,6 +284,7 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 		ComplianceReportResourceGroupDataSource,
 		CompatibilityManagementDataSource,
 		OSRepositoryDataSource,
+		ReplicationConsistancyGroupDataSource,
 		NvmeHostDataSource,
 		ReplicationPairsDataSource,
 	}

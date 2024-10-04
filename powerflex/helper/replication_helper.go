@@ -69,3 +69,63 @@ func MapReplicationPairsState(pairs []scaleiotypes.ReplicationPair, state models
 		ReplicationPairDetails: mappedRps,
 	}
 }
+
+// GetReplicationConsistancyGroups GET RCGs
+func GetReplicationConsistancyGroups(client *goscaleio.Client) ([]scaleiotypes.ReplicationConsistencyGroup, error) {
+	rps := []scaleiotypes.ReplicationConsistencyGroup{}
+
+	// Get All RCGs
+	rcgs, err := client.GetReplicationConsistencyGroups()
+	if err != nil {
+		return nil, err
+	}
+	for _, val := range rcgs {
+		rps = append(rps, *val)
+	}
+
+	return rps, nil
+}
+
+// MapReplicationConsistancyGroupsState map Replication Consistancy Groups state
+func MapReplicationConsistancyGroupsState(rcgs []scaleiotypes.ReplicationConsistencyGroup, state models.ReplicationConsistancyGroupDataSourceModel) models.ReplicationConsistancyGroupDataSourceModel {
+	mappedRps := []models.ReplicationConsistancyGroupModel{}
+	for _, val := range rcgs {
+		temp := models.ReplicationConsistancyGroupModel{
+			ID:                          types.StringValue(val.ID),
+			Name:                        types.StringValue(val.Name),
+			RemoteID:                    types.StringValue(val.RemoteID),
+			RpoInSeconds:                types.Int64Value(int64(val.RpoInSeconds)),
+			ProtectionDomainID:          types.StringValue(val.ProtectionDomainID),
+			RemoteProtectionDomainID:    types.StringValue(val.RemoteProtectionDomainID),
+			DestinationSystemID:         types.StringValue(val.DestinationSystemID),
+			PeerMdmID:                   types.StringValue(val.PeerMdmID),
+			RemoteMdmID:                 types.StringValue(val.RemoteMdmID),
+			ReplicationDirection:        types.StringValue(val.ReplicationDirection),
+			CurrConsistMode:             types.StringValue(val.CurrConsistMode),
+			FreezeState:                 types.StringValue(val.FreezeState),
+			PauseMode:                   types.StringValue(val.PauseMode),
+			LifetimeState:               types.StringValue(val.LifetimeState),
+			SnapCreationInProgress:      types.BoolValue(val.SnapCreationInProgress),
+			LastSnapGroupID:             types.StringValue(val.LastSnapGroupID),
+			Type:                        types.StringValue(val.Type),
+			DisasterRecoveryState:       types.StringValue(val.DisasterRecoveryState),
+			RemoteDisasterRecoveryState: types.StringValue(val.RemoteDisasterRecoveryState),
+			TargetVolumeAccessMode:      types.StringValue(val.TargetVolumeAccessMode),
+			FailoverType:                types.StringValue(val.FailoverType),
+			FailoverState:               types.StringValue(val.FailoverState),
+			ActiveLocal:                 types.BoolValue(val.ActiveLocal),
+			ActiveRemote:                types.BoolValue(val.ActiveRemote),
+			AbstractState:               types.StringValue(val.AbstractState),
+			Error:                       types.Int64Value(int64(val.Error)),
+			LocalActivityState:          types.StringValue(val.LocalActivityState),
+			RemoteActivityState:         types.StringValue(val.RemoteActivityState),
+			InactiveReason:              types.Int64Value(int64(val.InactiveReason)),
+		}
+		mappedRps = append(mappedRps, temp)
+	}
+	return models.ReplicationConsistancyGroupDataSourceModel{
+		ID:                                 types.StringValue("replication_consistancy_group_id"),
+		ReplicationConsistancyGroupFilter:  state.ReplicationConsistancyGroupFilter,
+		ReplicationConsistancyGroupDetails: mappedRps,
+	}
+}
