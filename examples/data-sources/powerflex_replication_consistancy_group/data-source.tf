@@ -11,9 +11,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-# commands to run this tf file : terraform init && terraform applye
-# If both name and id is not provided , then it reads all the replication conistancy group
-# id and name can't be given together to fetch the replication conistancy group .
+# commands to run this tf file : terraform init && terraform apply
 
 // Empty filter block will return all the replication conistancy group
 data "powerflex_replication_consistancy_group" "rcg" {}
@@ -21,6 +19,9 @@ output "rcgResult" {
   value = data.powerflex_replication_consistancy_group.rcg
 }
 
+// If multiple filter fields are provided then it will show the intersection of all of those fields.
+// If there is no intersection between the filters then an empty datasource will be returned
+// For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 
 data "powerflex_replication_consistancy_group" "rcg_filter" {
   filter {
     # id = ["id", "id2"]

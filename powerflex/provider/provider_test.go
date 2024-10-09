@@ -346,6 +346,10 @@ var OSRepoImageType = setDefault(globalEnvMap["POWERFLEX_OS_REPO_IMAGE_TYPE"], "
 var OSRepoType = setDefault(globalEnvMap["POWERFLEX_OS_REPO_TYPE"], "ISO")
 var OSRepoCreatedBy = setDefault(globalEnvMap["POWERFLEX_OS_REPO_CREATED_BY"], "system")
 var FaultSetID = setDefault(globalEnvMap["POWERFLEX_FAULT_SET_ID"], "1EE7752911111112")
+var RpName = setDefault(globalEnvMap["POWERFLEX_RP_NAME"], "tfacc_rp_name")
+var RpSourceVolumeID = setDefault(globalEnvMap["POWERFLEX_RP_SOURCE_VOLUME_ID"], "tfacc_rp_source_volume_id")
+var RpDestinationVolumeID = setDefault(globalEnvMap["POWERFLEX_RP_DESTINATION_VOLUME_ID"], "tfacc_rp_destination_volume_id")
+var RcgID = setDefault(globalEnvMap["POWERFLEX_RCG_ID"], "tfacc_rcg_id")
 
 func getEnvMap() map[string]string {
 	envMap, err := loadEnvFile("powerflex.env")
@@ -363,6 +367,7 @@ func init() {
 			password = "%s"
 			endpoint = "%s"
 			insecure = %s
+			timeout = 120
 		}
 	`, username, password, endpoint, insecure)
 	// Set the specific TF_ACC test environment

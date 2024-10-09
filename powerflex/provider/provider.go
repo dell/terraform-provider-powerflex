@@ -312,5 +312,6 @@ func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resou
 		SystemResource,
 		NewCompatibilityManagementResource,
 		NewOsRepositoryResource,
+		ReplicationPairResource,
 	}
 }

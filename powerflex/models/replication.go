@@ -19,6 +19,27 @@ package models
 
 import "github.com/hashicorp/terraform-plugin-framework/types"
 
+// ReplicationPairResourceModel model for the replication pair
+type ReplicationPairResourceModel struct {
+	ID                                 types.String `tfsdk:"id"`
+	Name                               types.String `tfsdk:"name"`
+	RemoteID                           types.String `tfsdk:"remote_id"`
+	UserRequestedPauseTransmitInitCopy types.Bool   `tfsdk:"user_requested_pause_transmit_init_copy"`
+	RemoteCapacityInMB                 types.Int64  `tfsdk:"remote_capacity_in_mb"`
+	LocalVolumeID                      types.String `tfsdk:"local_volume_id"`
+	RemoteVolumeID                     types.String `tfsdk:"remote_volume_id"`
+	RemoteVolumeName                   types.String `tfsdk:"remote_volume_name"`
+	ReplicationConsistencyGroupID      types.String `tfsdk:"replication_consistency_group_id"`
+	CopyType                           types.String `tfsdk:"copy_type"`
+	LifetimeState                      types.String `tfsdk:"lifetime_state"`
+	PeerSystemName                     types.String `tfsdk:"peer_system_name"`
+	InitialCopyState                   types.String `tfsdk:"initial_copy_state"`
+	InitialCopyPriority                types.Int64  `tfsdk:"initial_copy_priority"`
+	SourceVolumeID                     types.String `tfsdk:"source_volume_id"`
+	DestinationVolumeID                types.String `tfsdk:"destination_volume_id"`
+	PauseCopy                          types.Bool   `tfsdk:"pause_initial_copy"`
+}
+
 // ReplicationPairModel model for the replication pair
 type ReplicationPairModel struct {
 	ID                                 types.String `tfsdk:"id"`
