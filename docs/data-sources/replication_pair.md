@@ -31,9 +31,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-# commands to run this tf file : terraform init && terraform applye
-# If both name and id is not provided , then it reads all the replication pairs
-# id and name can't be given together to fetch the replication pairs .
+# commands to run this tf file : terraform init && terraform apply
 
 // Empty filter block will return all the replication pairs
 data "powerflex_replication_pair" "rp" {}
@@ -41,6 +39,9 @@ output "rpResult" {
   value = data.powerflex_replication_pair.rp
 }
 
+// If multiple filter fields are provided then it will show the intersection of all of those fields.
+// If there is no intersection between the filters then an empty datasource will be returned
+// For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 
 data "powerflex_replication_pair" "rp_filter" {
   filter {
     # id = ["id", "id2"]

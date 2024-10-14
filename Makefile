@@ -54,7 +54,7 @@ test: check
 
 check:
 	terraform fmt -recursive examples/
-	gofmt -s -w .
+	go fmt ./...
 	golangci-lint run --fix --timeout 5m
 	go vet
 
@@ -71,3 +71,6 @@ cover:
 	rm -f coverage.*
 	go test -coverprofile=coverage.out ./...
 	go tool cover -html coverage.out -o coverage.html
+
+format:
+	go fmt ./...

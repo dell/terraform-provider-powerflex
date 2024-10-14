@@ -41,6 +41,57 @@ func GetReplicationPairs(client *goscaleio.Client) ([]scaleiotypes.ReplicationPa
 	return rps, nil
 }
 
+// CreateReplicationPair POST replication pair
+func CreateReplicationPair(client *goscaleio.Client, plan models.ReplicationPairResourceModel) (string, error) {
+	rp := &scaleiotypes.QueryReplicationPair{
+		Name:                          plan.Name.ValueString(),
+		SourceVolumeID:                plan.SourceVolumeID.ValueString(),
+		DestinationVolumeID:           plan.DestinationVolumeID.ValueString(),
+		ReplicationConsistencyGroupID: plan.ReplicationConsistencyGroupID.ValueString(),
+		// OnlineCopy is the only supported copy type for replication pair
+		CopyType: "OnlineCopy",
+	}
+	res, err := client.CreateReplicationPair(rp)
+	if err != nil {
+		return "", err
+	}
+	return res.ID, err
+}
+
+// PauseReplicationPair Pause initial replication pair
+func PauseReplicationPair(client *goscaleio.Client, id string) (*scaleiotypes.ReplicationPair, error) {
+	return client.PausePairInitialCopy(id)
+}
+
+// ResumeReplicationPair Resume initial replication pair
+func ResumeReplicationPair(client *goscaleio.Client, id string) (*scaleiotypes.ReplicationPair, error) {
+	return client.ResumePairInitialCopy(id)
+}
+
+// GetSpecificReplicationPair GET a replication pair
+func GetSpecificReplicationPair(client *goscaleio.Client, id string) (*scaleiotypes.ReplicationPair, error) {
+	return client.GetReplicationPair(id)
+}
+
+// MapReplicationPairState map single replication pair state
+func MapReplicationPairState(val scaleiotypes.ReplicationPair, state models.ReplicationPairResourceModel) models.ReplicationPairResourceModel {
+	state.ID = types.StringValue(val.ID)
+	state.Name = types.StringValue(val.Name)
+	state.RemoteID = types.StringValue(val.RemoteID)
+	state.UserRequestedPauseTransmitInitCopy = types.BoolValue(val.UserRequestedPauseTransmitInitCopy)
+	state.RemoteCapacityInMB = types.Int64Value(int64(val.RemoteCapacityInMB))
+	state.LocalVolumeID = types.StringValue(val.LocalVolumeID)
+	state.RemoteVolumeID = types.StringValue(val.RemoteID)
+	state.RemoteVolumeName = types.StringValue(val.RemoteVolumeName)
+	state.ReplicationConsistencyGroupID = types.StringValue(val.ReplicationConsistencyGroupID)
+	state.CopyType = types.StringValue(val.LifetimeState)
+	state.LifetimeState = types.StringValue(val.CopyType)
+	state.PeerSystemName = types.StringValue(val.LifetimeState)
+	state.InitialCopyState = types.StringValue(val.InitialCopyState)
+	state.InitialCopyPriority = types.Int64Value(int64(val.InitialCopyPriority))
+	return state
+}
+
 // MapReplicationPairsState map replication pairs state
 func MapReplicationPairsState(pairs []scaleiotypes.ReplicationPair, state models.ReplicationPairDataSourceModel) models.ReplicationPairDataSourceModel {
 	mappedRps := []models.ReplicationPairModel{}
