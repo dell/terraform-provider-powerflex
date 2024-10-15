@@ -52,18 +52,17 @@ limitations under the License.
 data "powerflex_nvme_host" "example1" {
 }
 
-# Get NVMe host details using NVMe host Names
+// If multiple filter fields are provided then it will show the intersection of all of those fields.
+// If there is no intersection between the filters then an empty datasource will be returned
+// For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 
 data "powerflex_nvme_host" "example2" {
   filter {
-    names = ["name1", "name2"]
-  }
-}
-
-
-# Get NVMe host details using NVMe host IDs
-data "powerflex_nvme_host" "example3" {
-  filter {
-    ids = ["ID1", "ID2"]
+    name = ["name1", "name2"]
+    # id = ["ID1", "ID2"]
+    # nqn = ["NQN1", "NQN2"]
+    # max_num_paths = [2]
+    # max_num_sys_ports = [10]
+    # system_id = ["systemID"]
   }
 }
 
@@ -91,8 +90,12 @@ After the successful execution of above said block, We can see the output by exe
 
 Optional:
 
-- `ids` (Set of String) List of NVMe host Ids.
-- `names` (Set of String) List of NVMe host names.
+- `id` (Set of String) List of id
+- `max_num_paths` (Set of Number) List of max_num_paths
+- `max_num_sys_ports` (Set of Number) List of max_num_sys_ports
+- `name` (Set of String) List of name
+- `nqn` (Set of String) List of nqn
+- `system_id` (Set of String) List of system_id
 
 
 <a id="nestedatt--nvme_host_details"></a>

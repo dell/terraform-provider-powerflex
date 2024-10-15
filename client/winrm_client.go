@@ -239,7 +239,7 @@ func (winRMClient *WinRMClient) Init() (bool, error) {
 		errorMessage = fmt.Sprintf("Invalid Credentials %s:%d", winRMClient.Target, winRMClient.Port)
 	}
 
-	return false, fmt.Errorf(errorMessage)
+	return false, fmt.Errorf("%s", errorMessage)
 }
 
 // newCopyClient creates a new copy client

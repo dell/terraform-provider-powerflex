@@ -92,7 +92,7 @@ func GetMdmIPList(mdmDetails *goscaleio_types.MdmCluster) []string {
 
 	var ipmap []string
 
-	if mdmDetails.VirtualIPs != nil && len(mdmDetails.VirtualIPs) > 0 {
+	if len(mdmDetails.VirtualIPs) > 0 {
 		ipmap = mdmDetails.VirtualIPs
 	} else {
 		ipmap = mdmDetails.PrimaryMDM.IPs

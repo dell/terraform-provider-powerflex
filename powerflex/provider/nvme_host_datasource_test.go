@@ -29,7 +29,7 @@ import (
 var nvmeHostDatasourceConfig = `
 data "powerflex_nvme_host" "nvme_host_datasource" {
 	filter {
-		names = ["nvme_acc_client1001"]
+		name = ["nvme_acc_client1001"]
 	}
 }
 `
@@ -42,7 +42,7 @@ data "powerflex_nvme_host" "nvme_host_datasource" {
 var nvmeHostDatasourceNonExistentConfig = `
 data "powerflex_nvme_host" "nvme_host_datasource" {
 	filter {
-		names = ["nvme_acc_NonExistent"]
+		name = ["nvme_acc_NonExistent"]
 	}
 }
 `

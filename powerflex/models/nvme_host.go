@@ -21,31 +21,35 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// NvmeHostResource is the model for NvmeHost Resource
-type NvmeHostResource struct {
+// NvmeHostResourceModel is the model for NvmeHost Resource
+type NvmeHostResourceModel struct {
 	ID             types.String `tfsdk:"id"`
 	Name           types.String `tfsdk:"name"`
-	SystemID       types.String `tfsdk:"system_id"`
+	SystemID       types.String `tfsdk:"system_id" json:"systemId"`
 	Nqn            types.String `tfsdk:"nqn"`
-	MaxNumPaths    types.String `tfsdk:"max_num_paths"`
-	MaxNumSysPorts types.String `tfsdk:"max_num_sys_ports"`
+	MaxNumPaths    types.Int64  `tfsdk:"max_num_paths" json:"maxNumPaths"`
+	MaxNumSysPorts types.Int64  `tfsdk:"max_num_sys_ports" json:"maxNumSysPorts"`
 }
 
 // NvmeHostDataSource defines the model for NvmeHost Datasource
 type NvmeHostDataSource struct {
-	ID      types.String    `tfsdk:"id"`
-	Details []NvmeHostModel `tfsdk:"nvme_host_details"`
-	Filter  *IDNameFilter   `tfsdk:"filter"`
+	ID      types.String              `tfsdk:"id"`
+	Details []NvmeHostDatasourceModel `tfsdk:"nvme_host_details"`
+	Filter  *NvmeHostFilter           `tfsdk:"filter"`
 }
 
-// IDNameFilter defines the model for filter IDs or Names
-type IDNameFilter struct {
-	Names []types.String `tfsdk:"names"`
-	IDs   []types.String `tfsdk:"ids"`
+// NvmeHostFilter defines the model for NvmeHost filter
+type NvmeHostFilter struct {
+	Name           []types.String `tfsdk:"name"`
+	ID             []types.String `tfsdk:"id"`
+	SystemID       []types.String `tfsdk:"system_id"`
+	Nqn            []types.String `tfsdk:"nqn"`
+	MaxNumPaths    []types.Int64  `tfsdk:"max_num_paths"`
+	MaxNumSysPorts []types.Int64  `tfsdk:"max_num_sys_ports"`
 }
 
-// NvmeHostModel is the model for NVMe host
-type NvmeHostModel struct {
+// NvmeHostDatasourceModel is the datasource model for NVMe host
+type NvmeHostDatasourceModel struct {
 	ID             types.String `tfsdk:"id"`
 	Name           types.String `tfsdk:"name"`
 	SystemID       types.String `tfsdk:"system_id"`

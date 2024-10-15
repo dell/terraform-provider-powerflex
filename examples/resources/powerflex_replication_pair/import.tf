@@ -29,16 +29,16 @@ data "powerflex_replication_pair" "existing" {
 
 // Import all of the replication pairs
 import {
-    for_each = data.powerflex_replication_pair.existing.replication_pair_details
-    to = powerflex_replication_pair.this[each.key]
-    id = each.value.id
+  for_each = data.powerflex_replication_pair.existing.replication_pair_details
+  to       = powerflex_replication_pair.this[each.key]
+  id       = each.value.id
 }
 
 // Add them to the terraform state
 resource "powerflex_replication_pair" "this" {
-    count = length(data.powerflex_replication_pair.existing.replication_pair_details)
-    name = data.powerflex_replication_pair.existing.replication_pair_details[count.index].name
-    source_volume_id = data.powerflex_replication_pair.existing.replication_pair_details[count.index].local_volume_id
-    destination_volume_id = data.powerflex_replication_pair.existing.replication_pair_details[count.index].remote_volume_id
-    replication_consistency_group_id = data.powerflex_replication_pair.existing.replication_pair_details[count.index].replication_consistency_group_id
+  count                            = length(data.powerflex_replication_pair.existing.replication_pair_details)
+  name                             = data.powerflex_replication_pair.existing.replication_pair_details[count.index].name
+  source_volume_id                 = data.powerflex_replication_pair.existing.replication_pair_details[count.index].local_volume_id
+  destination_volume_id            = data.powerflex_replication_pair.existing.replication_pair_details[count.index].remote_volume_id
+  replication_consistency_group_id = data.powerflex_replication_pair.existing.replication_pair_details[count.index].replication_consistency_group_id
 }

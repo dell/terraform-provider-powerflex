@@ -18,21 +18,21 @@ limitations under the License.
 terraform {
   required_providers {
     powerflex = {
-      source  = "registry.terraform.io/dell/powerflex"
+      source = "registry.terraform.io/dell/powerflex"
     }
   }
 }
 
 variable "username" {
-  type        = string
+  type = string
 }
 
 variable "password" {
-  type        = string
+  type = string
 }
 
 variable "endpoint" {
-  type        = string
+  type = string
 }
 
 provider "powerflex" {
