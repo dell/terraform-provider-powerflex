@@ -137,6 +137,28 @@ func GetReplicationConsistancyGroups(client *goscaleio.Client) ([]scaleiotypes.R
 	return rps, nil
 }
 
+// GetSpecificReplicationConsistencyGroup GET a specific RCG
+func GetSpecificReplicationConsistencyGroup(client *goscaleio.Client, id string) (*scaleiotypes.ReplicationConsistencyGroup, error) {
+	return client.GetReplicationConsistencyGroupByID(id)
+}
+
+// CreateReplicationConsistencyGroup POST replication consistency group
+func CreateReplicationConsistencyGroup(client *goscaleio.Client, plan models.ReplicationConsistancyGroupModel) (string, error) {
+	rcg := scaleiotypes.ReplicationConsistencyGroupCreatePayload{
+		Name:                     plan.Name.ValueString(),
+		RpoInSeconds:             plan.RpoInSeconds.String(),
+		ProtectionDomainID:       plan.ProtectionDomainID.ValueString(),
+		RemoteProtectionDomainID: plan.RemoteProtectionDomainID.ValueString(),
+		DestinationSystemID:      plan.DestinationSystemID.ValueString(),
+		PeerMdmID:                plan.PeerMdmID.ValueString(),
+	}
+	res, err := client.CreateReplicationConsistencyGroup(&rcg)
+	if err != nil {
+		return "", err
+	}
+	return res.ID, err
+}
+
 // MapReplicationConsistancyGroupsState map Replication Consistancy Groups state
 func MapReplicationConsistancyGroupsState(rcgs []scaleiotypes.ReplicationConsistencyGroup, state models.ReplicationConsistancyGroupDataSourceModel) models.ReplicationConsistancyGroupDataSourceModel {
 	mappedRps := []models.ReplicationConsistancyGroupModel{}
@@ -179,4 +201,40 @@ func MapReplicationConsistancyGroupsState(rcgs []scaleiotypes.ReplicationConsist
 		ReplicationConsistancyGroupFilter:  state.ReplicationConsistancyGroupFilter,
 		ReplicationConsistancyGroupDetails: mappedRps,
 	}
+}
+
+// MapReplicationConsistancyGroupsResourceState map Replication Consistancy Groups state
+func MapReplicationConsistancyGroupsResourceState(rcg scaleiotypes.ReplicationConsistencyGroup) models.ReplicationConsistancyGroupModel {
+	rcgMap := models.ReplicationConsistancyGroupModel{
+		ID:                          types.StringValue(rcg.ID),
+		Name:                        types.StringValue(rcg.Name),
+		RemoteID:                    types.StringValue(rcg.RemoteID),
+		RpoInSeconds:                types.Int64Value(int64(rcg.RpoInSeconds)),
+		ProtectionDomainID:          types.StringValue(rcg.ProtectionDomainID),
+		RemoteProtectionDomainID:    types.StringValue(rcg.RemoteProtectionDomainID),
+		DestinationSystemID:         types.StringValue(rcg.DestinationSystemID),
+		PeerMdmID:                   types.StringValue(rcg.PeerMdmID),
+		RemoteMdmID:                 types.StringValue(rcg.RemoteMdmID),
+		ReplicationDirection:        types.StringValue(rcg.ReplicationDirection),
+		CurrConsistMode:             types.StringValue(rcg.CurrConsistMode),
+		FreezeState:                 types.StringValue(rcg.FreezeState),
+		PauseMode:                   types.StringValue(rcg.PauseMode),
+		LifetimeState:               types.StringValue(rcg.LifetimeState),
+		SnapCreationInProgress:      types.BoolValue(rcg.SnapCreationInProgress),
+		LastSnapGroupID:             types.StringValue(rcg.LastSnapGroupID),
+		Type:                        types.StringValue(rcg.Type),
+		DisasterRecoveryState:       types.StringValue(rcg.DisasterRecoveryState),
+		RemoteDisasterRecoveryState: types.StringValue(rcg.RemoteDisasterRecoveryState),
+		TargetVolumeAccessMode:      types.StringValue(rcg.TargetVolumeAccessMode),
+		FailoverType:                types.StringValue(rcg.FailoverType),
+		FailoverState:               types.StringValue(rcg.FailoverState),
+		ActiveLocal:                 types.BoolValue(rcg.ActiveLocal),
+		ActiveRemote:                types.BoolValue(rcg.ActiveRemote),
+		AbstractState:               types.StringValue(rcg.AbstractState),
+		Error:                       types.Int64Value(int64(rcg.Error)),
+		LocalActivityState:          types.StringValue(rcg.LocalActivityState),
+		RemoteActivityState:         types.StringValue(rcg.RemoteActivityState),
+		InactiveReason:              types.Int64Value(int64(rcg.InactiveReason)),
+	}
+	return rcgMap
 }
