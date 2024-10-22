@@ -207,10 +207,10 @@ func TestAccNvmeHostResourceHelperNegative(t *testing.T) {
 						FunctionMocker.UnPatch()
 					}
 					createFuncMocker = Mock((*goscaleio.System).CreateNvmeHost).Return(&scaleiotypes.NvmeHostResp{ID: "1"}, nil).Build()
-					getFuncMocker = Mock((*goscaleio.System).GetNvmeHostByID).Return(goscaleio.NewNvmeHost(nil, &scaleiotypes.NvmeHost{
+					getFuncMocker = Mock((*goscaleio.System).GetNvmeHostByID).Return(&scaleiotypes.NvmeHost{
 						ID:   "1",
 						Name: "host",
-					}), nil).Build()
+					}, nil).Build()
 					FunctionMocker = Mock(helper.CopyFields).Return(fmt.Errorf("mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + nvmeHostResourceConfig,
