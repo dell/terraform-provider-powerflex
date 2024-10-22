@@ -16,15 +16,15 @@ limitations under the License.
 */
 
 # Source Vars
-username_source = "example_source_user"
-password_source = "example_source_password"
-endpoint_source = "example_source_endpoint"
-name = "example_replication_consistancy_group_name"
-rpo_in_seconds = 15
+username_source               = "example_source_user"
+password_source               = "example_source_password"
+endpoint_source               = "example_source_endpoint"
+name                          = "example_replication_consistancy_group_name"
+rpo_in_seconds                = 15
 source_protection_domain_name = "example_source_protection_domain"
 
 # Destination Vars
-username_destination = "example_destination_user"
-password_destination = "example_destination_password"
-endpoint_destination = "example_destination_endpoint"
+username_destination               = "example_destination_user"
+password_destination               = "example_destination_password"
+endpoint_destination               = "example_destination_endpoint"
 destination_protection_domain_name = "example_datasource_protection_domain"

@@ -17,7 +17,7 @@ limitations under the License.
 terraform {
   required_providers {
     powerflex = {
-      source  = "registry.terraform.io/dell/powerflex"
+      source = "registry.terraform.io/dell/powerflex"
     }
   }
 }
@@ -36,16 +36,16 @@ data "powerflex_replication_consistancy_group" "existing" {
 
 // Import all of the replication consistency groups
 import {
-    for_each = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details
-    to = powerflex_replication_consistency_group.this[each.key]
-    id = each.value.id
+  for_each = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details
+  to       = powerflex_replication_consistency_group.this[each.key]
+  id       = each.value.id
 }
 
 // Add them to the terraform state
 resource "powerflex_replication_consistency_group" "this" {
-    count = length(data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details)
-    name = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details[count.index].name
-    protection_domain_id = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details[count.index].protection_domain_id
-    remote_protection_domain_id = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details[count.index].remote_protection_domain_id
-    destination_system_id = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details[count.index].destination_system_id
+  count                       = length(data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details)
+  name                        = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details[count.index].name
+  protection_domain_id        = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details[count.index].protection_domain_id
+  remote_protection_domain_id = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details[count.index].remote_protection_domain_id
+  destination_system_id       = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details[count.index].destination_system_id
 }

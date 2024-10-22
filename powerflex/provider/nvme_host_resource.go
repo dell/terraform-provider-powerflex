@@ -26,11 +26,9 @@ import (
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 
 	"github.com/dell/goscaleio"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -67,9 +65,6 @@ func (r *NvmeHostResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 				MarkdownDescription: "Name of the NVMe host",
 				Optional:            true,
 				Computed:            true,
-				Validators: []validator.String{
-					stringvalidator.LengthAtLeast(1),
-				},
 			},
 			"system_id": schema.StringAttribute{
 				Description:         "The ID of the system.",
@@ -152,7 +147,7 @@ func (r *NvmeHostResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	host, err := r.system.GetNvmeHostByID(hostResp.ID)
+	host, err := helper.GetNvmeHostByID(r.system, hostResp.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("Could not read NVMe host with ID %s", hostResp.ID),
@@ -161,7 +156,7 @@ func (r *NvmeHostResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	err = helper.CopyFields(ctx, host.NvmeHost, &plan)
+	err = helper.CopyFields(ctx, host, &plan)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error creating NVMe host",
@@ -189,7 +184,7 @@ func (r *NvmeHostResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	host, err := r.system.GetNvmeHostByID(state.ID.ValueString())
+	host, err := helper.GetNvmeHostByID(r.system, state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Could not get the VNMe host Details",
@@ -198,7 +193,7 @@ func (r *NvmeHostResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	err = helper.CopyFieldsToNonNestedModel(ctx, host.NvmeHost, &state)
+	err = helper.CopyFieldsToNonNestedModel(ctx, host, &state)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error reading NVMe host",
@@ -279,7 +274,7 @@ func (r *NvmeHostResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
-	err = helper.CopyFieldsToNonNestedModel(ctx, host.NvmeHost, &state)
+	err = helper.CopyFieldsToNonNestedModel(ctx, host, &state)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error reading NVMe host",

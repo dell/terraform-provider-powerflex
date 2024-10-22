@@ -18,14 +18,14 @@ limitations under the License.
 terraform {
   required_providers {
     powerflex = {
-      source  = "registry.terraform.io/dell/powerflex"
-      configuration_aliases = [ powerflex.source, powerflex.destination ]
+      source                = "registry.terraform.io/dell/powerflex"
+      configuration_aliases = [powerflex.source, powerflex.destination]
     }
   }
 }
 
 provider "powerflex" {
-  alias = "source"
+  alias    = "source"
   username = var.username_source
   password = var.password_source
   endpoint = var.endpoint_source
@@ -34,7 +34,7 @@ provider "powerflex" {
 }
 
 provider "powerflex" {
-  alias = "destination"
+  alias    = "destination"
   username = var.username_destination
   password = var.password_destination
   endpoint = var.endpoint_destination
@@ -44,12 +44,12 @@ provider "powerflex" {
 
 data "powerflex_protection_domain" "source_protection_domain" {
   provider = powerflex.source
-  name = var.source_protection_domain_name
+  name     = var.source_protection_domain_name
 }
 
 data "powerflex_protection_domain" "destination_protection_domain" {
   provider = powerflex.destination
-  name =  var.destination_protection_domain_name
+  name     = var.destination_protection_domain_name
 }
 
 resource "powerflex_replication_consistency_group" "example" {
