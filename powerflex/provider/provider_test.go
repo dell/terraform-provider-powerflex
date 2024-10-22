@@ -350,6 +350,9 @@ var RpName = setDefault(globalEnvMap["POWERFLEX_RP_NAME"], "tfacc_rp_name")
 var RpSourceVolumeID = setDefault(globalEnvMap["POWERFLEX_RP_SOURCE_VOLUME_ID"], "tfacc_rp_source_volume_id")
 var RpDestinationVolumeID = setDefault(globalEnvMap["POWERFLEX_RP_DESTINATION_VOLUME_ID"], "tfacc_rp_destination_volume_id")
 var RcgID = setDefault(globalEnvMap["POWERFLEX_RCG_ID"], "tfacc_rcg_id")
+var SourceProtectionDomainID = setDefault(globalEnvMap["POWERFLEX_SOURCE_PROTECTION_DOMAIN_ID"], "tfacc_source_protection_domain_id")
+var RemoteProtectionDomainID = setDefault(globalEnvMap["POWERFLEX_REMOTE_PROTECTION_DOMAIN_ID"], "tfacc_remote_protection_domain_id")
+var DestinationSystemID = setDefault(globalEnvMap["POWERFLEX_DESTINATION_SYSTEM_ID"], "tfacc_destination_system_id")
 
 func getEnvMap() map[string]string {
 	envMap, err := loadEnvFile("powerflex.env")
