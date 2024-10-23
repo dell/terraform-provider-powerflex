@@ -18,9 +18,11 @@ limitations under the License.
 package helper
 
 import (
+	"fmt"
 	"terraform-provider-powerflex/powerflex/models"
 
 	"github.com/dell/goscaleio"
+
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -137,6 +139,27 @@ func GetReplicationConsistancyGroups(client *goscaleio.Client) ([]scaleiotypes.R
 	return rps, nil
 }
 
+// GetSpecificReplicationConsistencyGroup GET a specific RCG
+func GetSpecificReplicationConsistencyGroup(client *goscaleio.Client, id string) (*scaleiotypes.ReplicationConsistencyGroup, error) {
+	return client.GetReplicationConsistencyGroupByID(id)
+}
+
+// CreateReplicationConsistencyGroup POST replication consistency group
+func CreateReplicationConsistencyGroup(client *goscaleio.Client, plan models.ReplicationConsistancyGroupModel) (string, error) {
+	rcg := scaleiotypes.ReplicationConsistencyGroupCreatePayload{
+		Name:                     plan.Name.ValueString(),
+		RpoInSeconds:             plan.RpoInSeconds.String(),
+		ProtectionDomainID:       plan.ProtectionDomainID.ValueString(),
+		RemoteProtectionDomainID: plan.RemoteProtectionDomainID.ValueString(),
+		DestinationSystemID:      plan.DestinationSystemID.ValueString(),
+	}
+	res, err := client.CreateReplicationConsistencyGroup(&rcg)
+	if err != nil {
+		return "", err
+	}
+	return res.ID, err
+}
+
 // MapReplicationConsistancyGroupsState map Replication Consistancy Groups state
 func MapReplicationConsistancyGroupsState(rcgs []scaleiotypes.ReplicationConsistencyGroup, state models.ReplicationConsistancyGroupDataSourceModel) models.ReplicationConsistancyGroupDataSourceModel {
 	mappedRps := []models.ReplicationConsistancyGroupModel{}
@@ -179,4 +202,137 @@ func MapReplicationConsistancyGroupsState(rcgs []scaleiotypes.ReplicationConsist
 		ReplicationConsistancyGroupFilter:  state.ReplicationConsistancyGroupFilter,
 		ReplicationConsistancyGroupDetails: mappedRps,
 	}
+}
+
+// MapReplicationConsistancyGroupsResourceState map Replication Consistancy Groups state
+func MapReplicationConsistancyGroupsResourceState(rcg scaleiotypes.ReplicationConsistencyGroup, state models.ReplicationConsistancyGroupModel) models.ReplicationConsistancyGroupModel {
+	rcgMap := models.ReplicationConsistancyGroupModel{
+		ID:                          types.StringValue(rcg.ID),
+		Name:                        types.StringValue(rcg.Name),
+		RemoteID:                    types.StringValue(rcg.RemoteID),
+		RpoInSeconds:                state.RpoInSeconds,
+		ProtectionDomainID:          types.StringValue(rcg.ProtectionDomainID),
+		RemoteProtectionDomainID:    types.StringValue(rcg.RemoteProtectionDomainID),
+		DestinationSystemID:         state.DestinationSystemID,
+		PeerMdmID:                   types.StringValue(rcg.PeerMdmID),
+		RemoteMdmID:                 types.StringValue(rcg.RemoteMdmID),
+		ReplicationDirection:        types.StringValue(rcg.ReplicationDirection),
+		CurrConsistMode:             state.CurrConsistMode,
+		FreezeState:                 state.FreezeState,
+		PauseMode:                   state.PauseMode,
+		LifetimeState:               types.StringValue(rcg.LifetimeState),
+		SnapCreationInProgress:      types.BoolValue(rcg.SnapCreationInProgress),
+		LastSnapGroupID:             types.StringValue(rcg.LastSnapGroupID),
+		Type:                        types.StringValue(rcg.Type),
+		DisasterRecoveryState:       types.StringValue(rcg.DisasterRecoveryState),
+		RemoteDisasterRecoveryState: types.StringValue(rcg.RemoteDisasterRecoveryState),
+		TargetVolumeAccessMode:      state.TargetVolumeAccessMode,
+		FailoverType:                types.StringValue(rcg.FailoverType),
+		FailoverState:               types.StringValue(rcg.FailoverState),
+		ActiveLocal:                 types.BoolValue(rcg.ActiveLocal),
+		ActiveRemote:                types.BoolValue(rcg.ActiveRemote),
+		AbstractState:               types.StringValue(rcg.AbstractState),
+		Error:                       types.Int64Value(int64(rcg.Error)),
+		LocalActivityState:          state.LocalActivityState,
+		RemoteActivityState:         types.StringValue(rcg.RemoteActivityState),
+		InactiveReason:              types.Int64Value(int64(rcg.InactiveReason)),
+	}
+	return rcgMap
+}
+
+// RCGUpdates Update the RCG
+func RCGUpdates(client *goscaleio.Client, state models.ReplicationConsistancyGroupModel, plan models.ReplicationConsistancyGroupModel) error {
+	rcgClient := goscaleio.NewReplicationConsistencyGroup(client)
+	rcgClient.ReplicationConsistencyGroup.ID = state.ID.ValueString()
+	// Update RPO
+	if state.RpoInSeconds.ValueInt64() != plan.RpoInSeconds.ValueInt64() {
+		rpoErr := rcgClient.SetRPOOnReplicationGroup(scaleiotypes.SetRPOReplicationConsistencyGroup{
+			RpoInSeconds: fmt.Sprint(plan.RpoInSeconds.ValueInt64()),
+		})
+		if rpoErr != nil {
+			return rpoErr
+		}
+	}
+
+	// Update Activity State
+	if state.LocalActivityState.ValueString() != plan.LocalActivityState.ValueString() {
+		if plan.LocalActivityState.ValueString() == "Active" {
+			activateErr := rcgClient.ExecuteActivateOnReplicationGroup()
+			if activateErr != nil {
+				return activateErr
+			}
+		} else {
+			inactivateErr := rcgClient.ExecuteTerminateOnReplicationGroup()
+			if inactivateErr != nil {
+				return inactivateErr
+			}
+		}
+
+	}
+
+	// Update Access Mode
+	if state.TargetVolumeAccessMode.ValueString() != plan.TargetVolumeAccessMode.ValueString() {
+		vamErr := rcgClient.SetTargetVolumeAccessModeOnReplicationGroup(scaleiotypes.SetTargetVolumeAccessModeOnReplicationGroup{
+			TargetVolumeAccessMode: plan.TargetVolumeAccessMode.ValueString(),
+		})
+		if vamErr != nil {
+			return vamErr
+		}
+	}
+
+	// Update Pause Mode
+	if state.PauseMode.ValueString() != plan.PauseMode.ValueString() {
+		if plan.PauseMode.ValueString() == "Pause" {
+			pauseModeErr := rcgClient.ExecutePauseOnReplicationGroup()
+			if pauseModeErr != nil {
+				return pauseModeErr
+			}
+		} else {
+			resumeModeErr := rcgClient.ExecuteResumeOnReplicationGroup()
+			if resumeModeErr != nil {
+				return resumeModeErr
+			}
+		}
+	}
+
+	// Update Freeze State
+	if state.FreezeState.ValueString() != plan.FreezeState.ValueString() {
+		if plan.FreezeState.ValueString() == "Frozen" {
+			freezeErr := rcgClient.FreezeReplicationConsistencyGroup(state.ID.ValueString())
+			if freezeErr != nil {
+				return freezeErr
+			}
+		} else {
+			unfreezeErr := rcgClient.UnfreezeReplicationConsistencyGroup()
+			if unfreezeErr != nil {
+				return unfreezeErr
+			}
+		}
+	}
+
+	// Update Consistency Mode
+	if plan.CurrConsistMode.ValueString() != state.CurrConsistMode.ValueString() {
+		if plan.CurrConsistMode.ValueString() == "Consistent" {
+			consistentErr := rcgClient.ExecuteConsistentOnReplicationGroup()
+			if consistentErr != nil {
+				return consistentErr
+			}
+		} else {
+			inconsistentErr := rcgClient.ExecuteInconsistentOnReplicationGroup()
+			if inconsistentErr != nil {
+				return inconsistentErr
+			}
+		}
+	}
+
+	// Update Name
+	if state.Name.ValueString() != plan.Name.ValueString() {
+		nameErr := rcgClient.SetNewNameOnReplicationGroup(scaleiotypes.SetNewNameOnReplicationGroup{
+			NewName: plan.Name.ValueString(),
+		})
+		if nameErr != nil {
+			return nameErr
+		}
+	}
+	return nil
 }

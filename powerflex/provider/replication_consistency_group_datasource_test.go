@@ -58,7 +58,7 @@ data "powerflex_replication_consistancy_group" "rcg" {
 var ReplicationConsistanceGroupReadFilterMultiple = `
 data "powerflex_replication_consistancy_group" "rcg" {
     filter {
-        name = ["rcg-name-1", "rcg-name-2"]
+        name = ["tftest-rcg", "rcg-name-2"]
         inactive_reason = [11]
     }
 }
@@ -115,7 +115,7 @@ func TestAccDatasourceReplicationConsistanceGroup(t *testing.T) {
 				Config: ProviderConfigForTesting + ReplicationConsistanceGroupReadFilterMultiple,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_replication_consistancy_group.rcg", "replication_consistency_group_details.0.inactive_reason", "11"),
-					resource.TestCheckResourceAttr("data.powerflex_replication_consistancy_group.rcg", "replication_consistency_group_details.0.name", "rcg-name-1"),
+					resource.TestCheckResourceAttr("data.powerflex_replication_consistancy_group.rcg", "replication_consistency_group_details.0.name", "tftest-rcg"),
 					resource.TestCheckResourceAttr("data.powerflex_replication_consistancy_group.rcg", "replication_consistency_group_details.1.inactive_reason", "11"),
 					resource.TestCheckResourceAttr("data.powerflex_replication_consistancy_group.rcg", "replication_consistency_group_details.1.name", "rcg-name-2"),
 				),
