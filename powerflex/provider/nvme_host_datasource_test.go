@@ -17,10 +17,12 @@ package provider
 
 import (
 	"fmt"
-	"github.com/dell/goscaleio"
 	"regexp"
 	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
+
+	"github.com/dell/goscaleio"
+	goscaleio_types "github.com/dell/goscaleio/types/v1"
 
 	. "github.com/bytedance/mockey"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -59,12 +61,37 @@ func TestAccDatasourceNvmeHost(t *testing.T) {
 				),
 			},
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.System).GetAllNvmeHosts).Return([]goscaleio_types.NvmeHost{
+						{ID: "mock-id", HostType: "NVMeHost", SystemID: "mock-system-id", Name: "", Nqn: "mock-nqn", MaxNumPaths: 4, MaxNumSysPorts: 10},
+					}, nil).Build()
+				},
+				Config: ProviderConfigForTesting + nvmeHostDatasourceNoFilterConfig,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_nvme_host.nvme_host_datasource", "nvme_host_details.#", "1"),
+					resource.TestCheckResourceAttr("data.powerflex_nvme_host.nvme_host_datasource", "nvme_host_details.0.name", "NVMeHost:mock-id"),
+				),
+			},
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
 				Config: ProviderConfigForTesting + nvmeHostDatasourceNonExistentConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_nvme_host.nvme_host_datasource", "nvme_host_details.#", "0"),
 				),
 			},
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
 				Config: ProviderConfigForTesting + nvmeHostDatasourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_nvme_host.nvme_host_datasource", "nvme_host_details.0.name", "nvme_acc_client1001"),

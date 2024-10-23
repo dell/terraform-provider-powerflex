@@ -18,8 +18,10 @@ limitations under the License.
 package helper
 
 import (
+	"fmt"
 	"terraform-provider-powerflex/powerflex/models"
 
+	"github.com/dell/goscaleio"
 	goscaleio_types "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -41,4 +43,36 @@ func GetNvmeHostState(host goscaleio_types.NvmeHost) models.NvmeHostDatasourceMo
 		})
 	}
 	return model
+}
+
+// setNvmeHostName sets the name of the NVMe host.
+// If the name is empty, it will be set to the host type + ID
+func setNvmeHostName(host *goscaleio_types.NvmeHost) {
+	if len(host.Name) == 0 {
+		host.Name = fmt.Sprintf("%s:%s", host.HostType, host.ID)
+	}
+}
+
+// GetNvmeHostByID returns an NVMe host by id
+func GetNvmeHostByID(system *goscaleio.System, id string) (*goscaleio_types.NvmeHost, error) {
+	host, err := system.GetNvmeHostByID(id)
+	if err != nil {
+		return host, err
+	}
+	setNvmeHostName(host)
+	return host, nil
+}
+
+// GetAllNvmeHosts returns all NvmeHost list
+func GetAllNvmeHosts(system *goscaleio.System) ([]goscaleio_types.NvmeHost, error) {
+	hosts, err := system.GetAllNvmeHosts()
+	if err != nil {
+		return hosts, err
+	}
+
+	for i := range hosts {
+		setNvmeHostName(&hosts[i])
+	}
+
+	return hosts, nil
 }

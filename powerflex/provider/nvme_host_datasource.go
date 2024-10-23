@@ -92,7 +92,7 @@ func (d *nvmeHostDataSource) Read(ctx context.Context, req datasource.ReadReques
 		return
 	}
 
-	nvmeHosts, err := system.GetAllNvmeHosts()
+	nvmeHosts, err := helper.GetAllNvmeHosts(system)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Read Powerflex NVMe Hosts",
