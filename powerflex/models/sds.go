@@ -94,11 +94,11 @@ type SdsWindow struct {
 type CertificateInfoModel struct {
 	Subject             types.String `tfsdk:"subject"`
 	Issuer              types.String `tfsdk:"issuer"`
-	ValidFrom           types.String `tfsdk:"valid_from"`
-	ValidTo             types.String `tfsdk:"valid_to"`
+	ValidFrom           types.String `tfsdk:"valid_from" json:"validFrom"`
+	ValidTo             types.String `tfsdk:"valid_to" json:"validTo"`
 	Thumbprint          types.String `tfsdk:"thumbprint"`
-	ValidFromAsn1Format types.String `tfsdk:"valid_from_asn1_format"`
-	ValidToAsn1Format   types.String `tfsdk:"valid_to_asn1_format"`
+	ValidFromAsn1Format types.String `tfsdk:"valid_from_asn1_format" json:"validFromAsn1Format"`
+	ValidToAsn1Format   types.String `tfsdk:"valid_to_asn1_format" json:"validToAsn1Format"`
 }
 
 // RaidControllersModel defines struct for RAID controller

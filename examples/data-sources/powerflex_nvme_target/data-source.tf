@@ -17,24 +17,33 @@ limitations under the License.
 
 # commands to run this tf file : terraform init && terraform apply --auto-approve
 
-# Get all NVMe host details present on the cluster
-data "powerflex_nvme_host" "example1" {
+# Get all NVMe target details present on the cluster
+data "powerflex_nvme_target" "example1" {
 }
 
 // If multiple filter fields are provided then it will show the intersection of all of those fields.
 // If there is no intersection between the filters then an empty datasource will be returned
 // For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 
-data "powerflex_nvme_host" "example2" {
+data "powerflex_nvme_target" "example" {
   filter {
     name = ["name1", "name2"]
-    # id                = ["ID1", "ID2"]
-    # nqn               = ["NQN1", "NQN2"]
-    # max_num_paths     = [2]
-    # max_num_sys_ports = [10]
-    # system_id         = ["systemID"]
+    # id                                   = ["ID1", "ID2"]
+    # protection_domain_id                 = ["PD1", "PD2"]
+    # storage_port                         = [12200]
+    # nvme_port                            = [4420]
+    # discovery_port                       = [8009]
+    # sdt_state                            = ["Normal"]
+    # mdm_connection_state                 = ["Connected"]
+    # membership_state                     = ["Joined"]
+    # fault_set_id                         = ["FS1"]
+    # software_version_info                = ["Version"]
+    # maintenance_state                    = ["NoMaintenance"]
+    # authentication_error                 = ["None"]
+    # persistent_discovery_controllers_num = [0]
+    # system_id                            = ["systemID"]
   }
 }
 
-output "nvme_host_result" {
-  value = data.powerflex_nvme_host.example1
+output "nvme_target_result" {
+  value = data.powerflex_nvme_target.example
 }

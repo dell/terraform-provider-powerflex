@@ -58,11 +58,11 @@ data "powerflex_nvme_host" "example1" {
 data "powerflex_nvme_host" "example2" {
   filter {
     name = ["name1", "name2"]
-    # id = ["ID1", "ID2"]
-    # nqn = ["NQN1", "NQN2"]
-    # max_num_paths = [2]
+    # id                = ["ID1", "ID2"]
+    # nqn               = ["NQN1", "NQN2"]
+    # max_num_paths     = [2]
     # max_num_sys_ports = [10]
-    # system_id = ["systemID"]
+    # system_id         = ["systemID"]
   }
 }
 
