@@ -18,14 +18,230 @@ limitations under the License.
 package helper
 
 import (
+	"context"
 	"fmt"
+	"reflect"
+	"strings"
+	sshClient "terraform-provider-powerflex/client"
 	"terraform-provider-powerflex/powerflex/models"
 
 	"github.com/dell/goscaleio"
 
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
+
+// GetPeerSystem GET peer system
+func GetPeerSystem(client *goscaleio.Client, peerSystemID string) (*scaleiotypes.PeerMDM, error) {
+	return client.GetPeerMDM(peerSystemID)
+}
+
+// MapPeerSystemResourceState map peer system state
+func MapPeerSystemResourceState(peerSystem scaleiotypes.PeerMDM, state models.PeerMdmResourceModel) models.PeerMdmResourceModel {
+	return models.PeerMdmResourceModel{
+		ID:                        types.StringValue(peerSystem.ID),
+		Name:                      state.Name,
+		Port:                      state.Port,
+		PeerSystemID:              state.PeerSystemID,
+		SystemID:                  types.StringValue(peerSystem.SystemID),
+		SoftwareVersionInfo:       types.StringValue(peerSystem.SoftwareVersionInfo),
+		MembershipState:           types.StringValue(peerSystem.MembershipState),
+		PerfProfile:               state.PerfProfile,
+		NetworkType:               types.StringValue(peerSystem.NetworkType),
+		CouplingRC:                types.StringValue(peerSystem.CouplingRC),
+		IPList:                    state.IPList,
+		AddCertificate:            state.AddCertificate,
+		DestinationPrimaryMdmInfo: fillInPrimaryMdmInfo(state.DestinationPrimaryMdmInfo),
+		SourcePrimaryMdmInfo:      fillInPrimaryMdmInfo(state.SourcePrimaryMdmInfo),
+	}
+}
+
+// Fill in the Primary Mdm Info, if empty fill in the object with null values
+func fillInPrimaryMdmInfo(info basetypes.ObjectValue) basetypes.ObjectValue {
+	if info.IsUnknown() {
+		val, _ := types.ObjectValue(map[string]attr.Type{
+			"ip":                  types.StringType,
+			"ssh_username":        types.StringType,
+			"ssh_password":        types.StringType,
+			"ssh_port":            types.StringType,
+			"management_ip":       types.StringType,
+			"management_username": types.StringType,
+			"management_password": types.StringType,
+		}, map[string]attr.Value{
+			"ip":                  types.StringValue(""),
+			"ssh_username":        types.StringValue(""),
+			"ssh_password":        types.StringValue(""),
+			"ssh_port":            types.StringValue(""),
+			"management_ip":       types.StringValue(""),
+			"management_username": types.StringValue(""),
+			"management_password": types.StringValue(""),
+		})
+		return val
+	}
+	return info
+}
+
+// CreatePeerSystem POST peer system
+func CreatePeerSystem(client *goscaleio.Client, plan models.PeerMdmResourceModel) (string, error) {
+	var ipList []string
+	for _, val := range plan.IPList {
+		ipList = append(ipList, val.ValueString())
+	}
+	value, err := client.AddPeerMdm(&scaleiotypes.AddPeerMdm{
+		PeerSystemID:  plan.PeerSystemID.ValueString(),
+		Port:          fmt.Sprint(plan.Port.ValueInt64()),
+		Name:          plan.Name.ValueString(),
+		PeerSystemIps: ipList,
+	})
+
+	if err != nil {
+		return "", err
+	}
+	return value.ID, err
+}
+
+// PeerSystemUpdate update the different values of the peer system
+func PeerSystemUpdate(client *goscaleio.Client, state models.PeerMdmResourceModel, plan models.PeerMdmResourceModel) error {
+
+	// Rename
+	if state.Name.ValueString() != plan.Name.ValueString() {
+		errRename := client.ModifyPeerMdmName(state.ID.ValueString(), &scaleiotypes.ModifyPeerMDMNameParam{
+			NewName: plan.Name.ValueString(),
+		})
+		if errRename != nil {
+			return errRename
+		}
+	}
+
+	// Update IP List
+	if !reflect.DeepEqual(state.IPList, plan.IPList) {
+		var localIPList []string
+		for _, ip := range plan.IPList {
+			localIPList = append(localIPList, ip.ValueString())
+		}
+
+		errIP := client.ModifyPeerMdmIP(state.ID.ValueString(), localIPList)
+		if errIP != nil {
+			return errIP
+		}
+	}
+
+	// Update Port
+	if state.Port != plan.Port {
+		errPort := client.ModifyPeerMdmPort(state.ID.ValueString(), &scaleiotypes.ModifyPeerMDMPortParam{
+			NewPort: fmt.Sprint(plan.Port.ValueInt64()),
+		})
+		if errPort != nil {
+			return errPort
+		}
+	}
+
+	if state.PerfProfile != plan.PerfProfile {
+		errPerf := client.ModifyPeerMdmPerformanceParameters(state.ID.ValueString(), &scaleiotypes.ModifyPeerMdmPerformanceParametersParam{
+			NewPreformanceProfile: plan.PerfProfile.ValueString(),
+		})
+		if errPerf != nil {
+			return errPerf
+		}
+	}
+	return nil
+}
+
+// AddCertificate POST peer system
+func AddCertificate(ctx context.Context, client *goscaleio.Client, plan models.PeerMdmResourceModel) error {
+	var source models.PrimaryMdmInfo
+	var destination models.PrimaryMdmInfo
+	plan.DestinationPrimaryMdmInfo.As(ctx, &destination, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
+	plan.SourcePrimaryMdmInfo.As(ctx, &source, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
+	// Create the destination ssh client
+	destProv, createSSHClientDestErr := sshClient.NewSSHProvisioner(sshClient.SSHProvisionerConfig{
+		Port:     destination.Port,
+		IP:       destination.IP,
+		Username: destination.Username,
+		Password: destination.Password,
+	}, &provisionerLogger{ctx: ctx})
+	// Error creating destination ssh client
+	if createSSHClientDestErr != nil {
+		return createSSHClientDestErr
+	}
+	defer destProv.Close()
+
+	// create the source ssh client
+	sourceProv, createSSHClientSourceErr := sshClient.NewSSHProvisioner(sshClient.SSHProvisionerConfig{
+		Port:     source.Port,
+		IP:       source.IP,
+		Username: source.Username,
+		Password: source.Password,
+	}, &provisionerLogger{ctx: ctx})
+	// Error creating source ssh client
+	if createSSHClientSourceErr != nil {
+		return createSSHClientSourceErr
+	}
+	defer sourceProv.Close()
+
+	// Grab the certificate from the  mdm
+	// Commands to get the certificate
+	// 1. Add local cert to login
+	// 2. Login to mdm
+	// 3. Extract root certificate
+	// 4. Copy destination cert to source mdm
+
+	// 1. Add local cert to login
+	_, addLocalCertErr := destProv.Run("scli --add_certificate --certificate_file /opt/emc/scaleio/mdm/cfg/mgmt_ca.pem")
+	if addLocalCertErr != nil {
+		return addLocalCertErr
+	}
+
+	// 2. Login to mdm
+	_, loginErr := destProv.Run(`scli --login --management_system_ip ` + destination.ManagementIP + ` --username ` + destination.ManagementUsername + ` --password ` + *destination.ManagementPassword)
+	if loginErr != nil {
+		return fmt.Errorf("Unable to login: %s", loginErr.Error())
+	}
+
+	// 3. Extract root cert
+	_, extractRootCertErr := destProv.Run(`scli --extract_root_ca --certificate_file ` + destination.ManagementIP + `_root.pem`)
+	if extractRootCertErr != nil {
+		return fmt.Errorf("Unable to extract root certificate: %s", extractRootCertErr.Error())
+	}
+
+	// 4. Copy destination cert to source mdm Example: curl --insecure --user user:pass -T ip_root.pem sftp://ip/root/ip_root.pem
+	_, scpRootCertErr := destProv.Run(`curl --insecure --user ` + source.Username + `:` + *source.Password + ` -T ` + destination.ManagementIP + `_root.pem sftp://` + source.IP + `/root/` + destination.ManagementIP + `_root.pem`)
+	if scpRootCertErr != nil {
+		return fmt.Errorf("Unable to copy from certificate from source to destination: %s", scpRootCertErr.Error())
+	}
+
+	// Go to Source MDM and add the new cert
+	// 1. Add local cert to login
+	// 2. Login to system
+	// 3. Add the new cert from the destination as a trusted cert
+
+	// 1. Add local cert to login
+	_, addLocalCertSourceErr := sourceProv.Run("scli --add_certificate --certificate_file /opt/emc/scaleio/mdm/cfg/mgmt_ca.pem")
+	if addLocalCertSourceErr != nil {
+		return addLocalCertSourceErr
+	}
+	// 2. Login to mdm
+	_, loginSourceErr := sourceProv.Run(`scli --login --management_system_ip ` + source.ManagementIP + ` --username ` + source.ManagementUsername + ` --password ` + *source.ManagementPassword)
+	if loginSourceErr != nil {
+		return fmt.Errorf("Unable to login: %s", loginSourceErr.Error())
+	}
+	// 3. Add the cert of the destination as a trusted cert
+	_, addTrustedCertErr := sourceProv.Run(`scli --add_trusted_ca --certificate_file ` + destination.ManagementIP + `_root.pem --comment "Adding Peer Mdm ` + destination.ManagementIP + `_root.pem"`)
+
+	// If the error state is equal to 7 that means the certificate is already trusted
+	// In this case we skip the error and just continue
+	if addTrustedCertErr != nil {
+		err := fmt.Sprintf("%s", addTrustedCertErr)
+		// If error string contains exit code 7 that means the certificate is already trusted and can be ignored
+		if !strings.Contains(err, "7") {
+			return fmt.Errorf("Unable to add trusted cert: %s", err)
+
+		}
+	}
+	return nil
+}
 
 // GetReplicationPairs GET replication pairs
 func GetReplicationPairs(client *goscaleio.Client) ([]scaleiotypes.ReplicationPair, error) {

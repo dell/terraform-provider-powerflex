@@ -31,21 +31,21 @@ provider "powerflex" {
 }
 
 // Get all of the exiting replication consistency groups
-data "powerflex_replication_consistancy_group" "existing" {
+data "powerflex_replication_consistancy_group" "all_current_rcgs" {
 }
 
 // Import all of the replication consistency groups
 import {
-  for_each = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details
-  to       = powerflex_replication_consistency_group.this[each.key]
-  id       = each.value.id
+    for_each = data.powerflex_replication_consistancy_group.all_current_rcgs.replication_consistency_group_details
+    to = powerflex_replication_consistency_group.imported_rcgs[each.key]
+    id = each.value.id
 }
 
 // Add them to the terraform state
-resource "powerflex_replication_consistency_group" "this" {
-  count                       = length(data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details)
-  name                        = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details[count.index].name
-  protection_domain_id        = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details[count.index].protection_domain_id
-  remote_protection_domain_id = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details[count.index].remote_protection_domain_id
-  destination_system_id       = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details[count.index].destination_system_id
+resource "powerflex_replication_consistency_group" "imported_rcgs" {
+    count = length(data.powerflex_replication_consistancy_group.all_current_rcgs.replication_consistency_group_details)
+    name = data.powerflex_replication_consistancy_group.all_current_rcgs.replication_consistency_group_details[count.index].name
+    protection_domain_id = data.powerflex_replication_consistancy_group.all_current_rcgs.replication_consistency_group_details[count.index].protection_domain_id
+    remote_protection_domain_id = data.powerflex_replication_consistancy_group.all_current_rcgs.replication_consistency_group_details[count.index].remote_protection_domain_id
+    destination_system_id = data.powerflex_replication_consistancy_group.all_current_rcgs.replication_consistency_group_details[count.index].destination_system_id
 }

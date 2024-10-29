@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"regexp"
 	"strings"
 	"time"
 
@@ -122,7 +123,13 @@ func (p *SSHProvisioner) Close() error {
 
 // Run runs ssh command
 func (p *SSHProvisioner) Run(cmd string) (string, error) {
-	p.logger.Printf("Running command: %s", cmd)
+	// Sanitize the command for possible passwords in the logs
+	re := regexp.MustCompile(`--password\s+\S+`)
+	reNext := regexp.MustCompile(`:(\S+)`)
+	sanitizedOutput := re.ReplaceAllString(cmd, "--password ****")
+	sanitizedOutput = reNext.ReplaceAllString(sanitizedOutput, ":***")
+	p.logger.Printf("Running command: %s", sanitizedOutput)
+
 	session, err := p.sshClient.NewSession()
 	if err != nil {
 		return "", fmt.Errorf("failed to create session: %w", err)
@@ -130,7 +137,7 @@ func (p *SSHProvisioner) Run(cmd string) (string, error) {
 	defer session.Close()
 	output, err := session.CombinedOutput(cmd)
 	if err != nil {
-		return string(output), fmt.Errorf("failed to run command: %w", err)
+		return string(output), fmt.Errorf("failed to run command %s: %w", sanitizedOutput, err)
 	}
 	return string(output), nil
 }
