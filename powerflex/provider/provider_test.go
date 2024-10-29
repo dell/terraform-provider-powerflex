@@ -353,6 +353,10 @@ var RcgID = setDefault(globalEnvMap["POWERFLEX_RCG_ID"], "tfacc_rcg_id")
 var SourceProtectionDomainID = setDefault(globalEnvMap["POWERFLEX_SOURCE_PROTECTION_DOMAIN_ID"], "tfacc_source_protection_domain_id")
 var RemoteProtectionDomainID = setDefault(globalEnvMap["POWERFLEX_REMOTE_PROTECTION_DOMAIN_ID"], "tfacc_remote_protection_domain_id")
 var DestinationSystemID = setDefault(globalEnvMap["POWERFLEX_DESTINATION_SYSTEM_ID"], "tfacc_destination_system_id")
+var PeerMdmName = setDefault(globalEnvMap["POWERFLEX_PEER_MDM_NAME"], "tfacc_peer_mdm_name")
+var PeerMdmID = setDefault(globalEnvMap["POWERFLEX_PEER_MDM_ID"], "tfacc_peer_mdm_id")
+var PeerMdmPort = setDefault(globalEnvMap["POWERFLEX_PEER_MDM_PORT"], "2222")
+var PeerMdmCouplingRC = setDefault(globalEnvMap["POWERFLEX_PEER_MDM_COUPLING_RC"], "tfacc_peer_mdm_coupling_rc")
 
 func getEnvMap() map[string]string {
 	envMap, err := loadEnvFile("powerflex.env")
