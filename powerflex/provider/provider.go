@@ -316,5 +316,6 @@ func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resou
 		ReplicationPairResource,
 		NewNvmeHostResource,
 		ReplicationConsistencyGroupResource,
+		PeerSystemResource,
 	}
 }
