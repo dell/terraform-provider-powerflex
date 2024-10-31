@@ -141,11 +141,6 @@ var NvmeTargetModelSchema = map[string]schema.Attribute{
 		MarkdownDescription: "The authentication error of the NVMe target.",
 		Computed:            true,
 	},
-	"persistent_discovery_controllers_num": schema.Int64Attribute{
-		Description:         "The number of persistent discovery controllers of the NVMe target.",
-		MarkdownDescription: "The number of persistent discovery controllers of the NVMe target.",
-		Computed:            true,
-	},
 	"certificate_info": schema.SingleNestedAttribute{
 		Description:         "Certificate Information.",
 		MarkdownDescription: "Certificate Information.",

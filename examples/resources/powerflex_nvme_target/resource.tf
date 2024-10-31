@@ -17,14 +17,23 @@ limitations under the License.
 
 # Command to run this tf file : terraform init && terraform plan && terraform apply.
 # Create, Update, Read, and Delete operations are supported for this resource.
-# To import , check import.sh for more info
-# nqn is the required parameter to create
+# To import , check import.sh for more info.
+# name and ip_list attributes are required, and either protection_domain_name or protection_domain_id must be specified.
 # To check which attributes can be updated, please refer Product Guide in the documentation
+# To avoid potential issues, it is recommended to operate NVMe targets using the default ports.
 
-# Example for adding NVMe host.
-resource "powerflex_nvme_host" "test-nvme-host" {
-  name              = "nvme_host_name"
-  nqn               = "nqn.2014-08.org.nvmexpress:uuid:a10e4d56-a2c0-4cab-9a0a-9a7a4ebb8c0e"
-  max_num_paths     = 4
-  max_num_sys_ports = 10
+# Example for adding NVMe target.
+resource "powerflex_nvme_target" "test-nvme-target" {
+  name                   = "nvme_target_name"
+  protection_domain_name = "demo-pd"
+  ip_list = [
+    {
+      ip   = "10.10.10.13"
+      role = "StorageAndHost" #StorageAndHost, StorageOnly, HostOnly
+    },
+    {
+      ip   = "10.10.10.14"
+      role = "StorageAndHost" #StorageAndHost, StorageOnly, HostOnly
+    }
+  ]
 }

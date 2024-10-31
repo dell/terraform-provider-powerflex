@@ -58,21 +58,21 @@ data "powerflex_replication_consistency_group" "rcg_filter" {
 }
 
 resource "powerflex_replication_consistency_group_action" "example" {
-    # Required
-    
-    # Id of the replication consistency group
-    id = data.powerflex_replication_consistency_group.rcg_filter.replication_consistency_group_details[0].id
+  # Required
 
-    # Action to be performed on the replication consistency group.
-    # Options are Failover, Restore, Sync, Reverse, Switchover and Snapshot (Default is Sync)
-    action = var.action
-      
-    // This will allow terraform create process to trigger each time we run terraform apply.
-    lifecycle {
-        replace_triggered_by = [
-            terraform_data.always_run
-        ]
-    }
+  # Id of the replication consistency group
+  id = data.powerflex_replication_consistency_group.rcg_filter.replication_consistency_group_details[0].id
+
+  # Action to be performed on the replication consistency group.
+  # Options are Failover, Restore, Sync, Reverse, Switchover and Snapshot (Default is Sync)
+  action = var.action
+
+  // This will allow terraform create process to trigger each time we run terraform apply.
+  lifecycle {
+    replace_triggered_by = [
+      terraform_data.always_run
+    ]
+  }
 }
 ```
 

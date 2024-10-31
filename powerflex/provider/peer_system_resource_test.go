@@ -174,7 +174,7 @@ resource "powerflex_peer_system" "system_1" {
 `
 
 var PeerSystemBulkImport = `
-// Get all of the exiting peer systems
+// Get all of the existing peer systems
 data "powerflex_peer_system" "all_current_peer_systems" {
 }
 // Import all of the peers

@@ -18,14 +18,14 @@ limitations under the License.
 terraform {
   required_providers {
     powerflex = {
-      source  = "registry.terraform.io/dell/powerflex"
-      configuration_aliases = [ powerflex.system_1, powerflex.system_2 ]
+      source                = "registry.terraform.io/dell/powerflex"
+      configuration_aliases = [powerflex.system_1, powerflex.system_2]
     }
   }
 }
 
 provider "powerflex" {
-  alias = "system_1"
+  alias    = "system_1"
   username = var.username_system_1
   password = var.password_system_1
   endpoint = "https://${var.endpoint_system_1}"
@@ -34,7 +34,7 @@ provider "powerflex" {
 }
 
 provider "powerflex" {
-  alias = "system_2"
+  alias    = "system_2"
   username = var.username_system_2
   password = var.password_system_2
   endpoint = "https://${var.endpoint_system_2}"
@@ -62,10 +62,10 @@ resource "powerflex_peer_system" "system_1" {
   # Peer System (System 2) ID
   peer_system_id = data.powerflex_protection_domain.protection_domain_system_2.protection_domains[0].system_id
   # List of Peer MDM Ips at the destination
-  ip_list = var.mdm_ips_system_2  
+  ip_list = var.mdm_ips_system_2
 
   ### Optional with defaults if unset
-  
+
 
   # Add certificate flag, default: false. 
   # If true source_primary_mdm_information and destination_primary_mdm_information must be filled out in order to get and set the certificate
@@ -94,7 +94,7 @@ resource "powerflex_peer_system" "system_1" {
   #   # Optional field defaults to 22
   #   #ssh_port = "22"
   # }
-  
+
   # Port of the Peer System Default: 7611
   #port = 7611
   # Sets the Performance Profile, Options (Compact, HighPerformance) Default: HighPerformance
@@ -110,10 +110,10 @@ resource "powerflex_peer_system" "system_2" {
   # Peer System (System 1) ID
   peer_system_id = data.powerflex_protection_domain.protection_domain_system_1.protection_domains[0].system_id
   # List of Peer MDM Ips at the destination
-  ip_list = var.mdm_ips_system_1  
+  ip_list = var.mdm_ips_system_1
 
   ### Optional with defaults if unset
-  
+
 
   # Add certificate flag, default: false. 
   # If true source_primary_mdm_information and destination_primary_mdm_information must be filled out in order to get and set the certificate
@@ -142,7 +142,7 @@ resource "powerflex_peer_system" "system_2" {
   #   # Optional field defaults to 22
   #   #ssh_port = "22"
   # }
-  
+
   # Port of the Peer System Default: 7611
   #port = 7611
   # Sets the Performance Profile, Options (Compact, HighPerformance) Default: HighPerformance

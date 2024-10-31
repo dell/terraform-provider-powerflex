@@ -108,7 +108,6 @@ Optional:
 - `membership_state` (Set of String) List of membership_state
 - `name` (Set of String) List of name
 - `nvme_port` (Set of Number) List of nvme_port
-- `persistent_discovery_controllers_num` (Set of Number) List of persistent_discovery_controllers_num
 - `protection_domain_id` (Set of String) List of protection_domain_id
 - `sdt_state` (Set of String) List of sdt_state
 - `software_version_info` (Set of String) List of software_version_info
@@ -134,7 +133,6 @@ Read-Only:
 - `membership_state` (String) The membership state of the NVMe target.
 - `name` (String) Name of the NVMe target
 - `nvme_port` (Number) The NVMe port of the NVMe target.
-- `persistent_discovery_controllers_num` (Number) The number of persistent discovery controllers of the NVMe target.
 - `protection_domain_id` (String) Protection Domain ID of the replicatio of the NVMe target.
 - `sdt_state` (String) The state of the NVMe target.
 - `software_version_info` (String) The software version information of the NVMe target.

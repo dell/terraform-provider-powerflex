@@ -187,7 +187,7 @@ func (r *NvmeHostResource) Read(ctx context.Context, req resource.ReadRequest, r
 	host, err := helper.GetNvmeHostByID(r.system, state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Could not get the VNMe host Details",
+			"Could not get the NVMe host Details",
 			err.Error(),
 		)
 		return

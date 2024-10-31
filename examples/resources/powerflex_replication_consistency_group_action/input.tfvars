@@ -20,4 +20,4 @@ password                           = "example_password"
 endpoint                           = "example_endpoint"
 replication_consistency_group_name = "rcg_name"
 # Options are Failover, Restore, Sync, Reverse, Switchover and Snapshot (Default is Sync)
-action                             = "Sync"
+action = "Sync"

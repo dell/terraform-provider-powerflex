@@ -26,13 +26,15 @@ description: |-
 
 {{ .Description | trimspace }}
 
+To avoid potential issues, it is recommended to operate NVMe targets using the default ports.
+
 {{ if .HasExample -}}
 ## Example Usage
 
 {{tffile .ExampleFile }}
 {{- end }}
 
-After the execution of above resource block, NVMe host would have been created on the PowerFlex array. For more information, please check the terraform state file.
+After the execution of above resource block, NVMe target would have been created on the PowerFlex array. For more information, please check the terraform state file.
 
 {{ .SchemaMarkdown | trimspace }}
 
@@ -43,7 +45,7 @@ Import is supported using the following syntax:
 
 {{codefile "shell" .ImportFile }}
 
-1. This will import the NVMe host instance with specified ID into your Terraform state.
+1. This will import the NVMe target instance with specified ID into your Terraform state.
 2. After successful import, you can run terraform state list to ensure the resource has been imported successfully.
 3. Now, you can fill in the resource block with the appropriate arguments and settings that match the imported resource's real-world configuration.
 4. Execute terraform plan to see if your configuration and the imported resource are in sync. Make adjustments if needed.

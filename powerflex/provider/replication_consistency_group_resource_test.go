@@ -80,7 +80,7 @@ resource "powerflex_replication_consistency_group" "example" {
 `
 
 var RPCBulkImport = `
-// Get all of the exiting replication consistency groups
+// Get all of the existing replication consistency groups
 data "powerflex_replication_consistency_group" "existing" {
 }
 

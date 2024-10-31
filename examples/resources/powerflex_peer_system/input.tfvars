@@ -16,16 +16,16 @@ limitations under the License.
 */
 
 # System 1 Vars
-username_system_1 = "user"
-password_system_1 = "Password"
-endpoint_system_1 = "4.4.4.4"
-name = "system_1-system_2-peerd-system"
+username_system_1               = "user"
+password_system_1               = "Password"
+endpoint_system_1               = "4.4.4.4"
+name                            = "system_1-system_2-peerd-system"
 protection_domain_name_system_1 = "example_PD"
-mdm_ips_system_1 = ["1.2.3.4","1.2.3.5","1.2.3.6"]
+mdm_ips_system_1                = ["1.2.3.4", "1.2.3.5", "1.2.3.6"]
 
 # System 2 Vars
-username_system_2 = "user"
-password_system_2 = "Password"
-endpoint_system_2 = "5.5.5.5"
+username_system_2               = "user"
+password_system_2               = "Password"
+endpoint_system_2               = "5.5.5.5"
 protection_domain_name_system_2 = "example_PD"
-mdm_ips_system_2 = ["1.2.3.4","1.2.3.5","1.2.3.6"]
+mdm_ips_system_2                = ["1.2.3.4", "1.2.3.5", "1.2.3.6"]
