@@ -23,4 +23,22 @@ const (
 
 	// DeleteIsNotSupportedErrorMsg is the Error message for delete not supported
 	DeleteIsNotSupportedErrorMsg = "Delete is not supported for this resource"
+
+	// Sync is the sync constant
+	Sync = "Sync"
+
+	// Restore is the restore constant
+	Restore = "Restore"
+
+	// Failover is the failover constant
+	Failover = "Failover"
+
+	// Reverse is the reverse constant
+	Reverse = "Reverse"
+
+	// Switchover is the switchover constant
+	Switchover = "Switchover"
+
+	// Snapshot is the snapshot constant
+	Snapshot = "Snapshot"
 )

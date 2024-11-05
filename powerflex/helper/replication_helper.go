@@ -23,6 +23,7 @@ import (
 	"reflect"
 	"strings"
 	sshClient "terraform-provider-powerflex/client"
+	"terraform-provider-powerflex/powerflex/constants"
 	"terraform-provider-powerflex/powerflex/models"
 
 	"github.com/dell/goscaleio"
@@ -551,4 +552,29 @@ func RCGUpdates(client *goscaleio.Client, state models.ReplicationConsistancyGro
 		}
 	}
 	return nil
+}
+
+// RCGDoAction do an action on the RCG
+func RCGDoAction(client *goscaleio.Client, actions models.ReplicationConsistancyGroupAction) error {
+	rcgClient := goscaleio.NewReplicationConsistencyGroup(client)
+	rcgClient.ReplicationConsistencyGroup.ID = actions.ID.ValueString()
+
+	switch actions.Action.ValueString() {
+	case constants.Sync:
+		_, err := rcgClient.ExecuteSyncOnReplicationGroup()
+		return err
+	case constants.Restore:
+		return rcgClient.ExecuteRestoreOnReplicationGroup()
+	case constants.Failover:
+		return rcgClient.ExecuteFailoverOnReplicationGroup()
+	case constants.Reverse:
+		return rcgClient.ExecuteReverseOnReplicationGroup()
+	case constants.Switchover:
+		return rcgClient.ExecuteSwitchoverOnReplicationGroup(false)
+	case constants.Snapshot:
+		_, err := rcgClient.CreateReplicationConsistencyGroupSnapshot()
+		return err
+	default:
+		return fmt.Errorf("Invalid Action %s", actions.Action.ValueString())
+	}
 }
