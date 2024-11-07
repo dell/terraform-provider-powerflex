@@ -288,6 +288,7 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 		NvmeHostDataSource,
 		ReplicationPairsDataSource,
 		PeerMdmDataSource,
+		NvmeTargetDataSource,
 	}
 }
 

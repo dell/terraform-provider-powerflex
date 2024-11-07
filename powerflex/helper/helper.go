@@ -795,3 +795,17 @@ func copySliceToTargetField(ctx context.Context, fields interface{}) attr.Value 
 	}
 	return nil
 }
+
+// ConvertSlice converts a slice of interface{} to a slice of T.
+func ConvertSlice[T any](input []interface{}) ([]T, error) {
+	var result []T
+	for _, item := range input {
+		v, ok := item.(T)
+		if !ok {
+			return nil, fmt.Errorf("element %v cannot be converted to the target type", v)
+		}
+		result = append(result, v)
+
+	}
+	return result, nil
+}

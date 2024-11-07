@@ -11,7 +11,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Get all of the exiting NVMe hosts
+// Get all of the existing NVMe hosts
 data "powerflex_nvme_host" "existing" {
 }
 
