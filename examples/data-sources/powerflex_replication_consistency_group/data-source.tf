@@ -14,15 +14,15 @@ limitations under the License.
 # commands to run this tf file : terraform init && terraform apply
 
 // Empty filter block will return all the replication conistancy group
-data "powerflex_replication_consistancy_group" "rcg" {}
+data "powerflex_replication_consistency_group" "rcg" {}
 output "rcgResult" {
-  value = data.powerflex_replication_consistancy_group.rcg
+  value = data.powerflex_replication_consistency_group.rcg
 }
 
 // If multiple filter fields are provided then it will show the intersection of all of those fields.
 // If there is no intersection between the filters then an empty datasource will be returned
 // For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 
-data "powerflex_replication_consistancy_group" "rcg_filter" {
+data "powerflex_replication_consistency_group" "rcg_filter" {
   filter {
     # id = ["id", "id2"]
     # name = ["name-1", "name-2"]
@@ -56,5 +56,5 @@ data "powerflex_replication_consistancy_group" "rcg_filter" {
   }
 }
 output "rcgResultFiltered" {
-  value = data.powerflex_replication_consistancy_group.rcg_filter
+  value = data.powerflex_replication_consistency_group.rcg_filter
 }

@@ -29,10 +29,10 @@ import (
 )
 
 var ReplicationReplicationConsistanceGroupReadAll = `
-data "powerflex_replication_consistancy_group" "rcg" {}
+data "powerflex_replication_consistency_group" "rcg" {}
 `
 var ReplicationConsistanceGroupReadFilterID = `
-data "powerflex_replication_consistancy_group" "rcg" {
+data "powerflex_replication_consistency_group" "rcg" {
     filter {
         id = ["rcg-mock-data-id"]
     }
@@ -40,7 +40,7 @@ data "powerflex_replication_consistancy_group" "rcg" {
 `
 
 var ReplicationConsistanceGroupReadFilterSnapCreationInProgress = `
-data "powerflex_replication_consistancy_group" "rcg" {
+data "powerflex_replication_consistency_group" "rcg" {
     filter {
         snap_creation_in_progress = false
     }
@@ -48,7 +48,7 @@ data "powerflex_replication_consistancy_group" "rcg" {
 `
 
 var ReplicationConsistanceGroupReadFilterRpoInSeconds = `
-data "powerflex_replication_consistancy_group" "rcg" {
+data "powerflex_replication_consistency_group" "rcg" {
     filter {
         rpo_in_seconds = [500]
     }
@@ -56,7 +56,7 @@ data "powerflex_replication_consistancy_group" "rcg" {
 `
 
 var ReplicationConsistanceGroupReadFilterMultiple = `
-data "powerflex_replication_consistancy_group" "rcg" {
+data "powerflex_replication_consistency_group" "rcg" {
     filter {
         name = ["tftest-rcg", "rcg-name-2"]
         inactive_reason = [11]
@@ -96,28 +96,28 @@ func TestAccDatasourceReplicationConsistanceGroup(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + ReplicationConsistanceGroupReadFilterID,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_replication_consistancy_group.rcg", "replication_consistency_group_details.0.id", "rcg-mock-data-id"),
+					resource.TestCheckResourceAttr("data.powerflex_replication_consistency_group.rcg", "replication_consistency_group_details.0.id", "rcg-mock-data-id"),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + ReplicationConsistanceGroupReadFilterSnapCreationInProgress,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_replication_consistancy_group.rcg", "replication_consistency_group_details.0.snap_creation_in_progress", "false"),
+					resource.TestCheckResourceAttr("data.powerflex_replication_consistency_group.rcg", "replication_consistency_group_details.0.snap_creation_in_progress", "false"),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + ReplicationConsistanceGroupReadFilterRpoInSeconds,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_replication_consistancy_group.rcg", "replication_consistency_group_details.0.rpo_in_seconds", "500"),
+					resource.TestCheckResourceAttr("data.powerflex_replication_consistency_group.rcg", "replication_consistency_group_details.0.rpo_in_seconds", "500"),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + ReplicationConsistanceGroupReadFilterMultiple,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_replication_consistancy_group.rcg", "replication_consistency_group_details.0.inactive_reason", "11"),
-					resource.TestCheckResourceAttr("data.powerflex_replication_consistancy_group.rcg", "replication_consistency_group_details.0.name", "tftest-rcg"),
-					resource.TestCheckResourceAttr("data.powerflex_replication_consistancy_group.rcg", "replication_consistency_group_details.1.inactive_reason", "11"),
-					resource.TestCheckResourceAttr("data.powerflex_replication_consistancy_group.rcg", "replication_consistency_group_details.1.name", "rcg-name-2"),
+					resource.TestCheckResourceAttr("data.powerflex_replication_consistency_group.rcg", "replication_consistency_group_details.0.inactive_reason", "11"),
+					resource.TestCheckResourceAttr("data.powerflex_replication_consistency_group.rcg", "replication_consistency_group_details.0.name", "tftest-rcg"),
+					resource.TestCheckResourceAttr("data.powerflex_replication_consistency_group.rcg", "replication_consistency_group_details.1.inactive_reason", "11"),
+					resource.TestCheckResourceAttr("data.powerflex_replication_consistency_group.rcg", "replication_consistency_group_details.1.name", "rcg-name-2"),
 				),
 			},
 			// Read error
@@ -126,7 +126,7 @@ func TestAccDatasourceReplicationConsistanceGroup(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.GetReplicationConsistancyGroups).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetReplicationConsistencyGroups).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + ReplicationReplicationConsistanceGroupReadAll,
 				ExpectError: regexp.MustCompile(`.*Error in getting Replication Consistency Groups details*.`),

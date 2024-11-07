@@ -51,19 +51,19 @@ resource "terraform_data" "always_run" {
   input = timestamp()
 }
 
-data "powerflex_replication_consistancy_group" "rcg_filter" {
+data "powerflex_replication_consistency_group" "rcg_filter" {
   filter {
-    name = [var.replication_consistancy_group_name]
+    name = [var.replication_consistency_group_name]
   }
 }
 
 resource "powerflex_replication_consistency_group_action" "example" {
     # Required
     
-    # Id of the replication consistancy group
-    id = data.powerflex_replication_consistancy_group.rcg_filter.replication_consistency_group_details[0].id
+    # Id of the replication consistency group
+    id = data.powerflex_replication_consistency_group.rcg_filter.replication_consistency_group_details[0].id
 
-    # Action to be performed on the replication consistancy group.
+    # Action to be performed on the replication consistency group.
     # Options are Failover, Restore, Sync, Reverse, Switchover and Snapshot (Default is Sync)
     action = var.action
       

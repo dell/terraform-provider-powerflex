@@ -36,9 +36,9 @@ variable "volume_name_source" {
   description = "Stores the source volume name."
 }
 
-variable "replication_consistancy_group_name_source" {
+variable "replication_consistency_group_name_source" {
   type        = string
-  description = "Stores the source replication consistancy group name."
+  description = "Stores the source replication consistency group name."
 }
 
 # Destination Vars

@@ -76,10 +76,10 @@ func (r *replicationConsistencyGroupResourceAction) Configure(_ context.Context,
 	}
 }
 
-// Create - function to Create for ReplicationConsistancyGroupAction resource.
+// Create - function to Create for ReplicationConsistencyGroupAction resource.
 func (r *replicationConsistencyGroupResourceAction) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "[POWERFLEX] Create")
-	var plan models.ReplicationConsistancyGroupAction
+	var plan models.ReplicationConsistencyGroupAction
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -100,10 +100,10 @@ func (r *replicationConsistencyGroupResourceAction) Create(ctx context.Context, 
 	resp.Diagnostics.Append(diagsState...)
 }
 
-// Read - function to Read for ReplicationConsistancyGroupAction resource.
+// Read - function to Read for ReplicationConsistencyGroupAction resource.
 func (r *replicationConsistencyGroupResourceAction) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	tflog.Debug(ctx, "[POWERFLEX] Read")
-	var state models.ReplicationConsistancyGroupAction
+	var state models.ReplicationConsistencyGroupAction
 
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -115,14 +115,14 @@ func (r *replicationConsistencyGroupResourceAction) Read(ctx context.Context, re
 	resp.Diagnostics.Append(diagsState...)
 }
 
-// Update - function to Update for ReplicationConsistancyGroupAction resource.
+// Update - function to Update for ReplicationConsistencyGroupAction resource.
 func (r *replicationConsistencyGroupResourceAction) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	resp.Diagnostics.AddWarning(
 		constants.UpdatesNotSupportedErrorMsg+", to create update and delete replication consistency groups use the powerflex_replication_consistency_group resource",
 		constants.UpdatesNotSupportedErrorMsg+", to create update and delete replication consistency groups use the powerflex_replication_consistency_group resource",
 	)
 
-	var plan models.ReplicationConsistancyGroupAction
+	var plan models.ReplicationConsistencyGroupAction
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -135,7 +135,7 @@ func (r *replicationConsistencyGroupResourceAction) Update(ctx context.Context, 
 
 }
 
-// Delete - function to Delete for ReplicationConsistancyGroupAction resource.
+// Delete - function to Delete for ReplicationConsistencyGroupAction resource.
 func (r *replicationConsistencyGroupResourceAction) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	resp.Diagnostics.AddWarning(
 		constants.DeleteIsNotSupportedErrorMsg+", to create update and delete replication consistency groups use the powerflex_replication_consistency_group resource",

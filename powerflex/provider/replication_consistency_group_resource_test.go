@@ -81,23 +81,23 @@ resource "powerflex_replication_consistency_group" "example" {
 
 var RPCBulkImport = `
 // Get all of the exiting replication consistency groups
-data "powerflex_replication_consistancy_group" "existing" {
+data "powerflex_replication_consistency_group" "existing" {
 }
 
 // Import all of the replication consistency groups
 import {
-    for_each = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details
+    for_each = data.powerflex_replication_consistency_group.existing.replication_consistency_group_details
     to = powerflex_replication_consistency_group.this[each.key]
     id = each.value.id
 }
 
 // Add them to the terraform state
 resource "powerflex_replication_consistency_group" "this" {
-    count = length(data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details)
-    name = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details[count.index].name
-    protection_domain_id = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details[count.index].protection_domain_id
-    remote_protection_domain_id = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details[count.index].remote_protection_domain_id
-    destination_system_id = data.powerflex_replication_consistancy_group.existing.replication_consistency_group_details[count.index].destination_system_id
+    count = length(data.powerflex_replication_consistency_group.existing.replication_consistency_group_details)
+    name = data.powerflex_replication_consistency_group.existing.replication_consistency_group_details[count.index].name
+    protection_domain_id = data.powerflex_replication_consistency_group.existing.replication_consistency_group_details[count.index].protection_domain_id
+    remote_protection_domain_id = data.powerflex_replication_consistency_group.existing.replication_consistency_group_details[count.index].remote_protection_domain_id
+    destination_system_id = data.powerflex_replication_consistency_group.existing.replication_consistency_group_details[count.index].destination_system_id
 }
 `
 
@@ -110,12 +110,12 @@ func TestAccResourceAcceptanceReplicationConsistencyGroup(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
-			// Create Replication Consistancy Group
+			// Create Replication Consistency Group
 			{
 				Config: ProviderConfigForTesting + RPCCreate,
 				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
-			// Update Replication Consistancy Group
+			// Update Replication Consistency Group
 			{
 				Config: ProviderConfigForTesting + RPCUpdateName,
 				Check:  resource.ComposeAggregateTestCheckFunc(),

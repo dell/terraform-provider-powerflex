@@ -32,7 +32,7 @@ var ReplicationConsistencyGroupActionResourceConfigFailover = `
 resource "powerflex_replication_consistency_group_action" "example" {
     id = "` + RcgID + `"
 
-    # Action to be performed on the replication consistancy group.
+    # Action to be performed on the replication consistency group.
     # Options are Failover, Restore, Sync, Reverse, Switchover and Snapshot (Default is Sync)
     action = "Failover"
 }
@@ -42,7 +42,7 @@ var ReplicationConsistencyGroupActionResourceConfigRestore = `
 resource "powerflex_replication_consistency_group_action" "example" {
     id = "` + RcgID + `"
 
-    # Action to be performed on the replication consistancy group.
+    # Action to be performed on the replication consistency group.
     # Options are Failover, Restore, Sync, Reverse, Switchover and Snapshot (Default is Sync)
     action = "Restore"
 }
@@ -52,7 +52,7 @@ var ReplicationConsistencyGroupActionResourceConfigSync = `
 resource "powerflex_replication_consistency_group_action" "example" {
     id = "` + RcgID + `"
 
-    # Action to be performed on the replication consistancy group.
+    # Action to be performed on the replication consistency group.
     # Options are Failover, Restore, Sync, Reverse, Switchover and Snapshot (Default is Sync)
     action = "Sync"
 }
@@ -62,7 +62,7 @@ var ReplicationConsistencyGroupActionResourceConfigReverse = `
 resource "powerflex_replication_consistency_group_action" "example" {
     id = "` + RcgID + `"
 
-    # Action to be performed on the replication consistancy group.
+    # Action to be performed on the replication consistency group.
     # Options are Failover, Restore, Sync, Reverse, Switchover and Snapshot (Default is Sync)
     action = "Reverse"
 }
@@ -72,7 +72,7 @@ var ReplicationConsistencyGroupActionResourceConfigSwitchover = `
 resource "powerflex_replication_consistency_group_action" "example" {
     id = "` + RcgID + `"
 
-    # Action to be performed on the replication consistancy group.
+    # Action to be performed on the replication consistency group.
     # Options are Failover, Restore, Sync, Reverse, Switchover and Snapshot (Default is Sync)
     action = "Switchover"
 }
@@ -82,7 +82,7 @@ var ReplicationConsistencyGroupActionResourceConfigSnapshot = `
 resource "powerflex_replication_consistency_group_action" "example" {
     id = "` + RcgID + `"
 
-    # Action to be performed on the replication consistancy group.
+    # Action to be performed on the replication consistency group.
     # Options are Failover, Restore, Sync, Reverse, Switchover and Snapshot (Default is Sync)
     action = "Snapshot"
 }
@@ -92,7 +92,7 @@ var ReplicationConsistencyGroupActionResourceConfigInvalidAction = `
 resource "powerflex_replication_consistency_group_action" "example" {
     id = "` + RcgID + `"
 
-    # Action to be performed on the replication consistancy group.
+    # Action to be performed on the replication consistency group.
     # Options are Failover, Restore, Sync, Reverse, Switchover and Snapshot (Default is Sync)
 	action = "InvalidAction"
 }

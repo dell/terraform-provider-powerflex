@@ -79,7 +79,7 @@ func (r *replicationConsistencyGroupResource) Configure(_ context.Context, req r
 // Create - function to Create for ReplicationConsistencyGroup resource.
 func (r *replicationConsistencyGroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Debug(ctx, "[POWERFLEX] Create")
-	var plan models.ReplicationConsistancyGroupModel
+	var plan models.ReplicationConsistencyGroupModel
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -123,7 +123,7 @@ func (r *replicationConsistencyGroupResource) Create(ctx context.Context, req re
 	}
 
 	// Map
-	updatedState := helper.MapReplicationConsistancyGroupsResourceState(*rcg, plan)
+	updatedState := helper.MapReplicationConsistencyGroupsResourceState(*rcg, plan)
 	diagsState := resp.State.Set(ctx, updatedState)
 	resp.Diagnostics.Append(diagsState...)
 }
@@ -131,7 +131,7 @@ func (r *replicationConsistencyGroupResource) Create(ctx context.Context, req re
 // Read - function to Read for ReplicationConsistencyGroup resource.
 func (r *replicationConsistencyGroupResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	tflog.Debug(ctx, "[POWERFLEX] Read")
-	var state models.ReplicationConsistancyGroupModel
+	var state models.ReplicationConsistencyGroupModel
 
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -148,7 +148,7 @@ func (r *replicationConsistencyGroupResource) Read(ctx context.Context, req reso
 		return
 	}
 
-	updatedState := helper.MapReplicationConsistancyGroupsResourceState(*rcg, state)
+	updatedState := helper.MapReplicationConsistencyGroupsResourceState(*rcg, state)
 	diagsState := resp.State.Set(ctx, updatedState)
 	resp.Diagnostics.Append(diagsState...)
 }
@@ -157,8 +157,8 @@ func (r *replicationConsistencyGroupResource) Read(ctx context.Context, req reso
 func (r *replicationConsistencyGroupResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	tflog.Debug(ctx, "[POWERFLEX] Update")
 
-	var state models.ReplicationConsistancyGroupModel
-	var plan models.ReplicationConsistancyGroupModel
+	var state models.ReplicationConsistencyGroupModel
+	var plan models.ReplicationConsistencyGroupModel
 
 	diagsState := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diagsState...)
@@ -182,7 +182,7 @@ func (r *replicationConsistencyGroupResource) Update(ctx context.Context, req re
 			)
 			return
 		}
-		updatedState := helper.MapReplicationConsistancyGroupsResourceState(*rcg, plan)
+		updatedState := helper.MapReplicationConsistencyGroupsResourceState(*rcg, plan)
 		diagsUpdate := resp.State.Set(ctx, updatedState)
 		resp.Diagnostics.Append(diagsUpdate...)
 		return
@@ -218,7 +218,7 @@ func (r *replicationConsistencyGroupResource) Update(ctx context.Context, req re
 		return
 	}
 
-	updatedState := helper.MapReplicationConsistancyGroupsResourceState(*rcg, plan)
+	updatedState := helper.MapReplicationConsistencyGroupsResourceState(*rcg, plan)
 	diagsUpdate := resp.State.Set(ctx, updatedState)
 	resp.Diagnostics.Append(diagsUpdate...)
 }
@@ -226,7 +226,7 @@ func (r *replicationConsistencyGroupResource) Update(ctx context.Context, req re
 // Delete - function to Delete for ReplicationConsistencyGroup resource.
 func (r *replicationConsistencyGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	tflog.Debug(ctx, "[POWERFLEX] Delete")
-	var state models.ReplicationConsistancyGroupModel
+	var state models.ReplicationConsistencyGroupModel
 	diagState := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diagState...)
 	if resp.Diagnostics.HasError() {

@@ -29,7 +29,7 @@ variable "endpoint" {
   description = "Stores the endpoint of PowerFlex host. eg: https://10.1.1.1:443, here 443 is port where API requests are getting accepted"
 }
 
-variable "replication_consistancy_group_name" {
+variable "replication_consistency_group_name" {
   type        = string
   description = "The Replication Consistency Group name."
 }

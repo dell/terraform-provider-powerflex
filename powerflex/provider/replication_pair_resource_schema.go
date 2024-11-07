@@ -43,8 +43,8 @@ var ReplicationPairReourceSchema schema.Schema = schema.Schema{
 			Required:            true,
 		},
 		"replication_consistency_group_id": schema.StringAttribute{
-			Description:         "Replication Consistancy Group ID",
-			MarkdownDescription: "Replication Consistancy Group ID",
+			Description:         "Replication Consistency Group ID",
+			MarkdownDescription: "Replication Consistency Group ID",
 			Required:            true,
 		},
 		"pause_initial_copy": schema.BoolAttribute{

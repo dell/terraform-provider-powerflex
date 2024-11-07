@@ -30,29 +30,29 @@ import (
 )
 
 var (
-	_ datasource.DataSource              = &replicationConsistancyGroupDataSource{}
-	_ datasource.DataSourceWithConfigure = &replicationConsistancyGroupDataSource{}
+	_ datasource.DataSource              = &replicationConsistencyGroupDataSource{}
+	_ datasource.DataSourceWithConfigure = &replicationConsistencyGroupDataSource{}
 )
 
-// ReplicationConsistancyGroupDataSource returns the ReplicationConsistancyGroup data source
-func ReplicationConsistancyGroupDataSource() datasource.DataSource {
-	return &replicationConsistancyGroupDataSource{}
+// ReplicationConsistencyGroupDataSource returns the ReplicationConsistencyGroup data source
+func ReplicationConsistencyGroupDataSource() datasource.DataSource {
+	return &replicationConsistencyGroupDataSource{}
 }
 
-type replicationConsistancyGroupDataSource struct {
+type replicationConsistencyGroupDataSource struct {
 	client        *goscaleio.Client
 	gatewayClient *goscaleio.GatewayClient
 }
 
-func (d *replicationConsistancyGroupDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_replication_consistancy_group"
+func (d *replicationConsistencyGroupDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_replication_consistency_group"
 }
 
-func (d *replicationConsistancyGroupDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *replicationConsistencyGroupDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = ReplicationConsistencyGroupDataSourceSchema
 }
 
-func (d *replicationConsistancyGroupDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (d *replicationConsistencyGroupDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -72,8 +72,8 @@ func (d *replicationConsistancyGroupDataSource) Configure(_ context.Context, req
 	}
 }
 
-func (d *replicationConsistancyGroupDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var state models.ReplicationConsistancyGroupDataSourceModel
+func (d *replicationConsistencyGroupDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var state models.ReplicationConsistencyGroupDataSourceModel
 	// Get the state incase filters are set
 	diags := req.Config.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -81,7 +81,7 @@ func (d *replicationConsistancyGroupDataSource) Read(ctx context.Context, req da
 		return
 	}
 	// Get All RCGs
-	rcgs, err := helper.GetReplicationConsistancyGroups(d.client)
+	rcgs, err := helper.GetReplicationConsistencyGroups(d.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error in getting Replication Consistency Groups details",
@@ -90,11 +90,11 @@ func (d *replicationConsistancyGroupDataSource) Read(ctx context.Context, req da
 		return
 	}
 	// Set state for filters
-	if state.ReplicationConsistancyGroupFilter != nil {
-		filtered, err := helper.GetDataSourceByValue(*state.ReplicationConsistancyGroupFilter, rcgs)
+	if state.ReplicationConsistencyGroupFilter != nil {
+		filtered, err := helper.GetDataSourceByValue(*state.ReplicationConsistencyGroupFilter, rcgs)
 		if err != nil {
 			resp.Diagnostics.AddError(
-				fmt.Sprintf("Error in filtering Replication Consistency Groups: %v please validate the filter", state.ReplicationConsistancyGroupFilter), err.Error(),
+				fmt.Sprintf("Error in filtering Replication Consistency Groups: %v please validate the filter", state.ReplicationConsistencyGroupFilter), err.Error(),
 			)
 			return
 		}
@@ -104,7 +104,7 @@ func (d *replicationConsistancyGroupDataSource) Read(ctx context.Context, req da
 		}
 		rcgs = filteredPair
 	}
-	mappedRps := helper.MapReplicationConsistancyGroupsState(rcgs, state)
+	mappedRps := helper.MapReplicationConsistencyGroupsState(rcgs, state)
 	diagsState := resp.State.Set(ctx, mappedRps)
 	resp.Diagnostics.Append(diagsState...)
 }
