@@ -155,3 +155,9 @@ type ReplicationConsistancyGroupFilter struct {
 	RemoteActivityState         []types.String `tfsdk:"remote_activity_state"`
 	InactiveReason              []types.Int64  `tfsdk:"inactive_reason"`
 }
+
+// ReplicationConsistancyGroupAction defines the model for ReplicationConsistancyGroupAction
+type ReplicationConsistancyGroupAction struct {
+	ID     types.String `tfsdk:"id"`
+	Action types.String `tfsdk:"action"`
+}

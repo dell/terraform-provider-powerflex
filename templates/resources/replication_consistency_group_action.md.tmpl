@@ -1,0 +1,21 @@
+title: "{{.Name }} {{.Type | lower}}"
+linkTitle: "{{.Name }}"
+page_title: "{{.Name}} {{.Type}} - {{.ProviderName}}"
+subcategory: ""
+description: |-
+{{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
+---
+
+# {{.Name }} ({{.Type}})
+
+{{ .Description | trimspace }}
+
+{{ if .HasExample -}}
+## Example Usage
+
+{{tffile .ExampleFile }}
+{{- end }}
+
+After the execution of above resource block, resource would have been created on the PowerFlex array. For more information, please check the terraform state file.
+
+{{ .SchemaMarkdown | trimspace }}
