@@ -83,8 +83,8 @@ type ReplicationPairFilter struct {
 	InitialCopyPriority                []types.Int64  `tfsdk:"initial_copy_priority"`
 }
 
-// ReplicationConsistancyGroupModel model for the RCG
-type ReplicationConsistancyGroupModel struct {
+// ReplicationConsistencyGroupModel model for the RCG
+type ReplicationConsistencyGroupModel struct {
 	ID                          types.String `tfsdk:"id"`
 	Name                        types.String `tfsdk:"name"`
 	RpoInSeconds                types.Int64  `tfsdk:"rpo_in_seconds"`
@@ -116,15 +116,15 @@ type ReplicationConsistancyGroupModel struct {
 	InactiveReason              types.Int64  `tfsdk:"inactive_reason"`
 }
 
-// ReplicationConsistancyGroupDataSourceModel is the tfsdk model of ReplicationConsistancyGroup data source schema
-type ReplicationConsistancyGroupDataSourceModel struct {
-	ReplicationConsistancyGroupDetails []ReplicationConsistancyGroupModel `tfsdk:"replication_consistency_group_details"`
+// ReplicationConsistencyGroupDataSourceModel is the tfsdk model of ReplicationConsistencyGroup data source schema
+type ReplicationConsistencyGroupDataSourceModel struct {
+	ReplicationConsistencyGroupDetails []ReplicationConsistencyGroupModel `tfsdk:"replication_consistency_group_details"`
 	ID                                 types.String                       `tfsdk:"id"`
-	ReplicationConsistancyGroupFilter  *ReplicationConsistancyGroupFilter `tfsdk:"filter"`
+	ReplicationConsistencyGroupFilter  *ReplicationConsistencyGroupFilter `tfsdk:"filter"`
 }
 
-// ReplicationConsistancyGroupFilter defines the model for filters used for ReplicationConsistancyGroupsDataSource
-type ReplicationConsistancyGroupFilter struct {
+// ReplicationConsistencyGroupFilter defines the model for filters used for ReplicationConsistencyGroupsDataSource
+type ReplicationConsistencyGroupFilter struct {
 	ID                          []types.String `tfsdk:"id"`
 	Name                        []types.String `tfsdk:"name"`
 	RpoInSeconds                []types.Int64  `tfsdk:"rpo_in_seconds"`
@@ -156,8 +156,8 @@ type ReplicationConsistancyGroupFilter struct {
 	InactiveReason              []types.Int64  `tfsdk:"inactive_reason"`
 }
 
-// ReplicationConsistancyGroupAction defines the model for ReplicationConsistancyGroupAction
-type ReplicationConsistancyGroupAction struct {
+// ReplicationConsistencyGroupAction defines the model for ReplicationConsistencyGroupAction
+type ReplicationConsistencyGroupAction struct {
 	ID     types.String `tfsdk:"id"`
 	Action types.String `tfsdk:"action"`
 }

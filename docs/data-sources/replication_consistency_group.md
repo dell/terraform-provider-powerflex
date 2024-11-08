@@ -1,15 +1,15 @@
 ---
-title: "powerflex_replication_consistancy_group data source"
-linkTitle: "powerflex_replication_consistancy_group"
-page_title: "powerflex_replication_consistancy_group Data Source - powerflex"
+title: "powerflex_replication_consistency_group data source"
+linkTitle: "powerflex_replication_consistency_group"
+page_title: "powerflex_replication_consistency_group Data Source - powerflex"
 subcategory: ""
 description: |-
-  This datasource is used to read the Replication Consistancy Group entity of the PowerFlex Array.
+  This datasource is used to read the Replication Consistency Group entity of the PowerFlex Array.
 ---
 
-# powerflex_replication_consistancy_group (Data Source)
+# powerflex_replication_consistency_group (Data Source)
 
-This datasource is used to read the Replication Consistancy Group entity of the PowerFlex Array.
+This datasource is used to read the Replication Consistency Group entity of the PowerFlex Array.
 
 ## Example Usage
 
@@ -30,15 +30,15 @@ limitations under the License.
 # commands to run this tf file : terraform init && terraform apply
 
 // Empty filter block will return all the replication conistancy group
-data "powerflex_replication_consistancy_group" "rcg" {}
+data "powerflex_replication_consistency_group" "rcg" {}
 output "rcgResult" {
-  value = data.powerflex_replication_consistancy_group.rcg
+  value = data.powerflex_replication_consistency_group.rcg
 }
 
 // If multiple filter fields are provided then it will show the intersection of all of those fields.
 // If there is no intersection between the filters then an empty datasource will be returned
 // For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 
-data "powerflex_replication_consistancy_group" "rcg_filter" {
+data "powerflex_replication_consistency_group" "rcg_filter" {
   filter {
     # id = ["id", "id2"]
     # name = ["name-1", "name-2"]
@@ -72,7 +72,7 @@ data "powerflex_replication_consistancy_group" "rcg_filter" {
   }
 }
 output "rcgResultFiltered" {
-  value = data.powerflex_replication_consistancy_group.rcg_filter
+  value = data.powerflex_replication_consistency_group.rcg_filter
 }
 ```
 
@@ -88,7 +88,7 @@ After the successful execution of above said block, we can see the output by exe
 ### Read-Only
 
 - `id` (String) default datasource id
-- `replication_consistency_group_details` (Attributes List) List of Replication Consistancy Group (see [below for nested schema](#nestedatt--replication_consistency_group_details))
+- `replication_consistency_group_details` (Attributes List) List of Replication Consistency Group (see [below for nested schema](#nestedatt--replication_consistency_group_details))
 
 <a id="nestedblock--filter"></a>
 ### Nested Schema for `filter`
@@ -131,32 +131,32 @@ Optional:
 
 Read-Only:
 
-- `abstract_state` (String) Abstract State of the replication consistancy group instance.
-- `active_local` (Boolean) Active Local of the replication consistancy group instance.
-- `active_remote` (Boolean) Active Remote of the replication consistancy group instance.
-- `curr_consist_mode` (String) Consistency Mode of the replication consistancy group instance.
-- `destination_system_id` (String) Destination System ID of the replication consistancy group instance.
-- `disaster_recovery_state` (String) Disaster Recovery State of the replication consistancy group instance.
-- `error` (Number) Error of the replication consistancy group instance.
-- `failover_state` (String) Failover State of the replication consistancy group instance.
-- `failover_type` (String) Failover Type of the replication consistancy group instance.
-- `freeze_state` (String) Freeze State of the replication consistancy group instance.
-- `id` (String) Unique identifier of the replication consistancy group instance.
-- `inactive_reason` (Number) Inactive Reason of the replication consistancy group instance.
-- `last_snap_group_id` (String) Last Snap Group ID of the replication consistancy group instance.
-- `lifetime_state` (String) Lifetime State of the replication consistancy group instance.
-- `local_activity_state` (String) Local Activity State of the replication consistancy group instance.
-- `name` (String) Name of the replication consistancy group instance.
-- `pause_mode` (String) Pause Mode of the replication consistancy group instance.
-- `peer_mdm_id` (String) Peer MDM ID of the replication consistancy group instance.
-- `protection_domain_id` (String) Protection Domain ID of the replication consistancy group instance.
-- `remote_activity_state` (String) Remote Activity State of the replication consistancy group instance.
-- `remote_disaster_recovery_state` (String) Remote Disaster Recovery State of the replication consistancy group instance.
-- `remote_id` (String) Remote ID of the replication consistancy group instance.
-- `remote_mdm_id` (String) Remote MDM ID of the replication consistancy group instance.
-- `remote_protection_domain_id` (String) Remote Protection Domain ID of the replication consistancy group instance.
-- `replication_direction` (String) Replication Direction of the replication consistancy group instance.
-- `rpo_in_seconds` (Number) rpoInSeconds of the replication consistancy group instance.
-- `snap_creation_in_progress` (Boolean) Snap Creation In Progress of the replication consistancy group instance.
-- `target_volume_access_mode` (String) Target Volume Access Mode of the replication consistancy group instance.
-- `type` (String) Type of the replication consistancy group instance.
+- `abstract_state` (String) Abstract State of the replication consistency group instance.
+- `active_local` (Boolean) Active Local of the replication consistency group instance.
+- `active_remote` (Boolean) Active Remote of the replication consistency group instance.
+- `curr_consist_mode` (String) Consistency Mode of the replication consistency group instance.
+- `destination_system_id` (String) Destination System ID of the replication consistency group instance.
+- `disaster_recovery_state` (String) Disaster Recovery State of the replication consistency group instance.
+- `error` (Number) Error of the replication consistency group instance.
+- `failover_state` (String) Failover State of the replication consistency group instance.
+- `failover_type` (String) Failover Type of the replication consistency group instance.
+- `freeze_state` (String) Freeze State of the replication consistency group instance.
+- `id` (String) Unique identifier of the replication consistency group instance.
+- `inactive_reason` (Number) Inactive Reason of the replication consistency group instance.
+- `last_snap_group_id` (String) Last Snap Group ID of the replication consistency group instance.
+- `lifetime_state` (String) Lifetime State of the replication consistency group instance.
+- `local_activity_state` (String) Local Activity State of the replication consistency group instance.
+- `name` (String) Name of the replication consistency group instance.
+- `pause_mode` (String) Pause Mode of the replication consistency group instance.
+- `peer_mdm_id` (String) Peer MDM ID of the replication consistency group instance.
+- `protection_domain_id` (String) Protection Domain ID of the replication consistency group instance.
+- `remote_activity_state` (String) Remote Activity State of the replication consistency group instance.
+- `remote_disaster_recovery_state` (String) Remote Disaster Recovery State of the replication consistency group instance.
+- `remote_id` (String) Remote ID of the replication consistency group instance.
+- `remote_mdm_id` (String) Remote MDM ID of the replication consistency group instance.
+- `remote_protection_domain_id` (String) Remote Protection Domain ID of the replication consistency group instance.
+- `replication_direction` (String) Replication Direction of the replication consistency group instance.
+- `rpo_in_seconds` (Number) rpoInSeconds of the replication consistency group instance.
+- `snap_creation_in_progress` (Boolean) Snap Creation In Progress of the replication consistency group instance.
+- `target_volume_access_mode` (String) Target Volume Access Mode of the replication consistency group instance.
+- `type` (String) Type of the replication consistency group instance.

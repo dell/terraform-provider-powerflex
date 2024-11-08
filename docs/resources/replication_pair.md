@@ -69,11 +69,11 @@ data "powerflex_volume" "destination_volume" {
   name     = var.volume_name_destination
 }
 
-# Used to get the id of the replication consistancy group
-data "powerflex_replication_consistancy_group" "source_replication_consistancy_group" {
+# Used to get the id of the replication consistency group
+data "powerflex_replication_consistency_group" "source_replication_consistency_group" {
   provider = powerflex.source
   filter {
-    name = [var.replication_consistancy_group_name_source]
+    name = [var.replication_consistency_group_name_source]
   }
 }
 
@@ -89,7 +89,7 @@ resource "powerflex_replication_pair" "example" {
   name                             = "example-replication-pair"
   source_volume_id                 = data.powerflex_volume.source_volume.volumes[0].id
   destination_volume_id            = data.powerflex_volume.destination_volume.volumes[0].id
-  replication_consistency_group_id = data.powerflex_replication_consistancy_group.source_replication_consistancy_group.replication_consistency_group_details[0].id
+  replication_consistency_group_id = data.powerflex_replication_consistency_group.source_replication_consistency_group.replication_consistency_group_details[0].id
   # Optional values
   # pause_initial_copy = true # Pauses the replication pair (This will only work during the initial copy process), defaults to false
 }
@@ -104,7 +104,7 @@ After the execution of above resource block, resource would have been created on
 
 - `destination_volume_id` (String) Destination Volume ID
 - `name` (String) Replication Pair Name
-- `replication_consistency_group_id` (String) Replication Consistancy Group ID
+- `replication_consistency_group_id` (String) Replication Consistency Group ID
 - `source_volume_id` (String) Source Volume ID
 
 ### Optional

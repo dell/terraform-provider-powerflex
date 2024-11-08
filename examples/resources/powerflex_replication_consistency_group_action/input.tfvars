@@ -18,6 +18,6 @@ limitations under the License.
 username                           = "example_user"
 password                           = "example_password"
 endpoint                           = "example_endpoint"
-replication_consistancy_group_name = "rcg_name"
+replication_consistency_group_name = "rcg_name"
 # Options are Failover, Restore, Sync, Reverse, Switchover and Snapshot (Default is Sync)
 action                             = "Sync"

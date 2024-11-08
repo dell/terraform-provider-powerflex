@@ -20,7 +20,7 @@ username_source                           = "example_source_user"
 password_source                           = "example_source_password"
 endpoint_source                           = "example_source_endpoint"
 volume_name_source                        = "example_source_volume_name"
-replication_consistancy_group_name_source = "example_source_replication_consistancy_group_name"
+replication_consistency_group_name_source = "example_source_replication_consistency_group_name"
 
 # Destination Vars
 username_destination    = "example_destination_user"

@@ -116,13 +116,14 @@ func PeerSystemUpdate(client *goscaleio.Client, state models.PeerMdmResourceMode
 		}
 	}
 
+	sIPs := reflect.ValueOf(state.IPList).Interface()
+	pIPs := reflect.ValueOf(plan.IPList).Interface()
 	// Update IP List
-	if !reflect.DeepEqual(state.IPList, plan.IPList) {
+	if !reflect.DeepEqual(sIPs, pIPs) {
 		var localIPList []string
 		for _, ip := range plan.IPList {
 			localIPList = append(localIPList, ip.ValueString())
 		}
-
 		errIP := client.ModifyPeerMdmIP(state.ID.ValueString(), localIPList)
 		if errIP != nil {
 			return errIP
@@ -340,8 +341,8 @@ func MapReplicationPairsState(pairs []scaleiotypes.ReplicationPair, state models
 	}
 }
 
-// GetReplicationConsistancyGroups GET RCGs
-func GetReplicationConsistancyGroups(client *goscaleio.Client) ([]scaleiotypes.ReplicationConsistencyGroup, error) {
+// GetReplicationConsistencyGroups GET RCGs
+func GetReplicationConsistencyGroups(client *goscaleio.Client) ([]scaleiotypes.ReplicationConsistencyGroup, error) {
 	rps := []scaleiotypes.ReplicationConsistencyGroup{}
 
 	// Get All RCGs
@@ -362,7 +363,7 @@ func GetSpecificReplicationConsistencyGroup(client *goscaleio.Client, id string)
 }
 
 // CreateReplicationConsistencyGroup POST replication consistency group
-func CreateReplicationConsistencyGroup(client *goscaleio.Client, plan models.ReplicationConsistancyGroupModel) (string, error) {
+func CreateReplicationConsistencyGroup(client *goscaleio.Client, plan models.ReplicationConsistencyGroupModel) (string, error) {
 	rcg := scaleiotypes.ReplicationConsistencyGroupCreatePayload{
 		Name:                     plan.Name.ValueString(),
 		RpoInSeconds:             plan.RpoInSeconds.String(),
@@ -377,11 +378,11 @@ func CreateReplicationConsistencyGroup(client *goscaleio.Client, plan models.Rep
 	return res.ID, err
 }
 
-// MapReplicationConsistancyGroupsState map Replication Consistancy Groups state
-func MapReplicationConsistancyGroupsState(rcgs []scaleiotypes.ReplicationConsistencyGroup, state models.ReplicationConsistancyGroupDataSourceModel) models.ReplicationConsistancyGroupDataSourceModel {
-	mappedRps := []models.ReplicationConsistancyGroupModel{}
+// MapReplicationConsistencyGroupsState map Replication Consistency Groups state
+func MapReplicationConsistencyGroupsState(rcgs []scaleiotypes.ReplicationConsistencyGroup, state models.ReplicationConsistencyGroupDataSourceModel) models.ReplicationConsistencyGroupDataSourceModel {
+	mappedRps := []models.ReplicationConsistencyGroupModel{}
 	for _, val := range rcgs {
-		temp := models.ReplicationConsistancyGroupModel{
+		temp := models.ReplicationConsistencyGroupModel{
 			ID:                          types.StringValue(val.ID),
 			Name:                        types.StringValue(val.Name),
 			RemoteID:                    types.StringValue(val.RemoteID),
@@ -414,16 +415,16 @@ func MapReplicationConsistancyGroupsState(rcgs []scaleiotypes.ReplicationConsist
 		}
 		mappedRps = append(mappedRps, temp)
 	}
-	return models.ReplicationConsistancyGroupDataSourceModel{
-		ID:                                 types.StringValue("replication_consistancy_group_id"),
-		ReplicationConsistancyGroupFilter:  state.ReplicationConsistancyGroupFilter,
-		ReplicationConsistancyGroupDetails: mappedRps,
+	return models.ReplicationConsistencyGroupDataSourceModel{
+		ID:                                 types.StringValue("replication_consistency_group_id"),
+		ReplicationConsistencyGroupFilter:  state.ReplicationConsistencyGroupFilter,
+		ReplicationConsistencyGroupDetails: mappedRps,
 	}
 }
 
-// MapReplicationConsistancyGroupsResourceState map Replication Consistancy Groups state
-func MapReplicationConsistancyGroupsResourceState(rcg scaleiotypes.ReplicationConsistencyGroup, state models.ReplicationConsistancyGroupModel) models.ReplicationConsistancyGroupModel {
-	rcgMap := models.ReplicationConsistancyGroupModel{
+// MapReplicationConsistencyGroupsResourceState map Replication Consistency Groups state
+func MapReplicationConsistencyGroupsResourceState(rcg scaleiotypes.ReplicationConsistencyGroup, state models.ReplicationConsistencyGroupModel) models.ReplicationConsistencyGroupModel {
+	rcgMap := models.ReplicationConsistencyGroupModel{
 		ID:                          types.StringValue(rcg.ID),
 		Name:                        types.StringValue(rcg.Name),
 		RemoteID:                    types.StringValue(rcg.RemoteID),
@@ -458,7 +459,7 @@ func MapReplicationConsistancyGroupsResourceState(rcg scaleiotypes.ReplicationCo
 }
 
 // RCGUpdates Update the RCG
-func RCGUpdates(client *goscaleio.Client, state models.ReplicationConsistancyGroupModel, plan models.ReplicationConsistancyGroupModel) error {
+func RCGUpdates(client *goscaleio.Client, state models.ReplicationConsistencyGroupModel, plan models.ReplicationConsistencyGroupModel) error {
 	rcgClient := goscaleio.NewReplicationConsistencyGroup(client)
 	rcgClient.ReplicationConsistencyGroup.ID = state.ID.ValueString()
 	// Update RPO
@@ -555,7 +556,7 @@ func RCGUpdates(client *goscaleio.Client, state models.ReplicationConsistancyGro
 }
 
 // RCGDoAction do an action on the RCG
-func RCGDoAction(client *goscaleio.Client, actions models.ReplicationConsistancyGroupAction) error {
+func RCGDoAction(client *goscaleio.Client, actions models.ReplicationConsistencyGroupAction) error {
 	rcgClient := goscaleio.NewReplicationConsistencyGroup(client)
 	rcgClient.ReplicationConsistencyGroup.ID = actions.ID.ValueString()
 

@@ -33,12 +33,12 @@ variable "endpoint_source" {
 
 variable "name" {
   type        = string
-  description = "The replication consistancy group name."
+  description = "The replication consistency group name."
 }
 
 variable "rpo_in_seconds" {
   type        = number
-  description = "The replication consistancy group rpo_in_seconds."
+  description = "The replication consistency group rpo_in_seconds."
 }
 
 variable "source_protection_domain_name" {

@@ -111,34 +111,34 @@ After the execution of above resource block, resource would have been created on
 
 ### Optional
 
-- `curr_consist_mode` (String) Consistency Mode of the replication consistancy group instance.
-- `freeze_state` (String) Freeze State of the replication consistancy group instance.
-- `local_activity_state` (String) Local Activity State of the replication consistancy group instance.
-- `pause_mode` (String) Pause Mode of the replication consistancy group instance.
+- `curr_consist_mode` (String) Consistency Mode of the replication consistency group instance.
+- `freeze_state` (String) Freeze State of the replication consistency group instance.
+- `local_activity_state` (String) Local Activity State of the replication consistency group instance.
+- `pause_mode` (String) Pause Mode of the replication consistency group instance.
 - `rpo_in_seconds` (Number) Replication Consistency Group RPO in Seconds (min: 15, default 15, max: 3600)
-- `target_volume_access_mode` (String) Target Volume Access Mode of the replication consistancy group instance.
+- `target_volume_access_mode` (String) Target Volume Access Mode of the replication consistency group instance.
 
 ### Read-Only
 
-- `abstract_state` (String) Abstract State of the replication consistancy group instance.
-- `active_local` (Boolean) Active Local of the replication consistancy group instance.
-- `active_remote` (Boolean) Active Remote of the replication consistancy group instance.
-- `disaster_recovery_state` (String) Disaster Recovery State of the replication consistancy group instance.
-- `error` (Number) Error of the replication consistancy group instance.
-- `failover_state` (String) Failover State of the replication consistancy group instance.
-- `failover_type` (String) Failover Type of the replication consistancy group instance.
-- `id` (String) Unique identifier of the replication consistancy group instance.
-- `inactive_reason` (Number) Inactive Reason of the replication consistancy group instance.
-- `last_snap_group_id` (String) Last Snap Group ID of the replication consistancy group instance.
-- `lifetime_state` (String) Lifetime State of the replication consistancy group instance.
+- `abstract_state` (String) Abstract State of the replication consistency group instance.
+- `active_local` (Boolean) Active Local of the replication consistency group instance.
+- `active_remote` (Boolean) Active Remote of the replication consistency group instance.
+- `disaster_recovery_state` (String) Disaster Recovery State of the replication consistency group instance.
+- `error` (Number) Error of the replication consistency group instance.
+- `failover_state` (String) Failover State of the replication consistency group instance.
+- `failover_type` (String) Failover Type of the replication consistency group instance.
+- `id` (String) Unique identifier of the replication consistency group instance.
+- `inactive_reason` (Number) Inactive Reason of the replication consistency group instance.
+- `last_snap_group_id` (String) Last Snap Group ID of the replication consistency group instance.
+- `lifetime_state` (String) Lifetime State of the replication consistency group instance.
 - `peer_mdm_id` (String) Replication Consistency Group Peer Mdm ID
-- `remote_activity_state` (String) Remote Activity State of the replication consistancy group instance.
-- `remote_disaster_recovery_state` (String) Remote Disaster Recovery State of the replication consistancy group instance.
-- `remote_id` (String) Remote ID of the replication consistancy group instance.
-- `remote_mdm_id` (String) Remote MDM ID of the replication consistancy group instance.
-- `replication_direction` (String) Replication Direction of the replication consistancy group instance.
-- `snap_creation_in_progress` (Boolean) Snap Creation In Progress of the replication consistancy group instance.
-- `type` (String) Type of the replication consistancy group instance.
+- `remote_activity_state` (String) Remote Activity State of the replication consistency group instance.
+- `remote_disaster_recovery_state` (String) Remote Disaster Recovery State of the replication consistency group instance.
+- `remote_id` (String) Remote ID of the replication consistency group instance.
+- `remote_mdm_id` (String) Remote MDM ID of the replication consistency group instance.
+- `replication_direction` (String) Replication Direction of the replication consistency group instance.
+- `snap_creation_in_progress` (Boolean) Snap Creation In Progress of the replication consistency group instance.
+- `type` (String) Type of the replication consistency group instance.
 
 ## Import
 
