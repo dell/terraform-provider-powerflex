@@ -357,6 +357,11 @@ var PeerMdmName = setDefault(globalEnvMap["POWERFLEX_PEER_MDM_NAME"], "tfacc_pee
 var PeerMdmID = setDefault(globalEnvMap["POWERFLEX_PEER_MDM_ID"], "tfacc_peer_mdm_id")
 var PeerMdmPort = setDefault(globalEnvMap["POWERFLEX_PEER_MDM_PORT"], "2222")
 var PeerMdmCouplingRC = setDefault(globalEnvMap["POWERFLEX_PEER_MDM_COUPLING_RC"], "tfacc_peer_mdm_coupling_rc")
+var NVMeTargetName = setDefault(globalEnvMap["POWERFLEX_NVME_TARGET_NAME"], "mock-name-1")
+var NVMeTargetNameCreate = setDefault(globalEnvMap["POWERFLEX_NVME_TARGET_NAME_CREATE"], "tfacc_nvme_target_name")
+var NVMeTargetNameUpdate = setDefault(globalEnvMap["POWERFLEX_NVME_TARGET_NAME_UPDATE"], "tfacc_nvme_target_name_update")
+var NVMeTargetIP1 = setDefault(globalEnvMap["POWERFLEX_NVME_TARGET_IP1"], "172.169.2.23")
+var NVMeTargetIP2 = setDefault(globalEnvMap["POWERFLEX_NVME_TARGET_IP2"], "172.169.3.23")
 
 func getEnvMap() map[string]string {
 	envMap, err := loadEnvFile("powerflex.env")

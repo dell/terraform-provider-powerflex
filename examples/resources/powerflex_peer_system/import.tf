@@ -31,26 +31,26 @@ provider "powerflex" {
   timeout  = 120
 }
 
-// Get all of the exiting peer systems
+// Get all of the existing peer systems
 data "powerflex_peer_system" "all_current_peer_systems" {
 }
 
 // Import all of the peers
 import {
-    for_each = data.powerflex_peer_system.all_current_peer_systems.peer_system_details
-    to = powerflex_peer_system.imported_peer_systems[each.key]
-    id = each.value.id
+  for_each = data.powerflex_peer_system.all_current_peer_systems.peer_system_details
+  to       = powerflex_peer_system.imported_peer_systems[each.key]
+  id       = each.value.id
 }
 
 // Add them to the terraform state
 resource "powerflex_peer_system" "imported_peer_systems" {
-    count = length(data.powerflex_peer_system.all_current_peer_systems.peer_system_details)
-    name = data.powerflex_peer_system.all_current_peer_systems.peer_system_details[count.index].name
-    peer_system_id = data.powerflex_peer_system.all_current_peer_systems.peer_system_details[count.index].peer_system_id
-    ip_list = [
-      data.powerflex_peer_system.all_current_peer_systems.peer_system_details[count.index].ip_list[0].ip,
-      data.powerflex_peer_system.all_current_peer_systems.peer_system_details[count.index].ip_list[1].ip,
-      data.powerflex_peer_system.all_current_peer_systems.peer_system_details[count.index].ip_list[2].ip,
-    ]
+  count          = length(data.powerflex_peer_system.all_current_peer_systems.peer_system_details)
+  name           = data.powerflex_peer_system.all_current_peer_systems.peer_system_details[count.index].name
+  peer_system_id = data.powerflex_peer_system.all_current_peer_systems.peer_system_details[count.index].peer_system_id
+  ip_list = [
+    data.powerflex_peer_system.all_current_peer_systems.peer_system_details[count.index].ip_list[0].ip,
+    data.powerflex_peer_system.all_current_peer_systems.peer_system_details[count.index].ip_list[1].ip,
+    data.powerflex_peer_system.all_current_peer_systems.peer_system_details[count.index].ip_list[2].ip,
+  ]
 }
 

@@ -23,7 +23,7 @@ provider "powerflex" {
   timeout  = 120
 }
 
-// Get all of the exiting replication pairs
+// Get all of the existing replication pairs
 data "powerflex_replication_pair" "all_current_replication_pairs" {
 }
 

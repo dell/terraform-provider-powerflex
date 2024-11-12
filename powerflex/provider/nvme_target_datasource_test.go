@@ -18,6 +18,7 @@ package provider
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
@@ -25,6 +26,7 @@ import (
 
 	. "github.com/bytedance/mockey"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 var nvmeTargetDatasourceConfig = `
@@ -36,10 +38,31 @@ data "powerflex_nvme_target" "nvme_target_datasource" {
 var nvmeTargetDatasourceConfigFilter = `
 data "powerflex_nvme_target" "nvme_target_datasource" {
 	filter {
-		name = ["mock-name-1"]
+		name = ["` + NVMeTargetName + `"]
 	}
 }
 `
+
+func listCountGreaterThan(resourceName, listName string, count int) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resourceName)
+		}
+		if rs.Primary == nil {
+			return fmt.Errorf("No primary instance: %s", resourceName)
+		}
+		countStr := rs.Primary.Attributes[listName+".#"]
+		c, err := strconv.Atoi(countStr)
+		if err != nil {
+			return fmt.Errorf("Failed to parse count: %s", err)
+		}
+		if c <= count {
+			return fmt.Errorf("list count is not greater than : %d", count)
+		}
+		return nil
+	}
+}
 
 func TestAccDatasourceNvmeTarget(t *testing.T) {
 	resource.Test(t, resource.TestCase{
@@ -49,8 +72,7 @@ func TestAccDatasourceNvmeTarget(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + nvmeTargetDatasourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_nvme_target.nvme_target_datasource", "nvme_target_details.#", "2"),
-					resource.TestCheckResourceAttr("data.powerflex_nvme_target.nvme_target_datasource", "nvme_target_details.0.name", "mock-name-1"),
+					listCountGreaterThan("data.powerflex_nvme_target.nvme_target_datasource", "nvme_target_details", 0),
 					resource.TestCheckResourceAttr("data.powerflex_nvme_target.nvme_target_datasource", "nvme_target_details.0.storage_port", "12200"),
 					resource.TestCheckResourceAttr("data.powerflex_nvme_target.nvme_target_datasource", "nvme_target_details.0.mdm_connection_state", "Connected"),
 				),

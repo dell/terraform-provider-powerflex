@@ -23,22 +23,22 @@ import (
 
 // NvmeTargetResourceModel is the model for NvmeTarget Resource
 type NvmeTargetResourceModel struct {
-	ID                                types.String `tfsdk:"id"`
-	Name                              types.String `tfsdk:"name"`
-	SystemID                          types.String `tfsdk:"system_id" json:"systemId"`
-	ProtectionDomainID                types.String `tfsdk:"protection_domain_id" json:"protectionDomainId"`
-	IPList                            []IPList     `tfsdk:"ip_list" json:"ipList"`
-	StoragePort                       types.Int64  `tfsdk:"storage_port" json:"storagePort"`
-	NvmePort                          types.Int64  `tfsdk:"nvme_port" json:"nvmePort"`
-	DiscoveryPort                     types.Int64  `tfsdk:"discovery_port" json:"discoveryPort"`
-	SdtState                          types.String `tfsdk:"sdt_state" json:"sdtState"`
-	MdmConnectionState                types.String `tfsdk:"mdm_connection_state" json:"mdmConnectionState"`
-	MembershipState                   types.String `tfsdk:"membership_state" json:"membershipState"`
-	FaultSetID                        types.String `tfsdk:"fault_set_id" json:"faultSetId"`
-	SoftwareVersionInfo               types.String `tfsdk:"software_version_info" json:"softwareVersionInfo"`
-	MaintenanceState                  types.String `tfsdk:"maintenance_state" json:"maintenanceState"`
-	AuthenticationError               types.String `tfsdk:"authentication_error" json:"authenticationError"`
-	PersistentDiscoveryControllersNum types.Int64  `tfsdk:"persistent_discovery_controllers_num" json:"persistentDiscoveryControllersNum"`
+	ID                   types.String `tfsdk:"id"`
+	Name                 types.String `tfsdk:"name"`
+	SystemID             types.String `tfsdk:"system_id" json:"systemId"`
+	ProtectionDomainID   types.String `tfsdk:"protection_domain_id" json:"protectionDomainId"`
+	ProtectionDomainName types.String `tfsdk:"protection_domain_name"`
+	IPList               []IPList     `tfsdk:"ip_list" json:"ipList"`
+	StoragePort          types.Int64  `tfsdk:"storage_port" json:"storagePort"`
+	NvmePort             types.Int64  `tfsdk:"nvme_port" json:"nvmePort"`
+	DiscoveryPort        types.Int64  `tfsdk:"discovery_port" json:"discoveryPort"`
+	SdtState             types.String `tfsdk:"sdt_state" json:"sdtState"`
+	MdmConnectionState   types.String `tfsdk:"mdm_connection_state" json:"mdmConnectionState"`
+	MembershipState      types.String `tfsdk:"membership_state" json:"membershipState"`
+	FaultSetID           types.String `tfsdk:"fault_set_id" json:"faultSetId"`
+	SoftwareVersionInfo  types.String `tfsdk:"software_version_info" json:"softwareVersionInfo"`
+	MaintenanceState     types.String `tfsdk:"maintenance_state" json:"maintenanceState"`
+	AuthenticationError  types.String `tfsdk:"authentication_error" json:"authenticationError"`
 }
 
 // NvmeTargetDataSource defines the model for NvmeTarget Datasource
@@ -50,44 +50,42 @@ type NvmeTargetDataSource struct {
 
 // NvmeTargetFilter defines the model for NvmeTarget filter
 type NvmeTargetFilter struct {
-	ID                                []types.String `tfsdk:"id"`
-	Name                              []types.String `tfsdk:"name"`
-	SystemID                          []types.String `tfsdk:"system_id"`
-	ProtectionDomainIDn               []types.String `tfsdk:"protection_domain_id"`
-	StoragePort                       []types.Int64  `tfsdk:"storage_port"`
-	NvmePort                          []types.Int64  `tfsdk:"nvme_port"`
-	DiscoveryPort                     []types.Int64  `tfsdk:"discovery_port"`
-	SdtState                          []types.String `tfsdk:"sdt_state"`
-	MdmConnectionState                []types.String `tfsdk:"mdm_connection_state"`
-	MembershipState                   []types.String `tfsdk:"membership_state"`
-	FaultSetID                        []types.String `tfsdk:"fault_set_id"`
-	SoftwareVersionInfo               []types.String `tfsdk:"software_version_info"`
-	MaintenanceState                  []types.String `tfsdk:"maintenance_state"`
-	AuthenticationError               []types.String `tfsdk:"authentication_error"`
-	PersistentDiscoveryControllersNum []types.Int64  `tfsdk:"persistent_discovery_controllers_num"`
+	ID                  []types.String `tfsdk:"id"`
+	Name                []types.String `tfsdk:"name"`
+	SystemID            []types.String `tfsdk:"system_id"`
+	ProtectionDomainIDn []types.String `tfsdk:"protection_domain_id"`
+	StoragePort         []types.Int64  `tfsdk:"storage_port"`
+	NvmePort            []types.Int64  `tfsdk:"nvme_port"`
+	DiscoveryPort       []types.Int64  `tfsdk:"discovery_port"`
+	SdtState            []types.String `tfsdk:"sdt_state"`
+	MdmConnectionState  []types.String `tfsdk:"mdm_connection_state"`
+	MembershipState     []types.String `tfsdk:"membership_state"`
+	FaultSetID          []types.String `tfsdk:"fault_set_id"`
+	SoftwareVersionInfo []types.String `tfsdk:"software_version_info"`
+	MaintenanceState    []types.String `tfsdk:"maintenance_state"`
+	AuthenticationError []types.String `tfsdk:"authentication_error"`
 }
 
 // NvmeTargetDatasourceModel is the datasource model for NVMe target
 type NvmeTargetDatasourceModel struct {
-	ID                                types.String         `tfsdk:"id"`
-	Name                              types.String         `tfsdk:"name"`
-	SystemID                          types.String         `tfsdk:"system_id" json:"systemId"`
-	ProtectionDomainID                types.String         `tfsdk:"protection_domain_id" json:"protectionDomainId"`
-	IPList                            []IPList             `tfsdk:"ip_list" json:"ipList"`
-	StoragePort                       types.Int64          `tfsdk:"storage_port" json:"storagePort"`
-	NvmePort                          types.Int64          `tfsdk:"nvme_port" json:"nvmePort"`
-	DiscoveryPort                     types.Int64          `tfsdk:"discovery_port" json:"discoveryPort"`
-	SdtState                          types.String         `tfsdk:"sdt_state" json:"sdtState"`
-	MdmConnectionState                types.String         `tfsdk:"mdm_connection_state" json:"mdmConnectionState"`
-	MembershipState                   types.String         `tfsdk:"membership_state" json:"membershipState"`
-	FaultSetID                        types.String         `tfsdk:"fault_set_id" json:"faultSetId"`
-	SoftwareVersionInfo               types.String         `tfsdk:"software_version_info" json:"softwareVersionInfo"`
-	MaintenanceState                  types.String         `tfsdk:"maintenance_state" json:"maintenanceState"`
-	AuthenticationError               types.String         `tfsdk:"authentication_error" json:"authenticationError"`
-	PersistentDiscoveryControllersNum types.Int64          `tfsdk:"persistent_discovery_controllers_num" json:"persistentDiscoveryControllersNum"`
-	CertificateInfo                   CertificateInfoModel `tfsdk:"certificate_info" json:"certificateInfo"`
-	Links                             []LinkModel          `tfsdk:"links"`
-	HostList                          []NvmeHostList       `tfsdk:"host_list"`
+	ID                  types.String         `tfsdk:"id"`
+	Name                types.String         `tfsdk:"name"`
+	SystemID            types.String         `tfsdk:"system_id" json:"systemId"`
+	ProtectionDomainID  types.String         `tfsdk:"protection_domain_id" json:"protectionDomainId"`
+	IPList              []IPList             `tfsdk:"ip_list" json:"ipList"`
+	StoragePort         types.Int64          `tfsdk:"storage_port" json:"storagePort"`
+	NvmePort            types.Int64          `tfsdk:"nvme_port" json:"nvmePort"`
+	DiscoveryPort       types.Int64          `tfsdk:"discovery_port" json:"discoveryPort"`
+	SdtState            types.String         `tfsdk:"sdt_state" json:"sdtState"`
+	MdmConnectionState  types.String         `tfsdk:"mdm_connection_state" json:"mdmConnectionState"`
+	MembershipState     types.String         `tfsdk:"membership_state" json:"membershipState"`
+	FaultSetID          types.String         `tfsdk:"fault_set_id" json:"faultSetId"`
+	SoftwareVersionInfo types.String         `tfsdk:"software_version_info" json:"softwareVersionInfo"`
+	MaintenanceState    types.String         `tfsdk:"maintenance_state" json:"maintenanceState"`
+	AuthenticationError types.String         `tfsdk:"authentication_error" json:"authenticationError"`
+	CertificateInfo     CertificateInfoModel `tfsdk:"certificate_info" json:"certificateInfo"`
+	Links               []LinkModel          `tfsdk:"links"`
+	HostList            []NvmeHostList       `tfsdk:"host_list"`
 }
 
 // NvmeHostList defines the model for NvmeHostList
