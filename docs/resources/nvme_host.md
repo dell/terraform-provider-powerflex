@@ -26,6 +26,8 @@ description: |-
 
 This resource is used to manager NVMe host from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe host using this resource. We can also import an existing NVMe host from PowerFlex array.
 
+Please note that due to certain limitations, updating the NVMe host in PowerFlex versions earlier than 4.6 is not supported
+
 ## Example Usage
 
 ```terraform
@@ -51,6 +53,7 @@ limitations under the License.
 # To import , check import.sh for more info
 # nqn is the required parameter to create
 # To check which attributes can be updated, please refer Product Guide in the documentation
+# Please note that due to certain limitations, updating the NVMe host in PowerFlex versions earlier than 4.6 is not supported
 
 # Example for adding NVMe host.
 resource "powerflex_nvme_host" "test-nvme-host" {

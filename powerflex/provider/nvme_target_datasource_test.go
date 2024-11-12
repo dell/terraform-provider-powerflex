@@ -64,7 +64,7 @@ func listCountGreaterThan(resourceName, listName string, count int) resource.Tes
 	}
 }
 
-func TestAccDatasourceNvmeTarget(t *testing.T) {
+func TestAccNvmeTargetDatasource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -89,7 +89,7 @@ func TestAccDatasourceNvmeTarget(t *testing.T) {
 	})
 }
 
-func TestAccDatasourceNvmeTargetNegative(t *testing.T) {
+func TestAccNvmeTargetDatasourceNegative(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

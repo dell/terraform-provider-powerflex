@@ -32,8 +32,8 @@ import (
 
 var nvmeHostResourceConfig = `
 resource "powerflex_nvme_host" "nvme_host_test" {
-		name              = "nvme_acc_client1002"
-		nqn               = "nqn.2014-08.org.nvmexpress:uuid:a10e4d56-a2c0-4cab-9a0a-9a7a4ebb8c0e"
+		name              = "` + NVMeHostNameCreate + `"
+		nqn               = "` + NVMeHostNqn + `"
 		max_num_paths     = 4
 		max_num_sys_ports = 10
 }
@@ -41,8 +41,26 @@ resource "powerflex_nvme_host" "nvme_host_test" {
 
 var nvmeHostResourceConfigUpdate = `
 resource "powerflex_nvme_host" "nvme_host_test" {
-		name              = "nvme_acc_client1002_update"
+		name              = "` + NVMeHostNameUpdate + `"
+		nqn               = "` + NVMeHostNqn + `"
+		max_num_paths     = 8
+		max_num_sys_ports = 8
+}
+`
+
+var nvmeHostResourceConfigEmptyName = `
+resource "powerflex_nvme_host" "nvme_host_test" {
+		name              = ""
 		nqn               = "nqn.2014-08.org.nvmexpress:uuid:a10e4d56-a2c0-4cab-9a0a-9a7a4ebb8c0e"
+		max_num_paths     = 8
+		max_num_sys_ports = 8
+}
+`
+
+var nvmeHostResourceConfigNewNqn = `
+resource "powerflex_nvme_host" "nvme_host_test" {
+		name              = ""
+		nqn               = "nqn.2014-08.org.nvmexpress:uuid:a10e4d56-a2c0-4cab-9a0a-aaaaaaaaaaaa"
 		max_num_paths     = 8
 		max_num_sys_ports = 8
 }
@@ -57,8 +75,8 @@ func TestAccNvmeHostResource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + nvmeHostResourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "nvme_acc_client1002"),
-					resource.TestCheckResourceAttr(resourceName, "nqn", "nqn.2014-08.org.nvmexpress:uuid:a10e4d56-a2c0-4cab-9a0a-9a7a4ebb8c0e"),
+					resource.TestCheckResourceAttr(resourceName, "name", NVMeHostNameCreate),
+					resource.TestCheckResourceAttr(resourceName, "nqn", NVMeHostNqn),
 					resource.TestCheckResourceAttr(resourceName, "max_num_paths", "4"),
 					resource.TestCheckResourceAttr(resourceName, "max_num_sys_ports", "10"),
 				),
@@ -73,7 +91,7 @@ func TestAccNvmeHostResource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + nvmeHostResourceConfigUpdate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "nvme_acc_client1002_update"),
+					resource.TestCheckResourceAttr(resourceName, "name", NVMeHostNameUpdate),
 					resource.TestCheckResourceAttr(resourceName, "max_num_paths", "8"),
 					resource.TestCheckResourceAttr(resourceName, "max_num_sys_ports", "8"),
 				),
@@ -82,7 +100,7 @@ func TestAccNvmeHostResource(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + nvmeHostResourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "nvme_acc_client1002"),
+					resource.TestCheckResourceAttr(resourceName, "name", NVMeHostNameCreate),
 					resource.TestCheckResourceAttr(resourceName, "max_num_paths", "4"),
 					resource.TestCheckResourceAttr(resourceName, "max_num_sys_ports", "10"),
 				),
@@ -97,6 +115,11 @@ func TestAccNvmeHostResourceNegative(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			// create with empty name
+			{
+				Config:      ProviderConfigForTesting + nvmeHostResourceConfigEmptyName,
+				ExpectError: regexp.MustCompile(`.*Name cannot be empty.*`),
+			},
 			// Negative testing for creating nvme host
 			{
 				PreConfig: func() {
@@ -131,6 +154,16 @@ func TestAccNvmeHostResourceNegative(t *testing.T) {
 				},
 				Config: ProviderConfigForTesting + nvmeHostResourceConfig,
 			},
+			// update with empty name
+			{
+				Config:      ProviderConfigForTesting + nvmeHostResourceConfigEmptyName,
+				ExpectError: regexp.MustCompile(`.*Name cannot be empty.*`),
+			},
+			// update with empty name
+			{
+				Config:      ProviderConfigForTesting + nvmeHostResourceConfigNewNqn,
+				ExpectError: regexp.MustCompile(`.*nqn cannot be modified after creation.*`),
+			},
 			// Negative testing for updating nvme host
 			{
 				PreConfig: func() {
@@ -141,6 +174,16 @@ func TestAccNvmeHostResourceNegative(t *testing.T) {
 				},
 				Config:      ProviderConfigForTesting + nvmeHostResourceConfigUpdate,
 				ExpectError: regexp.MustCompile(`.*Could not update NVMe host name.*`),
+			},
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetNvmeHostByID).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + nvmeHostResourceConfigUpdate,
+				ExpectError: regexp.MustCompile(`.*Could not get the NVMe host Details.*`),
 			},
 			{
 				PreConfig: func() {
@@ -166,7 +209,7 @@ func TestAccNvmeHostResourceNegative(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + nvmeHostResourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "nvme_acc_client1002"),
+					resource.TestCheckResourceAttr(resourceName, "name", NVMeHostNameCreate),
 					resource.TestCheckResourceAttr(resourceName, "max_num_paths", "4"),
 					resource.TestCheckResourceAttr(resourceName, "max_num_sys_ports", "10"),
 				),
@@ -191,6 +234,16 @@ func TestAccNvmeHostResourceHelperNegative(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetFirstSystem).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + nvmeHostResourceConfig,
+				ExpectError: regexp.MustCompile(`.*Error in getting system instance on the PowerFlex cluster.*`),
+			},
 			{
 				PreConfig: func() {
 					if FunctionMocker != nil {
@@ -242,6 +295,39 @@ func TestAccNvmeHostResourceHelperNegative(t *testing.T) {
 				Config:      ProviderConfigForTesting + nvmeHostResourceConfigUpdate,
 				ExpectError: regexp.MustCompile(`.*Could not read NVMe host struct.*`),
 			},
+			// mock checking PowerFlex version when udpating
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(goscaleio.CheckPfmpVersion).Return(-1, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + nvmeHostResourceConfigUpdate,
+				ExpectError: regexp.MustCompile(`.*Error checking PowerFlex version*.`),
+			},
+			// updating is not allowed prior to 4.6
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(goscaleio.CheckPfmpVersion).Return(-1, nil).Build()
+				},
+				Config:      ProviderConfigForTesting + nvmeHostResourceConfigUpdate,
+				ExpectError: regexp.MustCompile(`.*Updating NVMe host is not supported*.`),
+			},
+			// error deleting
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.System).DeleteNvmeHost).Return(fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting,
+				ExpectError: regexp.MustCompile(`.*Unable to delete NVMe host*.`),
+			},
 			// rollback nvme host
 			{
 				PreConfig: func() {
@@ -251,7 +337,7 @@ func TestAccNvmeHostResourceHelperNegative(t *testing.T) {
 				},
 				Config: ProviderConfigForTesting + nvmeHostResourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", "nvme_acc_client1002"),
+					resource.TestCheckResourceAttr(resourceName, "name", NVMeHostNameCreate),
 					resource.TestCheckResourceAttr(resourceName, "max_num_paths", "4"),
 					resource.TestCheckResourceAttr(resourceName, "max_num_sys_ports", "10"),
 				),
