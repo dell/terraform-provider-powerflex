@@ -398,6 +398,16 @@ func (r *volumeResource) Update(ctx context.Context, req resource.UpdateRequest,
 	vol := vols[0]
 	dgs := helper.RefreshVolumeState(vol, &state)
 	resp.Diagnostics.Append(dgs...)
+	// Add if added from import
+	if state.RemoveMode.IsNull() {
+		state.RemoveMode = plan.RemoveMode
+	}
+	if state.CapacityUnit.IsNull() {
+		state.CapacityUnit = plan.CapacityUnit
+	}
+	if state.Size.IsNull() {
+		state.Size = plan.Size
+	}
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 
