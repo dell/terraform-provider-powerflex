@@ -43,7 +43,7 @@ import (
 func GetFirstSystem(rc *goscaleio.Client) (*goscaleio.System, error) {
 	allSystems, err := rc.GetSystems()
 	if err != nil {
-		return nil, fmt.Errorf("Error in goscaleio GetSystems")
+		return nil, fmt.Errorf("Error in goscaleio GetSystems %s", err.Error())
 	}
 	if numSys := len((allSystems)); numSys == 0 {
 		return nil, fmt.Errorf("no systems found")
