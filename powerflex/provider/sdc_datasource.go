@@ -19,6 +19,7 @@ package provider
 
 import (
 	"context"
+	"strings"
 
 	"terraform-provider-powerflex/powerflex/helper"
 	"terraform-provider-powerflex/powerflex/models"
@@ -96,16 +97,20 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		)
 		return
 	}
+	tflog.Info(ctx, "system Version"+system.System.SystemVersionName)
 
-	// SDC endpoints returns both SDC and NVMe host. Need to filter out NVMe host
-	n := 0
-	for _, sdc := range sdcs {
-		if sdc.HostType == "SdcHost" {
-			sdcs[n] = sdc
-			n++
+	// If it is < 4_0 there is no NVME/HostType value so we should skip this filter
+	if !strings.Contains(system.System.SystemVersionName, "3_6") {
+		// SDC endpoints returns both SDC and NVMe host. Need to filter out NVMe host
+		n := 0
+		for _, sdc := range sdcs {
+			if sdc.HostType == "SdcHost" {
+				sdcs[n] = sdc
+				n++
+			}
 		}
+		sdcs = sdcs[:n]
 	}
-	sdcs = sdcs[:n]
 
 	// Set state
 	searchFilter := helper.SdcFilterType.All
