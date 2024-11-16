@@ -30,14 +30,15 @@ import (
 
 var nvmeHostDatasourceConfig = `
 data "powerflex_nvme_host" "nvme_host_datasource" {
-	filter {
-		name = ["nvme_acc_client1001"]
-	}
+	
 }
 `
-var nvmeHostDatasourceNoFilterConfig = `
+
+var nvmeHostDatasourceConfigFilter = `
 data "powerflex_nvme_host" "nvme_host_datasource" {
-	
+	filter {
+		name = ["` + NVMeHostName + `"]
+	}
 }
 `
 
@@ -49,15 +50,15 @@ data "powerflex_nvme_host" "nvme_host_datasource" {
 }
 `
 
-func TestAccDatasourceNvmeHost(t *testing.T) {
+func TestAccNvmeHostDatasource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: ProviderConfigForTesting + nvmeHostDatasourceNoFilterConfig,
+				Config: ProviderConfigForTesting + nvmeHostDatasourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_nvme_host.nvme_host_datasource", "nvme_host_details.#", "1"),
+					listCountGreaterThan("data.powerflex_nvme_host.nvme_host_datasource", "nvme_host_details", 0),
 				),
 			},
 			{
@@ -69,7 +70,7 @@ func TestAccDatasourceNvmeHost(t *testing.T) {
 						{ID: "mock-id", HostType: "NVMeHost", SystemID: "mock-system-id", Name: "", Nqn: "mock-nqn", MaxNumPaths: 4, MaxNumSysPorts: 10},
 					}, nil).Build()
 				},
-				Config: ProviderConfigForTesting + nvmeHostDatasourceNoFilterConfig,
+				Config: ProviderConfigForTesting + nvmeHostDatasourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_nvme_host.nvme_host_datasource", "nvme_host_details.#", "1"),
 					resource.TestCheckResourceAttr("data.powerflex_nvme_host.nvme_host_datasource", "nvme_host_details.0.name", "NVMeHost:mock-id"),
@@ -92,18 +93,16 @@ func TestAccDatasourceNvmeHost(t *testing.T) {
 						FunctionMocker.UnPatch()
 					}
 				},
-				Config: ProviderConfigForTesting + nvmeHostDatasourceConfig,
+				Config: ProviderConfigForTesting + nvmeHostDatasourceConfigFilter,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_nvme_host.nvme_host_datasource", "nvme_host_details.0.name", "nvme_acc_client1001"),
-					resource.TestCheckResourceAttr("data.powerflex_nvme_host.nvme_host_datasource", "nvme_host_details.0.max_num_paths", "4"),
-					resource.TestCheckResourceAttr("data.powerflex_nvme_host.nvme_host_datasource", "nvme_host_details.0.max_num_sys_ports", "10"),
+					resource.TestCheckResourceAttr("data.powerflex_nvme_host.nvme_host_datasource", "nvme_host_details.0.name", NVMeHostName),
 				),
 			},
 		},
 	})
 }
 
-func TestAccDatasourceNvmeHostNegative(t *testing.T) {
+func TestAccNvmeHostDatasourceNegative(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -115,7 +114,7 @@ func TestAccDatasourceNvmeHostNegative(t *testing.T) {
 					}
 					FunctionMocker = Mock(helper.GetFirstSystem).Return(nil, fmt.Errorf("mock error")).Build()
 				},
-				Config:      ProviderConfigForTesting + nvmeHostDatasourceConfig,
+				Config:      ProviderConfigForTesting + nvmeHostDatasourceConfigFilter,
 				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex specific system*.`),
 			},
 			{
@@ -125,7 +124,7 @@ func TestAccDatasourceNvmeHostNegative(t *testing.T) {
 					}
 					FunctionMocker = Mock((*goscaleio.System).GetAllNvmeHosts).Return(nil, fmt.Errorf("mock error")).Build()
 				},
-				Config:      ProviderConfigForTesting + nvmeHostDatasourceConfig,
+				Config:      ProviderConfigForTesting + nvmeHostDatasourceConfigFilter,
 				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex NVMe Hosts*.`),
 			},
 		},

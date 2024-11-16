@@ -138,6 +138,14 @@ func (r *NvmeHostResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
+	if !plan.Name.IsNull() && plan.Name.ValueString() == "" {
+		resp.Diagnostics.AddError(
+			"Name cannot be empty",
+			"Name cannot be empty",
+		)
+		return
+	}
+
 	hostResp, err := r.system.CreateNvmeHost(params)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -224,10 +232,35 @@ func (r *NvmeHostResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
+	result, err := goscaleio.CheckPfmpVersion(r.client, "4.6")
+
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error checking PowerFlex version",
+			err.Error(),
+		)
+		return
+	}
+	if result < 0 {
+		resp.Diagnostics.AddError(
+			"Updating NVMe host is not supported",
+			"Updating the NVMe host is not supported in PowerFlex versions earlier than 4.6",
+		)
+		return
+	}
+
 	if !plan.Nqn.Equal(state.Nqn) {
 		resp.Diagnostics.AddError(
 			"nqn cannot be modified after creation",
 			"nqn cannot be modified after creation",
+		)
+		return
+	}
+
+	if !plan.Name.IsNull() && plan.Name.ValueString() == "" {
+		resp.Diagnostics.AddError(
+			"Name cannot be empty",
+			"Name cannot be empty",
 		)
 		return
 	}
