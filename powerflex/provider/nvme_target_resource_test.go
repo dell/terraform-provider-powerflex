@@ -40,6 +40,7 @@ resource "powerflex_nvme_target" "nvme_target_test" {
 			role = "StorageAndHost"	
 		}
 	]
+	maintenance_state = "Inactive"
 }
 `
 
@@ -221,6 +222,7 @@ func TestAccNvmeTargetResource(t *testing.T) {
 func TestAccNvmeTargetResourceNegative(t *testing.T) {
 	resourceName := "powerflex_nvme_target.nvme_target_test"
 	var createFuncMocker *Mocker
+	var maintenanceModeMocker *Mocker
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -242,6 +244,7 @@ func TestAccNvmeTargetResourceNegative(t *testing.T) {
 					}
 					createFuncMocker = Mock((*goscaleio.ProtectionDomain).CreateSdt).Return(&scaleiotypes.SdtResp{ID: "1"}, nil).Build()
 					FunctionMocker = Mock((*goscaleio.System).GetNvmeHostByID).Return(nil, fmt.Errorf("mock error")).Build()
+					maintenanceModeMocker = Mock(helper.ToggleSdtMaintenanceMode).Return(nil).Build()
 				},
 				Config:      ProviderConfigForTesting + nvmeTargetResourceConfig,
 				ExpectError: regexp.MustCompile(`.*Could not read NVMe target with ID.*`),
@@ -255,6 +258,10 @@ func TestAccNvmeTargetResourceNegative(t *testing.T) {
 					if createFuncMocker != nil {
 						createFuncMocker.UnPatch()
 					}
+					if maintenanceModeMocker != nil {
+						maintenanceModeMocker.UnPatch()
+					}
+
 				},
 				Config: ProviderConfigForTesting + nvmeTargetResourceConfig,
 			},
@@ -374,6 +381,7 @@ func TestAccNvmeTargetResourceHelperNegative(t *testing.T) {
 	resourceName := "powerflex_nvme_target.nvme_target_test"
 	var createFuncMocker *Mocker
 	var getFuncMocker *Mocker
+	var maintenanceModeMocker *Mocker
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -418,6 +426,7 @@ func TestAccNvmeTargetResourceHelperNegative(t *testing.T) {
 						Name: NVMeTargetNameCreate,
 					}, nil).Build()
 					FunctionMocker = Mock(helper.CopyFields).Return(fmt.Errorf("mock error")).Build()
+					maintenanceModeMocker = Mock(helper.ToggleSdtMaintenanceMode).Return(nil).Build()
 				},
 				Config:      ProviderConfigForTesting + nvmeTargetResourceConfig,
 				ExpectError: regexp.MustCompile(`.*Could not parse NVMe target struct.*`),
@@ -433,6 +442,9 @@ func TestAccNvmeTargetResourceHelperNegative(t *testing.T) {
 					}
 					if getFuncMocker != nil {
 						getFuncMocker.UnPatch()
+					}
+					if maintenanceModeMocker != nil {
+						maintenanceModeMocker.UnPatch()
 					}
 				},
 				Config: ProviderConfigForTesting + nvmeTargetResourceConfig,

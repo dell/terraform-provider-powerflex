@@ -377,7 +377,6 @@ func (r *NvmeTargetResource) Update(ctx context.Context, req resource.UpdateRequ
 			"Could not update NVMe target",
 			err.Error(),
 		)
-		return
 	}
 
 	if !plan.MaintenanceState.IsUnknown() && !plan.MaintenanceState.IsNull() &&
@@ -388,7 +387,6 @@ func (r *NvmeTargetResource) Update(ctx context.Context, req resource.UpdateRequ
 				fmt.Sprintf("Could not set maintenance mode to %s", plan.MaintenanceState.ValueString()),
 				err.Error(),
 			)
-			return
 		}
 	}
 

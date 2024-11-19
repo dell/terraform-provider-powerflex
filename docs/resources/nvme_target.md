@@ -27,7 +27,14 @@ description: |-
 This resource is used to manager NVMe target from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe target using this resource. We can also import an existing NVMe target from PowerFlex array.  
  **Note:** Either `protection_domain_id` or `protection_domain_name` must be specified.
 
-To avoid potential issues, it is recommended to operate NVMe targets using the default ports.
+> **Caution:** <span style='color: red;' >NVMe target creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
+One can manually remove the taint and try applying the configuration (after making necessary adjustments).
+If the taint is not removed, terraform will destroy and recreate the resource.</span>
+
+> **Note:** 
+>  - Either `protection_domain_name` and `protection_domain_id` is required. But not both.
+>  - NVMe over TCP is supported in PowerFlex 4.0 and later versions, therefore this resource is not supported in PowerFlex 3.x.
+>  - To avoid potential issues, it is recommended to operate NVMe targets using the default ports.
 
 ## Example Usage
 
@@ -54,6 +61,7 @@ limitations under the License.
 # To import , check import.sh for more info.
 # name and ip_list attributes are required, and either protection_domain_name or protection_domain_id must be specified.
 # To check which attributes can be updated, please refer Product Guide in the documentation
+# Please note that NVMe over TCP is supported in PowerFlex 4.0 and later versions, therefore this resource is not supported in PowerFlex 3.x.
 # To avoid potential issues, it is recommended to operate NVMe targets using the default ports.
 
 # Example for adding NVMe target.

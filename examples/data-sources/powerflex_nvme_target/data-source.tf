@@ -24,6 +24,8 @@ data "powerflex_nvme_target" "example1" {
 // If multiple filter fields are provided then it will show the intersection of all of those fields.
 // If there is no intersection between the filters then an empty datasource will be returned
 // For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 
+// Please note that NVMe over TCP is supported in PowerFlex 4.0 and later versions, therefore this datasource is not supported in PowerFlex 3.x.
+
 data "powerflex_nvme_target" "example" {
   filter {
     name = ["name1", "name2"]

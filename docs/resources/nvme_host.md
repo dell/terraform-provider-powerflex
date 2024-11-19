@@ -26,7 +26,10 @@ description: |-
 
 This resource is used to manager NVMe host from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe host using this resource. We can also import an existing NVMe host from PowerFlex array.
 
-Please note that due to certain limitations, updating the NVMe host in PowerFlex versions earlier than 4.6 is not supported
+> **Note:** 
+>  - NVMe over TCP is supported in PowerFlex 4.0 and later versions, therefore this resource is not supported in PowerFlex 3.x.
+>  - Due to certain limitations, updating the NVMe host in PowerFlex versions earlier than 4.6 is not supported
+
 
 ## Example Usage
 
@@ -53,7 +56,9 @@ limitations under the License.
 # To import , check import.sh for more info
 # nqn is the required parameter to create
 # To check which attributes can be updated, please refer Product Guide in the documentation
-# Please note that due to certain limitations, updating the NVMe host in PowerFlex versions earlier than 4.6 is not supported
+# Please note that 
+# 1. NVMe over TCP is supported in PowerFlex 4.0 and later versions, therefore this resource is not supported in PowerFlex 3.x.
+# 2. Due to certain limitations, updating the NVMe host in PowerFlex versions earlier than 4.6 is not supported
 
 # Example for adding NVMe host.
 resource "powerflex_nvme_host" "test-nvme-host" {

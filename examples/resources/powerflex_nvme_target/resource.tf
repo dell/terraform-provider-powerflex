@@ -20,6 +20,7 @@ limitations under the License.
 # To import , check import.sh for more info.
 # name and ip_list attributes are required, and either protection_domain_name or protection_domain_id must be specified.
 # To check which attributes can be updated, please refer Product Guide in the documentation
+# Please note that NVMe over TCP is supported in PowerFlex 4.0 and later versions, therefore this resource is not supported in PowerFlex 3.x.
 # To avoid potential issues, it is recommended to operate NVMe targets using the default ports.
 
 # Example for adding NVMe target.

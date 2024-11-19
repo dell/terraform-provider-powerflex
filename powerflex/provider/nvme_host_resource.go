@@ -138,7 +138,7 @@ func (r *NvmeHostResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	if !plan.Name.IsNull() && plan.Name.ValueString() == "" {
+	if !plan.Name.IsUnknown() && !plan.Name.IsNull() && plan.Name.ValueString() == "" {
 		resp.Diagnostics.AddError(
 			"Name cannot be empty",
 			"Name cannot be empty",
@@ -272,7 +272,6 @@ func (r *NvmeHostResource) Update(ctx context.Context, req resource.UpdateReques
 				"Could not update NVMe host name",
 				err.Error(),
 			)
-			return
 		}
 	}
 
@@ -283,7 +282,6 @@ func (r *NvmeHostResource) Update(ctx context.Context, req resource.UpdateReques
 				"Could not update max_num_paths",
 				err.Error(),
 			)
-			return
 		}
 	}
 
@@ -294,7 +292,6 @@ func (r *NvmeHostResource) Update(ctx context.Context, req resource.UpdateReques
 				"Could not update max_num_sys_ports",
 				err.Error(),
 			)
-			return
 		}
 	}
 

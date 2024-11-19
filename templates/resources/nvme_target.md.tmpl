@@ -26,7 +26,14 @@ description: |-
 
 {{ .Description | trimspace }}
 
-To avoid potential issues, it is recommended to operate NVMe targets using the default ports.
+> **Caution:** <span style='color: red;' >NVMe target creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.
+One can manually remove the taint and try applying the configuration (after making necessary adjustments).
+If the taint is not removed, terraform will destroy and recreate the resource.</span>
+
+> **Note:** 
+>  - Either `protection_domain_name` and `protection_domain_id` is required. But not both.
+>  - NVMe over TCP is supported in PowerFlex 4.0 and later versions, therefore this resource is not supported in PowerFlex 3.x.
+>  - To avoid potential issues, it is recommended to operate NVMe targets using the default ports.
 
 {{ if .HasExample -}}
 ## Example Usage

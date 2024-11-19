@@ -26,6 +26,9 @@ description: |-
 
 This datasource is used to query the existing NVMe hosts from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 
+> **Note:** 
+  NVMe over TCP is supported in PowerFlex 4.0 and later versions, therefore this datasource is not supported in PowerFlex 3.x.
+
 ## Example Usage
 
 ```terraform
@@ -55,6 +58,8 @@ data "powerflex_nvme_host" "example1" {
 // If multiple filter fields are provided then it will show the intersection of all of those fields.
 // If there is no intersection between the filters then an empty datasource will be returned
 // For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 
+// Please note that NVMe over TCP is supported in PowerFlex 4.0 and later versions, therefore this datasource is not supported in PowerFlex 3.x.
+
 data "powerflex_nvme_host" "example2" {
   filter {
     name = ["name1", "name2"]
