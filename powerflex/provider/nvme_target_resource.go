@@ -35,6 +35,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -251,6 +252,14 @@ func (r *NvmeTargetResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
+	if !plan.Name.IsNull() && plan.Name.ValueString() == "" {
+		resp.Diagnostics.AddError(
+			"Name cannot be empty",
+			"Name cannot be empty",
+		)
+		return
+	}
+
 	if len(plan.IPList) >= 0 {
 		for _, ip := range plan.IPList {
 			params.IPList = append(params.IPList, &scaleiotypes.SdtIP{IP: ip.IP.ValueString(), Role: ip.Role.ValueString()})
@@ -364,11 +373,37 @@ func (r *NvmeTargetResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
+	if !plan.Name.IsNull() && plan.Name.ValueString() == "" {
+		resp.Diagnostics.AddError(
+			"Name cannot be empty",
+			"Name cannot be empty",
+		)
+		return
+	}
+
 	if !plan.ProtectionDomainID.IsUnknown() && plan.ProtectionDomainID.ValueString() != state.ProtectionDomainID.ValueString() {
 		resp.Diagnostics.AddError(
 			"Protection domain ID cannot be updated",
 			"Protection domain ID cannot be updated")
 		return
+	}
+
+	if !plan.ProtectionDomainName.IsNull() && plan.ProtectionDomainName.ValueString() != state.ProtectionDomainName.ValueString() {
+		protectionDomain, err := r.system.FindProtectionDomain("", plan.ProtectionDomainName.ValueString(), "")
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Unable to Read Powerflex Protection domain by name %v", plan.ProtectionDomainName.ValueString()),
+				err.Error(),
+			)
+			return
+		}
+		if protectionDomain.ID != state.ProtectionDomainID.ValueString() {
+			resp.Diagnostics.AddError(
+				"Protection domain name does not match the original Protection domain",
+				"Protection domain name does not match the original Protection domain")
+			return
+		}
+		state.ProtectionDomainName = types.StringValue(protectionDomain.Name)
 	}
 
 	err := helper.NvmeTargetUpdate(r.system, state, plan)
@@ -407,6 +442,8 @@ func (r *NvmeTargetResource) Update(ctx context.Context, req resource.UpdateRequ
 		)
 		return
 	}
+	// in case of switching back and forth between PD ID and name
+	state.ProtectionDomainName = plan.ProtectionDomainName
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)

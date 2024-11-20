@@ -13,6 +13,39 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
+# v1.7.0 (December 2024)
+
+## Release Summary
+
+The release supports resources and data sources mentioned in the Features section for Dell PowerFlex.
+
+## Features
+
+### Resources
+
+* `powerflex_peer_system` for managing Peer Systems in PowerFlex.
+* `powerflex_replication_consistency_group` for managing Replication Consistency Groups in PowerFlex.
+* `powerflex_replication_pair` for managing Replication Pairs in PowerFlex.
+* `powerflex_replication_consistency_group_action` for performing action on Replication Consistency Group in PowerFlex.
+* `powerflex_nvme_host` for managing NVMe Hosts in PowerFlex.
+* `powerflex_nvme_target` for managing NVMe Targets in PowerFlex.
+
+### Data Sources
+
+* `powerflex_peer_system` for reading Peer System details in PowerFlex.
+* `powerflex_replication_consistency_group` for reading Replication Consistency Group details in PowerFlex.
+* `powerflex_replication_pair` for reading Replication Pair details in PowerFlex.
+* `powerflex_nvme_host` for reading NVMe Host details in PowerFlex.
+* `powerflex_nvme_target` for reading NVMe Target details in PowerFlex.
+  
+### Enhancements
+
+* Added support for SDT deployment using Cluster resource.
+
+### Limitations
+
+* NVMe over TCP is supported in PowerFlex 4.0 and later versions, therefore `powerflex_nvme_host`, `powerflex_nvme_target` and SDT deployment using Cluster resource are not supported in PowerFlex 3.x.
+* Due to certain limitations, updating the NVMe host in PowerFlex versions earlier than 4.6 is not supported
 
 # v1.6.0 (Aug 2024)
 
