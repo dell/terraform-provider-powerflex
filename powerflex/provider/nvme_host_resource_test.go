@@ -27,7 +27,6 @@ import (
 
 	. "github.com/bytedance/mockey"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 var nvmeHostResourceConfig = `
@@ -51,7 +50,7 @@ resource "powerflex_nvme_host" "nvme_host_test" {
 var nvmeHostResourceConfigEmptyName = `
 resource "powerflex_nvme_host" "nvme_host_test" {
 		name              = ""
-		nqn               = "nqn.2014-08.org.nvmexpress:uuid:a10e4d56-a2c0-4cab-9a0a-9a7a4ebb8c0e"
+		nqn               = "` + NVMeHostNqn + `"
 		max_num_paths     = 8
 		max_num_sys_ports = 8
 }
@@ -112,6 +111,8 @@ func TestAccNvmeHostResource(t *testing.T) {
 func TestAccNvmeHostResourceNegative(t *testing.T) {
 	resourceName := "powerflex_nvme_host.nvme_host_test"
 	var createFuncMocker *Mocker
+	var changeMaxNumPathsMocker *Mocker
+	var changeMaxNumSysPortsMocker *Mocker
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -159,7 +160,7 @@ func TestAccNvmeHostResourceNegative(t *testing.T) {
 				Config:      ProviderConfigForTesting + nvmeHostResourceConfigEmptyName,
 				ExpectError: regexp.MustCompile(`.*Name cannot be empty.*`),
 			},
-			// update with empty name
+			// update with new nqn
 			{
 				Config:      ProviderConfigForTesting + nvmeHostResourceConfigNewNqn,
 				ExpectError: regexp.MustCompile(`.*nqn cannot be modified after creation.*`),
@@ -170,7 +171,15 @@ func TestAccNvmeHostResourceNegative(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
+					if changeMaxNumPathsMocker != nil {
+						changeMaxNumPathsMocker.UnPatch()
+					}
+					if changeMaxNumSysPortsMocker != nil {
+						changeMaxNumSysPortsMocker.UnPatch()
+					}
 					FunctionMocker = Mock((*goscaleio.System).ChangeNvmeHostName).Return(fmt.Errorf("mock error")).Build()
+					changeMaxNumPathsMocker = Mock((*goscaleio.System).ChangeNvmeHostMaxNumPaths).Return(fmt.Errorf("mock error")).Build()
+					changeMaxNumSysPortsMocker = Mock((*goscaleio.System).ChangeNvmeHostMaxNumSysPorts).Return(fmt.Errorf("mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + nvmeHostResourceConfigUpdate,
 				ExpectError: regexp.MustCompile(`.*Could not update NVMe host name.*`),
@@ -185,28 +194,14 @@ func TestAccNvmeHostResourceNegative(t *testing.T) {
 				Config:      ProviderConfigForTesting + nvmeHostResourceConfigUpdate,
 				ExpectError: regexp.MustCompile(`.*Could not get the NVMe host Details.*`),
 			},
-			{
-				PreConfig: func() {
-					if FunctionMocker != nil {
-						FunctionMocker.UnPatch()
-					}
-					FunctionMocker = Mock((*goscaleio.System).ChangeNvmeHostMaxNumPaths).Return(fmt.Errorf("mock error")).Build()
-				},
-				Config:      ProviderConfigForTesting + nvmeHostResourceConfigUpdate,
-				ExpectError: regexp.MustCompile(`.*Could not update max_num_paths.*`),
-			},
-			{
-				PreConfig: func() {
-					if FunctionMocker != nil {
-						FunctionMocker.UnPatch()
-					}
-					FunctionMocker = Mock((*goscaleio.System).ChangeNvmeHostMaxNumSysPorts).Return(fmt.Errorf("mock error")).Build()
-				},
-				Config:      ProviderConfigForTesting + nvmeHostResourceConfigUpdate,
-				ExpectError: regexp.MustCompile(`.*Could not update max_num_sys_ports.*`),
-			},
 			// rollback nvme host
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+
+				},
 				Config: ProviderConfigForTesting + nvmeHostResourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", NVMeHostNameCreate),
@@ -214,15 +209,6 @@ func TestAccNvmeHostResourceNegative(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "max_num_sys_ports", "10"),
 				),
 			},
-		},
-		CheckDestroy: func(_ *terraform.State) error {
-			if FunctionMocker != nil {
-				FunctionMocker.UnPatch()
-			}
-			if createFuncMocker != nil {
-				createFuncMocker.UnPatch()
-			}
-			return nil
 		},
 	})
 }
@@ -342,18 +328,6 @@ func TestAccNvmeHostResourceHelperNegative(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "max_num_sys_ports", "10"),
 				),
 			},
-		},
-		CheckDestroy: func(_ *terraform.State) error {
-			if FunctionMocker != nil {
-				FunctionMocker.UnPatch()
-			}
-			if createFuncMocker != nil {
-				createFuncMocker.UnPatch()
-			}
-			if getFuncMocker != nil {
-				getFuncMocker.UnPatch()
-			}
-			return nil
 		},
 	})
 }

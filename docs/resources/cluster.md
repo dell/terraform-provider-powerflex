@@ -46,6 +46,8 @@ This terraform resource is used to deploy the PowerFlex Cluster. We can Create a
 
 9. To follow the installation process, you can refer to the [Deployment Guide 3.x](https://www.dell.com/support/manuals/en-us/scaleio/pfx_deploy_guide_3.6.x/deploy-powerflex?guid=guid-e9f70972-baac-42c9-9ff9-a3d2b0722f54&lang=en-us) & [Deployment Guide 4.x](https://www.dell.com/support/manuals/en-us/scaleio/powerflex_install_upgrade_guide_4.5.x/introduction?guid=guid-e798f431-7df4-450c-8f86-60ee7f3d1e3e&lang=en-us)
 
+10. NVMe over TCP is supported in PowerFlex 4.0 and later versions, therefore SDT deployment is not supported in PowerFlex 3.x.
+
 ## Example Usage
 
 ```terraform
