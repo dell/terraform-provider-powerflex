@@ -16,7 +16,7 @@ require (
 	github.com/masterzen/winrm v0.0.0-20240702205601-3fad6e106085
 	github.com/packer-community/winrmcp v0.0.0-20221126162354-6e900dd2c68f
 	github.com/stretchr/testify v1.9.0
-	golang.org/x/crypto v0.29.0
+	golang.org/x/crypto v0.28.0
 )
 
 require (
