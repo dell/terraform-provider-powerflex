@@ -63,6 +63,63 @@ resource "powerflex_nvme_target" "nvme_target_test" {
 }
 `
 
+var nvmeTargetResourceConfigUpdateEmptyName = `
+resource "powerflex_nvme_target" "nvme_target_test" {
+	name              = ""
+	protection_domain_id               = "` + ProtectionDomainID + `"
+	ip_list     = [ 
+		{
+			ip = "` + NVMeTargetIP1 + `"
+			role = "StorageAndHost"
+		},
+		{
+			ip = "` + NVMeTargetIP2 + `"
+			role = "StorageAndHost"
+		}
+	]
+	discovery_port = 8008
+	nvme_port = 4421
+}
+`
+
+var nvmeTargetResourceConfigUpdateDiffPd = `
+resource "powerflex_nvme_target" "nvme_target_test" {
+	name              = "` + NVMeTargetNameUpdate + `"
+	protection_domain_id               = "other_pd_id"
+	ip_list     = [ 
+		{
+			ip = "` + NVMeTargetIP1 + `"
+			role = "StorageAndHost"
+		},
+		{
+			ip = "` + NVMeTargetIP2 + `"
+			role = "StorageAndHost"
+		}
+	]
+	discovery_port = 8008
+	nvme_port = 4421
+}
+`
+
+var nvmeTargetResourceConfigUpdateInvalidPd = `
+resource "powerflex_nvme_target" "nvme_target_test" {
+	name              = "` + NVMeTargetNameUpdate + `"	
+	protection_domain_name               = "invalid_pd"
+	ip_list     = [
+		{
+			ip = "` + NVMeTargetIP1 + `"
+			role = "StorageAndHost"
+		},
+		{
+			ip = "` + NVMeTargetIP2 + `"
+			role = "StorageAndHost"
+		}
+	]
+	discovery_port = 8008
+	nvme_port = 4421
+}
+`
+
 var nvmeTargetResourceConfigUpdateStoragePort = `
 resource "powerflex_nvme_target" "nvme_target_test" {
 	name              = "` + NVMeTargetNameCreate + `"
@@ -232,6 +289,15 @@ func TestAccNvmeTargetResourceNegative(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
+				},
+				Config:      ProviderConfigForTesting + nvmeTargetResourceConfigUpdateEmptyName,
+				ExpectError: regexp.MustCompile(`.*Name cannot be empty.*`),
+			},
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
 					FunctionMocker = Mock((*goscaleio.ProtectionDomain).CreateSdt).Return(nil, fmt.Errorf("mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + nvmeTargetResourceConfig,
@@ -266,6 +332,46 @@ func TestAccNvmeTargetResourceNegative(t *testing.T) {
 				Config: ProviderConfigForTesting + nvmeTargetResourceConfig,
 			},
 			// Negative testing for updating nvme target
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
+				Config:      ProviderConfigForTesting + nvmeTargetResourceConfigUpdateEmptyName,
+				ExpectError: regexp.MustCompile(`.*Name cannot be empty.*`),
+			},
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
+				Config:      ProviderConfigForTesting + nvmeTargetResourceConfigUpdateDiffPd,
+				ExpectError: regexp.MustCompile(`.*Protection domain ID cannot be updated.*`),
+			},
+			// failed to get protection domain
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.System).FindProtectionDomain).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + nvmeTargetResourceConfigUpdateInvalidPd,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex Protection domain by name.*`),
+			},
+			// update with invalid protection domain
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.System).FindProtectionDomain).Return(&scaleiotypes.ProtectionDomain{ID: "abcdefg", Name: "invlaid_pd"}, nil).Build()
+				},
+				Config:      ProviderConfigForTesting + nvmeTargetResourceConfigUpdateInvalidPd,
+				ExpectError: regexp.MustCompile(`.*Protection domain name does not match the original Protection domain.*`),
+			},
 			{
 				PreConfig: func() {
 					if FunctionMocker != nil {
