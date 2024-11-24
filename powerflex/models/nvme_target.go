@@ -53,7 +53,7 @@ type NvmeTargetFilter struct {
 	ID                  []types.String `tfsdk:"id"`
 	Name                []types.String `tfsdk:"name"`
 	SystemID            []types.String `tfsdk:"system_id"`
-	ProtectionDomainIDn []types.String `tfsdk:"protection_domain_id"`
+	ProtectionDomainID  []types.String `tfsdk:"protection_domain_id"`
 	StoragePort         []types.Int64  `tfsdk:"storage_port"`
 	NvmePort            []types.Int64  `tfsdk:"nvme_port"`
 	DiscoveryPort       []types.Int64  `tfsdk:"discovery_port"`
