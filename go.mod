@@ -7,7 +7,7 @@ toolchain go1.23.2
 require (
 	github.com/bramvdbogaerde/go-scp v1.5.0
 	github.com/bytedance/mockey v1.2.13
-	github.com/dell/goscaleio v1.17.1-0.20241116014606-58a85e67edac
+	github.com/dell/goscaleio v1.17.1
 	github.com/hashicorp/terraform-plugin-framework v1.13.0
 	github.com/hashicorp/terraform-plugin-framework-validators v0.15.0
 	github.com/hashicorp/terraform-plugin-go v0.25.0
