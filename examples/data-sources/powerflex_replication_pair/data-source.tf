@@ -16,6 +16,7 @@ limitations under the License.
 */
 
 # commands to run this tf file : terraform init && terraform apply
+# This feature is only supported for PowerFlex 4.5 and above.
 
 // Empty filter block will return all the replication pairs
 data "powerflex_replication_pair" "rp" {}

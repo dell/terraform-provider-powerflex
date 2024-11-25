@@ -19,12 +19,12 @@ linkTitle: "powerflex_peer_system"
 page_title: "powerflex_peer_system Data Source - powerflex"
 subcategory: ""
 description: |-
-  This datasource is used to read the Peer MDM entity of the PowerFlex Array.
+  This datasource is used to read the Peer System entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above.
 ---
 
 # powerflex_peer_system (Data Source)
 
-This datasource is used to read the Peer MDM entity of the PowerFlex Array.
+This datasource is used to read the Peer System entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above.
 
 ## Example Usage
 
@@ -47,6 +47,7 @@ limitations under the License.
 */
 
 # commands to run this tf file : terraform init && terraform apply --auto-approve
+# This feature is only supported for PowerFlex 4.5 and above.
 
 # Get all Peer System details present on the cluster
 data "powerflex_peer_system" "example1" {

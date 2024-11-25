@@ -30,8 +30,8 @@ import (
 
 // PeerSystemReourceSchema - variable holds schema for PeerSystemReource resource
 var PeerSystemReourceSchema schema.Schema = schema.Schema{
-	Description:         "This resource is used to manage the Peer System entity of the PowerFlex Array. We can Create, Update and Delete the PowerFlex Peer Systems using this resource. We can also Import an existing Peer Systems from the PowerFlex array.",
-	MarkdownDescription: "This resource is used to manage the Peer System entity of the PowerFlex Array. We can Create, Update and Delete the PowerFlex Peer Systems using this resource. We can also Import an existing Peer Systems from the PowerFlex array.",
+	Description:         "This resource is used to manage the Peer System entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. We can Create, Update and Delete the PowerFlex Peer Systems using this resource. We can also Import an existing Peer Systems from the PowerFlex array.",
+	MarkdownDescription: "This resource is used to manage the Peer System entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. We can Create, Update and Delete the PowerFlex Peer Systems using this resource. We can also Import an existing Peer Systems from the PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"name": schema.StringAttribute{
 			Description:         "Name of the peer mdm instance.",

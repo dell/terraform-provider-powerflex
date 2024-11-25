@@ -3,12 +3,12 @@ linkTitle: "powerflex_replication_consistency_group_action"
 page_title: "powerflex_replication_consistency_group_action Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource is used to execute actions on the Replication Consistency Group entity of the PowerFlex Array.
+  This resource is used to execute actions on the Replication Consistency Group entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above.
 ---
 
 # powerflex_replication_consistency_group_action (Resource)
 
-This resource is used to execute actions on the Replication Consistency Group entity of the PowerFlex Array.
+This resource is used to execute actions on the Replication Consistency Group entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above.
 
 ## Example Usage
 

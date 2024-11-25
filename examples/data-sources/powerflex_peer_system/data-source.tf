@@ -16,6 +16,7 @@ limitations under the License.
 */
 
 # commands to run this tf file : terraform init && terraform apply --auto-approve
+# This feature is only supported for PowerFlex 4.5 and above.
 
 # Get all Peer System details present on the cluster
 data "powerflex_peer_system" "example1" {

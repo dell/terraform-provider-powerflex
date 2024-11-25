@@ -26,8 +26,8 @@ import (
 
 // ReplicationConsistencyGroupDataSourceSchema defines the schema for RCG datasource
 var ReplicationConsistencyGroupDataSourceSchema schema.Schema = schema.Schema{
-	Description:         "This datasource is used to read the Replication Consistency Group entity of the PowerFlex Array.",
-	MarkdownDescription: "This datasource is used to read the Replication Consistency Group entity of the PowerFlex Array.",
+	Description:         "This datasource is used to read the Replication Consistency Group entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above.",
+	MarkdownDescription: "This datasource is used to read the Replication Consistency Group entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "default datasource id",

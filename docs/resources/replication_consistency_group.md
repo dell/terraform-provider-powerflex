@@ -3,12 +3,12 @@ linkTitle: "powerflex_replication_consistency_group"
 page_title: "powerflex_replication_consistency_group Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource is used to manage the Replication Consistency Group entity of the PowerFlex Array. We can Create, Update and Delete the PowerFlex Replication Consistency Group using this resource. We can also Import an existing Replication Consistency Group from the PowerFlex array.
+  This resource is used to manage the Replication Consistency Group entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. We can Create, Update and Delete the PowerFlex Replication Consistency Group using this resource. We can also Import an existing Replication Consistency Group from the PowerFlex array.
 ---
 
 # powerflex_replication_consistency_group (Resource)
 
-This resource is used to manage the Replication Consistency Group entity of the PowerFlex Array. We can Create, Update and Delete the PowerFlex Replication Consistency Group using this resource. We can also Import an existing Replication Consistency Group from the PowerFlex array.
+This resource is used to manage the Replication Consistency Group entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. We can Create, Update and Delete the PowerFlex Replication Consistency Group using this resource. We can also Import an existing Replication Consistency Group from the PowerFlex array.
 
 ## Example Usage
 
