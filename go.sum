@@ -31,8 +31,8 @@ github.com/cyphar/filepath-securejoin v0.2.4/go.mod h1:aPGpWjXOXUn2NCNjFvBE6aRxG
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/dell/goscaleio v1.17.1-0.20241116014606-58a85e67edac h1:6ujnbGEDbrnLZ1V9/aA4QihlAs7wzlbZoe5RUh8/75U=
-github.com/dell/goscaleio v1.17.1-0.20241116014606-58a85e67edac/go.mod h1:OGFdDzRGhiAkXDTyrOUM42mxco5Y/vnhUyw/G7uXDzs=
+github.com/dell/goscaleio v1.17.1 h1:0gwR1c55ij3xVu/ARDWQNxBKCRlxMmg61n+5gKBX3v8=
+github.com/dell/goscaleio v1.17.1/go.mod h1:7bX3rL8JWMmdifGr/UeD/Ju9wbkHUqvKDrbdu7XyGm8=
 github.com/dylanmei/iso8601 v0.1.0 h1:812NGQDBcqquTfH5Yeo7lwR0nzx/cKdsmf3qMjPURUI=
 github.com/dylanmei/iso8601 v0.1.0/go.mod h1:w9KhXSgIyROl1DefbMYIE7UVSIvELTbMrCfx+QkYnoQ=
 github.com/emirpasic/gods v1.18.1 h1:FXtiHYKDGKCW2KzwZKx0iC0PQmdlorYgdFG9jPXJ1Bc=
