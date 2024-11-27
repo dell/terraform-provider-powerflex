@@ -16,21 +16,84 @@ limitations under the License.
 */
 
 # commands to run this tf file : terraform init && terraform apply --auto-approve
-# To read storage pool, either protection_domain_name or protection_domain_id must be provided
-# This datasource reads a list of storage pools either by storage_pool_ids or storage_pool_names where user can provide a list of ids or names
-# if both storage_pool_ids and storage_pool_names are not provided , then it will read all the storage pool under the protection domain
-# Both storage_pool_ids and storage_pool_names can't be provided together .
-# Both protection_domain_name and protection_domain_id can't be provided together
 
+data "powerflex_storage_pool" "all" {
 
-data "powerflex_storage_pool" "example" {
-  //protection_domain_name = "domain1"
-  protection_domain_id = "202a046600000000"
-  //storage_pool_ids = ["c98ec35000000002", "c98e26e500000000"]
-  storage_pool_names = ["pool2", "pool1"]
 }
 
 
-output "storagePoolresult" {
-  value = data.powerflex_storage_pool.example.storage_pools
+output "storagePoolallresult" {
+  value = data.powerflex_storage_pool.all.storage_pools
+}
+
+data "powerflex_storage_pool" "filtered" {
+  filter {
+    # id= ["id1","id2"]
+    # name= ["name1","name2"]
+    # rebalance_io_priority_policy= ["rebalanceIoPriorityPolicy1","rebalanceIoPriorityPolicy2"]
+    # rebuild_io_priority_policy= ["rebuildIoPriorityPolicy1","rebuildIoPriorityPolicy2"]
+    # rebuild_io_priority_bw_limit_per_device_in_kbps= [1,2]
+    # rebuild_io_priority_num_of_concurrent_ios_per_device= [1,2]
+    # rebalance_io_priority_num_of_concurrent_ios_per_device= [1,2]
+    # rebalance_io_priority_bw_limit_per_device_kbps= [1,2]
+    # rebuild_io_priority_app_iops_per_device_threshold= [1,2]
+    # rebalance_io_priority_app_iops_per_device_threshold= [1,2]
+    # rebuild_io_priority_app_bw_per_device_threshold_kbps= [1,2]
+    # rebalance_io_priority_app_bw_per_device_threshold_kbps= [1,2]
+    # rebuild_io_priority_quiet_period_msec= [1,2]
+    # rebalance_io_priority_quiet_period_msec= [1,2]
+    # zero_padding_enabled= true
+    # use_rm_cache= true
+    # spare_percentage= [1,2]
+    # rm_cache_write_handling_mode= ["rmCacheWriteHandlingMode1","rmCacheWriteHandlingMode2"]
+    # rebuild_enabled= true
+    # rebalance_enabled= true
+    # num_of_parallel_rebuild_rebalance_jobs_per_device= [1,2]
+    # background_scanner_bw_limit_kbps= [1,2]
+    # protected_maintenance_mode_io_priority_num_of_concurrent_ios_per_device= [1,2]
+    # data_layout= ["dataLayout1","dataLayout2"]
+    # vtree_migration_io_priority_bw_limit_per_device_kbps= [1,2]
+    # vtree_migration_io_priority_policy= ["vtreeMigrationIoPriorityPolicy1","vtreeMigrationIoPriorityPolicy2"]
+    # address_space_usage= ["addressSpaceUsage1","addressSpaceUsage2"]
+    # external_acceleration_type= ["externalAccelerationType1","externalAccelerationType2"]
+    # persistent_checksum_state= ["checksumState1","checksumState2"]
+    # use_rf_cache= false
+    # checksum_enabled= false
+    # compression_method= ["compressionMethod1","compressionMethod2"]
+    # fragmentation_enabled= true
+    # capacity_usage_state= ["capacityUsageState1","capacityUsageState2"]
+    # capacity_usage_type= ["capacityUsageType1","capacityUsageType2"]
+    # address_space_usage_type= ["addressSpaceUsageType1","addressSpaceUsageType2"]
+    # bg_scanner_compare_error_action= ["bgScannerCompareErrorAction1","bgScannerCompareErrorAction2"]
+    # bg_scanner_read_error_action= ["bgScannerReadErrorAction1","bgScannerReadErrorAction2"]
+    # replication_capacity_max_ratio= [1,2]
+    # persistent_checksum_enabled= false
+    # persistent_checksum_builder_limit_kb= [1,2]
+    # persistent_checksum_validate_on_read= false
+    # vtree_migration_io_priority_num_of_concurrent_ios_per_device= [1,2]
+    # protected_maintenance_mode_io_priority_policy= ["protectedMaintenanceModeIoPriorityPolicy1","protectedMaintenanceModeIoPriorityPolicy2"]
+    # background_scanner_mode= ["backgroundScannerMode1","backgroundScannerMode2"]
+    # media_type= ["HDD","SSD"]
+    # capacity_alert_high_threshold= [1,2]
+    # capacity_alert_critical_threshold= [1,2]
+    # vtree_migration_io_priority_app_iops_per_device_threshold= [1,2]
+    # vtree_migration_io_priority_app_bw_per_device_threshold_kbps= [1,2]
+    # vtree_migration_io_priority_quiet_period_msec= [1,2]
+    # fgl_accp_id= ["fglAccpId1","fglAccpId2"]
+    # fgl_extra_capacity= [1,2]
+    # fgl_overprovisioning_factor= [1,2]
+    # fgl_write_atomicity_size= [1,2]
+    # fgl_nvdimm_write_cache_size_mb= [1,2]
+    # fgl_nvdimm_metadata_amotization_x100= [1,2]
+    # fgl_perf_profile= ["fglPerfProfile1","fglPerfProfile2"]
+    # protected_maintenance_mode_io_priority_bw_limit_per_device_kbps= [1,2]
+    # protected_maintenance_mode_io_priority_app_iops_per_device_threshold= [1,2]
+    # protected_maintenance_mode_io_priority_app_bw_per_device_threshold_kbps= [1,2]
+    # protected_maintenance_mode_io_priority_quiet_period_msec= [1,2]
+  }
+}
+
+
+output "storagePoolallresult" {
+  value = data.powerflex_storage_pool.filtered.storage_pools
 }

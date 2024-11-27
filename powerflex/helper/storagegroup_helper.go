@@ -21,6 +21,7 @@ import (
 	"strconv"
 	"terraform-provider-powerflex/powerflex/models"
 
+	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -54,6 +55,18 @@ func UpdateStoragepoolState(storagepool *scaleiotypes.StoragePool, plan models.S
 	state.RebuildRebalanceParallelism = types.Int64Value(int64(storagepool.NumofParallelRebuildRebalanceJobsPerDevice))
 	state.Fragmentation = types.BoolValue(storagepool.FragmentationEnabled)
 	return state
+}
+
+func GetAllStorageGroups(client *goscaleio.Client) ([]scaleiotypes.StoragePool, error) {
+	sps := []scaleiotypes.StoragePool{}
+	resp, err := client.GetStoragePool("")
+	if err != nil {
+		return nil, err
+	}
+	for _, val := range resp {
+		sps = append(sps, *val)
+	}
+	return sps, nil
 }
 
 // IsCritcalAlert sets alert threshold
@@ -131,7 +144,7 @@ func IsVtreeMigration(plan, state models.StoragepoolResourceModel) (*scaleiotype
 }
 
 // GetStoragePoolState returns storage pool state
-func GetStoragePoolState(volList []*scaleiotypes.Volume, sdsList []scaleiotypes.Sds, s1 *scaleiotypes.StoragePool) (storagePool models.StoragePoolModel) {
+func GetStoragePoolState(volList []*scaleiotypes.Volume, sdsList []scaleiotypes.Sds, s1 scaleiotypes.StoragePool) (storagePool models.StoragePoolModel) {
 	storagePool = models.StoragePoolModel{
 		ID:   types.StringValue(s1.ID),
 		Name: types.StringValue(s1.Name),
