@@ -4,12 +4,12 @@ linkTitle: "powerflex_replication_pair"
 page_title: "powerflex_replication_pair Data Source - powerflex"
 subcategory: ""
 description: |-
-  This datasource is used to read the Replication Pairs entity of the PowerFlex Array.
+  This datasource is used to read the Replication Pairs entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above.
 ---
 
 # powerflex_replication_pair (Data Source)
 
-This datasource is used to read the Replication Pairs entity of the PowerFlex Array.
+This datasource is used to read the Replication Pairs entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above.
 
 ## Example Usage
 
@@ -32,6 +32,7 @@ limitations under the License.
 */
 
 # commands to run this tf file : terraform init && terraform apply
+# This feature is only supported for PowerFlex 4.5 and above.
 
 // Empty filter block will return all the replication pairs
 data "powerflex_replication_pair" "rp" {}

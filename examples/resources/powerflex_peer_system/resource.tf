@@ -55,6 +55,9 @@ data "powerflex_protection_domain" "protection_domain_system_1" {
 
 resource "powerflex_peer_system" "system_1" {
   provider = powerflex.system_1
+  
+  // This should be done in order to avoid a confict while sshing
+  depends_on = [ resource.powerflex_peer_system.system_1 ]
   ### Required Values
 
   # New name of the Peer System

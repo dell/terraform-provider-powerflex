@@ -3,12 +3,12 @@ linkTitle: "powerflex_peer_system"
 page_title: "powerflex_peer_system Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource is used to manage the Peer System entity of the PowerFlex Array. We can Create, Update and Delete the PowerFlex Peer Systems using this resource. We can also Import an existing Peer Systems from the PowerFlex array.
+  This resource is used to manage the Peer System entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. We can Create, Update and Delete the PowerFlex Peer Systems using this resource. We can also Import an existing Peer Systems from the PowerFlex array.
 ---
 
 # powerflex_peer_system (Resource)
 
-This resource is used to manage the Peer System entity of the PowerFlex Array. We can Create, Update and Delete the PowerFlex Peer Systems using this resource. We can also Import an existing Peer Systems from the PowerFlex array.
+This resource is used to manage the Peer System entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. We can Create, Update and Delete the PowerFlex Peer Systems using this resource. We can also Import an existing Peer Systems from the PowerFlex array.
 
 ## Example Usage
 
@@ -70,6 +70,9 @@ data "powerflex_protection_domain" "protection_domain_system_1" {
 
 resource "powerflex_peer_system" "system_1" {
   provider = powerflex.system_1
+  
+  // This should be done in order to avoid a confict while sshing
+  depends_on = [ resource.powerflex_peer_system.system_1 ]
   ### Required Values
 
   # New name of the Peer System

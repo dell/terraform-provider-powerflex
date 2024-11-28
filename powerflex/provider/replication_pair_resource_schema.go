@@ -24,8 +24,8 @@ import (
 
 // ReplicationPairReourceSchema - variable holds schema for ReplicationPair resource
 var ReplicationPairReourceSchema schema.Schema = schema.Schema{
-	Description:         "This resource is used to manage the Replication Pairs entity of the PowerFlex Array. We can Create, Update and Delete the PowerFlex Replication Pairs using this resource. We can also Import an existing Replication Pairs from the PowerFlex array.",
-	MarkdownDescription: "This resource is used to manage the Replication Pairs entity of the PowerFlex Array. We can Create, Update and Delete the PowerFlex Replication Pairs using this resource. We can also Import an existing Replication Pairs from the PowerFlex array.",
+	Description:         "This resource is used to manage the Replication Pairs entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. We can Create, Update and Delete the PowerFlex Replication Pairs using this resource. We can also Import an existing Replication Pairs from the PowerFlex array.",
+	MarkdownDescription: "This resource is used to manage the Replication Pairs entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. We can Create, Update and Delete the PowerFlex Replication Pairs using this resource. We can also Import an existing Replication Pairs from the PowerFlex array.",
 	Attributes: map[string]schema.Attribute{
 		"name": schema.StringAttribute{
 			Description:         "Replication Pair Name",

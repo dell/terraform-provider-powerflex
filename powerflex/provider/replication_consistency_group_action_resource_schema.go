@@ -28,8 +28,8 @@ import (
 
 // ReplicationConsistencyGroupActionReourceSchema - variable holds schema for ReplicationConsistencyGroupAction resource
 var ReplicationConsistencyGroupActionReourceSchema schema.Schema = schema.Schema{
-	Description:         "This resource is used to execute actions on the Replication Consistency Group entity of the PowerFlex Array.",
-	MarkdownDescription: "This resource is used to execute actions on the Replication Consistency Group entity of the PowerFlex Array.",
+	Description:         "This resource is used to execute actions on the Replication Consistency Group entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above.",
+	MarkdownDescription: "This resource is used to execute actions on the Replication Consistency Group entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "Replication Consistency Group ID",
