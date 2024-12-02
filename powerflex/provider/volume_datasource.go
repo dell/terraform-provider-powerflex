@@ -19,6 +19,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 	"terraform-provider-powerflex/powerflex/helper"
 	"terraform-provider-powerflex/powerflex/models"
 
@@ -65,7 +66,7 @@ func (d *volumeDataSource) Configure(_ context.Context, req datasource.Configure
 
 func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state models.VolumeDataSourceModel
-	var volumes []*scaleiotypes.Volume
+	var volumes []scaleiotypes.Volume
 	var err error
 
 	diags := req.Config.Get(ctx, &state)
@@ -73,39 +74,10 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	//Read the volumes based on volume id/name or storage pool id/name and if nothing
-	//is mentioned , then return all volumes
-	if state.Name.ValueString() != "" {
-		volumes, err = d.client.GetVolume("", "", "", state.Name.ValueString(), false)
-	} else if state.ID.ValueString() != "" {
-		volumes, err = d.client.GetVolume("", state.ID.ValueString(), "", "", false)
-	} else if state.StoragePoolID.ValueString() != "" {
-		sps, err1 := d.client.FindStoragePool(state.StoragePoolID.ValueString(), "", "", "")
-		if err1 != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Read Powerflex Volumes",
-				err1.Error(),
-			)
-			return
-		}
-		sp := goscaleio.NewStoragePool(d.client)
-		sp.StoragePool = sps
-		volumes, err = sp.GetVolume("", "", "", "", false)
-	} else if state.StoragePoolName.ValueString() != "" {
-		sps, err1 := d.client.FindStoragePool("", state.StoragePoolName.ValueString(), "", "")
-		if err1 != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Read Powerflex Volumes",
-				err1.Error(),
-			)
-			return
-		}
-		sp := goscaleio.NewStoragePool(d.client)
-		sp.StoragePool = sps
-		volumes, err = sp.GetVolume("", "", "", "", false)
-	} else {
-		volumes, err = d.client.GetVolume("", "", "", "", false)
-	}
+
+	// Get all the volumes
+	volumes, err = helper.GetAllVolumes(d.client)
+
 	//check if there is any error while getting the volume
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -114,8 +86,23 @@ func (d *volumeDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		)
 		return
 	}
+	// Set state for filters
+	if state.VolumeFilter != nil {
+		filtered, err := helper.GetDataSourceByValue(*state.VolumeFilter, volumes)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Error in filtering volumes: %v please validate the filter", state.VolumeFilter), err.Error(),
+			)
+			return
+		}
+		filteredVol := []scaleiotypes.Volume{}
+		for _, val := range filtered {
+			filteredVol = append(filteredVol, val.(scaleiotypes.Volume))
+		}
+		volumes = filteredVol
+	}
 	state.Volumes = helper.UpdateVolumeState(volumes)
-	state.ID = types.StringValue("placeholder")
+	state.ID = types.StringValue("volume_datasource_id")
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

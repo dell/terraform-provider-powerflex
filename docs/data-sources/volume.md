@@ -26,8 +26,6 @@ description: |-
 
 This datasource is used to query the existing volume from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 
-> **Note:** Only one of `names`, `id`, `storage_pool_id` and  `storage_pool_name` can be provided at a time.
-
 ## Example Usage
 
 ```terraform
@@ -48,21 +46,49 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-# This datasource reads volumes either by id or name or storage_pool_id or storage_pool_name where user can provide a value to any one of them
-# If it is an empty datsource block , then it will read all the volumes
-# If id or name is provided then it reads a particular volume with that id or name
-# If storage_pool_id or storage_pool_name is provided then it will return the volumes under that storage pool
-
+// Empty filter block will return all the volumes
 data "powerflex_volume" "volume" {
 
-  id = "4570761d00000024"
-  #name = "cosu-ce5b8a2c48"
-  #storage_pool_id= "c98e26e500000000"
-  #storage_pool_name= "pool2"
 }
 
 output "volumeResult" {
   value = data.powerflex_volume.volume.volumes
+}
+
+// If multiple filter fields are provided then it will show the intersection of all of those fields.
+// If there is no intersection between the filters then an empty datasource will be returned
+// For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 
+data "powerflex_volume" "volume_filter" {
+  filter {
+  #   id                                     = ["id1", "id2"]
+  #   name                                   = ["name1", "name2"]
+  #   creation_time                          = [1, 2]
+  #   size_in_kb                             = [123, 456]
+  #   ancestor_volume_id                     = ["ancestor_volume_id1", "ancestor_volume_id2"]
+  #   vtree_id                               = ["vtree_id1", "vtree_id2"]
+  #   consistency_group_id                   = ["consistency_group_id1", "consistency_group_id2"]
+  #   volume_type                            = ["volume_type1", "volume_type2"]
+  #   use_rm_cache                           = false
+  #   storage_pool_id                        = ["storage_pool_id1", "storage_pool_id2"]
+  #   data_layout                            = ["data_layout1", "data_layout2"]
+  #   not_genuine_snapshot                   = false
+  #   access_mode_limit                      = ["access_mode_limit1", "access_mode_limit2"]
+  #   secure_snapshot_exp_time               = [789, 123]
+  #   managed_by                             = ["managed_by1", "managed_by2"]
+  #   locked_auto_snapshot                    = false
+  #   locked_auto_snapshot_marked_for_removal = false
+  #   compression_method                     = ["compression_method1", "compression_method2"]
+  #   time_stamp_is_accurate                 = true
+  #   original_expiry_time                   = [43, 71]
+  #   volume_replication_state               = ["volume_replication_state1", "volume_replication_state2"]
+  #   replication_journal_volume             = false
+  #   replication_time_stamp                 = [1,2]
+  }
+}
+
+
+output "volumeFilterResult" {
+  value = data.powerflex_volume.volume_filter.volumes
 }
 ```
 
@@ -73,14 +99,42 @@ After the successful execution of above said block, We can see the output by exe
 
 ### Optional
 
-- `id` (String) Unique identifier of the volume instance.  Conflicts with `name`, `storage_pool_id` and  `storage_pool_name`.
-- `name` (String) Name of the volume.  Conflicts with `id`, `storage_pool_id` and  `storage_pool_name`.
-- `storage_pool_id` (String) Specifies the unique identifier of the storage pool.  Conflicts with `id`, `name` and  `storage_pool_name`.
-- `storage_pool_name` (String) Specifies the unique identifier of the storage pool.  Conflicts with `id`, `name` and `storage_pool_id`.
+- `filter` (Block, Optional) (see [below for nested schema](#nestedblock--filter))
 
 ### Read-Only
 
+- `id` (String) default datasource id
 - `volumes` (Attributes List) List of volumes. (see [below for nested schema](#nestedatt--volumes))
+
+<a id="nestedblock--filter"></a>
+### Nested Schema for `filter`
+
+Optional:
+
+- `access_mode_limit` (Set of String) List of access_mode_limit
+- `ancestor_volume_id` (Set of String) List of ancestor_volume_id
+- `compression_method` (Set of String) List of compression_method
+- `consistency_group_id` (Set of String) List of consistency_group_id
+- `creation_time` (Set of Number) List of creation_time
+- `data_layout` (Set of String) List of data_layout
+- `id` (Set of String) List of id
+- `locked_auto_snapshot` (Boolean) Value for locked_auto_snapshot
+- `locked_auto_snapshot_marked_for_removal` (Boolean) Value for locked_auto_snapshot_marked_for_removal
+- `managed_by` (Set of String) List of managed_by
+- `name` (Set of String) List of name
+- `not_genuine_snapshot` (Boolean) Value for not_genuine_snapshot
+- `original_expiry_time` (Set of Number) List of original_expiry_time
+- `replication_journal_volume` (Boolean) Value for replication_journal_volume
+- `replication_time_stamp` (Set of Number) List of replication_time_stamp
+- `secure_snapshot_exp_time` (Set of Number) List of secure_snapshot_exp_time
+- `size_in_kb` (Set of Number) List of size_in_kb
+- `storage_pool_id` (Set of String) List of storage_pool_id
+- `time_stamp_is_accurate` (Boolean) Value for time_stamp_is_accurate
+- `use_rm_cache` (Boolean) Value for use_rm_cache
+- `volume_replication_state` (Set of String) List of volume_replication_state
+- `volume_type` (Set of String) List of volume_type
+- `vtree_id` (Set of String) List of vtree_id
+
 
 <a id="nestedatt--volumes"></a>
 ### Nested Schema for `volumes`
