@@ -78,6 +78,7 @@ func (d *complianceReportResourceGroupDataSource) Configure(_ context.Context, r
 func (d *complianceReportResourceGroupDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Info(ctx, "Started compliance report data source read method")
 
+	var complianceReports, complianceReportAll []scaleiotypes.ComplianceReport
 	var state models.ComplianceReportResourceGroupDatasource
 
 	diags := req.Config.Get(ctx, &state)
@@ -86,28 +87,44 @@ func (d *complianceReportResourceGroupDataSource) Read(ctx context.Context, req 
 		return
 	}
 
-	// Get all Compliance Reports
-	complianceReportList, err := d.gatewayClient.GetServiceComplianceDetails(state.ResourceGroupID.ValueString())
+	//Get all resource groups
+	serviceDetails, err := d.gatewayClient.GetAllServiceDetails()
 	if err != nil {
-		resp.Diagnostics.AddError(
-			"Error in getting compliance report for resource group.",
-			err.Error(),
-		)
+		resp.Diagnostics.AddError("Error in getting service details", err.Error())
 		return
 	}
-	complianceReports := make([]scaleiotypes.ComplianceReport, 0)
+
+	for _, service := range serviceDetails {
+		resourceGroupID := types.StringValue(service.ID)
+		// Get all Compliance Reports
+		complianceReport, err := d.gatewayClient.GetServiceComplianceDetails(resourceGroupID.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error in getting compliance report(s) for resource group.",
+				err.Error(),
+			)
+			return
+		}
+
+		complianceReportAll = append(complianceReportAll, complianceReport...)
+	}
+
 	if state.ComplianceReportFilter == nil {
 		// add all reports
-		complianceReports = append(complianceReports, complianceReportList...)
+		complianceReports = append(complianceReports, complianceReportAll...)
 	} else {
 		// Get filtered reports
-		complianceReports, err = helper.GetFilteredComplianceReports(complianceReportList, *state.ComplianceReportFilter)
+		complianceReportsFiltered, err := helper.GetDataSourceByValue(*state.ComplianceReportFilter, complianceReportAll)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error in getting compliance report for resource group for given filter.",
 				err.Error(),
 			)
 			return
+		}
+		// Convert filtered reports to compliance reports
+		for _, val := range complianceReportsFiltered {
+			complianceReports = append(complianceReports, val.(scaleiotypes.ComplianceReport))
 		}
 	}
 
