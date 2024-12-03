@@ -19,12 +19,12 @@ linkTitle: "powerflex_nvme_host"
 page_title: "powerflex_nvme_host Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource is used to manager NVMe host from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe host using this resource. We can also import an existing NVMe host from PowerFlex array.
+  This resource is used to manage NVMe host from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe host using this resource. We can also import an existing NVMe host from PowerFlex array.
 ---
 
 # powerflex_nvme_host (Resource)
 
-This resource is used to manager NVMe host from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe host using this resource. We can also import an existing NVMe host from PowerFlex array.
+This resource is used to manage NVMe host from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe host using this resource. We can also import an existing NVMe host from PowerFlex array.
 
 > **Note:** 
 >  - NVMe over TCP is supported in PowerFlex 4.0 and later versions, therefore this resource is not supported in PowerFlex 3.x.

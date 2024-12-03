@@ -74,7 +74,7 @@ After the execution of above resource block, compatibility management would have
 
 ### Required
 
-- `repository_path` (String) Repository Path on your local machine to your comatibility gpg file ie: /example/example.gpg.
+- `repository_path` (String) Repository Path on your local machine to your compatibility gpg file ie: /example/example.gpg.
 
 ### Read-Only
 

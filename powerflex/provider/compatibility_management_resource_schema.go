@@ -37,8 +37,8 @@ var CompatibilityManagementResourceSchema schema.Schema = schema.Schema{
 			Computed:            true,
 		},
 		"repository_path": schema.StringAttribute{
-			Description:         "Repository Path on your local machine to your comatibility gpg file ie: /example/example.gpg.",
-			MarkdownDescription: "Repository Path on your local machine to your comatibility gpg file ie: /example/example.gpg.",
+			Description:         "Repository Path on your local machine to your compatibility gpg file ie: /example/example.gpg.",
+			MarkdownDescription: "Repository Path on your local machine to your compatibility gpg file ie: /example/example.gpg.",
 			Required:            true,
 		},
 		"current_version": schema.StringAttribute{
