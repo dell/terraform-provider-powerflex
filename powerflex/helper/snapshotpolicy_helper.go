@@ -27,7 +27,7 @@ import (
 )
 
 // UpdateSnapshotPolicyState iterates over the snapshotpolicy list and update the state
-func UpdateSnapshotPolicyState(sps []*scaleiotypes.SnapshotPolicy) (response []models.SnapshotPolicyModel) {
+func UpdateSnapshotPolicyState(sps []scaleiotypes.SnapshotPolicy) (response []models.SnapshotPolicyModel) {
 	for _, sp := range sps {
 		spState := models.SnapshotPolicyModel{
 			ID:                                    types.StringValue(sp.ID),
@@ -163,4 +163,16 @@ func ListToSliceVol(snap models.SnapshotPolicyResourceModel) []string {
 		stringList[i] = v.ValueString()
 	}
 	return stringList
+}
+
+func GetAllSnapshotPolicies(client *goscaleio.Client) ([]scaleiotypes.SnapshotPolicy, error) {
+	sps := []scaleiotypes.SnapshotPolicy{}
+	resp, err := client.GetSnapshotPolicy("", "")
+	if err != nil {
+		return nil, err
+	}
+	for _, val := range resp {
+		sps = append(sps, *val)
+	}
+	return sps, nil
 }

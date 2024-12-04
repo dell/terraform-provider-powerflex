@@ -18,9 +18,11 @@ limitations under the License.
 package provider
 
 import (
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
+
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -35,20 +37,8 @@ var SnapshotPolicyDataSourceSchema schema.Schema = schema.Schema{
 				" Conflicts with 'name'.",
 			MarkdownDescription: "Unique identifier of the snapshot policy instance to fetch." +
 				" Conflicts with `name`.",
-			Optional: true,
 			Computed: true,
 			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
-			},
-		},
-		"name": schema.StringAttribute{
-			Description: "Name of the snapshot policy to fetch." +
-				" Conflicts with 'id'.",
-			MarkdownDescription: "Name of the snapshot policy to fetch." +
-				" Conflicts with `id`.",
-			Optional: true,
-			Validators: []validator.String{
-				stringvalidator.ConflictsWith(path.MatchRoot("id")),
 				stringvalidator.LengthAtLeast(1),
 			},
 		},
@@ -175,6 +165,11 @@ var SnapshotPolicyDataSourceSchema schema.Schema = schema.Schema{
 					},
 				},
 			},
+		},
+	},
+	Blocks: map[string]schema.Block{
+		"filter": schema.SingleNestedBlock{
+			Attributes: helper.GenerateSchemaAttributes(helper.TypeToMap(models.SnapshotPolicyFilter{})),
 		},
 	},
 }
