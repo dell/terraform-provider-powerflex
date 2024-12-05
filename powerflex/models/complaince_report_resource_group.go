@@ -25,17 +25,24 @@ import (
 type ComplianceReportResourceGroupDatasource struct {
 	ComplianceReports      []ComplianceReportResourceGroup `tfsdk:"compliance_reports"`
 	ID                     types.String                    `tfsdk:"id"`
-	ResourceGroupID        types.String                    `tfsdk:"resource_group_id"`
 	ComplianceReportFilter *ComplianceReportFilterType     `tfsdk:"filter"`
 }
 
 // ComplianceReportFilterType defines the filter for datasource
 type ComplianceReportFilterType struct {
-	IPAddresses types.Set  `tfsdk:"ip_addresses"`
-	ServiceTags types.Set  `tfsdk:"service_tags"`
-	Compliant   types.Bool `tfsdk:"compliant"`
-	HostNames   types.Set  `tfsdk:"host_names"`
-	ResourceIDs types.Set  `tfsdk:"resource_ids"`
+	ServiceTag             []types.String `tfsdk:"service_tag"`
+	IPAddress              []types.String `tfsdk:"ip_address"`
+	FirmwareRepositoryName []types.String `tfsdk:"firmware_repository_name"`
+	Compliant              types.Bool     `tfsdk:"compliant"`
+	DeviceType             []types.String `tfsdk:"device_type"`
+	Model                  []types.String `tfsdk:"model"`
+	Available              types.Bool     `tfsdk:"available"`
+	ManagedState           []types.String `tfsdk:"managed_state"`
+	EmbeddedReport         types.Bool     `tfsdk:"embedded_report"`
+	DeviceState            []types.String `tfsdk:"device_state"`
+	ID                     []types.String `tfsdk:"id"`
+	HostName               []types.String `tfsdk:"host_name"`
+	CanUpdate              types.Bool     `tfsdk:"can_update"`
 }
 
 // ComplianceReportResourceGroup defines the compliance report for a service.

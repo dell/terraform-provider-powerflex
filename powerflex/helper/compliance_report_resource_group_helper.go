@@ -18,7 +18,6 @@ limitations under the License.
 package helper
 
 import (
-	"fmt"
 	"terraform-provider-powerflex/powerflex/models"
 
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
@@ -80,27 +79,4 @@ func GetComplianceReportComponentVersionInfo(versionInfo scaleiotypes.Compliance
 		FirmwareLastUpdate: types.StringValue(versionInfo.FirmwareLastUpdate),
 		FirmwareLevel:      types.StringValue(versionInfo.FirmwareLevel),
 	}
-}
-
-// GetFilteredComplianceReports returns a list of compliance reports that match the filter
-func GetFilteredComplianceReports(complianceReports []scaleiotypes.ComplianceReport, filter models.ComplianceReportFilterType) ([]scaleiotypes.ComplianceReport, error) {
-	var matchingReports []scaleiotypes.ComplianceReport
-
-	for _, report := range complianceReports {
-		ipAddressesMatch := filter.IPAddresses.IsNull() || SetContains(filter.IPAddresses, report.IPAddress)
-		serviceTagsMatch := filter.ServiceTags.IsNull() || SetContains(filter.ServiceTags, report.ServiceTag)
-		hostNamesMatch := filter.HostNames.IsNull() || SetContains(filter.HostNames, report.HostName)
-		resourceIDsMatch := filter.ResourceIDs.IsNull() || SetContains(filter.ResourceIDs, report.ID)
-		compliantMatch := filter.Compliant.IsNull() || filter.Compliant.ValueBool() == report.Compliant
-
-		if ipAddressesMatch && serviceTagsMatch && hostNamesMatch && resourceIDsMatch && compliantMatch {
-			matchingReports = append(matchingReports, report)
-		}
-	}
-
-	if len(matchingReports) == 0 {
-		return nil, fmt.Errorf("no compliance reports found matching the filter: %+v", filter)
-	}
-
-	return matchingReports, nil
 }

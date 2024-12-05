@@ -18,11 +18,10 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
+
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // ComplianceReportResourceGroupSchema defines the schema for resource group compliance report
@@ -35,14 +34,6 @@ var ComplianceReportResourceGroupSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Unique identifier Of The compliance report Datasource.",
 			Computed:            true,
 		},
-		"resource_group_id": schema.StringAttribute{
-			Description:         "Unique id of the resource group for which you want to get the compliance report. Conflicts with resource_group_name",
-			MarkdownDescription: "Unique id Of resource group for which you want to get the compliance report. Conflicts with resource_group_name",
-			Required:            true,
-			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
-			},
-		},
 		"compliance_reports": schema.ListNestedAttribute{
 			Description:         "List of compliance report.",
 			MarkdownDescription: "List of compliance report.",
@@ -54,49 +45,7 @@ var ComplianceReportResourceGroupSchema schema.Schema = schema.Schema{
 	},
 	Blocks: map[string]schema.Block{
 		"filter": schema.SingleNestedBlock{
-			Attributes: map[string]schema.Attribute{
-				"ip_addresses": schema.SetAttribute{
-					Description:         "List of Ip Address for resources.",
-					MarkdownDescription: "List of Ip Address for resources.",
-					ElementType:         types.StringType,
-					Optional:            true,
-					Validators: []validator.Set{
-						setvalidator.SizeAtLeast(1),
-					},
-				},
-				"service_tags": schema.SetAttribute{
-					Description:         "List of service tags for resources.",
-					MarkdownDescription: "List of service tags for resources.",
-					ElementType:         types.StringType,
-					Optional:            true,
-					Validators: []validator.Set{
-						setvalidator.SizeAtLeast(1),
-					},
-				},
-				"compliant": schema.BoolAttribute{
-					Description:         "Compliant status for resources.",
-					MarkdownDescription: "Compliant status for resources.",
-					Optional:            true,
-				},
-				"host_names": schema.SetAttribute{
-					Description:         "List of host names for resources.",
-					MarkdownDescription: "List of host names for resources.",
-					ElementType:         types.StringType,
-					Optional:            true,
-					Validators: []validator.Set{
-						setvalidator.SizeAtLeast(1),
-					},
-				},
-				"resource_ids": schema.SetAttribute{
-					Description:         "List of resource ids.",
-					MarkdownDescription: "List of resource ids.",
-					ElementType:         types.StringType,
-					Optional:            true,
-					Validators: []validator.Set{
-						setvalidator.SizeAtLeast(1),
-					},
-				},
-			},
+			Attributes: helper.GenerateSchemaAttributes(helper.TypeToMap(models.ComplianceReportFilterType{})),
 		},
 	},
 }
