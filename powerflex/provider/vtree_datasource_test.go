@@ -18,113 +18,97 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-var VolPreq1 = `
-resource "powerflex_volume" "pre-req1-vtree"{
-	name = "terraform-vol-vtree-datasource"
-	protection_domain_name = "domain1"
-	storage_pool_name = "pool1"
-	size = 8
-}`
-
-var VolPreq2 = `
-resource "powerflex_volume" "pre-req2-vtree"{
-	name = "terraform-vol-vtree-datasource1"
-	protection_domain_name = "domain1"
-	storage_pool_name = "pool1"
-	size = 8
-}`
-
-var VTreeDataSourceConfig4 = `
-data "powerflex_vtree" "example" {						
-	vtree_ids = ["27ca983400000000"]
+// AT
+func TestAccDatasourceAcceptanceVTree(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + VtreeGetAll,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
+			},
+		},
+	})
 }
-`
 
-var VTreeDataSourceConfig2 = VolPreq1 + VolPreq2 + `
-data "powerflex_vtree" "example" {						
-	volume_ids = [resource.powerflex_volume.pre-req1-vtree.id, resource.powerflex_volume.pre-req2-vtree.id]
-}
-`
-
-var VTreeDataSourceConfig3 = VolPreq1 + VolPreq2 + `
-data "powerflex_vtree" "example" {						
-	volume_names = [resource.powerflex_volume.pre-req1-vtree.name, resource.powerflex_volume.pre-req2-vtree.name]
-}
-`
-
-var VTreeDataSourceConfig1 = `
-data "powerflex_vtree" "example" {						
-}
-`
-
-var VTreeDataSourceConfig5 = `
-data "powerflex_vtree" "example" {						
-	vtree_ids = ["invalid"]
-}
-`
-
-var VTreeDataSourceConfig6 = `
-data "powerflex_vtree" "example" {						
-	volume_ids = ["invalid"]
-}
-`
-
-var VTreeDataSourceConfig7 = `
-data "powerflex_vtree" "example" {						
-	volume_names = ["invalid"]
-}
-`
-
+// UT
 func TestAccDatasourceVTree(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: ProviderConfigForTesting + VolPreq1,
-			},
-			{
-				Config: ProviderConfigForTesting + VolPreq2,
-			},
-			{
-				Config: ProviderConfigForTesting + VTreeDataSourceConfig1,
+				Config: ProviderConfigForTesting + VtreeGetAll,
 				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
+			// Single Filter
 			{
-				Config: ProviderConfigForTesting + VTreeDataSourceConfig2,
+				Config: ProviderConfigForTesting + VtreeGetSingleFiltered,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_vtree.example", "vtree_details.#", "2"),
+					resource.TestCheckResourceAttr("data.powerflex_vtree.filter", "vtree_details.0.name", "block-volume-physical-deploy"),
 				),
 			},
+			// Multi Filter
 			{
-				Config: ProviderConfigForTesting + VTreeDataSourceConfig3,
+				Config: ProviderConfigForTesting + VtreeGetMultipleFiltered,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_vtree.example", "vtree_details.#", "2"),
+					resource.TestCheckResourceAttr("data.powerflex_vtree.filter", "vtree_details.0.storage_pool_id", "68691eb600000000"),
+					resource.TestCheckResourceAttr("data.powerflex_vtree.filter", "vtree_details.0.data_layout", "MediumGranularity"),
 				),
 			},
+			// Read error
 			{
-				Config: ProviderConfigForTesting + VTreeDataSourceConfig4,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_vtree.example", "vtree_details.#", "1"),
-				),
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetAllVTrees, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + VtreeGetAll,
+				ExpectError: regexp.MustCompile(`.*Error in getting vTree details*.`),
 			},
+			// Filter error
 			{
-				Config:      ProviderConfigForTesting + VTreeDataSourceConfig5,
-				ExpectError: regexp.MustCompile(`.*Error in getting vTree details using vTree IDs.*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + VTreeDataSourceConfig6,
-				ExpectError: regexp.MustCompile(`.*Error in getting vTree details with volume ID.*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + VTreeDataSourceConfig7,
-				ExpectError: regexp.MustCompile(`.*Error in getting volume details with volume name.*`),
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetDataSourceByValue).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + VtreeGetMultipleFiltered,
+				ExpectError: regexp.MustCompile(`.*Error in filtering vtrees*.`),
 			},
 		},
 	})
 }
+
+var VtreeGetAll = `
+data "powerflex_vtree" "all" {
+	
+}
+`
+
+var VtreeGetSingleFiltered = `
+data "powerflex_vtree" "filter" {
+	filter {
+		name = ["block-volume-physical-deploy"]
+	}
+}
+`
+
+var VtreeGetMultipleFiltered = `
+data "powerflex_vtree" "filter" {
+	filter {
+		storage_pool_id = ["68691eb600000000"]
+		data_layout = ["MediumGranularity"]
+	}
+}
+`

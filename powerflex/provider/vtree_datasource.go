@@ -25,12 +25,8 @@ import (
 
 	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
-	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -74,9 +70,7 @@ func (d *vtreeDataSource) Configure(_ context.Context, req datasource.ConfigureR
 func (d *vtreeDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Info(ctx, "Started vtree data source read method")
 	var (
-		state  models.VTreeDataSourceModel
-		vTrees []scaleiotypes.VTreeDetails
-		err    error
+		state models.VTreeDataSourceModel
 	)
 
 	diags := req.Config.Get(ctx, &state)
@@ -85,71 +79,32 @@ func (d *vtreeDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 		return
 	}
 
-	// Fetch VTree details if VTree IDs are provided
-	if !state.VTreeIDs.IsNull() {
-		vTreeIDs := make([]string, 0)
-		diags.Append(state.VTreeIDs.ElementsAs(ctx, &vTreeIDs, true)...)
+	// Fetch VTree details for all the VTrees
+	vTrees, err := helper.GetAllVTrees(d.client)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error in getting vTree details", err.Error(),
+		)
+		return
+	}
 
-		vTrees, err = d.client.GetVTreeInstances(vTreeIDs)
+	if state.VTreeFilter != nil {
+		filtered, err := helper.GetDataSourceByValue(*state.VTreeFilter, vTrees)
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error in getting vTree details using vTree IDs", err.Error(),
+				fmt.Sprintf("Error in filtering vtrees: %v please validate the filter", state.VTreeFilter), err.Error(),
 			)
 			return
 		}
-	} else if !state.VolumeIDs.IsNull() {
-		// Fetch VTree details if volume IDs are provided
-		volumeIDs := make([]string, 0)
-		diags.Append(state.VolumeIDs.ElementsAs(ctx, &volumeIDs, true)...)
-		vTrees = make([]scaleiotypes.VTreeDetails, 0)
-
-		for _, vol := range volumeIDs {
-			vTree, err := d.client.GetVTreeByVolumeID(vol)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting vTree details with volume ID: %v", vol), err.Error(),
-				)
-				return
-			}
-			vTrees = append(vTrees, *vTree)
+		filteredvTrees := []scaleiotypes.VTreeDetails{}
+		for _, val := range filtered {
+			filteredvTrees = append(filteredvTrees, val.(scaleiotypes.VTreeDetails))
 		}
-	} else if !state.VolumeNames.IsNull() {
-		// Fetch VTree details if volume names are provided
-		volumeNames := make([]string, 0)
-		diags.Append(state.VolumeNames.ElementsAs(ctx, &volumeNames, true)...)
-		vTrees = make([]scaleiotypes.VTreeDetails, 0)
-
-		for _, vol := range volumeNames {
-			volDetails, err := d.client.GetVolume("", "", "", vol, false)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting volume details with volume name: %v", vol), err.Error(),
-				)
-				return
-			}
-
-			vTree, err := d.client.GetVTreeByVolumeID(volDetails[0].ID)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting vTree details with volume name: %v", vol), err.Error(),
-				)
-				return
-			}
-			vTrees = append(vTrees, *vTree)
-		}
-	} else {
-		// Fetch VTree details for all the VTrees
-		vTrees, err = d.client.GetVTrees()
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error in getting vTree details", err.Error(),
-			)
-			return
-		}
+		vTrees = filteredvTrees
 	}
 
 	state.VTrees = helper.GetAllVTreeState(vTrees)
-	state.ID = types.StringValue("placeholder")
+	state.ID = types.StringValue("vtree_datasource")
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -166,42 +121,6 @@ var VTreeDataSourceSchema schema.Schema = schema.Schema{
 			Description:         "Placeholder identifier attribute.",
 			MarkdownDescription: "Placeholder identifier attribute.",
 			Computed:            true,
-		},
-		"vtree_ids": schema.SetAttribute{
-			Description:         "List of VTree IDs",
-			MarkdownDescription: "List of VTree IDs",
-			Optional:            true,
-			ElementType:         types.StringType,
-			Validators: []validator.Set{
-				setvalidator.ConflictsWith(
-					path.MatchRoot("volume_ids"), path.MatchRoot("volume_names"),
-				),
-				setvalidator.SizeAtLeast(1),
-				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
-			},
-		},
-		"volume_ids": schema.SetAttribute{
-			Description:         "List of volume IDs",
-			MarkdownDescription: "List of volume IDs",
-			Optional:            true,
-			ElementType:         types.StringType,
-			Validators: []validator.Set{
-				setvalidator.ConflictsWith(
-					path.MatchRoot("volume_names"),
-				),
-				setvalidator.SizeAtLeast(1),
-				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
-			},
-		},
-		"volume_names": schema.SetAttribute{
-			Description:         "List of volume names",
-			MarkdownDescription: "List of volume names",
-			Optional:            true,
-			ElementType:         types.StringType,
-			Validators: []validator.Set{
-				setvalidator.SizeAtLeast(1),
-				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
-			},
 		},
 		"vtree_details": schema.SetNestedAttribute{
 			Description:         "VTree details",
@@ -259,6 +178,11 @@ var VTreeDataSourceSchema schema.Schema = schema.Schema{
 					},
 				},
 			},
+		},
+	},
+	Blocks: map[string]schema.Block{
+		"filter": schema.SingleNestedBlock{
+			Attributes: helper.GenerateSchemaAttributes(helper.TypeToMap(models.VTreeFilter{})),
 		},
 	},
 }
