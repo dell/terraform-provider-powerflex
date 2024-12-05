@@ -18,122 +18,107 @@ limitations under the License.
 package provider
 
 import (
-	"log"
+	"fmt"
+	"os"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-type sdcDataPoints struct {
-	noOfSdc   string
-	name      string
-	systemid  string
-	sdcguid   string
-	sdcip     string
-	noOflinks string
-}
-
-var sdcTestData sdcDataPoints
-
-func init() {
-	envMap, err := loadEnvFile("powerflex.env")
-	if err != nil {
-		log.Fatal("Error loading .env file: ", err)
-		return
+// AT
+func TestAccDatasourceAcceptanceSdc(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an Accpetance test")
 	}
-	sdcTestData.noOfSdc = "1"
-	sdcTestData.noOflinks = "4"
-	sdcTestData.name = ""
-	sdcTestData.sdcguid = "123"
-	sdcTestData.systemid = "456"
-	sdcTestData.sdcip = setDefault(envMap["POWERFLEX_SDC_IP1"], "1.2.3.4")
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + sdcDataSourceAll,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
+			},
+		},
+	})
 }
 
+// UT
 func TestAccDatasourceSdc(t *testing.T) {
-
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is an Unit test")
+	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			// Get All
 			{
-				Config: ProviderConfigForTesting + TestSdcDataSourceBlockOnlyID,
+				Config: ProviderConfigForTesting + sdcDataSourceAll,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
+			},
+			// Filter Single
+			{
+				Config: ProviderConfigForTesting + sdcDataSourceFilterSingle,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify the first sdc to ensure all attributes are set
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.sdc_ip", sdcTestData.sdcip),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.filtered-single", "sdcs.0.name", "Terraform_sdc1"),
 				),
 			},
+			// Filter multiple
 			{
-				Config: ProviderConfigForTesting + TestSdcDataSourceByEmptyBlock,
-			},
-			{
-				Config: ProviderConfigForTesting + TestSdcDataSourceByNameBlock,
+				Config: ProviderConfigForTesting + sdcDataSourceFilterMultiple,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_sdc.selected", "sdcs.0.name", "terraform_sdc_do_not_delete"),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.filtered-multiple", "sdcs.0.name", "Terraform_sdc1"),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.filtered-multiple", "sdcs.0.system_id", "1250de83018c2d0f"),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.filtered-multiple", "sdcs.1.name", "terraform_sdc_do_not_delete"),
+					resource.TestCheckResourceAttr("data.powerflex_sdc.filtered-multiple", "sdcs.1.system_id", "1250de83018c2d0f"),
 				),
+			},
+			// Read error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetFirstSystem).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + sdcDataSourceAll,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex specific system*.`),
+			},
+			// Filter error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetDataSourceByValue).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + sdcDataSourceFilterSingle,
+				ExpectError: regexp.MustCompile(`.*Error in filtering sdcs*.`),
 			},
 		},
 	})
 }
 
-func TestDatasourceSdcNegative(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Read testing
-			{
-				Config:      ProviderConfigForTesting + TestSdcDataSourceByEmptyIDNeg,
-				ExpectError: regexp.MustCompile(".*Invalid Attribute Value Length.*"),
-			},
-			{
-				Config:      ProviderConfigForTesting + TestSdcDataSourceBlockBothNeg,
-				ExpectError: regexp.MustCompile(".*Invalid Attribute Combination.*"),
-			},
-			{
-				Config:      ProviderConfigForTesting + TestSdcDataSourceByEmptyNameBlock,
-				ExpectError: regexp.MustCompile(".*Invalid Attribute Value Length.*"),
-			},
-			{
-				Config:      ProviderConfigForTesting + TestSdcDataSourceInvalidName,
-				ExpectError: regexp.MustCompile(".*Couldn't find SDC.*"),
-			},
-		},
-	})
-}
-
-var (
-	TestSdcDataSourceBlockOnlyID = `
+var sdcDataSourceAll = `
 	data "powerflex_sdc" "all" {
+
 	}
+`
 
-	locals {
-		matching_sdc = [for sdc in data.powerflex_sdc.all.sdcs : sdc if sdc.name == "terraform_sdc_do_not_delete"]
+var sdcDataSourceFilterSingle = `
+	data "powerflex_sdc" "filtered-single" {
+		filter {
+			name = ["Terraform_sdc1"]
+		}
 	}
+`
 
-	data "powerflex_sdc" "selected" {
-		id = local.matching_sdc[0].id
-	}`
-
-	TestSdcDataSourceByEmptyIDNeg = `data "powerflex_sdc" "selected" {
-		id = ""
-	}`
-
-	TestSdcDataSourceBlockBothNeg = `data "powerflex_sdc" "selected" {
-		id = "e3d01ba100000000"
-		name = "Terraform_sdc1"
-	}`
-
-	TestSdcDataSourceByEmptyNameBlock = `data "powerflex_sdc" "selected" {
-		name = ""
-	}`
-
-	TestSdcDataSourceByEmptyBlock = `data "powerflex_sdc" "selected" {
-	}`
-
-	TestSdcDataSourceByNameBlock = `data "powerflex_sdc" "selected" {
-		name = "terraform_sdc_do_not_delete"
-	}`
-
-	TestSdcDataSourceInvalidName = `data "powerflex_sdc" "selected" {
-		name = "Terraform_sdc11"
-	}`
-)
+var sdcDataSourceFilterMultiple = `
+	data "powerflex_sdc" "filtered-multiple" {
+		filter {
+			system_id = ["1250de83018c2d0f"]
+			name = ["Terraform_sdc1", "terraform_sdc_do_not_delete"]
+		}
+	}
+`

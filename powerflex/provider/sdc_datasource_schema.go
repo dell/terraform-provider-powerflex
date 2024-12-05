@@ -18,12 +18,10 @@ limitations under the License.
 package provider
 
 import (
+	"terraform-provider-powerflex/powerflex/helper"
 	"terraform-provider-powerflex/powerflex/models"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
 // SDCDataSourceScheme is variable for schematic for SDC Data Source
@@ -32,27 +30,9 @@ var SDCDataSourceScheme schema.Schema = schema.Schema{
 	MarkdownDescription: "This datasource is used to query the existing Storage Data Clients from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
-			Description: "ID of the SDC to fetch." +
-				" Conflicts with 'name'",
-			MarkdownDescription: "ID of the SDC to fetch." +
-				" Conflicts with `name`",
-			Optional: true,
-			Computed: true,
-			Validators: []validator.String{
-				stringvalidator.ConflictsWith(path.MatchRoot("name")),
-				stringvalidator.LengthAtLeast(1),
-			},
-		},
-		"name": schema.StringAttribute{
-			Description: "Name of the SDC to fetch." +
-				" Conflicts with 'id'",
-			MarkdownDescription: "Name of the SDC to fetch." +
-				" Conflicts with `id`",
-			Optional: true,
-			Computed: true,
-			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
-			},
+			Description:         "ID placeholder for sdc datasource",
+			MarkdownDescription: "ID placeholder for sdc datasource",
+			Computed:            true,
 		},
 		"sdcs": schema.ListNestedAttribute{
 			Description: "List of fetched SDCs.",
@@ -109,6 +89,11 @@ var SDCDataSourceScheme schema.Schema = schema.Schema{
 					},
 				},
 			},
+		},
+	},
+	Blocks: map[string]schema.Block{
+		"filter": schema.SingleNestedBlock{
+			Attributes: helper.GenerateSchemaAttributes(helper.TypeToMap(models.SdcFilter{})),
 		},
 	},
 }

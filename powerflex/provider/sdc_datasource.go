@@ -19,12 +19,14 @@ package provider
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"terraform-provider-powerflex/powerflex/helper"
 	"terraform-provider-powerflex/powerflex/models"
 
 	"github.com/dell/goscaleio"
+	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -111,40 +113,24 @@ func (d *sdcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		}
 		sdcs = sdcs[:n]
 	}
-
-	// Set state
-	searchFilter := helper.SdcFilterType.All
-	if !state.Name.IsNull() {
-		searchFilter = helper.SdcFilterType.ByName
-	}
-	if !state.ID.IsNull() {
-		searchFilter = helper.SdcFilterType.ByID
-	}
-
-	allSdcWithStats := helper.GetAllSdcState(ctx, *d.client, sdcs)
-
-	if len(*allSdcWithStats) == 0 {
-		resp.Diagnostics.AddError("SDCs are not installed on the PowerFlex cluster.",
-			"SDCs are not installed on the PowerFlex cluster.",
-		)
-		return
-	}
-
-	if searchFilter == helper.SdcFilterType.All {
-		state.Sdcs = *allSdcWithStats
-	} else {
-		filterResult := helper.GetFilteredSdcState(allSdcWithStats, searchFilter, state.Name.ValueString(), state.ID.ValueString())
-		if len(*filterResult) == 0 {
-			resp.Diagnostics.AddError("Couldn't find SDC.",
-				"Couldn't find SDC.",
+	// Set state for filters
+	if state.SdcFilter != nil {
+		filtered, err := helper.GetDataSourceByValue(*state.SdcFilter, sdcs)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Error in filtering sdcs: %v please validate the filter", state.SdcFilter), err.Error(),
 			)
 			return
 		}
-		state.Sdcs = *filterResult
+		filteredSdc := []scaleiotypes.Sdc{}
+		for _, val := range filtered {
+			filteredSdc = append(filteredSdc, val.(scaleiotypes.Sdc))
+		}
+		sdcs = filteredSdc
 	}
+	state.Sdcs = helper.GetAllSdcState(ctx, *d.client, sdcs)
 
-	state.Name = types.StringValue(state.Name.ValueString())
-	state.ID = types.StringValue(state.ID.ValueString())
+	state.ID = types.StringValue("sdc_datasource_id")
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
