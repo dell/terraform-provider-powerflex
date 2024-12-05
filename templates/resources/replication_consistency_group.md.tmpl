@@ -16,7 +16,9 @@ description: |-
 {{tffile .ExampleFile }}
 {{- end }}
 
-After the execution of above resource block, resource would have been created on the PowerFlex array. For more information, please check the terraform state file.
+After the execution of above resource block, the Replication Consistency Group will be created between the two Peer Systems. 
+The user can then add Replication Pairs to the RCGs in order to replicate volumes between systems.
+For more information, please check the terraform state file.
 
 {{ .SchemaMarkdown | trimspace }}
 

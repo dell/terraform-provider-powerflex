@@ -16,7 +16,8 @@ description: |-
 {{tffile .ExampleFile }}
 {{- end }}
 
-After the execution of above resource block, resource would have been created on the PowerFlex array. For more information, please check the terraform state file.
+After the execution of above resource block, the two PowerFlex Peer Systems will be connected. The user can then setup Replication Groups and Pairs in order to replicate volumes across powerflex systems.
+For more information, please check the terraform state file.
 
 {{ .SchemaMarkdown | trimspace }}
 
