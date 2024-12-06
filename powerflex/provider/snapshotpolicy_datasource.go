@@ -19,6 +19,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 
 	"terraform-provider-powerflex/powerflex/helper"
 	"terraform-provider-powerflex/powerflex/models"
@@ -27,6 +28,7 @@ import (
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var (
@@ -65,25 +67,19 @@ func (d *snapshotPolicyDataSource) Configure(_ context.Context, req datasource.C
 }
 
 func (d *snapshotPolicyDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var plan models.SnapshotPolicyDataSourceModel
-	var sps []*scaleiotypes.SnapshotPolicy
-	var err error
+	tflog.Info(ctx, "Started snapshot policy data source read method")
+	var (
+		state models.SnapshotPolicyDataSourceModel
+		sps   []scaleiotypes.SnapshotPolicy
+		err   error
+	)
 
-	diags := req.Config.Get(ctx, &plan)
+	diags := req.Config.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	//Read the snapshot policies based on snapshot policy id/name and if nothing
-	//is mentioned , then returns all the snapshot policies
-	if plan.Name.ValueString() != "" {
-		sps, err = d.client.GetSnapshotPolicy(plan.Name.ValueString(), "")
-	} else if plan.ID.ValueString() != "" {
-		sps, err = d.client.GetSnapshotPolicy("", plan.ID.ValueString())
-	} else {
-		sps, err = d.client.GetSnapshotPolicy("", "")
-	}
+	sps, err = helper.GetAllSnapshotPolicies(d.client)
 	//check if there is any error while getting the snapshot policy
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -92,9 +88,26 @@ func (d *snapshotPolicyDataSource) Read(ctx context.Context, req datasource.Read
 		)
 		return
 	}
-	plan.SnapshotPolicies = helper.UpdateSnapshotPolicyState(sps)
-	plan.ID = types.StringValue("dummyID")
-	diags = resp.State.Set(ctx, plan)
+	// Gets all snapshot policies if no filter is provided
+	if state.SnapshotPolicyFilter != nil {
+		filtered, err := helper.GetDataSourceByValue(*state.SnapshotPolicyFilter, sps)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Error in filtering snapshot policies: %v please validate the filter", state.SnapshotPolicyFilter), err.Error(),
+			)
+			return
+		}
+		//convert filtered to []scaleiotypes.SnapshotPolicy
+		filteredSps := []scaleiotypes.SnapshotPolicy{}
+		for _, val := range filtered {
+			filteredSps = append(filteredSps, val.(scaleiotypes.SnapshotPolicy))
+		}
+		sps = filteredSps
+	}
+
+	state.SnapshotPolicies = helper.UpdateSnapshotPolicyState(sps)
+	state.ID = types.StringValue("dummyID")
+	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
