@@ -34,7 +34,7 @@ data "powerflex_os_repository" "test" {
 
 var OSRepoDataSourceConfig2 = `
 data "powerflex_os_repository" "test" {
-	# this datasource supports filters like os repsoitory ids, names, source path, etc.
+	# this datasource supports filters like os repository ids, names, source path, etc.
 	filter {
 		id = ["` + OSRepoID1 + `"]
 	}
@@ -43,7 +43,7 @@ data "powerflex_os_repository" "test" {
 
 var OSRepoDataSourceConfig3 = `
 data "powerflex_os_repository" "test" {
-	# this datasource supports filters like os repsoitory ids, names, source path, etc.
+	# this datasource supports filters like os repository ids, names, source path, etc.
 	filter {
 		id = ["` + OSRepoID1 + `"]
 		name = ["` + OSRepoName1 + `"]

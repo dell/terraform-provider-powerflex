@@ -51,8 +51,8 @@ func (r *NvmeHostResource) Metadata(_ context.Context, req resource.MetadataRequ
 // Schema describes the resource arguments.
 func (r *NvmeHostResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description:         "This resource is used to manager NVMe host from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe host using this resource. We can also import an existing NVMe host from PowerFlex array.",
-		MarkdownDescription: "This resource is used to manager NVMe host from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe host using this resource. We can also import an existing NVMe host from PowerFlex array.",
+		Description:         "This resource is used to manage NVMe host from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe host using this resource. We can also import an existing NVMe host from PowerFlex array.",
+		MarkdownDescription: "This resource is used to manage NVMe host from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe host using this resource. We can also import an existing NVMe host from PowerFlex array.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{

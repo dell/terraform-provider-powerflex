@@ -58,9 +58,9 @@ func (r *NvmeTargetResource) Metadata(_ context.Context, req resource.MetadataRe
 // Schema describes the resource arguments.
 func (r *NvmeTargetResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "This resource is used to manager NVMe target from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe target using this resource. We can also import an existing NVMe target from PowerFlex array.  \n" +
+		Description: "This resource is used to manage NVMe target from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe target using this resource. We can also import an existing NVMe target from PowerFlex array.  \n" +
 			" **Note:** Either `protection_domain_id` or `protection_domain_name` must be specified.",
-		MarkdownDescription: "This resource is used to manager NVMe target from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe target using this resource. We can also import an existing NVMe target from PowerFlex array.  \n" +
+		MarkdownDescription: "This resource is used to manage NVMe target from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe target using this resource. We can also import an existing NVMe target from PowerFlex array.  \n" +
 			" **Note:** Either `protection_domain_id` or `protection_domain_name` must be specified.",
 
 		Attributes: map[string]schema.Attribute{

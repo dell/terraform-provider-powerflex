@@ -23,7 +23,7 @@ data "powerflex_os_repository" "example1" {
 
 # # Get OS Repository details by ID
 # data "powerflex_os_repository" "example2" {
-#   # this datasource supports filters like os repsoitory id, name, source path, etc.
+#   # this datasource supports filters like os repository id, name, source path, etc.
 #   # Note: If both filters are used simultaneously, the results will include any records that match either of the filters.
 #   filter {
 #     id = ["1234","5678"]
@@ -32,7 +32,7 @@ data "powerflex_os_repository" "example1" {
 
 # # Get OS Repository details by all fields
 # data "powerflex_os_repository" "example3" {
-#   # this datasource supports filters like os repsoitory id, name, source path, etc.
+#   # this datasource supports filters like os repository id, name, source path, etc.
 #   # Note: If both filters are used simultaneously, the results will include any records that match either of the filters.
 #   filter {
 #     base_url = ["http://195.0.0.0:8080"]

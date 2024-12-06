@@ -21,7 +21,7 @@ limitations under the License.
 
 The Terraform Provider for Dell Technologies (Dell) PowerFlex allows Data Center and IT administrators to use Hashicorp Terraform to automate and orchestrate the provisioning and management of Dell PowerFlex storage systems.
 
-The Terraform Provider can be used to manage SDCs, volumes, snapshots, snapshot-policies, storage pools, SDSs, protection domains, devices, users, MDM cluster, fault sets and firmware repository.
+The Terraform Provider can be used to manage SDCs, volumes, snapshots, snapshot-policies, storage pools, SDSs, protection domains, devices, users, MDM cluster, fault sets, firmware repository, peer systems, replication consistency groups, replication pairs, NVMe hosts and NVMe targets.
 
 ## Table of contents
 
@@ -50,7 +50,7 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
 
 | **Terraform Provider** | **PowerFlex/VxFlex OS Version** | **OS** | **Terraform** | **Golang** |
 |---------------------|-----------------------|-------|--------------------|--------------------------|
-| v1.5.0 | 3.6 <br> 4.5 <br> 4.6 | ubuntu22.04 <br> rhel9.x | 1.6.x <br> 1.7.x <br>| 1.22.x
+| v1.7.0 | 3.6 <br> 4.5 <br> 4.6 | ubuntu22.04 <br> rhel9.x | 1.8.x <br> 1.9.x <br>| 1.23.x
 
 ## List of DataSources in Terraform Provider for Dell PowerFlex
   * [SDC](docs/data-sources/sdc.md)
@@ -66,6 +66,11 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
   * [Template](docs/data-sources/template.md)
   * [Service](docs/data-sources/service.md)
   * [Firmware Repository](docs/data-sources/firmware_repository.md)
+  * [Peer System](docs/data-sources/peer_system.md)
+  * [Replication Consistency Group](docs/data-sources/replication_consistency_group.md)
+  * [Replication Pair](docs/data-sources/replication_pair.md)
+  * [NVMe Host](docs/data-sources/nvme_host.md)
+  * [NVMe Target](docs/data-sources/nvme_target.md)
 
 ## List of Resources in Terraform Provider for Dell PowerFlex
   * [SDC](docs/resources/sdc.md)
@@ -86,16 +91,28 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
   * [Firmware Repository](docs/resources/firmware_repository.md)
   * [SDC Host](docs/resources/sdc_host.md)
   * [System](docs/resources/system.md)
+  * [Peer System](docs/resources/peer_system.md)
+  * [Replication Consistency Group](docs/resources/replication_consistency_group.md)
+  * [Replication Consistency Group Action](docs/resources/replication_consistency_group_action.md)
+  * [Replication Pair](docs/resources/replication_pair.md)
+  * [NVMe Host](docs/resources/nvme_host.md)
+  * [NVMe Target](docs/resources/nvme_target.md)
 
 ## List of Modules in Terraform Provider for Dell PowerFlex
-  * [User](https://registry.terraform.io/modules/dell/modules/powerflex/latest/submodules/user) 
+  * [User](https://registry.terraform.io/modules/dell/modules/powerflex/latest/submodules/user)
+  * [SDC EXSi](https://registry.terraform.io/modules/dell/modules/powerflex/latest/submodules/sdc_host_esxi) 
+  * [SDC Linux](https://registry.terraform.io/modules/dell/modules/powerflex/latest/submodules/sdc_host_linux) 
+  * [SDC Windows](https://registry.terraform.io/modules/dell/modules/powerflex/latest/submodules/sdc_host_win)
+  * [vSphere OVA Deployment](https://registry.terraform.io/modules/dell/modules/powerflex/latest/submodules/vsphere-ova-vm-deployment)
+  * [Azure Deployment](https://registry.terraform.io/modules/dell/modules/powerflex/latest/submodules/azure_pfmp)
+  * [AWS Block Storage Deployment](https://registry.terraform.io/modules/dell/modules/powerflex/latest/submodules/aws_install)
 
 ## Installation and execution of Terraform Provider for Dell PowerFlex
 The installation and execution steps of Terraform Provider for Dell PowerFlex can be found [here](https://github.com/dell/terraform-provider-powerflex/blob/main/about/INSTALLATION.md).
 
 ## Releasing, Maintenance and Deprecation
 
-Terraform Provider for Dell Technnologies PowerFlex follows [Semantic Versioning](https://semver.org/).
+Terraform Provider for Dell Technologies PowerFlex follows [Semantic Versioning](https://semver.org/).
 
 New versions will be release regularly if significant changes (bug fix or new feature) are made in the provider.
 
