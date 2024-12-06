@@ -18,12 +18,10 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
+
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // SdsDataSourceSchema is the schema for reading the sds data
@@ -35,46 +33,6 @@ var SdsDataSourceSchema schema.Schema = schema.Schema{
 			Description:         "Placeholder identifier attribute.",
 			MarkdownDescription: "Placeholder identifier attribute.",
 			Computed:            true,
-		},
-		"protection_domain_id": schema.StringAttribute{
-			Description: "Protection Domain ID." +
-				" Conflicts with 'protection_domain_name'.",
-			MarkdownDescription: "Protection Domain ID." +
-				" Conflicts with `protection_domain_name`.",
-			Optional: true,
-		},
-		"protection_domain_name": schema.StringAttribute{
-			Description: "Protection Domain Name." +
-				" Conflicts with 'protection_domain_id'.",
-			MarkdownDescription: "Protection Domain Name." +
-				" Conflicts with `protection_domain_id`.",
-			Optional: true,
-			Validators: []validator.String{
-				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),
-			},
-		},
-		"sds_ids": schema.ListAttribute{
-			Description: "List of SDS IDs." +
-				" Conflicts with 'sds_names'.",
-			MarkdownDescription: "List of SDS IDs." +
-				" Conflicts with `sds_names`.",
-			ElementType: types.StringType,
-			Optional:    true,
-			Validators: []validator.List{
-				listvalidator.SizeAtLeast(1),
-			},
-		},
-		"sds_names": schema.ListAttribute{
-			Description: "List of SDS names." +
-				" Conflicts with 'sds_ids'.",
-			MarkdownDescription: "List of SDS names." +
-				" Conflicts with `sds_ids`.",
-			ElementType: types.StringType,
-			Optional:    true,
-			Validators: []validator.List{
-				listvalidator.ConflictsWith(path.MatchRoot("sds_ids")),
-				listvalidator.SizeAtLeast(1),
-			},
 		},
 		"sds_details": schema.ListNestedAttribute{
 			Description:         "List of fetched SDS.",
@@ -314,6 +272,11 @@ var SdsDataSourceSchema schema.Schema = schema.Schema{
 					},
 				},
 			},
+		},
+	},
+	Blocks: map[string]schema.Block{
+		"filter": schema.SingleNestedBlock{
+			Attributes: helper.GenerateSchemaAttributes(helper.TypeToMap(models.SdsDataFilter{})),
 		},
 	},
 }

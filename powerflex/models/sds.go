@@ -157,12 +157,45 @@ type SdsDataModel struct {
 	Links                                       []LinkModel            `tfsdk:"links"`
 }
 
+// SdsDataFilter defines struct for SDS datasource filter
+type SdsDataFilter struct {
+	ID                                          []types.String `tfsdk:"id"`
+	Name                                        []types.String `tfsdk:"name"`
+	Port                                        []types.Int64  `tfsdk:"port"`
+	SdsState                                    []types.String `tfsdk:"sds_state"`
+	MembershipState                             []types.String `tfsdk:"membership_state"`
+	MdmConnectionState                          []types.String `tfsdk:"mdm_connection_state"`
+	DrlMode                                     []types.String `tfsdk:"drl_mode"`
+	RmcacheEnabled                              types.Bool     `tfsdk:"rmcache_enabled"`
+	RmcacheSize                                 []types.Int64  `tfsdk:"rmcache_size"`
+	RmcacheFrozen                               types.Bool     `tfsdk:"rmcache_frozen"`
+	OnVmware                                    types.Bool     `tfsdk:"on_vmware"`
+	FaultsetID                                  []types.String `tfsdk:"fault_set_id"`
+	NumIOBuffers                                []types.Int64  `tfsdk:"num_io_buffers"`
+	RmcacheMemoryAllocationState                []types.String `tfsdk:"rmcache_memory_allocation_state"`
+	PerformanceProfile                          []types.String `tfsdk:"performance_profile"`
+	SoftwareVersionInfo                         []types.String `tfsdk:"software_version_info"`
+	ConfiguredDrlMode                           []types.String `tfsdk:"configured_drl_mode"`
+	RfcacheEnabled                              types.Bool     `tfsdk:"rfcache_enabled"`
+	MaintenanceState                            []types.String `tfsdk:"maintenance_state"`
+	MaintenanceType                             []types.String `tfsdk:"maintenance_type"`
+	RfcacheErrorLowResources                    types.Bool     `tfsdk:"rfcache_error_low_resources"`
+	RfcacheErrorAPIVersionMismatch              types.Bool     `tfsdk:"rfcache_error_api_version_mismatch"`
+	RfcacheErrorInconsistentCacheConfiguration  types.Bool     `tfsdk:"rfcache_error_inconsistent_cache_configuration"`
+	RfcacheErrorInconsistentSourceConfiguration types.Bool     `tfsdk:"rfcache_error_inconsistent_source_configuration"`
+	RfcacheErrorInvalidDriverPath               types.Bool     `tfsdk:"rfcache_error_invalid_driver_path"`
+	RfcacheErrorDeviceDoesNotExist              types.Bool     `tfsdk:"rfcache_error_device_does_not_exist"`
+	AuthenticationError                         []types.String `tfsdk:"authentication_error"`
+	FglNumConcurrentWrites                      []types.Int64  `tfsdk:"fgl_num_concurrent_writes"`
+	FglMetadataCacheState                       []types.String `tfsdk:"fgl_metadata_cache_state"`
+	FglMetadataCacheSize                        []types.Int64  `tfsdk:"fgl_metadata_cache_size"`
+	NumRestarts                                 []types.Int64  `tfsdk:"num_restarts"`
+	LastUpgradeTime                             []types.Int64  `tfsdk:"last_upgrade_time"`
+}
+
 // SdsDataSourceModel maps the Sds data source schema data
 type SdsDataSourceModel struct {
-	SDSIDs               types.List     `tfsdk:"sds_ids"`
-	SDSNames             types.List     `tfsdk:"sds_names"`
-	ProtectionDomainID   types.String   `tfsdk:"protection_domain_id"`
-	ProtectionDomainName types.String   `tfsdk:"protection_domain_name"`
-	SDSDetails           []SdsDataModel `tfsdk:"sds_details"`
-	ID                   types.String   `tfsdk:"id"`
+	SdsDataFilter *SdsDataFilter `tfsdk:"filter"`
+	SDSDetails    []SdsDataModel `tfsdk:"sds_details"`
+	ID            types.String   `tfsdk:"id"`
 }

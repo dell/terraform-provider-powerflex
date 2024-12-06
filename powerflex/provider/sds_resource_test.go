@@ -26,6 +26,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
+var protectionDomainID1 = ProtectionDomainIDSds
+
 var FaultSetCreate = `
 resource "powerflex_fault_set" "newFs" {
 	name = "fault-set-create"

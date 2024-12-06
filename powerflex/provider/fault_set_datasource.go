@@ -137,7 +137,7 @@ func (d *faultSetDataSource) Read(ctx context.Context, req datasource.ReadReques
 
 		var sdsStateModels []models.SdsDataModel
 		for index := range sdsDetails {
-			sdsState := getSdsState(&sdsDetails[index])
+			sdsState := getSdsState(sdsDetails[index])
 			sdsStateModels = append(sdsStateModels, sdsState)
 		}
 		faultSetsModel = append(faultSetsModel, helper.GetAllFaultSetState(faultSet, sdsStateModels))
