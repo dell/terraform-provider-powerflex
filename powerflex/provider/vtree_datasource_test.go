@@ -19,6 +19,7 @@ package provider
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
@@ -29,6 +30,9 @@ import (
 
 // AT
 func TestAccDatasourceAcceptanceVTree(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an Accpetance test")
+	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -42,6 +46,9 @@ func TestAccDatasourceAcceptanceVTree(t *testing.T) {
 
 // UT
 func TestAccDatasourceVTree(t *testing.T) {
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is an Unit test")
+	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{

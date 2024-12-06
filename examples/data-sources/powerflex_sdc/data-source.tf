@@ -16,19 +16,35 @@ limitations under the License.
 */
 
 # commands to run this tf file : terraform init && terraform apply --auto-approve
-# Reads SDC either by name or by id , if provided
-# If both name and id is not provided , then it reads all the SDC
-# id and name can't be given together to fetch the SDC .
-# id can't be empty
 
-data "powerflex_sdc" "selected" {
-  #id = "e3ce1fb500000000"
-  name = "sdc_01"
+data "powerflex_sdc" "all" {
+
 }
 
-# # Returns all sdcs matching criteria
+# Returns all sdcs
 output "allsdcresult" {
-  value = data.powerflex_sdc.selected
+  value = data.powerflex_sdc.all
 }
-# # -----------------------------------------------------------------------------------
+
+// If multiple filter fields are provided then it will show the intersection of all of those fields.
+// If there is no intersection between the filters then an empty datasource will be returned
+// For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/
+data "powerflex_sdc" "filtered" {
+  filter {
+    # id = ["ID1", "ID2"]
+    # system_id = ["systemID", "systemID2"]
+    # sdc_ip = ["SCDIP1", "SCDIP2"]
+    # sdc_approved = false
+    # on_vmware = false
+    # sdc_guid = ["SdcGUID1", "SdcGUID2"]
+    # mdm_connection_state = ["MdmConnectionState1", "MdmConnectionState2"]
+    # name = ["Name1", "Name2"]
+  }
+}
+
+# Returns filtered sdcs matching criteria
+output "filteredsdcresult" {
+  value = data.powerflex_sdc.filtered
+}
+# -----------------------------------------------------------------------------------
 
