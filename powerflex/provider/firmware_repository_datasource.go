@@ -24,6 +24,7 @@ import (
 	"terraform-provider-powerflex/powerflex/models"
 
 	"github.com/dell/goscaleio"
+	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -76,8 +77,7 @@ func (d *firmwareRepositoryDataSource) Configure(_ context.Context, req datasour
 func (d *firmwareRepositoryDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Info(ctx, "Started firmware repository data source read method")
 	var (
-		state                   models.FirmwareRepositoryDatasourceModel
-		firmwareRepositoryModel []models.FirmwareRepositoryDetails
+		state models.FirmwareRepositoryDatasourceModel
 	)
 
 	diags := req.Config.Get(ctx, &state)
@@ -85,62 +85,32 @@ func (d *firmwareRepositoryDataSource) Read(ctx context.Context, req datasource.
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	fmDetails, err := helper.GetFirmwareRepositories(d.gatewayClient)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error in getting firmware repositories", err.Error(),
+		)
+		return
+	}
 
-	// Fetch firmware repository details if IDs are provided
-	if !state.FirmwareRepositoryIDs.IsNull() {
-		frIDs := make([]string, 0)
-		diags.Append(state.FirmwareRepositoryIDs.ElementsAs(ctx, &frIDs, true)...)
-
-		for _, frID := range frIDs {
-			fr, err := d.gatewayClient.GetUploadComplianceDetailsUsingID(frID)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting firmware repository details using id %v", frID), err.Error(),
-				)
-				return
-			}
-			firmwareRepositoryModel = append(firmwareRepositoryModel, helper.GetAllFirmwareRepositoryState(fr))
-		}
-	} else if !state.FirmwareRepositoryNames.IsNull() {
-		frNames := make([]string, 0)
-		diags.Append(state.FirmwareRepositoryNames.ElementsAs(ctx, &frNames, true)...)
-
-		for _, frName := range frNames {
-			fr, err := d.gatewayClient.GetFirmwareRepositoryDetailsUsingName(frName)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting firmware repository details using name %v", frName), err.Error(),
-				)
-				return
-			}
-			firmwareRepositoryModel = append(firmwareRepositoryModel, helper.GetAllFirmwareRepositoryState(fr))
-		}
-	} else {
-		allfr, err := d.gatewayClient.GetAllUploadComplianceDetails()
+	// Set state for filters
+	if state.FirmwareRepositoryFilter != nil {
+		filtered, err := helper.GetDataSourceByValue(*state.FirmwareRepositoryFilter, fmDetails)
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error in getting firmware repository details", err.Error(),
+				fmt.Sprintf("Error in filtering firmware repositories: %v please validate the filter", state.FirmwareRepositoryFilter), err.Error(),
 			)
 			return
 		}
-
-		for _, frs := range *allfr {
-			fr, err := d.gatewayClient.GetUploadComplianceDetailsUsingID(frs.ID)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting firmware repository details using id %v", frs.ID), err.Error(),
-				)
-				return
-			}
-			firmwareRepositoryModel = append(firmwareRepositoryModel, helper.GetAllFirmwareRepositoryState(fr))
+		filteredFR := []scaleiotypes.FirmwareRepositoryDetails{}
+		for _, val := range filtered {
+			filteredFR = append(filteredFR, val.(scaleiotypes.FirmwareRepositoryDetails))
 		}
+		fmDetails = filteredFR
 	}
 
-	state.FirmwareRepositoryDetails = firmwareRepositoryModel
-	state.ID = types.StringValue("placeholder")
+	state.FirmwareRepositoryDetails = helper.GetAllFirmwareRepositoryState(fmDetails)
+	state.ID = types.StringValue("firmware-repository-datasource-id")
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
-	// if resp.Diagnostics.HasError() {
-	// 	return
-	// }
 }

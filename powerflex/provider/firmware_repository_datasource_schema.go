@@ -18,11 +18,10 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
+
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -32,32 +31,9 @@ var FirmwareRepositoryDataSourceSchema schema.Schema = schema.Schema{
 	MarkdownDescription: "This datasource is used to query the existing firmware repository from the PowerFlex array. The information fetched from this datasource can be used for getting the necessary details regarding the bundles and their components in that firmware repository.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
-			Description:         "Placeholder attribute.",
-			MarkdownDescription: "Placeholder attribute.",
+			Description:         "Placeholder firmware repository datasource id.",
+			MarkdownDescription: "Placeholder firmware repository datasource id.",
 			Computed:            true,
-		},
-		"firmware_repository_ids": schema.SetAttribute{
-			Description:         "List of firmware repository IDs",
-			MarkdownDescription: "List of firmware repository IDs",
-			Optional:            true,
-			ElementType:         types.StringType,
-			Validators: []validator.Set{
-				setvalidator.ConflictsWith(
-					path.MatchRoot("firmware_repository_names"),
-				),
-				setvalidator.SizeAtLeast(1),
-				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
-			},
-		},
-		"firmware_repository_names": schema.SetAttribute{
-			Description:         "List of firmware repository names",
-			MarkdownDescription: "List of firmware repository names",
-			Optional:            true,
-			ElementType:         types.StringType,
-			Validators: []validator.Set{
-				setvalidator.SizeAtLeast(1),
-				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
-			},
 		},
 		"firmware_repository_details": schema.ListNestedAttribute{
 			Description:         "Firmware Repository details",
@@ -219,6 +195,11 @@ var FirmwareRepositoryDataSourceSchema schema.Schema = schema.Schema{
 					},
 				},
 			},
+		},
+	},
+	Blocks: map[string]schema.Block{
+		"filter": schema.SingleNestedBlock{
+			Attributes: helper.GenerateSchemaAttributes(helper.TypeToMap(models.FirmwareRepositoryFilter{})),
 		},
 	},
 }

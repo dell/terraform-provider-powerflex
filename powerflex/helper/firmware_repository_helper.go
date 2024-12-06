@@ -20,6 +20,7 @@ package helper
 import (
 	"terraform-provider-powerflex/powerflex/models"
 
+	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -41,40 +42,62 @@ func UpdateFrimwareRepositoryState(frDetails *scaleiotypes.UploadComplianceTopol
 	return state
 }
 
-// GetAllFirmwareRepositoryState sets the state for the firmware repository datasource.
-func GetAllFirmwareRepositoryState(input *scaleiotypes.FirmwareRepositoryDetails) models.FirmwareRepositoryDetails {
-	return models.FirmwareRepositoryDetails{
-		ID:                  types.StringValue(input.ID),
-		Name:                types.StringValue(input.Name),
-		SourceLocation:      types.StringValue(input.SourceLocation),
-		SourceType:          types.StringValue(input.SourceType),
-		DiskLocation:        types.StringValue(input.DiskLocation),
-		Filename:            types.StringValue(input.Filename),
-		Username:            types.StringValue(input.Username),
-		Password:            types.StringValue(input.Password),
-		DownloadStatus:      types.StringValue(input.DownloadStatus),
-		CreatedDate:         types.StringValue(input.CreatedDate),
-		CreatedBy:           types.StringValue(input.CreatedBy),
-		UpdatedDate:         types.StringValue(input.UpdatedDate),
-		UpdatedBy:           types.StringValue(input.UpdatedBy),
-		DefaultCatalog:      types.BoolValue(input.DefaultCatalog),
-		Embedded:            types.BoolValue(input.Embedded),
-		State:               types.StringValue(input.State),
-		SoftwareComponents:  newComponentList(input.SoftwareComponents),
-		SoftwareBundles:     newBundleList(input.SoftwareBundles),
-		BundleCount:         types.Int64Value(int64(input.BundleCount)),
-		ComponentCount:      types.Int64Value(int64(input.ComponentCount)),
-		UserBundleCount:     types.Int64Value(int64(input.UserBundleCount)),
-		Minimal:             types.BoolValue(input.Minimal),
-		DownloadProgress:    types.Int64Value(int64(input.DownloadProgress)),
-		ExtractProgress:     types.Int64Value(int64(input.ExtractProgress)),
-		FileSizeInGigabytes: types.Float64Value(input.FileSizeInGigabytes),
-		Signature:           types.StringValue(input.Signature),
-		Custom:              types.BoolValue(input.Custom),
-		NeedsAttention:      types.BoolValue(input.NeedsAttention),
-		JobID:               types.StringValue(input.JobID),
-		Rcmapproved:         types.BoolValue(input.Rcmapproved),
+func GetFirmwareRepositories(gatewayClient *goscaleio.GatewayClient) ([]scaleiotypes.FirmwareRepositoryDetails, error) {
+	var fmDetails = []scaleiotypes.FirmwareRepositoryDetails{}
+	allfr, err := gatewayClient.GetAllUploadComplianceDetails()
+	if err != nil {
+		return nil, err
 	}
+
+	for _, frs := range *allfr {
+		fr, err := gatewayClient.GetUploadComplianceDetailsUsingID(frs.ID)
+		if err != nil {
+			return nil, err
+		}
+		fmDetails = append(fmDetails, *fr)
+	}
+	return fmDetails, nil
+}
+
+// GetAllFirmwareRepositoryState sets the state for the firmware repository datasource.
+func GetAllFirmwareRepositoryState(frs []scaleiotypes.FirmwareRepositoryDetails) []models.FirmwareRepositoryDetails {
+	var model []models.FirmwareRepositoryDetails
+	for _, input := range frs {
+		temp := models.FirmwareRepositoryDetails{
+			ID:                  types.StringValue(input.ID),
+			Name:                types.StringValue(input.Name),
+			SourceLocation:      types.StringValue(input.SourceLocation),
+			SourceType:          types.StringValue(input.SourceType),
+			DiskLocation:        types.StringValue(input.DiskLocation),
+			Filename:            types.StringValue(input.Filename),
+			Username:            types.StringValue(input.Username),
+			Password:            types.StringValue(input.Password),
+			DownloadStatus:      types.StringValue(input.DownloadStatus),
+			CreatedDate:         types.StringValue(input.CreatedDate),
+			CreatedBy:           types.StringValue(input.CreatedBy),
+			UpdatedDate:         types.StringValue(input.UpdatedDate),
+			UpdatedBy:           types.StringValue(input.UpdatedBy),
+			DefaultCatalog:      types.BoolValue(input.DefaultCatalog),
+			Embedded:            types.BoolValue(input.Embedded),
+			State:               types.StringValue(input.State),
+			SoftwareComponents:  newComponentList(input.SoftwareComponents),
+			SoftwareBundles:     newBundleList(input.SoftwareBundles),
+			BundleCount:         types.Int64Value(int64(input.BundleCount)),
+			ComponentCount:      types.Int64Value(int64(input.ComponentCount)),
+			UserBundleCount:     types.Int64Value(int64(input.UserBundleCount)),
+			Minimal:             types.BoolValue(input.Minimal),
+			DownloadProgress:    types.Int64Value(int64(input.DownloadProgress)),
+			ExtractProgress:     types.Int64Value(int64(input.ExtractProgress)),
+			FileSizeInGigabytes: types.Float64Value(input.FileSizeInGigabytes),
+			Signature:           types.StringValue(input.Signature),
+			Custom:              types.BoolValue(input.Custom),
+			NeedsAttention:      types.BoolValue(input.NeedsAttention),
+			JobID:               types.StringValue(input.JobID),
+			Rcmapproved:         types.BoolValue(input.Rcmapproved),
+		}
+		model = append(model, temp)
+	}
+	return model
 }
 
 // newComponentList converts list of client.Component to list of models.Component
