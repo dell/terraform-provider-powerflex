@@ -20,6 +20,7 @@ package helper
 import (
 	"terraform-provider-powerflex/powerflex/models"
 
+	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -31,6 +32,11 @@ func UpdateFaultSetState(faultset *scaleiotypes.FaultSet, plan models.FaultSetRe
 	state.ID = types.StringValue(faultset.ID)
 	state.Name = types.StringValue(faultset.Name)
 	return state
+}
+
+// GetAllFaultSets returns all the fault sets
+func GetAllFaultSets(system *goscaleio.System) ([]scaleiotypes.FaultSet, error) {
+	return system.GetAllFaultSets()
 }
 
 // GetAllFaultSetState returns the state for fault set data source

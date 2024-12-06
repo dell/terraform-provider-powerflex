@@ -49,21 +49,26 @@ limitations under the License.
 # commands to run this tf file : terraform init && terraform apply --auto-approve
 
 # Get all fault set details present on the cluster
-data "powerflex_fault_set" "example1" {
+data "powerflex_fault_set" "all" {
 }
 
-# Get fault set details using fault set IDs
-data "powerflex_fault_set" "example2" {
-  fault_set_ids = ["FaultSet_ID1", "FaultSet_ID2"]
+output "fault_set_result_all" {
+  value = data.powerflex_fault_set.all.fault_set_details
 }
 
-# Get fault set details using fault set names
-data "powerflex_fault_set" "example3" {
-  fault_set_names = ["FaultSet_Name1", "FaultSet_Name2"]
+// If multiple filter fields are provided then it will show the intersection of all of those fields.
+// If there is no intersection between the filters then an empty datasource will be returned
+// For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/
+data "powerflex_fault_set" "filtered" {
+  filter {
+    # protection_domain_id = ["protection_domain_id", "protection_domain_id2"]
+    # name = ["name", "name2"]
+    # id = ["id", "id2"]
+  }
 }
 
-output "fault_set_result" {
-  value = data.powerflex_fault_set.example1.fault_set_details
+output "fault_set_result_filtered" {
+  value = data.powerflex_fault_set.filtered.fault_set_details
 }
 ```
 
@@ -74,13 +79,22 @@ After the successful execution of above said block, we can see the output by exe
 
 ### Optional
 
-- `fault_set_ids` (Set of String) List of fault set IDs
-- `fault_set_names` (Set of String) List of fault set names
+- `filter` (Block, Optional) (see [below for nested schema](#nestedblock--filter))
 
 ### Read-Only
 
 - `fault_set_details` (Attributes Set) Fault set details (see [below for nested schema](#nestedatt--fault_set_details))
-- `id` (String) Placeholder attribute.
+- `id` (String) Placeholder for fault set datasource attribute.
+
+<a id="nestedblock--filter"></a>
+### Nested Schema for `filter`
+
+Optional:
+
+- `id` (Set of String) List of id
+- `name` (Set of String) List of name
+- `protection_domain_id` (Set of String) List of protection_domain_id
+
 
 <a id="nestedatt--fault_set_details"></a>
 ### Nested Schema for `fault_set_details`

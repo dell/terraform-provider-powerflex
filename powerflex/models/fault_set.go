@@ -30,10 +30,16 @@ type FaultSetResourceModel struct {
 
 // FaultSetDataSourceModel maps the struct to FaultSet data source schema
 type FaultSetDataSourceModel struct {
-	FaultSetIDs     types.Set    `tfsdk:"fault_set_ids"`
-	FaultSetNames   types.Set    `tfsdk:"fault_set_names"`
-	FaultSetDetails []FaultSet   `tfsdk:"fault_set_details"`
-	ID              types.String `tfsdk:"id"`
+	FaultSetFilter  *FaultSetFilter `tfsdk:"filter"`
+	FaultSetDetails []FaultSet      `tfsdk:"fault_set_details"`
+	ID              types.String    `tfsdk:"id"`
+}
+
+// FaultSetFilter defines the filter for fault set
+type FaultSetFilter struct {
+	ProtectionDomainID []types.String `tfsdk:"protection_domain_id"`
+	Name               []types.String `tfsdk:"name"`
+	ID                 []types.String `tfsdk:"id"`
 }
 
 // FaultSet maps the struct to FaultSet schema
