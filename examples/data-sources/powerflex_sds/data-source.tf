@@ -16,23 +16,51 @@ limitations under the License.
 */
 
 # commands to run this tf file : terraform init && terraform apply --auto-approve
-# To read SDS, either protection_domain_name or protection_domain_id must be provided
-# This datasource reads a specific SDS either by sds_names or sds_ids where user can provide a list of sds ids or names
-# if both sds_names and sds_ids are not provided , then it will read all the sds under the protection domain
-# Both sds_ids and sds_names can't be provided together .
-# Both protection_domain_name and protection_domain_id can't be provided together
 
-
-
-data "powerflex_sds" "example2" {
-  # require field is either of protection_domain_name or protection_domain_id
-  protection_domain_name = "domain1"
-  # protection_domain_id = "202a046600000000"
-  sds_names = ["SDS_01_MOD", "sds_1", "node4"]
-  # sds_ids = ["6adfec1000000000", "6ae14ba900000006", "6ad58bd200000002"]
+data "powerflex_sds" "example1" {
 }
 
+# Get Sds details using filter with all values
+# If there is no intersection between the filters then an empty datasource will be returned
+# For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples
+# data "powerflex_sds" "sds" {
+#   filter{
+    # authentication_error                            = ["None"]
+    # configured_drl_mode                             = ["Volatile"]
+    # drl_mode                                        = ["Volatile"]
+    # fault_set_id                                    = ["fault_set_id1", "fault_set_id2"]
+    # fgl_metadata_cache_size                         = [0]
+    # fgl_metadata_cache_state                        = ["Enabled"]
+    # fgl_num_concurrent_writes                       = [10000]
+    # id                                              = ["id1", "id2"]
+    # last_upgrade_time                               = [0]
+    # maintenance_state                               = ["NoMaintenance"]
+    # maintenance_type                                = ["NoMaintenance"]
+    # mdm_connection_state                            = ["Connected"]
+    # membership_state                                = ["Joined"]
+    # name                                            = ["sds-env-name1", "sds-env-name2"]
+    # num_io_buffers                                  = [0]
+    # num_restarts                                    = [6]
+    # on_vmware                                       = false
+    # performance_profile                             = ["HighPerformance"]
+    # port                                            = [8080]
+    # rfcache_enabled                                 = true
+    # rfcache_error_api_version_mismatch              = false
+    # rfcache_error_device_does_not_exist             = false
+    # rfcache_error_inconsistent_cache_configuration  = false
+    # rfcache_error_inconsistent_source_configuration = false
+    # rfcache_error_invalid_driver_path               = false
+    # rfcache_error_low_resources                     = false
+    # rmcache_enabled                                 = false
+    # rmcache_frozen                                  = false
+    # rmcache_memory_allocation_state                 = ["RmcacheDisabled"]
+    # rmcache_size                                    = [1400]
+    # sds_state                                       = ["Normal"]
+    # software_version_info                           = ["R4_6.1234.0"]
+#   }
+# }
+
 output "allsdcresult" {
-  value = data.powerflex_sds.example2
+  value = data.powerflex_sds.example1
 }
 

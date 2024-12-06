@@ -19,6 +19,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 
 	"terraform-provider-powerflex/powerflex/helper"
 	"terraform-provider-powerflex/powerflex/models"
@@ -138,19 +139,19 @@ func sdsCertificateInfo(s1 scaleio_types.CertificateInfo) models.CertificateInfo
 // Read refreshes the Terraform state with the latest data.
 func (d *sdsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Info(ctx, "Started SDS data source read method")
-	var state models.SdsDataSourceModel
-	var pd *scaleio_types.ProtectionDomain
-	var err3 error
+	var (
+		state   models.SdsDataSourceModel
+		sdsList []models.SdsDataModel
+	)
 
 	diags := req.Config.Get(ctx, &state)
-
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	// Get the system on the PowerFlex cluster
-	c2, err := helper.GetFirstSystem(d.client)
+	system, err := helper.GetFirstSystem(d.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error in getting system instance",
@@ -159,61 +160,44 @@ func (d *sdsDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		return
 	}
 
-	// Check if protection domain ID or name is provided
-	if state.ProtectionDomainID.ValueString() != "" {
-		pd, err3 = c2.FindProtectionDomain(state.ProtectionDomainID.ValueString(), "", "")
-	} else {
-		pd, err3 = c2.FindProtectionDomain("", state.ProtectionDomainName.ValueString(), "")
-	}
-
-	if err3 != nil {
+	//Gather all Sdses
+	sdsUnTranslated, err := system.GetAllSds()
+	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to find protection domain",
-			err3.Error(),
+			"Unable to Read Sdses",
+			err.Error(),
 		)
 		return
 	}
 
-	p1 := goscaleio.NewProtectionDomainEx(d.client, pd)
-
-	sdsID := []string{}
-	// Check if SDS ID or name is provided
-	if !state.SDSIDs.IsNull() {
-		diags = state.SDSIDs.ElementsAs(ctx, &sdsID, true)
-	} else if !state.SDSNames.IsNull() {
-		diags = state.SDSNames.ElementsAs(ctx, &sdsID, true)
-	} else {
-		// Get all the SDS associated with protection domain
-		sds, _ := p1.GetSds()
-		for sp := range sds {
-			sdsID = append(sdsID, sds[sp].Name)
+	// Check if SdsDataFilter is provided
+	if state.SdsDataFilter != nil {
+		sdsfiltered, err := helper.GetDataSourceByValue(*state.SdsDataFilter, sdsUnTranslated)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Error in filtering SDS: %v please validate the filter", state.SdsDataFilter), err.Error(),
+			)
+			return
 		}
+		var filteredSds []scaleio_types.Sds
+		for _, val := range sdsfiltered {
+			filteredSds = append(filteredSds, val.(scaleio_types.Sds))
+		}
+		sdsUnTranslated = filteredSds
 	}
+
+	// translate goscaleio model to provider model
+	for _, sds := range sdsUnTranslated {
+		sdsTranslated := getSdsState(sds)
+		sdsList = append(sdsList, sdsTranslated)
+	}
+
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Iterate though the SDS for sacing details into state file
-	for _, sdsIdentifier := range sdsID {
-		var s1 *scaleio_types.Sds
-
-		if !state.SDSIDs.IsNull() {
-			s1, err3 = p1.FindSds("ID", sdsIdentifier)
-		} else {
-			s1, err3 = p1.FindSds("Name", sdsIdentifier)
-		}
-
-		if err3 != nil {
-			resp.Diagnostics.AddError(
-				"Unable to read SDS",
-				err3.Error(),
-			)
-			return
-		}
-		sdsDetail := getSdsState(s1)
-		state.SDSDetails = append(state.SDSDetails, sdsDetail)
-	}
+	state.SDSDetails = sdsList
 
 	// this is required for acceptance testing
 	state.ID = types.StringValue("dummyID")
@@ -227,7 +211,7 @@ func (d *sdsDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 }
 
 // getSdsState saves SDS response in SDS struct
-func getSdsState(s1 *scaleio_types.Sds) (sdsDetail models.SdsDataModel) {
+func getSdsState(s1 scaleio_types.Sds) (sdsDetail models.SdsDataModel) {
 	sdsDetail = models.SdsDataModel{
 		ID:                             types.StringValue(s1.ID),
 		Name:                           types.StringValue(s1.Name),

@@ -51,24 +51,52 @@ limitations under the License.
 */
 
 # commands to run this tf file : terraform init && terraform apply --auto-approve
-# To read SDS, either protection_domain_name or protection_domain_id must be provided
-# This datasource reads a specific SDS either by sds_names or sds_ids where user can provide a list of sds ids or names
-# if both sds_names and sds_ids are not provided , then it will read all the sds under the protection domain
-# Both sds_ids and sds_names can't be provided together .
-# Both protection_domain_name and protection_domain_id can't be provided together
 
-
-
-data "powerflex_sds" "example2" {
-  # require field is either of protection_domain_name or protection_domain_id
-  protection_domain_name = "domain1"
-  # protection_domain_id = "202a046600000000"
-  sds_names = ["SDS_01_MOD", "sds_1", "node4"]
-  # sds_ids = ["6adfec1000000000", "6ae14ba900000006", "6ad58bd200000002"]
+data "powerflex_sds" "example1" {
 }
 
+# Get Sds details using filter with all values
+# If there is no intersection between the filters then an empty datasource will be returned
+# For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples
+# data "powerflex_sds" "sds" {
+#   filter{
+    # authentication_error                            = ["None"]
+    # configured_drl_mode                             = ["Volatile"]
+    # drl_mode                                        = ["Volatile"]
+    # fault_set_id                                    = ["fault_set_id1", "fault_set_id2"]
+    # fgl_metadata_cache_size                         = [0]
+    # fgl_metadata_cache_state                        = ["Enabled"]
+    # fgl_num_concurrent_writes                       = [10000]
+    # id                                              = ["id1", "id2"]
+    # last_upgrade_time                               = [0]
+    # maintenance_state                               = ["NoMaintenance"]
+    # maintenance_type                                = ["NoMaintenance"]
+    # mdm_connection_state                            = ["Connected"]
+    # membership_state                                = ["Joined"]
+    # name                                            = ["sds-env-name1", "sds-env-name2"]
+    # num_io_buffers                                  = [0]
+    # num_restarts                                    = [6]
+    # on_vmware                                       = false
+    # performance_profile                             = ["HighPerformance"]
+    # port                                            = [8080]
+    # rfcache_enabled                                 = true
+    # rfcache_error_api_version_mismatch              = false
+    # rfcache_error_device_does_not_exist             = false
+    # rfcache_error_inconsistent_cache_configuration  = false
+    # rfcache_error_inconsistent_source_configuration = false
+    # rfcache_error_invalid_driver_path               = false
+    # rfcache_error_low_resources                     = false
+    # rmcache_enabled                                 = false
+    # rmcache_frozen                                  = false
+    # rmcache_memory_allocation_state                 = ["RmcacheDisabled"]
+    # rmcache_size                                    = [1400]
+    # sds_state                                       = ["Normal"]
+    # software_version_info                           = ["R4_6.1234.0"]
+#   }
+# }
+
 output "allsdcresult" {
-  value = data.powerflex_sds.example2
+  value = data.powerflex_sds.example1
 }
 ```
 
@@ -79,15 +107,51 @@ After the successful execution of above said block, We can see the output by exe
 
 ### Optional
 
-- `protection_domain_id` (String) Protection Domain ID. Conflicts with `protection_domain_name`.
-- `protection_domain_name` (String) Protection Domain Name. Conflicts with `protection_domain_id`.
-- `sds_ids` (List of String) List of SDS IDs. Conflicts with `sds_names`.
-- `sds_names` (List of String) List of SDS names. Conflicts with `sds_ids`.
+- `filter` (Block, Optional) (see [below for nested schema](#nestedblock--filter))
 
 ### Read-Only
 
 - `id` (String) Placeholder identifier attribute.
 - `sds_details` (Attributes List) List of fetched SDS. (see [below for nested schema](#nestedatt--sds_details))
+
+<a id="nestedblock--filter"></a>
+### Nested Schema for `filter`
+
+Optional:
+
+- `authentication_error` (Set of String) List of authentication_error
+- `configured_drl_mode` (Set of String) List of configured_drl_mode
+- `drl_mode` (Set of String) List of drl_mode
+- `fault_set_id` (Set of String) List of fault_set_id
+- `fgl_metadata_cache_size` (Set of Number) List of fgl_metadata_cache_size
+- `fgl_metadata_cache_state` (Set of String) List of fgl_metadata_cache_state
+- `fgl_num_concurrent_writes` (Set of Number) List of fgl_num_concurrent_writes
+- `id` (Set of String) List of id
+- `last_upgrade_time` (Set of Number) List of last_upgrade_time
+- `maintenance_state` (Set of String) List of maintenance_state
+- `maintenance_type` (Set of String) List of maintenance_type
+- `mdm_connection_state` (Set of String) List of mdm_connection_state
+- `membership_state` (Set of String) List of membership_state
+- `name` (Set of String) List of name
+- `num_io_buffers` (Set of Number) List of num_io_buffers
+- `num_restarts` (Set of Number) List of num_restarts
+- `on_vmware` (Boolean) Value for on_vmware
+- `performance_profile` (Set of String) List of performance_profile
+- `port` (Set of Number) List of port
+- `rfcache_enabled` (Boolean) Value for rfcache_enabled
+- `rfcache_error_api_version_mismatch` (Boolean) Value for rfcache_error_api_version_mismatch
+- `rfcache_error_device_does_not_exist` (Boolean) Value for rfcache_error_device_does_not_exist
+- `rfcache_error_inconsistent_cache_configuration` (Boolean) Value for rfcache_error_inconsistent_cache_configuration
+- `rfcache_error_inconsistent_source_configuration` (Boolean) Value for rfcache_error_inconsistent_source_configuration
+- `rfcache_error_invalid_driver_path` (Boolean) Value for rfcache_error_invalid_driver_path
+- `rfcache_error_low_resources` (Boolean) Value for rfcache_error_low_resources
+- `rmcache_enabled` (Boolean) Value for rmcache_enabled
+- `rmcache_frozen` (Boolean) Value for rmcache_frozen
+- `rmcache_memory_allocation_state` (Set of String) List of rmcache_memory_allocation_state
+- `rmcache_size` (Set of Number) List of rmcache_size
+- `sds_state` (Set of String) List of sds_state
+- `software_version_info` (Set of String) List of software_version_info
+
 
 <a id="nestedatt--sds_details"></a>
 ### Nested Schema for `sds_details`
