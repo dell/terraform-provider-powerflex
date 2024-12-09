@@ -37,10 +37,39 @@ type FirmwareRepositoryResourceModel struct {
 
 // FirmwareRepositoryDatasourceModel defines the tfsdk model for firmware repository datasource
 type FirmwareRepositoryDatasourceModel struct {
-	FirmwareRepositoryIDs     types.Set                   `tfsdk:"firmware_repository_ids"`
-	FirmwareRepositoryNames   types.Set                   `tfsdk:"firmware_repository_names"`
 	FirmwareRepositoryDetails []FirmwareRepositoryDetails `tfsdk:"firmware_repository_details"`
 	ID                        types.String                `tfsdk:"id"`
+	FirmwareRepositoryFilter  *FirmwareRepositoryFilter   `tfsdk:"filter"`
+}
+
+// FirmwareRepositoryFilter defines the tfsdk model of firmware repository filter
+type FirmwareRepositoryFilter struct {
+	ID               []types.String `tfsdk:"id"`
+	Name             []types.String `tfsdk:"name"`
+	SourceLocation   []types.String `tfsdk:"source_location"`
+	SourceType       []types.String `tfsdk:"source_type"`
+	DiskLocation     []types.String `tfsdk:"disk_location"`
+	Filename         []types.String `tfsdk:"filename"`
+	Username         []types.String `tfsdk:"username"`
+	DownloadStatus   []types.String `tfsdk:"download_status"`
+	CreatedDate      []types.String `tfsdk:"created_date"`
+	CreatedBy        []types.String `tfsdk:"created_by"`
+	UpdatedDate      []types.String `tfsdk:"updated_date"`
+	UpdatedBy        []types.String `tfsdk:"updated_by"`
+	DefaultCatalog   types.Bool     `tfsdk:"default_catalog"`
+	Embedded         types.Bool     `tfsdk:"embedded"`
+	State            []types.String `tfsdk:"state"`
+	BundleCount      []types.Int64  `tfsdk:"bundle_count"`
+	ComponentCount   []types.Int64  `tfsdk:"component_count"`
+	UserBundleCount  []types.Int64  `tfsdk:"user_bundle_count"`
+	Minimal          types.Bool     `tfsdk:"minimal"`
+	DownloadProgress []types.Int64  `tfsdk:"download_progress"`
+	ExtractProgress  []types.Int64  `tfsdk:"extract_progress"`
+	Signature        []types.String `tfsdk:"signature"`
+	Custom           types.Bool     `tfsdk:"custom"`
+	NeedsAttention   types.Bool     `tfsdk:"needs_attention"`
+	JobID            []types.String `tfsdk:"job_id"`
+	Rcmapproved      types.Bool     `tfsdk:"rcmapproved"`
 }
 
 // FirmwareRepositoryDetails defines the tfsdk model of firmware repository details
