@@ -18,10 +18,10 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
+
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
 // ProtectionDomainDataSourceSchema defines the schema for Protection Domain datasource
@@ -36,16 +36,6 @@ var ProtectionDomainDataSourceSchema schema.Schema = schema.Schema{
 				" Conflicts with `name`.",
 			Optional: true,
 		},
-		"name": schema.StringAttribute{
-			Description: "Unique name of the protection domain instance." +
-				" Conflicts with 'id'.",
-			MarkdownDescription: "Unique name of the protection domain instance." +
-				" Conflicts with `id`.",
-			Optional: true,
-			Validators: []validator.String{
-				stringvalidator.ConflictsWith(path.MatchRoot("id")),
-			},
-		},
 		"protection_domains": schema.ListNestedAttribute{
 			Description:         "List of protection domains fetched.",
 			MarkdownDescription: "List of protection domains fetched.",
@@ -53,6 +43,11 @@ var ProtectionDomainDataSourceSchema schema.Schema = schema.Schema{
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: protectionDomainDataAttributes,
 			},
+		},
+	},
+	Blocks: map[string]schema.Block{
+		"filter": schema.SingleNestedBlock{
+			Attributes: helper.GenerateSchemaAttributes(helper.TypeToMap(models.ProtectionDomainFilter{})),
 		},
 	},
 }

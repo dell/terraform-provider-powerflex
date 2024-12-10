@@ -22,11 +22,30 @@ import (
 
 	"terraform-provider-powerflex/powerflex/models"
 
+	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
+
+func GetProtectionDomains(client *goscaleio.Client) ([]scaleiotypes.ProtectionDomain, error) {
+	system, err := GetFirstSystem(client)
+	if err != nil {
+		return nil, err
+	}
+
+	var protectionDomains []scaleiotypes.ProtectionDomain
+	// Fetch all protection domains
+	PDs, errPd := system.GetProtectionDomain("")
+	if errPd != nil {
+		return nil, errPd
+	}
+	for _, pd := range PDs {
+		protectionDomains = append(protectionDomains, *pd)
+	}
+	return protectionDomains, nil
+}
 
 // GetPDResState is a helper function that marshalls API response into protectionDomainResourceModel
 func GetPDResState(protectionDomain *scaleiotypes.ProtectionDomain) models.ProtectionDomainResourceModel {
@@ -139,7 +158,7 @@ func PdConnInfoModelValue(p scaleiotypes.PDConnInfo) models.PdConnInfoModel {
 }
 
 // GetAllProtectionDomainState saves state of protection domain data source
-func GetAllProtectionDomainState(protectionDomains []*scaleiotypes.ProtectionDomain) (response []models.ProtectionDomainModel) {
+func GetAllProtectionDomainState(protectionDomains []scaleiotypes.ProtectionDomain) (response []models.ProtectionDomainModel) {
 	for _, protectionDomainValue := range protectionDomains {
 		protectionDomainState := models.ProtectionDomainModel{
 			SystemID:               types.StringValue(protectionDomainValue.SystemID),

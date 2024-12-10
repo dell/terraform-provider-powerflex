@@ -14,26 +14,45 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
 # commands to run this tf file : terraform init && terraform apply --auto-approve
-# Reads protection domain either by name or by id , if provided
-# If both name and id is not provided , then it reads all the protection domain
-# id and name can't be given together to fetch the protection domain .
-
-data "powerflex_protection_domain" "pd" {
-  name = "domain1"
-  # id = "202a046600000000"
+data "powerflex_protection_domain" "all" {
 }
 
-output "inputPdID" {
-  value = data.powerflex_protection_domain.pd.id
+output "inputAll" {
+  value = data.powerflex_protection_domain.all.protection_domains
 }
 
-output "inputPdName" {
-  value = data.powerflex_protection_domain.pd.name
+# Get Peer System details using filter with all values
+# If there is no intersection between the filters then an empty datasource will be returned
+# For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples
+data "powerflex_protection_domain" "filter" {
+  filter {
+    # system_id = ["systemID1", "systemID2"]
+    # replication_capacity_max_ratio = [1,2]
+    # rebuild_network_throttling_in_kbps = [1,2]
+    # rebalance_network_throttling_in_kbps = [1,2]
+    # overall_io_network_throttling_in_kbps = [1,2]
+    # vtree_migration_network_throttling_in_kbps = [1,2]
+    # protected_maintenance_mode_network_throttling_in_kbps = [1,2]
+    # overall_io_network_throttling_enabled = false
+    # rebuild_network_throttling_enabled = false
+    # rebalance_network_throttling_enabled = false
+    # vtree_migration_network_throttling_enabled = false
+    # protected_maintenance_mode_network_throttling_enabled = false
+    # fgl_default_num_concurrent_writes = [1,2]
+    # fgl_metadata_cache_enabled = false
+    # fgl_default_metadata_cache_size = [1,2]
+    # rf_cache_enabled = false
+    # rf_cache_accp_id = ["rfcache_accp_id1", "rfcache_accp_id2"]
+    # rf_cache_opertional_mode = ["rfcache_opertional_mode1", "rfcache_opertional_mode2"]
+    # rf_cache_page_size_kb = [1,2]
+    # rf_cache_max_io_size_kb = [1,2]
+    # state = ["state1", "state2"]
+    # name = ["name1", "name2"]
+    # id = ["id1", "id2"]
+  }
 }
 
-output "pdResult" {
-  value = data.powerflex_protection_domain.pd.protection_domains
+output "inputAll" {
+  value = data.powerflex_protection_domain.filter.protection_domains
 }
-
