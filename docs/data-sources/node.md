@@ -52,31 +52,44 @@ limitations under the License.
 data "powerflex_node" "example1" {
 }
 
-# Get node details using node IDs
-data "powerflex_node" "example2" {
-  node_ids = ["Node_ID1", "Node_ID2"]
+// If multiple filter fields are provided then it will show the intersection of all of those fields.
+// If there is no intersection between the filters then an empty datasource will be returned
+// For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 
+data "powerflex_node" "node" {
+  # filter{
+  #   ref_id  = ["id1", "id2"]
+  #   state = ["READY"]
+  #   ip_address = ["ip1", "ip2"]
+  #   service_tag = ["serviceTag1", "serviceTag2"]
+  #   current_ip_address = ["currentIp1", "currentIp2"]
+  #   model = ["model1", "model2"]
+  #   device_type = ["deviceType1", "deviceType2"]
+  #   discover_device_type = ["discoverDeviceType1", "discoverDeviceType2"]
+  #   display_name = ["displayName1", "displayName2"]
+  #   managed_state = ["managedState1", "managedState2"]
+  #   state = ["state1", "state2"]
+  #   in_use = true
+  #   custom_firmware = true
+  #   needs_attention = true
+  #   manufacturer = ["manufacturer1", "manufacturer2"]
+  #   system_id = ["systemId1", "systemId2"]
+  #   health = ["health1", "health2"]
+  #   health_message = ["healthMessage1", "healthMessage2"]
+  #   operating_system = ["operatingSystem1", "operatingSystem2"]
+  #   number_of_cpus = [3, 2]
+  #   nics = [3, 5]
+  #   memory_in_gb = [3, 5]
+  #   compliance_check_date = ["complianceCheckDate1", "complianceCheckDate2"]
+  #   discovered_date = ["discoveredDate1", "discoveredDate2"]
+  #   cred_id = ["credId1", "credId2"]
+  #   compliance = ["compliance1", "compliance2"]
+  #   failures_count = [3, 5]
+  #   facts = ["facts1", "facts2"]
+  #   puppet_cert_managed = ["puppetCertManaged1", "puppetCertManaged2"]
+  #   flex_os_maint_mode=[0]
+  #   esxi_maint_mode=[0]
+  # }
 }
-
-# Get node details using IP addresses
-data "powerflex_node" "example3" {
-  ip_addresses = ["IP1", "IP2"]
-}
-
-# Get node details using service tags
-data "powerflex_node" "example4" {
-  service_tags = ["Service_Tag1", "Service_Tag2"]
-}
-
-# Get node details using nodepool IDs
-data "powerflex_node" "example5" {
-  node_pool_ids = ["NodePool_ID1", "NodePool_ID2"]
-}
-
-# Get node details using nodepool names
-data "powerflex_node" "example6" {
-  node_pool_names = ["NodePool_Name1", "NodePool_Name2"]
-}
-
 
 output "node_result" {
   value = data.powerflex_node.example1.node_details
@@ -90,16 +103,49 @@ After the successful execution of above said block, we can see the output by exe
 
 ### Optional
 
-- `ip_addresses` (Set of String) List of node IP addresses
-- `node_ids` (Set of String) List of node IDs
-- `node_pool_ids` (Set of Number) List of node pool IDs
-- `node_pool_names` (Set of String) List of node pool names
-- `service_tags` (Set of String) List of node service tags
+- `filter` (Block, Optional) (see [below for nested schema](#nestedblock--filter))
 
 ### Read-Only
 
 - `id` (String) Placeholder attribute.
 - `node_details` (Attributes Set) Node details (see [below for nested schema](#nestedatt--node_details))
+
+<a id="nestedblock--filter"></a>
+### Nested Schema for `filter`
+
+Optional:
+
+- `compliance` (Set of String) List of compliance
+- `compliance_check_date` (Set of String) List of compliance_check_date
+- `cred_id` (Set of String) List of cred_id
+- `current_ip_address` (Set of String) List of current_ip_address
+- `custom_firmware` (Boolean) Value for custom_firmware
+- `device_type` (Set of String) List of device_type
+- `discover_device_type` (Set of String) List of discover_device_type
+- `discovered_date` (Set of String) List of discovered_date
+- `display_name` (Set of String) List of display_name
+- `esxi_maint_mode` (Set of Number) List of esxi_maint_mode
+- `facts` (Set of String) List of facts
+- `failures_count` (Set of Number) List of failures_count
+- `flex_os_maint_mode` (Set of Number) List of flex_os_maint_mode
+- `health` (Set of String) List of health
+- `health_message` (Set of String) List of health_message
+- `in_use` (Boolean) Value for in_use
+- `ip_address` (Set of String) List of ip_address
+- `managed_state` (Set of String) List of managed_state
+- `manufacturer` (Set of String) List of manufacturer
+- `memory_in_gb` (Set of Number) List of memory_in_gb
+- `model` (Set of String) List of model
+- `needs_attention` (Boolean) Value for needs_attention
+- `nics` (Set of Number) List of nics
+- `number_of_cpus` (Set of Number) List of number_of_cpus
+- `operating_system` (Set of String) List of operating_system
+- `puppet_cert_name` (Set of String) List of puppet_cert_name
+- `ref_id` (Set of String) List of ref_id
+- `service_tag` (Set of String) List of service_tag
+- `state` (Set of String) List of state
+- `system_id` (Set of String) List of system_id
+
 
 <a id="nestedatt--node_details"></a>
 ### Nested Schema for `node_details`
