@@ -42,16 +42,50 @@ type DeviceModel struct {
 
 // DeviceDataSourceModel defines struct for device datasource
 type DeviceDataSourceModel struct {
-	ID                   types.String      `tfsdk:"id"`
-	Name                 types.String      `tfsdk:"name"`
-	StoragePoolID        types.String      `tfsdk:"storage_pool_id"`
-	StoragePoolName      types.String      `tfsdk:"storage_pool_name"`
-	ProtectionDomainName types.String      `tfsdk:"protection_domain_name"`
-	ProtectionDomainID   types.String      `tfsdk:"protection_domain_id"`
-	SdsID                types.String      `tfsdk:"sds_id"`
-	SdsName              types.String      `tfsdk:"sds_name"`
-	CurrentPath          types.String      `tfsdk:"current_path"`
-	DeviceModel          []DeviceModelData `tfsdk:"device_model"`
+	ID           types.String      `tfsdk:"id"`
+	DeviceModel  []DeviceModelData `tfsdk:"device_model"`
+	DeviceFilter *DeviceFilter     `tfsdk:"filter"`
+}
+
+// DeviceFilter defines struct for device filter
+type DeviceFilter struct {
+	FglNvdimmMetadataAmortizationX100 []types.Int64  `tfsdk:"fgl_nvdimm_metadata_amortization_x100"`
+	LogicalSectorSizeInBytes          []types.Int64  `tfsdk:"logical_sector_size_in_bytes"`
+	FglNvdimmWriteCacheSize           []types.Int64  `tfsdk:"fgl_nvdimm_write_cache_size"`
+	AccelerationPoolID                []types.String `tfsdk:"acceleration_pool_id"`
+	SdsID                             []types.String `tfsdk:"sds_id"`
+	StoragePoolID                     []types.String `tfsdk:"storage_pool_id"`
+	CapacityLimitInKb                 []types.Int64  `tfsdk:"capacity_limit_in_kb"`
+	ErrorState                        []types.String `tfsdk:"error_state"`
+	Capacity                          []types.Int64  `tfsdk:"capacity"`
+	DeviceType                        []types.String `tfsdk:"device_type"`
+	PersistentChecksumState           []types.String `tfsdk:"persistent_checksum_state"`
+	DeviceState                       []types.String `tfsdk:"device_state"`
+	LedSetting                        []types.String `tfsdk:"led_setting"`
+	MaxCapacityInKb                   []types.Int64  `tfsdk:"max_capacity_in_kb"`
+	SpSdsID                           []types.String `tfsdk:"sp_sds_id"`
+	AggregatedState                   []types.String `tfsdk:"aggregated_state"`
+	TemperatureState                  []types.String `tfsdk:"temperature_state"`
+	SsdEndOfLifeState                 []types.String `tfsdk:"ssd_end_of_life_state"`
+	ModelName                         []types.String `tfsdk:"model_name"`
+	VendorName                        []types.String `tfsdk:"vendor_name"`
+	RaidControllerSerialNumber        []types.String `tfsdk:"raid_controller_serial_number"`
+	FirmwareVersion                   []types.String `tfsdk:"firmware_version"`
+	CacheLookAheadActive              types.Bool     `tfsdk:"cache_look_ahead_active"`
+	WriteCacheActive                  types.Bool     `tfsdk:"write_cache_active"`
+	AtaSecurityActive                 types.Bool     `tfsdk:"ata_security_active"`
+	PhysicalSectorSizeInBytes         []types.Int64  `tfsdk:"physical_sector_size_in_bytes"`
+	MediaFailing                      types.Bool     `tfsdk:"media_failing"`
+	SlotNumber                        []types.String `tfsdk:"slot_number"`
+	ExternalAccelerationType          []types.String `tfsdk:"external_acceleration_type"`
+	AutoDetectMediaType               []types.String `tfsdk:"auto_detect_media_type"`
+	DeviceCurrentPathName             []types.String `tfsdk:"device_current_path_name"`
+	DeviceOriginalPathName            []types.String `tfsdk:"device_original_path_name"`
+	RfcacheErrorDeviceDoesNotExist    types.Bool     `tfsdk:"rfcache_error_device_does_not_exist"`
+	MediaType                         []types.String `tfsdk:"media_type"`
+	SerialNumber                      []types.String `tfsdk:"serial_number"`
+	Name                              []types.String `tfsdk:"name"`
+	ID                                []types.String `tfsdk:"id"`
 }
 
 // DeviceModelData defines struct for device model

@@ -20,10 +20,20 @@ package helper
 import (
 	"terraform-provider-powerflex/powerflex/models"
 
+	"github.com/dell/goscaleio"
 	goscaleio_types "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
+
+// GetAllDevices get all the devices of a system
+func GetAllDevices(system *goscaleio.System) ([]goscaleio_types.Device, error) {
+	devices, err := system.GetAllDevice()
+	if err != nil {
+		return nil, err
+	}
+	return devices, nil
+}
 
 // UpdateDeviceState function to update the state of device resource in state file
 func UpdateDeviceState(deviceResponse *goscaleio_types.Device, plan models.DeviceModel) (models.DeviceModel, diag.Diagnostics) {
