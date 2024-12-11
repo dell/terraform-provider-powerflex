@@ -18,10 +18,10 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
+
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
 // DeviceDataSourceSchema defines the schema for device datasource
@@ -30,169 +30,10 @@ var DeviceDataSourceSchema schema.Schema = schema.Schema{
 	MarkdownDescription: "This datasource is used to query the existing device from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
-			Description: "Unique identifier Of The Device Instance." +
-				" Conflicts with `name`, `current_path`, `sds_id`, `sds_name`, `protection_domain_id`, `protection_domain_name`, `storage_pool_id` and `storage_pool_name`.",
-			MarkdownDescription: "Unique identifier Of The Device Instance." +
-				" Conflicts with `name`, `current_path`, `sds_id`, `sds_name`, `protection_domain_id`, `protection_domain_name`, `storage_pool_id` and `storage_pool_name`.",
-			Optional: true,
-			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
-				stringvalidator.ConflictsWith(path.MatchRoot("name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("current_path")),
-				stringvalidator.ConflictsWith(path.MatchRoot("sds_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("sds_name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("protection_domain_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("protection_domain_name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_name")),
-			},
+			Description:         "Placeholder id of device datasource.",
+			MarkdownDescription: "Placeholder id of device datasource.",
+			Computed:            true,
 		},
-		"name": schema.StringAttribute{
-			Description: "Unique name Of The Device Instance." +
-				" Conflicts with `id`, `current_path`, `sds_id`, `sds_name`, `protection_domain_id`, `protection_domain_name`, `storage_pool_id` and `storage_pool_name`.",
-			MarkdownDescription: "Unique name Of The Device Instance." +
-				" Conflicts with `id`, `current_path`, `sds_id`, `sds_name`, `protection_domain_id`, `protection_domain_name`, `storage_pool_id` and `storage_pool_name`.",
-			Optional: true,
-			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
-				stringvalidator.ConflictsWith(path.MatchRoot("id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("current_path")),
-				stringvalidator.ConflictsWith(path.MatchRoot("sds_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("sds_name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("protection_domain_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("protection_domain_name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_name")),
-			},
-		},
-		"current_path": schema.StringAttribute{
-			Description: "Path Of The Device Instance." +
-				" Conflicts with `id`, `name`, `sds_id`, `sds_name`, `protection_domain_id`, `protection_domain_name`, `storage_pool_id` and `storage_pool_name`.",
-			MarkdownDescription: "Path Of The Device Instance." +
-				" Conflicts with `id`, `name`, `sds_id`, `sds_name`, `protection_domain_id`, `protection_domain_name`, `storage_pool_id` and `storage_pool_name`.",
-			Optional: true,
-			Computed: true,
-			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
-				stringvalidator.ConflictsWith(path.MatchRoot("id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("sds_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("sds_name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("protection_domain_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("protection_domain_name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_name")),
-			},
-		},
-		"storage_pool_id": schema.StringAttribute{
-			Description: "ID of the storage pool." +
-				" Conflicts with `id`, `name`, `current_path`, `sds_id`, `sds_name`, `protection_domain_id`, `protection_domain_name` and `storage_pool_name`.",
-			Optional: true,
-			Computed: true,
-			MarkdownDescription: "ID of the storage pool." +
-				" Conflicts with `id`, `name`, `current_path`, `sds_id`, `sds_name`, `protection_domain_id`, `protection_domain_name` and `storage_pool_name`.",
-			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
-				stringvalidator.ConflictsWith(path.MatchRoot("id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("current_path")),
-				stringvalidator.ConflictsWith(path.MatchRoot("sds_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("sds_name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("protection_domain_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("protection_domain_name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_name")),
-			},
-		},
-		"storage_pool_name": schema.StringAttribute{
-			Description: "Name of the storage pool." +
-				" Conflicts with `id`, `name`, `current_path`, `sds_id`, `sds_name` and `storage_pool_id`.",
-			Optional: true,
-			Computed: true,
-			MarkdownDescription: "Name of the storage pool." +
-				" Conflicts with `id`, `name`, `current_path`, `sds_id`, `sds_name` and `storage_pool_id`.",
-			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
-				stringvalidator.ConflictsWith(path.MatchRoot("id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("current_path")),
-				stringvalidator.ConflictsWith(path.MatchRoot("sds_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("sds_name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id")),
-			},
-		},
-		"protection_domain_id": schema.StringAttribute{
-			Description: "ID of the protection domain." +
-				" Conflicts with `id`, `name`, `current_path`, `sds_id`, `sds_name`, `protection_domain_name` and `storage_pool_id`.",
-			MarkdownDescription: "ID of the protection domain." +
-				" Conflicts with `id`, `name`, `current_path`, `sds_id`, `sds_name`, `protection_domain_name` and `storage_pool_id`.",
-			Optional: true,
-			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
-				stringvalidator.ConflictsWith(path.MatchRoot("id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("current_path")),
-				stringvalidator.ConflictsWith(path.MatchRoot("sds_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("sds_name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("protection_domain_name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id")),
-			},
-		},
-		"protection_domain_name": schema.StringAttribute{
-			Description: "Name of the protection domain" +
-				" Conflicts with `id`, `name`, `current_path`, `sds_id`, `sds_name`, `protection_domain_id` and `storage_pool_id`.",
-			MarkdownDescription: "Name of the protection domain" +
-				" Conflicts with `id`, `name`, `current_path`, `sds_id`, `sds_name`, `protection_domain_id` and `storage_pool_id`.",
-			Optional: true,
-			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
-				stringvalidator.ConflictsWith(path.MatchRoot("id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("current_path")),
-				stringvalidator.ConflictsWith(path.MatchRoot("sds_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("sds_name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("protection_domain_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id")),
-			},
-		},
-		"sds_id": schema.StringAttribute{
-			Description: "ID of the SDS" +
-				" Conflicts with `id`, `name`, `current_path`, `sds_name`, `protection_domain_id`, `protection_domain_name`, `storage_pool_id` and `storage_pool_name`.",
-			MarkdownDescription: "ID of the SDS" +
-				" Conflicts with `id`, `name`, `current_path`, `sds_name`, `protection_domain_id`, `protection_domain_name`, `storage_pool_id` and `storage_pool_name`.",
-			Computed: true,
-			Optional: true,
-			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
-				stringvalidator.ConflictsWith(path.MatchRoot("id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("current_path")),
-				stringvalidator.ConflictsWith(path.MatchRoot("sds_name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("protection_domain_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("protection_domain_name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_name")),
-			},
-		},
-		"sds_name": schema.StringAttribute{
-			Description: "Name of the SDS." +
-				" Conflicts with `id`, `name`, `current_path`, `sds_id`, `protection_domain_id`, `protection_domain_name`, `storage_pool_id` and `storage_pool_name`.",
-			MarkdownDescription: "Name of the SDS." +
-				" Conflicts with `id`, `name`, `current_path`, `sds_id`, `protection_domain_id`, `protection_domain_name`, `storage_pool_id` and `storage_pool_name`.",
-			Optional: true,
-			Computed: true,
-			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
-				stringvalidator.ConflictsWith(path.MatchRoot("id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("current_path")),
-				stringvalidator.ConflictsWith(path.MatchRoot("sds_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("protection_domain_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("protection_domain_name")),
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id")),
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_name")),
-			},
-		},
-
 		"device_model": schema.ListNestedAttribute{
 			Description:         "List of devices fetched.",
 			MarkdownDescription: "List of devices fetched.",
@@ -200,6 +41,11 @@ var DeviceDataSourceSchema schema.Schema = schema.Schema{
 			NestedObject: schema.NestedAttributeObject{
 				Attributes: DeviceDataAttributes,
 			},
+		},
+	},
+	Blocks: map[string]schema.Block{
+		"filter": schema.SingleNestedBlock{
+			Attributes: helper.GenerateSchemaAttributes(helper.TypeToMap(models.DeviceFilter{})),
 		},
 	},
 }

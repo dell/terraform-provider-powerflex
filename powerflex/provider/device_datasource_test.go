@@ -18,223 +18,105 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
+	"os"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccDatasourceDevice(t *testing.T) {
+// AT
+func TestAccDatasourceAcceptanceDevice(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an Acceptance test")
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + devicesData,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.powerflex_device.dev1", "device_model.#"),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + deviceDataWithName,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev2", "name", "device_1"),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + deviceDataWithPath,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev3", "current_path", "/dev/sdb"),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + deviceDataWithID,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev4", "id", "37ef393e00030000"),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + deviceDataWithStoragePoolName,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev5", "protection_domain_name", "domain1"),
-					resource.TestCheckResourceAttr("data.powerflex_device.dev5", "storage_pool_name", "terraform-storage-pool"),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + deviceDataWithStoragePoolID,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev6", "storage_pool_id", "c98e26e500000000"),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + deviceDataWithSdsName,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev7", "sds_name", "SDS_2"),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + deviceDataWithSdsID,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device.dev8", "sds_id", "0db7306f00000004"),
-				),
-			},
-			{
-				Config:      ProviderConfigForTesting + deviceDataWithNameInvalid,
-				ExpectError: regexp.MustCompile("Error getting device with Name"),
-			},
-			{
-				Config:      ProviderConfigForTesting + deviceDataWithPathInvalid,
-				ExpectError: regexp.MustCompile("Error getting device with Current Path"),
-			},
-			{
-				Config:      ProviderConfigForTesting + deviceDataWithIDInvalid,
-				ExpectError: regexp.MustCompile("Error getting device with ID"),
-			},
-			{
-				Config:      ProviderConfigForTesting + deviceDataWithProtectionDomainNameInvalid,
-				ExpectError: regexp.MustCompile("Error in getting protection domain details with ID"),
-			},
-			{
-				Config:      ProviderConfigForTesting + deviceDataWithStoragePoolNameInvalid,
-				ExpectError: regexp.MustCompile("Error in getting storage pool details with name"),
-			},
-			{
-				Config:      ProviderConfigForTesting + deviceDataWithStoragePoolIDInvalid,
-				ExpectError: regexp.MustCompile("Error getting storage pool instance with ID"),
-			},
-			{
-				Config:      ProviderConfigForTesting + deviceDataWithSdsIDInvalid,
-				ExpectError: regexp.MustCompile("Could not get SDS by ID"),
-			},
-			{
-				Config:      ProviderConfigForTesting + deviceDataWithSdsNameInvalid,
-				ExpectError: regexp.MustCompile("Error in getting sds details with name"),
+				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
 		},
 	})
 }
 
-func TestAccDatasourceDevicePDC(t *testing.T) {
+// UT
+func TestAccDatasourceDevice(t *testing.T) {
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this for Unit tests")
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config:      ProviderConfigForTesting + deviceDataWithPDIDInvalid,
-				ExpectError: regexp.MustCompile("Please provide protection_domain_id with storage_pool_name."),
+				Config: ProviderConfigForTesting + devicesData,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
+			// Single Filter
 			{
-				Config:      ProviderConfigForTesting + deviceDataWithPDNameInvalid,
-				ExpectError: regexp.MustCompile("Please provide protection_domain_name with storage_pool_name."),
+				Config: ProviderConfigForTesting + devicesDataSingleFilter,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_device.filter-single", "device_model.0.name", "/dev/sdj"),
+				),
 			},
-		}})
+			// Multi Filter
+			{
+				Config: ProviderConfigForTesting + devicesDataMultiFilter,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_device.filter-multi", "device_model.0.aggregated_state", "NeverFailed"),
+					resource.TestCheckResourceAttr("data.powerflex_device.filter-multi", "device_model.0.cache_look_ahead_active", "true"),
+				),
+			},
+			// Read error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetAllDevices, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + devicesData,
+				ExpectError: regexp.MustCompile(`.*Error getting all devices in the system*.`),
+			},
+			// Filter error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetDataSourceByValue).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + devicesDataMultiFilter,
+				ExpectError: regexp.MustCompile(`.*Error in filtering devices*.`),
+			},
+		},
+	})
 }
 
 var devicesData = `
-data "powerflex_device" "dev1" {
+data "powerflex_device" "all" {
 }
 `
 
-var deviceDataWithName = `
-data "powerflex_device" "dev2" {
-	name = "device_1"
+var devicesDataSingleFilter = `
+data "powerflex_device" "filter-single" {
+	filter {
+		name = ["/dev/sdj"]
+	}
 }
 `
 
-var deviceDataWithPath = `
-data "powerflex_device" "dev3" {
-	current_path = "/dev/sdb"
-}
-`
-
-var deviceDataWithID = `
-data "powerflex_device" "dev4" {
-	id = "37ef393e00030000"
-}
-`
-var deviceDataWithStoragePoolName = `
-data "powerflex_device" "dev5" {
-	protection_domain_name = "domain1"
-	storage_pool_name = "terraform-storage-pool"
-  }
-`
-
-var deviceDataWithStoragePoolID = `
-data "powerflex_device" "dev6" {
-	storage_pool_id = "c98e26e500000000"
-}
-`
-
-var deviceDataWithSdsName = `
-data "powerflex_device" "dev7" {
-	sds_name = "SDS_2"
-}
-`
-
-var deviceDataWithSdsID = `
-data "powerflex_device" "dev8" {
-	sds_id = "0db7306f00000004"
-}
-`
-
-var deviceDataWithNameInvalid = `
-data "powerflex_device" "dev9" {
-	name = "invalid"
-}
-`
-
-var deviceDataWithPathInvalid = `
-data "powerflex_device" "dev10" {
-	current_path = "invalid"
-}
-`
-
-var deviceDataWithIDInvalid = `
-data "powerflex_device" "dev11" {
-	id = "Invalid"
-}
-`
-
-var deviceDataWithProtectionDomainNameInvalid = `
-data "powerflex_device" "dev12" {
-	protection_domain_name = "Invalid"
-	storage_pool_name = "pool1"
-  }
-`
-
-var deviceDataWithStoragePoolNameInvalid = `
-data "powerflex_device" "dev13" {
-	protection_domain_name = "domain1"
-	storage_pool_name = "Invalid"
-  }
-`
-
-var deviceDataWithStoragePoolIDInvalid = `
-data "powerflex_device" "dev14" {
-	storage_pool_id = "Invalid"
-}
-`
-
-var deviceDataWithSdsIDInvalid = `
-data "powerflex_device" "dev15" {
-	sds_id = "invalid"
-}
-`
-
-var deviceDataWithSdsNameInvalid = `
-data "powerflex_device" "dev16" {
-	sds_name = "invalid"
-}
-`
-
-var deviceDataWithPDIDInvalid = `
-data "powerflex_device" "dev17" {
-	protection_domain_id = "202a046600000000"
-}
-`
-
-var deviceDataWithPDNameInvalid = `
-data "powerflex_device" "dev18" {
-	protection_domain_name = "domain1"
+var devicesDataMultiFilter = `
+data "powerflex_device" "filter-multi" {
+	filter {
+		aggregated_state = ["NeverFailed"]
+		cache_look_ahead_active = true
+	}
 }
 `

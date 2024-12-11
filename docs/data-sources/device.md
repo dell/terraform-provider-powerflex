@@ -26,8 +26,6 @@ description: |-
 
 This datasource is used to query the existing device from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 
-> **Note:** Only one of `name` and `id` can be provided at a time.
-
 ## Example Usage
 
 ```terraform
@@ -51,19 +49,60 @@ limitations under the License.
 # commands to run this tf file : terraform init && terraform apply --auto-approve
 # empty block of the powerflex_device datasource will give list of all device within the system
 
-data "powerflex_device" "dev" {
-}
-
-data "powerflex_device" "dev1" {
-  storage_pool_id = "c98e26e500000000"
-}
-
-data "powerflex_device" "dev2" {
-  sds_name = "SDS_2"
+data "powerflex_device" "all" {
 }
 
 output "deviceResult" {
-  value = data.powerflex_device.dev.device_model
+  value = data.powerflex_device.all.device_model
+}
+
+// If multiple filter fields are provided then it will show the intersection of all of those fields.
+// If there is no intersection between the filters then an empty datasource will be returned
+// For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 
+data "powerflex_device" "filter" {
+  filter {
+    # fgl_nvdimm_metadata_amortization_x100 = [1,2]
+    # logical_sector_size_in_bytes = [1,2]
+    # fgl_nvdimm_write_cache_size = [1,2]
+    # acceleration_pool_id = ["acceleration_pool_id1", "acceleration_pool_id2"]
+    # sds_id = ["sds_id1", "sds_id2"]
+    # storage_pool_id = ["storage_pool_id1", "storage_pool_id2"]
+    # capacity_limit_in_kb = [1,2]
+    # error_state = ["error_state1", "error_state2"]
+    # capacity = [1,2]
+    # device_type = ["device_type1", "device_type2"]
+    # persistent_checksum_state = ["persistent_checksum_state1", "persistent_checksum_state2"]
+    # device_state = ["device_state1", "device_state2"]
+    # led_setting = ["led_setting1", "led_setting2"]
+    # max_capacity_in_kb = [1,2]
+    # sp_sds_id = ["sp_sds_id1", "sp_sds_id2"]
+    # aggregated_state = ["aggregated_state1", "aggregated_state2"]
+    # temperature_state = ["temperature_state1", "temperature_state2"]
+    # ssd_end_of_life_state = ["ssd_end_of_life_state1", "ssd_end_of_life_state2"]
+    # model_name = ["model_name1", "model_name2"]
+    # vendor_name = ["vendor_name1", "vendor_name2"]
+    # raid_controller_serial_number = ["raid_controller_serial_number1", "raid_controller_serial_number2"]
+    # firmware_version = ["firmware_version1", "firmware_version2"]
+    # cache_look_ahead_active = false
+    # write_cache_active = false
+    # ata_security_active = false
+    # physical_sector_size_in_bytes = [1,2]
+    # media_failing = false
+    # slot_number = ["slot1", "slot2"]
+    # external_acceleration_type = ["external_acceleration_type1", "external_acceleration_type2"]
+    # auto_detect_media_type = ["auto_detect_media_type1", "auto_detect_media_type2"]
+    # device_current_path_name = ["device_current_path_name1", "device_current_path_name2"]
+    # device_original_path_name = ["device_original_path_name1", "device_original_path_name2"]
+    # rfcache_error_device_does_not_exist = false
+    # media_type = ["SSD", "HDD"]
+    # serial_number = ["serial_number1", "serial_number2"]
+    # name = ["name1", "name2"]
+    # id = ["id1", "id2"]
+  }
+}
+
+output "deviceFilterResult" {
+  value = data.powerflex_device.filter.device_model
 }
 ```
 
@@ -74,19 +113,56 @@ After the successful execution of above said block, We can see the output by exe
 
 ### Optional
 
-- `current_path` (String) Path Of The Device Instance. Conflicts with `id`, `name`, `sds_id`, `sds_name`, `protection_domain_id`, `protection_domain_name`, `storage_pool_id` and `storage_pool_name`.
-- `id` (String) Unique identifier Of The Device Instance. Conflicts with `name`, `current_path`, `sds_id`, `sds_name`, `protection_domain_id`, `protection_domain_name`, `storage_pool_id` and `storage_pool_name`.
-- `name` (String) Unique name Of The Device Instance. Conflicts with `id`, `current_path`, `sds_id`, `sds_name`, `protection_domain_id`, `protection_domain_name`, `storage_pool_id` and `storage_pool_name`.
-- `protection_domain_id` (String) ID of the protection domain. Conflicts with `id`, `name`, `current_path`, `sds_id`, `sds_name`, `protection_domain_name` and `storage_pool_id`.
-- `protection_domain_name` (String) Name of the protection domain Conflicts with `id`, `name`, `current_path`, `sds_id`, `sds_name`, `protection_domain_id` and `storage_pool_id`.
-- `sds_id` (String) ID of the SDS Conflicts with `id`, `name`, `current_path`, `sds_name`, `protection_domain_id`, `protection_domain_name`, `storage_pool_id` and `storage_pool_name`.
-- `sds_name` (String) Name of the SDS. Conflicts with `id`, `name`, `current_path`, `sds_id`, `protection_domain_id`, `protection_domain_name`, `storage_pool_id` and `storage_pool_name`.
-- `storage_pool_id` (String) ID of the storage pool. Conflicts with `id`, `name`, `current_path`, `sds_id`, `sds_name`, `protection_domain_id`, `protection_domain_name` and `storage_pool_name`.
-- `storage_pool_name` (String) Name of the storage pool. Conflicts with `id`, `name`, `current_path`, `sds_id`, `sds_name` and `storage_pool_id`.
+- `filter` (Block, Optional) (see [below for nested schema](#nestedblock--filter))
 
 ### Read-Only
 
 - `device_model` (Attributes List) List of devices fetched. (see [below for nested schema](#nestedatt--device_model))
+- `id` (String) Placeholder id of device datasource.
+
+<a id="nestedblock--filter"></a>
+### Nested Schema for `filter`
+
+Optional:
+
+- `acceleration_pool_id` (Set of String) List of acceleration_pool_id
+- `aggregated_state` (Set of String) List of aggregated_state
+- `ata_security_active` (Boolean) Value for ata_security_active
+- `auto_detect_media_type` (Set of String) List of auto_detect_media_type
+- `cache_look_ahead_active` (Boolean) Value for cache_look_ahead_active
+- `capacity` (Set of Number) List of capacity
+- `capacity_limit_in_kb` (Set of Number) List of capacity_limit_in_kb
+- `device_current_path_name` (Set of String) List of device_current_path_name
+- `device_original_path_name` (Set of String) List of device_original_path_name
+- `device_state` (Set of String) List of device_state
+- `device_type` (Set of String) List of device_type
+- `error_state` (Set of String) List of error_state
+- `external_acceleration_type` (Set of String) List of external_acceleration_type
+- `fgl_nvdimm_metadata_amortization_x100` (Set of Number) List of fgl_nvdimm_metadata_amortization_x100
+- `fgl_nvdimm_write_cache_size` (Set of Number) List of fgl_nvdimm_write_cache_size
+- `firmware_version` (Set of String) List of firmware_version
+- `id` (Set of String) List of id
+- `led_setting` (Set of String) List of led_setting
+- `logical_sector_size_in_bytes` (Set of Number) List of logical_sector_size_in_bytes
+- `max_capacity_in_kb` (Set of Number) List of max_capacity_in_kb
+- `media_failing` (Boolean) Value for media_failing
+- `media_type` (Set of String) List of media_type
+- `model_name` (Set of String) List of model_name
+- `name` (Set of String) List of name
+- `persistent_checksum_state` (Set of String) List of persistent_checksum_state
+- `physical_sector_size_in_bytes` (Set of Number) List of physical_sector_size_in_bytes
+- `raid_controller_serial_number` (Set of String) List of raid_controller_serial_number
+- `rfcache_error_device_does_not_exist` (Boolean) Value for rfcache_error_device_does_not_exist
+- `sds_id` (Set of String) List of sds_id
+- `serial_number` (Set of String) List of serial_number
+- `slot_number` (Set of String) List of slot_number
+- `sp_sds_id` (Set of String) List of sp_sds_id
+- `ssd_end_of_life_state` (Set of String) List of ssd_end_of_life_state
+- `storage_pool_id` (Set of String) List of storage_pool_id
+- `temperature_state` (Set of String) List of temperature_state
+- `vendor_name` (Set of String) List of vendor_name
+- `write_cache_active` (Boolean) Value for write_cache_active
+
 
 <a id="nestedatt--device_model"></a>
 ### Nested Schema for `device_model`
