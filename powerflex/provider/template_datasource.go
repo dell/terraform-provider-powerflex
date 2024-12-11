@@ -24,6 +24,7 @@ import (
 	"terraform-provider-powerflex/powerflex/models"
 
 	"github.com/dell/goscaleio"
+	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -86,46 +87,30 @@ func (d *templateDataSource) Read(ctx context.Context, req datasource.ReadReques
 		return
 	}
 
+	templateDetails, err := d.gatewayClient.GetAllTemplates()
+	if err != nil {
+		resp.Diagnostics.AddError("Error in getting template details", err.Error())
+		return
+	}
+
 	// Fetch Template details if IDs are provided
-	if !state.TemplateIDs.IsNull() {
-		templateIDs := make([]string, 0)
-		diags.Append(state.TemplateIDs.ElementsAs(ctx, &templateIDs, true)...)
-
-		for _, templateID := range templateIDs {
-			templateDetails, err := d.gatewayClient.GetTemplateByID(templateID)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting template details using id %v", templateID), err.Error(),
-				)
-				return
-			}
-			templateModel = append(templateModel, helper.GetTemplateState(*templateDetails))
-		}
-	} else if !state.TemplateNames.IsNull() {
-		// Fetch Template details if IPs are provided
-		Names := make([]string, 0)
-		diags.Append(state.TemplateNames.ElementsAs(ctx, &Names, true)...)
-
-		for _, name := range Names {
-			templateDetails, err := d.gatewayClient.GetTemplateByFilters("name", name)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting template details using Name %v", name), err.Error(),
-				)
-				return
-			}
-			templateModel = append(templateModel, helper.GetTemplateState(templateDetails[0]))
-		}
-	} else {
-		templateDetails, err := d.gatewayClient.GetAllTemplates()
+	if state.TemplateFilter != nil {
+		filtered, err := helper.GetDataSourceByValue(*state.TemplateFilter, templateDetails)
 		if err != nil {
-			resp.Diagnostics.AddError("Error in getting template details", err.Error())
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Error in filtering Template: %v please validate the filter", state.TemplateDetails), err.Error(),
+			)
 			return
 		}
-
-		for _, template := range templateDetails {
-			templateModel = append(templateModel, helper.GetTemplateState(template))
+		filteredTemplate := []scaleiotypes.TemplateDetails{}
+		for _, val := range filtered {
+			filteredTemplate = append(filteredTemplate, val.(scaleiotypes.TemplateDetails))
 		}
+		templateDetails = filteredTemplate
+	}
+
+	for _, template := range templateDetails {
+		templateModel = append(templateModel, helper.GetTemplateState(template))
 	}
 
 	state.TemplateDetails = templateModel

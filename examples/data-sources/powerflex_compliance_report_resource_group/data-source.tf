@@ -27,7 +27,6 @@ data "powerflex_compliance_report_resource_group" "example1" {
 #      firmware_repository_name = ["name1", "name2"]
 #      device_type  = ["devicetype1", "devicetype2"]
 #      model = ["model1", "model2"]
-#      resource_ids = ["resourceid1", "resourceid2"]
 #      service_tag = ["servicetag1", "servicetag2"]
 #      compliant = true
 #      embedded_report = true

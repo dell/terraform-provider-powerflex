@@ -18,37 +18,61 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
+	"os"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
+	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 var TemplateDataSourceConfig1 = `
-data "powerflex_template" "example" {						
+data "powerflex_template" "example" {
 }
 `
 
 var TemplateDataSourceConfig2 = `
 data "powerflex_template" "example" {
-	template_ids = ["` + TemplateDataPoints.TemplateID + `"]					
+	filter{
+		id = ["c44cb500-020f-4562-9456-42ec1eb5f9b2"]
+	}
 }
 `
 
 var TemplateDataSourceConfig3 = `
 data "powerflex_template" "example" {
-	template_names = ["` + TemplateDataPoints.TemplateName + `"]						
+	filter{
+		id = ["c44cb500-020f-4562-9456-42ec1eb5f9b2"]
+		template_name = ["block-only"]
+		cluster_count = [1]
+		in_configuration = false
+	}
 }
 `
 
-var TemplateDataSourceConfig4 = `
-data "powerflex_template" "example" {
-	template_ids = ["invalid"]					
+func TestAccDatasourceAcceptanceTemplate(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an Acceptance test")
+	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + TemplateDataSourceConfig1,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
+			},
+		},
+	})
 }
-`
 
 func TestAccDatasourceTemplate(t *testing.T) {
-	t.Skip("Skipping this test case")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is an Unit test")
+	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -59,20 +83,39 @@ func TestAccDatasourceTemplate(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + TemplateDataSourceConfig2,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_template.example", "template_details.0.id", TemplateDataPoints.TemplateID),
-					resource.TestCheckResourceAttr("data.powerflex_template.example", "template_details.#", "1"),
+					resource.TestCheckResourceAttr("data.powerflex_template.example", "template_details.0.id", "c44cb500-020f-4562-9456-42ec1eb5f9b2"),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + TemplateDataSourceConfig3,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_template.example", "template_details.0.template_name", TemplateDataPoints.TemplateName),
-					resource.TestCheckResourceAttr("data.powerflex_template.example", "template_details.#", "1"),
+					resource.TestCheckResourceAttr("data.powerflex_template.example", "template_details.0.id", "c44cb500-020f-4562-9456-42ec1eb5f9b2"),
+					resource.TestCheckResourceAttr("data.powerflex_template.example", "template_details.0.template_name", "block-only"),
+					resource.TestCheckResourceAttr("data.powerflex_template.example", "template_details.0.cluster_count", "1"),
+					resource.TestCheckResourceAttr("data.powerflex_template.example", "template_details.0.in_configuration", "false"),
 				),
 			},
+			// Read error
 			{
-				Config:      ProviderConfigForTesting + TemplateDataSourceConfig4,
-				ExpectError: regexp.MustCompile(`.*Error in getting template details using id*.`),
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.GatewayClient).GetAllTemplates).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + TemplateDataSourceConfig1,
+				ExpectError: regexp.MustCompile(`.*Error in getting template details*.`),
+			},
+			// Filter error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetDataSourceByValue).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + TemplateDataSourceConfig3,
+				ExpectError: regexp.MustCompile(`.*Error in filtering Template*.`),
 			},
 		},
 	})

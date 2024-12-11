@@ -23,10 +23,39 @@ import (
 
 // TemplateDataSourceModel maps the struct to Template data source schema
 type TemplateDataSourceModel struct {
-	TemplateIDs     types.Set       `tfsdk:"template_ids"`
-	TemplateNames   types.Set       `tfsdk:"template_names"`
+	TemplateFilter  *TemplateFilter `tfsdk:"filter"`
 	TemplateDetails []TemplateModel `tfsdk:"template_details"`
 	ID              types.String    `tfsdk:"id"`
+}
+
+// TemplateFilter is the filter of TemplateDetails
+type TemplateFilter struct {
+	ID                     []types.String `tfsdk:"id"`
+	TemplateName           []types.String `tfsdk:"template_name"`
+	TemplateDescription    []types.String `tfsdk:"template_description"`
+	TemplateType           []types.String `tfsdk:"template_type"`
+	TemplateVersion        []types.String `tfsdk:"template_version"`
+	OriginalTemplateID     []types.String `tfsdk:"original_template_id"`
+	TemplateLocked         types.Bool     `tfsdk:"template_locked"`
+	InConfiguration        types.Bool     `tfsdk:"in_configuration"`
+	CreatedDate            []types.String `tfsdk:"created_date"`
+	CreatedBy              []types.String `tfsdk:"created_by"`
+	UpdatedDate            []types.String `tfsdk:"updated_date"`
+	LastDeployedDate       []types.String `tfsdk:"last_deployed_date"`
+	UpdatedBy              []types.String `tfsdk:"updated_by"`
+	ManageFirmware         types.Bool     `tfsdk:"manage_firmware"`
+	UseDefaultCatalog      types.Bool     `tfsdk:"use_default_catalog"`
+	AllUsersAllowed        types.Bool     `tfsdk:"all_users_allowed"`
+	Category               []types.String `tfsdk:"category"`
+	ServerCount            []types.Int64  `tfsdk:"server_count"`
+	StorageCount           []types.Int64  `tfsdk:"storage_count"`
+	ClusterCount           []types.Int64  `tfsdk:"cluster_count"`
+	ServiceCount           []types.Int64  `tfsdk:"service_count"`
+	SwitchCount            []types.Int64  `tfsdk:"switch_count"`
+	VMCount                []types.Int64  `tfsdk:"vm_count"`
+	SdnasCount             []types.Int64  `tfsdk:"sdnas_count"`
+	BrownfieldTemplateType []types.String `tfsdk:"brownfield_template_type"`
+	Draft                  types.Bool     `tfsdk:"draft"`
 }
 
 // TemplateModel is the tfsdk model of TemplateDetails
