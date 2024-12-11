@@ -107,14 +107,6 @@ type mdmDataPoints struct {
 	standByIP2     string
 }
 
-type nodeDataPoints struct {
-	NodeIP       string
-	ServiceTag   string
-	NodeID       string
-	NodePoolID   string
-	NodePoolName string
-}
-
 type templateDataPoints struct {
 	TemplateID   string
 	TemplateName string
@@ -295,24 +287,6 @@ func getComplianceReportDataForTest() complianceReportDataPoints {
 	return ComplianceReportDataPoints
 }
 
-func getNodeDataForTest() nodeDataPoints {
-
-	var NodeDataPoints nodeDataPoints
-
-	envMap, err := loadEnvFile("powerflex.env")
-	if err != nil {
-		log.Fatal("Error loading .env file: ", err)
-		return NodeDataPoints
-	}
-
-	NodeDataPoints.NodeIP = setDefault(envMap["POWERFLEX_NODE_IP"], "tfacc_node_ip")
-	NodeDataPoints.ServiceTag = setDefault(envMap["POWERFLEX_SERVICE_TAG"], "tfacc_service_tag")
-	NodeDataPoints.NodeID = setDefault(envMap["POWERFLEX_NODE_ID"], "tfacc_node_id")
-	NodeDataPoints.NodePoolID = setDefault(envMap["POWERFLEX_NODE_POOL_ID"], "tfacc_node_pool_id")
-	NodeDataPoints.NodePoolName = setDefault(envMap["POWERFLEX_NODE_POOL_NAME"], "tfacc_node_pool_name")
-	return NodeDataPoints
-}
-
 var globalEnvMap = getEnvMap()
 var SdsResourceTestData = getNewSdsDataPointForTest()
 var SdcHostResourceTestData = getNewSdcHostDataPointForTest()
@@ -329,7 +303,6 @@ var username = setDefault(globalEnvMap["POWERFLEX_USERNAME"], "test")
 var password = setDefault(globalEnvMap["POWERFLEX_PASSWORD"], "test")
 var endpoint = setDefault(globalEnvMap["POWERFLEX_ENDPOINT"], "http://localhost:3002")
 var insecure = setDefault(globalEnvMap["POWERFLEX_INSECURE"], "false")
-var NodeDataPoints = getNodeDataForTest()
 var TemplateDataPoints = getTemplateDataForTest()
 var ServiceDataPoints = getServiceDataForTest()
 var SourceLocation = setDefault(globalEnvMap["POWERFLEX_SOURCE_LOCATION"], "tfacc_source_location")

@@ -23,13 +23,43 @@ import (
 
 // NodeDataSourceModel maps the struct to Node data source schema
 type NodeDataSourceModel struct {
-	NodeIDs       types.Set    `tfsdk:"node_ids"`
-	ServiceTags   types.Set    `tfsdk:"service_tags"`
-	IPAddresses   types.Set    `tfsdk:"ip_addresses"`
-	NodePoolIDs   types.Set    `tfsdk:"node_pool_ids"`
-	NodePoolNames types.Set    `tfsdk:"node_pool_names"`
-	NodeDetails   []NodeModel  `tfsdk:"node_details"`
-	ID            types.String `tfsdk:"id"`
+	NodeFilter  *NodeFilter  `tfsdk:"filter"`
+	NodeDetails []NodeModel  `tfsdk:"node_details"`
+	ID          types.String `tfsdk:"id"`
+}
+
+// NodeFilter maps the struct to Node filter block
+type NodeFilter struct {
+	RefID               []types.String `tfsdk:"ref_id"`
+	IPAddress           []types.String `tfsdk:"ip_address"`
+	CurrentIPAddress    []types.String `tfsdk:"current_ip_address"`
+	ServiceTag          []types.String `tfsdk:"service_tag"`
+	Model               []types.String `tfsdk:"model"`
+	DeviceType          []types.String `tfsdk:"device_type"`
+	DiscoverDeviceType  []types.String `tfsdk:"discover_device_type"`
+	DisplayName         []types.String `tfsdk:"display_name"`
+	ManagedState        []types.String `tfsdk:"managed_state"`
+	State               []types.String `tfsdk:"state"`
+	InUse               types.Bool     `tfsdk:"in_use"`
+	CustomFirmware      types.Bool     `tfsdk:"custom_firmware"`
+	NeedsAttention      types.Bool     `tfsdk:"needs_attention"`
+	Manufacturer        []types.String `tfsdk:"manufacturer"`
+	SystemID            []types.String `tfsdk:"system_id"`
+	Health              []types.String `tfsdk:"health"`
+	HealthMessage       []types.String `tfsdk:"health_message"`
+	OperatingSystem     []types.String `tfsdk:"operating_system"`
+	NumberOfCPUs        []types.Int64  `tfsdk:"number_of_cpus"`
+	Nics                []types.Int64  `tfsdk:"nics"`
+	MemoryInGB          []types.Int64  `tfsdk:"memory_in_gb"`
+	ComplianceCheckDate []types.String `tfsdk:"compliance_check_date"`
+	DiscoveredDate      []types.String `tfsdk:"discovered_date"`
+	CredID              []types.String `tfsdk:"cred_id"`
+	Compliance          []types.String `tfsdk:"compliance"`
+	FailuresCount       []types.Int64  `tfsdk:"failures_count"`
+	Facts               []types.String `tfsdk:"facts"`
+	PuppetCertName      []types.String `tfsdk:"puppet_cert_name"`
+	FlexosMaintMode     []types.Int64  `tfsdk:"flex_os_maint_mode"`
+	EsxiMaintMode       []types.Int64  `tfsdk:"esxi_maint_mode"`
 }
 
 // NodeModel maps the struct to Node schema

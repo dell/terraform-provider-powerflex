@@ -24,6 +24,7 @@ import (
 	"terraform-provider-powerflex/powerflex/models"
 
 	"github.com/dell/goscaleio"
+	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -87,115 +88,35 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		return
 	}
 
-	// Fetch Node details if IDs are provided
-	if !state.NodeIDs.IsNull() {
-		nodeIDs := make([]string, 0)
-		diags.Append(state.NodeIDs.ElementsAs(ctx, &nodeIDs, true)...)
+	nodeDetails, err := d.gatewayClient.GetAllNodes()
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Read node details", err.Error(),
+		)
+		return
+	}
 
-		for _, nodeID := range nodeIDs {
-			nodeDetails, err := d.gatewayClient.GetNodeByID(nodeID)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting node details using id %v", nodeID), err.Error(),
-				)
-				return
-			}
-			nodeModel = append(nodeModel, helper.GetNodeState(*nodeDetails))
-		}
-	} else if !state.IPAddresses.IsNull() {
-		// Fetch Node details if IPs are provided
-		IPAddresses := make([]string, 0)
-		diags.Append(state.IPAddresses.ElementsAs(ctx, &IPAddresses, true)...)
-
-		for _, ipAddress := range IPAddresses {
-			nodeDetails, err := d.gatewayClient.GetNodeByFilters("ipAddress", ipAddress)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting node details using ip %v", ipAddress), err.Error(),
-				)
-				return
-			}
-			nodeModel = append(nodeModel, helper.GetNodeState(nodeDetails[0]))
-		}
-	} else if !state.ServiceTags.IsNull() {
-		// Fetch Node details if service tags are provided
-		serviceTags := make([]string, 0)
-		diags.Append(state.ServiceTags.ElementsAs(ctx, &serviceTags, true)...)
-
-		for _, serviceTag := range serviceTags {
-			nodeDetails, err := d.gatewayClient.GetNodeByFilters("serviceTag", serviceTag)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting node details using service tag %v", serviceTag), err.Error(),
-				)
-				return
-			}
-			nodeModel = append(nodeModel, helper.GetNodeState(nodeDetails[0]))
-		}
-	} else if !state.NodePoolIDs.IsNull() {
-		// Fetch Node details if node pool IDs are provided
-		nodePoolIDs := make([]int64, 0)
-		diags.Append(state.NodePoolIDs.ElementsAs(ctx, &nodePoolIDs, true)...)
-
-		for _, nodePoolID := range nodePoolIDs {
-			nodePoolDetails, err := d.gatewayClient.GetNodePoolByID(int(nodePoolID))
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting node pool details using id %v", nodePoolID), err.Error(),
-				)
-				return
-			}
-
-			for _, node := range nodePoolDetails.ManagedDeviceList.ManagedDevices {
-				nodeModel = append(nodeModel, helper.GetNodeState(node))
-			}
-		}
-	} else if !state.NodePoolNames.IsNull() {
-		// Fetch Node details if node pool names are provided
-		nodePoolNames := make([]string, 0)
-		diags.Append(state.NodePoolNames.ElementsAs(ctx, &nodePoolNames, true)...)
-
-		for _, nodePoolName := range nodePoolNames {
-			if nodePoolName == "Global" {
-				nodeDetails, err := d.gatewayClient.GetAllNodes()
-				if err != nil {
-					resp.Diagnostics.AddError(
-						"Error in getting node details", err.Error(),
-					)
-					return
-				}
-
-				for _, node := range nodeDetails {
-					if node.DeviceGroupList.DeviceGroup[0].GroupName == "Global" {
-						nodeModel = append(nodeModel, helper.GetNodeState(node))
-					}
-				}
-			} else {
-				nodePoolDetails, err := d.gatewayClient.GetNodePoolByName(nodePoolName)
-				if err != nil {
-					resp.Diagnostics.AddError(
-						fmt.Sprintf("Error in getting node pool details using name %v", nodePoolName), err.Error(),
-					)
-					return
-				}
-
-				for _, node := range nodePoolDetails.ManagedDeviceList.ManagedDevices {
-					nodeModel = append(nodeModel, helper.GetNodeState(node))
-				}
-			}
-		}
-	} else {
-		nodeDetails, err := d.gatewayClient.GetAllNodes()
+	// If filter is present
+	if state.NodeFilter != nil {
+		// Get filtered nodes
+		nodesFiltered, err := helper.GetDataSourceByValue(*state.NodeFilter, nodeDetails)
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error in getting node details", err.Error(),
+				fmt.Sprintf("Error in filtering node: %v please validate the filter", state.NodeFilter),
+				err.Error(),
 			)
 			return
 		}
-
-		for _, node := range nodeDetails {
-			nodeModel = append(nodeModel, helper.GetNodeState(node))
+		// Convert filtered nodes to node details
+		nodeDetailFiltered := []scaleiotypes.NodeDetails{}
+		for _, val := range nodesFiltered {
+			nodeDetailFiltered = append(nodeDetailFiltered, val.(scaleiotypes.NodeDetails))
 		}
+		nodeDetails = nodeDetailFiltered
+	}
+
+	for _, node := range nodeDetails {
+		nodeModel = append(nodeModel, helper.GetNodeState(node))
 	}
 
 	state.NodeDetails = nodeModel
