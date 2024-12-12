@@ -18,37 +18,63 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
+	"os"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
+	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 var ResourceGroupDataSourceConfig = `
-data "powerflex_resource_group" "example" {				
+data "powerflex_resource_group" "example" {
 }
 `
 
 var ResourceGroupDataSourceConfig2 = `
 data "powerflex_resource_group" "example" {
-	service_ids = ["` + ServiceDataPoints.ServiceID + `"]					
+	filter{
+		id  = ["8aaa804a8b4d6b5a018b5c71a64f7052"]
+	}
 }
 `
 
 var ResourceGroupDataSourceConfig3 = `
 data "powerflex_resource_group" "example" {
-	service_names = ["` + ServiceDataPoints.ServiceName + `"]						
+	filter{
+		id  = ["8aaa804a8b4d6b5a018b5c71a64f7052"]
+		deployment_name = ["Block-Storage-Hardware"]
+		number_of_deployments = [0]
+        compliant = true
+	}
 }
 `
 
-var ResourceGroupDataSourceConfig4 = `
-data "powerflex_resource_group" "example" {
-	service_ids = ["invalid"]					
+// AT
+func TestAccDatasourceAcceptanceResourceGroup(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an Acceptance test")
+	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + ResourceGroupDataSourceConfig,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
+			},
+		},
+	})
 }
-`
 
+// UT
 func TestAccDatasourceResourceGroup(t *testing.T) {
-	t.Skip("Skipping this test case")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is an Unit test")
+	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -59,18 +85,39 @@ func TestAccDatasourceResourceGroup(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + ResourceGroupDataSourceConfig2,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_resource_group.example", "service_details.0.id", ServiceDataPoints.ServiceID),
+					resource.TestCheckResourceAttr("data.powerflex_resource_group.example", "resource_group_details.0.id", "8aaa804a8b4d6b5a018b5c71a64f7052"),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + ResourceGroupDataSourceConfig3,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_resource_group.example", "service_details.0.deployment_name", ServiceDataPoints.ServiceName),
+					resource.TestCheckResourceAttr("data.powerflex_resource_group.example", "resource_group_details.0.id", "8aaa804a8b4d6b5a018b5c71a64f7052"),
+					resource.TestCheckResourceAttr("data.powerflex_resource_group.example", "resource_group_details.0.deployment_name", "Block-Storage-Hardware"),
+					resource.TestCheckResourceAttr("data.powerflex_resource_group.example", "resource_group_details.0.number_of_deployments", "0"),
+					resource.TestCheckResourceAttr("data.powerflex_resource_group.example", "resource_group_details.0.compliant", "true"),
 				),
 			},
+			// Read error
 			{
-				Config:      ProviderConfigForTesting + ResourceGroupDataSourceConfig4,
-				ExpectError: regexp.MustCompile(`.*Error in getting service details using id*.`),
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.GatewayClient).GetAllServiceDetails).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + ResourceGroupDataSourceConfig,
+				ExpectError: regexp.MustCompile(`.*Unable to Read service details*.`),
+			},
+			// Filter error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetDataSourceByValue).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + ResourceGroupDataSourceConfig3,
+				ExpectError: regexp.MustCompile(`.*Error in filtering resource groups*.`),
 			},
 		},
 	})

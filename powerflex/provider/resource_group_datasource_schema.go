@@ -18,11 +18,10 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
+
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -36,34 +35,16 @@ var ResourceGroupDataSourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Placeholder attribute.",
 			Computed:            true,
 		},
-		"resource_group_ids": schema.SetAttribute{
-			Description:         "List of Resource Group IDs",
-			MarkdownDescription: "List of Resource Group IDs",
-			Optional:            true,
-			ElementType:         types.StringType,
-			Validators: []validator.Set{
-				setvalidator.SizeAtLeast(1),
-				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
-				setvalidator.ConflictsWith(
-					path.MatchRoot("service_names"),
-				),
-			},
-		},
-		"resource_group_names": schema.SetAttribute{
-			Description:         "List of Resource Group names",
-			MarkdownDescription: "List of Resource Group names",
-			Optional:            true,
-			ElementType:         types.StringType,
-			Validators: []validator.Set{
-				setvalidator.SizeAtLeast(1),
-				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
-			},
-		},
 		"resource_group_details": schema.SetNestedAttribute{
 			Description:         "Resource Group details",
 			MarkdownDescription: "Resource Group details",
 			Computed:            true,
 			NestedObject:        schema.NestedAttributeObject{Attributes: ResourceGroupResponseSchema()},
+		},
+	},
+	Blocks: map[string]schema.Block{
+		"filter": schema.SingleNestedBlock{
+			Attributes: helper.GenerateSchemaAttributes(helper.TypeToMap(models.ResourceGroupFilter{})),
 		},
 	},
 }

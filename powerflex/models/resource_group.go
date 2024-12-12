@@ -38,10 +38,69 @@ type ResourceGroupResourceModel struct {
 	ServersManagedState   types.String `tfsdk:"servers_managed_state"`
 }
 
+// ResourceGroupFilter is the filter of Resource Group
+type ResourceGroupFilter struct {
+	ID                         []types.String `tfsdk:"id"`
+	DeploymentName             []types.String `tfsdk:"deployment_name"`
+	DeploymentDescription      []types.String `tfsdk:"deployment_description"`
+	Retry                      types.Bool     `tfsdk:"retry"`
+	Teardown                   types.Bool     `tfsdk:"teardown"`
+	TeardownAfterCancel        types.Bool     `tfsdk:"teardown_after_cancel"`
+	RemoveService              types.Bool     `tfsdk:"remove_service"`
+	CreatedDate                []types.String `tfsdk:"created_date"`
+	CreatedBy                  []types.String `tfsdk:"created_by"`
+	UpdatedDate                []types.String `tfsdk:"updated_date"`
+	UpdatedBy                  []types.String `tfsdk:"updated_by"`
+	DeploymentScheduledDate    []types.String `tfsdk:"deployment_scheduled_date"`
+	DeploymentStartedDate      []types.String `tfsdk:"deployment_started_date"`
+	DeploymentFinishedDate     []types.String `tfsdk:"deployment_finished_date"`
+	ScheduleDate               []types.String `tfsdk:"schedule_date"`
+	Status                     []types.String `tfsdk:"status"`
+	Compliant                  types.Bool     `tfsdk:"compliant"`
+	UpdateServerFirmware       types.Bool     `tfsdk:"update_server_firmware"`
+	UseDefaultCatalog          types.Bool     `tfsdk:"use_default_catalog"`
+	FirmwareRepositoryID       []types.String `tfsdk:"firmware_repository_id"`
+	LicenseRepositoryID        []types.String `tfsdk:"license_repository_id"`
+	IndividualTeardown         types.Bool     `tfsdk:"individual_teardown"`
+	DeploymentHealthStatusType []types.String `tfsdk:"deployment_health_status_type"`
+	AllUsersAllowed            types.Bool     `tfsdk:"all_users_allowed"`
+	Owner                      []types.String `tfsdk:"owner"`
+	NoOp                       types.Bool     `tfsdk:"no_op"`
+	FirmwareInit               types.Bool     `tfsdk:"firmware_init"`
+	DisruptiveFirmware         types.Bool     `tfsdk:"disruptive_firmware"`
+	PreconfigureSVM            types.Bool     `tfsdk:"preconfigure_svm"`
+	PreconfigureSVMAndUpdate   types.Bool     `tfsdk:"preconfigure_svm_and_update"`
+	ServicesDeployed           []types.String `tfsdk:"services_deployed"`
+	PrecalculatedDeviceHealth  []types.String `tfsdk:"precalculated_device_health"`
+	LifecycleModeReasons       []types.String `tfsdk:"lifecycle_mode_reasons"`
+	NumberOfDeployments        []types.Int64  `tfsdk:"number_of_deployments"`
+	OperationType              []types.String `tfsdk:"operation_type"`
+	OperationStatus            []types.String `tfsdk:"operation_status"`
+	OperationData              []types.String `tfsdk:"operation_data"`
+	CurrentStepCount           []types.String `tfsdk:"current_step_count"`
+	TotalNumOfSteps            []types.String `tfsdk:"total_num_of_steps"`
+	CurrentStepMessage         []types.String `tfsdk:"current_step_message"`
+	CustomImage                []types.String `tfsdk:"custom_image"`
+	OriginalDeploymentID       []types.String `tfsdk:"original_deployment_id"`
+	CurrentBatchCount          []types.String `tfsdk:"current_batch_count"`
+	TotalBatchCount            []types.String `tfsdk:"total_batch_count"`
+	Brownfield                 types.Bool     `tfsdk:"brownfield"`
+	OverallDeviceHealth        []types.String `tfsdk:"overall_device_health"`
+	Vds                        types.Bool     `tfsdk:"vds"`
+	ScaleUp                    types.Bool     `tfsdk:"scale_up"`
+	LifecycleMode              types.Bool     `tfsdk:"lifecycle_mode"`
+	CanMigratevCLSVMs          types.Bool     `tfsdk:"can_migratev_clsv_ms"`
+	TemplateValid              types.Bool     `tfsdk:"template_valid"`
+	ConfigurationChange        types.Bool     `tfsdk:"configuration_change"`
+	DetailMessage              []types.String `tfsdk:"detail_message"`
+	Timestamp                  []types.String `tfsdk:"timestamp"`
+	Error                      []types.String `tfsdk:"error"`
+	Path                       []types.String `tfsdk:"path"`
+}
+
 // ResourceGroupDataSourceModel is the tfsdk model of ResourceGroup data source schema
 type ResourceGroupDataSourceModel struct {
-	ResourceGroupIDs     types.Set            `tfsdk:"resource_group_ids"`
-	ResourceGroupNames   types.Set            `tfsdk:"resource_group_names"`
+	ResourceGroupFilter  *ResourceGroupFilter `tfsdk:"filter"`
 	ResourceGroupDetails []ResourceGroupModel `tfsdk:"resource_group_details"`
 	ID                   types.String         `tfsdk:"id"`
 }
