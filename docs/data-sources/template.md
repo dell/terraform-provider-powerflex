@@ -52,14 +52,37 @@ limitations under the License.
 data "powerflex_template" "example1" {
 }
 
-# Get template details using the ID of the template.
-data "powerflex_template" "example2" {
-  template_ids = ["ID1", "ID2"]
-}
-
-# Get template details using the Name of the template.
-data "powerflex_template" "example3" {
-  template_names = ["Name_1", "Name_2"]
+// If multiple filter fields are provided then it will show the intersection of all of those fields.
+// If there is no intersection between the filters then an empty datasource will be returned
+// For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 
+data "powerflex_template" "template" {
+  # filter{
+  #   template_name = ["template_name"]
+  #   id = ["template_id"]
+  #   template_type = ["template_type"]
+  #   template_version = ["template_version"]
+  #   original_template_id = ["original_template_id"]
+  #   template_locked =  false
+  #   in_configuration = false
+  #   created_date = ["created_date"]
+  #   created_by = ["created_by"]
+  #   updated_date = ["updated_date"]
+  #   last_deployed_date = ["last_deployed_date"]
+  #   updated_by = ["updated_by"]
+  #   manage_firmware = true
+  #   use_default_catalog = true
+  #   all_users_allowed = false
+  #   category = ["category"]
+  #   server_count = [3]
+  #   storage_count = [0]
+  #   cluster_count = [1]
+  #   service_count = [0]
+  #   switch_count = [2]
+  #   vm_count = [0]
+  #   sdnas_count = [3]
+  #   brownfield_template_type = ["brownfield_template_type"]
+  #   Draft = true
+  # }
 }
 
 output "template_result" {
@@ -74,13 +97,45 @@ After the successful execution of above said block, we can see the output by exe
 
 ### Optional
 
-- `template_ids` (Set of String) List of template IDs
-- `template_names` (Set of String) List of template names
+- `filter` (Block, Optional) (see [below for nested schema](#nestedblock--filter))
 
 ### Read-Only
 
 - `id` (String) Placeholder attribute.
 - `template_details` (Attributes Set) Template details (see [below for nested schema](#nestedatt--template_details))
+
+<a id="nestedblock--filter"></a>
+### Nested Schema for `filter`
+
+Optional:
+
+- `all_users_allowed` (Boolean) Value for all_users_allowed
+- `brownfield_template_type` (Set of String) List of brownfield_template_type
+- `category` (Set of String) List of category
+- `cluster_count` (Set of Number) List of cluster_count
+- `created_by` (Set of String) List of created_by
+- `created_date` (Set of String) List of created_date
+- `draft` (Boolean) Value for draft
+- `id` (Set of String) List of id
+- `in_configuration` (Boolean) Value for in_configuration
+- `last_deployed_date` (Set of String) List of last_deployed_date
+- `manage_firmware` (Boolean) Value for manage_firmware
+- `original_template_id` (Set of String) List of original_template_id
+- `sdnas_count` (Set of Number) List of sdnas_count
+- `server_count` (Set of Number) List of server_count
+- `service_count` (Set of Number) List of service_count
+- `storage_count` (Set of Number) List of storage_count
+- `switch_count` (Set of Number) List of switch_count
+- `template_description` (Set of String) List of template_description
+- `template_locked` (Boolean) Value for template_locked
+- `template_name` (Set of String) List of template_name
+- `template_type` (Set of String) List of template_type
+- `template_version` (Set of String) List of template_version
+- `updated_by` (Set of String) List of updated_by
+- `updated_date` (Set of String) List of updated_date
+- `use_default_catalog` (Boolean) Value for use_default_catalog
+- `vm_count` (Set of Number) List of vm_count
+
 
 <a id="nestedatt--template_details"></a>
 ### Nested Schema for `template_details`

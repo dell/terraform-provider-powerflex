@@ -18,11 +18,10 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
+
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -36,37 +35,16 @@ var TemplateDataSourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Placeholder attribute.",
 			Computed:            true,
 		},
-		"template_ids": schema.SetAttribute{
-			Description:         "List of template IDs",
-			MarkdownDescription: "List of template IDs",
-			Optional:            true,
-			ElementType:         types.StringType,
-			Validators: []validator.Set{
-				setvalidator.SizeAtLeast(1),
-				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
-				setvalidator.ConflictsWith(
-					path.MatchRoot("template_names"),
-				),
-			},
-		},
-		"template_names": schema.SetAttribute{
-			Description:         "List of template names",
-			MarkdownDescription: "List of template names",
-			Optional:            true,
-			ElementType:         types.StringType,
-			Validators: []validator.Set{
-				setvalidator.SizeAtLeast(1),
-				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
-				setvalidator.ConflictsWith(
-					path.MatchRoot("template_ids"),
-				),
-			},
-		},
 		"template_details": schema.SetNestedAttribute{
 			Description:         "Template details",
 			MarkdownDescription: "Template details",
 			Computed:            true,
 			NestedObject:        schema.NestedAttributeObject{Attributes: TemplateDetailSchema()},
+		},
+	},
+	Blocks: map[string]schema.Block{
+		"filter": schema.SingleNestedBlock{
+			Attributes: helper.GenerateSchemaAttributes(helper.TypeToMap(models.TemplateFilter{})),
 		},
 	},
 }

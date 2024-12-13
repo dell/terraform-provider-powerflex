@@ -71,7 +71,6 @@ data "powerflex_snapshot_policy" "sp" {
 #     snapshot_access_mode = ["read_write"]
 #     secure_snapshots = true
 #     time_of_last_auto_snapshot = [5]
-#     time_of_last_creation_time = [5]
 #     time_of_last_auto_snapshot_creation_failure = [5]
 #     last_auto_snapshot_creation_failure_reason = ["reason_for_failure"]
 #     last_auto_snapshot_failure_in_first_level = true
