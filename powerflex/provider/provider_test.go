@@ -112,11 +112,6 @@ type templateDataPoints struct {
 	TemplateName string
 }
 
-type serviceDataPoints struct {
-	ServiceID   string
-	ServiceName string
-}
-
 type complianceReportDataPoints struct {
 	ResourceGroupID string
 	IPAddress       string
@@ -255,21 +250,6 @@ func getTemplateDataForTest() templateDataPoints {
 	return TemplateDataPoints
 }
 
-func getServiceDataForTest() serviceDataPoints {
-
-	var ServiceDataPoints serviceDataPoints
-
-	envMap, err := loadEnvFile("powerflex.env")
-	if err != nil {
-		log.Fatal("Error loading .env file: ", err)
-		return ServiceDataPoints
-	}
-
-	ServiceDataPoints.ServiceID = setDefault(envMap["POWERFLEX_SERVICE_ID"], "tfacc_service_id")
-	ServiceDataPoints.ServiceName = setDefault(envMap["POWERFLEX_SERVICE_NAME"], "tfacc_service_name")
-	return ServiceDataPoints
-}
-
 func getComplianceReportDataForTest() complianceReportDataPoints {
 	var ComplianceReportDataPoints complianceReportDataPoints
 	envMap, err := loadEnvFile("powerflex.env")
@@ -304,7 +284,6 @@ var password = setDefault(globalEnvMap["POWERFLEX_PASSWORD"], "test")
 var endpoint = setDefault(globalEnvMap["POWERFLEX_ENDPOINT"], "http://localhost:3002")
 var insecure = setDefault(globalEnvMap["POWERFLEX_INSECURE"], "false")
 var TemplateDataPoints = getTemplateDataForTest()
-var ServiceDataPoints = getServiceDataForTest()
 var SourceLocation = setDefault(globalEnvMap["POWERFLEX_SOURCE_LOCATION"], "tfacc_source_location")
 var FirmwareRepoID1 = setDefault(globalEnvMap["POWERFLEX_FIRMWARE_REPO_ID1"], "tfacc_firmware_repo_id1")
 var FirmwareRepoID2 = setDefault(globalEnvMap["POWERFLEX_FIRMWARE_REPO_ID2"], "tfacc_firmware_repo_id2")
