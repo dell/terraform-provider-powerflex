@@ -56,7 +56,6 @@ type NodeFilter struct {
 	CredID              []types.String `tfsdk:"cred_id"`
 	Compliance          []types.String `tfsdk:"compliance"`
 	FailuresCount       []types.Int64  `tfsdk:"failures_count"`
-	Facts               []types.String `tfsdk:"facts"`
 	PuppetCertName      []types.String `tfsdk:"puppet_cert_name"`
 	FlexosMaintMode     []types.Int64  `tfsdk:"flex_os_maint_mode"`
 	EsxiMaintMode       []types.Int64  `tfsdk:"esxi_maint_mode"`
