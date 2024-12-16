@@ -375,6 +375,11 @@ func FilterByField(dataSources reflect.Value, fieldValue reflect.Value, field st
 
 		dataSourceValue := reflect.ValueOf(dataSource)
 		fieldValueInDataSource := dataSourceValue.FieldByName(field)
+		// if field is not found in the data source then continue
+		if !fieldValueInDataSource.IsValid() {
+			continue
+		}
+
 		if fieldValue.Kind() == reflect.Slice || fieldValue.Kind() == reflect.Array {
 			for n := 0; n < fieldValue.Len(); n++ {
 
