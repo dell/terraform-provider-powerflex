@@ -375,10 +375,6 @@ func FilterByField(dataSources reflect.Value, fieldValue reflect.Value, field st
 
 		dataSourceValue := reflect.ValueOf(dataSource)
 		fieldValueInDataSource := dataSourceValue.FieldByName(field)
-		// if field is not found in the data source then continue
-		if !fieldValueInDataSource.IsValid() {
-			continue
-		}
 
 		if fieldValue.Kind() == reflect.Slice || fieldValue.Kind() == reflect.Array {
 			for n := 0; n < fieldValue.Len(); n++ {
@@ -386,6 +382,10 @@ func FilterByField(dataSources reflect.Value, fieldValue reflect.Value, field st
 				interFieldValue, err := CheckAndConvertValue(fieldValue.Index(n))
 				if err != nil {
 					return reflect.Zero(nil), err
+				}
+				// if field is not found in the data source then break and continue
+				if !fieldValueInDataSource.IsValid() || !interFieldValue.IsValid() {
+					break
 				}
 
 				if fieldValueInDataSource.Interface() == interFieldValue.Interface() {

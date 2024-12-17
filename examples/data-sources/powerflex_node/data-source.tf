@@ -52,9 +52,8 @@ data "powerflex_node" "node" {
   #   discovered_date = ["discoveredDate1", "discoveredDate2"]
   #   cred_id = ["credId1", "credId2"]
   #   compliance = ["compliance1", "compliance2"]
+  #   puppet_cert_name = ["puppet_cert_name1","puppet_cert_name2"]
   #   failures_count = [3, 5]
-  #   facts = ["facts1", "facts2"]
-  #   puppet_cert_managed = ["puppetCertManaged1", "puppetCertManaged2"]
   #   flex_os_maint_mode=[0]
   #   esxi_maint_mode=[0]
   # }

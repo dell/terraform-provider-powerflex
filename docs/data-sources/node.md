@@ -83,9 +83,8 @@ data "powerflex_node" "node" {
   #   discovered_date = ["discoveredDate1", "discoveredDate2"]
   #   cred_id = ["credId1", "credId2"]
   #   compliance = ["compliance1", "compliance2"]
+  #   puppet_cert_name = ["puppet_cert_name1","puppet_cert_name2"]
   #   failures_count = [3, 5]
-  #   facts = ["facts1", "facts2"]
-  #   puppet_cert_managed = ["puppetCertManaged1", "puppetCertManaged2"]
   #   flex_os_maint_mode=[0]
   #   esxi_maint_mode=[0]
   # }
@@ -125,7 +124,6 @@ Optional:
 - `discovered_date` (Set of String) List of discovered_date
 - `display_name` (Set of String) List of display_name
 - `esxi_maint_mode` (Set of Number) List of esxi_maint_mode
-- `facts` (Set of String) List of facts
 - `failures_count` (Set of Number) List of failures_count
 - `flex_os_maint_mode` (Set of Number) List of flex_os_maint_mode
 - `health` (Set of String) List of health
