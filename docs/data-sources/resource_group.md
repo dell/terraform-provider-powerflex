@@ -70,13 +70,13 @@ data "powerflex_resource_group" "resource_group" {
 	# updated_by = ["updated_by1","updated_by2"]
 	# deployment_scheduled_date = ["deployment_scheduled_date1","deployment_scheduled_date2"]
 	# deployment_started_date = ["deployment_started_date1","deployment_started_date2"]
-  # deployment_finished_date = ["deployment_finished_date1","deployment_finished_date2"]
+    # deployment_finished_date = ["deployment_finished_date1","deployment_finished_date2"]
 	# schedule_date = ["scheduled_date1","scheduled_date2"]
 	# status = ["status1","status2"]
 	# compliant = true
 	# update_server_firmware = false
 	# use_default_catalog = false
-  # firmware_repository_id = ["firmware_repository_id1","firmware_repository_id2"]
+    # firmware_repository_id = ["firmware_repository_id1","firmware_repository_id2"]
 	# license_repository_id = ["license_repository_id1","license_repository_id2"]
 	# individual_teardown = true
 	# deployment_health_status_type = ["deployment_health_status_type1","deployment_health_status_type2"]
@@ -89,7 +89,6 @@ data "powerflex_resource_group" "resource_group" {
 	# preconfigure_svm_and_update = true
 	# services_deployed = ["services_deployed1","services_deployed2"]
 	# precalculated_device_health = ["precalculated_device_health1","precalculated_device_health2"]
-	# lifecycle_mode_reasons = ["lifecycle_mode_reasons1","lifecycle_mode_reasons2"]
 	# number_of_deployments = [0]
 	# operation_type = ["operation_type1","operation_type2"]
 	# operation_status = ["operation_status1","operation_status2"]
@@ -166,7 +165,6 @@ Optional:
 - `individual_teardown` (Boolean) Value for individual_teardown
 - `license_repository_id` (Set of String) List of license_repository_id
 - `lifecycle_mode` (Boolean) Value for lifecycle_mode
-- `lifecycle_mode_reasons` (Set of String) List of lifecycle_mode_reasons
 - `no_op` (Boolean) Value for no_op
 - `number_of_deployments` (Set of Number) List of number_of_deployments
 - `operation_data` (Set of String) List of operation_data

@@ -72,7 +72,6 @@ type ResourceGroupFilter struct {
 	PreconfigureSVMAndUpdate   types.Bool     `tfsdk:"preconfigure_svm_and_update"`
 	ServicesDeployed           []types.String `tfsdk:"services_deployed"`
 	PrecalculatedDeviceHealth  []types.String `tfsdk:"precalculated_device_health"`
-	LifecycleModeReasons       []types.String `tfsdk:"lifecycle_mode_reasons"`
 	NumberOfDeployments        []types.Int64  `tfsdk:"number_of_deployments"`
 	OperationType              []types.String `tfsdk:"operation_type"`
 	OperationStatus            []types.String `tfsdk:"operation_status"`
