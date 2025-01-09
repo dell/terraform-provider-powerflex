@@ -73,6 +73,14 @@ func TestAccDatasourceDevice(t *testing.T) {
 					resource.TestCheckResourceAttr("data.powerflex_device.filter-multi", "device_model.0.cache_look_ahead_active", "true"),
 				),
 			},
+			// Error doing the read of the System
+			{
+				PreConfig: func() {
+					FunctionMocker = Mock(helper.GetFirstSystem).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + devicesData,
+				ExpectError: regexp.MustCompile(`.*Error in getting system instance on the PowerFlex cluster*.`),
+			},
 			// Read error
 			{
 				PreConfig: func() {

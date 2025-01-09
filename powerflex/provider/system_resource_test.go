@@ -18,16 +18,20 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
 	"os"
 	"regexp"
 	"testing"
 
+	. "github.com/bytedance/mockey"
+	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
+// AT
 func TestAccResourceSystem(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an Acceptance test")
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -74,35 +78,126 @@ func TestAccResourceSystem(t *testing.T) {
 	})
 }
 
-func TestAccResourceSystem1(t *testing.T) {
+// UT
+func TestAccResourceSystemUT(t *testing.T) {
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a unit test")
+	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			// 1 set mode Error
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.System).SetRestrictedMode).Return(fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + SystemResourceConfig2,
+				ExpectError: regexp.MustCompile(`.*Error changing restricted mode*.`),
+			},
+			// 2 get instance Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.Client).GetInstance).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + SystemResourceConfig2,
+				ExpectError: regexp.MustCompile(`.*Error in getting system instance on the PowerFlex cluster*.`),
+			},
+			// 3 Error getting SDC with ID
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.System).FindSdc).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + SystemResourceConfigInvalidApprovedIps,
+				ExpectError: regexp.MustCompile(`.*Error getting SDC with Name*.`),
+			},
+			// 4 Error getting SDC with Name
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.System).SetApprovedIps).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + SystemResourceConfigInvalidApprovedIps,
+				ExpectError: regexp.MustCompile(`.*Error getting SDC with ID*.`),
+			},
+			// 5 Create Successfully
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
 				Config: ProviderConfigForTesting + SystemResourceConfig2,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_system.test", "restricted_mode", "Guid"),
 				),
 			},
+			// 6 Import resource
+			{
+				ResourceName: "powerflex_system.test",
+				ImportState:  true,
+			},
+			// 7 get instance Error
 			{
 				Config:      ProviderConfigForTesting + SystemResourceConfig4,
 				ExpectError: regexp.MustCompile(".*Error getting SDC with Name.*"),
 			},
+			// 8 get instance Error
 			{
 				Config:      ProviderConfigForTesting + SystemResourceConfig5,
 				ExpectError: regexp.MustCompile(".*Error getting SDC with ID.*"),
 			},
+			// 9 get instance Error
 			{
 				Config:      ProviderConfigForTesting + SystemResourceConfig6,
 				ExpectError: regexp.MustCompile(".*Error getting SDC with ID.*"),
 			},
+			// 10 get instance after update Error
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.Client).GetInstance).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + SystemResourceConfig8,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex specific system*.`),
+			},
+			// 11 set mode update Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.System).SetRestrictedMode).Return(fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + SystemResourceConfig3,
+				ExpectError: regexp.MustCompile(`.*Error changing restricted mode*.`),
+			},
+			// 12 update successfully
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
 				Config: ProviderConfigForTesting + SystemResourceConfig8,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_system.test", "sdc_ids.#", "1"),
 					resource.TestCheckResourceAttr("powerflex_system.test", "sdc_guids.#", "1"),
 				),
 			},
+			// 13 update successfully
 			{
 				Config: ProviderConfigForTesting + SystemResourceConfig3,
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -114,15 +209,10 @@ func TestAccResourceSystem1(t *testing.T) {
 }
 
 var SearchSdcBasedOnName = `
-	data "powerflex_sdc" "all" {
-	}
-
-	locals {
-		matching_sdc = [for sdc in data.powerflex_sdc.all.sdcs : sdc if sdc.name == "terraform_sdc_do_not_delete"]
-	}
-
 	data "powerflex_sdc" "selected" {
-		id = local.matching_sdc[0].id
+		filter {
+			name = ["Terraform_sdc1"]
+		}
 	}`
 
 var SystemResourceConfig1 = SearchSdcBasedOnName + `
@@ -153,6 +243,17 @@ var SystemResourceConfig2 = `
 resource "powerflex_system" "test" {
 	restricted_mode = "Guid"
 	sdc_names = ["terraform_sdc_do_not_delete"]
+}
+`
+
+var SystemResourceConfigInvalidApprovedIps = `
+resource "powerflex_system" "test" {
+	restricted_mode = "Guid"
+	sdc_names = ["terraform_sdc_do_not_delete"]
+	sdc_approved_ips = [{
+		id = "invalid_sdc",
+		ips = ["1.1.1.1"]
+	}]
 }
 `
 
@@ -191,7 +292,7 @@ resource "powerflex_system" "test" {
 var SystemResourceConfig8 = SearchSdcBasedOnName + `
 resource "powerflex_system" "test" {
 	restricted_mode = "Guid"
-	sdc_ids = [data.powerflex_sdc.selected.id]
+	sdc_ids = [data.powerflex_sdc.selected.sdcs[0].id]
 }
 `
 var SystemResourceConfig9 = `

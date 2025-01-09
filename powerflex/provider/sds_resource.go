@@ -355,6 +355,7 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 				"Could not rename SDS",
 				err.Error(),
 			)
+			return
 		}
 	}
 
@@ -394,6 +395,10 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		}
 	}()
 
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	// check if there is change in sds port
 	if !plan.Port.IsUnknown() && !state.Port.Equal(plan.Port) {
 		port := plan.Port.ValueInt64()
@@ -403,6 +408,7 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 				fmt.Sprintf("Could not change SDS port to %d", port),
 				err.Error(),
 			)
+			return
 		}
 	}
 
@@ -415,6 +421,7 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 				fmt.Sprintf("Could not change SDS DRL Mode to %s", drlMode),
 				err.Error(),
 			)
+			return
 		}
 	}
 
@@ -427,6 +434,7 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 				fmt.Sprintf("Could not change SDS Read Ram Cache settings to %t", rmCacheEnabled),
 				err.Error(),
 			)
+			return
 		}
 	}
 	if !plan.RmcacheSizeInMB.IsUnknown() && !state.RmcacheSizeInMB.Equal(plan.RmcacheSizeInMB) {
@@ -437,6 +445,7 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 				fmt.Sprintf("Could not change SDS Read Ram Cache size to %d", rmCacheSize),
 				err.Error(),
 			)
+			return
 		}
 	}
 
@@ -449,6 +458,7 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 				fmt.Sprintf("Could not change SDS Rf Cache settings to %t", rfCacheEnabled),
 				err.Error(),
 			)
+			return
 		}
 	}
 
@@ -461,6 +471,7 @@ func (r *sdsResource) Update(ctx context.Context, req resource.UpdateRequest, re
 				fmt.Sprintf("Could not set SDS Performance Profile settings to %s", perfprof),
 				err.Error(),
 			)
+			return
 		}
 	}
 

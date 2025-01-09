@@ -68,6 +68,7 @@ resource "powerflex_nvme_host" "nvme_host_test" {
 func TestAccNvmeHostResource(t *testing.T) {
 	resourceName := "powerflex_nvme_host.nvme_host_test"
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// create and read testing
@@ -114,6 +115,7 @@ func TestAccNvmeHostResourceNegative(t *testing.T) {
 	var changeMaxNumPathsMocker *Mocker
 	var changeMaxNumSysPortsMocker *Mocker
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// create with empty name
@@ -218,6 +220,7 @@ func TestAccNvmeHostResourceHelperNegative(t *testing.T) {
 	var createFuncMocker *Mocker
 	var getFuncMocker *Mocker
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{

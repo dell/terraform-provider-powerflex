@@ -34,6 +34,7 @@ func TestAccDatasourceAcceptanceVTree(t *testing.T) {
 		t.Skip("Dont run with units tests, this is an Acceptance test")
 	}
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -50,6 +51,7 @@ func TestAccDatasourceVTree(t *testing.T) {
 		t.Skip("Dont run with acceptance tests, this is an Unit test")
 	}
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{

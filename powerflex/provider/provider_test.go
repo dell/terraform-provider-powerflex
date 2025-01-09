@@ -22,12 +22,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 	"testing"
 
 	. "github.com/bytedance/mockey"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 var ProviderConfigForTesting = ``
@@ -386,4 +388,65 @@ func loadEnvFile(path string) (map[string]string, error) {
 	}
 
 	return envMap, nil
+}
+
+func TestAccProvider(t *testing.T) {
+	var exampleDataForTest = `
+	data "powerflex_device" "all" {
+	}
+	`
+	var noEndpoint = fmt.Sprintf(`
+	provider "powerflex" {
+		username = "%s"
+		password = "%s"
+		endpoint = ""
+		insecure = %s
+		timeout = 120
+	}
+	`, username, password, insecure)
+
+	var noUsername = fmt.Sprintf(`
+	provider "powerflex" {
+		username = ""
+		password = "%s"
+		endpoint = "%s"
+		insecure = %s
+		timeout = 120
+	}
+	`, password, endpoint, insecure)
+
+	var noPassword = fmt.Sprintf(`
+	provider "powerflex" {
+		username = "%s"
+		password = ""
+		endpoint = "%s"
+		insecure = %s
+		timeout = 120
+	}
+	`, username, endpoint, insecure)
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Should error if no endpoint set
+			{
+				Config:      noEndpoint + exampleDataForTest,
+				ExpectError: regexp.MustCompile(".*Missing powerflex API Endpoint*"),
+			},
+			// Should error if no username set
+			{
+				Config:      noUsername + exampleDataForTest,
+				ExpectError: regexp.MustCompile(".*Missing powerflex API Username*"),
+			},
+			// Should error if no password is set
+			{
+				Config:      noPassword + exampleDataForTest,
+				ExpectError: regexp.MustCompile(".*Missing powerflex API Password*"),
+			},
+			// Should set config successfully
+			{
+				Config: ProviderConfigForTesting + exampleDataForTest,
+			},
+		},
+	})
 }

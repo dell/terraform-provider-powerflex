@@ -127,6 +127,17 @@ func TestAccNvmeHostDatasourceNegative(t *testing.T) {
 				Config:      ProviderConfigForTesting + nvmeHostDatasourceConfigFilter,
 				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex NVMe Hosts*.`),
 			},
+			// Filter error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetDataSourceByValue).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + nvmeHostDatasourceConfigFilter,
+				ExpectError: regexp.MustCompile(`.*Error in getting NVMe Host details*.`),
+			},
 		},
 	})
 }

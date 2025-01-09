@@ -217,6 +217,7 @@ resource "powerflex_nvme_target" "nvme_target_test" {
 func TestAccNvmeTargetResource(t *testing.T) {
 	resourceName := "powerflex_nvme_target.nvme_target_test"
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// create and read testing
@@ -281,6 +282,7 @@ func TestAccNvmeTargetResourceNegative(t *testing.T) {
 	var createFuncMocker *Mocker
 	var maintenanceModeMocker *Mocker
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// Negative testing for creating nvme target
@@ -489,6 +491,7 @@ func TestAccNvmeTargetResourceHelperNegative(t *testing.T) {
 	var getFuncMocker *Mocker
 	var maintenanceModeMocker *Mocker
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{

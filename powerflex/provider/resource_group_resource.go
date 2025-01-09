@@ -179,21 +179,21 @@ func (r *resourceGroupResource) Update(ctx context.Context, req resource.UpdateR
 
 	if plan.Nodes.ValueInt64() < state.Nodes.ValueInt64() {
 		resp.Diagnostics.AddError("Removing node(s) is not supported", "please validate your inputs")
+		return
 	}
 
 	if plan.Nodes.String() != state.Nodes.String() && plan.CloneFromHost.ValueString() == "" {
 		resp.Diagnostics.AddError("Please provide clone_from_host for adding the resource", "please validate your inputs")
+		return
 	}
 
 	if plan.TemplateID.String() != state.TemplateID.String() {
 		resp.Diagnostics.AddError("Changing of template_id is not supported", "please validate your inputs")
+		return
 	}
 
 	if plan.FirmwareID.String() != state.FirmwareID.String() {
 		resp.Diagnostics.AddError("Changing of firmware_id is not supported", "please validate your inputs")
-	}
-
-	if resp.Diagnostics.HasError() {
 		return
 	}
 

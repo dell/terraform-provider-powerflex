@@ -19,6 +19,7 @@ package provider
 
 import (
 	"context"
+	"os"
 	"regexp"
 	"testing"
 
@@ -31,7 +32,9 @@ import (
 )
 
 func TestAccResourcePD(t *testing.T) {
-	t.Skip("Skipping this test case, only for Unit test")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
+	}
 	createPDTest := `
 	resource "powerflex_protection_domain" "pd" {
 		name = "test_acc_pd_1"
@@ -337,7 +340,9 @@ func TestAccResourcePD(t *testing.T) {
 }
 
 func TestAccResourcePD2(t *testing.T) {
-	t.Skip("Skipping this test case, only for Unit test")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
+	}
 	// name contains the illegal character &
 	createPDTestNeg := `
 	resource "powerflex_protection_domain" "pd" {

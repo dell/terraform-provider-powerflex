@@ -47,9 +47,10 @@ func TestAccDatasourceAcceptanceFaultSet(t *testing.T) {
 // UT
 func TestAccDatasourceFaultSet(t *testing.T) {
 	if os.Getenv("TF_ACC") == "1" {
-		t.Skip("Dont run with acceptance tests, this is an Unit test")
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
