@@ -55,6 +55,19 @@ limitations under the License.
 data "powerflex_nvme_host" "example1" {
 }
 
+
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_nvme_host" "nvme_host_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     system_id = ["^.*0f$"]
+#   }
+# }
+
+# output "nvmeHostFilterRegexResult"{
+#  value = data.powerflex_nvme_host.nvme_host_filter_regex.nvme_host_details
+# }
+
 // If multiple filter fields are provided then it will show the intersection of all of those fields.
 // If there is no intersection between the filters then an empty datasource will be returned
 // For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 
@@ -72,7 +85,7 @@ data "powerflex_nvme_host" "example2" {
 }
 
 output "nvme_host_result" {
-  value = data.powerflex_nvme_host.example1
+  value = data.powerflex_nvme_host.example1.nvme_host_details
 }
 ```
 

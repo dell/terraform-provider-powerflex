@@ -123,3 +123,28 @@ data "powerflex_example_datasource" "exampleFilter" {
 ```
 []
 ```
+
+## 5. If the filter value is using regular expressions:
+**Config:**
+```
+data "powerflex_example_datasource" "exampleFilter" {
+  filter {
+   id = ["^id-[1-2]$"]
+  }
+}
+```
+**Output:**
+```
+[
+   {
+   id = "id-1"
+   field = false
+   count = 1
+  },
+  {
+   id = "id-2"
+   field = true
+   count = 2
+  }
+]
+```

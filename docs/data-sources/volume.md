@@ -48,12 +48,24 @@ limitations under the License.
 
 // Empty filter block will return all the volumes
 data "powerflex_volume" "volume" {
-
 }
 
 output "volumeResult" {
   value = data.powerflex_volume.volume.volumes
 }
+
+
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_volume" "volume_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     volume_type = ["^.*Provisioned$"]
+#   }
+# }
+
+# output "volumeFilterRegexResult"{
+#  value = data.powerflex_volume.volume_filter_regex.volumes
+# }
 
 // If multiple filter fields are provided then it will show the intersection of all of those fields.
 // If there is no intersection between the filters then an empty datasource will be returned
@@ -85,7 +97,6 @@ data "powerflex_volume" "volume_filter" {
   #   replication_time_stamp                 = [1,2]
   }
 }
-
 
 output "volumeFilterResult" {
   value = data.powerflex_volume.volume_filter.volumes

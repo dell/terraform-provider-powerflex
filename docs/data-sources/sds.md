@@ -55,6 +55,18 @@ limitations under the License.
 data "powerflex_sds" "example1" {
 }
 
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_sds" "sds_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     maintenance_type = ["^.*Maintenance$"]
+#   }
+# }
+
+# output "sdsFilterRegexResult"{
+#  value = data.powerflex_sds.sds_filter_regex.sds_details
+# }
+
 # Get Sds details using filter with all values
 # If there is no intersection between the filters then an empty datasource will be returned
 # For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples
@@ -96,7 +108,7 @@ data "powerflex_sds" "example1" {
 # }
 
 output "allsdcresult" {
-  value = data.powerflex_sds.example1
+  value = data.powerflex_sds.example1.sds_details
 }
 ```
 

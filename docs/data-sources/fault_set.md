@@ -56,6 +56,18 @@ output "fault_set_result_all" {
   value = data.powerflex_fault_set.all.fault_set_details
 }
 
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_fault_set" "fault_set_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     id = ["^.*0f$"]
+#   }
+# }
+
+# output "faultSetFilterRegexResult"{
+#  value = data.powerflex_fault_set.fault_set_filter_regex.fault_set_details
+# }
+
 // If multiple filter fields are provided then it will show the intersection of all of those fields.
 // If there is no intersection between the filters then an empty datasource will be returned
 // For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/

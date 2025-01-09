@@ -55,6 +55,18 @@ output "powerflex_firmware_repository_all_result" {
   value = data.powerflex_firmware_repository.all.firmware_repository_details
 }
 
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_firmware_repository" "firmware_repository_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     disk_location = ["^https://powerflex.*$"]
+#   }
+# }
+
+# output "firmwareRepositoryFilterRegexResult"{
+#  value = data.powerflex_firmware_repository.firmware_repository_filter_regex.firmware_repository_details
+# }
+
 // If multiple filter fields are provided then it will show the intersection of all of those fields.
 // If there is no intersection between the filters then an empty datasource will be returned
 // For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 

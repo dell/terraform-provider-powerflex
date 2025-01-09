@@ -22,6 +22,19 @@ output "inputAll" {
   value = data.powerflex_protection_domain.all.protection_domains
 }
 
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_protection_domain" "protection_domain_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     rf_cache_opertional_mode = ["^.*Write.*$"]
+#   }
+# }
+
+# output "protectionDomainFilterRegexResult"{
+#  value = data.powerflex_protection_domain.protection_domain_filter_regex.protection_domains
+# }
+
+
 # Get Peer System details using filter with all values
 # If there is no intersection between the filters then an empty datasource will be returned
 # For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples

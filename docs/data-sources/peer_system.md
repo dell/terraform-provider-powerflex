@@ -53,6 +53,18 @@ limitations under the License.
 data "powerflex_peer_system" "example1" {
 }
 
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_peer_system" "peer_system_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     perf_profile = ["^.*Performance$"]
+#   }
+# }
+
+# output "peerSystemFilterRegexResult"{
+#  value = data.powerflex_peer_system.peer_system_filter_regex.peer_system_details
+# }
+
 # Get Peer System details using filter with all values
 # If there is no intersection between the filters then an empty datasource will be returned
 # For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples
@@ -72,7 +84,7 @@ data "powerflex_peer_system" "example1" {
 # }
 
 output "peer_system_result" {
-  value = data.powerflex_peer_system.example1
+  value = data.powerflex_peer_system.example1.peer_system_details
 }
 ```
 
