@@ -18,6 +18,7 @@ limitations under the License.
 package provider
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"regexp"
@@ -127,7 +128,7 @@ var valFake, _ = types.ObjectValue(
 	},
 )
 
-var listVal, _ = types.ListValueFrom(nil, types.StringType, []string{"1.1.1.1", "1.1.1.2"})
+var listVal, _ = types.ListValueFrom(context.TODO(), types.StringType, []string{"1.1.1.1", "1.1.1.2"})
 
 var sdcWindowsFakeModel = models.SdcHostModel{
 	Remote:             valFake,
