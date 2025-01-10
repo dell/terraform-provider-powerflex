@@ -30,8 +30,8 @@ import (
 
 // PeerSystemReourceSchema - variable holds schema for PeerSystemReource resource
 var PeerSystemReourceSchema schema.Schema = schema.Schema{
-	Description:         "This resource is used to manage the Peer System entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. We can Create, Update and Delete the PowerFlex Peer Systems using this resource. We can also Import an existing Peer Systems from the PowerFlex array.",
-	MarkdownDescription: "This resource is used to manage the Peer System entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. We can Create, Update and Delete the PowerFlex Peer Systems using this resource. We can also Import an existing Peer Systems from the PowerFlex array.",
+	Description:         "This resource is used to manage the Peer System entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. We can Create, Update and Delete the PowerFlex Peer Systems using this resource. We can also Import an existing Peer Systems from the PowerFlex array. Peer system refers to the setup where multiple MDM nodes work together as peers to provide redundancy and high availability. This means that if one MDM node fails, other peer MDM nodes can take over its responsibilities, ensuring continuous operation without disruptions",
+	MarkdownDescription: "This resource is used to manage the Peer System entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. We can Create, Update and Delete the PowerFlex Peer Systems using this resource. We can also Import an existing Peer Systems from the PowerFlex array. Peer system refers to the setup where multiple MDM nodes work together as peers to provide redundancy and high availability. This means that if one MDM node fails, other peer MDM nodes can take over its responsibilities, ensuring continuous operation without disruptions",
 	Attributes: map[string]schema.Attribute{
 		"name": schema.StringAttribute{
 			Description:         "Name of the peer mdm instance.",

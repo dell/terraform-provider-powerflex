@@ -19,12 +19,12 @@ linkTitle: "powerflex_nvme_target"
 page_title: "powerflex_nvme_target Resource - powerflex"
 subcategory: ""
 description: |-
-  This resource is used to manager NVMe target from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe target using this resource. We can also import an existing NVMe target from PowerFlex array.Note: Either protection_domain_id or protection_domain_name must be specified.
+  This resource is used to manage NVMe target from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe target using this resource. We can also import an existing NVMe target from PowerFlex array.Note: Either protection_domain_id or protection_domain_name must be specified.
 ---
 
 # powerflex_nvme_target (Resource)
 
-This resource is used to manager NVMe target from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe target using this resource. We can also import an existing NVMe target from PowerFlex array.  
+This resource is used to manage NVMe target from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe target using this resource. We can also import an existing NVMe target from PowerFlex array.  
  **Note:** Either `protection_domain_id` or `protection_domain_name` must be specified.
 
 > **Caution:** <span style='color: red;' >NVMe target creation or update is not atomic. In case of partially completed create operations, terraform can mark the resource as tainted.

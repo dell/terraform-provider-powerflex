@@ -26,8 +26,8 @@ import (
 
 // ReplicationPairsDataSourceSchema defines the schema for ReplicationPairs datasource
 var ReplicationPairsDataSourceSchema schema.Schema = schema.Schema{
-	Description:         "This datasource is used to read the Replication Pairs entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above.",
-	MarkdownDescription: "This datasource is used to read the Replication Pairs entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above.",
+	Description:         "This datasource is used to read the Replication Pairs entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. An RCG is a collection of multiple replication pairs that need to be replicated together in a coordinated and consistent manner. The key purpose is to ensure that all the data within the group is replicated in a consistent state. Applies to a group of data that needs to be kept consistent across the source and target",
+	MarkdownDescription: "This datasource is used to read the Replication Pairs entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. An RCG is a collection of multiple replication pairs that need to be replicated together in a coordinated and consistent manner. The key purpose is to ensure that all the data within the group is replicated in a consistent state. Applies to a group of data that needs to be kept consistent across the source and target",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
 			Description:         "default datasource id",

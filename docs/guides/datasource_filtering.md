@@ -25,7 +25,7 @@ limitations under the License.
 
 *This describes how filtering works in the Powerflex Provider with a datasource filter block*
 
-The input below will be used showcase different senarios and how they will work in our provider:
+The input below will be used showcase different scenarios and how they will work in our provider:
 ```
 [
   {
