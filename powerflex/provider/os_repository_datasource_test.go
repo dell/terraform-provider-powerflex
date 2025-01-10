@@ -90,6 +90,28 @@ func TestAccDatasourceOSRepo(t *testing.T) {
 				Config:      ProviderConfigForTesting + OSRepoDataSourceConfig1,
 				ExpectError: regexp.MustCompile(`.*Error in getting OS repository details*.`),
 			},
+			// Get System Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetFirstSystem).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + OSRepoDataSourceConfig1,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex System*.`),
+			},
+			// Filter Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetDataSourceByValue).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + OSRepoDataSourceConfig2,
+				ExpectError: regexp.MustCompile(`.*Error in getting OS repository details*.`),
+			},
 		},
 	})
 }

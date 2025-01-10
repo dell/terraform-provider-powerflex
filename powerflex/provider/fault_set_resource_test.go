@@ -24,6 +24,7 @@ import (
 	"testing"
 
 	. "github.com/bytedance/mockey"
+	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
@@ -32,8 +33,35 @@ func TestAccResourceFaultSet(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			// Get System Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetFirstSystem).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + FaultSetResourceCreate,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex System*.`),
+			},
+			// Get Fault Set Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.System).GetFaultSetByID).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + FaultSetResourceCreate,
+				ExpectError: regexp.MustCompile(`.*Error getting fault set after creation*.`),
+			},
 			// Create fault set Test
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
 				Config: ProviderConfigForTesting + FaultSetResourceCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_fault_set.newFs", "name", "fault-set-create-test"),
@@ -45,8 +73,35 @@ func TestAccResourceFaultSet(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			// Get Fault Set after create Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.System).GetFaultSetByID).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + FaultSetResourceUpdate,
+				ExpectError: regexp.MustCompile(`.*Could not get fault set by ID*.`),
+			},
+			// Get PD Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetNewProtectionDomainEx).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + FaultSetResourceUpdate,
+				ExpectError: regexp.MustCompile(`.*Error getting Protection Domain*.`),
+			},
 			// Update fault set Test
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
 				Config: ProviderConfigForTesting + FaultSetResourceUpdate,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_fault_set.newFs", "name", "fault-set-update-test"),

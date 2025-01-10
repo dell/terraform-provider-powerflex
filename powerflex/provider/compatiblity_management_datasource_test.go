@@ -27,6 +27,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
+// Can be used for UT and AT
 func TestAccDatasourceCompatibilityManagement(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -36,9 +37,20 @@ func TestAccDatasourceCompatibilityManagement(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + compatibilityManagementData,
 			},
+			// Error doing the read of the System
+			{
+				PreConfig: func() {
+					FunctionMocker = Mock(helper.GetFirstSystem).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + compatibilityManagementData,
+				ExpectError: regexp.MustCompile(`.*Error in getting system instance on the PowerFlex cluster*.`),
+			},
 			// Error doing the read
 			{
 				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
 					FunctionMocker = Mock(helper.GetCompatibilityManagement, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + compatibilityManagementData,

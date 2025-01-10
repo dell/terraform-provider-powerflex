@@ -21,15 +21,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
+	goscaleio_types "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 // TestAccResourceCluster tests the SDC Expansion Operation
-func TestAccResourceCluster(t *testing.T) {
-
+func TestAccResourceClusterA(t *testing.T) {
 	t.Skip("Skipping this test case")
 
 	resource.Test(t, resource.TestCase{
@@ -75,13 +77,113 @@ func validateSDCLength(state *terraform.State) error {
 }
 
 func TestAccResourceClusterValidation(t *testing.T) {
-
+	var FunctionMockerClusterCreate *Mocker
+	var FunctionMockerClusterMdmIp *Mocker
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			//Create
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.ParseClusterCSVOperation).Return(&goscaleio_types.GatewayResponse{
+						Message: "",
+						Data:    "",
+					}, nil).Build()
+					FunctionMockerClusterCreate = Mock(helper.ClusterInstallationOperations).Return(nil).Build()
+					FunctionMockerClusterMdmIp = Mock(helper.GetMDMIPFromClusterDetails).Return("tfacc_cluster_ip_1", nil).Build()
+				},
+				Config: ProviderConfigForTesting + ClusterConfigValidator,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					validateSDCLength,
+				),
+				ExpectError: regexp.MustCompile(`.*strconv.ParseInt: parsing*`),
+			},
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					if FunctionMockerClusterCreate != nil {
+						FunctionMockerClusterCreate.UnPatch()
+					}
+					if FunctionMockerClusterMdmIp != nil {
+						FunctionMockerClusterMdmIp.UnPatch()
+					}
+					FunctionMocker = Mock(helper.ResetInstallerQueue).Return(fmt.Errorf("Mock Error")).Build()
+				},
+				Config: ProviderConfigForTesting + ClusterConfigValidator,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					validateSDCLength,
+				),
+				ExpectError: regexp.MustCompile(`.*Error Clearing Queue*`),
+			},
+			//Create
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					if FunctionMockerClusterCreate != nil {
+						FunctionMockerClusterCreate.UnPatch()
+					}
+					if FunctionMockerClusterMdmIp != nil {
+						FunctionMockerClusterMdmIp.UnPatch()
+					}
+					FunctionMocker = Mock(helper.ParseClusterCSVOperation).Return(&goscaleio_types.GatewayResponse{
+						Message: "",
+						Data:    "",
+					}, nil).Build()
+					FunctionMockerClusterCreate = Mock(helper.ClusterInstallationOperations).Return(fmt.Errorf("Mock Error")).Build()
+					FunctionMockerClusterMdmIp = Mock(helper.GetMDMIPFromClusterDetails).Return("tfacc_cluster_ip_1", nil).Build()
+				},
+				Config: ProviderConfigForTesting + ClusterConfigValidator,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					validateSDCLength,
+				),
+				ExpectError: regexp.MustCompile(`.*Error in Installation Process*`),
+			},
+			//Create
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					if FunctionMockerClusterCreate != nil {
+						FunctionMockerClusterCreate.UnPatch()
+					}
+					if FunctionMockerClusterMdmIp != nil {
+						FunctionMockerClusterMdmIp.UnPatch()
+					}
+					FunctionMocker = Mock(helper.ParseClusterCSVOperation).Return(&goscaleio_types.GatewayResponse{
+						Message: "",
+						Data:    "",
+					}, nil).Build()
+					FunctionMockerClusterCreate = Mock(helper.ClusterInstallationOperations).Return(nil).Build()
+					FunctionMockerClusterMdmIp = Mock(helper.GetMDMIPFromClusterDetails).Return(nil, fmt.Errorf("Mock Error")).Build()
+				},
+				Config: ProviderConfigForTesting + ClusterConfigValidator,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					validateSDCLength,
+				),
+				ExpectError: regexp.MustCompile(`.*Error in Fecthing Primary MDM IP Before Installation*`),
+			},
+			//Create
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					if FunctionMockerClusterCreate != nil {
+						FunctionMockerClusterCreate.UnPatch()
+					}
+					if FunctionMockerClusterMdmIp != nil {
+						FunctionMockerClusterMdmIp.UnPatch()
+					}
+				},
 				Config:      ProviderConfigForTesting + ClusterValidationConfig1,
 				ExpectError: regexp.MustCompile(`.*Invalid Attribute Value*`),
 			},
@@ -142,6 +244,65 @@ resource "powerflex_cluster" "test"  {
 	}
 `
 
+var ClusterConfigValidator = `
+resource "powerflex_cluster" "test" {
+
+	mdm_password =  "` + GatewayDataPoints.mdmPassword + `"
+	lia_password= "` + GatewayDataPoints.liaPassword + `"
+	allow_non_secure_communication_with_lia= true
+	allow_non_secure_communication_with_mdm= true
+	disable_non_mgmt_components_auth= false
+	cluster = [
+	{
+		ips= "` + GatewayDataPoints.clusterPrimaryIP + `",
+		username= "root",
+		password = "` + GatewayDataPoints.serverPassword + `"
+		operating_system= "linux",
+		is_mdm_or_tb= "primary",
+		is_sds= "yes",
+		sds_name= "sds1",
+		is_sdc= "yes",
+		sdc_name= "sdc1",
+		perf_profile_for_sdc= "HighPerformance",
+		ia_rfcache= "No",
+		is_sdr= "No",
+	 },
+	 {
+		ips= "` + GatewayDataPoints.clusterSecondaryIP + `",
+		username= "root",
+		password = "` + GatewayDataPoints.serverPassword + `"
+		operating_system= "linux",
+		is_mdm_or_tb= "Secondary",
+		is_sds= "yes",
+		sds_name= "sds2",
+		is_sdc= "yes",
+		sdc_name= "sdc2",
+		perf_profile_for_sdc= "compact",
+		ia_rfcache= "No",
+		is_sdr= "No",
+	 },
+	 {
+		ips= "` + GatewayDataPoints.clusterTBIP + `",
+		username= "root",
+		password = "` + GatewayDataPoints.serverPassword + `"
+		operating_system= "linux",
+		is_mdm_or_tb= "TB",
+		is_sds= "No",
+		is_sdc= "yes",
+		sdc_name= "sdc3",
+		perf_profile_for_sdc= "compact",
+		ia_rfcache= "No",
+		is_sdr= "No",
+	 },
+	]
+	storage_pools = [
+		{
+			media_type = "HDD"
+		}	
+	]
+}
+`
+
 var ClusterConfig1 = `
 resource "powerflex_cluster" "test" {
 
@@ -168,7 +329,6 @@ resource "powerflex_cluster" "test" {
 		perf_profile_for_sdc= "HighPerformance",
 		ia_rfcache= "No",
 		is_sdr= "No",
-		sdr_all_ips = ""
 	 },
 	 {
 		ips= "` + GatewayDataPoints.clusterSecondaryIP + `",

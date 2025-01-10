@@ -75,6 +75,7 @@ func TestAccDatasourceNode(t *testing.T) {
 		t.Skip("Dont run with acceptance tests, this is an Unit test")
 	}
 	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{

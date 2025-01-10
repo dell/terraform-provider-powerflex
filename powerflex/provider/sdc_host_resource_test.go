@@ -21,10 +21,329 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
 	"testing"
 
+	. "github.com/bytedance/mockey"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
+
+var FunctionMockerSdcHostResource *Mocker
+var FunctionMockerSdcHostResourceDelete *Mocker
+var FunctionMockerSdcHostResourceSetParams *Mocker
+
+var linuxSdcUt = fmt.Sprintf(`
+resource powerflex_sdc_host sdc {
+	ip = "%s"
+	remote = {
+		port = "%s"
+		user = "%s"
+		password = "%s"
+	}
+	os_family = "linux"
+	name = "sdc-ubuntu"
+	package_path = "/tmp/tfaccsdc1.tar"
+}
+`, SdcHostResourceTestData.UbuntuIP, SdcHostResourceTestData.UbuntuPort, SdcHostResourceTestData.UbuntuUser, SdcHostResourceTestData.UbuntuPassword)
+
+var windowsSdcNoRemoteUt = `
+resource powerflex_sdc_host sdc {
+	ip = "1.1.1.1"
+	os_family = "windows"
+	remote = {
+		port = "123"
+		user = "user"
+		private_key = "key"
+	}
+	name = "sdc-windows"
+	package_path = "/tmp/tfaccsdc1.tar"
+}
+`
+
+var windowsSdcSuccessUt = `
+resource powerflex_sdc_host sdc {
+	ip = "1.1.1.1"
+	os_family = "windows"
+	remote = {
+		port = "123"
+		user = "user"
+		password = "pass"
+	}
+	name = "sdc-windows"
+	package_path = "/tmp/tfaccsdc1.tar"
+}
+`
+
+var windowsSdcSuccessUpdateUt = `
+resource powerflex_sdc_host sdc {
+	ip = "1.1.1.1"
+	clusters_mdm_ips = ["1.1.1.1","1.1.1.2"]
+	os_family = "windows"
+	remote = {
+		port = "123"
+		user = "user"
+		password = "pass"
+	}
+	name = "sdc-windows-update"
+	package_path = "/tmp/tfaccsdc1.tar"
+}
+`
+
+var osUpdateErrorUt = `
+resource powerflex_sdc_host sdc {
+	ip = "1.1.1.1"
+	os_family = "linux"
+	remote = {
+		port = "123"
+		user = "user"
+		password = "pass"
+	}
+	name = "sdc-windows"
+	package_path = "/tmp/tfaccsdc1.tar"
+}
+`
+
+var valFake, _ = types.ObjectValue(
+	map[string]attr.Type{
+		"port":        types.StringType,
+		"user":        types.StringType,
+		"password":    types.StringType,
+		"dir":         types.StringType,
+		"host_key":    types.StringType,
+		"private_key": types.StringType,
+		"certificate": types.StringType,
+	},
+	map[string]attr.Value{
+		"port":        types.StringValue("123"),
+		"user":        types.StringValue("user"),
+		"password":    types.StringValue("pass"),
+		"dir":         types.StringNull(),
+		"host_key":    types.StringNull(),
+		"private_key": types.StringNull(),
+		"certificate": types.StringNull(),
+	},
+)
+
+var listVal, _ = types.ListValueFrom(nil, types.StringType, []string{"1.1.1.1", "1.1.1.2"})
+
+var sdcWindowsFakeModel = models.SdcHostModel{
+	Remote:             valFake,
+	MdmIPs:             types.ListNull(types.StringType),
+	ID:                 types.StringValue("1.1.1.1"),
+	Host:               types.StringValue("1.1.1.1"),
+	OS:                 types.StringValue("windows"),
+	LinuxDrvCfg:        types.StringValue("/opt/emc/scaleio/sdc/bin/"),
+	WindowsDrvCfg:      types.StringValue("C:\\Program Files\\EMC\\scaleio\\sdc\\bin\\"),
+	UseRemotePath:      types.BoolValue(false),
+	Name:               types.StringValue("sdc-windows"),
+	Pkg:                types.StringValue("/tmp/tfaccsdc1.tar"),
+	PerformanceProfile: types.StringValue("default"),
+	MdmConnectionState: types.StringValue("connected"),
+	OnVMWare:           types.BoolValue(false),
+	GUID:               types.StringValue("1234"),
+	IsApproved:         types.BoolValue(true),
+	Esxi: types.ObjectNull(map[string]attr.Type{
+		"guid":                 types.StringType,
+		"verify_vib_signature": types.BoolType,
+	}),
+}
+
+var sdcWindowsFakeUpdateModel = models.SdcHostModel{
+	Remote:             valFake,
+	MdmIPs:             listVal,
+	ID:                 types.StringValue("1.1.1.1"),
+	Host:               types.StringValue("1.1.1.1"),
+	OS:                 types.StringValue("windows"),
+	LinuxDrvCfg:        types.StringValue("/opt/emc/scaleio/sdc/bin/"),
+	WindowsDrvCfg:      types.StringValue("C:\\Program Files\\EMC\\scaleio\\sdc\\bin\\"),
+	UseRemotePath:      types.BoolValue(false),
+	Name:               types.StringValue("sdc-windows-update"),
+	Pkg:                types.StringValue("/tmp/tfaccsdc1.tar"),
+	PerformanceProfile: types.StringValue("default"),
+	MdmConnectionState: types.StringValue("connected"),
+	OnVMWare:           types.BoolValue(false),
+	GUID:               types.StringValue("1234"),
+	IsApproved:         types.BoolValue(true),
+	Esxi: types.ObjectNull(map[string]attr.Type{
+		"guid":                 types.StringType,
+		"verify_vib_signature": types.BoolType,
+	}),
+}
+
+// TestAccResourceSDCUT UT tests
+func TestAccResourceSDCHostUT(t *testing.T) {
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is an Unit test")
+	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// 1 Create with wrong package path negative
+			{
+				Config:      ProviderConfigForTesting + linuxSdcUt,
+				ExpectError: regexp.MustCompile(`.*Error uploading package*`),
+			},
+			// 2 Get System Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetFirstSystem).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + linuxSdcUt,
+				ExpectError: regexp.MustCompile(`.*Error in getting system instance on the PowerFlex cluster*.`),
+			},
+			// 3 Windows Password Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
+				Config:      ProviderConfigForTesting + windowsSdcNoRemoteUt,
+				ExpectError: regexp.MustCompile(`.*Password is required for Windows SDC*`),
+			},
+			// 4 Read Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					if FunctionMockerSdcHostResource != nil {
+						FunctionMockerSdcHostResource.UnPatch()
+					}
+					if FunctionMockerSdcHostResourceSetParams != nil {
+						FunctionMockerSdcHostResourceSetParams.UnPatch()
+					}
+
+					FunctionMocker = Mock((*helper.SdcHostResource).CreateWindows).Return(nil).Build()
+					FunctionMockerSdcHostResource = Mock((*helper.SdcHostResource).ReadSDCHost).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + windowsSdcSuccessUt,
+				ExpectError: regexp.MustCompile(`.*Error reading SDC state*`),
+			},
+			// 5 SetParams Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					if FunctionMockerSdcHostResource != nil {
+						FunctionMockerSdcHostResource.UnPatch()
+					}
+					if FunctionMockerSdcHostResourceSetParams != nil {
+						FunctionMockerSdcHostResourceSetParams.UnPatch()
+					}
+
+					FunctionMocker = Mock((*helper.SdcHostResource).CreateWindows).Return(nil).Build()
+					FunctionMockerSdcHostResource = Mock((*helper.SdcHostResource).ReadSDCHost).Return(sdcWindowsFakeModel, nil).Build()
+					FunctionMockerSdcHostResourceSetParams = Mock((*helper.SdcHostResource).SetSDCParams).Return(fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + windowsSdcSuccessUt,
+				ExpectError: regexp.MustCompile(`.*Error setting SDC parameters*`),
+			},
+			// 6 Success Create
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					if FunctionMockerSdcHostResource != nil {
+						FunctionMockerSdcHostResource.UnPatch()
+					}
+					if FunctionMockerSdcHostResourceSetParams != nil {
+						FunctionMockerSdcHostResourceSetParams.UnPatch()
+					}
+					FunctionMocker = Mock((*helper.SdcHostResource).CreateWindows).Return(nil).Build()
+					FunctionMockerSdcHostResourceDelete = Mock((*helper.SdcHostResource).DeleteWindows).Return(nil).Build()
+					FunctionMockerSdcHostResource = Mock((*helper.SdcHostResource).ReadSDCHost).Return(sdcWindowsFakeModel,
+						nil).Build()
+				},
+				Config: ProviderConfigForTesting + windowsSdcSuccessUt,
+			},
+			// 7 Read Error Update
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					if FunctionMockerSdcHostResource != nil {
+						FunctionMockerSdcHostResource.UnPatch()
+					}
+					if FunctionMockerSdcHostResourceSetParams != nil {
+						FunctionMockerSdcHostResourceSetParams.UnPatch()
+					}
+
+					FunctionMocker = Mock((*helper.SdcHostResource).CreateWindows).Return(nil).Build()
+					FunctionMockerSdcHostResource = Mock((*helper.SdcHostResource).ReadSDCHost).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + windowsSdcSuccessUt,
+				ExpectError: regexp.MustCompile(`.*Error refreshing SDC state*`),
+			},
+			// 8 IP Update Error Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					if FunctionMockerSdcHostResource != nil {
+						FunctionMockerSdcHostResource.UnPatch()
+					}
+					if FunctionMockerSdcHostResourceSetParams != nil {
+						FunctionMockerSdcHostResourceSetParams.UnPatch()
+					}
+
+					FunctionMocker = Mock((*helper.SdcHostResource).CreateWindows).Return(nil).Build()
+					FunctionMockerSdcHostResource = Mock((*helper.SdcHostResource).ReadSDCHost).Return(sdcWindowsFakeModel, nil).Build()
+				},
+				Config:      ProviderConfigForTesting + linuxSdcUt,
+				ExpectError: regexp.MustCompile(`.*SDC IP cannot be updated through this resource*`),
+			},
+			// 9 Os Update Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					if FunctionMockerSdcHostResource != nil {
+						FunctionMockerSdcHostResource.UnPatch()
+					}
+					if FunctionMockerSdcHostResourceSetParams != nil {
+						FunctionMockerSdcHostResourceSetParams.UnPatch()
+					}
+
+					FunctionMocker = Mock((*helper.SdcHostResource).CreateWindows).Return(nil).Build()
+					FunctionMockerSdcHostResource = Mock((*helper.SdcHostResource).ReadSDCHost).Return(sdcWindowsFakeModel, nil).Build()
+				},
+				Config:      ProviderConfigForTesting + osUpdateErrorUt,
+				ExpectError: regexp.MustCompile(`.*Error updating SDC*`),
+			},
+			// 10 Success Update
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					if FunctionMockerSdcHostResource != nil {
+						FunctionMockerSdcHostResource.UnPatch()
+					}
+					if FunctionMockerSdcHostResourceSetParams != nil {
+						FunctionMockerSdcHostResourceSetParams.UnPatch()
+					}
+					FunctionMocker = Mock((*helper.SdcHostResource).UpdateWindowsMdms).Return(nil).Build()
+					FunctionMockerSdcHostResource = Mock((*helper.SdcHostResource).ReadSDCHost).Return(sdcWindowsFakeUpdateModel,
+						nil).Build()
+				},
+				Config: ProviderConfigForTesting + windowsSdcSuccessUpdateUt,
+			},
+		},
+	})
+}
 
 // TestAccResourceSDCUbuntu tests the SDC Expansion Operation on Ubuntu
 func TestAccResourceSDCHostUbuntu(t *testing.T) {

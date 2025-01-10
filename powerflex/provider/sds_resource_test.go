@@ -21,8 +21,11 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
+	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
@@ -72,6 +75,25 @@ func TestAccResourceSDSa(t *testing.T) {
 		rmcache_enabled = true
 		rfcache_enabled = false
 		protection_domain_id = "` + protectionDomainID1 + `"
+		fault_set_id = resource.powerflex_fault_set.newFs.id
+	}
+	`
+
+	var updateSDSTestUpdatePdError = FaultSetCreate + `
+	resource "powerflex_sds" "sds" {
+		name = "Tf_SDS_02"
+		ip_list = [
+			{
+				ip = "` + SdsResourceTestData.SdsIP2 + `"
+				role = "sdsOnly"
+			}
+		]
+		drl_mode = "Volatile"
+		performance_profile = "HighPerformance"
+		rmcache_size_in_mb = 256
+		rmcache_enabled = true
+		rfcache_enabled = false
+		protection_domain_name = "updated-pd-error"
 		fault_set_id = resource.powerflex_fault_set.newFs.id
 	}
 	`
@@ -191,8 +213,68 @@ func TestAccResourceSDSa(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			// create sds test
+			// 1 Get System Error
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetFirstSystem).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + createSDSTest,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex System*.`),
+			},
+			// 2 Get ProtectionDomain Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetNewProtectionDomainEx).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + createSDSTest,
+				ExpectError: regexp.MustCompile(`.*Error getting Protection Domain*.`),
+			},
+			// 3 Create SDS error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.ProtectionDomain).CreateSdsWithParams).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + createSDSTest,
+				ExpectError: regexp.MustCompile(`.*Could not create SDS with name*.`),
+			},
+			// 4 Get FindSds error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.ProtectionDomain).FindSds).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + createSDSTest,
+				ExpectError: regexp.MustCompile(`.*Error getting SDS after creation*.`),
+			},
+			// 5 performance profile error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.ProtectionDomain).SetSdsPerformanceProfile).Return(fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + createSDSTest,
+				ExpectError: regexp.MustCompile(`.*Could not set SDS Performance Profile settings to*.`),
+			},
+			// 6 create sds success
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
 				Config: ProviderConfigForTesting + createSDSTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", "Tf_SDS_01"),
@@ -212,11 +294,121 @@ func TestAccResourceSDSa(t *testing.T) {
 					}),
 				),
 			},
-			// check that import is creating correct state
+			// 7 check that import is creating correct state
 			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			// 8 SetSDSIPRole error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.ProtectionDomain).SetSDSIPRole).Return(fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + updateSDSTest,
+				ExpectError: regexp.MustCompile(`.*Error updating IP*.`),
+			},
+			// 9 Get Sds after update error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.System).GetSdsByID).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + updateSDSTest,
+				ExpectError: regexp.MustCompile(`.*Could not get SDS*.`),
+			},
+			// 10 Get Protection Domain after update error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.System).FindProtectionDomain).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + updateSDSTestUpdatePdError,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex Protection domain by name*.`),
+			},
+			// 11 Get Protection Domain Ex after update error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetNewProtectionDomainEx).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + updateSDSTest,
+				ExpectError: regexp.MustCompile(`.*Error getting Protection Domain*.`),
+			},
+			// 12 Set Name error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.ProtectionDomain).SetSdsName).Return(fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + updateSDSTest,
+				ExpectError: regexp.MustCompile(`.*Could not rename SDS*.`),
+			},
+			// 13 SetSdsDrlMode error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.ProtectionDomain).SetSdsDrlMode).Return(fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + updateSDSTest,
+				ExpectError: regexp.MustCompile(`.*Could not change SDS DRL Mode to*.`),
+			},
+			// 14 SetSdsRmCache error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.ProtectionDomain).SetSdsRmCache).Return(fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + updateSDSTest2,
+				ExpectError: regexp.MustCompile(`.*Could not change SDS Read Ram Cache settings to*.`),
+			},
+			// 15 SetSdsRmCacheSize error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.ProtectionDomain).SetSdsRmCacheSize).Return(fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + updateSDSTest,
+				ExpectError: regexp.MustCompile(`.*Could not change SDS Read Ram Cache size to*.`),
+			},
+			// 16 SetSdsRfCache error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.ProtectionDomain).SetSdsRfCache).Return(fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + updateSDSTest,
+				ExpectError: regexp.MustCompile(`.*Could not change SDS Rf Cache settings to*.`),
+			},
+			// SetSdsPerformanceProfile error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.ProtectionDomain).SetSdsPerformanceProfile).Return(fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + updateSDSTest,
+				ExpectError: regexp.MustCompile(`.*Could not set SDS Performance Profile settings to*.`),
 			},
 			// update sds name
 			// update sds ips from all, sdcOnly to sdsOnly, all
@@ -224,6 +416,11 @@ func TestAccResourceSDSa(t *testing.T) {
 			// disable rfcache
 			// Enable high performance profile
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
 				Config: ProviderConfigForTesting + updateSDSTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", "Tf_SDS_02"),

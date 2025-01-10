@@ -18,9 +18,13 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
+	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
@@ -144,7 +148,34 @@ func TestAccResourceDeviceWithSDSName(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			// Get System Error
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetFirstSystem).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + AddDeviceWithSDSName,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex System*.`),
+			},
+			// Get GetDevice Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.System).GetDevice).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + AddDeviceWithSDSName,
+				ExpectError: regexp.MustCompile(`.*Error getting device with ID*.`),
+			},
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
 				Config: ProviderConfigForTesting + AddDeviceWithSDSName,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_path", "/dev/sdc"),
@@ -277,7 +308,7 @@ func TestAccResourceDeviceNegative(t *testing.T) {
 		}})
 }
 
-func TestAccDeviceResourceUpdate(t *testing.T) {
+func TestAccResourceDeviceUpdate(t *testing.T) {
 	var RenameDevice = createSDSForTest + createStoragePool + `
 	resource "powerflex_device" "device-test" {
 		device_path = "/dev/sdc"
@@ -336,7 +367,23 @@ func TestAccDeviceResourceUpdate(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + AddDeviceWithSPID,
 			},
+			// Get GetDevice after Update Error
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.System).GetDevice).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + RenameDevice,
+				ExpectError: regexp.MustCompile(`.*Error getting device with ID*.`),
+			},
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
 				Config: ProviderConfigForTesting + RenameDevice,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_device.device-test", "device_path", "/dev/sdc"),
@@ -377,7 +424,7 @@ func TestAccDeviceResourceUpdate(t *testing.T) {
 		}})
 }
 
-func TestAccDeviceResourceImport(t *testing.T) {
+func TestAccResourceDeviceImport(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{

@@ -18,9 +18,13 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
+	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
@@ -193,13 +197,91 @@ func TestAccResourceVolume(t *testing.T) {
 				Config:      ProviderConfigForTesting + createVolumeWithInvalidCompressionMethodNegTest,
 				ExpectError: regexp.MustCompile(`.*Error creating volume*.`),
 			},
+			// Get System Error
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetFirstSystem).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + createVolumePosTest,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex System*.`),
+			},
+			// Get Storage Pool Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetStoragePoolInstance).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + createVolumePosTest,
+				ExpectError: regexp.MustCompile(`.*Error getting storage pool with id*.`),
+			},
+			// Get Volume Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.StoragePool).GetVolume).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + createVolumePosTest,
+				ExpectError: regexp.MustCompile(`.*Error getting volume after creation*.`),
+			},
+			// Create Successfully
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
 				Config: ProviderConfigForTesting + createVolumePosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "name", "avengers-volume-create"),
 				),
 			},
+			// Read Error after update
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.Client).GetVolume).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + modifyVolumePosTest,
+				ExpectError: regexp.MustCompile(`.*Error getting volume*.`),
+			},
+			// Update PD Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.System).FindProtectionDomain).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + modifyVolumePosTest,
+				ExpectError: regexp.MustCompile(`.*Unable to read name of protection domain of ID*.`),
+			},
+			// Update RM Cache Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.Volume).SetVolumeUseRmCache).Return(fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + modifyVolumePosTest,
+				ExpectError: regexp.MustCompile(`.*Error setting the use rm cache*.`),
+			},
+			// Update Success
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
 				Config: ProviderConfigForTesting + modifyVolumePosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "name", "avengers-volume-create"),
@@ -207,7 +289,24 @@ func TestAccResourceVolume(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create", "access_mode", "ReadOnly"),
 				),
 			},
+			// Update access mode Error
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.Volume).SetVolumeAccessModeLimit).Return(fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + createVolumePos01Test,
+				ExpectError: regexp.MustCompile(`.*Error setting access mode on volume*.`),
+			},
+			// Other Attirbutes update success
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
 				Config: ProviderConfigForTesting + createVolumePos01Test,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_volume.avengers-volume-create-01", "size", "8"),
