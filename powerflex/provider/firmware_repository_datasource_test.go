@@ -48,6 +48,13 @@ data "powerflex_firmware_repository" "filter-multiple" {
 	}
 }
 `
+var FRDataSourceRegex = `
+data "powerflex_firmware_repository" "filter-regex" {
+	filter {
+		name = ["^Intelligent.*$"]
+	}
+}
+`
 
 // AT
 func TestAccDatasourceAcceptanceFR(t *testing.T) {
@@ -91,6 +98,13 @@ func TestAccDatasourceFR(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_firmware_repository.filter-multiple", "firmware_repository_details.0.minimal", "false"),
 					resource.TestCheckResourceAttr("data.powerflex_firmware_repository.filter-multiple", "firmware_repository_details.0.name", "Intelligent Catalog 45.373.00"),
+				),
+			},
+			// Filter Regex
+			{
+				Config: ProviderConfigForTesting + FRDataSourceRegex,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_firmware_repository.filter-regex", "firmware_repository_details.0.name", "Intelligent Catalog 45.373.00"),
 				),
 			},
 			// Read error

@@ -21,6 +21,18 @@ limitations under the License.
 data "powerflex_nvme_target" "example1" {
 }
 
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_nvme_target" "nvme_target_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     software_version_info = ["^R4_5.*$"]
+#   }
+# }
+
+# output "nvmeTargetFilterRegexResult"{
+#  value = data.powerflex_nvme_target.nvme_target_filter_regex.nvme_target_details
+# }
+
 // If multiple filter fields are provided then it will show the intersection of all of those fields.
 // If there is no intersection between the filters then an empty datasource will be returned
 // For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 
@@ -47,5 +59,5 @@ data "powerflex_nvme_target" "example" {
 }
 
 output "nvme_target_result" {
-  value = data.powerflex_nvme_target.example
+  value = data.powerflex_nvme_target.example.nvme_target_details
 }

@@ -54,6 +54,14 @@ data "powerflex_os_repository" "test" {
 	}
   }
 `
+var OSRepoDataSourceConfig4 = `
+data "powerflex_os_repository" "test" {
+	# this datasource supports filters like os repsoitory ids, names, source path, etc.
+	filter {
+		id = ["^tfacc_.*$"]
+	}
+  }
+`
 
 func TestAccDatasourceOSRepo(t *testing.T) {
 	resource.Test(t, resource.TestCase{
@@ -81,6 +89,12 @@ func TestAccDatasourceOSRepo(t *testing.T) {
 					resource.TestCheckResourceAttr("data.powerflex_os_repository.test", "os_repositories.0.repo_type", OSRepoType),
 					resource.TestCheckResourceAttr("data.powerflex_os_repository.test", "os_repositories.0.state", OSRepoState),
 					resource.TestCheckResourceAttr("data.powerflex_os_repository.test", "os_repositories.0.created_by", OSRepoCreatedBy),
+				),
+			},
+			{
+				Config: ProviderConfigForTesting + OSRepoDataSourceConfig4,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_os_repository.test", "os_repositories.0.id", OSRepoID1),
 				),
 			},
 			{

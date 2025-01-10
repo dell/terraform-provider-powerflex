@@ -25,6 +25,19 @@ output "powerflex_vtree_all_result" {
   value = data.powerflex_vtree.all.vtree_details
 }
 
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_vtree" "vtree_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     data_layout = ["^.*Granularity$"]
+#   }
+# }
+
+# output "vtreeFilterRegexResult"{
+#  value = data.powerflex_vtree.vtree_filter_regex.vtree_details
+# }
+
+
 # Get Peer System details using filter with all values
 # If there is no intersection between the filters then an empty datasource will be returned
 # For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples

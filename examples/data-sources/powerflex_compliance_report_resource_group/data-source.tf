@@ -20,6 +20,18 @@ limitations under the License.
 data "powerflex_compliance_report_resource_group" "example1" {
 }
 
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_compliance_report_resource_group" "compliance_report_resource_group_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     model = ["^Powerflex.*$"]
+#   }
+# }
+
+# output "complianceReportResourceGroupFilterRegexResult"{
+#  value = data.powerflex_compliance_report_resource_group.compliance_report_resource_group_filter_regex.compliance_reports
+# }
+
 # this datasource supports multiple filters like ip_address, host_name, service_tag, compliant,etc.
 # Note: If both filters are used simultaneously, the results will include any records that match either of the filters.
 # data "powerflex_compliance_report_resource_group" "complianceReport" {
@@ -41,5 +53,5 @@ data "powerflex_compliance_report_resource_group" "example1" {
 # }
 
 output "result" {
-  value = data.powerflex_compliance_report_resource_group.example1
+  value = data.powerflex_compliance_report_resource_group.example1.compliance_reports
 }
