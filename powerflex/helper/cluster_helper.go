@@ -1273,13 +1273,13 @@ func intersect(a, b []int) []int {
 
 // decimalToTwosComplementHex function to convert decimal id to hex value
 func decimalToTwosComplementHex(decimalStr string) (string, error) {
-	decimalInt, err := strconv.ParseInt(decimalStr, 10, 64)
+	decimalInt, err := strconv.ParseUint(decimalStr, 10, 64)
 	if err != nil {
 		return "", err
 	}
 
 	// Calculate the two's complement value
-	twosComplement := uint64(decimalInt) & ((1 << 64) - 1)
+	twosComplement := decimalInt & ((1 << 64) - 1)
 
 	// Convert the value to a hexadecimal string
 	twosComplementHex := fmt.Sprintf("%016X", twosComplement)

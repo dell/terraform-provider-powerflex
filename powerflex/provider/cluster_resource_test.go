@@ -100,7 +100,7 @@ func TestAccResourceClusterValidation(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					validateSDCLength,
 				),
-				ExpectError: regexp.MustCompile(`.*strconv.ParseInt: parsing*`),
+				ExpectError: regexp.MustCompile(`.*strconv.ParseUint: parsing*`),
 			},
 			{
 				PreConfig: func() {
