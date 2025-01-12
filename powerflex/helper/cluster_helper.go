@@ -1279,6 +1279,7 @@ func decimalToTwosComplementHex(decimalStr string) (string, error) {
 	}
 
 	// Calculate the two's complement value
+	// #nosec G115
 	twosComplement := uint64(decimalInt) & ((1 << 64) - 1)
 
 	// Convert the value to a hexadecimal string
