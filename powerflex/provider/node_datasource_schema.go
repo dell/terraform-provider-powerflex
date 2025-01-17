@@ -18,12 +18,10 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
+
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // NodeDataSourceSchema defines the schema for node datasource
@@ -35,73 +33,6 @@ var NodeDataSourceSchema schema.Schema = schema.Schema{
 			Description:         "Placeholder attribute.",
 			MarkdownDescription: "Placeholder attribute.",
 			Computed:            true,
-		},
-		"node_ids": schema.SetAttribute{
-			Description:         "List of node IDs",
-			MarkdownDescription: "List of node IDs",
-			Optional:            true,
-			ElementType:         types.StringType,
-			Validators: []validator.Set{
-				setvalidator.SizeAtLeast(1),
-				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
-				setvalidator.ConflictsWith(
-					path.MatchRoot("service_tags"),
-					path.MatchRoot("ip_addresses"),
-					path.MatchRoot("node_pool_ids"),
-					path.MatchRoot("node_pool_names"),
-				),
-			},
-		},
-		"service_tags": schema.SetAttribute{
-			Description:         "List of node service tags",
-			MarkdownDescription: "List of node service tags",
-			Optional:            true,
-			ElementType:         types.StringType,
-			Validators: []validator.Set{
-				setvalidator.SizeAtLeast(1),
-				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
-				setvalidator.ConflictsWith(
-					path.MatchRoot("ip_addresses"),
-					path.MatchRoot("node_pool_ids"),
-					path.MatchRoot("node_pool_names"),
-				),
-			},
-		},
-		"ip_addresses": schema.SetAttribute{
-			Description:         "List of node IP addresses",
-			MarkdownDescription: "List of node IP addresses",
-			Optional:            true,
-			ElementType:         types.StringType,
-			Validators: []validator.Set{
-				setvalidator.SizeAtLeast(1),
-				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
-				setvalidator.ConflictsWith(
-					path.MatchRoot("node_pool_ids"),
-					path.MatchRoot("node_pool_names"),
-				),
-			},
-		},
-		"node_pool_ids": schema.SetAttribute{
-			Description:         "List of node pool IDs",
-			MarkdownDescription: "List of node pool IDs",
-			Optional:            true,
-			ElementType:         types.Int64Type,
-			Validators: []validator.Set{
-				setvalidator.SizeAtLeast(1),
-			},
-		},
-		"node_pool_names": schema.SetAttribute{
-			Description:         "List of node pool names",
-			MarkdownDescription: "List of node pool names",
-			Optional:            true,
-			ElementType:         types.StringType,
-			Validators: []validator.Set{
-				setvalidator.SizeAtLeast(1),
-				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
-				setvalidator.ConflictsWith(
-					path.MatchRoot("node_pool_ids"),
-				),
-			},
 		},
 		"node_details": schema.SetNestedAttribute{
 			Description:         "Node details",
@@ -267,6 +198,11 @@ var NodeDataSourceSchema schema.Schema = schema.Schema{
 					},
 				},
 			},
+		},
+	},
+	Blocks: map[string]schema.Block{
+		"filter": schema.SingleNestedBlock{
+			Attributes: helper.GenerateSchemaAttributes(helper.TypeToMap(models.NodeFilter{})),
 		},
 	},
 }

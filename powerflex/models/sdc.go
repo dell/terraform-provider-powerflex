@@ -23,9 +23,9 @@ import (
 
 // SdcDataSourceModel - for returning result to terraform.
 type SdcDataSourceModel struct {
-	ID   types.String `tfsdk:"id"`
-	Sdcs []SdcModel   `tfsdk:"sdcs"`
-	Name types.String `tfsdk:"name"`
+	ID        types.String `tfsdk:"id"`
+	Sdcs      []SdcModel   `tfsdk:"sdcs"`
+	SdcFilter *SdcFilter   `tfsdk:"filter"`
 }
 
 // SdcModel - MODEL for SDC data returned by goscaleio.
@@ -39,6 +39,18 @@ type SdcModel struct {
 	MdmConnectionState types.String   `tfsdk:"mdm_connection_state"`
 	Name               types.String   `tfsdk:"name"`
 	Links              []SdcLinkModel `tfsdk:"links"`
+}
+
+// SdcFilter - MODEL for SDC filter parameters.
+type SdcFilter struct {
+	ID                 []types.String `tfsdk:"id"`
+	SystemID           []types.String `tfsdk:"system_id"`
+	SdcIP              []types.String `tfsdk:"sdc_ip"`
+	SdcApproved        types.Bool     `tfsdk:"sdc_approved"`
+	OnVMWare           types.Bool     `tfsdk:"on_vmware"`
+	SdcGUID            []types.String `tfsdk:"sdc_guid"`
+	MdmConnectionState []types.String `tfsdk:"mdm_connection_state"`
+	Name               []types.String `tfsdk:"name"`
 }
 
 // SdcLinkModel - MODEL for SDC Links data returned by goscaleio.

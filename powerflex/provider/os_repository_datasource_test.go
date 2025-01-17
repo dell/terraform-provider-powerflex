@@ -54,6 +54,14 @@ data "powerflex_os_repository" "test" {
 	}
   }
 `
+var OSRepoDataSourceConfig4 = `
+data "powerflex_os_repository" "test" {
+	# this datasource supports filters like os repsoitory ids, names, source path, etc.
+	filter {
+		id = ["^tfacc_.*$"]
+	}
+  }
+`
 
 func TestAccDatasourceOSRepo(t *testing.T) {
 	resource.Test(t, resource.TestCase{
@@ -84,10 +92,38 @@ func TestAccDatasourceOSRepo(t *testing.T) {
 				),
 			},
 			{
+				Config: ProviderConfigForTesting + OSRepoDataSourceConfig4,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_os_repository.test", "os_repositories.0.id", OSRepoID1),
+				),
+			},
+			{
 				PreConfig: func() {
 					FunctionMocker = Mock(helper.GetAllOsRepositories).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + OSRepoDataSourceConfig1,
+				ExpectError: regexp.MustCompile(`.*Error in getting OS repository details*.`),
+			},
+			// Get System Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetFirstSystem).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + OSRepoDataSourceConfig1,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex System*.`),
+			},
+			// Filter Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetDataSourceByValue).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + OSRepoDataSourceConfig2,
 				ExpectError: regexp.MustCompile(`.*Error in getting OS repository details*.`),
 			},
 		},

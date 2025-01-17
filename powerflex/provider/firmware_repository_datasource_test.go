@@ -18,80 +18,116 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
+	"os"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-var FRDataSourceConfig1 = `
-data "powerflex_firmware_repository" "test" {
-	firmware_repository_ids = ["` + FirmwareRepoID1 + `", "` + FirmwareRepoID2 + `"]
+var FRDataSourceAll = `
+data "powerflex_firmware_repository" "all" {}
+`
+
+var FRDataSourceSingle = `
+data "powerflex_firmware_repository" "filter-single" {
+	filter {
+		bundle_count = [0]
 	}
+}
 `
 
-var FRDataSourceConfig2 = `
-data "powerflex_firmware_repository" "test" {
-	firmware_repository_names = ["` + FirmwareRepoName1 + `", "` + FirmwareRepoName2 + `"]
+var FRDataSourceMultiple = `
+data "powerflex_firmware_repository" "filter-multiple" {
+	filter {
+		minimal = false
+		name = ["Intelligent Catalog 45.373.00"]
 	}
+}
 `
-
-var FRDataSourceConfig3 = `
-data "powerflex_firmware_repository" "test" {
+var FRDataSourceRegex = `
+data "powerflex_firmware_repository" "filter-regex" {
+	filter {
+		name = ["^Intelligent.*$"]
+	}
 }
 `
 
-var FRDataSourceConfig4 = `
-data "powerflex_firmware_repository" "test" {
-	firmware_repository_ids = ["` + FirmwareRepoID1 + `", "Invalid"]
-}
-`
-
-var FRDataSourceConfig5 = `
-data "powerflex_firmware_repository" "test" {
-	firmware_repository_names = ["Invalid", "` + FirmwareRepoName2 + `"]
-}
-`
-
-func TestAccDatasourceFR(t *testing.T) {
-	t.Skip("Skipping this test case")
+// AT
+func TestAccDatasourceAcceptanceFR(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an Accpetance test")
+	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: ProviderConfigForTesting + FRDataSourceConfig1,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_firmware_repository.test", "firmware_repository_details.0.id", FirmwareRepoID1),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + FRDataSourceConfig2,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_firmware_repository.test", "firmware_repository_details.0.name", FirmwareRepoName1),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + FRDataSourceConfig3,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.powerflex_firmware_repository.test", "firmware_repository_details.#"),
-				),
+				Config: ProviderConfigForTesting + FRDataSourceAll,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
 		},
 	})
 }
 
-func TestAccDatasourceFRNegative(t *testing.T) {
-	t.Skip("Skipping this test case")
+// UT
+func TestAccDatasourceFR(t *testing.T) {
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is an Unit test")
+	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			// Get All
 			{
-				Config:      ProviderConfigForTesting + FRDataSourceConfig4,
-				ExpectError: regexp.MustCompile(`.*Error in getting firmware repository details using id Invalid.*`),
+				Config: ProviderConfigForTesting + FRDataSourceAll,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
+			// Filter Single
 			{
-				Config:      ProviderConfigForTesting + FRDataSourceConfig5,
-				ExpectError: regexp.MustCompile(`.*Error in getting firmware repository details using name Invalid.*`),
+				Config: ProviderConfigForTesting + FRDataSourceSingle,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_firmware_repository.filter-single", "firmware_repository_details.0.bundle_count", "0"),
+				),
+			},
+			// Filter Multiple
+			{
+				Config: ProviderConfigForTesting + FRDataSourceMultiple,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_firmware_repository.filter-multiple", "firmware_repository_details.0.minimal", "false"),
+					resource.TestCheckResourceAttr("data.powerflex_firmware_repository.filter-multiple", "firmware_repository_details.0.name", "Intelligent Catalog 45.373.00"),
+				),
+			},
+			// Filter Regex
+			{
+				Config: ProviderConfigForTesting + FRDataSourceRegex,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_firmware_repository.filter-regex", "firmware_repository_details.0.name", "Intelligent Catalog 45.373.00"),
+				),
+			},
+			// Read error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetFirmwareRepositories).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + FRDataSourceAll,
+				ExpectError: regexp.MustCompile(`.*Error in getting firmware repositories*.`),
+			},
+			// Filter error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetDataSourceByValue).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + FRDataSourceMultiple,
+				ExpectError: regexp.MustCompile(`.*Error in filtering firmware repositories*.`),
 			},
 		},
 	})

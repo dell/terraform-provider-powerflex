@@ -29,50 +29,35 @@ import (
 
 var ComplianceGetAllConfig = `
 data "powerflex_compliance_report_resource_group" "complianceReport" {
-	 resource_group_id = "` + ComplianceReportDataPoints.ResourceGroupID + `"
 }
 `
 
 var ComplianceFilterIPAddressConfig = `
 data "powerflex_compliance_report_resource_group" "complianceReport" {
-	 resource_group_id = "` + ComplianceReportDataPoints.ResourceGroupID + `"
-	 filter {
-		ip_addresses = ["` + ComplianceReportDataPoints.IPAddress + `"]
-	 }
+	filter {
+		ip_address = ["` + ComplianceReportDataPoints.IPAddress + `"]
+	}
 }
 `
-
 var ComplianceFilterCompliantConfig = `
 data "powerflex_compliance_report_resource_group" "complianceReport" {
-	 resource_group_id = "` + ComplianceReportDataPoints.ResourceGroupID + `"
-	 filter {
+	filter {
 		compliant = true
-	 }
+	}
 }
 `
 var ComplianceFilterHostNamesConfig = `
 data "powerflex_compliance_report_resource_group" "complianceReport" {
-	 resource_group_id = "` + ComplianceReportDataPoints.ResourceGroupID + `"
-	 filter {
-		 host_names = ["` + ComplianceReportDataPoints.HostName + `"]
-	 }
+	filter {
+		host_name = ["` + ComplianceReportDataPoints.HostName + `"]
+	}
 }
 `
 var ComplianceFilterServiceTagsConfig = `
 data "powerflex_compliance_report_resource_group" "complianceReport" {
-	 resource_group_id = "` + ComplianceReportDataPoints.ResourceGroupID + `"
-	 filter {
-	 	service_tags = ["` + ComplianceReportDataPoints.ServiceTag + `"]
-	 }
-}
-`
-
-var ComplianceFilterResourceIdsConfig = `
-data "powerflex_compliance_report_resource_group" "complianceReport" {
-	 resource_group_id = "` + ComplianceReportDataPoints.ResourceGroupID + `"
-	 filter {
-		resource_ids = ["` + ComplianceReportDataPoints.ResourceID + `"]
-	 }
+	filter {
+	    service_tag = ["` + ComplianceReportDataPoints.ServiceTag + `"]
+	}
 }
 `
 var ComplianceGetAllError = `
@@ -81,24 +66,32 @@ data "powerflex_compliance_report_resource_group" "complianceReport" {
 `
 var ComplianceFilterMultiple = `
 data "powerflex_compliance_report_resource_group" "complianceReport" {
-	 resource_group_id = "` + ComplianceReportDataPoints.ResourceGroupID + `"
-	 filter {
-		ip_addresses = ["` + ComplianceReportDataPoints.IPAddress + `"]
+	filter {
+		ip_address = ["` + ComplianceReportDataPoints.IPAddress + `"]
 		compliant = true
-	 }
+		host_name = ["` + ComplianceReportDataPoints.HostName + `"]
+	}
 }
 `
 
-func TestAccComplianceReportDataSource(t *testing.T) {
+// AT
+func TestAccDatasourceAcceptanceComplianceReport(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + ComplianceGetAllConfig,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.powerflex_compliance_report_resource_group.complianceReport", "compliance_reports.#"),
-				),
+				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
+		},
+	})
+}
+
+// UT
+func TestAccComplianceReportDataSource(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + ComplianceFilterIPAddressConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -115,12 +108,6 @@ func TestAccComplianceReportDataSource(t *testing.T) {
 				Config: ProviderConfigForTesting + ComplianceFilterServiceTagsConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.powerflex_compliance_report_resource_group.complianceReport", "compliance_reports.0.service_tag", ComplianceReportDataPoints.ServiceTag),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + ComplianceFilterResourceIdsConfig,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_compliance_report_resource_group.complianceReport", "compliance_reports.0.id", ComplianceReportDataPoints.ResourceID),
 				),
 			},
 			{
@@ -143,16 +130,13 @@ func TestAccComplianceReportDataSourceNegative(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			{
-				Config:      ProviderConfigForTesting + ComplianceGetAllError,
-				ExpectError: regexp.MustCompile(`.*Missing required argument.*`),
-			},
+			// Filter error
 			{
 				PreConfig: func() {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.GetFilteredComplianceReports).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetDataSourceByValue).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + ComplianceFilterCompliantConfig,
 				ExpectError: regexp.MustCompile(`.*Error in getting compliance report for resource group for given filter.*`),

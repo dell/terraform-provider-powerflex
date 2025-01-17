@@ -66,7 +66,7 @@ func GetFilteredSdcState(sdcs *[]models.SdcModel, method string, name string, id
 }
 
 // GetAllSdcState - function to return all sdc result from goscaleio.
-func GetAllSdcState(ctx context.Context, client goscaleio.Client, sdcs []goscaleio_types.Sdc) *[]models.SdcModel {
+func GetAllSdcState(ctx context.Context, client goscaleio.Client, sdcs []goscaleio_types.Sdc) []models.SdcModel {
 	response := []models.SdcModel{}
 	for _, sdcValue := range sdcs {
 		sdcState := models.SdcModel{
@@ -90,7 +90,7 @@ func GetAllSdcState(ctx context.Context, client goscaleio.Client, sdcs []goscale
 		response = append(response, sdcState)
 	}
 
-	return &response
+	return response
 }
 
 // GetSDCDetailType returns the SDC Detail type

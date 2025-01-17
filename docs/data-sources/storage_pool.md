@@ -24,12 +24,6 @@ description: |-
 
 # powerflex_storage_pool (Data Source)
 
-This datasource is used to query the existing storage pools from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
-
-> **Note:** Either `protection_domain_name` or `protection_domain_id` is required. But not both.
-
-> **Note:** Either `storage_pool_names` or `storage_pool_ids` is required. But not both.
-
 ## Example Usage
 
 ```terraform
@@ -51,23 +45,102 @@ limitations under the License.
 */
 
 # commands to run this tf file : terraform init && terraform apply --auto-approve
-# To read storage pool, either protection_domain_name or protection_domain_id must be provided
-# This datasource reads a list of storage pools either by storage_pool_ids or storage_pool_names where user can provide a list of ids or names
-# if both storage_pool_ids and storage_pool_names are not provided , then it will read all the storage pool under the protection domain
-# Both storage_pool_ids and storage_pool_names can't be provided together .
-# Both protection_domain_name and protection_domain_id can't be provided together
 
+data "powerflex_storage_pool" "all" {
 
-data "powerflex_storage_pool" "example" {
-  //protection_domain_name = "domain1"
-  protection_domain_id = "202a046600000000"
-  //storage_pool_ids = ["c98ec35000000002", "c98e26e500000000"]
-  storage_pool_names = ["pool2", "pool1"]
 }
 
 
-output "storagePoolresult" {
-  value = data.powerflex_storage_pool.example.storage_pools
+output "storagePoolallresult" {
+  value = data.powerflex_storage_pool.all.storage_pools
+}
+
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_storage_pool" "storage_pool_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     rebuild_io_priority_policy = ["^limit.*$"]
+#   }
+# }
+
+# output "storagePoolFilterRegexResult"{
+#  value = data.powerflex_storage_pool.storage_pool_regex.storage_pools
+# }
+
+
+# Get Peer System details using filter with all values
+# If there is no intersection between the filters then an empty datasource will be returned
+# For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples
+data "powerflex_storage_pool" "filtered" {
+  filter {
+    # id= ["id1","id2"]
+    # name= ["name1","name2"]
+    # rebalance_io_priority_policy= ["rebalanceIoPriorityPolicy1","rebalanceIoPriorityPolicy2"]
+    # rebuild_io_priority_policy= ["rebuildIoPriorityPolicy1","rebuildIoPriorityPolicy2"]
+    # rebuild_io_priority_bw_limit_per_device_in_kbps= [1,2]
+    # rebuild_io_priority_num_of_concurrent_ios_per_device= [1,2]
+    # rebalance_io_priority_num_of_concurrent_ios_per_device= [1,2]
+    # rebalance_io_priority_bw_limit_per_device_kbps= [1,2]
+    # rebuild_io_priority_app_iops_per_device_threshold= [1,2]
+    # rebalance_io_priority_app_iops_per_device_threshold= [1,2]
+    # rebuild_io_priority_app_bw_per_device_threshold_kbps= [1,2]
+    # rebalance_io_priority_app_bw_per_device_threshold_kbps= [1,2]
+    # rebuild_io_priority_quiet_period_msec= [1,2]
+    # rebalance_io_priority_quiet_period_msec= [1,2]
+    # zero_padding_enabled= true
+    # use_rm_cache= true
+    # spare_percentage= [1,2]
+    # rm_cache_write_handling_mode= ["rmCacheWriteHandlingMode1","rmCacheWriteHandlingMode2"]
+    # rebuild_enabled= true
+    # rebalance_enabled= true
+    # num_of_parallel_rebuild_rebalance_jobs_per_device= [1,2]
+    # background_scanner_bw_limit_kbps= [1,2]
+    # protected_maintenance_mode_io_priority_num_of_concurrent_ios_per_device= [1,2]
+    # data_layout= ["dataLayout1","dataLayout2"]
+    # vtree_migration_io_priority_bw_limit_per_device_kbps= [1,2]
+    # vtree_migration_io_priority_policy= ["vtreeMigrationIoPriorityPolicy1","vtreeMigrationIoPriorityPolicy2"]
+    # address_space_usage= ["addressSpaceUsage1","addressSpaceUsage2"]
+    # external_acceleration_type= ["externalAccelerationType1","externalAccelerationType2"]
+    # persistent_checksum_state= ["checksumState1","checksumState2"]
+    # use_rf_cache= false
+    # checksum_enabled= false
+    # compression_method= ["compressionMethod1","compressionMethod2"]
+    # fragmentation_enabled= true
+    # capacity_usage_state= ["capacityUsageState1","capacityUsageState2"]
+    # capacity_usage_type= ["capacityUsageType1","capacityUsageType2"]
+    # address_space_usage_type= ["addressSpaceUsageType1","addressSpaceUsageType2"]
+    # bg_scanner_compare_error_action= ["bgScannerCompareErrorAction1","bgScannerCompareErrorAction2"]
+    # bg_scanner_read_error_action= ["bgScannerReadErrorAction1","bgScannerReadErrorAction2"]
+    # replication_capacity_max_ratio= [1,2]
+    # persistent_checksum_enabled= false
+    # persistent_checksum_builder_limit_kb= [1,2]
+    # persistent_checksum_validate_on_read= false
+    # vtree_migration_io_priority_num_of_concurrent_ios_per_device= [1,2]
+    # protected_maintenance_mode_io_priority_policy= ["protectedMaintenanceModeIoPriorityPolicy1","protectedMaintenanceModeIoPriorityPolicy2"]
+    # background_scanner_mode= ["backgroundScannerMode1","backgroundScannerMode2"]
+    # media_type= ["HDD","SSD"]
+    # capacity_alert_high_threshold= [1,2]
+    # capacity_alert_critical_threshold= [1,2]
+    # vtree_migration_io_priority_app_iops_per_device_threshold= [1,2]
+    # vtree_migration_io_priority_app_bw_per_device_threshold_kbps= [1,2]
+    # vtree_migration_io_priority_quiet_period_msec= [1,2]
+    # fgl_accp_id= ["fglAccpId1","fglAccpId2"]
+    # fgl_extra_capacity= [1,2]
+    # fgl_overprovisioning_factor= [1,2]
+    # fgl_write_atomicity_size= [1,2]
+    # fgl_nvdimm_write_cache_size_mb= [1,2]
+    # fgl_nvdimm_metadata_amotization_x100= [1,2]
+    # fgl_perf_profile= ["fglPerfProfile1","fglPerfProfile2"]
+    # protected_maintenance_mode_io_priority_bw_limit_per_device_kbps= [1,2]
+    # protected_maintenance_mode_io_priority_app_iops_per_device_threshold= [1,2]
+    # protected_maintenance_mode_io_priority_app_bw_per_device_threshold_kbps= [1,2]
+    # protected_maintenance_mode_io_priority_quiet_period_msec= [1,2]
+  }
+}
+
+
+output "storagePoolallresult" {
+  value = data.powerflex_storage_pool.filtered.storage_pools
 }
 ```
 
@@ -78,15 +151,81 @@ After the successful execution of above said block, We can see the output by exe
 
 ### Optional
 
-- `protection_domain_id` (String) ID of the Protection Domain from which storage pools will be fetched. Conflicts with `protection_domain_name`.
-- `protection_domain_name` (String) Name of the Protection Domain from which storage pools will be fetched. Conflicts with `protection_domain_id`.
-- `storage_pool_ids` (List of String) List of storage pool IDs. Conflicts with `storage_pool_names`.
-- `storage_pool_names` (List of String) List of storage pool names. Conflicts with `storage_pool_ids`.
+- `filter` (Block, Optional) (see [below for nested schema](#nestedblock--filter))
 
 ### Read-Only
 
 - `id` (String) Placeholder identifier attribute.
 - `storage_pools` (Attributes List) List of fetched storage pools. (see [below for nested schema](#nestedatt--storage_pools))
+
+<a id="nestedblock--filter"></a>
+### Nested Schema for `filter`
+
+Optional:
+
+- `address_space_usage` (Set of String) List of address_space_usage
+- `address_space_usage_type` (Set of String) List of address_space_usage_type
+- `background_scanner_bw_limit_kbps` (Set of Number) List of background_scanner_bw_limit_kbps
+- `background_scanner_mode` (Set of String) List of background_scanner_mode
+- `bg_scanner_compare_error_action` (Set of String) List of bg_scanner_compare_error_action
+- `bg_scanner_read_error_action` (Set of String) List of bg_scanner_read_error_action
+- `capacity_alert_critical_threshold` (Set of Number) List of capacity_alert_critical_threshold
+- `capacity_alert_high_threshold` (Set of Number) List of capacity_alert_high_threshold
+- `capacity_usage_state` (Set of String) List of capacity_usage_state
+- `capacity_usage_type` (Set of String) List of capacity_usage_type
+- `checksum_enabled` (Boolean) Value for checksum_enabled
+- `compression_method` (Set of String) List of compression_method
+- `data_layout` (Set of String) List of data_layout
+- `external_acceleration_type` (Set of String) List of external_acceleration_type
+- `fgl_accp_id` (Set of String) List of fgl_accp_id
+- `fgl_extra_capacity` (Set of Number) List of fgl_extra_capacity
+- `fgl_nvdimm_metadata_amotization_x100` (Set of Number) List of fgl_nvdimm_metadata_amotization_x100
+- `fgl_nvdimm_write_cache_size_mb` (Set of Number) List of fgl_nvdimm_write_cache_size_mb
+- `fgl_overprovisioning_factor` (Set of Number) List of fgl_overprovisioning_factor
+- `fgl_perf_profile` (Set of String) List of fgl_perf_profile
+- `fgl_write_atomicity_size` (Set of Number) List of fgl_write_atomicity_size
+- `fragmentation_enabled` (Boolean) Value for fragmentation_enabled
+- `id` (Set of String) List of id
+- `media_type` (Set of String) List of media_type
+- `name` (Set of String) List of name
+- `num_of_parallel_rebuild_rebalance_jobs_per_device` (Set of Number) List of num_of_parallel_rebuild_rebalance_jobs_per_device
+- `persistent_checksum_builder_limit_kb` (Set of Number) List of persistent_checksum_builder_limit_kb
+- `persistent_checksum_enabled` (Boolean) Value for persistent_checksum_enabled
+- `persistent_checksum_state` (Set of String) List of persistent_checksum_state
+- `persistent_checksum_validate_on_read` (Boolean) Value for persistent_checksum_validate_on_read
+- `protected_maintenance_mode_io_priority_app_bw_per_device_threshold_kbps` (Set of Number) List of protected_maintenance_mode_io_priority_app_bw_per_device_threshold_kbps
+- `protected_maintenance_mode_io_priority_app_iops_per_device_threshold` (Set of Number) List of protected_maintenance_mode_io_priority_app_iops_per_device_threshold
+- `protected_maintenance_mode_io_priority_bw_limit_per_device_kbps` (Set of Number) List of protected_maintenance_mode_io_priority_bw_limit_per_device_kbps
+- `protected_maintenance_mode_io_priority_num_of_concurrent_ios_per_device` (Set of Number) List of protected_maintenance_mode_io_priority_num_of_concurrent_ios_per_device
+- `protected_maintenance_mode_io_priority_policy` (Set of String) List of protected_maintenance_mode_io_priority_policy
+- `protected_maintenance_mode_io_priority_quiet_period_msec` (Set of Number) List of protected_maintenance_mode_io_priority_quiet_period_msec
+- `rebalance_enabled` (Boolean) Value for rebalance_enabled
+- `rebalance_io_priority_app_bw_per_device_threshold_kbps` (Set of Number) List of rebalance_io_priority_app_bw_per_device_threshold_kbps
+- `rebalance_io_priority_app_iops_per_device_threshold` (Set of Number) List of rebalance_io_priority_app_iops_per_device_threshold
+- `rebalance_io_priority_bw_limit_per_device_kbps` (Set of Number) List of rebalance_io_priority_bw_limit_per_device_kbps
+- `rebalance_io_priority_num_of_concurrent_ios_per_device` (Set of Number) List of rebalance_io_priority_num_of_concurrent_ios_per_device
+- `rebalance_io_priority_policy` (Set of String) List of rebalance_io_priority_policy
+- `rebalance_io_priority_quiet_period_msec` (Set of Number) List of rebalance_io_priority_quiet_period_msec
+- `rebuild_enabled` (Boolean) Value for rebuild_enabled
+- `rebuild_io_priority_app_bw_per_device_threshold_kbps` (Set of Number) List of rebuild_io_priority_app_bw_per_device_threshold_kbps
+- `rebuild_io_priority_app_iops_per_device_threshold` (Set of Number) List of rebuild_io_priority_app_iops_per_device_threshold
+- `rebuild_io_priority_bw_limit_per_device_in_kbps` (Set of Number) List of rebuild_io_priority_bw_limit_per_device_in_kbps
+- `rebuild_io_priority_num_of_concurrent_ios_per_device` (Set of Number) List of rebuild_io_priority_num_of_concurrent_ios_per_device
+- `rebuild_io_priority_policy` (Set of String) List of rebuild_io_priority_policy
+- `rebuild_io_priority_quiet_period_msec` (Set of Number) List of rebuild_io_priority_quiet_period_msec
+- `replication_capacity_max_ratio` (Set of Number) List of replication_capacity_max_ratio
+- `rm_cache_write_handling_mode` (Set of String) List of rm_cache_write_handling_mode
+- `spare_percentage` (Set of Number) List of spare_percentage
+- `use_rf_cache` (Boolean) Value for use_rf_cache
+- `use_rm_cache` (Boolean) Value for use_rm_cache
+- `vtree_migration_io_priority_app_bw_per_device_threshold_kbps` (Set of Number) List of vtree_migration_io_priority_app_bw_per_device_threshold_kbps
+- `vtree_migration_io_priority_app_iops_per_device_threshold` (Set of Number) List of vtree_migration_io_priority_app_iops_per_device_threshold
+- `vtree_migration_io_priority_bw_limit_per_device_kbps` (Set of Number) List of vtree_migration_io_priority_bw_limit_per_device_kbps
+- `vtree_migration_io_priority_num_of_concurrent_ios_per_device` (Set of Number) List of vtree_migration_io_priority_num_of_concurrent_ios_per_device
+- `vtree_migration_io_priority_policy` (Set of String) List of vtree_migration_io_priority_policy
+- `vtree_migration_io_priority_quiet_period_msec` (Set of Number) List of vtree_migration_io_priority_quiet_period_msec
+- `zero_padding_enabled` (Boolean) Value for zero_padding_enabled
+
 
 <a id="nestedatt--storage_pools"></a>
 ### Nested Schema for `storage_pools`

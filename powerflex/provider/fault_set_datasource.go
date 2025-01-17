@@ -25,12 +25,8 @@ import (
 
 	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
-	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -105,92 +101,50 @@ func (d *faultSetDataSource) Read(ctx context.Context, req datasource.ReadReques
 		return
 	}
 
-	// Fetch Fault set details if IDs are provided
-	if !state.FaultSetIDs.IsNull() {
-		faultSetIDs := make([]string, 0)
-		diags.Append(state.FaultSetIDs.ElementsAs(ctx, &faultSetIDs, true)...)
+	// Fetch Fault set details for all the fault sets
+	faultSets, err = helper.GetAllFaultSets(d.system)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error in getting Fault Set details", err.Error(),
+		)
+		return
+	}
 
-		for _, faultSetID := range faultSetIDs {
-			faultSet, err := d.system.GetFaultSetByID(faultSetID)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting fault set details using id %v", faultSetID), err.Error(),
-				)
-				return
-			}
-			sdsDetails, err := d.GetSdsDetails(faultSet.ID)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting SDS details connected to fault set details using id %v", faultSet.ID), err.Error(),
-				)
-				return
-			}
-
-			var sdsStateModels []models.SdsDataModel
-			for index := range sdsDetails {
-				sdsState := getSdsState(&sdsDetails[index])
-				sdsStateModels = append(sdsStateModels, sdsState)
-			}
-			faultSetsModel = append(faultSetsModel, helper.GetAllFaultSetState(*faultSet, sdsStateModels))
-		}
-	} else if !state.FaultSetNames.IsNull() {
-		// Fetch Fault set details if names are provided
-		faultSetNames := make([]string, 0)
-		diags.Append(state.FaultSetNames.ElementsAs(ctx, &faultSetNames, true)...)
-
-		for _, faultSetName := range faultSetNames {
-			faultSet, err := d.system.GetFaultSetByName(faultSetName)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting fault set details using name %v", faultSetName), err.Error(),
-				)
-				return
-			}
-			sdsDetails, err := d.GetSdsDetails(faultSet.ID)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting SDS details connected to fault set details using id %v", faultSet.ID), err.Error(),
-				)
-				return
-			}
-
-			var sdsStateModels []models.SdsDataModel
-			for index := range sdsDetails {
-				sdsState := getSdsState(&sdsDetails[index])
-				sdsStateModels = append(sdsStateModels, sdsState)
-			}
-			faultSetsModel = append(faultSetsModel, helper.GetAllFaultSetState(*faultSet, sdsStateModels))
-		}
-	} else {
-		// Fetch Fault set details for all the fault sets
-		faultSets, err = d.system.GetAllFaultSets()
+	// Filter if any are set
+	if state.FaultSetFilter != nil {
+		filtered, err := helper.GetDataSourceByValue(*state.FaultSetFilter, faultSets)
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error in getting Fault Set details", err.Error(),
+				fmt.Sprintf("Error in filtering fault sets: %v please validate the filter", state.FaultSetFilter), err.Error(),
+			)
+			return
+		}
+		filteredvFaultSets := []scaleiotypes.FaultSet{}
+		for _, val := range filtered {
+			filteredvFaultSets = append(filteredvFaultSets, val.(scaleiotypes.FaultSet))
+		}
+		faultSets = filteredvFaultSets
+	}
+
+	for _, faultSet := range faultSets {
+		sdsDetails, err := d.GetSdsDetails(faultSet.ID)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Error in getting SDS details connected to fault set details using id %v", faultSet.ID), err.Error(),
 			)
 			return
 		}
 
-		for _, faultSet := range faultSets {
-			sdsDetails, err := d.GetSdsDetails(faultSet.ID)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting SDS details connected to fault set details using id %v", faultSet.ID), err.Error(),
-				)
-				return
-			}
-
-			var sdsStateModels []models.SdsDataModel
-			for index := range sdsDetails {
-				sdsState := getSdsState(&sdsDetails[index])
-				sdsStateModels = append(sdsStateModels, sdsState)
-			}
-			faultSetsModel = append(faultSetsModel, helper.GetAllFaultSetState(faultSet, sdsStateModels))
+		var sdsStateModels []models.SdsDataModel
+		for index := range sdsDetails {
+			sdsState := getSdsState(sdsDetails[index])
+			sdsStateModels = append(sdsStateModels, sdsState)
 		}
+		faultSetsModel = append(faultSetsModel, helper.GetAllFaultSetState(faultSet, sdsStateModels))
 	}
 
 	state.FaultSetDetails = faultSetsModel
-	state.ID = types.StringValue("placeholder")
+	state.ID = types.StringValue("fault-set-datasource-id")
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -204,32 +158,9 @@ var FaultSetDataSourceSchema schema.Schema = schema.Schema{
 	MarkdownDescription: "This datasource is used to query the existing fault set from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
-			Description:         "Placeholder attribute.",
-			MarkdownDescription: "Placeholder attribute.",
+			Description:         "Placeholder for fault set datasource attribute.",
+			MarkdownDescription: "Placeholder for fault set datasource attribute.",
 			Computed:            true,
-		},
-		"fault_set_ids": schema.SetAttribute{
-			Description:         "List of fault set IDs",
-			MarkdownDescription: "List of fault set IDs",
-			Optional:            true,
-			ElementType:         types.StringType,
-			Validators: []validator.Set{
-				setvalidator.ConflictsWith(
-					path.MatchRoot("fault_set_names"),
-				),
-				setvalidator.SizeAtLeast(1),
-				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
-			},
-		},
-		"fault_set_names": schema.SetAttribute{
-			Description:         "List of fault set names",
-			MarkdownDescription: "List of fault set names",
-			Optional:            true,
-			ElementType:         types.StringType,
-			Validators: []validator.Set{
-				setvalidator.SizeAtLeast(1),
-				setvalidator.ValueStringsAre(stringvalidator.LengthAtLeast(1)),
-			},
 		},
 		"fault_set_details": schema.SetNestedAttribute{
 			Description:         "Fault set details",
@@ -499,6 +430,11 @@ var FaultSetDataSourceSchema schema.Schema = schema.Schema{
 					},
 				},
 			},
+		},
+	},
+	Blocks: map[string]schema.Block{
+		"filter": schema.SingleNestedBlock{
+			Attributes: helper.GenerateSchemaAttributes(helper.TypeToMap(models.FaultSetFilter{})),
 		},
 	},
 }

@@ -18,19 +18,36 @@ limitations under the License.
 # commands to run this tf file : terraform init && terraform apply --auto-approve
 
 # Get all fault set details present on the cluster
-data "powerflex_fault_set" "example1" {
+data "powerflex_fault_set" "all" {
 }
 
-# Get fault set details using fault set IDs
-data "powerflex_fault_set" "example2" {
-  fault_set_ids = ["FaultSet_ID1", "FaultSet_ID2"]
+output "fault_set_result_all" {
+  value = data.powerflex_fault_set.all.fault_set_details
 }
 
-# Get fault set details using fault set names
-data "powerflex_fault_set" "example3" {
-  fault_set_names = ["FaultSet_Name1", "FaultSet_Name2"]
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_fault_set" "fault_set_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     id = ["^.*0f$"]
+#   }
+# }
+
+# output "faultSetFilterRegexResult"{
+#  value = data.powerflex_fault_set.fault_set_filter_regex.fault_set_details
+# }
+
+// If multiple filter fields are provided then it will show the intersection of all of those fields.
+// If there is no intersection between the filters then an empty datasource will be returned
+// For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/
+data "powerflex_fault_set" "filtered" {
+  filter {
+    # protection_domain_id = ["protection_domain_id", "protection_domain_id2"]
+    # name = ["name", "name2"]
+    # id = ["id", "id2"]
+  }
 }
 
-output "fault_set_result" {
-  value = data.powerflex_fault_set.example1.fault_set_details
+output "fault_set_result_filtered" {
+  value = data.powerflex_fault_set.filtered.fault_set_details
 }

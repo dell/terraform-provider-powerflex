@@ -49,22 +49,42 @@ limitations under the License.
 # commands to run this tf file : terraform init && terraform apply --auto-approve
 
 # Get all VTrees details present on the cluster
-data "powerflex_vtree" "example1" {
+data "powerflex_vtree" "all" {
 }
 
-# Get VTree details using VTree IDs
-data "powerflex_vtree" "example2" {
-  vtree_ids = ["VTree_ID1", "VTree_ID2"]
+output "powerflex_vtree_all_result" {
+  value = data.powerflex_vtree.all.vtree_details
 }
 
-# Get VTree details using Volume IDs
-data "powerflex_vtree" "example3" {
-  volume_ids = ["Volume_ID1", "Volume_ID2"]
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_vtree" "vtree_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     data_layout = ["^.*Granularity$"]
+#   }
+# }
+
+# output "vtreeFilterRegexResult"{
+#  value = data.powerflex_vtree.vtree_filter_regex.vtree_details
+# }
+
+
+# Get Peer System details using filter with all values
+# If there is no intersection between the filters then an empty datasource will be returned
+# For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples
+data "powerflex_vtree" "filtered" {
+  filter {
+    # storage_pool_id = ["storage_pool_id", "storage_pool_id2"]
+    # data_layout = ["data_layout", "data_layout2"]
+    # compression_method = ["compression_method", "compression_method2"]
+    # in_deletion = false
+    # name = ["name", "name2"]
+    # id = ["id", "id2"]
+  }
 }
 
-# Get VTree details using Volume Names
-data "powerflex_vtree" "example4" {
-  volume_names = ["Volume_Name1", "Volume_Name2"]
+output "powerflex_vtree_filtered_result" {
+  value = data.powerflex_vtree.filtered.vtree_details
 }
 ```
 
@@ -75,14 +95,25 @@ After the successful execution of above said block, we can see the output by exe
 
 ### Optional
 
-- `volume_ids` (Set of String) List of volume IDs
-- `volume_names` (Set of String) List of volume names
-- `vtree_ids` (Set of String) List of VTree IDs
+- `filter` (Block, Optional) (see [below for nested schema](#nestedblock--filter))
 
 ### Read-Only
 
 - `id` (String) Placeholder identifier attribute.
 - `vtree_details` (Attributes Set) VTree details (see [below for nested schema](#nestedatt--vtree_details))
+
+<a id="nestedblock--filter"></a>
+### Nested Schema for `filter`
+
+Optional:
+
+- `compression_method` (Set of String) List of compression_method
+- `data_layout` (Set of String) List of data_layout
+- `id` (Set of String) List of id
+- `in_deletion` (Boolean) Value for in_deletion
+- `name` (Set of String) List of name
+- `storage_pool_id` (Set of String) List of storage_pool_id
+
 
 <a id="nestedatt--vtree_details"></a>
 ### Nested Schema for `vtree_details`

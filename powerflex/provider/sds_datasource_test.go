@@ -18,116 +18,121 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
+	"os"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
+	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-var protectionDomainID1 = ProtectionDomainIDSds
-
-func TestAccDatasourceSds(t *testing.T) {
+// AT
+func TestAccDatasourceAcceptanceSds(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an Acceptance test")
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: ProviderConfigForTesting + SdsDataSourceConfig1,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_sds.example1", "sds_details.#", "1"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example1", "sds_details.0.name", "Tf_SDS_01"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example1", "sds_details.0.id", "0db7306f00000004"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example1", "protection_domain_id", protectionDomainID1),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + SdsDataSourceConfig2,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "sds_details.#", "1"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "sds_details.0.name", "Tf_SDS_01"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "sds_details.0.id", "0db7306f00000004"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "protection_domain_id", protectionDomainID1),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + SdsDataSourceConfig3,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_sds.example3", "sds_details.#", "1"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example3", "sds_details.0.name", "Tf_SDS_01"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example3", "sds_details.0.id", "0db7306f00000004"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example3", "protection_domain_name", "domain1"),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + SdsDataSourceConfig4,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_sds.example4", "sds_details.#", "1"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example4", "sds_details.0.name", "Tf_SDS_01"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example4", "sds_details.0.id", "0db7306f00000004"),
-					resource.TestCheckResourceAttr("data.powerflex_sds.example4", "protection_domain_name", "domain1"),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + SdsDataSourceConfig5,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_sds.example5", "protection_domain_id", protectionDomainID1),
-				),
-			},
-			{
-				Config:      ProviderConfigForTesting + SdsDataSourceConfig6,
-				ExpectError: regexp.MustCompile(`.*Unable to find protection domain.*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + SdsDataSourceConfig7,
-				ExpectError: regexp.MustCompile(`.*Unable to read SDS.*`),
+				Config: ProviderConfigForTesting + SdsDataSourceAll,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
 		},
 	})
 }
 
+// UT
+func TestAccDatasourceSds(t *testing.T) {
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is an Unit test")
+	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// no filter
+			{
+				Config: ProviderConfigForTesting + SdsDataSourceAll,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
+			},
+			// single filter
+			{
+				Config: ProviderConfigForTesting + SdsDataSourceConfig1,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_sds.example1", "sds_details.0.name", "Tf_SDS_01_DV"),
+				),
+			},
+			// multiple filter
+			{
+				Config: ProviderConfigForTesting + SdsDataSourceConfig2,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "sds_details.0.name", "Tf_SDS_01_DV"),
+					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "sds_details.0.id", "0db7306f00000003"),
+					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "sds_details.0.maintenance_state", "NoMaintenance"),
+					resource.TestCheckResourceAttr("data.powerflex_sds.example2", "sds_details.0.performance_profile", "Custom"),
+				),
+			},
+			// Read error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetFirstSystem).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + SdsDataSourceAll,
+				ExpectError: regexp.MustCompile(`.*Error in getting system instance*.`),
+			},
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.System).GetAllSds).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + SdsDataSourceAll,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Sdses*.`),
+			},
+			// Filter error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetDataSourceByValue).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + SdsDataSourceConfig2,
+				ExpectError: regexp.MustCompile(`.*Error in filtering SDS*.`),
+			},
+		},
+	})
+}
+
+var SdsDataSourceAll = `
+data "powerflex_sds" "all" {
+}
+`
+
 var SdsDataSourceConfig1 = `
 data "powerflex_sds" "example1" {
-	protection_domain_id = "` + protectionDomainID1 + `"
-	sds_names = ["Tf_SDS_01"]
+	filter {
+		name = ["Tf_SDS_01_DV"]
+	}
 }
 `
 
 var SdsDataSourceConfig2 = `
 data "powerflex_sds" "example2" {
-	protection_domain_id = "` + protectionDomainID1 + `"
-	sds_ids = ["0db7306f00000004"]
-}
-`
-
-var SdsDataSourceConfig3 = `
-data "powerflex_sds" "example3" {
-	protection_domain_name = "domain1"
-	sds_names = ["Tf_SDS_01"]
-}
-`
-
-var SdsDataSourceConfig4 = `
-data "powerflex_sds" "example4" {
-	protection_domain_name = "domain1"
-	sds_ids = ["0db7306f00000004"]
-}
-`
-
-var SdsDataSourceConfig5 = `
-data "powerflex_sds" "example5" {
-	protection_domain_id = "` + protectionDomainID1 + `"
-}
-`
-
-var SdsDataSourceConfig6 = `
-data "powerflex_sds" "example6" {
-	protection_domain_id = "invalid_domain"
-}
-`
-
-var SdsDataSourceConfig7 = `
-data "powerflex_sds" "example7" {
-	protection_domain_id = "` + protectionDomainID1 + `"
-	sds_ids = ["invalid_sds_id"]
+	filter {
+		id = ["0db7306f00000003"]
+		name = ["Tf_SDS_01_DV"]
+		maintenance_state = ["NoMaintenance"]
+		performance_profile = ["Custom"]
+	}
 }
 `

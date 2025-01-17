@@ -18,10 +18,14 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
 	"os"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
+	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
@@ -51,6 +55,25 @@ resource "powerflex_snapshot" "snapshots-create" {
 	volume_id = resource.powerflex_volume.ref-vol.id
 }
 `
+
+var createSnapshotPosTestSetSizeGB = createVolForSs + `
+resource "powerflex_snapshot" "snapshots-create" {
+	name = "snapshots-create-alpha"
+	volume_id = resource.powerflex_volume.ref-vol.id
+	size = 32
+	capacity_unit = "GB"
+}
+`
+
+var createSnapshotPosTestSetSizeTB = createVolForSs + `
+resource "powerflex_snapshot" "snapshots-create" {
+	name = "snapshots-create-alpha"
+	volume_id = resource.powerflex_volume.ref-vol.id
+	size = 1
+	capacity_unit = "TB"
+}
+`
+
 var updateSnapshotRenamePosTest = createVolForSs + `
 resource "powerflex_snapshot" "snapshots-create" {
 	name = "snapshots-create-1"
@@ -151,7 +174,56 @@ func TestAccResourceSnapshota(t *testing.T) {
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			// Get System Error
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetFirstSystem).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + createSnapshotPosTest,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex System*.`),
+			},
+			// Get Snapshot Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.Client).GetVolume).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + createSnapshotPosTest,
+				ExpectError: regexp.MustCompile(`.*Error getting snapshot*.`),
+			},
+			// Set Snapshot Size GB Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.Volume).SetVolumeSize).Return(fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + createSnapshotPosTestSetSizeGB,
+				ExpectError: regexp.MustCompile(`.*size/capacity_unit*.`),
+			},
+			// Set Snapshot Size TB Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.Volume).SetVolumeSize).Return(fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + createSnapshotPosTestSetSizeTB,
+				ExpectError: regexp.MustCompile(`.*size/capacity_unit*.`),
+			},
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
 				Config: ProviderConfigForTesting + createSnapshotPosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create", "name", "snapshots-create-alpha"),
@@ -165,7 +237,24 @@ func TestAccResourceSnapshota(t *testing.T) {
 				ImportState:  true,
 				// TODO // ImportStateVerify: true,
 			},
+			// Get Snapshot after create Error
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.Client).GetVolume).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + updateSnapshotRenamePosTest,
+				ExpectError: regexp.MustCompile(`.*Error getting volume*.`),
+			},
+			// Update Success
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
 				Config: ProviderConfigForTesting + updateSnapshotRenamePosTest,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_snapshot.snapshots-create", "name", "snapshots-create-1"),

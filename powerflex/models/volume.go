@@ -50,11 +50,9 @@ type SDCItemize struct {
 
 // VolumeDataSourceModel defines struct for volume data source
 type VolumeDataSourceModel struct {
-	Volumes         []VolumeModel `tfsdk:"volumes"`
-	ID              types.String  `tfsdk:"id"`
-	StoragePoolID   types.String  `tfsdk:"storage_pool_id"`
-	StoragePoolName types.String  `tfsdk:"storage_pool_name"`
-	Name            types.String  `tfsdk:"name"`
+	Volumes      []VolumeModel `tfsdk:"volumes"`
+	ID           types.String  `tfsdk:"id"`
+	VolumeFilter *VolumeFilter `tfsdk:"filter"`
 }
 
 // VolumeModel define struct for volume model
@@ -84,6 +82,33 @@ type VolumeModel struct {
 	ReplicationTimeStamp               types.Int64          `tfsdk:"replication_time_stamp"`
 	Links                              []VolumeLinkModel    `tfsdk:"links"`
 	MappedSdcInfo                      []MappedSdcInfoModel `tfsdk:"mapped_sdc_info"`
+}
+
+// VolumeFilter define struct for volume filter model
+type VolumeFilter struct {
+	ID                                 []types.String `tfsdk:"id"`
+	Name                               []types.String `tfsdk:"name"`
+	CreationTime                       []types.Int64  `tfsdk:"creation_time"`
+	SizeInKb                           []types.Int64  `tfsdk:"size_in_kb"`
+	AncestorVolumeID                   []types.String `tfsdk:"ancestor_volume_id"`
+	VTreeID                            []types.String `tfsdk:"vtree_id"`
+	ConsistencyGroupID                 []types.String `tfsdk:"consistency_group_id"`
+	VolumeType                         []types.String `tfsdk:"volume_type"`
+	UseRmCache                         types.Bool     `tfsdk:"use_rm_cache"`
+	StoragePoolID                      []types.String `tfsdk:"storage_pool_id"`
+	DataLayout                         []types.String `tfsdk:"data_layout"`
+	NotGenuineSnapshot                 types.Bool     `tfsdk:"not_genuine_snapshot"`
+	AccessModeLimit                    []types.String `tfsdk:"access_mode_limit"`
+	SecureSnapshotExpTime              []types.Int64  `tfsdk:"secure_snapshot_exp_time"`
+	ManagedBy                          []types.String `tfsdk:"managed_by"`
+	LockedAutoSnapshot                 types.Bool     `tfsdk:"locked_auto_snapshot"`
+	LockedAutoSnapshotMarkedForRemoval types.Bool     `tfsdk:"locked_auto_snapshot_marked_for_removal"`
+	CompressionMethod                  []types.String `tfsdk:"compression_method"`
+	TimeStampIsAccurate                types.Bool     `tfsdk:"time_stamp_is_accurate"`
+	OriginalExpiryTime                 []types.Int64  `tfsdk:"original_expiry_time"`
+	VolumeReplicationState             []types.String `tfsdk:"volume_replication_state"`
+	ReplicationJournalVolume           types.Bool     `tfsdk:"replication_journal_volume"`
+	ReplicationTimeStamp               []types.Int64  `tfsdk:"replication_time_stamp"`
 }
 
 // VolumeLinkModel defines struct for volume links

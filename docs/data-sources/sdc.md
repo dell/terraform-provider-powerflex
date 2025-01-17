@@ -26,8 +26,6 @@ description: |-
 
 This datasource is used to query the existing Storage Data Clients from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 
-> **Note:** Only one of `name` and `id` can be provided at a time.
-
 ## Example Usage
 
 ```terraform
@@ -49,21 +47,49 @@ limitations under the License.
 */
 
 # commands to run this tf file : terraform init && terraform apply --auto-approve
-# Reads SDC either by name or by id , if provided
-# If both name and id is not provided , then it reads all the SDC
-# id and name can't be given together to fetch the SDC .
-# id can't be empty
 
-data "powerflex_sdc" "selected" {
-  #id = "e3ce1fb500000000"
-  name = "sdc_01"
+data "powerflex_sdc" "all" {
+
 }
 
-# # Returns all sdcs matching criteria
+# Returns all sdcs
 output "allsdcresult" {
-  value = data.powerflex_sdc.selected
+  value = data.powerflex_sdc.all
 }
-# # -----------------------------------------------------------------------------------
+
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_sdc" "sdc_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     system_id = ["^.*0f$"]
+#   }
+# }
+
+# output "sdcFilterRegexResult"{
+#  value = data.powerflex_sdc.sdc_filter_regex.sdcs
+# }
+
+// If multiple filter fields are provided then it will show the intersection of all of those fields.
+// If there is no intersection between the filters then an empty datasource will be returned
+// For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/
+data "powerflex_sdc" "filtered" {
+  filter {
+    # id = ["ID1", "ID2"]
+    # system_id = ["systemID", "systemID2"]
+    # sdc_ip = ["SCDIP1", "SCDIP2"]
+    # sdc_approved = false
+    # on_vmware = false
+    # sdc_guid = ["SdcGUID1", "SdcGUID2"]
+    # mdm_connection_state = ["MdmConnectionState1", "MdmConnectionState2"]
+    # name = ["Name1", "Name2"]
+  }
+}
+
+# Returns filtered sdcs matching criteria
+output "filteredsdcresult" {
+  value = data.powerflex_sdc.filtered.sdcs
+}
+# -----------------------------------------------------------------------------------
 ```
 
 After the successful execution of above said block, We can see the output by executing `terraform output` command. Also, we can fetch information via the variable: `data.powerflex_sdc.selected.attribute_name` where attribute_name is the attribute which user wants to fetch.
@@ -73,12 +99,27 @@ After the successful execution of above said block, We can see the output by exe
 
 ### Optional
 
-- `id` (String) ID of the SDC to fetch. Conflicts with `name`
-- `name` (String) Name of the SDC to fetch. Conflicts with `id`
+- `filter` (Block, Optional) (see [below for nested schema](#nestedblock--filter))
 
 ### Read-Only
 
+- `id` (String) ID placeholder for sdc datasource
 - `sdcs` (Attributes List) List of fetched SDCs. (see [below for nested schema](#nestedatt--sdcs))
+
+<a id="nestedblock--filter"></a>
+### Nested Schema for `filter`
+
+Optional:
+
+- `id` (Set of String) List of id
+- `mdm_connection_state` (Set of String) List of mdm_connection_state
+- `name` (Set of String) List of name
+- `on_vmware` (Boolean) Value for on_vmware
+- `sdc_approved` (Boolean) Value for sdc_approved
+- `sdc_guid` (Set of String) List of sdc_guid
+- `sdc_ip` (Set of String) List of sdc_ip
+- `system_id` (Set of String) List of system_id
+
 
 <a id="nestedatt--sdcs"></a>
 ### Nested Schema for `sdcs`

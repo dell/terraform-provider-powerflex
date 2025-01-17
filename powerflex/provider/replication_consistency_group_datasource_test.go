@@ -67,7 +67,7 @@ data "powerflex_replication_consistency_group" "rcg" {
 // Accptance Tests
 func TestAccDatasourceAcceptanceReplicationConsistanceGroup(t *testing.T) {
 	if os.Getenv("TF_ACC") != "1" {
-		t.Skip("Dont run with units tests, this is an Accpetance test")
+		t.Skip("Dont run with units tests, this is an Acceptance test")
 	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -83,7 +83,7 @@ func TestAccDatasourceAcceptanceReplicationConsistanceGroup(t *testing.T) {
 // Unit Tests
 func TestAccDatasourceReplicationConsistanceGroup(t *testing.T) {
 	if os.Getenv("TF_ACC") == "1" {
-		t.Skip("Dont run with Accpetance tests, this is a Unit test")
+		t.Skip("Dont run with Acceptance tests, this is a Unit test")
 	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"math/big"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -375,6 +376,7 @@ func FilterByField(dataSources reflect.Value, fieldValue reflect.Value, field st
 
 		dataSourceValue := reflect.ValueOf(dataSource)
 		fieldValueInDataSource := dataSourceValue.FieldByName(field)
+
 		if fieldValue.Kind() == reflect.Slice || fieldValue.Kind() == reflect.Array {
 			for n := 0; n < fieldValue.Len(); n++ {
 
@@ -382,8 +384,15 @@ func FilterByField(dataSources reflect.Value, fieldValue reflect.Value, field st
 				if err != nil {
 					return reflect.Zero(nil), err
 				}
+				// if field is not found in the data source then break and continue
+				if !fieldValueInDataSource.IsValid() || !interFieldValue.IsValid() {
+					break
+				}
 
-				if fieldValueInDataSource.Interface() == interFieldValue.Interface() {
+				//check field value with regex here
+				pattern := regexp.MustCompile(fmt.Sprintf("%v", interFieldValue.Interface()))
+
+				if pattern.MatchString(fmt.Sprintf("%v", fieldValueInDataSource.Interface())) {
 					filteredData = reflect.Append(filteredData, reflect.ValueOf(dataSource))
 				}
 			}
@@ -392,8 +401,14 @@ func FilterByField(dataSources reflect.Value, fieldValue reflect.Value, field st
 			if err != nil {
 				return reflect.Zero(nil), err
 			}
+			// if field is not found in the data source then break and continue
+			if !fieldValueInDataSource.IsValid() || !interFieldValue.IsValid() {
+				break
+			}
 
-			if fieldValueInDataSource.Interface() == interFieldValue.Interface() {
+			pattern := regexp.MustCompile(fmt.Sprintf("%v", interFieldValue.Interface()))
+
+			if pattern.MatchString(fmt.Sprintf("%v", fieldValueInDataSource.Interface())) {
 				filteredData = reflect.Append(filteredData, reflect.ValueOf(dataSource))
 			}
 		}

@@ -18,12 +18,11 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"terraform-provider-powerflex/powerflex/helper"
+
+	"terraform-provider-powerflex/powerflex/models"
+
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // DataSourceSchema is the schema for reading the storage pool data
@@ -35,42 +34,6 @@ var DataSourceSchema schema.Schema = schema.Schema{
 			Description:         "Placeholder identifier attribute.",
 			MarkdownDescription: "Placeholder identifier attribute.",
 			Computed:            true,
-		},
-		"protection_domain_id": schema.StringAttribute{
-			Description: "ID of the Protection Domain from which storage pools will be fetched." +
-				" Conflicts with 'protection_domain_name'.",
-			MarkdownDescription: "ID of the Protection Domain from which storage pools will be fetched." +
-				" Conflicts with `protection_domain_name`.",
-			Optional: true,
-		},
-		"protection_domain_name": schema.StringAttribute{
-			Description: "Name of the Protection Domain from which storage pools will be fetched." +
-				" Conflicts with 'protection_domain_id'.",
-			MarkdownDescription: "Name of the Protection Domain from which storage pools will be fetched." +
-				" Conflicts with `protection_domain_id`.",
-			Optional: true,
-			Validators: []validator.String{
-				stringvalidator.ExactlyOneOf(path.MatchRoot("protection_domain_id")),
-			},
-		},
-		"storage_pool_ids": schema.ListAttribute{
-			Description: "List of storage pool IDs." +
-				" Conflicts with 'storage_pool_names'.",
-			MarkdownDescription: "List of storage pool IDs." +
-				" Conflicts with `storage_pool_names`.",
-			ElementType: types.StringType,
-			Optional:    true,
-		},
-		"storage_pool_names": schema.ListAttribute{
-			Description: "List of storage pool names." +
-				" Conflicts with 'storage_pool_ids'.",
-			MarkdownDescription: "List of storage pool names." +
-				" Conflicts with `storage_pool_ids`.",
-			ElementType: types.StringType,
-			Optional:    true,
-			Validators: []validator.List{
-				listvalidator.ConflictsWith(path.MatchRoot("storage_pool_ids")),
-			},
 		},
 		"storage_pools": schema.ListNestedAttribute{
 			Description:         "List of fetched storage pools.",
@@ -447,6 +410,11 @@ var DataSourceSchema schema.Schema = schema.Schema{
 					},
 				},
 			},
+		},
+	},
+	Blocks: map[string]schema.Block{
+		"filter": schema.SingleNestedBlock{
+			Attributes: helper.GenerateSchemaAttributes(helper.TypeToMap(models.StoragePoolFilter{})),
 		},
 	},
 }

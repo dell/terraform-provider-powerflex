@@ -20,9 +20,15 @@ package helper
 import (
 	"terraform-provider-powerflex/powerflex/models"
 
+	"github.com/dell/goscaleio"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
+
+// GetAllVTrees GETs all the vTrees
+func GetAllVTrees(client *goscaleio.Client) ([]scaleiotypes.VTreeDetails, error) {
+	return client.GetVTrees()
+}
 
 // GetAllVTreeState saves state of vTree data source
 func GetAllVTreeState(vTrees []scaleiotypes.VTreeDetails) (response []models.VTree) {

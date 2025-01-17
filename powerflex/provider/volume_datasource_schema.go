@@ -18,10 +18,10 @@ limitations under the License.
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"terraform-provider-powerflex/powerflex/helper"
+	"terraform-provider-powerflex/powerflex/models"
+
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
 // VolumeDataSourceSchema is the schema for reading the volume data
@@ -30,49 +30,9 @@ var VolumeDataSourceSchema schema.Schema = schema.Schema{
 	MarkdownDescription: "This datasource is used to query the existing volume from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.",
 	Attributes: map[string]schema.Attribute{
 		"id": schema.StringAttribute{
-			Description: "Unique identifier of the volume instance." +
-				"  Conflicts with 'name', 'storage_pool_id' and  'storage_pool_name'.",
-			MarkdownDescription: "Unique identifier of the volume instance." +
-				"  Conflicts with `name`, `storage_pool_id` and  `storage_pool_name`.",
-			Optional: true,
-			Computed: true,
-			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id"), path.MatchRoot("name"), path.MatchRoot("storage_pool_name")),
-			},
-		},
-		"name": schema.StringAttribute{
-			Description: "Name of the volume." +
-				"  Conflicts with 'id', 'storage_pool_id' and  'storage_pool_name'.",
-			MarkdownDescription: "Name of the volume." +
-				"  Conflicts with `id`, `storage_pool_id` and  `storage_pool_name`.",
-			Optional: true,
-			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id"), path.MatchRoot("id"), path.MatchRoot("storage_pool_name")),
-			},
-		},
-		"storage_pool_id": schema.StringAttribute{
-			Description: "Specifies the unique identifier of the storage pool." +
-				"  Conflicts with 'id', 'name' and  'storage_pool_name'.",
-			MarkdownDescription: "Specifies the unique identifier of the storage pool." +
-				"  Conflicts with `id`, `name` and  `storage_pool_name`.",
-			Optional: true,
-			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_name"), path.MatchRoot("id"), path.MatchRoot("name")),
-			},
-		},
-		"storage_pool_name": schema.StringAttribute{
-			Description: "Specifies the unique identifier of the storage pool." +
-				"  Conflicts with 'id', 'name' and 'storage_pool_id'.",
-			MarkdownDescription: "Specifies the unique identifier of the storage pool." +
-				"  Conflicts with `id`, `name` and `storage_pool_id`.",
-			Optional: true,
-			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
-				stringvalidator.ConflictsWith(path.MatchRoot("storage_pool_id"), path.MatchRoot("id"), path.MatchRoot("name")),
-			},
+			Description:         "default datasource id",
+			MarkdownDescription: "default datasource id",
+			Computed:            true,
 		},
 		"volumes": schema.ListNestedAttribute{
 			Description:         "List of volumes.",
@@ -260,6 +220,11 @@ var VolumeDataSourceSchema schema.Schema = schema.Schema{
 					},
 				},
 			},
+		},
+	},
+	Blocks: map[string]schema.Block{
+		"filter": schema.SingleNestedBlock{
+			Attributes: helper.GenerateSchemaAttributes(helper.TypeToMap(models.VolumeFilter{})),
 		},
 	},
 }

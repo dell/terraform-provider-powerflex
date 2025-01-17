@@ -52,14 +52,80 @@ limitations under the License.
 data "powerflex_resource_group" "example1" {
 }
 
-# Get Resource Group details using the ID of the Resource Group
-data "powerflex_resource_group" "example2" {
-  resource_group_ids = ["ID1", "ID2"]
-}
 
-# Get Resource Group details using the Name of the Resource Group
-data "powerflex_resource_group" "example3" {
-  resource_group_names = ["Name_1", "Name_2"]
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_resource_group" "resource_group_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     deployment_finished_date = ["^2024-01-10.*$"]
+#   }
+# }
+
+# output "resourceGroupFilterRegexResult"{
+#  value = data.powerflex_resource_group.resource_group_filter_regex.resource_group_details
+# }
+
+// If multiple filter fields are provided then it will show the intersection of all of those fields.
+// If there is no intersection between the filters then an empty datasource will be returned
+// For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/
+data "powerflex_resource_group" "resource_group" {
+  # filter{
+	# id = ["id1","id2"]
+	# deployment_name = ["deployment_name1","deployment_name2"]
+	# deployment_description = ["deployment_description1","deployment_description2"]
+	# retry = true
+	# teardown = false
+	# teardown_after_cancel = true
+	# remove_service = true
+	# created_date = ["created_date1","created_date2"]
+	# created_by = ["created_by1","created_by2"]
+	# updated_date = ["updated_date1","updated_date2"]
+	# updated_by = ["updated_by1","updated_by2"]
+	# deployment_scheduled_date = ["deployment_scheduled_date1","deployment_scheduled_date2"]
+	# deployment_started_date = ["deployment_started_date1","deployment_started_date2"]
+    # deployment_finished_date = ["deployment_finished_date1","deployment_finished_date2"]
+	# schedule_date = ["scheduled_date1","scheduled_date2"]
+	# status = ["status1","status2"]
+	# compliant = true
+	# update_server_firmware = false
+	# use_default_catalog = false
+    # firmware_repository_id = ["firmware_repository_id1","firmware_repository_id2"]
+	# license_repository_id = ["license_repository_id1","license_repository_id2"]
+	# individual_teardown = true
+	# deployment_health_status_type = ["deployment_health_status_type1","deployment_health_status_type2"]
+	# all_users_allowed = true
+	# owner = ["owner1","owner2"]
+	# no_op = false
+	# firmware_init = true
+	# disruptive_firmware = false
+	# preconfigure_svm = true
+	# preconfigure_svm_and_update = true
+	# services_deployed = ["services_deployed1","services_deployed2"]
+	# precalculated_device_health = ["precalculated_device_health1","precalculated_device_health2"]
+	# number_of_deployments = [0]
+	# operation_type = ["operation_type1","operation_type2"]
+	# operation_status = ["operation_status1","operation_status2"]
+	# operation_data = ["operation_data1","operation_data2"]
+	# current_step_count = ["current_step_count1", "current_step_count2"]
+	# total_num_of_steps = ["total_num_of_steps1", "total_num_of_steps2"]
+	# current_step_message = ["current_step_message1", "current_step_message2"]
+	# custom_image = ["custom_image1", "custom_image2"]
+	# original_deployment_id = ["original_deployment_id1", "original_deployment_id2"]
+	# current_batch_count = ["current_batch_count1", "current_batch_count2"]
+	# total_batch_count = ["total_batch_count1", "total_batch_count2"]
+	# brownfield = true
+	# overall_device_health = ["overall_device_health1","overall_device_health2"]
+	# vds = false
+	# scale_up = true
+	# lifecycle_mode = false
+	# can_migratev_clsv_ms = false
+	# template_valid = true
+	# configuration_change = true
+	# detail_message = ["detail_message1", "detail_message2"]
+	# timestamp = ["timestamp1","timestamp2"]
+	# error = ["error1","error2"]
+	# path = ["path1, "path2"]
+  # }
 }
 
 output "resource_group_result" {
@@ -74,13 +140,74 @@ After the successful execution of above said block, We can see the output by exe
 
 ### Optional
 
-- `resource_group_ids` (Set of String) List of Resource Group IDs
-- `resource_group_names` (Set of String) List of Resource Group names
+- `filter` (Block, Optional) (see [below for nested schema](#nestedblock--filter))
 
 ### Read-Only
 
 - `id` (String) Placeholder attribute.
 - `resource_group_details` (Attributes Set) Resource Group details (see [below for nested schema](#nestedatt--resource_group_details))
+
+<a id="nestedblock--filter"></a>
+### Nested Schema for `filter`
+
+Optional:
+
+- `all_users_allowed` (Boolean) Value for all_users_allowed
+- `brownfield` (Boolean) Value for brownfield
+- `can_migratev_clsv_ms` (Boolean) Value for can_migratev_clsv_ms
+- `compliant` (Boolean) Value for compliant
+- `configuration_change` (Boolean) Value for configuration_change
+- `created_by` (Set of String) List of created_by
+- `created_date` (Set of String) List of created_date
+- `current_batch_count` (Set of String) List of current_batch_count
+- `current_step_count` (Set of String) List of current_step_count
+- `current_step_message` (Set of String) List of current_step_message
+- `custom_image` (Set of String) List of custom_image
+- `deployment_description` (Set of String) List of deployment_description
+- `deployment_finished_date` (Set of String) List of deployment_finished_date
+- `deployment_health_status_type` (Set of String) List of deployment_health_status_type
+- `deployment_name` (Set of String) List of deployment_name
+- `deployment_scheduled_date` (Set of String) List of deployment_scheduled_date
+- `deployment_started_date` (Set of String) List of deployment_started_date
+- `detail_message` (Set of String) List of detail_message
+- `disruptive_firmware` (Boolean) Value for disruptive_firmware
+- `error` (Set of String) List of error
+- `firmware_init` (Boolean) Value for firmware_init
+- `firmware_repository_id` (Set of String) List of firmware_repository_id
+- `id` (Set of String) List of id
+- `individual_teardown` (Boolean) Value for individual_teardown
+- `license_repository_id` (Set of String) List of license_repository_id
+- `lifecycle_mode` (Boolean) Value for lifecycle_mode
+- `no_op` (Boolean) Value for no_op
+- `number_of_deployments` (Set of Number) List of number_of_deployments
+- `operation_data` (Set of String) List of operation_data
+- `operation_status` (Set of String) List of operation_status
+- `operation_type` (Set of String) List of operation_type
+- `original_deployment_id` (Set of String) List of original_deployment_id
+- `overall_device_health` (Set of String) List of overall_device_health
+- `owner` (Set of String) List of owner
+- `path` (Set of String) List of path
+- `precalculated_device_health` (Set of String) List of precalculated_device_health
+- `preconfigure_svm` (Boolean) Value for preconfigure_svm
+- `preconfigure_svm_and_update` (Boolean) Value for preconfigure_svm_and_update
+- `remove_service` (Boolean) Value for remove_service
+- `retry` (Boolean) Value for retry
+- `scale_up` (Boolean) Value for scale_up
+- `schedule_date` (Set of String) List of schedule_date
+- `services_deployed` (Set of String) List of services_deployed
+- `status` (Set of String) List of status
+- `teardown` (Boolean) Value for teardown
+- `teardown_after_cancel` (Boolean) Value for teardown_after_cancel
+- `template_valid` (Boolean) Value for template_valid
+- `timestamp` (Set of String) List of timestamp
+- `total_batch_count` (Set of String) List of total_batch_count
+- `total_num_of_steps` (Set of String) List of total_num_of_steps
+- `update_server_firmware` (Boolean) Value for update_server_firmware
+- `updated_by` (Set of String) List of updated_by
+- `updated_date` (Set of String) List of updated_date
+- `use_default_catalog` (Boolean) Value for use_default_catalog
+- `vds` (Boolean) Value for vds
+
 
 <a id="nestedatt--resource_group_details"></a>
 ### Nested Schema for `resource_group_details`

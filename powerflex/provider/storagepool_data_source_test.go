@@ -18,79 +18,107 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
+	"os"
+	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccDatasourceStoragePool(t *testing.T) {
+// AT
+func TestAccDatasourceAcceptanceStoragePool(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an Acceptance test")
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: ProviderConfigForTesting + StoragePoolDataSourceConfig1,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example1", "storage_pools.#", "2"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example1", "storage_pools.0.name", "pool2"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example1", "storage_pools.1.name", "pool1"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example1", "protection_domain_id", ProtectionDomainID),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + StoragePoolDataSourceConfig2,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example2", "storage_pools.#", "2"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example2", "storage_pools.0.id", "c992bad600000005"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example2", "storage_pools.1.id", "c98e26e500000000"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example2", "protection_domain_id", ProtectionDomainID),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + StoragePoolDataSourceConfig3,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example3", "storage_pools.#", "2"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example3", "storage_pools.0.name", "pool2"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example3", "storage_pools.1.name", "pool1"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example3", "protection_domain_name", "domain1"),
-				),
-			},
-			{
-				Config: ProviderConfigForTesting + StoragePoolDataSourceConfig4,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example4", "storage_pools.#", "2"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example4", "storage_pools.0.id", "c992bad600000005"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example4", "storage_pools.1.id", "c98e26e500000000"),
-					resource.TestCheckResourceAttr("data.powerflex_storage_pool.example4", "protection_domain_name", "domain1"),
-				),
+				Config: ProviderConfigForTesting + StoragePoolDataSourceAll,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
 		},
 	})
 }
 
-var StoragePoolDataSourceConfig1 = `
-data "powerflex_storage_pool" "example1" {
-	protection_domain_id = "` + ProtectionDomainID + `"
-	storage_pool_names = ["pool2", "pool1"]
+// UT
+func TestAccDatasourceStoragePool(t *testing.T) {
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is an Unit test")
+	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Get All
+			{
+				Config: ProviderConfigForTesting + StoragePoolDataSourceAll,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
+			},
+			// Filter Single
+			{
+				Config: ProviderConfigForTesting + StoragePoolDataSourceFilterSingle,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_storage_pool.filter", "storage_pools.0.name", "Terraform_pool"),
+				),
+			},
+			// Filter Multiple
+			{
+				Config: ProviderConfigForTesting + StoragePoolDataSourceFilterMultiple,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_storage_pool.filter", "storage_pools.0.rebalance_io_priority_policy", "favorAppIos"),
+					resource.TestCheckResourceAttr("data.powerflex_storage_pool.filter", "storage_pools.0.use_rm_cache", "false"),
+				),
+			},
+			// Read error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetAllStoragePools).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + StoragePoolDataSourceAll,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex Storage Groups*.`),
+			},
+			// Filter error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetDataSourceByValue).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + StoragePoolDataSourceFilterMultiple,
+				ExpectError: regexp.MustCompile(`.*Error in filtering storage pools*.`),
+			},
+		},
+	})
+}
+
+var StoragePoolDataSourceAll = `
+data "powerflex_storage_pool" "all" {
+
 }
 `
 
-var StoragePoolDataSourceConfig2 = `
-data "powerflex_storage_pool" "example2" {
-	protection_domain_id = "` + ProtectionDomainID + `"
-	storage_pool_ids = ["c992bad600000005", "c98e26e500000000"]
+var StoragePoolDataSourceFilterSingle = `
+data "powerflex_storage_pool" "filter" {
+	filter {
+		name = ["Terraform_pool"]
+	}
 }
 `
 
-var StoragePoolDataSourceConfig3 = `
-data "powerflex_storage_pool" "example3" {
-	protection_domain_name = "domain1"
-	storage_pool_names = ["pool2", "pool1"]
-}
-`
-var StoragePoolDataSourceConfig4 = `
-data "powerflex_storage_pool" "example4" {
-	protection_domain_name = "domain1"
-	storage_pool_ids = ["c992bad600000005", "c98e26e500000000"]
+var StoragePoolDataSourceFilterMultiple = `
+data "powerflex_storage_pool" "filter" {
+	filter {
+		rebalance_io_priority_policy = ["favorAppIos"]
+		use_rm_cache = false
+	}
 }
 `

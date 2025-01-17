@@ -18,208 +18,107 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
+	"os"
 	"regexp"
 	"terraform-provider-powerflex/powerflex/helper"
-	"terraform-provider-powerflex/powerflex/models"
 	"testing"
 
-	scaleiotypes "github.com/dell/goscaleio/types/v1"
-	"github.com/hashicorp/terraform-plugin-framework/types"
+	. "github.com/bytedance/mockey"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-type pdDataPoints struct {
-	name  string
-	name2 string
-	name3 string
-	id    string
+var ProtectionDomainDataSourceAll = `
+data "powerflex_protection_domain" "all" {}
+`
+
+var ProtectionDomainDataSourceFilterSingle = `
+data "powerflex_protection_domain" "filter-single" {
+  filter {
+		name = ["domain1"]
+  }
+}
+`
+
+var ProtectionDomainDataSourceFilterMultiple = `
+data "powerflex_protection_domain" "filter-multi" {
+	filter {
+		system_id = ["1250de83018c2d0f"]
+		rf_cache_enabled = true
+	}
+}
+`
+
+// AT
+func TestAccDatasourceAcceptanceProtectionDomain(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an Acceptance test")
+	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + ProtectionDomainDataSourceAll,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
+			},
+		},
+	})
 }
 
-var protectiondomainTestData pdDataPoints = pdDataPoints{
-	id:    ProtectionDomainID,
-	name:  "domain1",
-	name2: "sds-unit-test-protection-domain",
-	name3: "domain2",
-}
-
-var (
-	ProtectionDomainDataSourceConfig1 string
-	ProtectionDomainDataSourceConfig2 string
-	ProtectionDomainDataSourceConfig3 string
-	ProtectionDomainDataSourceConfig4 string
-	ProtectionDomainDataSourceConfig5 string
-	ProtectionDomainDataSourceConfig6 string
-	ProtectionDomainDataSourceConfig7 string
-	ProtectionDomainDataSourceConfig8 string
-)
-
-// TestAccProtectionDomainDataSource tests the protectiondomain data source
-// where it fetches the protectiondomains based on protectiondomain id/name
-// and if nothing is mentioned , then return all protectiondomains
+// UT
 func TestAccDatasourceProtectionDomain(t *testing.T) {
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is an Unit test")
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			//retrieving protection domain based on id
+			// All
 			{
-				Config: ProviderConfigForTesting + ProtectionDomainDataSourceConfig1,
+				Config: ProviderConfigForTesting + ProtectionDomainDataSourceAll,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
+			},
+			// Filter on a single value
+			{
+				Config: ProviderConfigForTesting + ProtectionDomainDataSourceFilterSingle,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd1", "protection_domains.#", "1"),
-					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd1", "protection_domains.0.id", protectiondomainTestData.id),
-					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd1", "protection_domains.0.name", protectiondomainTestData.name),
+					resource.TestCheckResourceAttr("data.powerflex_protection_domain.filter-single", "protection_domains.0.name", "domain1"),
 				),
 			},
-			//retrieving protection domain based on name
+			// Filter on multiple values
 			{
-				Config: ProviderConfigForTesting + ProtectionDomainDataSourceConfig2,
+				Config: ProviderConfigForTesting + ProtectionDomainDataSourceFilterMultiple,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd2", "protection_domains.#", "1"),
-					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd2", "protection_domains.0.id", protectiondomainTestData.id),
-					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd2", "protection_domains.0.name", protectiondomainTestData.name),
+					resource.TestCheckResourceAttr("data.powerflex_protection_domain.filter-multi", "protection_domains.0.system_id", "1250de83018c2d0f"),
+					resource.TestCheckResourceAttr("data.powerflex_protection_domain.filter-multi", "protection_domains.0.rf_cache_enabled", "true"),
+					resource.TestCheckResourceAttr("data.powerflex_protection_domain.filter-multi", "protection_domains.1.system_id", "1250de83018c2d0f"),
+					resource.TestCheckResourceAttr("data.powerflex_protection_domain.filter-multi", "protection_domains.1.rf_cache_enabled", "true"),
 				),
 			},
-			//retrieving all the protection domains
+			// Read error
 			{
-				Config: ProviderConfigForTesting + ProtectionDomainDataSourceConfig3,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd3", "protection_domains.0.id", protectiondomainTestData.id),
-					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd3", "protection_domains.0.name", protectiondomainTestData.name),
-					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd3", "protection_domains.1.name", protectiondomainTestData.name2),
-					resource.TestCheckResourceAttr("data.powerflex_protection_domain.pd3", "protection_domains.2.name", protectiondomainTestData.name3),
-				),
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetProtectionDomains).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + ProtectionDomainDataSourceAll,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex ProtectionDomain*.`),
+			},
+			// Filter error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetDataSourceByValue).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + ProtectionDomainDataSourceFilterMultiple,
+				ExpectError: regexp.MustCompile(`.*Error in filtering protection domains*.`),
 			},
 		},
 	})
-}
-
-// TestNonNullPDConnInfo tests if non-null PDConnInfo are properly marshalled
-func TestNonNullPDConnInfo(t *testing.T) {
-	inputStr := "Dummy"
-	input := scaleiotypes.PDConnInfo{
-		ClientServerConnStatus: inputStr,
-		DisconnectedClientID:   &inputStr,
-		DisconnectedClientName: &inputStr,
-		DisconnectedServerID:   &inputStr,
-		DisconnectedServerName: &inputStr,
-		DisconnectedServerIP:   &inputStr,
-	}
-
-	expectedOut := models.PdConnInfoModel{
-		ClientServerConnStatus: types.StringValue(inputStr),
-		DisconnectedClientID:   types.StringValue(inputStr),
-		DisconnectedClientName: types.StringValue(inputStr),
-		DisconnectedServerID:   types.StringValue(inputStr),
-		DisconnectedServerName: types.StringValue(inputStr),
-		DisconnectedServerIP:   types.StringValue(inputStr),
-	}
-
-	out := helper.PdConnInfoModelValue(input)
-
-	if out != expectedOut {
-		t.Fatalf("Error matching output and expected: %#v vs %#v", out, expectedOut)
-	}
-
-}
-
-// TestNonNullReplicationCapacityMaxRatio tests that properl marshalling occurs when
-// ReplicationCapacityMaxRatio field has non null value
-func TestNonNullReplicationCapacityMaxRatio(t *testing.T) {
-	inp := 10
-	input := scaleiotypes.ProtectionDomain{
-		ReplicationCapacityMaxRatio: &inp,
-	}
-
-	outList := helper.GetAllProtectionDomainState([]*scaleiotypes.ProtectionDomain{
-		&input,
-	})
-	out := outList[0]
-	if actual := out.ReplicationCapacityMaxRatio.ValueInt64(); actual != int64(inp) {
-		t.Fatalf("Error matching output and expected: %#v vs %#v", actual, inp)
-	}
-}
-
-func TestAccDatasourcePDNegativeScenarios(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config:      ProviderConfigForTesting + ProtectionDomainDataSourceConfig4,
-				ExpectError: regexp.MustCompile(`.*Invalid Attribute Combination.*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + ProtectionDomainDataSourceConfig5,
-				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex ProtectionDomain by ID.*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + ProtectionDomainDataSourceConfig6,
-				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex ProtectionDomain by name.*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + ProtectionDomainDataSourceConfig7,
-				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex ProtectionDomain by ID.*`),
-			},
-			{
-				Config:      ProviderConfigForTesting + ProtectionDomainDataSourceConfig8,
-				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex ProtectionDomain by name.*`),
-			},
-		},
-	})
-}
-
-func init() {
-	// retrieve protection domain by id
-	ProtectionDomainDataSourceConfig1 = `
-	data "powerflex_protection_domain" "pd1" {						
-		id = "` + protectiondomainTestData.id + `"
-	}
-	`
-	// retrieve protection domain by name
-	ProtectionDomainDataSourceConfig2 = `
-	data "powerflex_protection_domain" "pd2" {			
-		name = "domain1"
-	}
-	`
-	// retrieve all protection domains
-	ProtectionDomainDataSourceConfig3 = `
-	data "powerflex_protection_domain" "pd3" {						
-	}
-	`
-
-	// retrieve all protection domain by id and name
-	ProtectionDomainDataSourceConfig4 = `
-	data "powerflex_protection_domain" "pd4" {
-		name = "domain1"
-		id = "` + protectiondomainTestData.id + `"
-	}
-	`
-
-	// retrieve protection domain by non existing id
-	ProtectionDomainDataSourceConfig5 = `
-	data "powerflex_protection_domain" "pd5" {
-		id = "non_existing_id"
-	}
-	`
-
-	// retrieve protection domain by non existing name
-	ProtectionDomainDataSourceConfig6 = `
-	data "powerflex_protection_domain" "pd6" {
-		name = "non_existing_name"
-	}
-	`
-
-	// retrieve protection domain by empty id
-	ProtectionDomainDataSourceConfig7 = `
-	data "powerflex_protection_domain" "pd7" {
-		id = ""
-	}
-	`
-
-	// retrieve protection domain by empty name
-	ProtectionDomainDataSourceConfig8 = `
-	data "powerflex_protection_domain" "pd8" {
-		name = ""
-	}
-	`
 }

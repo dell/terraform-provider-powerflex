@@ -40,6 +40,18 @@ output "rpResult" {
   value = data.powerflex_replication_pair.rp
 }
 
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_replication_pair" "replication_pair_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     peer_system_name = ["^Peer_System_.*$"]
+#   }
+# }
+
+# output "replicationPairFilterRegexResult"{
+#  value = data.powerflex_replication_pair.replication_pair_filter_regex.rp_filter
+# }
+
 // If multiple filter fields are provided then it will show the intersection of all of those fields.
 // If there is no intersection between the filters then an empty datasource will be returned
 // For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 

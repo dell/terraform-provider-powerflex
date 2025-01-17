@@ -22,12 +22,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 	"testing"
 
 	. "github.com/bytedance/mockey"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 var ProviderConfigForTesting = ``
@@ -105,24 +107,6 @@ type mdmDataPoints struct {
 	tbID           string
 	standByIP1     string
 	standByIP2     string
-}
-
-type nodeDataPoints struct {
-	NodeIP       string
-	ServiceTag   string
-	NodeID       string
-	NodePoolID   string
-	NodePoolName string
-}
-
-type templateDataPoints struct {
-	TemplateID   string
-	TemplateName string
-}
-
-type serviceDataPoints struct {
-	ServiceID   string
-	ServiceName string
 }
 
 type complianceReportDataPoints struct {
@@ -248,36 +232,6 @@ func getMdmDataPointsForTest() mdmDataPoints {
 	return MDMDataPoints
 }
 
-func getTemplateDataForTest() templateDataPoints {
-
-	var TemplateDataPoints templateDataPoints
-
-	envMap, err := loadEnvFile("powerflex.env")
-	if err != nil {
-		log.Fatal("Error loading .env file: ", err)
-		return TemplateDataPoints
-	}
-
-	TemplateDataPoints.TemplateID = setDefault(envMap["POWERFLEX_TEMPLATE_ID"], "tfacc_node_id")
-	TemplateDataPoints.TemplateName = setDefault(envMap["POWERFLEX_TEMPLATE_NAME"], "tfacc_node_pool_name")
-	return TemplateDataPoints
-}
-
-func getServiceDataForTest() serviceDataPoints {
-
-	var ServiceDataPoints serviceDataPoints
-
-	envMap, err := loadEnvFile("powerflex.env")
-	if err != nil {
-		log.Fatal("Error loading .env file: ", err)
-		return ServiceDataPoints
-	}
-
-	ServiceDataPoints.ServiceID = setDefault(envMap["POWERFLEX_SERVICE_ID"], "tfacc_service_id")
-	ServiceDataPoints.ServiceName = setDefault(envMap["POWERFLEX_SERVICE_NAME"], "tfacc_service_name")
-	return ServiceDataPoints
-}
-
 func getComplianceReportDataForTest() complianceReportDataPoints {
 	var ComplianceReportDataPoints complianceReportDataPoints
 	envMap, err := loadEnvFile("powerflex.env")
@@ -293,24 +247,6 @@ func getComplianceReportDataForTest() complianceReportDataPoints {
 	ComplianceReportDataPoints.ServiceTag = setDefault(envMap["POWERFLEX_COMP_REP_SERVICE_TAG"], "tfacc_compliance_report_service_tag")
 	ComplianceReportDataPoints.IPAddress = setDefault(envMap["POWERFLEX_COMP_REP_IP_ADDRESS"], "tfacc_compliance_report_ip_address")
 	return ComplianceReportDataPoints
-}
-
-func getNodeDataForTest() nodeDataPoints {
-
-	var NodeDataPoints nodeDataPoints
-
-	envMap, err := loadEnvFile("powerflex.env")
-	if err != nil {
-		log.Fatal("Error loading .env file: ", err)
-		return NodeDataPoints
-	}
-
-	NodeDataPoints.NodeIP = setDefault(envMap["POWERFLEX_NODE_IP"], "tfacc_node_ip")
-	NodeDataPoints.ServiceTag = setDefault(envMap["POWERFLEX_SERVICE_TAG"], "tfacc_service_tag")
-	NodeDataPoints.NodeID = setDefault(envMap["POWERFLEX_NODE_ID"], "tfacc_node_id")
-	NodeDataPoints.NodePoolID = setDefault(envMap["POWERFLEX_NODE_POOL_ID"], "tfacc_node_pool_id")
-	NodeDataPoints.NodePoolName = setDefault(envMap["POWERFLEX_NODE_POOL_NAME"], "tfacc_node_pool_name")
-	return NodeDataPoints
 }
 
 var globalEnvMap = getEnvMap()
@@ -329,9 +265,6 @@ var username = setDefault(globalEnvMap["POWERFLEX_USERNAME"], "test")
 var password = setDefault(globalEnvMap["POWERFLEX_PASSWORD"], "test")
 var endpoint = setDefault(globalEnvMap["POWERFLEX_ENDPOINT"], "http://localhost:3002")
 var insecure = setDefault(globalEnvMap["POWERFLEX_INSECURE"], "false")
-var NodeDataPoints = getNodeDataForTest()
-var TemplateDataPoints = getTemplateDataForTest()
-var ServiceDataPoints = getServiceDataForTest()
 var SourceLocation = setDefault(globalEnvMap["POWERFLEX_SOURCE_LOCATION"], "tfacc_source_location")
 var FirmwareRepoID1 = setDefault(globalEnvMap["POWERFLEX_FIRMWARE_REPO_ID1"], "tfacc_firmware_repo_id1")
 var FirmwareRepoID2 = setDefault(globalEnvMap["POWERFLEX_FIRMWARE_REPO_ID2"], "tfacc_firmware_repo_id2")
@@ -455,4 +388,65 @@ func loadEnvFile(path string) (map[string]string, error) {
 	}
 
 	return envMap, nil
+}
+
+func TestAccProvider(t *testing.T) {
+	var exampleDataForTest = `
+	data "powerflex_device" "all" {
+	}
+	`
+	var noEndpoint = fmt.Sprintf(`
+	provider "powerflex" {
+		username = "%s"
+		password = "%s"
+		endpoint = ""
+		insecure = %s
+		timeout = 120
+	}
+	`, username, password, insecure)
+
+	var noUsername = fmt.Sprintf(`
+	provider "powerflex" {
+		username = ""
+		password = "%s"
+		endpoint = "%s"
+		insecure = %s
+		timeout = 120
+	}
+	`, password, endpoint, insecure)
+
+	var noPassword = fmt.Sprintf(`
+	provider "powerflex" {
+		username = "%s"
+		password = ""
+		endpoint = "%s"
+		insecure = %s
+		timeout = 120
+	}
+	`, username, endpoint, insecure)
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Should error if no endpoint set
+			{
+				Config:      noEndpoint + exampleDataForTest,
+				ExpectError: regexp.MustCompile(".*Missing powerflex API Endpoint*"),
+			},
+			// Should error if no username set
+			{
+				Config:      noUsername + exampleDataForTest,
+				ExpectError: regexp.MustCompile(".*Missing powerflex API Username*"),
+			},
+			// Should error if no password is set
+			{
+				Config:      noPassword + exampleDataForTest,
+				ExpectError: regexp.MustCompile(".*Missing powerflex API Password*"),
+			},
+			// Should set config successfully
+			{
+				Config: ProviderConfigForTesting + exampleDataForTest,
+			},
+		},
+	})
 }

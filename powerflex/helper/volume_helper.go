@@ -116,8 +116,20 @@ func DifferenceMap(a, b map[string]string) map[string]string {
 	return diff
 }
 
+func GetAllVolumes(client *goscaleio.Client) ([]scaleiotypes.Volume, error) {
+	vols := []scaleiotypes.Volume{}
+	resp, err := client.GetVolume("", "", "", "", false)
+	if err != nil {
+		return nil, err
+	}
+	for _, val := range resp {
+		vols = append(vols, *val)
+	}
+	return vols, nil
+}
+
 // UpdateVolumeState iterates over the volume list and update the state
-func UpdateVolumeState(volumes []*scaleiotypes.Volume) (response []models.VolumeModel) {
+func UpdateVolumeState(volumes []scaleiotypes.Volume) (response []models.VolumeModel) {
 	for _, volumeValue := range volumes {
 		volumeState := models.VolumeModel{
 			ID:                                 types.StringValue(volumeValue.ID),

@@ -21,14 +21,49 @@ limitations under the License.
 data "powerflex_template" "example1" {
 }
 
-# Get template details using the ID of the template.
-data "powerflex_template" "example2" {
-  template_ids = ["ID1", "ID2"]
-}
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_template" "template_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     created_date = ["^2024-01-05.*$"]
+#   }
+# }
 
-# Get template details using the Name of the template.
-data "powerflex_template" "example3" {
-  template_names = ["Name_1", "Name_2"]
+# output "templateFilterRegexResult"{
+#  value = data.powerflex_template.template_filter_regex.template_details
+# }
+
+// If multiple filter fields are provided then it will show the intersection of all of those fields.
+// If there is no intersection between the filters then an empty datasource will be returned
+// For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 
+data "powerflex_template" "template" {
+  # filter{
+  #   template_name = ["template_name"]
+  #   id = ["template_id"]
+  #   template_type = ["template_type"]
+  #   template_version = ["template_version"]
+  #   original_template_id = ["original_template_id"]
+  #   template_locked =  false
+  #   in_configuration = false
+  #   created_date = ["created_date"]
+  #   created_by = ["created_by"]
+  #   updated_date = ["updated_date"]
+  #   last_deployed_date = ["last_deployed_date"]
+  #   updated_by = ["updated_by"]
+  #   manage_firmware = true
+  #   use_default_catalog = true
+  #   all_users_allowed = false
+  #   category = ["category"]
+  #   server_count = [3]
+  #   storage_count = [0]
+  #   cluster_count = [1]
+  #   service_count = [0]
+  #   switch_count = [2]
+  #   vm_count = [0]
+  #   sdnas_count = [3]
+  #   brownfield_template_type = ["brownfield_template_type"]
+  #   Draft = true
+  # }
 }
 
 output "template_result" {

@@ -25,18 +25,97 @@ import (
 	"testing"
 
 	. "github.com/bytedance/mockey"
+	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestAccResourceUser(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is an Unit test")
 	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			// Create user Test
+			// Get System Error
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetFirstSystem).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + UserResourceCreate,
+				ExpectError: regexp.MustCompile(`.*Error in getting system instance on the PowerFlex cluster*.`),
+			},
+			// Powerflex 3.x First name error Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
+				Config:
+				// Special Config for 3.x
+				fmt.Sprintf(`
+				provider "powerflex" {
+					username = "3.x"
+					password = "%s"
+					endpoint = "%s"
+					insecure = %s
+					timeout = 120
+				}
+				`, password, endpoint, insecure) + UserResourceCreate3,
+				ExpectError: regexp.MustCompile(`.*PowerFlex version 3.6 does not support the first_name and last_name attributes*.`),
+			},
+			// Powerflex 3.x role error Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
+				Config:
+				// Special Config for 3.x
+				fmt.Sprintf(`
+				provider "powerflex" {
+					username = "3.x"
+					password = "%s"
+					endpoint = "%s"
+					insecure = %s
+					timeout = 120
+				}
+				`, password, endpoint, insecure) + UserResourceUpdate,
+				ExpectError: regexp.MustCompile(`.*Invalid user role*.`),
+			},
+			// Create user Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.System).CreateUser).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + UserResourceCreate,
+				ExpectError: regexp.MustCompile(`.*Error creating the user*.`),
+			},
+			// Get user Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.System).GetUserByIDName).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + UserResourceCreate,
+				ExpectError: regexp.MustCompile(`.*Error fetching the user after creation*.`),
+			},
+			// Create user Success
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
 				Config: ProviderConfigForTesting + UserResourceCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_user.user", "name", "NewUser"),
@@ -89,8 +168,46 @@ func TestAccResourceUser(t *testing.T) {
 				ImportStateId: "lastName:dontCare",
 				ExpectError:   regexp.MustCompile("Expected import identifier format"),
 			},
+			// Update user error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.Client).ModifySSOUser).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + UserResourceUpdate,
+				ExpectError: regexp.MustCompile(`.*Error while updating role/username of the user*.`),
+			},
+			// Update pass error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.Client).ResetSSOUserPassword).Return(fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + UserResourceUpdatePass,
+				ExpectError: regexp.MustCompile(`.*Error while updating password of the user*.`),
+			},
+			// Update get user error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.Client).GetSSOUser).Return(nil, fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + UserResourceUpdatePass,
+				ExpectError: regexp.MustCompile(`.*Could not get user by ID*.`),
+			},
 			// Update user Test
 			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
 				Config: ProviderConfigForTesting + UserResourceUpdate,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_user.user", "name", "NewUser"),
@@ -103,9 +220,6 @@ func TestAccResourceUser(t *testing.T) {
 }
 
 func TestAccResourceUserCreateNegative(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Dont run with units tests because it will try to create the context")
-	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -132,6 +246,14 @@ resource "powerflex_user" "user" {
 	name = "NewUser"
 	role = "Monitor"
 	password = "Password123"
+}
+`
+
+var UserResourceUpdatePass = `
+resource "powerflex_user" "user" {
+	name = "NewUser"
+	role = "SystemAdmin"
+	password = "Password456"
 }
 `
 

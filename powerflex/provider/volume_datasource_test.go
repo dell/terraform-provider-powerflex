@@ -18,110 +18,108 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
+	"os"
+	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-type dataPoints struct {
-	storagePoolID string
-	volumeType    string
-	dataLayout    string
-}
-
-var volumeTestData dataPoints
-
-func init() {
-	volumeTestData.storagePoolID = "c98e26e500000000"
-	volumeTestData.volumeType = "ThinProvisioned"
-	volumeTestData.dataLayout = "MediumGranularity"
-}
-
-// TestAccVolumeDataSource tests the volume data source
-// where it fetches the volumes based on volume id/name or storage pool id/name
-// and if nothing is mentioned , then return all volumes
-func TestAccDatasourceVolume(t *testing.T) {
-
+// Accptance Tests
+func TestAccDatasourceAcceptanceVolume(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an Acceptance test")
+	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			//retrieving volume based on id
 			{
-				Config: ProviderConfigForTesting + VolumeDataSourceConfig1,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify the first volume to ensure attributes are correctly set
-					resource.TestCheckResourceAttrPair("data.powerflex_volume.all", "volumes.0.id", "powerflex_volume.ref-vol", "id"),
-					resource.TestCheckResourceAttrPair("data.powerflex_volume.all", "volumes.0.name", "powerflex_volume.ref-vol", "name"),
-					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.storage_pool_id", volumeTestData.storagePoolID),
-					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.volume_type", volumeTestData.volumeType),
-					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.data_layout", volumeTestData.dataLayout),
-				),
-			},
-			//retrieving volume based on name
-			{
-				Config: ProviderConfigForTesting + VolumeDataSourceConfig2,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify the first volume to ensure attributes are correctly set
-					resource.TestCheckResourceAttrPair("data.powerflex_volume.all", "volumes.0.id", "powerflex_volume.ref-vol", "id"),
-					resource.TestCheckResourceAttrPair("data.powerflex_volume.all", "volumes.0.name", "powerflex_volume.ref-vol", "name"),
-					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.storage_pool_id", volumeTestData.storagePoolID),
-					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.volume_type", volumeTestData.volumeType),
-					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.data_layout", volumeTestData.dataLayout),
-				),
-			},
-			//retrieving volume based on storage pool id
-			{
-				Config: ProviderConfigForTesting + VolumeDataSourceConfig3,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify the volume to ensure storage pool id attributes is correctly set
-					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.storage_pool_id", volumeTestData.storagePoolID),
-				),
-			},
-			//retrieving volume based on storage pool name
-			{
-				Config: ProviderConfigForTesting + VolumeDataSourceConfig4,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify the volume to ensure storage pool id attributes is correctly set
-					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.storage_pool_id", volumeTestData.storagePoolID),
-				),
-			},
-			//retrieving all the volumes
-			{
-				Config: ProviderConfigForTesting + VolumeDataSourceConfig5,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					// Verify the volume to ensure all attributes are set
-					resource.TestCheckResourceAttr("data.powerflex_volume.all", "volumes.0.storage_pool_id", volumeTestData.storagePoolID),
-				),
+				Config: ProviderConfigForTesting + VolumeDataSourceAll,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
 		},
 	})
 }
 
-var VolumeDataSourceConfig1 = create8gbVol + `
+// Unit Tests
+func TestAccDatasourceVolume(t *testing.T) {
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is an Unit test")
+	}
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		Steps: []resource.TestStep{
+			// Get All Volumes
+			{
+				Config: ProviderConfigForTesting + VolumeDataSourceAll,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
+			},
+			// Filter Single
+			{
+				Config: ProviderConfigForTesting + VolumeDataSourceNames,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_volume.name-filter", "volumes.0.name", "block-volume-physical-deploy"),
+				),
+			},
+			// Filter Multiple
+			{
+				Config: ProviderConfigForTesting + VolumeDataSourceMultiple,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_volume.multiple-filter", "volumes.0.vtree_id", "e1e939c600000001"),
+					resource.TestCheckResourceAttr("data.powerflex_volume.multiple-filter", "volumes.0.time_stamp_is_accurate", "false"),
+					resource.TestCheckResourceAttr("data.powerflex_volume.multiple-filter", "volumes.1.vtree_id", "e1e939c800000003"),
+					resource.TestCheckResourceAttr("data.powerflex_volume.multiple-filter", "volumes.1.time_stamp_is_accurate", "false"),
+				),
+			},
+			// Read error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetAllVolumes).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + VolumeDataSourceAll,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex Volumes*.`),
+			},
+			// Filter error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetDataSourceByValue).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + VolumeDataSourceNames,
+				ExpectError: regexp.MustCompile(`.*Error in filtering volumes*.`),
+			},
+		},
+	})
+}
+
+var VolumeDataSourceAll = `
 data "powerflex_volume" "all" {						
-	id = resource.powerflex_volume.ref-vol.id
 }
 `
 
-var VolumeDataSourceConfig2 = create8gbVol + `
-data "powerflex_volume" "all" {						
-	name = resource.powerflex_volume.ref-vol.name
+var VolumeDataSourceNames = `
+data "powerflex_volume" "name-filter" {	
+	filter {
+		name = ["block-volume-physical-deploy", "Nas_68691eb600000000_ClstVol"]
+	}					
 }
 `
 
-var VolumeDataSourceConfig3 = create8gbVol + `
-data "powerflex_volume" "all" {						
-	storage_pool_id = "c98e26e500000000"
-}
-`
-
-var VolumeDataSourceConfig4 = create8gbVol + `
-data "powerflex_volume" "all" {						
-	storage_pool_name = "pool1"
-}
-`
-
-var VolumeDataSourceConfig5 = create8gbVol + `
-data "powerflex_volume" "all" {						
+var VolumeDataSourceMultiple = `
+data "powerflex_volume" "multiple-filter" {	
+	filter {
+		vtree_id = ["e1e939c800000003", "e1e939c600000001"]
+		time_stamp_is_accurate = false
+	}					
 }
 `

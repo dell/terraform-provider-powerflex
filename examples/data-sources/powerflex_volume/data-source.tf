@@ -15,20 +15,59 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-# This datasource reads volumes either by id or name or storage_pool_id or storage_pool_name where user can provide a value to any one of them
-# If it is an empty datsource block , then it will read all the volumes
-# If id or name is provided then it reads a particular volume with that id or name
-# If storage_pool_id or storage_pool_name is provided then it will return the volumes under that storage pool
-
+// Empty filter block will return all the volumes
 data "powerflex_volume" "volume" {
-
-  id = "4570761d00000024"
-  #name = "cosu-ce5b8a2c48"
-  #storage_pool_id= "c98e26e500000000"
-  #storage_pool_name= "pool2"
 }
 
 output "volumeResult" {
   value = data.powerflex_volume.volume.volumes
+}
+
+
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_volume" "volume_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     volume_type = ["^.*Provisioned$"]
+#   }
+# }
+
+# output "volumeFilterRegexResult"{
+#  value = data.powerflex_volume.volume_filter_regex.volumes
+# }
+
+// If multiple filter fields are provided then it will show the intersection of all of those fields.
+// If there is no intersection between the filters then an empty datasource will be returned
+// For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 
+data "powerflex_volume" "volume_filter" {
+  filter {
+  #   id                                     = ["id1", "id2"]
+  #   name                                   = ["name1", "name2"]
+  #   creation_time                          = [1, 2]
+  #   size_in_kb                             = [123, 456]
+  #   ancestor_volume_id                     = ["ancestor_volume_id1", "ancestor_volume_id2"]
+  #   vtree_id                               = ["vtree_id1", "vtree_id2"]
+  #   consistency_group_id                   = ["consistency_group_id1", "consistency_group_id2"]
+  #   volume_type                            = ["volume_type1", "volume_type2"]
+  #   use_rm_cache                           = false
+  #   storage_pool_id                        = ["storage_pool_id1", "storage_pool_id2"]
+  #   data_layout                            = ["data_layout1", "data_layout2"]
+  #   not_genuine_snapshot                   = false
+  #   access_mode_limit                      = ["access_mode_limit1", "access_mode_limit2"]
+  #   secure_snapshot_exp_time               = [789, 123]
+  #   managed_by                             = ["managed_by1", "managed_by2"]
+  #   locked_auto_snapshot                    = false
+  #   locked_auto_snapshot_marked_for_removal = false
+  #   compression_method                     = ["compression_method1", "compression_method2"]
+  #   time_stamp_is_accurate                 = true
+  #   original_expiry_time                   = [43, 71]
+  #   volume_replication_state               = ["volume_replication_state1", "volume_replication_state2"]
+  #   replication_journal_volume             = false
+  #   replication_time_stamp                 = [1,2]
+  }
+}
+
+output "volumeFilterResult" {
+  value = data.powerflex_volume.volume_filter.volumes
 }
 

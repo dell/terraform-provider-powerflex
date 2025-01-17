@@ -18,21 +18,47 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
+	"os"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-// TestAccSnapshotPolicyDataSource tests the snapshot policy data source
-// where it fetches the snapshot policies based on snapshot policy id/name
-// and if nothing is mentioned , then return all snapshot policies
-func TestAccDatasourceSnapshotPolicy(t *testing.T) {
-
+// AT
+func TestAccDatasourceAcceptanceSnapshotPolicy(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an Acceptance test")
+	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			//retrieving snapshot policy based on id
+			{
+				Config: ProviderConfigForTesting + SnapshotPolicyDataSourceAll,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
+			},
+		},
+	})
+}
+
+// UT
+func TestAccDatasourceSnapshotPolicy(t *testing.T) {
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is an Unit test")
+	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			//retrieving all snapshot policices
+			{
+				Config: ProviderConfigForTesting + SnapshotPolicyDataSourceAll,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
+			},
+			//retrieving snapshot policy based single filter
 			{
 				Config: ProviderConfigForTesting + SnapshotPolicyDataSourceConfig1,
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -42,62 +68,64 @@ func TestAccDatasourceSnapshotPolicy(t *testing.T) {
 					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp1", "snapshotpolicies.#", "1"),
 				),
 			},
-			//retrieving snapshot policy based on name
+			//retrieving snapshot policy based multiple filter
 			{
 				Config: ProviderConfigForTesting + SnapshotPolicyDataSourceConfig2,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					// Verify the first snapshot policy to ensure attributes are correctly set
 					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp2", "snapshotpolicies.0.id", "896a535700000000"),
 					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp2", "snapshotpolicies.0.name", "snap-create-test"),
+					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp2", "snapshotpolicies.0.last_auto_snapshot_failure_in_first_level", "false"),
+					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp2", "snapshotpolicies.0.system_id", "1250de83018c2d0f"),
 					resource.TestCheckResourceAttr("data.powerflex_snapshot_policy.sp2", "snapshotpolicies.#", "1"),
 				),
 			},
-			//retrieving all snapshot policies
+			// Read error
 			{
-				Config: ProviderConfigForTesting + SnapshotPolicyDataSourceConfig3,
-				Check: resource.TestCheckTypeSetElemNestedAttrs("data.powerflex_snapshot_policy.sp3", "snapshotpolicies.*", map[string]string{
-					"id": "896a535700000000",
-				}),
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetAllSnapshotPolicies).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + SnapshotPolicyDataSourceAll,
+				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex Snapshot Policy*.`),
 			},
-			//retrieving snapshot policy with empty snapshot policy id
+			// Filter error
 			{
-				Config:      ProviderConfigForTesting + SnapshotPolicyDataSourceConfig4,
-				ExpectError: regexp.MustCompile(".*Invalid Attribute Value Length.*"),
-			},
-			//retrieving snapshot policy with incorrect snapshot policy id
-			{
-				Config:      ProviderConfigForTesting + SnapshotPolicyDataSourceConfig5,
-				ExpectError: regexp.MustCompile(".*Unable to Read Powerflex Snapshot Policy.*"),
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetDataSourceByValue).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + SnapshotPolicyDataSourceConfig2,
+				ExpectError: regexp.MustCompile(`.*Error in filtering snapshot policies*.`),
 			},
 		},
 	})
 }
 
+var SnapshotPolicyDataSourceAll = `
+data "powerflex_snapshot_policy" "all" {
+}
+`
+
 var SnapshotPolicyDataSourceConfig1 = `
-data "powerflex_snapshot_policy" "sp1" {						
-	id = "896a535700000000"
+data "powerflex_snapshot_policy" "sp1" {
+	filter{
+		id = ["896a535700000000"]
+	}
 }
 `
 
 var SnapshotPolicyDataSourceConfig2 = `
-data "powerflex_snapshot_policy" "sp2" {						
-	name = "sample_snap_policy_1"
-}
-`
-
-var SnapshotPolicyDataSourceConfig3 = `
-data "powerflex_snapshot_policy" "sp3" {						
-}
-`
-
-var SnapshotPolicyDataSourceConfig4 = `
-data "powerflex_snapshot_policy" "sp4" {						
-	id = ""
-}
-`
-
-var SnapshotPolicyDataSourceConfig5 = `
-data "powerflex_snapshot_policy" "sp5" {	
-	id = "15ad99b9000"					
+data "powerflex_snapshot_policy" "sp2" {
+	filter{
+		id = ["896a535700000000"]
+		name = ["snap-create-test"]
+		last_auto_snapshot_failure_in_first_level = false
+		system_id = ["1250de83018c2d0f"]
+	}
 }
 `

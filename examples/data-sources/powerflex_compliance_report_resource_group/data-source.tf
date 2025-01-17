@@ -16,84 +16,42 @@ limitations under the License.
 */
 
 # commands to run this tf file : terraform init && terraform apply --auto-approve
-
-# To get the resource_group_id you can use the powerflex_resource_group data source as shown below:
-
 # Get all Resource Group details present in the PowerFlex
-data "powerflex_resource_group" "example1" {
+data "powerflex_compliance_report_resource_group" "example1" {
 }
 
-# Get Resource Group details using the Name of the Resource Group
-data "powerflex_resource_group" "example3" {
-  resource_group_names = ["Name_1", "Name_2"]
-}
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_compliance_report_resource_group" "compliance_report_resource_group_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     model = ["^Powerflex.*$"]
+#   }
+# }
 
-# Get all compliance report details for the given resource group
-data "powerflex_compliance_report_resource_group" "complianceReport" {
-  resource_group_id = "ID"
-}
+# output "complianceReportResourceGroupFilterRegexResult"{
+#  value = data.powerflex_compliance_report_resource_group.compliance_report_resource_group_filter_regex.compliance_reports
+# }
 
-# Get compliance report details for the given resource group filtered by given ipaddresses
-data "powerflex_compliance_report_resource_group" "complianceReport" {
-  resource_group_id = "ID"
-  # this datasource supports multiple filters like ip_addresses, host_names, service_tags, resource_ids, compliant
-  # and gives an intersection of the results
-  filter {
-    ip_addresses = ["10.xxx.xxx.xx", "10.xxx.xxx.xx"]
-  }
-}
-
-# Get compliance report details for the given resource group filtered by resource ids and compliant status
-data "powerflex_compliance_report_resource_group" "complianceReport" {
-  resource_group_id = "ID"
-  # this datasource supports multiple filters like ip_addresses, host_names, service_tags, resource_ids, compliant
-  # and gives an intersection of the results
-  filter {
-    resource_ids = ["resourceid1", "resourceid2"]
-    compliant    = true
-  }
-}
-
-# Get compliance report details for the given resource group filtered by compliant resources
-data "powerflex_compliance_report_resource_group" "complianceReport" {
-  resource_group_id = "ID"
-  # this datasource supports multiple filters like ip_addresses, host_names, service_tags, resource_ids, compliant
-  # and gives an intersection of the results
-  filter {
-    compliant = true
-  }
-}
-
-# Get compliance report details for the given resource group filtered by hostnames
-data "powerflex_compliance_report_resource_group" "complianceReport" {
-  resource_group_id = "ID"
-  # this datasource supports multiple filters like ip_addresses, host_names, service_tags, resource_ids, compliant
-  # and gives an intersection of the results
-  filter {
-    host_names = ["hostname1", "hostname2"]
-  }
-}
-
-# Get compliance report details for the given resource group filtered by service tags
-data "powerflex_compliance_report_resource_group" "complianceReport" {
-  resource_group_id = "ID"
-  # this datasource supports multiple filters like ip_addresses, host_names, service_tags, resource_ids, compliant
-  # and gives an intersection of the results
-  filter {
-    service_tags = ["servicetag1", "servicetag2"]
-  }
-}
-
-# Get compliance report details for the given resource group filtered by resource ids
-data "powerflex_compliance_report_resource_group" "complianceReport" {
-  resource_group_id = "ID"
-  # this datasource supports multiple filters like ip_addresses, host_names, service_tags, resource_ids, compliant
-  # and gives an intersection of the results
-  filter {
-    resource_ids = ["resourceid1", "resourceid2"]
-  }
-}
+# this datasource supports multiple filters like ip_address, host_name, service_tag, compliant,etc.
+# Note: If both filters are used simultaneously, the results will include any records that match either of the filters.
+# data "powerflex_compliance_report_resource_group" "complianceReport" {
+#   filter {
+#      firmware_repository_name = ["name1", "name2"]
+#      device_type  = ["devicetype1", "devicetype2"]
+#      model = ["model1", "model2"]
+#      service_tag = ["servicetag1", "servicetag2"]
+#      compliant = true
+#      embedded_report = true
+#      can_update = true
+#      available = true
+#      device_state  = ["devicestate1", "devicestate2"]
+#      managed_state = ["managedstate1", "managedstate2"]
+#      host_name = ["hostname1", "hostname2"]
+#      id = ["id1", "id2"]
+#      ip_address = ["ip1", "ip2"]
+#   }
+# }
 
 output "result" {
-  value = data.powerflex_compliance_report_resource_group.complianceReport
+  value = data.powerflex_compliance_report_resource_group.example1.compliance_reports
 }

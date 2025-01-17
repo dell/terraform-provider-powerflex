@@ -49,18 +49,50 @@ limitations under the License.
 */
 
 # commands to run this tf file : terraform init && terraform apply --auto-approve
-# Reads snapshot policy either by name or by id , if provided
-# If both name and id is not provided , then it reads all the snapshot policies
-# id and name can't be given together to fetch the snapshot policy
 
 data "powerflex_snapshot_policy" "sp" {
-
-  #name = "sample_snap_policy_1"
-  id = "896a535700000000"
 }
 
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_snapshot_policy" "snapshot_policy_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     system_id = ["^.*0f$"]
+#   }
+# }
+
+# output "snapshotPolicyFilterRegexResult"{
+#  value = data.powerflex_snapshot_policy.snapshot_policy_regex.sp
+# }
+
+// If multiple filter fields are provided then it will show the intersection of all of those fields.
+// If there is no intersection between the filters then an empty datasource will be returned
+// For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/
+# data "powerflex_snapshot_policy" "sp2" {
+#   filter{
+#     id = ["896a535700000000"]
+#     name = ["snap-create-test"]
+#     snapshot_policy_state = ["enabled"]
+#     auto_snapshot_creation_cadence_in_min = [5]
+#     max_vtree_auto_snapshots = [2]
+#     system_id = ["1234567890abcdef"]
+#     num_of_source_volumes = [7]
+#     num_of_expired_but_locked_snapshots = [5]
+#     num_of_creation_failures = [3]
+#     num_of_retained_snapshots_per_level = [2]
+#     snapshot_access_mode = ["read_write"]
+#     secure_snapshots = true
+#     time_of_last_auto_snapshot = [5]
+#     time_of_last_auto_snapshot_creation_failure = [5]
+#     last_auto_snapshot_creation_failure_reason = ["reason_for_failure"]
+#     last_auto_snapshot_failure_in_first_level = true
+#     num_of_auto_snapshots = [5]
+#     num_of_locked_snapshots = [5]
+#   }
+# }
+
 output "spResult" {
-  value = data.powerflex_snapshot_policy.sp.snapshotpolicies
+  value = data.powerflex_snapshot_policy.sp
 }
 ```
 
@@ -71,12 +103,38 @@ After the successful execution of above said block, We can see the output by exe
 
 ### Optional
 
-- `id` (String) Unique identifier of the snapshot policy instance to fetch. Conflicts with `name`.
-- `name` (String) Name of the snapshot policy to fetch. Conflicts with `id`.
+- `filter` (Block, Optional) (see [below for nested schema](#nestedblock--filter))
 
 ### Read-Only
 
+- `id` (String) Unique identifier of the snapshot policy instance to fetch. Conflicts with `name`.
 - `snapshotpolicies` (Attributes List) List of snapshot policies. (see [below for nested schema](#nestedatt--snapshotpolicies))
+
+<a id="nestedblock--filter"></a>
+### Nested Schema for `filter`
+
+Optional:
+
+- `auto_snapshot_creation_cadence_in_min` (Set of Number) List of auto_snapshot_creation_cadence_in_min
+- `id` (Set of String) List of id
+- `last_auto_snapshot_creation_failure_reason` (Set of String) List of last_auto_snapshot_creation_failure_reason
+- `last_auto_snapshot_failure_in_first_level` (Boolean) Value for last_auto_snapshot_failure_in_first_level
+- `max_vtree_auto_snapshots` (Set of Number) List of max_vtree_auto_snapshots
+- `name` (Set of String) List of name
+- `next_auto_snapshot_creation_time` (Set of Number) List of next_auto_snapshot_creation_time
+- `num_of_auto_snapshots` (Set of Number) List of num_of_auto_snapshots
+- `num_of_creation_failures` (Set of Number) List of num_of_creation_failures
+- `num_of_expired_but_locked_snapshots` (Set of Number) List of num_of_expired_but_locked_snapshots
+- `num_of_locked_snapshots` (Set of Number) List of num_of_locked_snapshots
+- `num_of_retained_snapshots_per_level` (Set of Number) List of num_of_retained_snapshots_per_level
+- `num_of_source_volumes` (Set of Number) List of num_of_source_volumes
+- `secure_snapshots` (Boolean) Value for secure_snapshots
+- `snapshot_access_mode` (Set of String) List of snapshot_access_mode
+- `snapshot_policy_state` (Set of String) List of snapshot_policy_state
+- `system_id` (Set of String) List of system_id
+- `time_of_last_auto_snapshot` (Set of Number) List of time_of_last_auto_snapshot
+- `time_of_last_auto_snapshot_creation_failure` (Set of Number) List of time_of_last_auto_snapshot_creation_failure
+
 
 <a id="nestedatt--snapshotpolicies"></a>
 ### Nested Schema for `snapshotpolicies`

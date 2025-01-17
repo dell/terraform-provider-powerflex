@@ -134,6 +134,17 @@ func TestAccNvmeTargetDatasourceNegative(t *testing.T) {
 				Config:      ProviderConfigForTesting + nvmeTargetDatasourceConfig,
 				ExpectError: regexp.MustCompile(`.*Unable to Read Powerflex NVMe Targets*.`),
 			},
+			// Copy Fields Error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.CopyFields).Return(fmt.Errorf("mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + nvmeTargetDatasourceConfig,
+				ExpectError: regexp.MustCompile(`.*Error getting NVMe target details*.`),
+			},
 		},
 	})
 }

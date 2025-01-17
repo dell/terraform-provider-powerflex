@@ -18,56 +18,64 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
+	"os"
 	"regexp"
+	"terraform-provider-powerflex/powerflex/helper"
 	"testing"
 
+	. "github.com/bytedance/mockey"
+	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 var NodeDataSourceConfig1 = `
-data "powerflex_node" "example" {						
+data "powerflex_node" "all" {
 }
 `
 
 var NodeDataSourceConfig2 = `
 data "powerflex_node" "example" {
-	node_ids = ["` + NodeDataPoints.NodeID + `"]					
+	filter{
+		ref_id  = ["scaleio-block-legacy-gateway"]
+	}
 }
 `
 
 var NodeDataSourceConfig3 = `
-data "powerflex_node" "example" {
-	ip_addresses = ["` + NodeDataPoints.NodeIP + `"]						
+data "powerflex_node" "example2" {
+	filter{
+		ref_id  = ["scaleio-block-legacy-gateway"]
+		state = ["READY"]
+		ip_address = ["block-legacy-gateway"]
+		service_tag = ["block-legacy-gateway"]
+	}
 }
 `
 
-var NodeDataSourceConfig4 = `
-data "powerflex_node" "example" {
-	service_tags = ["` + NodeDataPoints.ServiceTag + `"]						
-}
-`
-
-var NodeDataSourceConfig5 = `
-data "powerflex_node" "example" {
-	node_pool_ids = ["` + NodeDataPoints.NodePoolID + `"]						
-}
-`
-
-var NodeDataSourceConfig6 = `
-data "powerflex_node" "example" {
-	node_pool_names = ["` + NodeDataPoints.NodePoolName + `", "Global"]						
-}
-`
-
-var NodeDataSourceConfig7 = `
-data "powerflex_node" "example" {
-	node_ids = ["invalid"]					
-}
-`
-
-func TestAccDatasourceNode(t *testing.T) {
-	t.Skip("Skipping this test case")
+// AT
+func TestAccDatasourceAcceptanceNode(t *testing.T) {
+	if os.Getenv("TF_ACC") != "1" {
+		t.Skip("Dont run with units tests, this is an Accpetance test")
+	}
 	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + NodeDataSourceConfig1,
+				Check:  resource.ComposeAggregateTestCheckFunc(),
+			},
+		},
+	})
+}
+
+// UT
+func TestAccDatasourceNode(t *testing.T) {
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is an Unit test")
+	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
@@ -77,35 +85,39 @@ func TestAccDatasourceNode(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + NodeDataSourceConfig2,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_node.example", "node_details.0.ref_id", NodeDataPoints.NodeID),
-					resource.TestCheckResourceAttr("data.powerflex_node.example", "node_details.#", "1"),
+					resource.TestCheckResourceAttr("data.powerflex_node.example", "node_details.0.ref_id", "scaleio-block-legacy-gateway"),
 				),
 			},
 			{
 				Config: ProviderConfigForTesting + NodeDataSourceConfig3,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_node.example", "node_details.0.ip_address", NodeDataPoints.NodeIP),
-					resource.TestCheckResourceAttr("data.powerflex_node.example", "node_details.#", "1"),
+					resource.TestCheckResourceAttr("data.powerflex_node.example2", "node_details.0.ip_address", "block-legacy-gateway"),
+					resource.TestCheckResourceAttr("data.powerflex_node.example2", "node_details.0.service_tag", "block-legacy-gateway"),
+					resource.TestCheckResourceAttr("data.powerflex_node.example2", "node_details.0.ref_id", "scaleio-block-legacy-gateway"),
+					resource.TestCheckResourceAttr("data.powerflex_node.example2", "node_details.0.state", "READY"),
 				),
 			},
+			// Read error
 			{
-				Config: ProviderConfigForTesting + NodeDataSourceConfig4,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_node.example", "node_details.0.service_tag", NodeDataPoints.ServiceTag),
-					resource.TestCheckResourceAttr("data.powerflex_node.example", "node_details.#", "1"),
-				),
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.GatewayClient).GetAllNodes).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + NodeDataSourceConfig1,
+				ExpectError: regexp.MustCompile(`.*Unable to Read node details*.`),
 			},
+			// Filter error
 			{
-				Config: ProviderConfigForTesting + NodeDataSourceConfig5,
-				Check:  resource.ComposeAggregateTestCheckFunc(),
-			},
-			{
-				Config: ProviderConfigForTesting + NodeDataSourceConfig6,
-				Check:  resource.ComposeAggregateTestCheckFunc(),
-			},
-			{
-				Config:      ProviderConfigForTesting + NodeDataSourceConfig7,
-				ExpectError: regexp.MustCompile(`.*Error in getting node details using id*.`),
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock(helper.GetDataSourceByValue).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + NodeDataSourceConfig3,
+				ExpectError: regexp.MustCompile(`.*Error in filtering node*.`),
 			},
 		},
 	})

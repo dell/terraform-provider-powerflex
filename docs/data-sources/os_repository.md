@@ -52,6 +52,18 @@ limitations under the License.
 data "powerflex_os_repository" "example1" {
 }
 
+# if a filter is of type string it has the ability to allow regular expressions
+# data "powerflex_os_repository" "os_repository_filter_regex" {
+#   filter{
+#     name = ["^System_.*$"]
+#     source_path = ["^c://.*$"]
+#   }
+# }
+
+# output "osRepositoryFilterRegexResult"{
+#  value = data.powerflex_os_repository.os_repository_filter_regex.os_repositories
+# }
+
 # # Get OS Repository details by ID
 # data "powerflex_os_repository" "example2" {
 #   # this datasource supports filters like os repository id, name, source path, etc.
@@ -84,7 +96,7 @@ data "powerflex_os_repository" "example1" {
 # }
 
 output "os_repository_result" {
-  value = data.powerflex_os_repository.example1
+  value = data.powerflex_os_repository.example1.os_repositories
 }
 ```
 

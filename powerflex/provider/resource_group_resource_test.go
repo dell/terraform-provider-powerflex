@@ -18,16 +18,21 @@ limitations under the License.
 package provider
 
 import (
+	"fmt"
+	"os"
 	"regexp"
 	"testing"
 
+	. "github.com/bytedance/mockey"
+	"github.com/dell/goscaleio"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-// TestAccResourceGroupResource tests the ResourceGroup Resource
-func TestAccResourceGroupResource(t *testing.T) {
-	t.Skip("Skipping this test case")
-
+// UT TestAccResourceGroupResource tests the ResourceGroup Resource
+func TestAccResourceGroupResourceNegative(t *testing.T) {
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is an Unit test")
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -50,23 +55,21 @@ func TestAccResourceGroupResource(t *testing.T) {
 			},
 			{
 				Config:      ProviderConfigForTesting + ResourceGroupResourceConfig5,
-				ExpectError: regexp.MustCompile(`.*Error in deploying service.*`),
+				ExpectError: regexp.MustCompile(`.*Error in deploying ResourceGroup.*`),
 			},
-			//Import
 			{
-				Config:        ProviderConfigForTesting + importResourceGroupTest,
-				ImportState:   true,
-				ImportStateId: "WRONG",
-				ResourceName:  "powerflex_resource_group.service",
-				ExpectError:   regexp.MustCompile(`.*Couldn't find service with the given filter.*`),
+				Config:      ProviderConfigForTesting + ResourceGroupResourceConfig6,
+				ExpectError: regexp.MustCompile(`.*No need to pass clone_from_host during the deployment of ResourceGroup*`),
 			},
 		},
 	})
 }
 
+// UT
 func TestAccResourceGroupResourcePositive(t *testing.T) {
-	t.Skip("Skipping this test case, only for Unit test")
-
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is an Unit test")
+	}
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -78,8 +81,60 @@ func TestAccResourceGroupResourcePositive(t *testing.T) {
 					resource.TestCheckResourceAttr("powerflex_resource_group.data", "deployment_name", "Block-Storage-Hardware"),
 				),
 			},
-			//Update
+			// check that import is working
 			{
+				ResourceName: "powerflex_resource_group.data",
+				ImportState:  true,
+			},
+			// Read error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.GatewayClient).GetServiceDetailsByID).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + ResourceGroupResourceUpdateConfig,
+				ExpectError: regexp.MustCompile(`.*Error in getting ResourceGroup details*.`),
+			},
+			// Error updating node value
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
+				Config:      ProviderConfigForTesting + ResourceGroupResourceUpdateNodeError,
+				ExpectError: regexp.MustCompile(`.*please validate your inputs*.`),
+			},
+			// Error updating template id value
+			{
+				Config:      ProviderConfigForTesting + ResourceGroupResourceUpdateTemplateError,
+				ExpectError: regexp.MustCompile(`.*please validate your inputs*.`),
+			},
+			// Error updating firmware id value
+			{
+				Config:      ProviderConfigForTesting + ResourceGroupResourceUpdateFirmwareError,
+				ExpectError: regexp.MustCompile(`.*please validate your inputs*.`),
+			},
+			// Update error
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+					FunctionMocker = Mock((*goscaleio.GatewayClient).UpdateService).Return(nil, fmt.Errorf("Mock error")).Build()
+				},
+				Config:      ProviderConfigForTesting + ResourceGroupResourceUpdateConfig,
+				ExpectError: regexp.MustCompile(`.*Error in deploying service*.`),
+			},
+			// Update success
+			{
+				PreConfig: func() {
+					if FunctionMocker != nil {
+						FunctionMocker.UnPatch()
+					}
+				},
 				Config: ProviderConfigForTesting + ResourceGroupResourceUpdateConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("powerflex_resource_group.data", "deployment_name", "Block-Storage-Hardware-Update"),
@@ -88,12 +143,6 @@ func TestAccResourceGroupResourcePositive(t *testing.T) {
 		},
 	})
 }
-
-var importResourceGroupTest = `
-resource "powerflex_resource_group" "data"  {
-	
-}
-`
 
 var ResourceGroupResourceConfig1 = `
 resource "powerflex_resource_group" "data" {
@@ -147,10 +196,42 @@ resource "powerflex_resource_group" "data" {
 }
 `
 
+var ResourceGroupResourceUpdateNodeError = `
+resource "powerflex_resource_group" "data" {
+	deployment_name = "Block-Storage-Hardware-Update"
+	deployment_description = "Block-Storage-Hardware-Update"
+	deployment_timeout = 10
+	nodes = 1
+	template_id = "4f4b69de-debb-4a5f-8f3f-44aca8259596"
+	firmware_id = "8aaa804a8b4d6b5a018b4d77a75900e9"
+}
+`
+
+var ResourceGroupResourceUpdateTemplateError = `
+resource "powerflex_resource_group" "data" {
+	deployment_name = "Block-Storage-Hardware-Update"
+	deployment_description = "Block-Storage-Hardware-Update"
+	deployment_timeout = 10
+	template_id = "invalid"
+	firmware_id = "8aaa804a8b4d6b5a018b4d77a75900e9"
+}
+`
+
+var ResourceGroupResourceUpdateFirmwareError = `
+resource "powerflex_resource_group" "data" {
+	deployment_name = "Block-Storage-Hardware-Update"
+	deployment_description = "Block-Storage-Hardware-Update"
+	deployment_timeout = 10
+	template_id = "4f4b69de-debb-4a5f-8f3f-44aca8259596"
+	firmware_id = "invalid-firware-id"
+}
+`
+
 var ResourceGroupResourceCreateConfig = `
 resource "powerflex_resource_group" "data" {
 	deployment_name = "Block-Storage-Hardware"
 	deployment_description = "Block-Storage-Hardware"
+	deployment_timeout = 10
 	template_id = "4f4b69de-debb-4a5f-8f3f-44aca8259596"
 	firmware_id = "8aaa804a8b4d6b5a018b4d77a75900e9"
 }
@@ -160,6 +241,7 @@ var ResourceGroupResourceUpdateConfig = `
 resource "powerflex_resource_group" "data" {
 	deployment_name = "Block-Storage-Hardware-Update"
 	deployment_description = "Block-Storage-Hardware-Update"
+	deployment_timeout = 10
 	template_id = "4f4b69de-debb-4a5f-8f3f-44aca8259596"
 	firmware_id = "8aaa804a8b4d6b5a018b4d77a75900e9"
 }

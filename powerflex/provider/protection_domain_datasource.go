@@ -19,6 +19,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 
 	"terraform-provider-powerflex/powerflex/helper"
 
@@ -28,7 +29,6 @@ import (
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var (
@@ -72,59 +72,32 @@ func (d *protectionDomainDataSource) Read(ctx context.Context, req datasource.Re
 
 	diags := req.Config.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-	tflog.Info(ctx, "[POWERFLEX] protectionDomainDataSourceModel"+helper.PrettyJSON((state)))
 
-	system, err := helper.GetFirstSystem(d.client)
+	protectionDomains, err := helper.GetProtectionDomains(d.client)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Read Powerflex System",
+			"Unable to Read Powerflex ProtectionDomains",
 			err.Error(),
 		)
 		return
 	}
 
-	var protectionDomains []*scaleiotypes.ProtectionDomain
-
-	if !state.ID.IsNull() {
-		// Fetch protection domain of given id
-		var protectionDomain *scaleiotypes.ProtectionDomain
-		protectionDomain, err = system.FindProtectionDomain(state.ID.ValueString(), "", "")
+	if state.ProtectionDomainFilter != nil {
+		filtered, err := helper.GetDataSourceByValue(*state.ProtectionDomainFilter, protectionDomains)
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Unable to Read Powerflex ProtectionDomain by ID",
-				err.Error(),
+				fmt.Sprintf("Error in filtering protection domains: %v please validate the filter", state.ProtectionDomainFilter), err.Error(),
 			)
 			return
 		}
-		protectionDomains = append(protectionDomains, protectionDomain)
-	} else if !state.Name.IsNull() {
-		// Fetch protection domain of given name
-		var protectionDomain *scaleiotypes.ProtectionDomain
-		protectionDomain, err = system.FindProtectionDomain("", state.Name.ValueString(), "")
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Read Powerflex ProtectionDomain by name",
-				err.Error(),
-			)
-			return
+		filteredPds := []scaleiotypes.ProtectionDomain{}
+		for _, val := range filtered {
+			filteredPds = append(filteredPds, val.(scaleiotypes.ProtectionDomain))
 		}
-		protectionDomains = append(protectionDomains, protectionDomain)
-		// this is required for acceptance testing
-		state.ID = types.StringValue(protectionDomain.ID)
-	} else {
-		// Fetch all protection domains
-		protectionDomains, err = system.GetProtectionDomain("")
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Unable to Read Powerflex ProtectionDomains",
-				err.Error(),
-			)
-			return
-		}
-		// this is required for acceptance testing
-		state.ID = types.StringValue("DummyID")
+		protectionDomains = filteredPds
 	}
 
+	state.ID = types.StringValue("protection-domain-datasoure-id")
 	state.ProtectionDomains = helper.GetAllProtectionDomainState(protectionDomains)
 
 	diags = resp.State.Set(ctx, state)

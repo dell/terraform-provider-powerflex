@@ -23,11 +23,18 @@ import (
 
 // VTreeDataSourceModel maps the struct to VTree data source schema
 type VTreeDataSourceModel struct {
-	VTreeIDs    types.Set    `tfsdk:"vtree_ids"`
-	VolumeIDs   types.Set    `tfsdk:"volume_ids"`
-	VolumeNames types.Set    `tfsdk:"volume_names"`
 	VTrees      []VTree      `tfsdk:"vtree_details"`
 	ID          types.String `tfsdk:"id"`
+	VTreeFilter *VTreeFilter `tfsdk:"filter"`
+}
+
+type VTreeFilter struct {
+	StoragePoolID     []types.String `tfsdk:"storage_pool_id"`
+	DataLayout        []types.String `tfsdk:"data_layout"`
+	CompressionMethod []types.String `tfsdk:"compression_method"`
+	InDeletion        types.Bool     `tfsdk:"in_deletion"`
+	Name              []types.String `tfsdk:"name"`
+	ID                []types.String `tfsdk:"id"`
 }
 
 // VTree maps the struct to VTree schema

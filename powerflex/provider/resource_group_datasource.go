@@ -24,6 +24,7 @@ import (
 	"terraform-provider-powerflex/powerflex/models"
 
 	"github.com/dell/goscaleio"
+	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -85,50 +86,32 @@ func (d *resourceGroupDataSource) Read(ctx context.Context, req datasource.ReadR
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	// Fetch Service details if IDs are provided
-	if !state.ResourceGroupIDs.IsNull() {
-		serviceIDs := make([]string, 0)
-		diags.Append(state.ResourceGroupIDs.ElementsAs(ctx, &serviceIDs, true)...)
-
-		for _, serviceID := range serviceIDs {
-			serviceDetails, err := d.gatewayClient.GetServiceDetailsByID(serviceID, false)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting service details using id %v", serviceID), err.Error(),
-				)
-				return
-			}
-			serviceModel = append(serviceModel, helper.GetDataSourceResourceGroupState(*serviceDetails))
-		}
-	} else if !state.ResourceGroupNames.IsNull() {
-		// Fetch Service details if names are provided
-		Names := make([]string, 0)
-		diags.Append(state.ResourceGroupNames.ElementsAs(ctx, &Names, true)...)
-
-		for _, name := range Names {
-			serviceDetails, err := d.gatewayClient.GetServiceDetailsByFilter("name", name)
-			if err != nil {
-				resp.Diagnostics.AddError(
-					fmt.Sprintf("Error in getting service details using Name %v", name), err.Error(),
-				)
-				return
-			}
-			serviceModel = append(serviceModel, helper.GetDataSourceResourceGroupState(serviceDetails[0]))
-		}
-	} else {
-		//Fetch all the details
-		serviceDetails, err := d.gatewayClient.GetAllServiceDetails()
+	//Fetch all the details
+	serviceDetails, err := d.gatewayClient.GetAllServiceDetails()
+	if err != nil {
+		resp.Diagnostics.AddError("Unable to Read service details", err.Error())
+		return
+	}
+	// If resource group filter is provided, filter the service details
+	if state.ResourceGroupFilter != nil {
+		filtered, err := helper.GetDataSourceByValue(*state.ResourceGroupFilter, serviceDetails)
 		if err != nil {
-			resp.Diagnostics.AddError("Error in getting service details", err.Error())
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("Error in filtering resource groups: %v please validate the filter", state.ResourceGroupFilter), err.Error(),
+			)
 			return
 		}
-
-		for _, service := range serviceDetails {
-			serviceModel = append(serviceModel, helper.GetDataSourceResourceGroupState(service))
+		//convert filtered to []scaleiotypes.ServiceResponse
+		filteredServiceDetails := []scaleiotypes.ServiceResponse{}
+		for _, val := range filtered {
+			filteredServiceDetails = append(filteredServiceDetails, val.(scaleiotypes.ServiceResponse))
 		}
+		serviceDetails = filteredServiceDetails
 	}
 
+	for _, service := range serviceDetails {
+		serviceModel = append(serviceModel, helper.GetDataSourceResourceGroupState(service))
+	}
 	state.ResourceGroupDetails = serviceModel
 	state.ID = types.StringValue("placeholder")
 	diags = resp.State.Set(ctx, state)

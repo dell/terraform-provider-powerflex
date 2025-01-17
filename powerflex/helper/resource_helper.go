@@ -20,6 +20,7 @@ package helper
 import (
 	"context"
 	"fmt"
+	"math"
 	"math/big"
 	"reflect"
 	"sort"
@@ -420,13 +421,20 @@ func ReadFromState(ctx context.Context, source, destination interface{}) error {
 					destinationField.Set(reflect.ValueOf(intVal.ValueInt64Pointer()))
 				}
 				if destinationField.Kind() == reflect.Int32 {
-					destinationField.Set(reflect.ValueOf(int32(intVal.ValueInt64())).Convert(destinationField.Type()))
+					val, err := Int64ToInt32(intVal.ValueInt64())
+					if err != nil {
+						return err
+					}
+					destinationField.Set(reflect.ValueOf(val).Convert(destinationField.Type()))
 				}
 				if destinationField.Kind() == reflect.Int {
 					destinationField.Set(reflect.ValueOf(int(intVal.ValueInt64())).Convert(destinationField.Type()))
 				}
 				if destinationField.Kind() == reflect.Ptr && destinationField.Type().Elem().Kind() == reflect.Int32 {
-					val := int32(intVal.ValueInt64())
+					val, err := Int64ToInt32(intVal.ValueInt64())
+					if err != nil {
+						return err
+					}
 					destinationField.Set(reflect.ValueOf(&val))
 				}
 			case basetypes.BoolValue:
@@ -540,10 +548,17 @@ func assignObjectToField(ctx context.Context, source basetypes.ObjectValue, dest
 					destinationField.Set(reflect.ValueOf(intVal.ValueInt64Pointer()))
 				}
 				if destinationField.Kind() == reflect.Int32 {
-					destinationField.Set(reflect.ValueOf(int32(intVal.ValueInt64())))
+					val, err := Int64ToInt32(intVal.ValueInt64())
+					if err != nil {
+						return err
+					}
+					destinationField.Set(reflect.ValueOf(val))
 				}
 				if destinationField.Kind() == reflect.Ptr && destinationField.Type().Elem().Kind() == reflect.Int32 {
-					val := int32(intVal.ValueInt64())
+					val, err := Int64ToInt32(intVal.ValueInt64())
+					if err != nil {
+						return err
+					}
 					destinationField.Set(reflect.ValueOf(&val))
 				}
 			case basetypes.BoolType{}:
@@ -783,4 +798,11 @@ func IsListValueEquals(a types.List, b types.List) bool {
 		}
 	}
 	return true
+}
+
+func Int64ToInt32(n int64) (int32, error) {
+	if n > math.MaxInt32 || n < math.MinInt32 {
+		return 0, fmt.Errorf("integer overflow: %d is out of int32 range", n)
+	}
+	return int32(n), nil
 }
