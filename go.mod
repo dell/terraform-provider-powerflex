@@ -7,7 +7,7 @@ toolchain go1.23.2
 require (
 	github.com/bramvdbogaerde/go-scp v1.5.0
 	github.com/bytedance/mockey v1.2.13
-	github.com/dell/goscaleio v1.17.1
+	github.com/dell/goscaleio v1.18.1-0.20250115202642-f6f6bef7f6ef
 	github.com/hashicorp/terraform-plugin-framework v1.13.0
 	github.com/hashicorp/terraform-plugin-framework-validators v0.15.0
 	github.com/hashicorp/terraform-plugin-go v0.25.0
@@ -15,7 +15,7 @@ require (
 	github.com/hashicorp/terraform-plugin-testing v1.10.0
 	github.com/masterzen/winrm v0.0.0-20240702205601-3fad6e106085
 	github.com/packer-community/winrmcp v0.0.0-20221126162354-6e900dd2c68f
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	golang.org/x/crypto v0.28.0
 )
 
@@ -91,7 +91,6 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/oklog/run v1.0.0 // indirect
-	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	github.com/zclconf/go-cty v1.15.0 // indirect
 	golang.org/x/net v0.28.0 // indirect
