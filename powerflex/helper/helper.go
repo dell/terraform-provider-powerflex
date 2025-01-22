@@ -389,10 +389,18 @@ func FilterByField(dataSources reflect.Value, fieldValue reflect.Value, field st
 					break
 				}
 
-				//check field value with regex here
-				pattern := regexp.MustCompile(fmt.Sprintf("%v", interFieldValue.Interface()))
+				interFieldRegex := fmt.Sprintf("%v", interFieldValue.Interface())
+				fieldValueRegex := fmt.Sprintf("%v", fieldValueInDataSource.Interface())
 
-				if pattern.MatchString(fmt.Sprintf("%v", fieldValueInDataSource.Interface())) {
+				// Will treat string as regex if "^" and "$" are specified on the first and last index
+				if len(interFieldRegex) > 0 && string(interFieldRegex[0]) == "^" &&
+					string(interFieldRegex[len(interFieldRegex)-1]) == "$" {
+					if regexp.MustCompile(interFieldRegex).MatchString(fieldValueRegex) {
+						filteredData = reflect.Append(filteredData, reflect.ValueOf(dataSource))
+					}
+				}
+
+				if fieldValueInDataSource.Interface() == interFieldValue.Interface() {
 					filteredData = reflect.Append(filteredData, reflect.ValueOf(dataSource))
 				}
 			}
@@ -406,9 +414,19 @@ func FilterByField(dataSources reflect.Value, fieldValue reflect.Value, field st
 				break
 			}
 
-			pattern := regexp.MustCompile(fmt.Sprintf("%v", interFieldValue.Interface()))
+			//check field value is empty to not take in all values
+			interFieldRegex := fmt.Sprintf("%v", interFieldValue.Interface())
+			fieldValueRegex := fmt.Sprintf("%v", fieldValueInDataSource.Interface())
 
-			if pattern.MatchString(fmt.Sprintf("%v", fieldValueInDataSource.Interface())) {
+			// Will treat string as regex if "^" and "$" are specified on the first and last index
+			if len(interFieldRegex) > 0 && string(interFieldRegex[0]) == "^" &&
+				string(interFieldRegex[len(interFieldRegex)-1]) == "$" {
+				if regexp.MustCompile(interFieldRegex).MatchString(fieldValueRegex) {
+					filteredData = reflect.Append(filteredData, reflect.ValueOf(dataSource))
+				}
+			}
+
+			if fieldValueInDataSource.Interface() == interFieldValue.Interface() {
 				filteredData = reflect.Append(filteredData, reflect.ValueOf(dataSource))
 			}
 		}

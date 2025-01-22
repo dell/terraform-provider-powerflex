@@ -87,7 +87,6 @@ data "powerflex_nvme_target" "example" {
     # software_version_info                = ["Version"]
     # maintenance_state                    = ["NoMaintenance"]
     # authentication_error                 = ["None"]
-    # persistent_discovery_controllers_num = [0]
     # system_id                            = ["systemID"]
   }
 }
