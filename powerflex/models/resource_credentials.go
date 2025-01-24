@@ -49,3 +49,26 @@ type ResourceCredentialModel struct {
 	Domain      types.String `tfsdk:"domain"`
 	Username    types.String `tfsdk:"username"`
 }
+
+// ResourceCredentialResourceModel model for Resource Credential
+type ResourceCredentialResourceModel struct {
+	Name                            types.String `tfsdk:"name"`
+	Username                        types.String `tfsdk:"username"`
+	Password                        types.String `tfsdk:"password"`
+	Type                            types.String `tfsdk:"type"`
+	Domain                          types.String `tfsdk:"domain"`
+	Snmpv2CommunityString           types.String `tfsdk:"snmp_v2_community_string"`
+	Snmpv3SecurityLevel             types.String `tfsdk:"snmp_v3_security_level"`
+	Snmpv3SecurityName              types.String `tfsdk:"snmp_v3_security_name"`
+	Snmpv3Md5AuthenticationPassword types.String `tfsdk:"snmp_v3_md5_authentication_password"`
+	Snmpv3DesAuthenticationPassword types.String `tfsdk:"snmp_v3_des_authentication_password"`
+	SSHPrivateKey                   types.String `tfsdk:"ssh_private_key"`
+	KeyPairName                     types.String `tfsdk:"key_pair_name"`
+	OSUsername                      types.String `tfsdk:"os_username"`
+	OSPassword                      types.String `tfsdk:"os_password"`
+	ID                              types.String `tfsdk:"id"`
+	CreateDate                      types.String `tfsdk:"created_date"`
+	CreatedBy                       types.String `tfsdk:"created_by"`
+	UpdatedBy                       types.String `tfsdk:"updated_by"`
+	UpdatedDate                     types.String `tfsdk:"updated_date"`
+}
