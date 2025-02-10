@@ -24,8 +24,18 @@ terraform {
       source = "hashicorp/local"
       version = "2.5.2"
     }
+    vault = {
+      source = "hashicorp/vault"
+      version = "4.6.0"
+    }
   }
 }
+// Used to grab the password
+provider "vault" {
+ address = "https://my-vault-server.com"
+ token = "some-token-value"
+}
+
 provider "powerflex" {
   username =  "user"
   password = "password"
@@ -33,6 +43,11 @@ provider "powerflex" {
   insecure = true
   timeout  = 120
 }
+
+// Can grab secret from vault
+# data "vault_generic_secret" "secret"{
+#  path = "secret/instances"
+# }
 
 # Command to run this tf file : terraform init && terraform plan && terraform apply
 # Create, Read, Delete and Import operations are supported for this resource
@@ -47,8 +62,11 @@ resource "powerflex_resource_credential" "example" {
  ## Required values for all credential types
  name = var.name
  type = var.type // Options: Node, Switch, vCenter, ElementManager, PowerflexGateway, PresentationServer, OSAdmin, OSUser
- password = var.password
  username = var.username
+ // Grab from variable file
+ password = var.password
+ ## Grab from vault 
+ #password = "${data.vault_generic_secret.secret.data["password"]}"
 
  ## Required value for vCenter, ElementManager, OSUser
  #domain = var.domain
