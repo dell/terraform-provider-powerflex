@@ -215,6 +215,7 @@ func getSdsState(s1 scaleio_types.Sds) (sdsDetail models.SdsDataModel) {
 	sdsDetail = models.SdsDataModel{
 		ID:                             types.StringValue(s1.ID),
 		Name:                           types.StringValue(s1.Name),
+		ProtectionDomainID:             types.StringValue(s1.ProtectionDomainID),
 		Port:                           types.Int64Value(int64(s1.Port)),
 		SdsState:                       types.StringValue(s1.SdsState),
 		MembershipState:                types.StringValue(s1.MembershipState),

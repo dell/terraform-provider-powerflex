@@ -122,9 +122,17 @@ func GetAllVolumes(client *goscaleio.Client) ([]scaleiotypes.Volume, error) {
 	if err != nil {
 		return nil, err
 	}
+	respSnap, err := client.GetVolume("", "", "", "", true)
+	if err != nil {
+		return nil, err
+	}
 	for _, val := range resp {
 		vols = append(vols, *val)
 	}
+	for _, val := range respSnap {
+		vols = append(vols, *val)
+	}
+
 	return vols, nil
 }
 

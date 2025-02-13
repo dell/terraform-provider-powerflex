@@ -50,6 +50,11 @@ var SdsDataSourceSchema schema.Schema = schema.Schema{
 						MarkdownDescription: "SDS name.",
 						Computed:            true,
 					},
+					"protection_domain_id": schema.StringAttribute{
+						Description:         "SDS's protection domain id.",
+						MarkdownDescription: "SDS's protection domain id.",
+						Computed:            true,
+					},
 					"ip_list": schema.ListNestedAttribute{
 						Description:         "List of IPs associated with SDS.",
 						MarkdownDescription: "List of IPs associated with SDS.",

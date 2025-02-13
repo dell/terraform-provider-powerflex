@@ -118,6 +118,7 @@ type RaidControllersModel struct {
 type SdsDataModel struct {
 	ID                                          types.String           `tfsdk:"id"`
 	Name                                        types.String           `tfsdk:"name"`
+	ProtectionDomainID                          types.String           `tfsdk:"protection_domain_id"`
 	IPList                                      []IPList               `tfsdk:"ip_list"`
 	Port                                        types.Int64            `tfsdk:"port"`
 	SdsState                                    types.String           `tfsdk:"sds_state"`
