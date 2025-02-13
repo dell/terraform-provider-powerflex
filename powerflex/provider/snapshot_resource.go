@@ -282,6 +282,36 @@ func (r *snapshotResource) Update(ctx context.Context, req resource.UpdateReques
 	resp.Diagnostics.Append(diags...)
 	errMsg := make(map[string]string, 0)
 
+	if state.RetentionUnit.IsNull() || state.CapacityUnit.IsNull() || state.VolumeID.IsNull() ||
+		state.RemoveMode.IsNull() {
+		snapResponse, err := r.client.GetVolume("", state.ID.ValueString(), "", "", false)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error getting snapshot",
+				"Could not get snapshot, unexpected error: "+err.Error(),
+			)
+			return
+		}
+
+		snap := snapResponse[0]
+		//setting variables not set in refresh state
+		state.RemoveMode = plan.RemoveMode
+		state.RetentionUnit = plan.RetentionUnit
+		state.CapacityUnit = plan.CapacityUnit
+		state.VolumeID = plan.VolumeID
+
+		// refreshing the state
+		dgs := helper.RefreshState(snap, &state)
+		resp.Diagnostics.Append(dgs...)
+		// setting the state
+		diags = resp.State.Set(ctx, state)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		return
+	}
+
 	if plan.VolumeName.ValueString() != state.VolumeName.ValueString() {
 		if !plan.VolumeName.IsNull() {
 			volResponse, err3 := r.client.GetVolume("", "", "", plan.VolumeName.ValueString(), false)
