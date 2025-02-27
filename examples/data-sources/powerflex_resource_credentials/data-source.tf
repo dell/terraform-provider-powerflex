@@ -34,7 +34,6 @@ data "powerflex_resource_credential" "rc_filter" {
     # created_by = ["created_by-1", "created_by-2"]
     # domain = ["domain-1", "domain-2"]
     # type = ["type-1", "type-2"]
-    # local_volume_id = ["local_volume_id-1", "local_volume_id-2"]
     # updated_by = ["updated_by-1", "updated_by-2"]
     # updated_date = ["updated_date-1", "updated_date-2"]
     # username = ["username-1", "username-2"]

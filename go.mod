@@ -1,13 +1,13 @@
 module terraform-provider-powerflex
 
-go 1.23
+go 1.24
 
-toolchain go1.23.2
+toolchain go1.24.1
 
 require (
 	github.com/bramvdbogaerde/go-scp v1.5.0
 	github.com/bytedance/mockey v1.2.13
-	github.com/dell/goscaleio v1.18.1-0.20250123141802-e49f97abd158
+	github.com/dell/goscaleio v1.18.1-0.20250313190335-a4cb3a199725
 	github.com/hashicorp/terraform-plugin-framework v1.13.0
 	github.com/hashicorp/terraform-plugin-framework-validators v0.15.0
 	github.com/hashicorp/terraform-plugin-go v0.25.0

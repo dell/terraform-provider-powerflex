@@ -299,6 +299,8 @@ var NVMeTargetNameCreate = setDefault(globalEnvMap["POWERFLEX_NVME_TARGET_NAME_C
 var NVMeTargetNameUpdate = setDefault(globalEnvMap["POWERFLEX_NVME_TARGET_NAME_UPDATE"], "tfacc_nvme_target_name_update")
 var NVMeTargetIP1 = setDefault(globalEnvMap["POWERFLEX_NVME_TARGET_IP1"], "172.169.2.23")
 var NVMeTargetIP2 = setDefault(globalEnvMap["POWERFLEX_NVME_TARGET_IP2"], "172.169.3.23")
+var TemplateName = setDefault(globalEnvMap["POWERFLEX_TEMPLATE_NAME"], "block-only")
+var OriginalTemplateID = setDefault(globalEnvMap["POWERFLEX_ORIGINAL_TEMPLATE_ID"], "de0874f9-5f40-4eaf-b0ae-c91b2aecbdb7")
 
 func getEnvMap() map[string]string {
 	envMap, err := loadEnvFile("powerflex.env")
