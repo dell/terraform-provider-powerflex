@@ -95,6 +95,11 @@ type TemplateModel struct {
 	Draft                  types.Bool           `tfsdk:"draft"`
 }
 
+type TemplateCloneModel struct {
+	TemplateName       types.String `tfsdk:"template_name"`
+	OriginalTemplateID types.String `tfsdk:"original_template_id"`
+}
+
 // Messages is the tfsdk model of Messages
 type Messages struct {
 	ID              types.String `tfsdk:"id"`
