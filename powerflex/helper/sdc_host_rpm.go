@@ -25,11 +25,12 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // CreateRhel creates a RHEL SDC host
-func (r *SdcHostResource) CreateRhel(ctx context.Context, plan models.SdcHostModel, sshP *client.SSHProvisioner, dir string) diag.Diagnostics {
+func (r *SdcHostResource) CreateRhel(ctx context.Context, plan models.SdcHostModel, sshP *client.SSHProvisioner, dir string) (models.SdcHostModel, diag.Diagnostics) {
 	var respDiagnostics diag.Diagnostics
 
 	if !plan.UseRemotePath.ValueBool() {
@@ -42,7 +43,7 @@ func (r *SdcHostResource) CreateRhel(ctx context.Context, plan models.SdcHostMod
 				"Error uploading package",
 				err.Error(),
 			)
-			return respDiagnostics
+			return plan, respDiagnostics
 		}
 	}
 
@@ -50,7 +51,7 @@ func (r *SdcHostResource) CreateRhel(ctx context.Context, plan models.SdcHostMod
 
 	if dgs.HasError() {
 		respDiagnostics = append(respDiagnostics, dgs...)
-		return respDiagnostics
+		return plan, respDiagnostics
 	}
 
 	// install sw
@@ -61,7 +62,7 @@ func (r *SdcHostResource) CreateRhel(ctx context.Context, plan models.SdcHostMod
 			"Error installing sdc package",
 			op+"\n"+err.Error(),
 		)
-		return respDiagnostics
+		return plan, respDiagnostics
 	}
 	tflog.Info(ctx, op)
 
@@ -75,17 +76,27 @@ func (r *SdcHostResource) CreateRhel(ctx context.Context, plan models.SdcHostMod
 			"Error checking scini status after installing sdc package",
 			op+"\n"+err.Error(),
 		)
-		return respDiagnostics
+		return plan, respDiagnostics
 	}
 	if !strings.Contains(op, "SUCCESS") {
 		respDiagnostics.AddError(
 			"scini service did not start successfully",
 			op,
 		)
-		return respDiagnostics
+		return plan, respDiagnostics
 	}
 
-	return respDiagnostics
+	// Attempt to get the UUID instead of using Ip as a more accurete value for finding sdc
+	guid, errGuid := sshP.RunWithDir(plan.LinuxDrvCfg.ValueString(), "./drv_cfg --query_guid")
+	if errGuid != nil {
+		respDiagnostics.AddWarning(
+			"Unable to get GUID",
+			guid,
+		)
+	} else {
+		plan.GUID = types.StringValue(strings.TrimSpace(guid))
+	}
+	return plan, respDiagnostics
 }
 
 // DeleteRhel - function to uninstall SDC package in RHEL host

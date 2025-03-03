@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -148,7 +149,7 @@ func (r *SdcHostResource) UpdateWindowsMdms(ctx context.Context, plan models.Sdc
 }
 
 // CreateWindows creates an windows SDC host
-func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHostModel) diag.Diagnostics {
+func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHostModel) (models.SdcHostModel, diag.Diagnostics) {
 	var respDiagnostics diag.Diagnostics
 
 	var remote models.SdcHostRemoteModel
@@ -181,14 +182,14 @@ func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHost
 			"Error while connecting sdc remote host",
 			err.Error(),
 		)
-		return respDiagnostics
+		return plan, respDiagnostics
 	}
 
 	mdmIPs, dgs := r.GetMdmIps(ctx, plan)
 
 	if dgs.HasError() {
 		respDiagnostics = append(respDiagnostics, dgs...)
-		return respDiagnostics
+		return plan, respDiagnostics
 	}
 
 	if connectionStatus {
@@ -199,7 +200,7 @@ func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHost
 				"Error while checking for installed sdc package",
 				err.Error(),
 			)
-			return respDiagnostics
+			return plan, respDiagnostics
 		}
 
 		if ouptut == "SUCCESS" {
@@ -211,7 +212,7 @@ func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHost
 						"Error while uploading package",
 						err.Error(),
 					)
-					return respDiagnostics
+					return plan, respDiagnostics
 				}
 			}
 
@@ -221,7 +222,7 @@ func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHost
 					"Error while installing command",
 					err.Error(),
 				)
-				return respDiagnostics
+				return plan, respDiagnostics
 			}
 
 			if ouptut == "SUCCESS" {
@@ -235,7 +236,17 @@ func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHost
 					r.UpdateWindowsMdms(ctx, plan)
 				}
 
-				return respDiagnostics
+				// Grab the GUID for verifing SDC with PowerFlex Manager
+				guid, guidErr := winRMClient.ExecuteCommand(fmt.Sprintf("cd '%s'; .\\drv_cfg.exe --query_guid", plan.WindowsDrvCfg.ValueString()))
+				if guidErr != nil {
+					respDiagnostics.AddWarning(
+						"Error retrieving guid",
+						guidErr.Error(),
+					)
+					return plan, respDiagnostics
+				}
+				plan.GUID = types.StringValue(strings.TrimSpace(guid))
+				return plan, respDiagnostics
 
 			}
 
@@ -245,7 +256,7 @@ func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHost
 			"SDC Package is alredy installed",
 			"SDC Package is alredy installed",
 		)
-		return respDiagnostics
+		return plan, respDiagnostics
 
 	}
 
@@ -253,7 +264,7 @@ func (r *SdcHostResource) CreateWindows(ctx context.Context, plan models.SdcHost
 		"Error while connecting sdc remote host",
 		"Error while connecting sdc remote host",
 	)
-	return respDiagnostics
+	return plan, respDiagnostics
 
 }
 
