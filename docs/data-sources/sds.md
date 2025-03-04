@@ -192,6 +192,7 @@ Read-Only:
 - `on_vmware` (Boolean) Presence on VMware.
 - `performance_profile` (String) Performance profile.
 - `port` (Number) SDS port.
+- `protection_domain_id` (String) SDS's protection domain id.
 - `raid_controllers` (Attributes List) RAID controllers information. (see [below for nested schema](#nestedatt--sds_details--raid_controllers))
 - `rfcache_enabled` (Boolean) Whether RF cache is enabled or not.
 - `rfcache_error_api_version_mismatch` (Boolean) RF cache error for API version mismatch.
