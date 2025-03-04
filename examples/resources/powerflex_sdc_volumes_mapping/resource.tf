@@ -21,10 +21,15 @@ limitations under the License.
 # To create/update, either SDC ID or SDC name must be provided.
 # volume_list attribute is optional. 
 # To check which attributes of the sdc_volumes_mappping resource can be updated, please refer Product Guide in the documentation
+data "powerflex_sdc" "filtered" {
+  filter {
+    name = ["sdc-esxi-sdc-name"]
+  }
+}
 
 resource "powerflex_sdc_volumes_mapping" "mapping-test" {
   # SDC id
-  id = "e3ce1fb600000001"
+  id = data.powerflex_sdc.filtered.sdcs[0].id
   volume_list = [
     {
       # id of the volume which needs to be mapped. 
