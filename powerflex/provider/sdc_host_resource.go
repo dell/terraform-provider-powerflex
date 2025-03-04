@@ -434,10 +434,18 @@ func (r *sdcHostResource) Create(ctx context.Context, req resource.CreateRequest
 	// install software
 	if plan.OS.ValueString() == "esxi" {
 		resp.Diagnostics.Append(resHelper.CreateEsxi(ctx, plan)...)
+		var esxiInput models.SdcHostEsxiModel
+		resp.Diagnostics.Append(plan.Esxi.As(ctx, &esxiInput, basetypes.ObjectAsOptions{})...)
+		// Set the GUID of the SDC to be used to grab the SDC state
+		plan.GUID = esxiInput.GUID
 	} else if plan.OS.ValueString() == "windows" {
-		resp.Diagnostics.Append(resHelper.CreateWindows(ctx, plan)...)
+		planUpdate, diagWindows := resHelper.CreateWindows(ctx, plan)
+		plan = planUpdate
+		resp.Diagnostics.Append(diagWindows...)
 	} else if plan.OS.ValueString() == "linux" {
-		resp.Diagnostics.Append(resHelper.LinuxOp(ctx, plan, true)...)
+		planUpdate, diagLinux := resHelper.LinuxOp(ctx, plan, true)
+		plan = planUpdate
+		resp.Diagnostics.Append(diagLinux...)
 	}
 
 	if resp.Diagnostics.HasError() {
@@ -445,7 +453,7 @@ func (r *sdcHostResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	// read unconfigured SDC state after installation
-	currState, err := resHelper.ReadSDCHost(ctx, plan)
+	currState, err := resHelper.ReadSDCHost(ctx, r.client, plan)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error reading SDC state",
@@ -472,7 +480,7 @@ func (r *sdcHostResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	// read final state of SDC and set state
-	state, err := resHelper.ReadSDCHost(ctx, plan)
+	state, err := resHelper.ReadSDCHost(ctx, r.client, plan)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error reading SDC state",
@@ -499,7 +507,7 @@ func (r *sdcHostResource) Read(ctx context.Context, req resource.ReadRequest, re
 		System: r.system,
 	}
 
-	newState, err := resHelper.ReadSDCHost(ctx, state)
+	newState, err := resHelper.ReadSDCHost(ctx, r.client, state)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error refreshing SDC state",
@@ -576,7 +584,7 @@ func (r *sdcHostResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	// read final state of SDC and set state
-	state, err := resHelper.ReadSDCHost(ctx, plan)
+	state, err := resHelper.ReadSDCHost(ctx, r.client, plan)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error reading SDC state",
@@ -624,7 +632,8 @@ func (r *sdcHostResource) Delete(ctx context.Context, req resource.DeleteRequest
 	} else if state.OS.ValueString() == "windows" {
 		resp.Diagnostics.Append(resHelper.DeleteWindows(ctx, state)...)
 	} else if state.OS.ValueString() == "linux" {
-		resp.Diagnostics.Append(resHelper.LinuxOp(ctx, state, false)...)
+		_, diagLinux := resHelper.LinuxOp(ctx, state, false)
+		resp.Diagnostics.Append(diagLinux...)
 	}
 
 	if resp.Diagnostics.HasError() {

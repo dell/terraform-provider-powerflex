@@ -105,24 +105,45 @@ func GetMdmIPList(mdmDetails *goscaleio_types.MdmCluster) []string {
 }
 
 // ReadSDCHost - read SDC host and set state
-func (r *SdcHostResource) ReadSDCHost(ctx context.Context, state models.SdcHostModel) (models.SdcHostModel, error) {
-	// get SDC by IP
-	tflog.Info(ctx, "Finding SDC by IP")
+func (r *SdcHostResource) ReadSDCHost(ctx context.Context, client *goscaleio.Client, state models.SdcHostModel) (models.SdcHostModel, error) {
+	// get SDC if ID is set use that, if GUID is set use that, last try using IP
+	tflog.Info(ctx, "Finding SDC")
 	var sdcData *goscaleio.Sdc
 	var err error
+	// Check by ID
 	if !state.ID.IsNull() && !state.ID.IsUnknown() {
 		sdcData, err = r.System.GetSdcByID(state.ID.ValueString())
 		if err != nil {
 			return state, fmt.Errorf("error finding SDC by ID %s: %w", state.ID.ValueString(), err)
 		}
+		// Check by UUID
+	} else if !state.GUID.IsNull() && !state.GUID.IsUnknown() {
+		sdcss, err := r.System.GetSdc()
+
+		if err != nil {
+			return state, fmt.Errorf("error grabbing SDCs: %w", err)
+		}
+		for _, val := range sdcss {
+			tflog.Debug(ctx, fmt.Sprintf("checking GUIDs IP: %s GUID: %s", val.SdcIP, val.SdcGUID))
+			if val.SdcGUID == state.GUID.ValueString() {
+				tflog.Debug(ctx, fmt.Sprintf("Found GUID: %s", val.SdcGUID))
+				sdcData = goscaleio.NewSdc(client, &val)
+				break
+			}
+		}
+		if sdcData == nil {
+			return state, fmt.Errorf("error finding SDC by GUID %s", state.GUID.ValueString())
+		}
+		tflog.Info(ctx, "Found SDC by GUID")
+		// If all else fails try by IP
 	} else {
 		sdcData, err = r.System.FindSdc("SdcIP", state.Host.ValueString())
 		if err != nil {
 			return state, fmt.Errorf("error finding SDC by IP %s: %w", state.Host.ValueString(), err)
 		}
+		tflog.Info(ctx, "Found SDC by IP")
 	}
 
-	tflog.Info(ctx, "Found SDC by IP")
 	state.ID = types.StringValue(sdcData.Sdc.ID)
 	state.PerformanceProfile = types.StringValue(sdcData.Sdc.PerfProfile)
 	state.Name = types.StringValue(sdcData.Sdc.Name)
@@ -252,7 +273,7 @@ func (r *SdcHostResource) UpdateLinuxMdms(ctx context.Context, plan models.SdcHo
 }
 
 // LinuxOp creates or deletes a linux SDC host
-func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel, add bool) diag.Diagnostics {
+func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel, add bool) (models.SdcHostModel, diag.Diagnostics) {
 	var respDiagnostics diag.Diagnostics
 	sshP, dir, err := r.getSSHProvisioner(ctx, plan)
 	if err != nil {
@@ -260,7 +281,7 @@ func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel,
 			"Error connecting to host",
 			err.Error(),
 		)
-		return respDiagnostics
+		return plan, respDiagnostics
 	}
 	defer sshP.Close()
 
@@ -270,7 +291,7 @@ func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel,
 			"Error retrieving contents of /etc/os-release",
 			op+"\n"+err.Error(),
 		)
-		return respDiagnostics
+		return plan, respDiagnostics
 	}
 
 	// Parse the output of "cat /etc/os-release" to determine the Linux distribution type
@@ -303,7 +324,9 @@ func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel,
 	switch linuxType {
 	case "rhel", "sles", "centos":
 		if add {
-			respDiagnostics.Append(r.CreateRhel(ctx, plan, sshP, dir)...)
+			planCreate, daigsRhelCreate := r.CreateRhel(ctx, plan, sshP, dir)
+			plan = planCreate
+			respDiagnostics.Append(daigsRhelCreate...)
 			// If the MdmIPs are set in the plan then use the drv_conf to update them
 			if !plan.MdmIPs.IsUnknown() && len(plan.MdmIPs.Elements()) > 0 {
 				respDiagnostics.Append(r.UpdateLinuxMdms(ctx, plan)...)
@@ -313,7 +336,9 @@ func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel,
 		}
 	case "ubuntu":
 		if add {
-			respDiagnostics.Append(r.CreateUbuntu(ctx, plan, sshP, dir)...)
+			planCreate, daigsUbuntuCreate := r.CreateUbuntu(ctx, plan, sshP, dir)
+			plan = planCreate
+			respDiagnostics.Append(daigsUbuntuCreate...)
 			// If the MdmIPs are set in the plan then use the drv_conf to update them
 			if !plan.MdmIPs.IsUnknown() && len(plan.MdmIPs.Elements()) > 0 {
 				respDiagnostics.Append(r.UpdateLinuxMdms(ctx, plan)...)
@@ -328,5 +353,5 @@ func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel,
 		)
 	}
 
-	return respDiagnostics
+	return plan, respDiagnostics
 }

@@ -194,6 +194,7 @@ func TestAccResourceSDCHostUT(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
+					FunctionMockerSdcHostResourceDelete = Mock((*helper.SdcHostResource).DeleteWindows).Return(nil).Build()
 					FunctionMocker = Mock(helper.GetFirstSystem).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + linuxSdcUt,
@@ -222,7 +223,7 @@ func TestAccResourceSDCHostUT(t *testing.T) {
 						FunctionMockerSdcHostResourceSetParams.UnPatch()
 					}
 
-					FunctionMocker = Mock((*helper.SdcHostResource).CreateWindows).Return(nil).Build()
+					FunctionMocker = Mock((*helper.SdcHostResource).CreateWindows).Return(nil, nil).Build()
 					FunctionMockerSdcHostResource = Mock((*helper.SdcHostResource).ReadSDCHost).Return(nil, fmt.Errorf("mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + windowsSdcSuccessUt,
@@ -241,7 +242,7 @@ func TestAccResourceSDCHostUT(t *testing.T) {
 						FunctionMockerSdcHostResourceSetParams.UnPatch()
 					}
 
-					FunctionMocker = Mock((*helper.SdcHostResource).CreateWindows).Return(nil).Build()
+					FunctionMocker = Mock((*helper.SdcHostResource).CreateWindows).Return(nil, nil).Build()
 					FunctionMockerSdcHostResource = Mock((*helper.SdcHostResource).ReadSDCHost).Return(sdcWindowsFakeModel, nil).Build()
 					FunctionMockerSdcHostResourceSetParams = Mock((*helper.SdcHostResource).SetSDCParams).Return(fmt.Errorf("mock error")).Build()
 				},
@@ -260,8 +261,8 @@ func TestAccResourceSDCHostUT(t *testing.T) {
 					if FunctionMockerSdcHostResourceSetParams != nil {
 						FunctionMockerSdcHostResourceSetParams.UnPatch()
 					}
-					FunctionMocker = Mock((*helper.SdcHostResource).CreateWindows).Return(nil).Build()
-					FunctionMockerSdcHostResourceDelete = Mock((*helper.SdcHostResource).DeleteWindows).Return(nil).Build()
+					FunctionMocker = Mock((*helper.SdcHostResource).CreateWindows).Return(nil, nil).Build()
+					FunctionMockerSdcHostResourceSetParams = Mock((*helper.SdcHostResource).SetSDCParams).Return(nil).Build()
 					FunctionMockerSdcHostResource = Mock((*helper.SdcHostResource).ReadSDCHost).Return(sdcWindowsFakeModel,
 						nil).Build()
 				},
@@ -280,7 +281,7 @@ func TestAccResourceSDCHostUT(t *testing.T) {
 						FunctionMockerSdcHostResourceSetParams.UnPatch()
 					}
 
-					FunctionMocker = Mock((*helper.SdcHostResource).CreateWindows).Return(nil).Build()
+					FunctionMocker = Mock((*helper.SdcHostResource).CreateWindows).Return(nil, nil).Build()
 					FunctionMockerSdcHostResource = Mock((*helper.SdcHostResource).ReadSDCHost).Return(nil, fmt.Errorf("mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + windowsSdcSuccessUt,
@@ -299,7 +300,7 @@ func TestAccResourceSDCHostUT(t *testing.T) {
 						FunctionMockerSdcHostResourceSetParams.UnPatch()
 					}
 
-					FunctionMocker = Mock((*helper.SdcHostResource).CreateWindows).Return(nil).Build()
+					FunctionMocker = Mock((*helper.SdcHostResource).CreateWindows).Return(nil, nil).Build()
 					FunctionMockerSdcHostResource = Mock((*helper.SdcHostResource).ReadSDCHost).Return(sdcWindowsFakeModel, nil).Build()
 				},
 				Config:      ProviderConfigForTesting + linuxSdcUt,
@@ -318,7 +319,7 @@ func TestAccResourceSDCHostUT(t *testing.T) {
 						FunctionMockerSdcHostResourceSetParams.UnPatch()
 					}
 
-					FunctionMocker = Mock((*helper.SdcHostResource).CreateWindows).Return(nil).Build()
+					FunctionMocker = Mock((*helper.SdcHostResource).CreateWindows).Return(nil, nil).Build()
 					FunctionMockerSdcHostResource = Mock((*helper.SdcHostResource).ReadSDCHost).Return(sdcWindowsFakeModel, nil).Build()
 				},
 				Config:      ProviderConfigForTesting + osUpdateErrorUt,

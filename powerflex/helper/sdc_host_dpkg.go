@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -76,7 +77,7 @@ func GetUbuntuSdcPackage(files []string) (*UbuntuSdcPackage, error) {
 }
 
 // CreateUbuntu creates an linux ubuntu SDC host
-func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostModel, sshP *client.SSHProvisioner, dir string) diag.Diagnostics {
+func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostModel, sshP *client.SSHProvisioner, dir string) (models.SdcHostModel, diag.Diagnostics) {
 	var respDiagnostics diag.Diagnostics
 
 	if !plan.UseRemotePath.ValueBool() {
@@ -90,7 +91,7 @@ func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostM
 				"Error uploading package",
 				err.Error(),
 			)
-			return respDiagnostics
+			return plan, respDiagnostics
 		}
 	}
 	// extract software
@@ -100,7 +101,7 @@ func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostM
 			"Error extracting package",
 			err.Error(),
 		)
-		return respDiagnostics
+		return plan, respDiagnostics
 	}
 	// verify that there are 3 files only - a siob file, a sig file and a file called siob_extract
 	pkg, err := GetUbuntuSdcPackage(files)
@@ -109,7 +110,7 @@ func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostM
 			"Error extracting package",
 			err.Error(),
 		)
-		return respDiagnostics
+		return plan, respDiagnostics
 	}
 	// run siob extract
 	op, err := sshP.RunWithDir(dir, fmt.Sprintf("./%s %s", pkg.SiobExtract, pkg.Siob))
@@ -118,7 +119,7 @@ func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostM
 			"Error extracting siob file",
 			op+"\n"+err.Error(),
 		)
-		return respDiagnostics
+		return plan, respDiagnostics
 	}
 	tflog.Info(ctx, op)
 
@@ -126,7 +127,7 @@ func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostM
 
 	if dgs.HasError() {
 		respDiagnostics = append(respDiagnostics, dgs...)
-		return respDiagnostics
+		return plan, respDiagnostics
 	}
 
 	// install sw
@@ -138,7 +139,7 @@ func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostM
 			"Error installing sdc package",
 			op+"\n"+err.Error(),
 		)
-		return respDiagnostics
+		return plan, respDiagnostics
 	}
 	tflog.Info(ctx, op)
 	time.Sleep(30 * time.Second)
@@ -149,17 +150,28 @@ func (r *SdcHostResource) CreateUbuntu(ctx context.Context, plan models.SdcHostM
 			"Error checking scini status after restart",
 			op+"\n"+err.Error(),
 		)
-		return respDiagnostics
+		return plan, respDiagnostics
 	}
 	if !strings.Contains(op, "SUCCESS") {
 		respDiagnostics.AddError(
 			"scini service did not restart successfully",
 			op,
 		)
-		return respDiagnostics
+		return plan, respDiagnostics
 	}
 
-	return respDiagnostics
+	// Attempt to get the UUID instead of using Ip as a more accurete value for finding sdc
+	guid, errGuid := sshP.RunWithDir(plan.LinuxDrvCfg.ValueString(), "./drv_cfg --query_guid")
+	if errGuid != nil {
+		respDiagnostics.AddWarning(
+			"Unable to get GUID",
+			guid,
+		)
+	} else {
+		plan.GUID = types.StringValue(strings.TrimSpace(guid))
+	}
+
+	return plan, respDiagnostics
 }
 
 // DeleteUbuntu - function to uninstall SDC package in Linux Ubuntu host
