@@ -120,7 +120,9 @@ Released code versions are located on tags in the form of "vx.y.z" where x.y.z c
 
 ## Documentation
 
-For more detailed information, please refer to [Dell Terraform Providers Documentation](https://dell.github.io/terraform-docs/).
+For more detailed information, please refer to 
+  * [Dell Terraform Providers Documentation](https://dell.github.io/terraform-docs/)
+  * [Dell Terraform Registry](https://registry.terraform.io/providers/dell/powerflex/latest/docs)
 
 ## Terraform PowerFlex Modules
 
