@@ -481,27 +481,6 @@ func CheckForNewSDCIPs(newSDCIPS []string, installedSDCIPs []string) bool {
 	return len(checkset) == 0 //this implies that set is subset of superset
 }
 
-// GetSDCState - function to return sdc result from goscaleio.
-func GetSDCState(sdc goscaleio_types.Sdc) models.SDCStateDataModel {
-	var model models.SDCStateDataModel
-
-	model.OperatingSystem = types.StringValue(sdc.OSType)
-	model.SDCID = types.StringValue(sdc.ID)
-	model.SDCName = types.StringValue(sdc.Name)
-	model.SdcGUID = types.StringValue(sdc.SdcGUID)
-	model.SdcApproved = types.BoolValue(sdc.SdcApproved)
-	model.OnVMWare = types.BoolValue(sdc.OnVMWare)
-	model.SystemID = types.StringValue(sdc.SystemID)
-	model.PerformanceProfile = types.StringValue(sdc.PerfProfile)
-	if len(sdc.SdcIPs) > 1 {
-		model.IP = types.StringValue(strings.Join(sdc.SdcIPs, ","))
-	} else {
-		model.IP = types.StringValue(sdc.SdcIP)
-	}
-	model.MdmConnectionState = types.StringValue(sdc.MdmConnectionState)
-	return model
-}
-
 // CheckForSDCName - check for the SDC Name already exist or not
 func CheckForSDCName(system *goscaleio.System, sdcDetail models.SDCDetailDataModel) (bool, error) {
 

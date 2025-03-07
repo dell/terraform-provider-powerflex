@@ -17,7 +17,7 @@
 title: "powerflex_peer_system resource"
 linkTitle: "powerflex_peer_system"
 page_title: "powerflex_peer_system Resource - powerflex"
-subcategory: ""
+subcategory: "Replication and Consistency"
 description: |-
   This resource is used to manage the Peer System entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. We can Create, Update and Delete the PowerFlex Peer Systems using this resource. We can also Import an existing Peer Systems from the PowerFlex array. Peer system refers to the setup where multiple MDM nodes work together as peers to provide redundancy and high availability. This means that if one MDM node fails, other peer MDM nodes can take over its responsibilities, ensuring continuous operation without disruptions
 ---

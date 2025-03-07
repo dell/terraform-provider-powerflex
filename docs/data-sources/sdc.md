@@ -17,7 +17,7 @@
 title: "powerflex_sdc data source"
 linkTitle: "powerflex_sdc"
 page_title: "powerflex_sdc Data Source - powerflex"
-subcategory: ""
+subcategory: "Host and Device Management"
 description: |-
   This datasource is used to query the existing Storage Data Clients from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---

@@ -53,50 +53,91 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
 | v1.7.0 | 3.6 <br> 4.5 <br> 4.6 | ubuntu22.04 <br> rhel9.x | 1.8.x <br> 1.9.x <br>| 1.23.x
 
 ## List of DataSources in Terraform Provider for Dell PowerFlex
-  * [SDC](docs/data-sources/sdc.md)
-  * [Storage pool](docs/data-sources/storage_pool.md)
-  * [Volume](docs/data-sources/volume.md)
-  * [SDS](docs/data-sources/sds.md)
-  * [Protection Domain](docs/data-sources/protection_domain.md)
-  * [Snapshot Policy](docs/data-sources/snapshot_policy.md)
-  * [Device](docs/data-sources/device.md)
-  * [VTree](docs/data-sources/vtree.md)
-  * [Fault Set](docs/data-sources/fault_set.md)
-  * [Node](docs/data-sources/node.md)
-  * [Template](docs/data-sources/template.md)
-  * [Service](docs/data-sources/service.md)
-  * [Firmware Repository](docs/data-sources/firmware_repository.md)
-  * [Peer System](docs/data-sources/peer_system.md)
-  * [Replication Consistency Group](docs/data-sources/replication_consistency_group.md)
-  * [Replication Pair](docs/data-sources/replication_pair.md)
-  * [NVMe Host](docs/data-sources/nvme_host.md)
-  * [NVMe Target](docs/data-sources/nvme_target.md)
+
+### Cluster and System
+* [Node](docs/data-sources/node.md)
+
+### Storage Management
+* [Storage pool](docs/data-sources/storage_pool.md)
+* [Protection Domain](docs/data-sources/protection_domain.md)
+* [Volume](docs/data-sources/volume.md)
+* [VTree](docs/data-sources/vtree.md)
+
+### Replication and Consistency
+* [Peer System](docs/data-sources/peer_system.md)
+* [Replication Consistency Group](docs/data-sources/replication_consistency_group.md)
+* [Replication Pair](docs/data-sources/replication_pair.md)
+
+### Host and Device
+* [SDC](docs/data-sources/sdc.md)
+* [SDS](docs/data-sources/sds.md)
+* [NVMe Host](docs/data-sources/nvme_host.md)
+* [NVMe Target](docs/data-sources/nvme_target.md)
+* [Device](docs/data-sources/device.md)
+
+### Resource and Credential Management
+* [Resource Group](docs/data-sources/resource_group.md)
+* [Resource Group Credentials](docs/data-sources/resource_credential.md)
+
+### Fault Tolerance and Compatibility
+* [Fault Set](docs/data-sources/fault_set.md)
+* [Compatibility Management](docs/data-sources/compatibility_management.md)
+
+### Firmware and OS Management
+* [Firmware Repository](docs/data-sources/firmware_repository.md)
+* [OS Repository](templates/data-sources/os_repository.md.tmpl)
+
+### Snapshot and Policy Management
+* [Snapshot Policy](docs/data-sources/snapshot_policy.md)
+  
+### Compliance and Templates
+* [Template](docs/data-sources/template.md)
+* [Compliance Report Resource Group](docs/data-sources/compliance_report_resource_group.md)
+
 
 ## List of Resources in Terraform Provider for Dell PowerFlex
-  * [SDC](docs/resources/sdc.md)
-  * [Storage pool](docs/resources/storage_pool.md)
-  * [Volume](docs/resources/volume.md)
-  * [SDS](docs/resources/sds.md)
-  * [Snapshot](docs/resources/snapshot.md)
-  * [Protection Domain](docs/resources/protection_domain.md)
-  * [SDC Volume Mapping](docs/resources/sdc_volumes_mapping.md)
-  * [Device](docs/resources/device.md)
-  * [Package](docs/resources/package.md)
-  * [Cluster](docs/resources/cluster.md)
-  * [MDM Cluster](docs/resources/mdm_cluster.md)
-  * [User](docs/resources/user.md)
-  * [Fault Set](docs/resources/fault_set.md)
-  * [Service](docs/resources/service.md)
-  * [Snapshot Policy](docs/resources/snapshot_policy.md)
-  * [Firmware Repository](docs/resources/firmware_repository.md)
-  * [SDC Host](docs/resources/sdc_host.md)
-  * [System](docs/resources/system.md)
-  * [Peer System](docs/resources/peer_system.md)
-  * [Replication Consistency Group](docs/resources/replication_consistency_group.md)
-  * [Replication Consistency Group Action](docs/resources/replication_consistency_group_action.md)
-  * [Replication Pair](docs/resources/replication_pair.md)
-  * [NVMe Host](docs/resources/nvme_host.md)
-  * [NVMe Target](docs/resources/nvme_target.md)
+
+### Cluster and System
+* [Cluster](docs/resources/cluster.md)
+* [MDM Cluster](docs/resources/mdm_cluster.md)
+* [System](docs/resources/system.md)
+
+
+### Storage Management
+* [Storage pool](docs/resources/storage_pool.md)
+* [Protection Domain](docs/resources/protection_domain.md)
+* [Volume](docs/resources/volume.md)
+* [Snapshot Policy](docs/resources/snapshot_policy.md)
+* [Snapshot](docs/resources/snapshot.md)
+
+### Replication and Consistency
+* [Peer System](docs/resources/peer_system.md)
+* [Replication Consistency Group](docs/resources/replication_consistency_group.md)
+* [Replication Consistency Group Action](docs/resources/replication_consistency_group_action.md)
+* [Replication Pair](docs/resources/replication_pair.md)
+
+### Host and Device
+* [SDC Host](docs/resources/sdc_host.md)
+* [SDS](docs/resources/sds.md)
+* [SDC Volume Mapping](docs/resources/sdc_volumes_mapping.md)
+* [Device](docs/resources/device.md)
+* [NVMe Host](docs/resources/nvme_host.md)
+* [NVMe Target](docs/resources/nvme_target.md)
+
+### Resource and Credential Management
+* [Resource Group](docs/resources/resource_group.md)
+* [Resource Group Credential](docs/resources/resource_group.md)
+
+### Fault Tolerance and Compatibility
+* [Fault Set](docs/resources/fault_set.md)
+* [Compatibility Management](docs/resources/resource_credential.md)
+
+### Firmware and OS Management
+* [Package](docs/resources/package.md)
+* [Firmware Repository](docs/resources/firmware_repository.md)
+  
+### User Management
+* [User](docs/resources/user.md)
 
 ## List of Modules in Terraform Provider for Dell PowerFlex
   * [User](https://registry.terraform.io/modules/dell/modules/powerflex/latest/submodules/user)

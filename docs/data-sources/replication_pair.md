@@ -2,7 +2,7 @@
 title: "powerflex_replication_pair data source"
 linkTitle: "powerflex_replication_pair"
 page_title: "powerflex_replication_pair Data Source - powerflex"
-subcategory: ""
+subcategory: "Replication and Consistency"
 description: |-
   This datasource is used to read the Replication Pairs entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. An RCG is a collection of multiple replication pairs that need to be replicated together in a coordinated and consistent manner. The key purpose is to ensure that all the data within the group is replicated in a consistent state. Applies to a group of data that needs to be kept consistent across the source and target
 ---

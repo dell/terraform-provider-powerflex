@@ -17,7 +17,7 @@
 title: "powerflex_sds data source"
 linkTitle: "powerflex_sds"
 page_title: "powerflex_sds Data Source - powerflex"
-subcategory: ""
+subcategory: "Host and Device Management"
 description: |-
   This datasource is used to query the existing Storage Data Servers from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---

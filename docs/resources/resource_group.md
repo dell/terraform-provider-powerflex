@@ -17,7 +17,7 @@
 title: "powerflex_resource_group resource"
 linkTitle: "powerflex_resource_group"
 page_title: "powerflex_resource_group Resource - powerflex"
-subcategory: ""
+subcategory: "Resource and Credential Management"
 description: |-
   This resource is used to manage the ResourceGroup entity of the PowerFlex Array. We can Create, Update and Delete the PowerFlex ResourceGroup using this resource. We can also Import an existing ResourceGroup from the PowerFlex array.
 ---

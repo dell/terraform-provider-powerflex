@@ -17,7 +17,7 @@
 title: "powerflex_sdc_volumes_mapping resource"
 linkTitle: "powerflex_sdc_volumes_mapping"
 page_title: "powerflex_sdc_volumes_mapping Resource - powerflex"
-subcategory: ""
+subcategory: "Host and Device Management"
 description: |-
   This resource can be used to map/unmap volumes to an SDC on the PowerFlex array. User can import an existing SDC and map volumes to it.
 ---

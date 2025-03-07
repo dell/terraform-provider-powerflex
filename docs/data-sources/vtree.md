@@ -17,7 +17,7 @@
 title: "powerflex_vtree data source"
 linkTitle: "powerflex_vtree"
 page_title: "powerflex_vtree Data Source - powerflex"
-subcategory: ""
+subcategory: "Storage Management"
 description: |-
   This datasource is used to query the existing vtrees from the PowerFlex array. The information fetched from this datasource can be used for getting the details.
 ---

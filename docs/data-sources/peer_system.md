@@ -17,7 +17,7 @@
 title: "powerflex_peer_system data source"
 linkTitle: "powerflex_peer_system"
 page_title: "powerflex_peer_system Data Source - powerflex"
-subcategory: ""
+subcategory: "Replication and Consistency"
 description: |-
   This datasource is used to read the Peer System entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above.
 ---

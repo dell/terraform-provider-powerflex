@@ -17,7 +17,7 @@
 title: "powerflex_firmware_repository data source"
 linkTitle: "powerflex_firmware_repository"
 page_title: "powerflex_firmware_repository Data Source - powerflex"
-subcategory: ""
+subcategory: "Firmware and OS Management"
 description: |-
   This datasource is used to query the existing firmware repository from the PowerFlex array. The information fetched from this datasource can be used for getting the necessary details regarding the bundles and their components in that firmware repository.
 ---

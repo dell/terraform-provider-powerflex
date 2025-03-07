@@ -17,7 +17,7 @@
 title: "powerflex_user resource"
 linkTitle: "powerflex_user"
 page_title: "powerflex_user Resource - powerflex"
-subcategory: ""
+subcategory: "User Management"
 description: |-
   This resource is used to manage the User entity of the PowerFlex Array. We can Create, Update and Delete the user using this resource. We can also import an existing user from the PowerFlex array.
 ---

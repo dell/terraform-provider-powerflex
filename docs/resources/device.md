@@ -17,7 +17,7 @@
 title: "powerflex_device resource"
 linkTitle: "powerflex_device"
 page_title: "powerflex_device Resource - powerflex"
-subcategory: ""
+subcategory: "Host and Device Management"
 description: |-
   This resource is used to manage the Device entity of PowerFlex Array. We can Create, Update and Delete the PowerFlex Devices using this resource. We can also import an existing device from PowerFlex array.
 ---

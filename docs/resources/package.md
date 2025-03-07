@@ -17,7 +17,7 @@
 title: "powerflex_package resource"
 linkTitle: "powerflex_package"
 page_title: "powerflex_package Resource - powerflex"
-subcategory: ""
+subcategory: "Firmware and OS Management"
 description: |-
   This resource can be used to upload packages on a PowerFlex Gateway. We can add or remove packages from PowerFlex Gateway. Import functionality is not supported.
 ---

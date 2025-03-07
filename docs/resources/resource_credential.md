@@ -17,7 +17,7 @@
 title: "powerflex_resource_credential resource"
 linkTitle: "powerflex_resource_credential"
 page_title: "powerflex_resource_credential Resource - powerflex"
-subcategory: ""
+subcategory: "Resource and Credential Management"
 description: |-
   This resource is used to manage Resource Credential entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. We can Create, Update and Delete the PowerFlex Resource Credentials using this resource. We can also Import an existing Resource Credentials from the PowerFlex array.
 ---

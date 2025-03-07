@@ -17,7 +17,7 @@
 title: "powerflex_compliance_report_resource_group data source"
 linkTitle: "powerflex_compliance_report_resource_group"
 page_title: "powerflex_compliance_report_resource_group Data Source - powerflex"
-subcategory: ""
+subcategory: "Resource and Credential Management"
 description: |-
   This datasource is used to query the compliance report for Resource Group from PowerFlex array.
 ---

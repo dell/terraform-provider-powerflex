@@ -17,7 +17,7 @@
 title: "powerflex_storage_pool data source"
 linkTitle: "powerflex_storage_pool"
 page_title: "powerflex_storage_pool Data Source - powerflex"
-subcategory: ""
+subcategory: "Storage Management"
 description: |-
   This datasource is used to query the existing storage pools from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---

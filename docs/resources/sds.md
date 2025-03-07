@@ -17,7 +17,7 @@
 title: "powerflex_sds resource"
 linkTitle: "powerflex_sds"
 page_title: "powerflex_sds Resource - powerflex"
-subcategory: ""
+subcategory: "Host and Device Management"
 description: |-
   This resource is used to manage the Storage Data Servers entity of the PowerFlex Array. We can Create, Update and Delete the SDS using this resource. We can also import an existing SDS from the PowerFlex array.
 ---
