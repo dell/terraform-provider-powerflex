@@ -17,7 +17,7 @@
 title: "powerflex_os_repository resource"
 linkTitle: "powerflex_os_repository"
 page_title: "powerflex_os_repository Resource - powerflex"
-subcategory: ""
+subcategory: "Firmware and OS Management"
 description: |-
   This resource is used to manage the OS Repository entity of the PowerFlex Array. We can Create ,Read and Delete the os image repository using this resource.
 ---

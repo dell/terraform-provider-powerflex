@@ -17,7 +17,7 @@
 title: "powerflex_volume data source"
 linkTitle: "powerflex_volume"
 page_title: "powerflex_volume Data Source - powerflex"
-subcategory: ""
+subcategory: "Storage Management"
 description: |-
   This datasource is used to query the existing volume from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---

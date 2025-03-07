@@ -17,7 +17,7 @@
 title: "powerflex_nvme_target resource"
 linkTitle: "powerflex_nvme_target"
 page_title: "powerflex_nvme_target Resource - powerflex"
-subcategory: ""
+subcategory: "Host and Device Management"
 description: |-
   This resource is used to manage NVMe target from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe target using this resource. We can also import an existing NVMe target from PowerFlex array.Note: Either protection_domain_id or protection_domain_name must be specified.
 ---

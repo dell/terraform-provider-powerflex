@@ -17,7 +17,7 @@
 title: "powerflex_protection_domain data source"
 linkTitle: "powerflex_protection_domain"
 page_title: "powerflex_protection_domain Data Source - powerflex"
-subcategory: ""
+subcategory: "Storage Management"
 description: |-
   This datasource is used to query the existing protection domain from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---

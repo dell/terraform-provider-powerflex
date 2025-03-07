@@ -2,7 +2,7 @@
 title: "powerflex_resource_credential data source"
 linkTitle: "powerflex_resource_credential"
 page_title: "powerflex_resource_credential Data Source - powerflex"
-subcategory: ""
+subcategory: "Resource and Credential Management"
 description: |-
   This datasource is used to read the Resource Credential entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above.
 ---

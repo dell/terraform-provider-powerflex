@@ -17,7 +17,7 @@
 title: "powerflex_protection_domain resource"
 linkTitle: "powerflex_protection_domain"
 page_title: "powerflex_protection_domain Resource - powerflex"
-subcategory: ""
+subcategory: "Storage Management"
 description: |-
   This resource is used to manage the Protection Domain entity of the PowerFlex Array. We can Create, Update and Delete the protection domain using this resource. We can also import an existing protection domain from the PowerFlex array.
 ---

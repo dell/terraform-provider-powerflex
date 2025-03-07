@@ -17,7 +17,7 @@
 title: "powerflex_fault_set data source"
 linkTitle: "powerflex_fault_set"
 page_title: "powerflex_fault_set Data Source - powerflex"
-subcategory: ""
+subcategory: "Fault Tolerance and Compatibility"
 description: |-
   This datasource is used to query the existing fault set from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---

@@ -17,7 +17,7 @@
 title: "powerflex_nvme_host resource"
 linkTitle: "powerflex_nvme_host"
 page_title: "powerflex_nvme_host Resource - powerflex"
-subcategory: ""
+subcategory: "Host and Device Management"
 description: |-
   This resource is used to manage NVMe host from the PowerFlex array. We can Create, Update and Delete the PowerFlex NVMe host using this resource. We can also import an existing NVMe host from PowerFlex array.
 ---

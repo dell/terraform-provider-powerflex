@@ -17,7 +17,7 @@
 title: "powerflex_system resource"
 linkTitle: "powerflex_system"
 page_title: "powerflex_system Resource - powerflex"
-subcategory: ""
+subcategory: "Cluster and System"
 description: |-
   This resource is used to manage the cluster level operations of the PowerFlex Array. This resource supports Create, Update and Delete operations.
 ---

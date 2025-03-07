@@ -147,7 +147,8 @@ func (r *SdcHostResource) ReadSDCHost(ctx context.Context, client *goscaleio.Cli
 	state.ID = types.StringValue(sdcData.Sdc.ID)
 	state.PerformanceProfile = types.StringValue(sdcData.Sdc.PerfProfile)
 	state.Name = types.StringValue(sdcData.Sdc.Name)
-	state.Host = types.StringValue(sdcData.Sdc.SdcIP)
+	// Do not update the host state, let whatever is in the plan or state stand as is for the Host/IP fields
+	// This is because of the sdc_ip field can be different for management and data paths.
 	os := strings.ToLower(sdcData.Sdc.OSType)
 	if strings.HasPrefix(os, "esx") {
 		// both esxi is return as esx from API

@@ -17,7 +17,7 @@
 title: "powerflex_volume resource"
 linkTitle: "powerflex_volume"
 page_title: "powerflex_volume Resource - powerflex"
-subcategory: ""
+subcategory: "Storage Management"
 description: |-
   This resource is used to manage the Volume entity of the PowerFlex Array. We can Create, Update and Delete the volume using this resource. We can also import an existing volume from the PowerFlex array.
 ---

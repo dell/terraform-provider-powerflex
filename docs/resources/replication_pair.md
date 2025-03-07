@@ -17,7 +17,7 @@
 title: "powerflex_replication_pair resource"
 linkTitle: "powerflex_replication_pair"
 page_title: "powerflex_replication_pair Resource - powerflex"
-subcategory: ""
+subcategory: "Replication and Consistency"
 description: |-
   This resource is used to manage the Replication Pairs entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. We can Create, Update and Delete the PowerFlex Replication Pairs using this resource. We can also Import an existing Replication Pairs from the PowerFlex array. A replication pair involves a set of data on a source system being continuously copied to a target system. This typically applies to individual volumes, files, or objects.
 ---

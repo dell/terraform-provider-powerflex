@@ -17,7 +17,7 @@
 title: "powerflex_compatibility_management data source"
 linkTitle: "powerflex_compatibility_management"
 page_title: "powerflex_compatibility_management Data Source - powerflex"
-subcategory: ""
+subcategory: "Fault Tolerance and Compatibility"
 description: |-
   This datasource is used to query the existing compatibility management from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---

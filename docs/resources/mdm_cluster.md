@@ -17,7 +17,7 @@
 title: "powerflex_mdm_cluster resource"
 linkTitle: "powerflex_mdm_cluster"
 page_title: "powerflex_mdm_cluster Resource - powerflex"
-subcategory: ""
+subcategory: "Cluster and System"
 description: |-
   This resource can be used to manage MDM cluster on the PowerFlex array. Supports adding or removing standby MDMs, migrate from 3-node to 5-node cluster or vice-versa, changing MDM ownership, changing performance profile, and renaming MDMs.
 ---

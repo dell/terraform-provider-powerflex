@@ -17,7 +17,7 @@
 title: "powerflex_cluster resource"
 linkTitle: "powerflex_cluster"
 page_title: "powerflex_cluster Resource - powerflex"
-subcategory: ""
+subcategory: "Cluster and System"
 description: |-
   This terraform resource is used to deploy the PowerFlex Cluster. We can Create and Delete the PowerFlex Cluster using this resource. We can also Import an existing Cluster of the PowerFlex.
 ---

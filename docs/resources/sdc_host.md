@@ -17,7 +17,7 @@
 title: "powerflex_sdc_host resource"
 linkTitle: "powerflex_sdc_host"
 page_title: "powerflex_sdc_host Resource - powerflex"
-subcategory: ""
+subcategory: "Host and Device Management"
 description: |-
   This resource is used to manage the SDC entity of the PowerFlex Array. We can Create, Update and Delete the SDC using this resource. We can also import an existing SDC from the PowerFlex array.
 ---
