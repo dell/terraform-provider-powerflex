@@ -49,18 +49,6 @@ resource "powerflex_template_clone" "example" {
 	template_name = ""
 }
 `
-var cloneTemplateEmptyTemplateName = `
-resource "powerflex_template_clone" "example" {
-    original_template_id = "` + OriginalTemplateID + `"
-	template_name = " "
-}
-`
-var cloneTemplateEmptyTemplateID = `
-resource "powerflex_template_clone" "example" {
-    original_template_id = " "
-	template_name = "` + TemplateName + `- COPY"
-}
-`
 var cloneTemplateInvalidOriginalTemplateID = `
 resource "powerflex_template_clone" "example" {
     original_template_id = "-12345"
