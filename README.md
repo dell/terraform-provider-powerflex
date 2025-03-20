@@ -130,7 +130,7 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
 
 ### Fault Tolerance and Compatibility
 * [Fault Set](docs/resources/fault_set.md)
-* [Compatibility Management](docs/resources/resource_credential.md)
+* [Compatibility Management](docs/resources/compatibility_management.md)
 
 ### Firmware and OS Management
 * [Package](docs/resources/package.md)

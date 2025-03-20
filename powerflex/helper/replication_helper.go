@@ -119,6 +119,8 @@ func PeerSystemUpdate(client *goscaleio.Client, state models.PeerMdmResourceMode
 	sIPs := reflect.ValueOf(state.IPList).Interface()
 	pIPs := reflect.ValueOf(plan.IPList).Interface()
 	// Update IP List
+	// Adding Checkmarx ignore, because this is working as intended and it is reporting a false postive low sev issue
+	// Checkmarx: ignore
 	if !reflect.DeepEqual(sIPs, pIPs) {
 		var localIPList []string
 		for _, ip := range plan.IPList {
