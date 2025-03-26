@@ -17,7 +17,7 @@
 title: "powerflex_resource_group data source"
 linkTitle: "powerflex_resource_group"
 page_title: "powerflex_resource_group Data Source - powerflex"
-subcategory: "Resource and Credential Management"
+subcategory: "Resource Group Management"
 description: |-
   This datasource is used to query the existing ResourceGroup from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---

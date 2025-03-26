@@ -17,7 +17,7 @@
 title: "powerflex_snapshot resource"
 linkTitle: "powerflex_snapshot"
 page_title: "powerflex_snapshot Resource - powerflex"
-subcategory: "Storage Management"
+subcategory: "Data Protection"
 description: |-
   This resource is used to manage the Snapshot of volumes on the PowerFlex Array. We can Create, Update and Delete the snapshots using this resource. We can also import an existing snapshot from the PowerFlex array.
 ---

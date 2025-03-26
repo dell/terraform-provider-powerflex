@@ -2,7 +2,7 @@
 title: "powerflex_replication_consistency_group data source"
 linkTitle: "powerflex_replication_consistency_group"
 page_title: "powerflex_replication_consistency_group Data Source - powerflex"
-subcategory: "Replication and Consistency"
+subcategory: "Data Protection"
 description: |-
   This datasource is used to read the Replication Consistency Group entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above.
 ---

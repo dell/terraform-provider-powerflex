@@ -17,7 +17,7 @@
 title: "powerflex_compatibility_management resource"
 linkTitle: "powerflex_compatibility_management"
 page_title: "powerflex_compatibility_management Resource - powerflex"
-subcategory: "Fault Tolerance and Compatibility"
+subcategory: "Firmware and OS Management"
 description: |-
   This resource is used to set the compatibility management from the PowerFlex array.
 ---
