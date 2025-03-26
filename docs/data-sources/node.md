@@ -17,7 +17,7 @@
 title: "powerflex_node data source"
 linkTitle: "powerflex_node"
 page_title: "powerflex_node Data Source - powerflex"
-subcategory: "Cluster and System"
+subcategory: "Resource Group Management"
 description: |-
   This datasource is used to query the existing nodes from the PowerFlex array. The information fetched from this datasource can be used for getting the details / for further processing in resource block.
 ---

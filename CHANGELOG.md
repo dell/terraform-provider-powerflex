@@ -1,5 +1,5 @@
 <!--
-Copyright (c) 2022-2024 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2022-2025 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,6 +13,29 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
+# v1.8.0 (March 2025)
+
+## Release Summary
+
+The release supports resources and data sources mentioned in the Features section for Dell PowerFlex.
+
+## Features
+
+* Added Support for Powerflex Appliance 4.6.1
+
+### Resources
+
+* `powerflex_resource_credential` for managing resource credential details in PowerFlex.
+* `powerflex_template_clone` for cloning pre-existing sample resource group templates
+
+### Data Sources
+
+* `powerflex_resource_credential` for reading resource credential details in PowerFlex.
+  
+### Enhancements
+
+* Added support for SDT deployment using Cluster resource.
+
 # v1.7.0 (December 2024)
 
 ## Release Summary

@@ -50,23 +50,22 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
 
 | **Terraform Provider** | **PowerFlex/VxFlex OS Version** | **OS** | **Terraform** | **Golang** |
 |---------------------|-----------------------|-------|--------------------|--------------------------|
-| v1.7.0 | 3.6 <br> 4.5 <br> 4.6 | ubuntu22.04 <br> rhel9.x | 1.8.x <br> 1.9.x <br>| 1.23.x
+| v1.8.0 | 3.6 <br> 4.5 <br> 4.6 <br> 4.6.1 (Appliance) | ubuntu22.04 <br> rhel9.x | 1.9.x <br> 1.10.x <br>| 1.26.x
 
 ## List of DataSources in Terraform Provider for Dell PowerFlex
-
-### Cluster and System
-* [Node](docs/data-sources/node.md)
 
 ### Storage Management
 * [Storage pool](docs/data-sources/storage_pool.md)
 * [Protection Domain](docs/data-sources/protection_domain.md)
 * [Volume](docs/data-sources/volume.md)
 * [VTree](docs/data-sources/vtree.md)
+* [Fault Set](docs/data-sources/fault_set.md)
 
-### Replication and Consistency
+### Data Protection
 * [Peer System](docs/data-sources/peer_system.md)
 * [Replication Consistency Group](docs/data-sources/replication_consistency_group.md)
 * [Replication Pair](docs/data-sources/replication_pair.md)
+* [Snapshot Policy](docs/data-sources/snapshot_policy.md)
 
 ### Host and Device
 * [SDC](docs/data-sources/sdc.md)
@@ -75,21 +74,16 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
 * [NVMe Target](docs/data-sources/nvme_target.md)
 * [Device](docs/data-sources/device.md)
 
-### Resource and Credential Management
+### Resource Group Management
 * [Resource Group](docs/data-sources/resource_group.md)
 * [Resource Group Credentials](docs/data-sources/resource_credential.md)
-
-### Fault Tolerance and Compatibility
-* [Fault Set](docs/data-sources/fault_set.md)
-* [Compatibility Management](docs/data-sources/compatibility_management.md)
+* [Node](docs/data-sources/node.md)
 
 ### Firmware and OS Management
 * [Firmware Repository](docs/data-sources/firmware_repository.md)
 * [OS Repository](templates/data-sources/os_repository.md.tmpl)
+* [Compatibility Management](docs/data-sources/compatibility_management.md)
 
-### Snapshot and Policy Management
-* [Snapshot Policy](docs/data-sources/snapshot_policy.md)
-  
 ### Compliance and Templates
 * [Template](docs/data-sources/template.md)
 * [Compliance Report Resource Group](docs/data-sources/compliance_report_resource_group.md)
@@ -102,19 +96,24 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
 * [MDM Cluster](docs/resources/mdm_cluster.md)
 * [System](docs/resources/system.md)
 
+### Resource Group Management
+* [Resource Group](docs/resources/resource_group.md)
+* [Resource Group Credential](docs/resources/resource_group.md)
+* [Template Clone](docs/resources/template_clone.md)
 
 ### Storage Management
 * [Storage pool](docs/resources/storage_pool.md)
 * [Protection Domain](docs/resources/protection_domain.md)
 * [Volume](docs/resources/volume.md)
-* [Snapshot Policy](docs/resources/snapshot_policy.md)
-* [Snapshot](docs/resources/snapshot.md)
+* [Fault Set](docs/resources/fault_set.md)
 
-### Replication and Consistency
+### Data Protection
 * [Peer System](docs/resources/peer_system.md)
 * [Replication Consistency Group](docs/resources/replication_consistency_group.md)
 * [Replication Consistency Group Action](docs/resources/replication_consistency_group_action.md)
 * [Replication Pair](docs/resources/replication_pair.md)
+* [Snapshot](docs/resources/snapshot.md)
+* [Snapshot Policy](docs/resources/snapshot_policy.md)
 
 ### Host and Device
 * [SDC Host](docs/resources/sdc_host.md)
@@ -124,17 +123,10 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
 * [NVMe Host](docs/resources/nvme_host.md)
 * [NVMe Target](docs/resources/nvme_target.md)
 
-### Resource and Credential Management
-* [Resource Group](docs/resources/resource_group.md)
-* [Resource Group Credential](docs/resources/resource_group.md)
-
-### Fault Tolerance and Compatibility
-* [Fault Set](docs/resources/fault_set.md)
-* [Compatibility Management](docs/resources/compatibility_management.md)
-
 ### Firmware and OS Management
 * [Package](docs/resources/package.md)
 * [Firmware Repository](docs/resources/firmware_repository.md)
+* [Compatibility Management](docs/resources/compatibility_management.md)
   
 ### User Management
 * [User](docs/resources/user.md)

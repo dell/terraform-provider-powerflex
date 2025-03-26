@@ -1,5 +1,5 @@
 <!--
-Copyright (c) 2022-2024 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2022-2025 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ Source: [terraform-plugin-testing](https://github.com/hashicorp/terraform-plugin
 * * *
   
 Package: winrm  
-Version: v0.0.0-20240702205601-3fad6e106085  
+Version: v0.0.0-20221126162354-6e900dd2c68f 
 Copyright: Copyright (c) 2013 masterzen 
 License: [Apache-2.0](https://github.com/masterzen/winrm/blob/master/LICENSE)  
 Source: [winrm](https://github.com/masterzen/winrm)  
@@ -53,7 +53,7 @@ Source: [winrm](https://github.com/masterzen/winrm)
 * * *
   
 Package: crypto  
-Version: v0.28.0  
+Version: v0.36.0  
 Copyright: Copyright 2009 The Go Authors.  
 License: [BSD-3-Clause](https://github.com/golang/crypto/blob/master/LICENSE)  
 Source: [crypto](https://github.com/golang/crypto)  
@@ -61,8 +61,8 @@ Source: [crypto](https://github.com/golang/crypto)
 * * *
   
 Package: goscaleio  
-Version: v1.17.1
-Copyright: Copyright (c)  Copyright © 2021 - 2024 Dell Inc. or its subsidiaries
+Version: v1.19.0
+Copyright: Copyright (c)  Copyright © 2021 - 2025 Dell Inc. or its subsidiaries
 License: [Apache-2.0](https://github.com/dell/goscaleio/blob/main/LICENSE)  
 Source: [goscaleio](https://github.com/dell/goscaleio)  
 
@@ -88,20 +88,12 @@ Package: terraform-plugin-go
 Version: v0.25.0  
 Copyright: Copyright (c) 2020 HashiCorp, Inc.  
 License: [MPL-2.0](https://github.com/hashicorp/terraform-plugin-go/blob/main/LICENSE)  
-Source: [terraform-plugin-go](https://github.com/hashicorp/terraform-plugin-go)  
-
-* * *
-  
-Package: winrmcp  
-Version: v0.0.0-20221126162354-6e900dd2c68f  
-Copyright: Copyright (c) 2015 Dylan Meissner  
-License: [MIT](https://github.com/packer-community/winrmcp/blob/master/LICENSE)  
-Source: [winrmcp](https://github.com/packer-community/winrmcp)  
+Source: [terraform-plugin-go](https://github.com/hashicorp/terraform-plugin-go) 
 
 * * *
   
 Package: testify  
-Version: v1.9.0  
+Version: v1.10.0  
 Copyright: Copyright (c) 2012-2020 Mat Ryer, Tyler Bunnell and contributors.  
 License: [MIT](https://github.com/stretchr/testify/blob/master/LICENSE)  
 Source: [testify](https://github.com/stretchr/testify)  
@@ -127,7 +119,7 @@ Source: [go-multierror](https://github.com/hashicorp/go-multierror)
 * * *
   
 Package: hc-install  
-Version: v0.8.0  
+Version: v0.9.1  
 Copyright: Copyright (c) 2020 HashiCorp, Inc.  
 License: [MPL-2.0](https://github.com/hashicorp/hc-install/blob/main/LICENSE)  
 Source: [hc-install](https://github.com/hashicorp/hc-install)  
@@ -143,7 +135,7 @@ Source: [gofork](https://github.com/jcmturner/gofork)
 * * *
   
 Package: mod  
-Version: v0.19.0  
+Version: v0.22.0  
 Copyright: Copyright 2009 The Go Authors.  
 License: [BSD-3-Clause](https://github.com/golang/mod/blob/master/LICENSE)  
 Source: [mod](https://github.com/golang/mod)  
@@ -208,7 +200,7 @@ Source: [go-testing-interface](https://github.com/mitchellh/go-testing-interface
 * * *
   
 Package: go-crypto  
-Version: v1.1.0-alpha.2  
+Version: v1.1.3 
 Copyright: Copyright (c) 2009 The Go Authors. All rights reserved.  
 License: [BSD-3-Clause](https://github.com/ProtonMail/go-crypto/blob/main/LICENSE)  
 Source: [go-crypto](https://github.com/ProtonMail/go-crypto)  
@@ -240,7 +232,7 @@ Source: [tools](https://github.com/golang/tools)
 * * *
   
 Package: rpc  
-Version: v0.0.0-20240814211410-ddb44dafa142  
+Version: v0.0.0-20250115164207-1a7da9e5054f 
 Copyright: Copyright (c) 2018 jcmturner/rpc
 License: [Apache-2.0](https://github.com/googleapis/go-genproto/blob/main/LICENSE)  
 Source: [rpc](https://github.com/googleapis/go-genproto)  
@@ -288,7 +280,7 @@ Source: [go-wordwrap](https://github.com/mitchellh/go-wordwrap)
 * * *
   
 Package: sync  
-Version: v0.9.0  
+Version: v0.12.0  
 Copyright: Copyright 2009 The Go Authors.  
 License: [BSD-3-Clause](https://github.com/golang/sync/blob/master/LICENSE)  
 Source: [sync](https://github.com/golang/sync)  
@@ -352,7 +344,7 @@ Source: [rpc/v2](https://github.com/jcmturner/rpc)
 * * *
   
 Package: grpc  
-Version: v1.67.1  
+Version: v1.71.0 
 Copyright: Copyright (c) 2018 The Go Authors 
 License: [Apache-2.0](https://github.com/grpc/grpc-go/blob/master/LICENSE)  
 Source: [grpc](https://github.com/grpc/grpc-go)  
@@ -404,14 +396,6 @@ Version: v1.0.0
 Copyright: Copyright (c) 2013, Patrick Mezard  
 License: [BSD-3-Clause](https://github.com/pmezard/go-difflib/blob/master/LICENSE)  
 Source: [go-difflib](https://github.com/pmezard/go-difflib)  
-
-* * *
-  
-Package: logrus  
-Version: v1.9.3  
-Copyright: Copyright (c) 2014 Simon Eskildsen  
-License: [MIT](https://github.com/sirupsen/logrus/blob/master/LICENSE)  
-Source: [logrus](https://github.com/sirupsen/logrus)  
 
 * * *
   
@@ -476,7 +460,7 @@ Source: [terraform-registry-address](https://github.com/hashicorp/terraform-regi
 * * *
   
 Package: net  
-Version: v0.28.0  
+Version: v0.37.0  
 Copyright: Copyright 2009 The Go Authors.  
 License: [BSD-3-Clause](https://github.com/golang/net/blob/master/LICENSE)  
 Source: [net](https://github.com/golang/net)  
@@ -484,7 +468,7 @@ Source: [net](https://github.com/golang/net)
 * * *
   
 Package: protobuf  
-Version: v1.35.1  
+Version: v1.36.4  
 Copyright: Copyright (c) 2018 The Go Authors. All rights reserved.  
 License: [BSD-3-Clause](https://github.com/protocolbuffers/protobuf-go/blob/master/LICENSE)  
 Source: [protobuf](https://github.com/protocolbuffers/protobuf-go)  
@@ -492,7 +476,7 @@ Source: [protobuf](https://github.com/protocolbuffers/protobuf-go)
 * * *
   
 Package: logr  
-Version: v1.4.1  
+Version: v1.4.2  
 Copyright: Copyright (c) 2016 go-logr/logr
 License: [Apache-2.0](https://github.com/go-logr/logr/blob/master/LICENSE)  
 Source: [logr](https://github.com/go-logr/logr)  
@@ -524,7 +508,7 @@ Source: [gls](https://github.com/jtolds/gls)
 * * *
   
 Package: go-cty  
-Version: v1.15.0  
+Version: v1.16.1  
 Copyright: Copyright (c) 2017-2018 Martin Atkins  
 License: [MIT](https://github.com/zclconf/go-cty/blob/main/LICENSE)  
 Source: [go-cty](https://github.com/zclconf/go-cty)  
@@ -532,7 +516,7 @@ Source: [go-cty](https://github.com/zclconf/go-cty)
 * * *
   
 Package: terraform-exec  
-Version: v0.21.0  
+Version: v0.22.0  
 Copyright: Copyright (c) 2020 HashiCorp, Inc.  
 License: [MPL-2.0](https://github.com/hashicorp/terraform-exec/blob/main/LICENSE)  
 Source: [terraform-exec](https://github.com/hashicorp/terraform-exec)  
@@ -604,7 +588,7 @@ Source: [arch](https://github.com/golang/arch)
 * * *
   
 Package: sys  
-Version: v0.27.0  
+Version: v0.31.0  
 Copyright: Copyright 2009 The Go Authors.  
 License: [BSD-3-Clause](https://github.com/golang/sys/blob/master/LICENSE)  
 Source: [sys](https://github.com/golang/sys)  
@@ -653,7 +637,7 @@ Source: [objx](https://github.com/stretchr/objx)
 * * *
   
 Package: text  
-Version: v0.20.0  
+Version: v0.23.0  
 Copyright: Copyright 2009 The Go Authors.  
 License: [BSD-3-Clause](https://github.com/golang/text/blob/master/LICENSE)  
 Source: [text](https://github.com/golang/text)  
@@ -717,7 +701,7 @@ Source: [go-hclog](https://github.com/hashicorp/go-hclog)
 * * *
   
 Package: terraform-json  
-Version: v0.22.1  
+Version: v0.24.0  
 Copyright: Copyright (c) 2019 HashiCorp, Inc.  
 License: [MPL-2.0](https://github.com/hashicorp/terraform-json/blob/main/LICENSE)  
 Source: [terraform-json](https://github.com/hashicorp/terraform-json)  
@@ -725,7 +709,7 @@ Source: [terraform-json](https://github.com/hashicorp/terraform-json)
 * * *
   
 Package: yamux  
-Version: v0.1.1  
+Version: v0.1.2
 Copyright: Copyright (c) 2014 HashiCorp, Inc.  
 License: [MPL-2.0](https://github.com/hashicorp/yamux/blob/master/LICENSE)  
 Source: [yamux](https://github.com/hashicorp/yamux)  

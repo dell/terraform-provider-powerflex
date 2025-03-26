@@ -17,7 +17,7 @@
 title: "powerflex_template_clone resource"
 linkTitle: "powerflex_template_clone"
 page_title: "powerflex_template_clone Resource - powerflex"
-subcategory: "Resource and Credential Management"
+subcategory: "Resource Group Management"
 description: |-
   This resource is only used to clone a template using the original template ID from the template needing to be cloned, with a unique name for the cloned template.
 ---
@@ -58,7 +58,7 @@ data "powerflex_template" "template" {
 
 resource "powerflex_template_clone" "example" {
   template_name = "Template Clone"
-  original_template_id=data.powerflex_template.example1.template_details[0].original_template_id
+  original_template_id=data.powerflex_template.template.template_details[0].original_template_id
 }
 ```
 
