@@ -139,9 +139,9 @@ data "powerflex_storage_pool" "filtered" {
 }
 
 
-output "storagePoolallresult" {
-  value = data.powerflex_storage_pool.filtered.storage_pools
-}
+# output "storagePoolallresult" {
+#   value = data.powerflex_storage_pool.filtered.storage_pools
+# }
 ```
 
 After the successful execution of above said block, We can see the output by executing `terraform output` command. Also, we can fetch information via the variable: `data.powerflex_storage_pool.example.attribute_name` where attribute_name is the attribute which user wants to fetch.
