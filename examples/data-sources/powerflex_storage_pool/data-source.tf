@@ -110,6 +110,6 @@ data "powerflex_storage_pool" "filtered" {
 }
 
 
-output "storagePoolallresult" {
-  value = data.powerflex_storage_pool.filtered.storage_pools
-}
+# output "storagePoolallresult" {
+#   value = data.powerflex_storage_pool.filtered.storage_pools
+# }

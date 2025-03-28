@@ -130,7 +130,7 @@ variable "vsphere_host_name" {
 
 ### .ova Example:
 
-**Note: the *vapp* properties will need to be filled out based on each usecase as it will be different in each enviorment**
+**Note: the *vapp* properties will need to be filled out based on each usecase as it will be different in each environment**
 ```
 resource "vsphere_virtual_machine" "vm-installer" {
   name = var.vm_name

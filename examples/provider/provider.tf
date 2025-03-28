@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023-2024 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2023-2025 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ limitations under the License.
 terraform {
   required_providers {
     powerflex = {
-      version = "1.5.0"
+      version = "1.8.0"
       source  = "registry.terraform.io/dell/powerflex"
     }
   }
@@ -29,6 +29,15 @@ provider "powerflex" {
   endpoint = var.endpoint
   insecure = true
   timeout  = 120
+
+  ## The provider can also be set using environment variables
+  ## If environment variables are set it will override this configuration
+  ## Example environment variables
+  # POWERFLEX_USERNAME="username"
+  # POWERFLEX_PASSWORD="password"
+  # POWERFLEX_ENDPOINT="https://yourhost.host.com"
+  # POWERFLEX_INSECURE="true"
+  # POWERFLEX_TIMEOUT="120"
 }
 
 resource "powerflex_protection_domain" "pd" {
