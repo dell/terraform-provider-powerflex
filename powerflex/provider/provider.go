@@ -72,30 +72,35 @@ func (p *powerflexProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 			"can be used to interact with a Dell PowerFlex array in order to manage the array resources.",
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
-				Description:         "The PowerFlex Gateway server URL (inclusive of the port).",
-				MarkdownDescription: "The PowerFlex Gateway server URL (inclusive of the port).",
-				Required:            true,
+				Description:         "The PowerFlex Gateway server URL (inclusive of the port). This can also be set using the environment variable POWERFLEX_ENDPOINT",
+				MarkdownDescription: "The PowerFlex Gateway server URL (inclusive of the port). This can also be set using the environment variable POWERFLEX_ENDPOINT",
+				// This should remain optional so user can use environment variables if they choose.
+				Optional: true,
 			},
 			"username": schema.StringAttribute{
-				Description:         "The username required for authentication.",
-				MarkdownDescription: "The username required for authentication.",
-				Required:            true,
+				Description:         "The username required for authentication. This can also be set using the environment variable POWERFLEX_USERNAME",
+				MarkdownDescription: "The username required for authentication. This can also be set using the environment variable POWERFLEX_USERNAME",
+				// This should remain optional so user can use environment variables if they choose.
+				Optional: true,
 			},
 			"password": schema.StringAttribute{
-				Description:         "The password required for the authentication.",
-				MarkdownDescription: "The password required for the authentication.",
-				Required:            true,
-				Sensitive:           true,
+				Description:         "The password required for the authentication. This can also be set using the environment variable POWERFLEX_PASSWORD",
+				MarkdownDescription: "The password required for the authentication. This can also be set using the environment variable POWERFLEX_PASSWORD",
+				// This should remain optional so user can use environment variables if they choose.
+				Optional:  true,
+				Sensitive: true,
 			},
 			"insecure": schema.BoolAttribute{
-				Description:         "Specifies if the user wants to skip SSL verification.",
-				MarkdownDescription: "Specifies if the user wants to skip SSL verification.",
-				Optional:            true,
+				Description:         "Specifies if the user wants to skip SSL verification. This can also be set using the environment variable POWERFLEX_INSECURE",
+				MarkdownDescription: "Specifies if the user wants to skip SSL verification. This can also be set using the environment variable POWERFLEX_INSECURE",
+				// This should remain optional so user can use environment variables if they choose.
+				Optional: true,
 			},
 			"timeout": schema.Int64Attribute{
-				Description:         "HTTPS timeout.",
-				MarkdownDescription: "HTTPS timeout.",
-				Optional:            true,
+				Description:         "HTTPS timeout. This can also be set using the environment variable POWERFLEX_TIMEOUT",
+				MarkdownDescription: "HTTPS timeout. This can also be set using the environment variable POWERFLEX_TIMEOUT",
+				// This should remain optional so user can use environment variables if they choose.
+				Optional: true,
 			},
 		},
 	}
@@ -113,12 +118,36 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 		return
 	}
 
+	// Attempt to read from Env Variables, otherwise use defaults
+	endpointEnv := os.Getenv("POWERFLEX_ENDPOINT")
+	if endpointEnv != "" {
+		config.EndPoint = types.StringValue(endpointEnv)
+	}
+
+	usernameEnv := os.Getenv("POWERFLEX_USERNAME")
+	if usernameEnv != "" {
+		config.Username = types.StringValue(usernameEnv)
+	}
+
+	passwordEnv := os.Getenv("POWERFLEX_PASSWORD")
+	if passwordEnv != "" {
+		config.Password = types.StringValue(passwordEnv)
+	}
+
 	if config.EndPoint.IsUnknown() {
 		resp.Diagnostics.AddAttributeError(
 			path.Root("endpoint"),
 			"Unknown powerflex API EndPoint",
 			"The provider cannot create the powerflex API client as there is an unknown configuration value for the powerflex API endpoint. "+
 				"Either target apply the source of the value first, set the value statically in the configuration, or use the POWERFLEX_ENDPOINT environment variable.",
+		)
+	}
+
+	if strings.HasSuffix(config.EndPoint.ValueString(), "/") {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("endpoint"),
+			"Powerflex API endpoint ends in '/' Please remove the ending '/' and try again.",
+			"The provider cannot create the powerflex API client as there is an '/' at the end of the configuration value for the powerflex API endpoint. ",
 		)
 	}
 
@@ -144,9 +173,6 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 		return
 	}
 
-	endpoint := os.Getenv("POWERFLEX_ENDPOINT")
-	username := os.Getenv("POWERFLEX_USERNAME")
-	password := os.Getenv("POWERFLEX_PASSWORD")
 	insecure := os.Getenv("POWERFLEX_INSECURE") == "true"
 	if os.Getenv("POWERFLEX_TIMEOUT") != "" {
 		var err error
@@ -156,17 +182,6 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 		}
 	}
 
-	if !config.EndPoint.IsNull() {
-		endpoint = config.EndPoint.ValueString()
-	}
-
-	if !config.Username.IsNull() {
-		username = config.Username.ValueString()
-	}
-
-	if !config.Password.IsNull() {
-		password = config.Password.ValueString()
-	}
 	if !config.Insecure.IsNull() {
 		insecure = config.Insecure.ValueBool()
 	}
@@ -174,50 +189,18 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 		timeout = int(config.Timeout.ValueInt64())
 	}
 
-	if endpoint == "" {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("endpoint"),
-			"Missing powerflex API Endpoint",
-			"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API endpoint. "+
-				"Set the endpoint value in the configuration or use the POWERFLEX_ENDPOINT environment variable. "+
-				"If either is already set, ensure the value is not empty.",
-		)
-	}
-
-	if username == "" {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("username"),
-			"Missing powerflex API Username",
-			"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API username. "+
-				"Set the username value in the configuration or use the POWERFLEX_USERNAME environment variable. "+
-				"If either is already set, ensure the value is not empty.",
-		)
-	}
-
-	if password == "" {
-		resp.Diagnostics.AddAttributeError(
-			path.Root("password"),
-			"Missing powerflex API Password",
-			"The provider cannot create the powerflex API client as there is a missing or empty value for the powerflex API password. "+
-				"Set the password value in the configuration or use the POWERFLEX_PASSWORD environment variable. "+
-				"If either is already set, ensure the value is not empty.",
-		)
-	}
-
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	ctx = tflog.SetField(ctx, "powerflex_endpoint", endpoint)
-	ctx = tflog.SetField(ctx, "powerflex_username", username)
-	ctx = tflog.SetField(ctx, "powerflex_password", password)
-	ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "powerflex_password")
+	ctx = tflog.SetField(ctx, "powerflex_endpoint", config.EndPoint.ValueString())
+	ctx = tflog.SetField(ctx, "powerflex_username", config.Username.ValueString())
 	ctx = tflog.SetField(ctx, "insecure", insecure)
 	ctx = tflog.SetField(ctx, "timeout", timeout)
 	tflog.Debug(ctx, "Creating powerflex client")
 
 	// Create a new powerflex client using the configuration values
-	Client, err := goscaleio.NewClientWithArgs(endpoint, "", int64(timeout), insecure, true)
+	Client, err := goscaleio.NewClientWithArgs(config.EndPoint.ValueString(), "", int64(timeout), insecure, true)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Create powerflex API Client",
@@ -229,10 +212,10 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 	}
 
 	var goscaleioConf goscaleio.ConfigConnect = goscaleio.ConfigConnect{}
-	goscaleioConf.Endpoint = endpoint
-	goscaleioConf.Username = username
+	goscaleioConf.Endpoint = config.EndPoint.ValueString()
+	goscaleioConf.Username = config.Username.ValueString()
 	goscaleioConf.Version = ""
-	goscaleioConf.Password = password
+	goscaleioConf.Password = config.Password.ValueString()
 	goscaleioConf.Insecure = insecure
 
 	for i := 0; i < retryEOFCounter; i++ {
