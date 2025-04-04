@@ -39,6 +39,14 @@ var getSDCID = `
 	}
 `
 
+var getSDCIDMulti = `
+	data "powerflex_sdc" "all" {
+		filter {
+			name = ["sdc-multi-volume"]
+		}
+	}
+`
+
 var createVolRO = `
 	resource "powerflex_volume" "pre-req1"{
 		name = "terraform-vol"
@@ -69,7 +77,44 @@ var createVolRW = `
 	}
 `
 
-func TestAccResourceSDCVolumes(t *testing.T) {
+// If the SDC has multiple volumes, some of which are not appart of terraform mapping, we should only manage the ones in the terraform state.
+func TestAccSDCVolumeMultiMap(t *testing.T) {
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this for Unit tests")
+	}
+	var CreateSDCVolumesResource = `
+	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
+			id = "sdc-multi-volume"
+			volume_list = [
+			{
+				volume_id = "terraform-volume-mapping-id"
+				limit_iops = 140
+				limit_bw_in_mbps = 19
+				access_mode = "ReadOnly"
+			}
+		]
+	 }
+	`
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + CreateSDCVolumesResource,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.#", "1"),
+				),
+			},
+			// Do the same config twice to check if after tf refresh we still only have one volume in the list
+			{
+				Config: ProviderConfigForTesting + CreateSDCVolumesResource,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_sdc_volumes_mapping.map-sdc-volumes-test", "volume_list.#", "1"),
+				),
+			},
+		}})
+}
+
+func TestAccSDCVolumes(t *testing.T) {
 	var MapSDCVolumesResource = createVolRO + createVolRW + getSDCID + `
 	resource "powerflex_sdc_volumes_mapping" "map-sdc-volumes-test" {
 			id = local.matching_sdc[0].id
