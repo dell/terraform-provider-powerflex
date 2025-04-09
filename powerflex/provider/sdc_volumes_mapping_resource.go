@@ -255,8 +255,17 @@ func (r *sdcVolumeMappingResource) Create(ctx context.Context, req resource.Crea
 		return
 	}
 
+	planVolList := []models.SdcVolumeModel{}
+
+	// Populate stateVolList with volumes stored in state
+	diags = plan.VolumeList.ElementsAs(ctx, &planVolList, true)
+	resp.Diagnostics.Append(diags...)
+
+	// reduce and get only the volumes which are mapped and part of the state.
+	var mappedAndPlanVolumes = helper.ReduceMapAndStateVolumes(mappedVolumes, planVolList)
+
 	// Set refreshed state
-	state, dgs := helper.UpdateSDCVolMapState(mappedVolumes, &plan, nil, nil)
+	state, dgs := helper.UpdateSDCVolMapState(mappedAndPlanVolumes, &plan, nil, nil)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state)
@@ -272,6 +281,11 @@ func (r *sdcVolumeMappingResource) Read(ctx context.Context, req resource.ReadRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	stateVolList := []models.SdcVolumeModel{}
+
+	// Populate stateVolList with volumes stored in state
+	diags = state.VolumeList.ElementsAs(ctx, &stateVolList, true)
+	resp.Diagnostics.Append(diags...)
 
 	sdcType, err1 := helper.GetSdcType(r.client, state.ID.ValueString())
 	if err1 != nil {
@@ -291,8 +305,11 @@ func (r *sdcVolumeMappingResource) Read(ctx context.Context, req resource.ReadRe
 		return
 	}
 
+	// reduce and get only the volumes which are mapped and part of the state.
+	var mappedAndStateVolumes = helper.ReduceMapAndStateVolumes(mappedVolumes, stateVolList)
+
 	// Set refreshed state
-	state1, dgs := helper.UpdateSDCVolMapState(mappedVolumes, nil, &state, nil)
+	state1, dgs := helper.UpdateSDCVolMapState(mappedAndStateVolumes, nil, &state, nil)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state1)
@@ -523,8 +540,15 @@ func (r *sdcVolumeMappingResource) Update(ctx context.Context, req resource.Upda
 		return
 	}
 
+	// Populate stateVolList with volumes stored in state
+	diags = plan.VolumeList.ElementsAs(ctx, &stateVolList, true)
+	resp.Diagnostics.Append(diags...)
+
+	// reduce and get only the volumes which are mapped and part of the state.
+	var mappedAndStateVolumes = helper.ReduceMapAndStateVolumes(mappedVolumes, stateVolList)
+
 	// Set refreshed state
-	state1, dgs := helper.UpdateSDCVolMapState(mappedVolumes, &plan, &state, planVolIdsOrder)
+	state1, dgs := helper.UpdateSDCVolMapState(mappedAndStateVolumes, &plan, &state, planVolIdsOrder)
 	resp.Diagnostics.Append(dgs...)
 
 	diags = resp.State.Set(ctx, state1)

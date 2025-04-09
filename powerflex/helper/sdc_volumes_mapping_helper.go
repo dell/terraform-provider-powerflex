@@ -79,6 +79,20 @@ func GetVolValue(vol *goscaleio_types.Volume) (basetypes.ObjectValue, diag.Diagn
 	})
 }
 
+// ReduceMapAndStateVolumes returns the intersection of the mapped and state volumes
+func ReduceMapAndStateVolumes(mappedVolumes []*goscaleio_types.Volume, state []models.SdcVolumeModel) []*goscaleio_types.Volume {
+	var mappedAndStateVolumes []*goscaleio_types.Volume
+	for _, stateVols := range state {
+		for _, vol := range mappedVolumes {
+			if vol.ID == stateVols.VolumeID.ValueString() {
+				mappedAndStateVolumes = append(mappedAndStateVolumes, vol)
+				break
+			}
+		}
+	}
+	return mappedAndStateVolumes
+}
+
 // UpdateSDCVolMapState updates the state
 func UpdateSDCVolMapState(mappedVolumes []*goscaleio_types.Volume, plan *models.SdcVolumeMappingResourceModel, oldState *models.SdcVolumeMappingResourceModel, planVolIds []string) (*models.SdcVolumeMappingResourceModel, diag.Diagnostics) {
 	state := plan
