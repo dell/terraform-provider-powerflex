@@ -39,14 +39,6 @@ var getSDCID = `
 	}
 `
 
-var getSDCIDMulti = `
-	data "powerflex_sdc" "all" {
-		filter {
-			name = ["sdc-multi-volume"]
-		}
-	}
-`
-
 var createVolRO = `
 	resource "powerflex_volume" "pre-req1"{
 		name = "terraform-vol"
