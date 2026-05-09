@@ -279,7 +279,7 @@ func CreateResourceCredential(ctx context.Context, sys *goscaleio.System, plan m
 		})
 	}
 
-	return nil, fmt.Errorf("invalid type unable to create resource credential.")
+	return nil, fmt.Errorf("invalid type unable to create resource credential")
 }
 
 // ModifyResourceCredential Modify an existing resource credential
@@ -356,7 +356,7 @@ func ModifyResourceCredential(ctx context.Context, sys *goscaleio.System, plan m
 		}, id)
 	}
 
-	return nil, fmt.Errorf("invalid type unable to create resource credential.")
+	return nil, fmt.Errorf("invalid type unable to create resource credential")
 }
 
 func translateSnmpv3SecurityLevel(level string) string {

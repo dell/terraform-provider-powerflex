@@ -322,7 +322,7 @@ func init() {
 		}
 	`, username, password, endpoint, insecure)
 	// Set the specific TF_ACC test environment
-	os.Setenv("TF_ACC", globalEnvMap["TF_ACC"])
+	_ = os.Setenv("TF_ACC", globalEnvMap["TF_ACC"])
 }
 
 var (
@@ -368,7 +368,12 @@ func loadEnvFile(path string) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			// Log error but don't fail the test
+			_ = err
+		}
+	}()
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {

@@ -100,12 +100,13 @@ func HandleServiceDeployment(ctx context.Context, deploymentResponse *scaleiotyp
 
 		tflog.Info(ctx, "Service Deployment Status is ::"+deploymentResponse.Status)
 
-		if deploymentResponse.Status == "complete" {
+		switch deploymentResponse.Status {
+		case "complete":
 
 			tflog.Info(ctx, "Service Details updated to state file successfully")
 
 			return deploymentResponse, diags
-		} else if deploymentResponse.Status == "error" {
+		case "error":
 
 			var errorMsg string
 

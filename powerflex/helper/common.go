@@ -21,7 +21,7 @@ import (
 )
 
 func isKnown(v attr.Value) bool {
-	return !(v.IsUnknown() || v.IsNull())
+	return !v.IsUnknown() && !v.IsNull()
 }
 
 // Known returns true if all values are known

@@ -134,7 +134,11 @@ func (p *SSHProvisioner) Run(cmd string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to create session: %w", err)
 	}
-	defer session.Close()
+	defer func() {
+		if err := session.Close(); err != nil {
+			p.logger.Printf("[WARN] Failed to close session: %v", err)
+		}
+	}()
 	output, err := session.CombinedOutput(cmd)
 	if err != nil {
 		return string(output), fmt.Errorf("failed to run command %s: %w", sanitizedOutput, err)
@@ -155,7 +159,11 @@ func (p *SSHProvisioner) RebootUnix() error {
 	if err != nil {
 		return fmt.Errorf("failed to create session: %w", err)
 	}
-	defer session.Close()
+	defer func() {
+		if err := session.Close(); err != nil {
+			p.logger.Printf("[WARN] Failed to close session: %v", err)
+		}
+	}()
 	err = session.Start(cmd)
 	if err != nil {
 		return fmt.Errorf("failed to run reboot command: %w", err)

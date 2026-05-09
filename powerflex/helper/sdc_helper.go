@@ -255,15 +255,19 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 	//Create a csv file from the input given by the user
 	mydir, err := os.Getwd()
 	if err != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Reading Current Directory is %s", err.Error())
+		return &parseCSVResponse, fmt.Errorf("error while reading current directory: %s", err.Error())
 	}
 	// Create a csv writer
 	filePath := filepath.Join(mydir, filepath.Clean("Minimal.csv"))
 	file, err := os.Create(filepath.Clean(filePath))
 	if err != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV is %s", err.Error())
+		return &parseCSVResponse, fmt.Errorf("error while creating temp CSV: %s", err.Error())
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			tflog.Error(ctx, "Failed to close temp CSV file", map[string]interface{}{"error": err.Error()})
+		}
+	}()
 	writer := csv.NewWriter(file)
 
 	// Write the header row
@@ -286,7 +290,7 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 	}
 	err = writer.Write(header)
 	if err != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Writing Temp CSV is %s", err.Error())
+		return &parseCSVResponse, fmt.Errorf("error while writing temp CSV: %s", err.Error())
 	}
 
 	var sdcIPs []string
@@ -335,7 +339,7 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 			}
 			err = writer.Write(data)
 			if err != nil {
-				return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
+				return &parseCSVResponse, fmt.Errorf("error while creating temp CSV file: %s", err.Error())
 			}
 		}
 
@@ -350,13 +354,13 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 
 	deletCSVError := os.Remove(mydir + "/Minimal.csv")
 	if deletCSVError != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Deleting Temp CSV File is %s", deletCSVError.Error())
+		return &parseCSVResponse, fmt.Errorf("error while deleting temp CSV file: %s", deletCSVError.Error())
 	}
 
 	parsecsvRespose.Message = strings.Join(sdcIPs, ",")
 
 	if parsecsvRespose.StatusCode != 200 {
-		return &parseCSVResponse, fmt.Errorf("Meesage : %s, Error Cosde : %s", parsecsvRespose.Message, strconv.Itoa(parsecsvRespose.StatusCode))
+		return &parseCSVResponse, fmt.Errorf("message: %s, error code: %s", parsecsvRespose.Message, strconv.Itoa(parsecsvRespose.StatusCode))
 	}
 
 	return parsecsvRespose, nil
@@ -392,7 +396,7 @@ func InstallationOperations(ctx context.Context, model models.SdcResourceModel, 
 	beginInstallationResponse, installationError := gatewayClient.BeginInstallation(parsecsvRespose.Data, "admin", model.MdmPassword.ValueString(), model.LiaPassword.ValueString(), true, true, false, true)
 
 	if installationError != nil {
-		return fmt.Errorf("Error while begin installation is %s", installationError.Error())
+		return fmt.Errorf("error while beginning installation: %s", installationError.Error())
 	}
 
 	if beginInstallationResponse.StatusCode == 200 {
@@ -407,41 +411,43 @@ func InstallationOperations(ctx context.Context, model models.SdcResourceModel, 
 
 			checkForPhaseCompleted, _ := gatewayClient.CheckForCompletionQueueCommands(currentPhase)
 
-			if checkForPhaseCompleted.Data == "Completed" {
+			switch checkForPhaseCompleted.Data {
+			case "Completed":
 				couterForStopExecution = 0
 
 				if currentPhase != "configure" {
 					moveToNextPhaseResponse, err := gatewayClient.MoveToNextPhase()
 
 					if err != nil {
-						return fmt.Errorf("Error while moving to next phase is %s", err.Error())
+						return fmt.Errorf("error while moving to next phase: %s", err.Error())
 					}
 
 					if moveToNextPhaseResponse.StatusCode == 200 {
-						if currentPhase == "query" {
+						switch currentPhase {
+						case "query":
 							currentPhase = "upload"
 							tflog.Info(ctx, "Gateway Installation phase changed to Upload")
-						} else if currentPhase == "upload" {
+						case "upload":
 							currentPhase = "install"
 							tflog.Info(ctx, "Gateway Installation phase changed to Install")
-						} else if currentPhase == "install" {
+						case "install":
 							currentPhase = "configure"
 							tflog.Info(ctx, "Gateway Installation phase changed to Configure")
 						}
 					} else {
-						return fmt.Errorf("Messsage: %s, Error Code: %s", moveToNextPhaseResponse.Message, strconv.Itoa(moveToNextPhaseResponse.StatusCode))
+						return fmt.Errorf("message: %s, error code: %s", moveToNextPhaseResponse.Message, strconv.Itoa(moveToNextPhaseResponse.StatusCode))
 					}
 				} else {
 					// to make gateway available for installation
 					queueOperationError := ResetInstallerQueue(gatewayClient)
 					if queueOperationError != nil {
-						return fmt.Errorf("Error Clearing Queue During Installation is %s", queueOperationError.Error())
+						return fmt.Errorf("error clearing queue during installation: %s", queueOperationError.Error())
 					}
 
 					return nil
 				}
 
-			} else if checkForPhaseCompleted.Data == "Running" {
+			case "Running":
 				couterForStopExecution++
 
 				tflog.Info(ctx, "Gateway Installation operations are still running")
@@ -450,18 +456,18 @@ func InstallationOperations(ctx context.Context, model models.SdcResourceModel, 
 					// to make gateway available for installation
 					queueOperationError := ResetInstallerQueue(gatewayClient)
 					if queueOperationError != nil {
-						return fmt.Errorf("Error Clearing Queue During Installation is %s", queueOperationError.Error())
+						return fmt.Errorf("error clearing queue during installation: %s", queueOperationError.Error())
 					}
 
-					return fmt.Errorf("Time Out,Some Operations of Installer running from since long")
+					return fmt.Errorf("timeout: some operations of installer running from since long")
 				}
 
-			} else {
-				return fmt.Errorf("Error During Installation is %s", checkForPhaseCompleted.Message)
+			default:
+				return fmt.Errorf("error during installation: %s", checkForPhaseCompleted.Message)
 			}
 		}
 	} else {
-		return fmt.Errorf("Message: %s, Error Code: %s", beginInstallationResponse.Message, strconv.Itoa(beginInstallationResponse.StatusCode))
+		return fmt.Errorf("message: %s, error code: %s", beginInstallationResponse.Message, strconv.Itoa(beginInstallationResponse.StatusCode))
 	}
 
 	return nil

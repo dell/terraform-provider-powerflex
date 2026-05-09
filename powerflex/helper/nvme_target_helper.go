@@ -67,9 +67,10 @@ func GetNvmeTargetByID(system *goscaleio.System, id string) (*goscaleio_types.Sd
 		return sdt, err
 	}
 
-	if sdt.MaintenanceState == "NoMaintenance" || sdt.MaintenanceState == "ExitMaintenanceInProgress" {
+	switch sdt.MaintenanceState {
+	case "NoMaintenance", "ExitMaintenanceInProgress":
 		sdt.MaintenanceState = "Inactive"
-	} else if sdt.MaintenanceState == "InMaintenance" || sdt.MaintenanceState == "SetMaintenanceInProgress" {
+	case "InMaintenance", "SetMaintenanceInProgress":
 		sdt.MaintenanceState = "Active"
 	}
 

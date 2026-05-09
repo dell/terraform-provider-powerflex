@@ -44,7 +44,7 @@ import (
 func GetFirstSystem(rc *goscaleio.Client) (*goscaleio.System, error) {
 	allSystems, err := rc.GetSystems()
 	if err != nil {
-		return nil, fmt.Errorf("Error in goscaleio GetSystems %s", err.Error())
+		return nil, fmt.Errorf("error in goscaleio GetSystems %s", err.Error())
 	}
 	if numSys := len((allSystems)); numSys == 0 {
 		return nil, fmt.Errorf("no systems found")
@@ -53,7 +53,7 @@ func GetFirstSystem(rc *goscaleio.Client) (*goscaleio.System, error) {
 	}
 	system, err := rc.FindSystem(allSystems[0].ID, "", "")
 	if err != nil {
-		return nil, fmt.Errorf("Error in goscaleio FindSystem")
+		return nil, fmt.Errorf("error in goscaleio FindSystem")
 	}
 	return system, nil
 }
@@ -235,20 +235,18 @@ func RenewInstallationCookie(gatewayClient *goscaleio.GatewayClient) error {
 func ResetInstallerQueue(gatewayClient *goscaleio.GatewayClient) error {
 
 	_, err := gatewayClient.AbortOperation()
-
 	if err != nil {
-		return fmt.Errorf("Error while Aborting Operation is %s", err.Error())
+		return fmt.Errorf("error while aborting operation: %s", err.Error())
 	}
 	_, err = gatewayClient.ClearQueueCommand()
-
 	if err != nil {
-		return fmt.Errorf("Error while Clearing Queue is %s", err.Error())
+		return fmt.Errorf("error while clearing queue: %s", err.Error())
 	}
 
 	_, err = gatewayClient.MoveToIdlePhase()
 
 	if err != nil {
-		return fmt.Errorf("Error while Move to Ideal Phase is %s", err.Error())
+		return fmt.Errorf("error while moving to idle phase: %s", err.Error())
 	}
 
 	return nil
@@ -317,7 +315,7 @@ func SetContains(set types.Set, value string) bool {
 func GetDataSourceByValue(fields interface{}, allData interface{}) ([]interface{}, error) {
 
 	if isPointer(fields) || isPointer(allData) {
-		return nil, fmt.Errorf("Pointers are not supported")
+		return nil, fmt.Errorf("pointers are not supported")
 	}
 
 	filteredArray := reflect.ValueOf(allData)
@@ -475,7 +473,7 @@ func CheckAndConvertValue(input reflect.Value) (reflect.Value, error) {
 		return valueRef, nil
 	}
 
-	return valueRef, fmt.Errorf("Value cannot be converted: %v", input)
+	return valueRef, fmt.Errorf("value cannot be converted: %v", input)
 }
 
 // GenerateSchemaAttributes generates schema attributes based on a map of attribute names and respective types.

@@ -100,12 +100,13 @@ func HandleResourceGroupDeployment(ctx context.Context, deploymentResponse *scal
 
 		tflog.Info(ctx, "ResourceGroup Deployment Status is ::"+deploymentResponse.Status)
 
-		if deploymentResponse.Status == "complete" {
+		switch deploymentResponse.Status {
+		case "complete":
 
 			tflog.Info(ctx, "ResourceGroup Details updated to state file successfully")
 
 			return deploymentResponse, diags
-		} else if deploymentResponse.Status == "error" {
+		case "error":
 
 			var errorMsg string
 

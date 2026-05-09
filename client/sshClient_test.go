@@ -38,7 +38,11 @@ func TestSshClientM(t *testing.T) {
 	if err != nil {
 		t.Fatalf("%s", err.Error())
 	}
-	defer sshP.Close()
+	defer func() {
+		if err := sshP.Close(); err != nil {
+			t.Logf("Failed to close SSH client: %v", err)
+		}
+	}()
 
 	t.Log("created ssh client")
 
@@ -64,7 +68,11 @@ func TestSshClientMReboot(t *testing.T) {
 	if err != nil {
 		t.Fatalf("%s", err.Error())
 	}
-	defer sshP.Close()
+	defer func() {
+		if err := sshP.Close(); err != nil {
+			t.Logf("Failed to close SSH client: %v", err)
+		}
+	}()
 
 	t.Log("created ssh client")
 
@@ -88,7 +96,11 @@ func TestSshClientMUntar(t *testing.T) {
 	if err != nil {
 		t.Fatalf("%s", err.Error())
 	}
-	defer sshP.Close()
+	defer func() {
+		if err := sshP.Close(); err != nil {
+			t.Logf("Failed to close SSH client: %v", err)
+		}
+	}()
 
 	t.Log("created ssh client")
 
@@ -103,7 +115,7 @@ func TestSshClientMUntar(t *testing.T) {
 func TestSshClientMScp(t *testing.T) {
 	t.Skip("Skipping this test case, only for Unit test")
 	// remove file /tmp/testScpFile, just in case
-	os.Remove("/tmp/testScpFile")
+	_ = os.Remove("/tmp/testScpFile")
 
 	pass := "secret"
 	sshP, err := NewSSHProvisioner(SSHProvisionerConfig{
@@ -117,7 +129,11 @@ func TestSshClientMScp(t *testing.T) {
 	if err != nil {
 		t.Fatalf("%s", err.Error())
 	}
-	defer sshP.Close()
+	defer func() {
+		if err := sshP.Close(); err != nil {
+			t.Logf("Failed to close SSH client: %v", err)
+		}
+	}()
 
 	t.Log("created ssh client")
 

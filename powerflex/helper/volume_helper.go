@@ -21,7 +21,6 @@ import (
 	"terraform-provider-powerflex/powerflex/models"
 
 	"github.com/dell/goscaleio"
-	pftypes "github.com/dell/goscaleio/types/v1"
 	scaleiotypes "github.com/dell/goscaleio/types/v1"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -51,7 +50,7 @@ func ConvertToKB(capacityUnit string, size int64) int64 {
 }
 
 // RefreshVolumeState function to update the state of volume resource in terraform.tfstate file
-func RefreshVolumeState(vol *pftypes.Volume, state *models.VolumeResourceModel) (diags diag.Diagnostics) {
+func RefreshVolumeState(vol *scaleiotypes.Volume, state *models.VolumeResourceModel) (diags diag.Diagnostics) {
 	state.StoragePoolID = types.StringValue(vol.StoragePoolID)
 	state.UseRmCache = types.BoolValue(vol.UseRmCache)
 	state.VolumeType = types.StringValue(vol.VolumeType)

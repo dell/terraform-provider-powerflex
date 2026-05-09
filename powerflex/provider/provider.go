@@ -211,7 +211,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 		return
 	}
 
-	var goscaleioConf goscaleio.ConfigConnect = goscaleio.ConfigConnect{}
+	var goscaleioConf = goscaleio.ConfigConnect{}
 	goscaleioConf.Endpoint = config.EndPoint.ValueString()
 	goscaleioConf.Username = config.Username.ValueString()
 	goscaleioConf.Version = ""

@@ -52,7 +52,7 @@ func CreateOSRepository(client *goscaleio.System, plan models.OSRepositoryResour
 
 	osRepoResp, err := client.CreateOSRepository(createParam)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating OS repository: %s ", plan.Name.ValueString())
+		return nil, fmt.Errorf("error creating OS repository: %s ", plan.Name.ValueString())
 	}
 
 	return osRepoResp, nil
@@ -62,7 +62,7 @@ func CreateOSRepository(client *goscaleio.System, plan models.OSRepositoryResour
 func GetOSRepositoryByID(client *goscaleio.System, id string) (*scaleiotypes.OSRepository, error) {
 	osRepo, err := client.GetOSRepositoryByID(id)
 	if err != nil {
-		return nil, fmt.Errorf("Error getting OS repository with id: %s ", id)
+		return nil, fmt.Errorf("error getting OS repository with id: %s ", id)
 	}
 	return osRepo, nil
 }
@@ -71,7 +71,7 @@ func GetOSRepositoryByID(client *goscaleio.System, id string) (*scaleiotypes.OSR
 func GetAllOsRepositories(client *goscaleio.System) ([]scaleiotypes.OSRepository, error) {
 	osRepos, err := client.GetAllOSRepositories()
 	if err != nil {
-		return nil, fmt.Errorf("Error getting OS repositories")
+		return nil, fmt.Errorf("error getting OS repositories")
 	}
 	// Filter ISO repos
 	var filteredOSRepos []scaleiotypes.OSRepository

@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // GetPeerSystem GET peer system
@@ -170,7 +171,11 @@ func AddCertificate(ctx context.Context, client *goscaleio.Client, plan models.P
 	if createSSHClientDestErr != nil {
 		return createSSHClientDestErr
 	}
-	defer destProv.Close()
+	defer func() {
+		if err := destProv.Close(); err != nil {
+			tflog.Error(ctx, "Failed to close destination SSH provisioner", map[string]interface{}{"error": err.Error()})
+		}
+	}()
 
 	// create the source ssh client
 	sourceProv, createSSHClientSourceErr := sshClient.NewSSHProvisioner(sshClient.SSHProvisionerConfig{
@@ -183,7 +188,11 @@ func AddCertificate(ctx context.Context, client *goscaleio.Client, plan models.P
 	if createSSHClientSourceErr != nil {
 		return createSSHClientSourceErr
 	}
-	defer sourceProv.Close()
+	defer func() {
+		if err := sourceProv.Close(); err != nil {
+			tflog.Error(ctx, "Failed to close source SSH provisioner", map[string]interface{}{"error": err.Error()})
+		}
+	}()
 
 	// Grab the certificate from the  mdm
 	// Commands to get the certificate
@@ -201,19 +210,19 @@ func AddCertificate(ctx context.Context, client *goscaleio.Client, plan models.P
 	// 2. Login to mdm
 	_, loginErr := destProv.Run(`scli --login --management_system_ip ` + destination.ManagementIP + ` --username ` + destination.ManagementUsername + ` --password ` + *destination.ManagementPassword)
 	if loginErr != nil {
-		return fmt.Errorf("Unable to login: %s", loginErr.Error())
+		return fmt.Errorf("unable to login: %s", loginErr.Error())
 	}
 
 	// 3. Extract root cert
 	_, extractRootCertErr := destProv.Run(`scli --extract_root_ca --certificate_file ` + destination.ManagementIP + `_root.pem`)
 	if extractRootCertErr != nil {
-		return fmt.Errorf("Unable to extract root certificate: %s", extractRootCertErr.Error())
+		return fmt.Errorf("unable to extract root certificate: %s", extractRootCertErr.Error())
 	}
 
 	// 4. Copy destination cert to source mdm Example: curl --insecure --user user:pass -T ip_root.pem sftp://ip/root/ip_root.pem
 	_, scpRootCertErr := destProv.Run(`curl --insecure --user ` + source.Username + `:` + *source.Password + ` -T ` + destination.ManagementIP + `_root.pem sftp://` + source.IP + `/root/` + destination.ManagementIP + `_root.pem`)
 	if scpRootCertErr != nil {
-		return fmt.Errorf("Unable to copy from certificate from source to destination: %s", scpRootCertErr.Error())
+		return fmt.Errorf("unable to copy from certificate from source to destination: %s", scpRootCertErr.Error())
 	}
 
 	// Go to Source MDM and add the new cert
@@ -229,7 +238,7 @@ func AddCertificate(ctx context.Context, client *goscaleio.Client, plan models.P
 	// 2. Login to mdm
 	_, loginSourceErr := sourceProv.Run(`scli --login --management_system_ip ` + source.ManagementIP + ` --username ` + source.ManagementUsername + ` --password ` + *source.ManagementPassword)
 	if loginSourceErr != nil {
-		return fmt.Errorf("Unable to login: %s", loginSourceErr.Error())
+		return fmt.Errorf("unable to login: %s", loginSourceErr.Error())
 	}
 	// 3. Add the cert of the destination as a trusted cert
 	_, addTrustedCertErr := sourceProv.Run(`scli --add_trusted_ca --certificate_file ` + destination.ManagementIP + `_root.pem --comment "Adding Peer Mdm ` + destination.ManagementIP + `_root.pem"`)
@@ -240,7 +249,7 @@ func AddCertificate(ctx context.Context, client *goscaleio.Client, plan models.P
 		err := fmt.Sprintf("%s", addTrustedCertErr)
 		// If error string contains exit code 7 that means the certificate is already trusted and can be ignored
 		if !strings.Contains(err, "7") {
-			return fmt.Errorf("Unable to add trusted cert: %s", err)
+			return fmt.Errorf("unable to add trusted cert: %s", err)
 
 		}
 	}
@@ -578,6 +587,6 @@ func RCGDoAction(client *goscaleio.Client, actions models.ReplicationConsistency
 		_, err := rcgClient.CreateReplicationConsistencyGroupSnapshot()
 		return err
 	default:
-		return fmt.Errorf("Invalid Action %s", actions.Action.ValueString())
+		return fmt.Errorf("invalid action %s", actions.Action.ValueString())
 	}
 }

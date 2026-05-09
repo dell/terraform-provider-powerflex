@@ -202,7 +202,11 @@ func (r *SdcHostResource) UpdateLinuxMdms(ctx context.Context, plan models.SdcHo
 		)
 		return respDiagnostics
 	}
-	defer sshP.Close()
+	defer func() {
+		if err := sshP.Close(); err != nil {
+			tflog.Error(ctx, "Failed to close SSH provisioner", map[string]interface{}{"error": err.Error()})
+		}
+	}()
 	// Check for existing mdms
 	qMdms, qErr := sshP.RunWithDir(plan.LinuxDrvCfg.ValueString(), "./drv_cfg --query_mdms")
 	if qErr != nil {
@@ -284,7 +288,11 @@ func (r *SdcHostResource) LinuxOp(ctx context.Context, plan models.SdcHostModel,
 		)
 		return plan, respDiagnostics
 	}
-	defer sshP.Close()
+	defer func() {
+		if err := sshP.Close(); err != nil {
+			tflog.Error(ctx, "Failed to close SSH provisioner", map[string]interface{}{"error": err.Error()})
+		}
+	}()
 
 	op, err := sshP.Run("cat /etc/os-release")
 	if err != nil {

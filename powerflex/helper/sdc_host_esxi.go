@@ -48,7 +48,11 @@ func (r *SdcHostResource) UpdateEsxiMdms(ctx context.Context, plan models.SdcHos
 		)
 		return respDiagnostics
 	}
-	defer sshP.Close()
+	defer func() {
+		if err := sshP.Close(); err != nil {
+			tflog.Error(ctx, "Failed to close SSH provisioner", map[string]interface{}{"error": err.Error()})
+		}
+	}()
 
 	esxi := client.NewEsxCli(sshP)
 	// update mdms
@@ -75,7 +79,11 @@ func (r *SdcHostResource) CreateEsxi(ctx context.Context, plan models.SdcHostMod
 		)
 		return respDiagnostics
 	}
-	defer sshP.Close()
+	defer func() {
+		if err := sshP.Close(); err != nil {
+			tflog.Error(ctx, "Failed to close SSH provisioner", map[string]interface{}{"error": err.Error()})
+		}
+	}()
 
 	pkgTarget := strings.TrimSuffix(dir, "/") + "/" + "emc-sdc-package.zip"
 	if !plan.UseRemotePath.ValueBool() {
@@ -228,7 +236,11 @@ func (r *SdcHostResource) DeleteEsxi(ctx context.Context, state models.SdcHostMo
 		)
 		return respDiagnostics
 	}
-	defer sshP.Close()
+	defer func() {
+		if err := sshP.Close(); err != nil {
+			tflog.Error(ctx, "Failed to close SSH provisioner", map[string]interface{}{"error": err.Error()})
+		}
+	}()
 
 	tflog.Info(ctx, "Checking for installed sdc package")
 	esxi := client.NewEsxCli(sshP)

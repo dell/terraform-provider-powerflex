@@ -112,7 +112,7 @@ func (d *osRepositoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 			return
 		}
 		for i := 0; i < len(osRepo); i++ {
-			var osRepoCast scaleiotypes.OSRepository = osRepo[i].(scaleiotypes.OSRepository)
+			var osRepoCast = osRepo[i].(scaleiotypes.OSRepository)
 
 			osRepositoriesModel = append(osRepositoriesModel, helper.GetAllOSRepositoryState(osRepoCast))
 		}

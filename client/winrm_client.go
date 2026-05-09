@@ -270,7 +270,11 @@ func (winRMClient *WinRMClient) Upload(dstPath string, srcPath string) error {
 	if err != nil {
 		return err
 	}
-	defer input.Close()
+	defer func() {
+		if err := input.Close(); err != nil {
+			log.Printf("[WARN] Failed to close input file: %v", err)
+		}
+	}()
 
 	wcp, err := winRMClient.newCopyClient()
 	if err != nil {

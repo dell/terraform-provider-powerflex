@@ -712,15 +712,19 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 	//Create a csv file from the input given by the user
 	mydir, err := os.Getwd()
 	if err != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Reading Current Directory is %s", err.Error())
+		return &parseCSVResponse, fmt.Errorf("error while reading current directory: %s", err.Error())
 	}
 	// Create a csv writer
 	filePath := filepath.Join(mydir, filepath.Clean("Minimal.csv"))
 	file, err := os.Create(filepath.Clean(filePath))
 	if err != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV is %s", err.Error())
+		return &parseCSVResponse, fmt.Errorf("error while creating temp CSV: %s", err.Error())
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			tflog.Error(ctx, "Failed to close temp CSV file", map[string]interface{}{"error": err.Error()})
+		}
+	}()
 	writer := NewCustomCSVWriter(file)
 
 	// Write the header row
@@ -801,7 +805,7 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 
 	err = writer.Write(filteredHeader)
 	if err != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Writing Temp CSV is %s", err.Error())
+		return &parseCSVResponse, fmt.Errorf("error while writing temp CSV: %s", err.Error())
 	}
 
 	// Write the values for each data row according to the filtered headers
@@ -813,7 +817,7 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 
 		err = writer.Write(data)
 		if err != nil {
-			return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
+			return &parseCSVResponse, fmt.Errorf("error while creating temp CSV file: %s", err.Error())
 		}
 	}
 
@@ -822,13 +826,13 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 		// Add a new line with commas
 		err = writer.Write([]string{strings.Repeat(",", len(filteredHeader))})
 		if err != nil {
-			return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
+			return &parseCSVResponse, fmt.Errorf("error while creating temp CSV file: %s", err.Error())
 		}
 
 		// Add a blank line after writing each data row
 		err = writer.Write([]string{"Storage Pool Configuration", strings.Repeat(",", len(filteredHeader)-1)})
 		if err != nil {
-			return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
+			return &parseCSVResponse, fmt.Errorf("error while creating temp CSV file: %s", err.Error())
 		}
 
 		// Write the Storage Pool header row
@@ -873,7 +877,7 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 
 		err = writer.Write(append(filteredStorageHeader, strings.Repeat(",", len(filteredHeader)-len(filteredStorageHeader))))
 		if err != nil {
-			return &parseCSVResponse, fmt.Errorf("Error While Writing Temp CSV is %s", err.Error())
+			return &parseCSVResponse, fmt.Errorf("error while writing temp CSV: %s", err.Error())
 		}
 
 		// Write the values for each data row according to the filtered headers
@@ -887,13 +891,13 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 
 			err = writer.Write(data)
 			if err != nil {
-				return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
+				return &parseCSVResponse, fmt.Errorf("error while creating temp CSV file: %s", err.Error())
 			}
 		}
 
 		err = writer.Flush()
 		if err != nil {
-			return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV File is %s", err.Error())
+			return &parseCSVResponse, fmt.Errorf("error while flushing temp CSV file: %s", err.Error())
 		}
 	}
 
@@ -901,7 +905,7 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 
 	deletCSVError := os.Remove(mydir + "/Minimal.csv")
 	if deletCSVError != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Deleting Temp CSV File is %s", deletCSVError.Error())
+		return &parseCSVResponse, fmt.Errorf("error while deleting temp CSV file: %s", deletCSVError.Error())
 	}
 
 	if parseCSVError != nil {
@@ -909,7 +913,7 @@ func ParseClusterCSVOperation(ctx context.Context, gatewayClient *goscaleio.Gate
 	}
 
 	if parsecsvRespose.StatusCode != 200 {
-		return &parseCSVResponse, fmt.Errorf("Meesage : %s, Error Cosde : %s", parsecsvRespose.Message, strconv.Itoa(parsecsvRespose.StatusCode))
+		return &parseCSVResponse, fmt.Errorf("message: %s, error code: %s", parsecsvRespose.Message, strconv.Itoa(parsecsvRespose.StatusCode))
 	}
 
 	return parsecsvRespose, nil
@@ -1055,7 +1059,7 @@ func ClusterInstallationOperations(ctx context.Context, model models.ClusterReso
 	beginInstallationResponse, installationError := gatewayClient.BeginInstallation(parsecsvRespose.Data, "admin", model.MdmPassword.ValueString(), model.LiaPassword.ValueString(), model.AllowNonSecureCommunicationWithMdm.ValueBool(), model.AllowNonSecureCommunicationWithLia.ValueBool(), model.DisableNonMgmtComponentsAuth.ValueBool(), false)
 
 	if installationError != nil {
-		return fmt.Errorf("Error while begin installation is %s", installationError.Error())
+		return fmt.Errorf("error while beginning installation: %s", installationError.Error())
 	}
 
 	if beginInstallationResponse.StatusCode == 200 {
@@ -1070,41 +1074,43 @@ func ClusterInstallationOperations(ctx context.Context, model models.ClusterReso
 
 			checkForPhaseCompleted, _ := gatewayClient.CheckForCompletionQueueCommands(currentPhase)
 
-			if checkForPhaseCompleted.Data == "Completed" {
+			switch checkForPhaseCompleted.Data {
+			case "Completed":
 				couterForStopExecution = 0
 
 				if currentPhase != "configure" {
 					moveToNextPhaseResponse, err := gatewayClient.MoveToNextPhase()
 
 					if err != nil {
-						return fmt.Errorf("Error while moving to next phase is %s", err.Error())
+						return fmt.Errorf("error while moving to next phase: %s", err.Error())
 					}
 
 					if moveToNextPhaseResponse.StatusCode == 200 {
-						if currentPhase == "query" {
+						switch currentPhase {
+						case "query":
 							currentPhase = "upload"
 							tflog.Info(ctx, "Gateway Installation phase changed to Upload")
-						} else if currentPhase == "upload" {
+						case "upload":
 							currentPhase = "install"
 							tflog.Info(ctx, "Gateway Installation phase changed to Install")
-						} else if currentPhase == "install" {
+						case "install":
 							currentPhase = "configure"
 							tflog.Info(ctx, "Gateway Installation phase changed to Configure")
 						}
 					} else {
-						return fmt.Errorf("Messsage: %s, Error Code: %s", moveToNextPhaseResponse.Message, strconv.Itoa(moveToNextPhaseResponse.StatusCode))
+						return fmt.Errorf("message: %s, error code: %s", moveToNextPhaseResponse.Message, strconv.Itoa(moveToNextPhaseResponse.StatusCode))
 					}
 				} else {
 					// to make gateway available for installation
 					queueOperationError := ResetInstallerQueue(gatewayClient)
 					if queueOperationError != nil {
-						return fmt.Errorf("Error Clearing Queue During Installation is %s", queueOperationError.Error())
+						return fmt.Errorf("error clearing queue during installation: %s", queueOperationError.Error())
 					}
 
 					return nil
 				}
 
-			} else if checkForPhaseCompleted.Data == "Running" {
+			case "Running":
 				couterForStopExecution++
 
 				tflog.Info(ctx, "Gateway Installation operations are still running in phase "+currentPhase)
@@ -1113,18 +1119,18 @@ func ClusterInstallationOperations(ctx context.Context, model models.ClusterReso
 					// to make gateway available for installation
 					queueOperationError := ResetInstallerQueue(gatewayClient)
 					if queueOperationError != nil {
-						return fmt.Errorf("Error Clearing Queue During Installation in phase %s is %s", currentPhase, queueOperationError.Error())
+						return fmt.Errorf("error clearing queue during installation in phase %s: %s", currentPhase, queueOperationError.Error())
 					}
 
-					return fmt.Errorf("Time Out,Some Operations of Installer running from since long")
+					return fmt.Errorf("timeout: some operations of installer running from since long")
 				}
 
-			} else {
-				return fmt.Errorf("Error During Installation is %s", checkForPhaseCompleted.Message)
+			default:
+				return fmt.Errorf("error during installation: %s", checkForPhaseCompleted.Message)
 			}
 		}
 	} else {
-		return fmt.Errorf("Message: %s, Error Code: %s", beginInstallationResponse.Message, strconv.Itoa(beginInstallationResponse.StatusCode))
+		return fmt.Errorf("message: %s, error code: %s", beginInstallationResponse.Message, strconv.Itoa(beginInstallationResponse.StatusCode))
 	}
 
 	return nil
@@ -1135,7 +1141,7 @@ func ClusterUninstallationOperations(ctx context.Context, model models.ClusterRe
 
 	clusterMapData, jsonParseError := jsonToMap(parsecsvRespose.Data)
 	if jsonParseError != nil {
-		return fmt.Errorf("Error while begin uninstallation is %s", jsonParseError.Error())
+		return fmt.Errorf("error while beginning uninstallation: %s", jsonParseError.Error())
 	}
 
 	sdcResData := clusterMapData["sdcList"].([]interface{})
@@ -1165,13 +1171,13 @@ func ClusterUninstallationOperations(ctx context.Context, model models.ClusterRe
 
 	clusterJSONData, jsonParseError := json.Marshal(clusterMapData)
 	if jsonParseError != nil {
-		return fmt.Errorf("Error while begin uninstallation is %s", jsonParseError.Error())
+		return fmt.Errorf("error while beginning uninstallation: %s", jsonParseError.Error())
 	}
 
 	beginUninstallationResponse, uninstallationError := gatewayClient.UninstallCluster(string(clusterJSONData), "admin", model.MdmPassword.ValueString(), model.LiaPassword.ValueString(), model.AllowNonSecureCommunicationWithMdm.ValueBool(), model.AllowNonSecureCommunicationWithLia.ValueBool(), model.DisableNonMgmtComponentsAuth.ValueBool(), false)
 
 	if uninstallationError != nil {
-		return fmt.Errorf("Error while begin uninstallation is %s", uninstallationError.Error())
+		return fmt.Errorf("error while beginning uninstallation: %s", uninstallationError.Error())
 	}
 
 	if beginUninstallationResponse.StatusCode == 200 {
@@ -1186,14 +1192,15 @@ func ClusterUninstallationOperations(ctx context.Context, model models.ClusterRe
 
 			checkForPhaseCompleted, _ := gatewayClient.CheckForCompletionQueueCommands(currentPhase)
 
-			if checkForPhaseCompleted.Data == "Completed" {
+			switch checkForPhaseCompleted.Data {
+			case "Completed":
 				couterForStopExecution = 0
 
 				if currentPhase != "clean" {
 					moveToNextPhaseResponse, err := gatewayClient.MoveToNextPhase()
 
 					if err != nil {
-						return fmt.Errorf("Error while moving to next phase is %s", err.Error())
+						return fmt.Errorf("error while moving to next phase: %s", err.Error())
 					}
 
 					if moveToNextPhaseResponse.StatusCode == 200 {
@@ -1202,19 +1209,19 @@ func ClusterUninstallationOperations(ctx context.Context, model models.ClusterRe
 							tflog.Info(ctx, "Gateway uninstallation phase changed to Clean")
 						}
 					} else {
-						return fmt.Errorf("Messsage: %s, Error Code: %s", moveToNextPhaseResponse.Message, strconv.Itoa(moveToNextPhaseResponse.StatusCode))
+						return fmt.Errorf("message: %s, error code: %s", moveToNextPhaseResponse.Message, strconv.Itoa(moveToNextPhaseResponse.StatusCode))
 					}
 				} else {
 					// to make gateway available for installation
 					queueOperationError := ResetInstallerQueue(gatewayClient)
 					if queueOperationError != nil {
-						return fmt.Errorf("Error Clearing Queue After uninstallation is %s", queueOperationError.Error())
+						return fmt.Errorf("error clearing queue after uninstallation: %s", queueOperationError.Error())
 					}
 
 					return nil
 				}
 
-			} else if checkForPhaseCompleted.Data == "Running" {
+			case "Running":
 				couterForStopExecution++
 
 				tflog.Info(ctx, "Gateway Uninstallation operations are still running")
@@ -1223,18 +1230,18 @@ func ClusterUninstallationOperations(ctx context.Context, model models.ClusterRe
 					// to make gateway available for installation
 					queueOperationError := ResetInstallerQueue(gatewayClient)
 					if queueOperationError != nil {
-						return fmt.Errorf("Error Clearing Queue During Uninstallation is %s", queueOperationError.Error())
+						return fmt.Errorf("error clearing queue during uninstallation: %s", queueOperationError.Error())
 					}
 
-					return fmt.Errorf("Time Out,Some Operations of uninstall running from since long")
+					return fmt.Errorf("timeout: some operations of uninstall running from since long")
 				}
 
-			} else {
-				return fmt.Errorf("Error During Uninstallation is %s", checkForPhaseCompleted.Message)
+			default:
+				return fmt.Errorf("error during uninstallation: %s", checkForPhaseCompleted.Message)
 			}
 		}
 	} else {
-		return fmt.Errorf("Message: %s, Error Code: %s", beginUninstallationResponse.Message, strconv.Itoa(beginUninstallationResponse.StatusCode))
+		return fmt.Errorf("message: %s, error code: %s", beginUninstallationResponse.Message, strconv.Itoa(beginUninstallationResponse.StatusCode))
 	}
 
 	return nil

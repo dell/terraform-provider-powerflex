@@ -194,7 +194,7 @@ func (r *storagepoolResource) ValidateConfig(ctx context.Context, req resource.V
 	}
 
 	// The write handling mode selection comes into play if rm_cache is enabled
-	if !(data.RmCacheWriteHandlingMode.IsNull() || data.RmCacheWriteHandlingMode.IsUnknown()) && !data.UseRmcache.ValueBool() {
+	if (!data.RmCacheWriteHandlingMode.IsNull() && !data.RmCacheWriteHandlingMode.IsUnknown()) && !data.UseRmcache.ValueBool() {
 		resp.Diagnostics.AddAttributeError(
 			path.Root("rm_cache_write_handling_mode"),
 			"rm_cache_write_handling_mode cannot be specified while use_rmcache is not set to true",
