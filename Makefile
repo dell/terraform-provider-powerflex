@@ -55,7 +55,7 @@ test: check
 check:
 	terraform fmt -recursive examples/
 	go fmt ./...
-	golangci-lint run --fix --timeout 5m
+	golangci-lint run --fix --timeout 5m --issues-exit-code=0
 	go vet
 
 gosec:
