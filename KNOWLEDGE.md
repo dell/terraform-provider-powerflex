@@ -1,8 +1,8 @@
-# Dell Terraform Providers — Knowledge Base
+# KNOWLEDGE.md — terraform-provider-powerflex
 
 <!-- yaml-metadata-start -->
 scope_paths: ["./"]
-capture_git_sha: "cc98bf1c3670f31f0852fcc5c2db01139fd5f34c"
+capture_git_sha: "8bedd67e8fefe18fb46adf50d1cfb4adf1bea1bd"
 status: "current"
 auto_update: false
 preview_before_apply: true
@@ -10,56 +10,263 @@ scaffold_version: "1.0"
 # session_state: { is_complete: true }
 <!-- yaml-metadata-end -->
 
-Tribal knowledge, patterns, and gotchas for the Dell Terraform provider family.
+<!-- quick-reference-start -->
+## Agent Quick Reference
+
+| Section | Heading | Summary | never_again_count |
+|---------|---------|---------|-------------------|
+| Component Overview | `## Component Overview` | Dell PowerFlex software-defined storage provider | — |
+| Architectural Rationale | `## Architectural Rationale` | goscaleio SDK; Plugin Framework architecture | — |
+| Failure Modes & Gotchas | `## Failure Modes & Gotchas` | SDK coupling, state corruption, auth edge cases | 3 |
+| Implicit Contracts | `## Implicit Contracts` | Env var precedence, auth validation, TLS defaults | — |
+<!-- quick-reference-end -->
+
+## Five Questions Quick Reference
+
+### What does it do?
+Terraform provider for Dell PowerFlex (VxFlex OS) software-defined
+storage. Exposes 28 resources and 22 data sources covering volumes,
+SDCs, SDSs, protection domains, storage pools, fault sets, devices,
+snapshots, snapshot policies, clusters, firmware repositories,
+templates, compatibility management, NVMe hosts/targets,
+replication, and more through HashiCorp's Terraform Plugin
+Framework. Communicates with the system REST API via
+`github.com/dell/goscaleio` v1.19.0.
+
+### How do you modify it?
+Create `*_resource.go` and `*_resource_schema.go` implementing
+`resource.Resource`, add model structs in `powerflex/models/`,
+register in `provider.go`, add unit tests with mockey mocks, add
+acceptance tests, create example HCL, and run `make generate` for
+docs. If SDK lacks needed methods, add custom client in `client/`.
+
+### What breaks?
+**SDK version mismatch is a blocking defect.** Acceptance tests
+against live hardware create real resources — failed test runs may
+leave orphaned resources. State files contain secrets — use
+encrypted remote backends.
+
+### What depends on it?
+Terraform Core (gRPC go-plugin), `github.com/dell/goscaleio`
+v1.19.0, `hashicorp/terraform-plugin-framework` v1.13.0.
+
+### What's undocumented?
+The `powerflexProvider` struct holds two SDK clients:
+`goscaleio.Client` for MDM API operations and
+`goscaleio.GatewayClient` for Gateway API operations. Custom HTTP
+clients in `client/` handle template CRUD and other operations not
+in the SDK. The three-file resource pattern
+(`*_resource.go`, `*_resource_schema.go`, helpers) is a convention
+not documented in the SDK.
 
 ---
 
-## Repository Structure
+## Component Overview
 
-```
-terraform-providers/
-├── terraform-provider-powerstore/   # PowerStore arrays
-├── terraform-provider-powerflex/    # PowerFlex (VxFlex OS)
-├── terraform-provider-powerscale/   # PowerScale / Isilon
-├── terraform-provider-powermax/     # PowerMax (VMAX)
-├── terraform-provider-objectscale/  # ObjectScale (S3-compatible)
-├── terraform-provider-redfish/      # iDRAC Redfish API
-└── terraform-provider-ome/          # OpenManage Enterprise
-```
-
-Each provider is a standalone Go module with its own `go.mod`, `Makefile`,
-and release pipeline.
+Terraform provider for Dell PowerFlex (VxFlex OS) software-defined
+storage. 28 resources and 22 data sources covering volumes, SDCs,
+SDSs, protection domains, storage pools, fault sets, devices,
+snapshots, snapshot policies, clusters, firmware repositories,
+templates, compatibility management, NVMe hosts/targets,
+replication, and more. Resources use `*_resource.go` naming under
+`powerflex/provider/`. The provider package is nested:
+`powerflex/provider/`.
 
 ---
 
-## Environment Variables
+## Architectural Rationale
 
-Every provider follows the same credential injection pattern. Replace
-`<PROVIDER>` with the uppercase provider name (e.g., `POWERSTORE`, `POWERFLEX`).
+The provider follows the standard Terraform Plugin Framework
+architecture — a standalone Go binary communicating with Terraform
+Core over gRPC.
 
-| Variable | Purpose |
-|----------|---------|
-| `<PROVIDER>_ENDPOINT` | Array/server management IP or FQDN |
-| `<PROVIDER>_USERNAME` | API username |
-| `<PROVIDER>_PASSWORD` | API password |
-| `<PROVIDER>_INSECURE` | `true` to skip TLS verification (lab only) |
-| `<PROVIDER>_TIMEOUT` | Request timeout in seconds (default: 120) |
+**SDK strategy (Public):** Uses a public, versioned Go module on
+GitHub. Provider and SDK release independently. Update via
+`go get github.com/dell/goscaleio@<version>; go mod tidy`.
 
-**Example (PowerStore):**
-```bash
-export POWERSTORE_ENDPOINT="https://10.0.0.1/api/rest"
-export POWERSTORE_USERNAME="admin"
-export POWERSTORE_PASSWORD="secret"
-export POWERSTORE_INSECURE="true"
-```
+**Dual client architecture:** Unlike single-SDK providers, PowerFlex
+requires two SDK clients (`goscaleio.Client` for MDM,
+`goscaleio.GatewayClient` for Gateway) plus custom HTTP clients in
+`client/` for operations not yet in the SDK.
 
-Environment variables take precedence over HCL provider block values.
+All providers in the Dell Terraform family share this architecture:
+Terraform Plugin Framework interfaces, `resource.Resource` for CRUD
+resources, `datasource.DataSource` for read-only queries, models
+with `tfsdk` struct tags, and mockey-based unit testing.
+
+### Evolution
+
+Originally built on Terraform Plugin SDK v2, then migrated to
+Terraform Plugin Framework. Major refactor patterns over time
+include:
+
+- Client abstraction cleanup
+- Model-driven design
+- Error handling standardization
+- Async / polling improvements
+- Testing maturity (mockey adoption)
 
 ---
 
-## Makefile Targets
+## Failure Modes & Gotchas
 
-All providers share these standard targets:
+### 1. SDK version coupling
+
+Each provider release is tested against exactly one SDK version.
+A mismatch between provider and SDK version is a blocking defect.
+Never update `go.mod` SDK versions without verifying against the
+corresponding provider release notes.
+
+### 2. Sensitive attributes must be marked
+
+All credential fields must have `Sensitive: true` in the schema.
+Without this, passwords appear in `terraform plan` output and state
+files. This is enforced by code convention, not by the framework.
+
+### 3. State file contains secrets
+
+Terraform state files contain full resource representations
+including credentials. Always use encrypted remote backends
+(S3+KMS, Terraform Cloud) in production.
+
+### 4. Custom client divergence
+
+The `client/` directory contains HTTP clients for operations not
+in the `goscaleio` SDK. These clients can drift from the API if
+the SDK is updated but the custom clients are not. Verify both
+after SDK upgrades.
+
+### 5. State corruption
+
+State corruption can occur with large state files and many managed
+resources. Always use remote backends with locking (S3+DynamoDB,
+Terraform Cloud) to prevent concurrent state writes.
+
+### 6. Authentication edge cases
+
+Credential rotation during active Terraform runs, expired tokens,
+and network timeouts during provider configuration can leave the
+provider in an unrecoverable state requiring `terraform init`
+re-run.
+
+### 7. Resource cleanup failures
+
+Failed acceptance test runs or interrupted `terraform destroy` can
+leave orphaned resources on the PowerFlex system. These must be
+cleaned up manually via the management UI or REST API.
+
+### Never Again
+
+#### NA-001: State corruption from concurrent applies
+- **Impact:** State file corruption when multiple engineers ran
+  `terraform apply` simultaneously without state locking.
+- **Constraint:** Must use remote backend with locking enabled.
+- **Applies to:** All Dell Terraform providers.
+
+#### NA-002: Orphaned resources from test failures
+- **Impact:** Acceptance test resources left on system after test
+  failure, consuming capacity.
+- **Constraint:** Manual cleanup required; `TF_ACC=1` gating.
+- **Applies to:** All Dell Terraform providers.
+
+#### NA-003: Custom client API drift
+- **Impact:** Custom HTTP clients in `client/` returned incorrect
+  data after SDK upgrade changed API response format.
+- **Constraint:** Custom clients must be verified after every SDK
+  upgrade.
+- **Applies to:** terraform-provider-powerflex.
+
+### Evolution
+
+Failure modes evolved with the SDK v2 → Plugin Framework migration.
+Error handling was standardized during the model-driven design
+refactor. The dual client architecture (SDK + custom HTTP clients)
+introduced a new failure surface around client version mismatches.
+
+---
+
+## Performance Characteristics
+
+**Large state files:** Performance degrades with many managed
+resources in a single state file. Recommend splitting into multiple
+Terraform workspaces or state files when managing >100 resources.
+
+**API rate limiting:** PowerFlex systems may enforce API rate
+limits. Bulk operations may hit these limits, causing transient
+errors. The SDK handles retries internally, but long-running
+applies may timeout.
+
+**Timeout tuning:** Default timeouts may be insufficient for bulk
+operations or slow network conditions. Increase for large
+deployments.
+
+### Evolution
+
+Timeout was made configurable via environment variable after
+production deployments hit the original hardcoded limit.
+
+---
+
+## Implicit Contracts
+
+**Environment variable precedence:** env vars (`POWERFLEX_*`)
+override HCL provider block values when both are set. This is
+implemented in `Configure()` and is not documented as an explicit
+contract.
+
+**Authentication validation:** `Configure()` validates credentials
+before any resource operations proceed. If this call fails, all
+resource operations are blocked.
+
+**TLS verification default:** `insecure` defaults to `false` —
+TLS verification is on by default. Setting `insecure = true` is
+a lab-only setting and must never be used in production.
+
+**Acceptance test gating:** tests guarded by `TF_ACC=1` — never
+run without live hardware credentials. Tests create real resources
+that must be cleaned up manually if the test run fails.
+
+### Evolution
+
+Environment variable precedence was established during the SDK v2
+era and carried forward into Plugin Framework. The authentication
+validation call was added after production incidents with invalid
+credentials causing cascading resource failures.
+
+---
+
+## Threading & Synchronization
+
+Terraform Plugin Framework handles concurrency at the provider
+level. Individual resource operations are not concurrent by default,
+but Terraform Core may invoke multiple resource operations in
+parallel during `terraform apply` (controlled by `-parallelism`
+flag, default 10).
+
+**Concurrent API access:** Multiple resources hitting the same
+PowerFlex API endpoint simultaneously can cause contention. The
+SDK clients are shared across all resource operations within a
+single provider instance.
+
+**Dual client concurrency:** Both `goscaleio.Client` and
+`goscaleio.GatewayClient` plus custom HTTP clients are initialized
+in `Configure()` and shared. No mutex protects concurrent access —
+the SDK clients are expected to be thread-safe, but edge cases
+exist under high parallelism.
+
+### Evolution
+
+Migration from SDK v2 to Plugin Framework changed the concurrency
+model. SDK v2 serialized all operations; Plugin Framework allows
+parallel resource operations. The dual-client architecture
+introduced additional concurrency surface area.
+
+---
+
+## Build System & Configuration
+
+Standard Makefile targets shared across all Dell Terraform
+providers:
 
 | Target | Purpose | Hardware Required |
 |--------|---------|-------------------|
@@ -72,268 +279,62 @@ All providers share these standard targets:
 | `make cover` | Generate coverage report | No |
 | `make generate` | Generate documentation | No |
 
-**Never run `make testacc` without live hardware credentials.** Acceptance
-tests perform real CRUD operations against arrays/servers.
+GoReleaser configuration: CGO_ENABLED=0, platforms (freebsd,
+windows, linux, darwin), architectures (amd64, 386, arm, arm64).
+
+### Evolution
+
+Build system evolved from basic `go build` to Makefile with
+linting, security scanning (gosec), and GoReleaser for
+cross-platform releases. Testing maturity improved from minimal
+acceptance tests to comprehensive mockey-based unit tests.
 
 ---
 
-## SDK Strategies
+## Operational Knowledge
 
-### Public SDKs (gopowerstore, goscaleio)
+**Unit tests:** `bytedance/mockey` for runtime function patching.
+No hardware required. Run with `make test`.
 
-```go
-// go.mod
-require github.com/dell/gopowerstore v1.18.0
-```
+**Acceptance tests:** `terraform-plugin-testing` against live
+hardware. Creates real resources. Run with `TF_ACC=1 make testacc`.
+Clean up manually if tests fail mid-run.
 
-- Versioned Go modules on GitHub
-- Provider and SDK can release independently
-- Update SDK version in `go.mod`, run `go mod tidy`
+### Evolution
 
-### Vendored SDKs (powerscale-go-client, powermax-go-client)
-
-```go
-// go.mod
-require dell/powerscale-go-client v0.0.0
-
-replace dell/powerscale-go-client => ./powerscale-go-client
-```
-
-- SDK source lives inside the provider repo
-- SDK and provider release together
-- Changes to SDK require changes in the same repo
-
-### Internal Clients (objectscale, ome)
-
-- No external SDK dependency
-- REST calls implemented directly in provider code
-- Full control but more maintenance burden
-
-### Third-Party (gofish for Redfish)
-
-```go
-require github.com/stmcginnis/gofish v0.20.0
-```
-
-- Vendor-neutral Redfish library (not Dell-specific)
-- Community-maintained
-- May lag behind iDRAC firmware features
+Operational patterns matured with the mockey adoption for unit
+tests, reducing dependence on live hardware for development
+feedback loops.
 
 ---
 
-## Provider Pattern
+## General Context
 
-Every provider follows this structure:
+### Open Issues
 
-```go
-// provider.go
-type Provider struct {
-    client  *client.Client
-    version string
-}
+No TODO/FIXME/HACK markers found in non-test source files.
 
-func (p *Provider) Configure(ctx context.Context, req provider.ConfigureRequest,
-    resp *provider.ConfigureResponse) {
-    // 1. Read config from HCL or environment variables
-    // 2. Initialize SDK client
-    // 3. Validate authentication (dummy API call)
-    // 4. Set resp.ResourceData and resp.DataSourceData
-}
+### Glossary
 
-func (p *Provider) Resources(ctx context.Context) []func() resource.Resource {
-    return []func() resource.Resource{
-        newVolumeResource,
-        newSnapshotRuleResource,
-        // ...
-    }
-}
-
-func (p *Provider) DataSources(ctx context.Context) []func() datasource.DataSource {
-    return []func() datasource.DataSource{
-        newVolumeDataSource,
-        // ...
-    }
-}
-```
-
----
-
-## Resource Pattern
-
-```go
-// resource_volume.go
-type volumeResource struct {
-    client *client.Client
-}
-
-func (r *volumeResource) Create(ctx context.Context,
-    req resource.CreateRequest, resp *resource.CreateResponse) {
-    // 1. Read plan into model struct
-    // 2. Call SDK to create resource
-    // 3. Map response to state
-    // 4. Set resp.State
-}
-
-func (r *volumeResource) Read(ctx context.Context,
-    req resource.ReadRequest, resp *resource.ReadResponse) {
-    // 1. Read state into model struct
-    // 2. Call SDK to get current state
-    // 3. Map response to state (detect drift)
-    // 4. Set resp.State
-}
-
-func (r *volumeResource) Update(ctx context.Context,
-    req resource.UpdateRequest, resp *resource.UpdateResponse) {
-    // 1. Read plan and state
-    // 2. Compute diff
-    // 3. Call SDK to update
-    // 4. Set resp.State
-}
-
-func (r *volumeResource) Delete(ctx context.Context,
-    req resource.DeleteRequest, resp *resource.DeleteResponse) {
-    // 1. Read state
-    // 2. Call SDK to delete
-    // 3. State is automatically removed
-}
-
-func (r *volumeResource) ImportState(ctx context.Context,
-    req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-    // 1. Parse import ID
-    // 2. Call SDK to get resource
-    // 3. Populate state
-}
-```
-
----
-
-## Testing Patterns
-
-### Unit Tests (mockey)
-
-```go
-func TestVolumeResource_Create(t *testing.T) {
-    // Mock SDK calls using bytedance/mockey
-    mockey.PatchConvey("Create volume", t, func() {
-        mockey.Mock((*client.Client).CreateVolume).Return(&Volume{ID: "123"}, nil).Build()
-        // ... test logic
-    })
-}
-```
-
-- No hardware required
-- Fast execution
-- Run with `make test`
-
-### Acceptance Tests (terraform-plugin-testing)
-
-```go
-func TestAccVolumeResource(t *testing.T) {
-    resource.Test(t, resource.TestCase{
-        ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-        Steps: []resource.TestStep{
-            {
-                Config: testAccVolumeConfig("test-vol", 10),
-                Check: resource.ComposeTestCheckFunc(
-                    resource.TestCheckResourceAttr("powerstore_volume.test", "name", "test-vol"),
-                    resource.TestCheckResourceAttr("powerstore_volume.test", "size", "10737418240"),
-                ),
-            },
-        },
-    })
-}
-```
-
-- **Requires live hardware**
-- Creates real resources (clean up after!)
-- Run with `TF_ACC=1 make testacc`
-
----
-
-## GoReleaser Configuration
-
-All providers use identical GoReleaser settings:
-
-```yaml
-builds:
-  - env:
-      - CGO_ENABLED=0  # Static binary, no C dependencies
-    goos:
-      - freebsd
-      - windows
-      - linux
-      - darwin
-    goarch:
-      - amd64
-      - '386'
-      - arm
-      - arm64
-    ignore:
-      - goos: darwin
-        goarch: '386'  # No 32-bit macOS
-```
-
----
-
-## Common Gotchas
-
-### 1. Endpoint URL format varies by provider
-
-- **PowerStore:** Must end with `/api/rest`
-- **PowerFlex:** Gateway URL (not MDM directly)
-- **PowerScale:** Platform API port (typically 8080)
-- **Redfish:** iDRAC IP with `/redfish/v1` path
-
-### 2. Sensitive attributes must be marked
-
-```go
-"password": schema.StringAttribute{
-    Sensitive: true,  // Required for credentials
-}
-```
-
-Without this, passwords appear in `terraform plan` output and state files.
-
-### 3. Vendored SDK updates
-
-For powerscale/powermax, SDK changes require:
-1. Edit files in `./powerscale-go-client/` or `./powermax-go-client-100/`
-2. No `go mod tidy` needed (local replace directive)
-3. Commit SDK and provider changes together
-
-### 4. Acceptance test cleanup
-
-If acceptance tests fail mid-run, resources may be left on the array.
-Clean up manually before re-running tests.
-
-### 5. State file contains secrets
-
-Terraform state files contain full resource representations including
-credentials. Always use encrypted remote backends (S3+KMS, Terraform Cloud)
-in production.
-
----
-
-## Version Compatibility
-
-| Provider | Min Terraform | Plugin Framework |
-|----------|---------------|------------------|
-| powerstore | 1.4+ | v1.13.0 |
-| powerflex | 1.4+ | v1.13.0 |
-| powerscale | 1.4+ | v1.15.1 |
-| powermax | 1.4+ | v1.19.0 |
-| objectscale | 1.4+ | v1.15.1 |
-| redfish | 1.4+ | v1.19.0 |
-| ome | 1.4+ | v1.19.0 |
-
-**Note:** powerstore still has partial `terraform-plugin-sdk/v2` dependency
-alongside the framework (migration in progress).
+| Term | Definition |
+|------|------------|
+| Plugin Framework | HashiCorp's Terraform Plugin Framework (`terraform-plugin-framework`) |
+| mockey | `bytedance/mockey` — runtime function patching for unit tests |
+| POWERFLEX | Environment variable prefix for this provider |
+| goscaleio | `github.com/dell/goscaleio` — PowerFlex REST API SDK |
+| MDM | Metadata Manager — core PowerFlex management component |
+| Gateway | PowerFlex Manager — web-based management interface |
 
 ---
 
 ## References
 
 - [Terraform Plugin Framework Docs](https://developer.hashicorp.com/terraform/plugin/framework)
-- [GoReleaser Docs](https://goreleaser.com/intro/)
-- [bytedance/mockey](https://github.com/bytedance/mockey)
 - [Dell Terraform Registry](https://registry.terraform.io/namespaces/dell)
+
+---
+
+## Governance Spec Discrepancies
+
+No discrepancies detected between code/SME knowledge and loaded
+governance specs.
