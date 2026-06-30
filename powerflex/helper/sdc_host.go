@@ -19,6 +19,7 @@ package helper
 import (
 	"context"
 	"fmt"
+	"net"
 	"strings"
 	"terraform-provider-powerflex/client"
 	"terraform-provider-powerflex/powerflex/models"
@@ -84,11 +85,17 @@ func (r *SdcHostResource) GetMdmIps(ctx context.Context, plan models.SdcHostMode
 		return nil, diags
 	}
 
-	return GetMdmIPList(mdmDetails), nil
+	ips, err := GetMdmIPList(mdmDetails)
+	if err != nil {
+		var diags diag.Diagnostics
+		diags.AddError("Invalid MDM IP received from PowerFlex cluster", err.Error())
+		return nil, diags
+	}
+	return ips, nil
 }
 
 // GetMdmIPList - get mdm ips from PowerFlex
-func GetMdmIPList(mdmDetails *goscaleio_types.MdmCluster) []string {
+func GetMdmIPList(mdmDetails *goscaleio_types.MdmCluster) ([]string, error) {
 
 	var ipmap []string
 
@@ -101,7 +108,13 @@ func GetMdmIPList(mdmDetails *goscaleio_types.MdmCluster) []string {
 		}
 	}
 
-	return ipmap
+	for _, ip := range ipmap {
+		if net.ParseIP(ip) == nil {
+			return nil, fmt.Errorf("invalid MDM IP address received from gateway: %q", ip)
+		}
+	}
+
+	return ipmap, nil
 }
 
 // ReadSDCHost - read SDC host and set state
