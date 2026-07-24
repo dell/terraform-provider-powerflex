@@ -202,8 +202,8 @@ After the execution of above resource block, Cluster would have been created on 
 ### Required
 
 - `cluster` (Attributes List) Cluster Installation Details (see [below for nested schema](#nestedatt--cluster))
-- `lia_password` (String) Lia Password
-- `mdm_password` (String) MDM Password
+- `lia_password` (String, Sensitive) Lia Password
+- `mdm_password` (String, Sensitive) MDM Password
 
 ### Optional
 
