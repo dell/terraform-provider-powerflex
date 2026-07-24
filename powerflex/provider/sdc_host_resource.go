@@ -195,7 +195,8 @@ func (r *sdcHostResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 							" Corresponds to the IdentityFile field of OpenSSH.",
 						MarkdownDescription: "Remote Login private key of the SDC server." +
 							" Corresponds to the IdentityFile field of OpenSSH.",
-						Optional: true,
+						Optional:  true,
+						Sensitive: true,
 					},
 					"certificate": schema.StringAttribute{
 						Description: "Remote Login certificate issued by a CA to the remote login user." +

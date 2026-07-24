@@ -96,6 +96,7 @@ var OSRepositoryModelSchema map[string]schema.Attribute = map[string]schema.Attr
 		Description:         "Password of the OS repository",
 		MarkdownDescription: "Password of the OS repository",
 		Computed:            true,
+		Sensitive:           true,
 	},
 	"name": schema.StringAttribute{
 		Description:         "Name of the OS repository",

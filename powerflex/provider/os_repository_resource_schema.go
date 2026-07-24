@@ -84,6 +84,7 @@ var OsRepositoryResourceSchema schema.Schema = schema.Schema{
 			MarkdownDescription: "Password of the OS repository",
 			Computed:            true,
 			Optional:            true,
+			Sensitive:           true,
 		},
 		"name": schema.StringAttribute{
 			Description:         "Name of the OS repository",

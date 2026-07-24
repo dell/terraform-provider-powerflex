@@ -70,12 +70,14 @@ func ClusterResourceModelSchema() map[string]schema.Attribute {
 			MarkdownDescription: "MDM Password",
 			Description:         "MDM Password",
 			Required:            true,
+			Sensitive:           true,
 		},
 
 		"lia_password": schema.StringAttribute{
 			MarkdownDescription: "Lia Password",
 			Description:         "Lia Password",
 			Required:            true,
+			Sensitive:           true,
 		},
 
 		"allow_non_secure_communication_with_mdm": schema.BoolAttribute{

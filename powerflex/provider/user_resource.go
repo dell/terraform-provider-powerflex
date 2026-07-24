@@ -115,6 +115,7 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 			"password": schema.StringAttribute{
 				Description: "Password of the user. For PowerFlex version 3.6, cannot be updated.",
 				Required:    true,
+				Sensitive:   true,
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 					stringvalidator.LengthAtMost(31),
