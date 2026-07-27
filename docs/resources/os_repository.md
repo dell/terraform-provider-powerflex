@@ -87,7 +87,7 @@ After the execution of above resource block, OS Repository would have been creat
 
 ### Optional
 
-- `password` (String) Password of the OS repository
+- `password` (String, Sensitive) Password of the OS repository
 - `repo_type` (String) Type of the OS repository. Default is ISO
 - `timeout` (Number) Describes the time in minutes to timeout the job.
 - `username` (String) Username of the OS repository

@@ -80,6 +80,7 @@ var FirmwareRepositoryDataSourceSchema schema.Schema = schema.Schema{
 						MarkdownDescription: "Password",
 						Description:         "Password",
 						Computed:            true,
+						Sensitive:           true,
 					},
 					"download_status": schema.StringAttribute{
 						MarkdownDescription: "Download Status",

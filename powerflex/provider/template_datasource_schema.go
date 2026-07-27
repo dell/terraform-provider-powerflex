@@ -801,6 +801,7 @@ func AssignedUsersSchema() map[string]schema.Attribute {
 			MarkdownDescription: "The password associated with the assigned user.",
 			Description:         "User Password",
 			Computed:            true,
+			Sensitive:           true,
 		},
 		"update_password": schema.BoolAttribute{
 			MarkdownDescription: "Indicates whether the user password needs to be updated.",
@@ -1368,6 +1369,7 @@ func FirmwareRepositorySchema() map[string]schema.Attribute {
 			MarkdownDescription: "The password associated with the firmware repository.",
 			Description:         "Password",
 			Computed:            true,
+			Sensitive:           true,
 		},
 		"download_status": schema.StringAttribute{
 			MarkdownDescription: "The download status of the firmware repository.",

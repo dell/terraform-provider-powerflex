@@ -248,7 +248,7 @@ Optional:
 - `host_key` (String) Remote Login host key of the SDC server. Corresponds to the UserKnownHostsFile field of OpenSSH.
 - `password` (String, Sensitive) Remote Login password of the SDC server.
 - `port` (String) Remote Login port of the SDC server. Defaults to `22`.
-- `private_key` (String) Remote Login private key of the SDC server. Corresponds to the IdentityFile field of OpenSSH.
+- `private_key` (String, Sensitive) Remote Login private key of the SDC server. Corresponds to the IdentityFile field of OpenSSH.
 
 
 <a id="nestedatt--esxi"></a>

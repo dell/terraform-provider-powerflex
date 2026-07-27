@@ -203,7 +203,7 @@ Read-Only:
 - `group_name` (String) The name of the group associated with the assigned user.
 - `id` (String) The unique identifier of the assigned user.
 - `last_name` (String) The last name of the assigned user.
-- `password` (String) The password associated with the assigned user.
+- `password` (String, Sensitive) The password associated with the assigned user.
 - `phone_number` (String) The phone number of the assigned user.
 - `role` (String) The role associated with the assigned user.
 - `roles` (List of String) The roles associated with the assigned user.
@@ -337,7 +337,7 @@ Read-Only:
 - `minimal` (Boolean) Indicates whether the firmware repository is minimal.
 - `name` (String) The name of the firmware repository.
 - `needs_attention` (Boolean) Indicates whether the firmware repository needs attention.
-- `password` (String) The password associated with the firmware repository.
+- `password` (String, Sensitive) The password associated with the firmware repository.
 - `rcmapproved` (Boolean) Indicates whether the firmware repository is RCM approved.
 - `signature` (String) The signature of the firmware repository.
 - `signed_key_source_location` (String) The source location of the signed key associated with the firmware repository.
@@ -431,7 +431,7 @@ Read-Only:
 - `group_name` (String) The name of the group associated with the assigned user.
 - `id` (String) The unique identifier of the assigned user.
 - `last_name` (String) The last name of the assigned user.
-- `password` (String) The password associated with the assigned user.
+- `password` (String, Sensitive) The password associated with the assigned user.
 - `phone_number` (String) The phone number of the assigned user.
 - `role` (String) The role associated with the assigned user.
 - `roles` (List of String) The roles associated with the assigned user.
