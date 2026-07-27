@@ -176,7 +176,7 @@ Read-Only:
 - `minimal` (Boolean) Minimal
 - `name` (String) Firmware Repository name
 - `needs_attention` (Boolean) Needs Attention
-- `password` (String) Password
+- `password` (String, Sensitive) Password
 - `rcmapproved` (Boolean) Rcmapproved
 - `signature` (String) Signature
 - `software_bundles` (Attributes List) Software Bundles (see [below for nested schema](#nestedatt--firmware_repository_details--software_bundles))

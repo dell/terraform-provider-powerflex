@@ -149,7 +149,7 @@ Read-Only:
 - `in_use` (Boolean) Whether the OS repository is in use or not
 - `metadata` (Attributes) Metadata of the OS Repository (see [below for nested schema](#nestedatt--os_repositories--metadata))
 - `name` (String) Name of the OS repository
-- `password` (String) Password of the OS repository
+- `password` (String, Sensitive) Password of the OS repository
 - `razor_name` (String) Name of the Razor
 - `rcm_path` (String) Path of the RCM
 - `repo_type` (String) Type of the OS repository. Default is ISO
