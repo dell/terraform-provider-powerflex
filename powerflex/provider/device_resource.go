@@ -114,8 +114,8 @@ func (r *deviceResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				},
 			},
 			"sds_id": schema.StringAttribute{
-				Description:         "ID of the SDS. Conflicts with 'sds_name'. Cannot be updated.",
-				MarkdownDescription: "ID of the SDS. Conflicts with `sds_name`. Cannot be updated.",
+				Description:         "ID of the SDS. Conflicts with 'sds_name'. Cannot be updated. Deprecated in Gen2 5.x — use storage_node_id instead.",
+				MarkdownDescription: "ID of the SDS. Conflicts with `sds_name`. Cannot be updated. **Deprecated** in Gen2 5.x — use `storage_node_id` instead.",
 				Computed:            true,
 				Optional:            true,
 				Validators: []validator.String{
@@ -124,8 +124,8 @@ func (r *deviceResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				},
 			},
 			"sds_name": schema.StringAttribute{
-				Description:         "Name of the SDS. Conflicts with 'sds_id'. Cannot be updated.",
-				MarkdownDescription: "Name of the SDS. Conflicts with `sds_id`. Cannot be updated.",
+				Description:         "Name of the SDS. Conflicts with 'sds_id'. Cannot be updated. Deprecated in Gen2 5.x — use storage_node_id instead.",
+				MarkdownDescription: "Name of the SDS. Conflicts with `sds_id`. Cannot be updated. **Deprecated** in Gen2 5.x — use `storage_node_id` instead.",
 				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
@@ -173,6 +173,19 @@ func (r *deviceResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				MarkdownDescription: "Original path of the device.",
 				Computed:            true,
 			},
+			// Gen2 (5.x) attributes
+			"storage_node_id": schema.StringAttribute{
+				Description:         "Storage Node ID (Gen2 5.x only). Replaces sds_id for Gen2 systems.",
+				MarkdownDescription: "Storage Node ID (Gen2 5.x only). Replaces `sds_id` for Gen2 systems.",
+				Optional:            true,
+				Computed:            true,
+			},
+			"device_group_id": schema.StringAttribute{
+				Description:         "Device Group ID (Gen2 5.x only). Replaces storage_pool_id for Gen2 systems.",
+				MarkdownDescription: "Device Group ID (Gen2 5.x only). Replaces `storage_pool_id` for Gen2 systems.",
+				Optional:            true,
+				Computed:            true,
+			},
 		},
 	}
 }
@@ -218,6 +231,14 @@ func (r *deviceResource) ValidateConfig(ctx context.Context, req resource.Valida
 				"Please provide protection_domain_name or protection_domain_id with storage_pool_name.",
 			)
 		}
+	}
+
+	// Deprecation warnings for Gen2 5.x parameters
+	if !config.SdsID.IsNull() || !config.SdsName.IsNull() {
+		resp.Diagnostics.AddWarning(
+			"Deprecated Parameter Usage",
+			"sds_id and sds_name are deprecated for PowerFlex 5.x Gen2 systems. Use storage_node_id instead.",
+		)
 	}
 }
 
