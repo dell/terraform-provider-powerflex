@@ -49,26 +49,26 @@ limitations under the License.
 terraform {
   required_providers {
     powerflex = {
-      source  = "registry.terraform.io/dell/powerflex"
+      source = "registry.terraform.io/dell/powerflex"
     }
     local = {
-      source = "hashicorp/local"
+      source  = "hashicorp/local"
       version = "2.5.2"
     }
     vault = {
-      source = "hashicorp/vault"
+      source  = "hashicorp/vault"
       version = "4.6.0"
     }
   }
 }
 // Used to grab the password
 provider "vault" {
- address = "https://my-vault-server.com"
- token = "some-token-value"
+  address = "https://my-vault-server.com"
+  token   = "some-token-value"
 }
 
 provider "powerflex" {
-  username =  "user"
+  username = "user"
   password = "password"
   endpoint = "https://example.com"
   insecure = true
@@ -90,34 +90,34 @@ provider "powerflex" {
 
 # Create Resource Credential
 resource "powerflex_resource_credential" "example" {
- ## Required values for all credential types
- name = var.name
- type = var.type // Options: Node, Switch, vCenter, ElementManager, PowerflexGateway, PresentationServer, OSAdmin, OSUser
- username = var.username
- // Grab from variable file
- password = var.password
- ## Grab from vault 
- #password = "${data.vault_generic_secret.secret.data["password"]}"
+  ## Required values for all credential types
+  name     = var.name
+  type     = var.type // Options: Node, Switch, vCenter, ElementManager, PowerflexGateway, PresentationServer, OSAdmin, OSUser
+  username = var.username
+  // Grab from variable file
+  password = var.password
+  ## Grab from vault 
+  #password = "${data.vault_generic_secret.secret.data["password"]}"
 
- ## Required value for vCenter, ElementManager, OSUser
- #domain = var.domain
+  ## Required value for vCenter, ElementManager, OSUser
+  #domain = var.domain
 
- ## Required value for PowerflexGateway
- #os_username = var.os_username
- #os_password = var.os_password
+  ## Required value for PowerflexGateway
+  #os_username = var.os_username
+  #os_password = var.os_password
 
- ## Optional values for Node, Switch, ElementManager
- #snmp_v2_community_string = var.snmpv2_community_string
+  ## Optional values for Node, Switch, ElementManager
+  #snmp_v2_community_string = var.snmpv2_community_string
 
- ## Optional for Node
- #snmp_v3_security_level = var.snmpv3_security_level // Options "Minimal", "Moderate", or "Maximal"
- #snmp_v3_security_name = var.snmpv3_security_name
- #snmp_v3_md5_authentication_password = var.snmpv3_md5_auth_password // required for level "Moderate" and "Maximal"
- #snmp_v3_des_authentication_password = var.snmpv3_des_private_password // required for level "Maximal"
+  ## Optional for Node
+  #snmp_v3_security_level = var.snmpv3_security_level // Options "Minimal", "Moderate", or "Maximal"
+  #snmp_v3_security_name = var.snmpv3_security_name
+  #snmp_v3_md5_authentication_password = var.snmpv3_md5_auth_password // required for level "Moderate" and "Maximal"
+  #snmp_v3_des_authentication_password = var.snmpv3_des_private_password // required for level "Maximal"
 
- ## Optional for Node, Switch, OSAdmin, OSUser
- #ssh_private_key = data.local_file.ssh_key.content
- #key_pair_name = var.key_pair_name
+  ## Optional for Node, Switch, OSAdmin, OSUser
+  #ssh_private_key = data.local_file.ssh_key.content
+  #key_pair_name = var.key_pair_name
 }
 ```
 
