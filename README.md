@@ -34,6 +34,7 @@ The Terraform Provider can be used to manage SDCs, volumes, snapshots, snapshot-
 * [Security](https://github.com/dell/dell-terraform-providers/blob/main/docs/SECURITY.md)
 * [License](#license)
 * [Prerequisites](#prerequisites)
+* [Migration Guide: 4.x to 5.x](docs/MIGRATION_GUIDE_4X_TO_5X.md)
 * [List of DataSources in Terraform Provider for Dell PowerFlex](#list-of-datasources-in-terraform-provider-for-dell-powerflex)
 * [List of Resources in Terraform Provider for Dell PowerFlex](#list-of-resources-in-terraform-provider-for-dell-powerflex)
 * [Releasing, Maintenance and Deprecation](#releasing-maintenance-and-deprecation)
@@ -50,7 +51,7 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
 
 | **Terraform Provider** | **PowerFlex/VxFlex OS Version** | **OS** | **Terraform** | **Golang** |
 |---------------------|-----------------------|-------|--------------------|--------------------------|
-| v1.8.0 | 3.6 <br> 4.5 <br> 4.6 <br> 4.6.1 (Appliance) | ubuntu22.04 <br> rhel9.x | 1.9.x <br> 1.10.x <br>| 1.26.x
+| v1.8.0 | 3.6 <br> 4.5 <br> 4.6 <br> 4.6.1 (Appliance) <br> 5.0 <br> 5.1 (Gen2) | ubuntu22.04 <br> rhel9.x | 1.9.x <br> 1.10.x <br>| 1.26.x
 
 ## List of DataSources in Terraform Provider for Dell PowerFlex
 
@@ -73,6 +74,10 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
 * [NVMe Host](docs/data-sources/nvme_host.md)
 * [NVMe Target](docs/data-sources/nvme_target.md)
 * [Device](docs/data-sources/device.md)
+
+### Gen2 (PowerFlex 5.x)
+* [Storage Node](docs/data-sources/storage_node.md)
+* [Device Group](docs/data-sources/device_group.md)
 
 ### Resource Group Management
 * [Resource Group](docs/data-sources/resource_group.md)
@@ -120,8 +125,15 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
 * [SDS](docs/resources/sds.md)
 * [SDC Volume Mapping](docs/resources/sdc_volumes_mapping.md)
 * [Device](docs/resources/device.md)
+* [Device Action](docs/resources/device_action.md)
 * [NVMe Host](docs/resources/nvme_host.md)
 * [NVMe Target](docs/resources/nvme_target.md)
+
+### Gen2 (PowerFlex 5.x)
+* [Storage Node](docs/resources/storage_node.md)
+* [Device Group](docs/resources/device_group.md)
+* [Storage Pool Erasure Coding](docs/resources/storage_pool_erasure_coding.md)
+* [Volume Action](docs/resources/volume_action.md)
 
 ### Firmware and OS Management
 * [Package](docs/resources/package.md)

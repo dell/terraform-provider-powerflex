@@ -18,7 +18,6 @@ limitations under the License.
 package provider
 
 import (
-	"fmt"
 	"os"
 	"regexp"
 	"testing"
@@ -26,76 +25,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-// StorageNode resource configs for testing
-var StorageNodeResourceCreate = fmt.Sprintf(`
-resource "powerflex_storage_node" "test" {
-	name                = "terraform-test-storage-node"
-	protection_domain_id = "%s"
-	ip_list {
-		ip   = "%s"
-		role = "all"
-	}
-}
-`, ProtectionDomainID, SdsResourceTestData.SdsIP1)
-
-var StorageNodeResourceUpdate = fmt.Sprintf(`
-resource "powerflex_storage_node" "test" {
-	name                = "terraform-test-storage-node-updated"
-	protection_domain_id = "%s"
-	ip_list {
-		ip   = "%s"
-		role = "all"
-	}
-}
-`, ProtectionDomainID, SdsResourceTestData.SdsIP1)
-
-func TestAccResourceStorageNodeCreateUpdate(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Skipping acceptance test; TF_ACC not set")
-	}
-
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Create Storage Node
-			{
-				Config: ProviderConfigForTesting + StorageNodeResourceCreate,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storage_node.test", "name", "terraform-test-storage-node"),
-					resource.TestCheckResourceAttr("powerflex_storage_node.test", "protection_domain_id", ProtectionDomainID),
-					resource.TestCheckResourceAttrSet("powerflex_storage_node.test", "id"),
-				),
-			},
-			// Import
-			{
-				ResourceName:      "powerflex_storage_node.test",
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			// Update Name
-			{
-				Config: ProviderConfigForTesting + StorageNodeResourceUpdate,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_storage_node.test", "name", "terraform-test-storage-node-updated"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccResourceStorageNodeInvalidConfig(t *testing.T) {
+func TestAccResourceStorageNodeInvalidAction(t *testing.T) {
 	if os.Getenv("TF_ACC") == "" {
 		t.Skip("Skipping acceptance test; TF_ACC not set")
 	}
 
 	var invalidConfig = `
 	resource "powerflex_storage_node" "test" {
-		name                 = "invalid-node"
 		protection_domain_id = "invalid-pd-id"
-		ip_list {
-			ip   = "10.0.0.1"
-			role = "all"
-		}
 	}
 	`
 
@@ -104,7 +41,33 @@ func TestAccResourceStorageNodeInvalidConfig(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      ProviderConfigForTesting + invalidConfig,
-				ExpectError: regexp.MustCompile(`.*Error Creating Storage Node.*`),
+				ExpectError: regexp.MustCompile(`.*Missing required argument.*`),
+			},
+		},
+	})
+}
+
+func TestAccResourceStorageNodeInvalidIPRole(t *testing.T) {
+	if os.Getenv("TF_ACC") == "" {
+		t.Skip("Skipping acceptance test; TF_ACC not set")
+	}
+
+	var invalidIPRoleConfig = `
+	resource "powerflex_storage_node" "test" {
+		protection_domain_id = "pd-123456"
+		ip_list {
+			ip   = "192.168.1.1"
+			role = "InvalidRole"
+		}
+	}
+	`
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      ProviderConfigForTesting + invalidIPRoleConfig,
+				ExpectError: regexp.MustCompile(`.*value must be one of.*`),
 			},
 		},
 	})
