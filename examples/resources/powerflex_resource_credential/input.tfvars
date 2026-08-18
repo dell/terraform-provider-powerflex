@@ -18,8 +18,8 @@ limitations under the License.
 ## Required fields for all credential type
 username = "example-username"
 password = "example-password"
-name = "example-resource-credential-name"
-type = "Node" // Options: Node, Switch, vCenter, ElementManager, PowerflexGateway, PresentationServer, OSAdmin, OSUser
+name     = "example-resource-credential-name"
+type     = "Node" // Options: Node, Switch, vCenter, ElementManager, PowerflexGateway, PresentationServer, OSAdmin, OSUser
 
 ## Required value for vCenter, ElementManager, OSUser
 #domain = "1.1.1.1"

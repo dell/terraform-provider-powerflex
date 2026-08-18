@@ -13,26 +13,26 @@ limitations under the License.
 
 //Gather Snapshot existing volumes
 data "powerflex_volume" "Snapshot" {
-    filter{
-        name = ["test-snapshot-import"]
-    }
+  filter {
+    name = ["test-snapshot-import"]
+  }
 }
 
 //Gather volume linked to existing snapshot
 data "powerflex_volume" "Volume" {
-    filter{
-        name = ["test-vol-import"]
-    }
+  filter {
+    name = ["test-vol-import"]
+  }
 }
 
 //Import all snapshots from volume
 import {
-    to = powerflex_snapshot.import_test_snapshot
-    id = data.powerflex_volume.Snapshot.volumes[0].id
+  to = powerflex_snapshot.import_test_snapshot
+  id = data.powerflex_volume.Snapshot.volumes[0].id
 }
 
 //Add them to terraform state
-resource "powerflex_snapshot" "import_test_snapshot"{
-    name = data.powerflex_volume.Snapshot.volumes[0].name
-    volume_id = data.powerflex_volume.Volume.volumes[0].id
+resource "powerflex_snapshot" "import_test_snapshot" {
+  name      = data.powerflex_volume.Snapshot.volumes[0].name
+  volume_id = data.powerflex_volume.Volume.volumes[0].id
 }

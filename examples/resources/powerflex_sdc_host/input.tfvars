@@ -16,10 +16,10 @@ limitations under the License.
 */
 
 ## Required fields for all sdc_hosts
-user = "example-username"
-password = "example-password"
-name = "example-sdc-host-name"
-os_family = "linux"
-ip = "10.0.0.0"
+user         = "example-username"
+password     = "example-password"
+name         = "example-sdc-host-name"
+os_family    = "linux"
+ip           = "10.0.0.0"
 package_path = "/root/terraform-provider-powerflex/EMC-ScaleIO-sdc-3.6-700.103.Ubuntu.22.04.x86_64.tar"
 

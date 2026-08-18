@@ -20,15 +20,14 @@ import (
 	"strings"
 )
 
-
 // DeviceAPIService DeviceAPI service
 type DeviceAPIService service
 
 type ApiActivateDeviceRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *DeviceAPIService
-	deviceId string
-	body *map[string]interface{}
+	deviceId   string
+	body       *map[string]interface{}
 }
 
 func (r ApiActivateDeviceRequest) Body(body map[string]interface{}) ApiActivateDeviceRequest {
@@ -45,24 +44,24 @@ ActivateDevice Activate device
 
 Activates a device (transitions from inactive to active state)
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param deviceId Device ID
- @return ApiActivateDeviceRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param deviceId Device ID
+	@return ApiActivateDeviceRequest
 */
 func (a *DeviceAPIService) ActivateDevice(ctx context.Context, deviceId string) ApiActivateDeviceRequest {
 	return ApiActivateDeviceRequest{
 		ApiService: a,
-		ctx: ctx,
-		deviceId: deviceId,
+		ctx:        ctx,
+		deviceId:   deviceId,
 	}
 }
 
 // Execute executes the request
 func (a *DeviceAPIService) ActivateDeviceExecute(r ApiActivateDeviceRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DeviceAPIService.ActivateDevice")
@@ -128,8 +127,8 @@ func (a *DeviceAPIService) ActivateDeviceExecute(r ApiActivateDeviceRequest) (*h
 }
 
 type ApiAttachDeviceGen2Request struct {
-	ctx context.Context
-	ApiService *DeviceAPIService
+	ctx             context.Context
+	ApiService      *DeviceAPIService
 	deviceParamGen2 *DeviceParamGen2
 }
 
@@ -147,24 +146,25 @@ AttachDeviceGen2 Attach device (Gen2 with nodeId/deviceGroupId)
 
 Attaches a device to a storage pool using Gen2 parameters (nodeId or deviceGroupId instead of sdsId)
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiAttachDeviceGen2Request
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiAttachDeviceGen2Request
 */
 func (a *DeviceAPIService) AttachDeviceGen2(ctx context.Context) ApiAttachDeviceGen2Request {
 	return ApiAttachDeviceGen2Request{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return DeviceResp
+//
+//	@return DeviceResp
 func (a *DeviceAPIService) AttachDeviceGen2Execute(r ApiAttachDeviceGen2Request) (*DeviceResp, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *DeviceResp
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *DeviceResp
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DeviceAPIService.AttachDeviceGen2")
@@ -238,10 +238,10 @@ func (a *DeviceAPIService) AttachDeviceGen2Execute(r ApiAttachDeviceGen2Request)
 }
 
 type ApiClearDeviceErrorRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *DeviceAPIService
-	deviceId string
-	body *map[string]interface{}
+	deviceId   string
+	body       *map[string]interface{}
 }
 
 func (r ApiClearDeviceErrorRequest) Body(body map[string]interface{}) ApiClearDeviceErrorRequest {
@@ -258,24 +258,24 @@ ClearDeviceError Clear device error
 
 Clears error state on a device
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param deviceId Device ID
- @return ApiClearDeviceErrorRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param deviceId Device ID
+	@return ApiClearDeviceErrorRequest
 */
 func (a *DeviceAPIService) ClearDeviceError(ctx context.Context, deviceId string) ApiClearDeviceErrorRequest {
 	return ApiClearDeviceErrorRequest{
 		ApiService: a,
-		ctx: ctx,
-		deviceId: deviceId,
+		ctx:        ctx,
+		deviceId:   deviceId,
 	}
 }
 
 // Execute executes the request
 func (a *DeviceAPIService) ClearDeviceErrorExecute(r ApiClearDeviceErrorRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DeviceAPIService.ClearDeviceError")
@@ -341,9 +341,9 @@ func (a *DeviceAPIService) ClearDeviceErrorExecute(r ApiClearDeviceErrorRequest)
 }
 
 type ApiSetDeviceCapacityLimitGen2Request struct {
-	ctx context.Context
-	ApiService *DeviceAPIService
-	deviceId string
+	ctx                        context.Context
+	ApiService                 *DeviceAPIService
+	deviceId                   string
 	setDeviceCapacityLimitGen2 *SetDeviceCapacityLimitGen2
 }
 
@@ -361,24 +361,24 @@ SetDeviceCapacityLimitGen2 Set device capacity limit (Gen2)
 
 Sets capacity limit on a device in KB (Gen2)
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param deviceId Device ID
- @return ApiSetDeviceCapacityLimitGen2Request
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param deviceId Device ID
+	@return ApiSetDeviceCapacityLimitGen2Request
 */
 func (a *DeviceAPIService) SetDeviceCapacityLimitGen2(ctx context.Context, deviceId string) ApiSetDeviceCapacityLimitGen2Request {
 	return ApiSetDeviceCapacityLimitGen2Request{
 		ApiService: a,
-		ctx: ctx,
-		deviceId: deviceId,
+		ctx:        ctx,
+		deviceId:   deviceId,
 	}
 }
 
 // Execute executes the request
 func (a *DeviceAPIService) SetDeviceCapacityLimitGen2Execute(r ApiSetDeviceCapacityLimitGen2Request) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DeviceAPIService.SetDeviceCapacityLimitGen2")

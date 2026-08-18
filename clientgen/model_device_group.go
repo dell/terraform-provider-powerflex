@@ -34,7 +34,7 @@ type DeviceGroup struct {
 	UsedCapacityInKb *int32 `json:"usedCapacityInKb,omitempty"`
 	// Device Group status
 	Status *string `json:"status,omitempty"`
-	Links []Link `json:"links,omitempty"`
+	Links  []Link  `json:"links,omitempty"`
 }
 
 // NewDeviceGroup instantiates a new DeviceGroup object
@@ -311,7 +311,7 @@ func (o *DeviceGroup) SetLinks(v []Link) {
 }
 
 func (o DeviceGroup) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -382,5 +382,3 @@ func (v *NullableDeviceGroup) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

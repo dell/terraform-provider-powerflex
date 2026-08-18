@@ -16,17 +16,17 @@ data "powerflex_snapshot_policy" "all" {
 }
 
 //Import all snapshot policies
-import{
-    for_each =  data.powerflex_snapshot_policy.all.snapshot_policy
-    to = powerflex_snapshot_policy.import_test_snapshot_policy[each.key]
-    id = each.value.id
+import {
+  for_each = data.powerflex_snapshot_policy.all.snapshot_policy
+  to       = powerflex_snapshot_policy.import_test_snapshot_policy[each.key]
+  id       = each.value.id
 }
 
 //Add them to terraform state
 resource "powerflex_snapshot_policy" "import_test_snapshot_policy" {
-    name                                  = data.powerflex_snapshot_policy.all.snapshot_policy[count.index].name
-    num_of_retained_snapshots_per_level   = data.powerflex_snapshot_policy.all.snapshot_policy[count.index].num_of_retained_snapshots_per_level
-    auto_snapshot_creation_cadence_in_min = data.powerflex_snapshot_policy.all.snapshot_policy[count.index].auto_snapshot_creation_cadence_in_min
-    snapshot_access_mode                  = data.powerflex_snapshot_policy.all.snapshot_policy[count.index].snapshot_access_mode
-    secure_snapshots                      = data.powerflex_snapshot_policy.all.snapshot_policy[count.index].secure_snapshots
+  name                                  = data.powerflex_snapshot_policy.all.snapshot_policy[count.index].name
+  num_of_retained_snapshots_per_level   = data.powerflex_snapshot_policy.all.snapshot_policy[count.index].num_of_retained_snapshots_per_level
+  auto_snapshot_creation_cadence_in_min = data.powerflex_snapshot_policy.all.snapshot_policy[count.index].auto_snapshot_creation_cadence_in_min
+  snapshot_access_mode                  = data.powerflex_snapshot_policy.all.snapshot_policy[count.index].snapshot_access_mode
+  secure_snapshots                      = data.powerflex_snapshot_policy.all.snapshot_policy[count.index].secure_snapshots
 }

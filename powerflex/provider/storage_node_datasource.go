@@ -45,10 +45,10 @@ type storageNodeDataSource struct {
 
 // storageNodeDataSourceModel describes the datasource data model.
 type storageNodeDataSourceModel struct {
-	ID                 types.String              `tfsdk:"id"`
-	Name               types.String              `tfsdk:"name"`
-	ProtectionDomainID types.String              `tfsdk:"protection_domain_id"`
-	StorageNodes       []storageNodeItemModel    `tfsdk:"storage_nodes"`
+	ID                 types.String           `tfsdk:"id"`
+	Name               types.String           `tfsdk:"name"`
+	ProtectionDomainID types.String           `tfsdk:"protection_domain_id"`
+	StorageNodes       []storageNodeItemModel `tfsdk:"storage_nodes"`
 }
 
 // storageNodeItemModel describes each storage node item in the list.
@@ -102,64 +102,64 @@ func (d *storageNodeDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							Computed:            true,
-							Description:         "Storage Node ID.",
+							Computed:    true,
+							Description: "Storage Node ID.",
 						},
 						"name": schema.StringAttribute{
-							Computed:            true,
-							Description:         "Storage Node name.",
+							Computed:    true,
+							Description: "Storage Node name.",
 						},
 						"protection_domain_id": schema.StringAttribute{
-							Computed:            true,
-							Description:         "Protection Domain ID.",
+							Computed:    true,
+							Description: "Protection Domain ID.",
 						},
 						"fault_set_id": schema.StringAttribute{
-							Computed:            true,
-							Description:         "Fault Set ID.",
+							Computed:    true,
+							Description: "Fault Set ID.",
 						},
 						"status": schema.StringAttribute{
-							Computed:            true,
-							Description:         "Status of the storage node.",
+							Computed:    true,
+							Description: "Status of the storage node.",
 						},
 						"state": schema.StringAttribute{
-							Computed:            true,
-							Description:         "State of the storage node.",
+							Computed:    true,
+							Description: "State of the storage node.",
 						},
 						"membership_state": schema.StringAttribute{
-							Computed:            true,
-							Description:         "Membership state.",
+							Computed:    true,
+							Description: "Membership state.",
 						},
 						"mdm_connection_state": schema.StringAttribute{
-							Computed:            true,
-							Description:         "MDM connection state.",
+							Computed:    true,
+							Description: "MDM connection state.",
 						},
 						"software_version": schema.StringAttribute{
-							Computed:            true,
-							Description:         "Software version.",
+							Computed:    true,
+							Description: "Software version.",
 						},
 						"port": schema.Int64Attribute{
-							Computed:            true,
-							Description:         "Port number.",
+							Computed:    true,
+							Description: "Port number.",
 						},
 						"num_of_devices": schema.Int64Attribute{
-							Computed:            true,
-							Description:         "Number of devices.",
+							Computed:    true,
+							Description: "Number of devices.",
 						},
 						"total_capacity_in_kb": schema.Int64Attribute{
-							Computed:            true,
-							Description:         "Total capacity in KB.",
+							Computed:    true,
+							Description: "Total capacity in KB.",
 						},
 						"used_capacity_in_kb": schema.Int64Attribute{
-							Computed:            true,
-							Description:         "Used capacity in KB.",
+							Computed:    true,
+							Description: "Used capacity in KB.",
 						},
 						"maintenance_state": schema.StringAttribute{
-							Computed:            true,
-							Description:         "Maintenance state.",
+							Computed:    true,
+							Description: "Maintenance state.",
 						},
 						"performance_profile": schema.StringAttribute{
-							Computed:            true,
-							Description:         "Performance profile.",
+							Computed:    true,
+							Description: "Performance profile.",
 						},
 					},
 				},

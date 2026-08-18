@@ -20,13 +20,12 @@ import (
 	"strings"
 )
 
-
 // DeviceGroupAPIService DeviceGroupAPI service
 type DeviceGroupAPIService service
 
 type ApiCreateDeviceGroupRequest struct {
-	ctx context.Context
-	ApiService *DeviceGroupAPIService
+	ctx              context.Context
+	ApiService       *DeviceGroupAPIService
 	deviceGroupParam *DeviceGroupParam
 }
 
@@ -44,24 +43,25 @@ CreateDeviceGroup Create a new Device Group
 
 Creates a new Gen2 Device Group
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreateDeviceGroupRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreateDeviceGroupRequest
 */
 func (a *DeviceGroupAPIService) CreateDeviceGroup(ctx context.Context) ApiCreateDeviceGroupRequest {
 	return ApiCreateDeviceGroupRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return DeviceGroupResp
+//
+//	@return DeviceGroupResp
 func (a *DeviceGroupAPIService) CreateDeviceGroupExecute(r ApiCreateDeviceGroupRequest) (*DeviceGroupResp, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *DeviceGroupResp
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *DeviceGroupResp
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DeviceGroupAPIService.CreateDeviceGroup")
@@ -135,9 +135,9 @@ func (a *DeviceGroupAPIService) CreateDeviceGroupExecute(r ApiCreateDeviceGroupR
 }
 
 type ApiDeleteDeviceGroupRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *DeviceGroupAPIService
-	groupId string
+	groupId    string
 }
 
 func (r ApiDeleteDeviceGroupRequest) Execute() (*http.Response, error) {
@@ -149,24 +149,24 @@ DeleteDeviceGroup Delete a Device Group
 
 Deletes a Gen2 Device Group
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param groupId Device Group ID
- @return ApiDeleteDeviceGroupRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param groupId Device Group ID
+	@return ApiDeleteDeviceGroupRequest
 */
 func (a *DeviceGroupAPIService) DeleteDeviceGroup(ctx context.Context, groupId string) ApiDeleteDeviceGroupRequest {
 	return ApiDeleteDeviceGroupRequest{
 		ApiService: a,
-		ctx: ctx,
-		groupId: groupId,
+		ctx:        ctx,
+		groupId:    groupId,
 	}
 }
 
 // Execute executes the request
 func (a *DeviceGroupAPIService) DeleteDeviceGroupExecute(r ApiDeleteDeviceGroupRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DeviceGroupAPIService.DeleteDeviceGroup")
@@ -227,9 +227,9 @@ func (a *DeviceGroupAPIService) DeleteDeviceGroupExecute(r ApiDeleteDeviceGroupR
 }
 
 type ApiGetDeviceGroupRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *DeviceGroupAPIService
-	groupId string
+	groupId    string
 }
 
 func (r ApiGetDeviceGroupRequest) Execute() (*DeviceGroup, *http.Response, error) {
@@ -241,26 +241,27 @@ GetDeviceGroup Get Device Group by ID
 
 Retrieves a specific Gen2 Device Group by its ID
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param groupId Device Group ID
- @return ApiGetDeviceGroupRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param groupId Device Group ID
+	@return ApiGetDeviceGroupRequest
 */
 func (a *DeviceGroupAPIService) GetDeviceGroup(ctx context.Context, groupId string) ApiGetDeviceGroupRequest {
 	return ApiGetDeviceGroupRequest{
 		ApiService: a,
-		ctx: ctx,
-		groupId: groupId,
+		ctx:        ctx,
+		groupId:    groupId,
 	}
 }
 
 // Execute executes the request
-//  @return DeviceGroup
+//
+//	@return DeviceGroup
 func (a *DeviceGroupAPIService) GetDeviceGroupExecute(r ApiGetDeviceGroupRequest) (*DeviceGroup, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *DeviceGroup
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *DeviceGroup
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DeviceGroupAPIService.GetDeviceGroup")
@@ -330,7 +331,7 @@ func (a *DeviceGroupAPIService) GetDeviceGroupExecute(r ApiGetDeviceGroupRequest
 }
 
 type ApiListDeviceGroupsRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *DeviceGroupAPIService
 }
 
@@ -343,24 +344,25 @@ ListDeviceGroups List all Device Groups
 
 Retrieves all Gen2 Device Groups in the system
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListDeviceGroupsRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListDeviceGroupsRequest
 */
 func (a *DeviceGroupAPIService) ListDeviceGroups(ctx context.Context) ApiListDeviceGroupsRequest {
 	return ApiListDeviceGroupsRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []DeviceGroup
+//
+//	@return []DeviceGroup
 func (a *DeviceGroupAPIService) ListDeviceGroupsExecute(r ApiListDeviceGroupsRequest) ([]DeviceGroup, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []DeviceGroup
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []DeviceGroup
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DeviceGroupAPIService.ListDeviceGroups")
@@ -429,9 +431,9 @@ func (a *DeviceGroupAPIService) ListDeviceGroupsExecute(r ApiListDeviceGroupsReq
 }
 
 type ApiSetDeviceGroupNameRequest struct {
-	ctx context.Context
-	ApiService *DeviceGroupAPIService
-	groupId string
+	ctx                context.Context
+	ApiService         *DeviceGroupAPIService
+	groupId            string
 	setDeviceGroupName *SetDeviceGroupName
 }
 
@@ -449,24 +451,24 @@ SetDeviceGroupName Set Device Group name
 
 Renames a Gen2 Device Group
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param groupId Device Group ID
- @return ApiSetDeviceGroupNameRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param groupId Device Group ID
+	@return ApiSetDeviceGroupNameRequest
 */
 func (a *DeviceGroupAPIService) SetDeviceGroupName(ctx context.Context, groupId string) ApiSetDeviceGroupNameRequest {
 	return ApiSetDeviceGroupNameRequest{
 		ApiService: a,
-		ctx: ctx,
-		groupId: groupId,
+		ctx:        ctx,
+		groupId:    groupId,
 	}
 }
 
 // Execute executes the request
 func (a *DeviceGroupAPIService) SetDeviceGroupNameExecute(r ApiSetDeviceGroupNameRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DeviceGroupAPIService.SetDeviceGroupName")

@@ -17,14 +17,14 @@ data "powerflex_fault_set" "all" {
 
 //Import all fault sets
 import {
-    for_each = data.powerflex_fault_set.all.fault_set_details
-    to = powerflex_fault_set.import_test_fault_set[each.key]
-    id = each.value.id
+  for_each = data.powerflex_fault_set.all.fault_set_details
+  to       = powerflex_fault_set.import_test_fault_set[each.key]
+  id       = each.value.id
 }
 
 //Add them to terraform state
 resource "powerflex_fault_set" "import_test_fault_set" {
-    count = length(data.powerflex_fault_set.all.fault_set_details)
-    name = data.powerflex_fault_set.all.fault_set_details[count.index].name
-    protection_domain_id = data.powerflex_fault_set.all.fault_set_details[count.index].protection_domain_id
+  count                = length(data.powerflex_fault_set.all.fault_set_details)
+  name                 = data.powerflex_fault_set.all.fault_set_details[count.index].name
+  protection_domain_id = data.powerflex_fault_set.all.fault_set_details[count.index].protection_domain_id
 }

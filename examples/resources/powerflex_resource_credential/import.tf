@@ -17,9 +17,9 @@ limitations under the License.
 
 // Get the data of a specific resource credential
 data "powerflex_resource_credential" "all_current_resource_credentials" {
-    filter {
-        label = [var.name]
-    }
+  filter {
+    label = [var.name]
+  }
 }
 
 import {
@@ -28,8 +28,8 @@ import {
 }
 
 resource "powerflex_resource_credential" "imported_resource_credentials" {
-  name = data.powerflex_resource_credential.all_current_resource_credentials.resource_credential_details[0].label
+  name     = data.powerflex_resource_credential.all_current_resource_credentials.resource_credential_details[0].label
   username = data.powerflex_resource_credential.all_current_resource_credentials.resource_credential_details[0].username
   password = var.password
-  type = var.type
+  type     = var.type
 }

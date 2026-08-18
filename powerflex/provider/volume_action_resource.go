@@ -48,12 +48,12 @@ type volumeActionResource struct {
 }
 
 type volumeActionModel struct {
-	ID                types.String `tfsdk:"id"`
-	VolumeID          types.String `tfsdk:"volume_id"`
-	Action            types.String `tfsdk:"action"`
-	SourceSnapshotID  types.String `tfsdk:"source_snapshot_id"`
-	HostID            types.String `tfsdk:"host_id"`
-	AccessMode        types.String `tfsdk:"access_mode"`
+	ID               types.String `tfsdk:"id"`
+	VolumeID         types.String `tfsdk:"volume_id"`
+	Action           types.String `tfsdk:"action"`
+	SourceSnapshotID types.String `tfsdk:"source_snapshot_id"`
+	HostID           types.String `tfsdk:"host_id"`
+	AccessMode       types.String `tfsdk:"access_mode"`
 }
 
 func (r *volumeActionResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {

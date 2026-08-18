@@ -80,13 +80,15 @@ After the execution of above resource block, device would have been created on t
 ### Optional
 
 - `device_capacity` (Number) Capacity of the device in GB.
+- `device_group_id` (String) Device Group ID (Gen2 5.x only). Replaces `storage_pool_id` for Gen2 systems.
 - `external_acceleration_type` (String) External acceleration type of the device. Valid values are `None`, `Read`, `Write`, `ReadAndWrite`.
 - `media_type` (String) Media type of the device. Valid values are `HDD`, `SSD`.
 - `name` (String) The name of the device.
 - `protection_domain_id` (String) ID of the protection domain. Conflicts with `protection_domain_name`. Cannot be updated.
 - `protection_domain_name` (String) Name of the protection domain. Conflicts with `protection_domain_id`. Cannot be updated.
-- `sds_id` (String) ID of the SDS. Conflicts with `sds_name`. Cannot be updated.
-- `sds_name` (String) Name of the SDS. Conflicts with `sds_id`. Cannot be updated.
+- `sds_id` (String) ID of the SDS. Conflicts with `sds_name`. Cannot be updated. **Deprecated** in Gen2 5.x — use `storage_node_id` instead.
+- `sds_name` (String) Name of the SDS. Conflicts with `sds_id`. Cannot be updated. **Deprecated** in Gen2 5.x — use `storage_node_id` instead.
+- `storage_node_id` (String) Storage Node ID (Gen2 5.x only). Replaces `sds_id` for Gen2 systems.
 - `storage_pool_id` (String) ID of the storage pool. Conflicts with `storage_pool_name`. Cannot be updated.
 - `storage_pool_name` (String) Name of the storage pool. Conflicts with `storage_pool_id`. Cannot be updated.
 

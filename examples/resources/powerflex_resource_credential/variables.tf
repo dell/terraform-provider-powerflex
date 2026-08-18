@@ -18,77 +18,77 @@ limitations under the License.
 variable "username" {
   type        = string
   description = "username of the credential resource."
-  default = ""
+  default     = ""
 }
 
 variable "password" {
   type        = string
   description = "password of the credential resource."
-  default = ""
+  default     = ""
 }
 
 variable "name" {
   type        = string
   description = "name of the credential resource."
-  default = ""
+  default     = ""
 }
 
 variable "type" {
   type        = string
   description = "type of the credential resource."
-  default = ""
+  default     = ""
 }
 
 variable "os_username" {
   type        = string
   description = "os_username of the credential resource."
-  default = ""
+  default     = ""
 }
 
 variable "os_password" {
   type        = string
   description = "os_password of the credential resource."
-  default = ""
+  default     = ""
 }
 
 variable "snmpv2_community_string" {
   type        = string
   description = "snmpv2_community_string of the credential resource."
-  default = ""
+  default     = ""
 }
 
 variable "snmpv3_security_name" {
   type        = string
   description = "snmpv3_security_name of the credential resource."
-  default = ""
+  default     = ""
 }
 
 variable "snmpv3_security_level" {
   type        = string
   description = "snmpv3_security_level of the credential resource."
-  default = ""
+  default     = ""
 }
 
 variable "snmpv3_md5_auth_password" {
   type        = string
   description = "snmpv3_md5_auth_password of the credential resource."
-  default = ""
+  default     = ""
 }
 
 variable "snmpv3_des_private_password" {
   type        = string
   description = "snmpv3_des_private_password of the credential resource."
-  default = ""  
+  default     = ""
 }
 
 variable "ssh_private_key_path" {
   type        = string
   description = "ssh_private_key_path of the credential resource."
-  default = ""
+  default     = ""
 }
 
 variable "key_pair_name" {
   type        = string
   description = "key_pair_name of the credential resource."
-  default = ""
+  default     = ""
 }

@@ -126,12 +126,16 @@ After the execution of above resource block, storage pool would have been create
 
 - `capacity_alert_critical_threshold` (Number) Set the threshold for triggering capacity usage critical-priority alert.
 - `capacity_alert_high_threshold` (Number) Set the threshold for triggering capacity usage high-priority alert.
+- `compression_method` (String) Compression method for the Storage Pool (Gen2 5.x only). Valid values: `None`, `Normal`.
+- `device_group_id` (String) Device Group ID for the Storage Pool (Gen2 5.x only). Replaces direct device assignment.
+- `erasure_coding_policy` (String) Erasure Coding policy for the Storage Pool (Gen2 5.x only). Valid values: `none`, `rs_2_1`, `rs_4_1`.
 - `fragmentation` (Boolean) Enable or disable fragmentation in the Storage Pool
 - `protected_maintenance_mode_bw_limit_per_device_in_kbps` (Number) The maximum bandwidth of protected maintenance mode migration I/Os, in KB per second, per device
 - `protected_maintenance_mode_io_priority_policy` (String) Set the I/O priority policy for protected maintenance mode for a specific Storage Pool. Valid values are `unlimited`, `limitNumOfConcurrentIos` and `favorAppIos`
 - `protected_maintenance_mode_num_of_concurrent_ios_per_device` (Number) The maximum number of concurrent protected maintenance mode migration I/Os per device
 - `protection_domain_id` (String) ID of the Protection Domain under which the storage pool will be created. Conflicts with `protection_domain_name`. Cannot be updated.
 - `protection_domain_name` (String) Name of the Protection Domain under which the storage pool will be created. Conflicts with `protection_domain_id`. Cannot be updated.
+- `protection_scheme` (String) Protection scheme for the Storage Pool (Gen2 5.x only). Valid values: `TwoPlusTwo`, `EightPlusTwo`.
 - `rebalance_bw_limit_per_device_in_kbps` (Number) The maximum bandwidth of rebalance I/Os, in KB/s, per device
 - `rebalance_enabled` (Boolean) Enable or disable rebalancing in the specified Storage Pool
 - `rebalance_io_priority_policy` (String) Policy to use for rebalance I/O priority. Valid values are `unlimited`, `limitNumOfConcurrentIos` and `favorAppIos`

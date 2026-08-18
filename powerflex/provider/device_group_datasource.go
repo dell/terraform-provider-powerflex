@@ -44,10 +44,10 @@ type deviceGroupDataSource struct {
 }
 
 type deviceGroupDataSourceModel struct {
-	ID                 types.String            `tfsdk:"id"`
-	Name               types.String            `tfsdk:"name"`
-	ProtectionDomainID types.String            `tfsdk:"protection_domain_id"`
-	DeviceGroups       []deviceGroupItemModel  `tfsdk:"device_groups"`
+	ID                 types.String           `tfsdk:"id"`
+	Name               types.String           `tfsdk:"name"`
+	ProtectionDomainID types.String           `tfsdk:"protection_domain_id"`
+	DeviceGroups       []deviceGroupItemModel `tfsdk:"device_groups"`
 }
 
 type deviceGroupItemModel struct {

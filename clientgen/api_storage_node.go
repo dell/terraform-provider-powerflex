@@ -20,13 +20,12 @@ import (
 	"strings"
 )
 
-
 // StorageNodeAPIService StorageNodeAPI service
 type StorageNodeAPIService service
 
 type ApiCreateStorageNodeRequest struct {
-	ctx context.Context
-	ApiService *StorageNodeAPIService
+	ctx              context.Context
+	ApiService       *StorageNodeAPIService
 	storageNodeParam *StorageNodeParam
 }
 
@@ -44,24 +43,25 @@ CreateStorageNode Create a new Storage Node
 
 Creates a new Gen2 Storage Node with specified IP addresses and configuration
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreateStorageNodeRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreateStorageNodeRequest
 */
 func (a *StorageNodeAPIService) CreateStorageNode(ctx context.Context) ApiCreateStorageNodeRequest {
 	return ApiCreateStorageNodeRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return StorageNodeResp
+//
+//	@return StorageNodeResp
 func (a *StorageNodeAPIService) CreateStorageNodeExecute(r ApiCreateStorageNodeRequest) (*StorageNodeResp, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *StorageNodeResp
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *StorageNodeResp
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "StorageNodeAPIService.CreateStorageNode")
@@ -135,9 +135,9 @@ func (a *StorageNodeAPIService) CreateStorageNodeExecute(r ApiCreateStorageNodeR
 }
 
 type ApiDeleteStorageNodeRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *StorageNodeAPIService
-	nodeId string
+	nodeId     string
 }
 
 func (r ApiDeleteStorageNodeRequest) Execute() (*http.Response, error) {
@@ -149,24 +149,24 @@ DeleteStorageNode Delete a Storage Node
 
 Deletes a Gen2 Storage Node
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param nodeId Storage Node ID
- @return ApiDeleteStorageNodeRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param nodeId Storage Node ID
+	@return ApiDeleteStorageNodeRequest
 */
 func (a *StorageNodeAPIService) DeleteStorageNode(ctx context.Context, nodeId string) ApiDeleteStorageNodeRequest {
 	return ApiDeleteStorageNodeRequest{
 		ApiService: a,
-		ctx: ctx,
-		nodeId: nodeId,
+		ctx:        ctx,
+		nodeId:     nodeId,
 	}
 }
 
 // Execute executes the request
 func (a *StorageNodeAPIService) DeleteStorageNodeExecute(r ApiDeleteStorageNodeRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "StorageNodeAPIService.DeleteStorageNode")
@@ -227,9 +227,9 @@ func (a *StorageNodeAPIService) DeleteStorageNodeExecute(r ApiDeleteStorageNodeR
 }
 
 type ApiGetStorageNodeRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *StorageNodeAPIService
-	nodeId string
+	nodeId     string
 }
 
 func (r ApiGetStorageNodeRequest) Execute() (*StorageNode, *http.Response, error) {
@@ -241,26 +241,27 @@ GetStorageNode Get Storage Node by ID
 
 Retrieves a specific Gen2 Storage Node by its ID
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param nodeId Storage Node ID
- @return ApiGetStorageNodeRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param nodeId Storage Node ID
+	@return ApiGetStorageNodeRequest
 */
 func (a *StorageNodeAPIService) GetStorageNode(ctx context.Context, nodeId string) ApiGetStorageNodeRequest {
 	return ApiGetStorageNodeRequest{
 		ApiService: a,
-		ctx: ctx,
-		nodeId: nodeId,
+		ctx:        ctx,
+		nodeId:     nodeId,
 	}
 }
 
 // Execute executes the request
-//  @return StorageNode
+//
+//	@return StorageNode
 func (a *StorageNodeAPIService) GetStorageNodeExecute(r ApiGetStorageNodeRequest) (*StorageNode, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *StorageNode
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *StorageNode
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "StorageNodeAPIService.GetStorageNode")
@@ -330,7 +331,7 @@ func (a *StorageNodeAPIService) GetStorageNodeExecute(r ApiGetStorageNodeRequest
 }
 
 type ApiListStorageNodesRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *StorageNodeAPIService
 }
 
@@ -343,24 +344,25 @@ ListStorageNodes List all Storage Nodes
 
 Retrieves all Gen2 Storage Nodes in the system
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListStorageNodesRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListStorageNodesRequest
 */
 func (a *StorageNodeAPIService) ListStorageNodes(ctx context.Context) ApiListStorageNodesRequest {
 	return ApiListStorageNodesRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []StorageNode
+//
+//	@return []StorageNode
 func (a *StorageNodeAPIService) ListStorageNodesExecute(r ApiListStorageNodesRequest) ([]StorageNode, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []StorageNode
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []StorageNode
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "StorageNodeAPIService.ListStorageNodes")
@@ -429,9 +431,9 @@ func (a *StorageNodeAPIService) ListStorageNodesExecute(r ApiListStorageNodesReq
 }
 
 type ApiSetStorageNodeNameRequest struct {
-	ctx context.Context
-	ApiService *StorageNodeAPIService
-	nodeId string
+	ctx                context.Context
+	ApiService         *StorageNodeAPIService
+	nodeId             string
 	setStorageNodeName *SetStorageNodeName
 }
 
@@ -449,24 +451,24 @@ SetStorageNodeName Set Storage Node name
 
 Renames a Gen2 Storage Node
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param nodeId Storage Node ID
- @return ApiSetStorageNodeNameRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param nodeId Storage Node ID
+	@return ApiSetStorageNodeNameRequest
 */
 func (a *StorageNodeAPIService) SetStorageNodeName(ctx context.Context, nodeId string) ApiSetStorageNodeNameRequest {
 	return ApiSetStorageNodeNameRequest{
 		ApiService: a,
-		ctx: ctx,
-		nodeId: nodeId,
+		ctx:        ctx,
+		nodeId:     nodeId,
 	}
 }
 
 // Execute executes the request
 func (a *StorageNodeAPIService) SetStorageNodeNameExecute(r ApiSetStorageNodeNameRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "StorageNodeAPIService.SetStorageNodeName")

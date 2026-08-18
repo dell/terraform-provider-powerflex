@@ -20,12 +20,12 @@ limitations under the License.
 
 //gets original template id from sample templates
 data "powerflex_template" "template" {
-  filter{
+  filter {
     category = ["Sample Templates"]
   }
 }
 
 resource "powerflex_template_clone" "example" {
-  template_name = "Template Clone"
-  original_template_id=data.powerflex_template.template.template_details[0].original_template_id
+  template_name        = "Template Clone"
+  original_template_id = data.powerflex_template.template.template_details[0].original_template_id
 }

@@ -35,8 +35,8 @@ resource "powerflex_device_action" "clear_error" {
 
 # Example: Set device capacity limit
 resource "powerflex_device_action" "set_capacity" {
-  device_id           = "0123456789abcdef"
-  action              = "set_capacity_limit"
+  device_id            = "0123456789abcdef"
+  action               = "set_capacity_limit"
   capacity_limit_in_kb = "10737418240" # 10TB in KB
 }
 

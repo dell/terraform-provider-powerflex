@@ -17,18 +17,18 @@ data "powerflex_device" "all" {
 
 //Import all devices
 import {
-    for_each = data.powerflex_device.all.device_model
-    to = powerflex_device.import_test_device[each.key]
-    id = each.value.id
+  for_each = data.powerflex_device.all.device_model
+  to       = powerflex_device.import_test_device[each.key]
+  id       = each.value.id
 }
 
 //Add them to terraform state
 resource "powerflex_device" "import_test_device" {
-    count = length(data.powerflex_device.all.device_model)
-    name = data.powerflex_device.all.device_model[count.index].name
-    sds_id = data.powerflex_device.all.device_model[count.index].sds_id
-    storage_pool_id = data.powerflex_device.all.device_model[count.index].storage_pool_id
-    device_path                = data.powerflex_device.all.device_model[count.index].device_current_path_name
-    media_type                 = data.powerflex_device.all.device_model[count.index].media_type
-    external_acceleration_type = data.powerflex_device.all.device_model[count.index].external_acceleration_type
+  count                      = length(data.powerflex_device.all.device_model)
+  name                       = data.powerflex_device.all.device_model[count.index].name
+  sds_id                     = data.powerflex_device.all.device_model[count.index].sds_id
+  storage_pool_id            = data.powerflex_device.all.device_model[count.index].storage_pool_id
+  device_path                = data.powerflex_device.all.device_model[count.index].device_current_path_name
+  media_type                 = data.powerflex_device.all.device_model[count.index].media_type
+  external_acceleration_type = data.powerflex_device.all.device_model[count.index].external_acceleration_type
 }

@@ -20,13 +20,12 @@ import (
 	"strings"
 )
 
-
 // StoragePoolAPIService StoragePoolAPI service
 type StoragePoolAPIService service
 
 type ApiCreateStoragePoolGen2Request struct {
-	ctx context.Context
-	ApiService *StoragePoolAPIService
+	ctx                  context.Context
+	ApiService           *StoragePoolAPIService
 	storagePoolParamGen2 *StoragePoolParamGen2
 }
 
@@ -44,24 +43,25 @@ CreateStoragePoolGen2 Create storage pool (Gen2 with EC support)
 
 Creates a storage pool with Erasure Coding support
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreateStoragePoolGen2Request
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreateStoragePoolGen2Request
 */
 func (a *StoragePoolAPIService) CreateStoragePoolGen2(ctx context.Context) ApiCreateStoragePoolGen2Request {
 	return ApiCreateStoragePoolGen2Request{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return StoragePoolResp
+//
+//	@return StoragePoolResp
 func (a *StoragePoolAPIService) CreateStoragePoolGen2Execute(r ApiCreateStoragePoolGen2Request) (*StoragePoolResp, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *StoragePoolResp
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *StoragePoolResp
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "StoragePoolAPIService.CreateStoragePoolGen2")
@@ -135,9 +135,9 @@ func (a *StoragePoolAPIService) CreateStoragePoolGen2Execute(r ApiCreateStorageP
 }
 
 type ApiSetErasureCodingPolicyRequest struct {
-	ctx context.Context
-	ApiService *StoragePoolAPIService
-	poolId string
+	ctx                    context.Context
+	ApiService             *StoragePoolAPIService
+	poolId                 string
 	setErasureCodingPolicy *SetErasureCodingPolicy
 }
 
@@ -155,24 +155,24 @@ SetErasureCodingPolicy Set Erasure Coding policy
 
 Sets the Erasure Coding policy on a storage pool
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param poolId Storage Pool ID
- @return ApiSetErasureCodingPolicyRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param poolId Storage Pool ID
+	@return ApiSetErasureCodingPolicyRequest
 */
 func (a *StoragePoolAPIService) SetErasureCodingPolicy(ctx context.Context, poolId string) ApiSetErasureCodingPolicyRequest {
 	return ApiSetErasureCodingPolicyRequest{
 		ApiService: a,
-		ctx: ctx,
-		poolId: poolId,
+		ctx:        ctx,
+		poolId:     poolId,
 	}
 }
 
 // Execute executes the request
 func (a *StoragePoolAPIService) SetErasureCodingPolicyExecute(r ApiSetErasureCodingPolicyRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "StoragePoolAPIService.SetErasureCodingPolicy")
