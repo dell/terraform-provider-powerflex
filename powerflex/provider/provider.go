@@ -19,9 +19,14 @@ package provider
 
 import (
 	"context"
+	"crypto/tls"
+	"encoding/base64"
+	"net/http"
+	"net/http/cookiejar"
 	"os"
 	"strconv"
 	"strings"
+	"terraform-provider-powerflex/clientgen"
 	"time"
 
 	"github.com/dell/goscaleio"
@@ -47,6 +52,7 @@ type powerflexProvider struct {
 	client        *goscaleio.Client
 	clientError   string
 	gatewayClient *goscaleio.GatewayClient
+	genClient     *clientgen.APIClient
 }
 
 // powerflexProviderModel - provider input struct.
@@ -264,10 +270,62 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 		break
 	}
 
+	// Initialize the Gen2 OpenAPI client for new v2 features
+	genClient, err := newGen2Client(config.EndPoint.ValueString(), config.Username.ValueString(), config.Password.ValueString(), insecure, int64(timeout))
+	if err != nil {
+		tflog.Warn(ctx, "Unable to create Gen2 API client, Gen2 resources will not be available: "+err.Error())
+	} else {
+		p.genClient = genClient
+	}
+
 	resp.DataSourceData = p
 	resp.ResourceData = p
 
 	tflog.Info(ctx, "Configured powerflex client", map[string]any{"success": true})
+}
+
+// newGen2Client creates a new OpenAPI-generated client for PowerFlex Gen2 REST API endpoints.
+func newGen2Client(endpoint string, username string, password string, insecure bool, timeout int64) (*clientgen.APIClient, error) {
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	httpclient := &http.Client{
+		Timeout: time.Duration(timeout) * time.Second,
+		Jar:     jar,
+	}
+
+	if insecure {
+		/* #nosec */
+		httpclient.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{
+				MinVersion:         tls.VersionTLS12,
+				InsecureSkipVerify: true,
+			},
+		}
+	}
+
+	url := strings.TrimSuffix(endpoint, "/")
+	basicAuthString := base64.StdEncoding.EncodeToString([]byte(username + ":" + password))
+
+	cfg := &clientgen.Configuration{
+		HTTPClient:    httpclient,
+		DefaultHeader: make(map[string]string),
+		UserAgent:     "terraform-powerflex-provider/1.0.0",
+		Debug:         false,
+		Servers: clientgen.ServerConfigurations{
+			{
+				URL:         url + "/api",
+				Description: "PowerFlex Gateway Gen2 API",
+			},
+		},
+		OperationServers: map[string]clientgen.ServerConfigurations{},
+	}
+	cfg.AddDefaultHeader("Authorization", "Basic "+basicAuthString)
+
+	apiClient := clientgen.NewAPIClient(cfg)
+	return apiClient, nil
 }
 
 // DataSources - returns array of all datasources.
@@ -328,5 +386,9 @@ func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resou
 		NewNvmeTargetResource,
 		ResourceCredentialResource,
 		TemplateCloneResource,
+		NewStorageNodeResource,
+		NewDeviceGroupResource,
+		NewDeviceActionResource,
+		NewStoragePoolErasureCodingResource,
 	}
 }
