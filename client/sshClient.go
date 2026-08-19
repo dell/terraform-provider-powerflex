@@ -44,7 +44,7 @@ func (config *SSHProvisionerConfig) getSSHConfig() (*ssh.ClientConfig, error) {
 	// Use system known_hosts for secure host key validation by default
 	// knownhosts.New("") uses the default known_hosts file locations
 	hostKeyCallback, err := knownhosts.New("")
-	
+
 	// If known_hosts file is not found, we'll handle it below
 	// Don't fail yet - user might provide explicit host_key
 	knownHostsAvailable := (err == nil)
