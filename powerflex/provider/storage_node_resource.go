@@ -262,11 +262,20 @@ func (r *storageNodeResource) Create(ctx context.Context, req resource.CreateReq
 	tflog.Debug(ctx, "Creating Storage Node")
 
 	// Create the storage node
-	result, _, err := r.client.StorageNodeAPI.CreateStorageNode(ctx).StorageNodeParam(params).Execute()
+	result, httpResponse, err := r.client.StorageNodeAPI.CreateStorageNode(ctx).StorageNodeParam(params).Execute()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Creating Storage Node",
 			"Could not create storage node: "+err.Error(),
+		)
+		return
+	}
+
+	// Check for non-2xx status codes
+	if httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300 {
+		resp.Diagnostics.AddError(
+			"Error Creating Storage Node",
+			fmt.Sprintf("API returned status %d", httpResponse.StatusCode),
 		)
 		return
 	}

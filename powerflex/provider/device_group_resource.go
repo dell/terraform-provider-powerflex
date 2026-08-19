@@ -157,8 +157,9 @@ func (r *deviceGroupResource) Create(ctx context.Context, req resource.CreateReq
 
 	tflog.Debug(ctx, "Creating Device Group")
 
-	result, _, err := r.client.DeviceGroupAPI.CreateDeviceGroup(ctx).DeviceGroupParam(params).Execute()
+	result, httpResponse, err := r.client.DeviceGroupAPI.CreateDeviceGroup(ctx).DeviceGroupParam(params).Execute()
 	if err != nil {
+		tflog.Debug(ctx, fmt.Sprintf("CreateDeviceGroup error: %v, status: %d", err, httpResponse.StatusCode))
 		resp.Diagnostics.AddError(
 			"Error Creating Device Group",
 			"Could not create device group: "+err.Error(),
@@ -166,8 +167,30 @@ func (r *deviceGroupResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
+	tflog.Debug(ctx, fmt.Sprintf("CreateDeviceGroup success, status: %d", httpResponse.StatusCode))
+
+	// Check for non-2xx status codes - this should not happen if err is nil, but check anyway
+	if httpResponse != nil && (httpResponse.StatusCode < 200 || httpResponse.StatusCode >= 300) {
+		tflog.Debug(ctx, fmt.Sprintf("CreateDeviceGroup non-2xx status: %d", httpResponse.StatusCode))
+		resp.Diagnostics.AddError(
+			"Error Creating Device Group",
+			fmt.Sprintf("API returned status %d", httpResponse.StatusCode),
+		)
+		return
+	}
+
+	// Check if result is nil (shouldn't happen if no error, but defensive)
+	if result == nil {
+		resp.Diagnostics.AddError(
+			"Error Creating Device Group",
+			"API returned nil result",
+		)
+		return
+	}
+
 	// Read back the created device group
 	groupID := result.GetId()
+	tflog.Debug(ctx, fmt.Sprintf("Reading device group with ID: %s", groupID))
 	group, _, err := r.client.DeviceGroupAPI.GetDeviceGroup(ctx, groupID).Execute()
 	if err != nil {
 		resp.Diagnostics.AddError(

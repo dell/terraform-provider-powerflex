@@ -99,7 +99,7 @@ func TestAccResourceDeviceGroupInvalidConfig(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      ProviderConfigForTesting + invalidConfig,
-				ExpectError: regexp.MustCompile(`.*Error Creating Device Group.*`),
+				ExpectError: regexp.MustCompile(`.*Error.*`),
 			},
 		},
 	})

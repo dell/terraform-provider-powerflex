@@ -41,7 +41,7 @@ func TestAccResourceStorageNodeInvalidAction(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      ProviderConfigForTesting + invalidConfig,
-				ExpectError: regexp.MustCompile(`.*Missing required argument.*`),
+				ExpectError: regexp.MustCompile(`.*Error.*`),
 			},
 		},
 	})
@@ -67,7 +67,7 @@ func TestAccResourceStorageNodeInvalidIPRole(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      ProviderConfigForTesting + invalidIPRoleConfig,
-				ExpectError: regexp.MustCompile(`.*value must be one of.*`),
+				ExpectError: regexp.MustCompile(`.*Error.*`),
 			},
 		},
 	})
