@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/knownhosts"
 )
 
 // SSHProvisionerConfig ssh provisioner config
@@ -40,10 +41,18 @@ type SSHProvisionerConfig struct {
 
 // getSSHConfig returns ssh config
 func (config *SSHProvisionerConfig) getSSHConfig() (*ssh.ClientConfig, error) {
+	// Use system known_hosts for secure host key validation by default
+	// knownhosts.New("") uses the default known_hosts file locations
+	hostKeyCallback, err := knownhosts.New("")
+
+	// If known_hosts file is not found, we'll handle it below
+	// Don't fail yet - user might provide explicit host_key
+	knownHostsAvailable := (err == nil)
+
 	sshConfig := &ssh.ClientConfig{
 		User:            config.Username,
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-	} // #nosec G106
+		HostKeyCallback: hostKeyCallback,
+	}
 
 	// password or private key
 	if config.PrivateKey != nil {
@@ -84,7 +93,7 @@ func (config *SSHProvisionerConfig) getSSHConfig() (*ssh.ClientConfig, error) {
 		return nil, fmt.Errorf("password or private key must be specified")
 	}
 
-	// use fixed host key if provided
+	// use fixed host key if provided (overrides known_hosts validation)
 	if config.HostKey != nil {
 		hostKey, err := decodeString(*config.HostKey)
 		if err != nil {
@@ -95,6 +104,9 @@ func (config *SSHProvisionerConfig) getSSHConfig() (*ssh.ClientConfig, error) {
 			return nil, err
 		}
 		sshConfig.HostKeyCallback = ssh.FixedHostKey(hostKeyPub)
+	} else if !knownHostsAvailable {
+		// No known_hosts file and no explicit host_key - this is a security issue
+		return nil, fmt.Errorf("no known_hosts file found and no explicit host_key provided. Either provide a host_key parameter or ensure a known_hosts file exists")
 	}
 	sshConfig.SetDefaults()
 	return sshConfig, nil
