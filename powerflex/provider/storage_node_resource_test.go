@@ -26,8 +26,8 @@ import (
 )
 
 func TestAccResourceStorageNodeInvalidAction(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Skipping acceptance test; TF_ACC not set")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 
 	var invalidConfig = `
@@ -48,8 +48,8 @@ func TestAccResourceStorageNodeInvalidAction(t *testing.T) {
 }
 
 func TestAccResourceStorageNodeInvalidIPRole(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Skipping acceptance test; TF_ACC not set")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 
 	var invalidIPRoleConfig = `

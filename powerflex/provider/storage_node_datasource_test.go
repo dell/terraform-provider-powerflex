@@ -26,8 +26,8 @@ import (
 )
 
 func TestAccDataSourceStorageNodeAll(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Skipping acceptance test; TF_ACC not set")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 
 	var listAllConfig = `
@@ -48,9 +48,35 @@ func TestAccDataSourceStorageNodeAll(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceStorageNodeById(t *testing.T) {
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
+	}
+
+	var byIdConfig = `
+	data "powerflex_storage_node" "test" {
+		id = "tfacc_storage_node_id"
+	}
+	`
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + byIdConfig,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_storage_node.test", "id", "tfacc_storage_node_id"),
+					resource.TestCheckResourceAttr("data.powerflex_storage_node.test", "storage_nodes.0.id", "tfacc_storage_node_id"),
+					resource.TestCheckResourceAttr("data.powerflex_storage_node.test", "storage_nodes.0.name", "terraform-test-storage-node"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataSourceStorageNodeInvalidID(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Skipping acceptance test; TF_ACC not set")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 
 	var invalidIDConfig = `

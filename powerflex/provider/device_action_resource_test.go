@@ -26,8 +26,8 @@ import (
 )
 
 func TestAccResourceDeviceActionInvalidAction(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Skipping acceptance test; TF_ACC not set")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 
 	var invalidActionConfig = `
@@ -49,8 +49,8 @@ func TestAccResourceDeviceActionInvalidAction(t *testing.T) {
 }
 
 func TestAccResourceDeviceActionInvalidActionType(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Skipping acceptance test; TF_ACC not set")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 
 	var invalidActionTypeConfig = `
@@ -72,8 +72,8 @@ func TestAccResourceDeviceActionInvalidActionType(t *testing.T) {
 }
 
 func TestAccResourceDeviceActionSetCapacityMissingParam(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Skipping acceptance test; TF_ACC not set")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 
 	var missingCapacityConfig = `

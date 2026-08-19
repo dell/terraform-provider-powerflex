@@ -34,6 +34,13 @@ resource "powerflex_device_group" "test" {
 }
 `, ProtectionDomainID)
 
+var DeviceGroupResourceCreateMock = fmt.Sprintf(`
+resource "powerflex_device_group" "test" {
+	name                 = "terraform-test-device-group"
+	protection_domain_id = "%s"
+}
+`, ProtectionDomainID)
+
 var DeviceGroupResourceUpdate = fmt.Sprintf(`
 resource "powerflex_device_group" "test" {
 	name                 = "terraform-test-device-group-updated"
@@ -42,8 +49,8 @@ resource "powerflex_device_group" "test" {
 `, ProtectionDomainID)
 
 func TestAccResourceDeviceGroupCreateUpdate(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Skipping acceptance test; TF_ACC not set")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 
 	resource.Test(t, resource.TestCase{
@@ -76,8 +83,8 @@ func TestAccResourceDeviceGroupCreateUpdate(t *testing.T) {
 }
 
 func TestAccResourceDeviceGroupInvalidConfig(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Skipping acceptance test; TF_ACC not set")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 
 	var invalidConfig = `
@@ -93,6 +100,54 @@ func TestAccResourceDeviceGroupInvalidConfig(t *testing.T) {
 			{
 				Config:      ProviderConfigForTesting + invalidConfig,
 				ExpectError: regexp.MustCompile(`.*Error Creating Device Group.*`),
+			},
+		},
+	})
+}
+
+func TestAccResourceDeviceGroupCreateUpdateMock(t *testing.T) {
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
+	}
+
+	var mockCreate = `
+	resource "powerflex_device_group" "test" {
+		name                 = "terraform-test-device-group"
+		protection_domain_id = "tfacc_protection_domain_id"
+	}
+	`
+
+	var mockUpdate = `
+	resource "powerflex_device_group" "test" {
+		name                 = "terraform-test-device-group-updated"
+		protection_domain_id = "tfacc_protection_domain_id"
+	}
+	`
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Create Device Group
+			{
+				Config: ProviderConfigForTesting + mockCreate,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_device_group.test", "name", "terraform-test-device-group"),
+					resource.TestCheckResourceAttr("powerflex_device_group.test", "protection_domain_id", "tfacc_protection_domain_id"),
+					resource.TestCheckResourceAttrSet("powerflex_device_group.test", "id"),
+				),
+			},
+			// Import
+			{
+				ResourceName:      "powerflex_device_group.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			// Update Name
+			{
+				Config: ProviderConfigForTesting + mockUpdate,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("powerflex_device_group.test", "name", "terraform-test-device-group-updated"),
+				),
 			},
 		},
 	})

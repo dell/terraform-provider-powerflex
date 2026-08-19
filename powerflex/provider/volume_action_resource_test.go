@@ -26,8 +26,8 @@ import (
 )
 
 func TestAccResourceVolumeActionInvalidAction(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Skipping acceptance test; TF_ACC not set")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 
 	var invalidActionConfig = `
@@ -49,8 +49,8 @@ func TestAccResourceVolumeActionInvalidAction(t *testing.T) {
 }
 
 func TestAccResourceVolumeActionInvalidActionType(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Skipping acceptance test; TF_ACC not set")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 
 	var invalidActionTypeConfig = `
@@ -72,8 +72,8 @@ func TestAccResourceVolumeActionInvalidActionType(t *testing.T) {
 }
 
 func TestAccResourceVolumeActionRestoreMissingSnapshot(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Skipping acceptance test; TF_ACC not set")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 
 	var missingSnapshotConfig = `
@@ -95,8 +95,8 @@ func TestAccResourceVolumeActionRestoreMissingSnapshot(t *testing.T) {
 }
 
 func TestAccResourceVolumeActionMapMissingHost(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Skipping acceptance test; TF_ACC not set")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 
 	var missingHostConfig = `

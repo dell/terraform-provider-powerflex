@@ -26,8 +26,8 @@ import (
 )
 
 func TestAccDataSourceDeviceGroupAll(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Skipping acceptance test; TF_ACC not set")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 
 	var listAllConfig = `
@@ -48,9 +48,35 @@ func TestAccDataSourceDeviceGroupAll(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceDeviceGroupById(t *testing.T) {
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
+	}
+
+	var byIdConfig = `
+	data "powerflex_device_group" "test" {
+		id = "tfacc_device_group_id"
+	}
+	`
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: ProviderConfigForTesting + byIdConfig,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_device_group.test", "id", "tfacc_device_group_id"),
+					resource.TestCheckResourceAttr("data.powerflex_device_group.test", "device_groups.0.id", "tfacc_device_group_id"),
+					resource.TestCheckResourceAttr("data.powerflex_device_group.test", "device_groups.0.name", "terraform-test-device-group"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataSourceDeviceGroupInvalidID(t *testing.T) {
-	if os.Getenv("TF_ACC") == "" {
-		t.Skip("Skipping acceptance test; TF_ACC not set")
+	if os.Getenv("TF_ACC") == "1" {
+		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 
 	var invalidIDConfig = `
