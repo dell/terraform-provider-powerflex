@@ -60,7 +60,7 @@ type deviceGroupV2ResourceModel struct {
 }
 
 func (r *deviceGroupV2Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_device_group"
+	resp.TypeName = req.ProviderTypeName + "_device_group_v2"
 }
 
 func (r *deviceGroupV2Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {

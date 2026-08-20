@@ -56,7 +56,7 @@ type storagePoolErasureCodingModel struct {
 }
 
 func (r *storagePoolErasureCodingV2Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_storage_pool_erasure_coding"
+	resp.TypeName = req.ProviderTypeName + "_storage_pool_erasure_coding_v2"
 }
 
 func (r *storagePoolErasureCodingV2Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {

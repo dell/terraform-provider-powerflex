@@ -75,7 +75,7 @@ type storageNodeIPModel struct {
 }
 
 func (r *storageNodeV2Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_storage_node"
+	resp.TypeName = req.ProviderTypeName + "_storage_node_v2"
 }
 
 func (r *storageNodeV2Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {

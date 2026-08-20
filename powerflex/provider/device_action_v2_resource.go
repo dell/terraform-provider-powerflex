@@ -58,7 +58,7 @@ type deviceActionV2ResourceModel struct {
 }
 
 func (r *deviceActionV2Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_device_action"
+	resp.TypeName = req.ProviderTypeName + "_device_action_v2"
 }
 
 func (r *deviceActionV2Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {

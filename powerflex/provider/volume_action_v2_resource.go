@@ -57,7 +57,7 @@ type volumeActionModel struct {
 }
 
 func (r *volumeActionV2Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_volume_action"
+	resp.TypeName = req.ProviderTypeName + "_volume_action_v2"
 }
 
 func (r *volumeActionV2Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
