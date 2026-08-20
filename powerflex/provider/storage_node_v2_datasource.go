@@ -30,29 +30,29 @@ import (
 )
 
 var (
-	_ datasource.DataSource              = &storageNodeDataSource{}
-	_ datasource.DataSourceWithConfigure = &storageNodeDataSource{}
+	_ datasource.DataSource              = &storageNodeV2DataSource{}
+	_ datasource.DataSourceWithConfigure = &storageNodeV2DataSource{}
 )
 
-// StorageNodeDataSource returns a new storage node datasource.
-func StorageNodeDataSource() datasource.DataSource {
-	return &storageNodeDataSource{}
+// StorageNodeV2DataSource returns a new storage node v2 datasource.
+func StorageNodeV2DataSource() datasource.DataSource {
+	return &storageNodeV2DataSource{}
 }
 
-type storageNodeDataSource struct {
+type storageNodeV2DataSource struct {
 	client *clientgen.APIClient
 }
 
-// storageNodeDataSourceModel describes the datasource data model.
-type storageNodeDataSourceModel struct {
-	ID                 types.String           `tfsdk:"id"`
-	Name               types.String           `tfsdk:"name"`
-	ProtectionDomainID types.String           `tfsdk:"protection_domain_id"`
-	StorageNodes       []storageNodeItemModel `tfsdk:"storage_nodes"`
+// storageNodeV2DataSourceModel describes the datasource data model.
+type storageNodeV2DataSourceModel struct {
+	ID                 types.String             `tfsdk:"id"`
+	Name               types.String             `tfsdk:"name"`
+	ProtectionDomainID types.String             `tfsdk:"protection_domain_id"`
+	StorageNodes       []storageNodeV2ItemModel `tfsdk:"storage_nodes"`
 }
 
-// storageNodeItemModel describes each storage node item in the list.
-type storageNodeItemModel struct {
+// storageNodeV2ItemModel describes each storage node item in the list.
+type storageNodeV2ItemModel struct {
 	ID                 types.String `tfsdk:"id"`
 	Name               types.String `tfsdk:"name"`
 	ProtectionDomainID types.String `tfsdk:"protection_domain_id"`
@@ -70,11 +70,11 @@ type storageNodeItemModel struct {
 	PerformanceProfile types.String `tfsdk:"performance_profile"`
 }
 
-func (d *storageNodeDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_storage_node"
+func (d *storageNodeV2DataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_storage_node_v2"
 }
 
-func (d *storageNodeDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *storageNodeV2DataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description:         "This datasource is used to query Storage Nodes from a PowerFlex Gen2 system (5.0+). Storage Nodes are the Gen2 replacement for SDS.",
 		MarkdownDescription: "This datasource is used to query Storage Nodes from a PowerFlex Gen2 system (5.0+). Storage Nodes are the Gen2 replacement for SDS.",
@@ -168,7 +168,7 @@ func (d *storageNodeDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 	}
 }
 
-func (d *storageNodeDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (d *storageNodeV2DataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -193,8 +193,8 @@ func (d *storageNodeDataSource) Configure(_ context.Context, req datasource.Conf
 	d.client = p.genClient
 }
 
-func (d *storageNodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config storageNodeDataSourceModel
+func (d *storageNodeV2DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config storageNodeV2DataSourceModel
 	diags := req.Config.Get(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -213,7 +213,7 @@ func (d *storageNodeDataSource) Read(ctx context.Context, req datasource.ReadReq
 		}
 
 		item := mapStorageNodeToItem(node)
-		config.StorageNodes = []storageNodeItemModel{item}
+		config.StorageNodes = []storageNodeV2ItemModel{item}
 		config.ID = types.StringValue(config.ID.ValueString())
 
 		diags = resp.State.Set(ctx, &config)
@@ -233,7 +233,7 @@ func (d *storageNodeDataSource) Read(ctx context.Context, req datasource.ReadReq
 
 	tflog.Debug(ctx, fmt.Sprintf("Retrieved %d storage nodes", len(nodes)))
 
-	var filteredNodes []storageNodeItemModel
+	var filteredNodes []storageNodeV2ItemModel
 	for _, node := range nodes {
 		item := mapStorageNodeToItem(&node)
 
@@ -263,8 +263,8 @@ func (d *storageNodeDataSource) Read(ctx context.Context, req datasource.ReadReq
 	resp.Diagnostics.Append(diags...)
 }
 
-func mapStorageNodeToItem(node *clientgen.StorageNode) storageNodeItemModel {
-	item := storageNodeItemModel{}
+func mapStorageNodeToItem(node *clientgen.StorageNode) storageNodeV2ItemModel {
+	item := storageNodeV2ItemModel{}
 	if node.Id != nil {
 		item.ID = types.StringValue(*node.Id)
 	}

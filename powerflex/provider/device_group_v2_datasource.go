@@ -30,27 +30,27 @@ import (
 )
 
 var (
-	_ datasource.DataSource              = &deviceGroupDataSource{}
-	_ datasource.DataSourceWithConfigure = &deviceGroupDataSource{}
+	_ datasource.DataSource              = &deviceGroupV2DataSource{}
+	_ datasource.DataSourceWithConfigure = &deviceGroupV2DataSource{}
 )
 
-// DeviceGroupDataSource returns a new device group datasource.
-func DeviceGroupDataSource() datasource.DataSource {
-	return &deviceGroupDataSource{}
+// DeviceGroupV2DataSource returns a new device group v2 datasource.
+func DeviceGroupV2DataSource() datasource.DataSource {
+	return &deviceGroupV2DataSource{}
 }
 
-type deviceGroupDataSource struct {
+type deviceGroupV2DataSource struct {
 	client *clientgen.APIClient
 }
 
-type deviceGroupDataSourceModel struct {
-	ID                 types.String           `tfsdk:"id"`
-	Name               types.String           `tfsdk:"name"`
-	ProtectionDomainID types.String           `tfsdk:"protection_domain_id"`
-	DeviceGroups       []deviceGroupItemModel `tfsdk:"device_groups"`
+type deviceGroupV2DataSourceModel struct {
+	ID                 types.String             `tfsdk:"id"`
+	Name               types.String             `tfsdk:"name"`
+	ProtectionDomainID types.String             `tfsdk:"protection_domain_id"`
+	DeviceGroups       []deviceGroupV2ItemModel `tfsdk:"device_groups"`
 }
 
-type deviceGroupItemModel struct {
+type deviceGroupV2ItemModel struct {
 	ID                 types.String `tfsdk:"id"`
 	Name               types.String `tfsdk:"name"`
 	ProtectionDomainID types.String `tfsdk:"protection_domain_id"`
@@ -60,11 +60,11 @@ type deviceGroupItemModel struct {
 	Status             types.String `tfsdk:"status"`
 }
 
-func (d *deviceGroupDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_device_group"
+func (d *deviceGroupV2DataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_device_group_v2"
 }
 
-func (d *deviceGroupDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *deviceGroupV2DataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description:         "This datasource is used to query Device Groups from a PowerFlex Gen2 system (5.0+).",
 		MarkdownDescription: "This datasource is used to query Device Groups from a PowerFlex Gen2 system (5.0+).",
@@ -126,7 +126,7 @@ func (d *deviceGroupDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 	}
 }
 
-func (d *deviceGroupDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (d *deviceGroupV2DataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -151,8 +151,8 @@ func (d *deviceGroupDataSource) Configure(_ context.Context, req datasource.Conf
 	d.client = p.genClient
 }
 
-func (d *deviceGroupDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var config deviceGroupDataSourceModel
+func (d *deviceGroupV2DataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var config deviceGroupV2DataSourceModel
 	diags := req.Config.Get(ctx, &config)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -171,7 +171,7 @@ func (d *deviceGroupDataSource) Read(ctx context.Context, req datasource.ReadReq
 		}
 
 		item := mapDeviceGroupToItem(group)
-		config.DeviceGroups = []deviceGroupItemModel{item}
+		config.DeviceGroups = []deviceGroupV2ItemModel{item}
 		config.ID = types.StringValue(config.ID.ValueString())
 
 		diags = resp.State.Set(ctx, &config)
@@ -191,7 +191,7 @@ func (d *deviceGroupDataSource) Read(ctx context.Context, req datasource.ReadReq
 
 	tflog.Debug(ctx, fmt.Sprintf("Retrieved %d device groups", len(groups)))
 
-	var filteredGroups []deviceGroupItemModel
+	var filteredGroups []deviceGroupV2ItemModel
 	for _, group := range groups {
 		item := mapDeviceGroupToItem(&group)
 
@@ -221,8 +221,8 @@ func (d *deviceGroupDataSource) Read(ctx context.Context, req datasource.ReadReq
 	resp.Diagnostics.Append(diags...)
 }
 
-func mapDeviceGroupToItem(group *clientgen.DeviceGroup) deviceGroupItemModel {
-	item := deviceGroupItemModel{}
+func mapDeviceGroupToItem(group *clientgen.DeviceGroup) deviceGroupV2ItemModel {
+	item := deviceGroupV2ItemModel{}
 	if group.Id != nil {
 		item.ID = types.StringValue(*group.Id)
 	}

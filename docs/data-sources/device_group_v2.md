@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-title: "powerflex_device_group data source"
-linkTitle: "powerflex_device_group"
-page_title: "powerflex_device_group Data Source - powerflex"
+title: "powerflex_device_group_v2 data source"
+linkTitle: "powerflex_device_group_v2"
+page_title: "powerflex_device_group_v2 Data Source - powerflex"
 subcategory: ""
 description: |-
   This datasource is used to query Device Groups from a PowerFlex Gen2 system (5.0+).
 ---
 
-# powerflex_device_group (Data Source)
+# powerflex_device_group_v2 (Data Source)
 
 This datasource is used to query Device Groups from a PowerFlex Gen2 system (5.0+).
 

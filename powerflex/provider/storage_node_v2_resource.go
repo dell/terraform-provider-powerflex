@@ -33,23 +33,23 @@ import (
 )
 
 var (
-	_ resource.Resource                = &storageNodeResource{}
-	_ resource.ResourceWithConfigure   = &storageNodeResource{}
-	_ resource.ResourceWithImportState = &storageNodeResource{}
+	_ resource.Resource                = &storageNodeV2Resource{}
+	_ resource.ResourceWithConfigure   = &storageNodeV2Resource{}
+	_ resource.ResourceWithImportState = &storageNodeV2Resource{}
 )
 
-// NewStorageNodeResource returns a new storage node resource instance.
-func NewStorageNodeResource() resource.Resource {
-	return &storageNodeResource{}
+// NewStorageNodeV2Resource returns a new storage node v2 resource instance.
+func NewStorageNodeV2Resource() resource.Resource {
+	return &storageNodeV2Resource{}
 }
 
-// storageNodeResource is the resource implementation.
-type storageNodeResource struct {
+// storageNodeV2Resource is the resource implementation.
+type storageNodeV2Resource struct {
 	client *clientgen.APIClient
 }
 
-// storageNodeResourceModel maps the resource schema data.
-type storageNodeResourceModel struct {
+// storageNodeV2ResourceModel maps the resource schema data.
+type storageNodeV2ResourceModel struct {
 	ID                 types.String `tfsdk:"id"`
 	Name               types.String `tfsdk:"name"`
 	ProtectionDomainID types.String `tfsdk:"protection_domain_id"`
@@ -74,11 +74,11 @@ type storageNodeIPModel struct {
 	Role types.String `tfsdk:"role"`
 }
 
-func (r *storageNodeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *storageNodeV2Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_storage_node"
 }
 
-func (r *storageNodeResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *storageNodeV2Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description:         "This resource is used to manage Storage Nodes on PowerFlex Gen2 systems (5.0+). Storage Nodes are the Gen2 replacement for SDS.",
 		MarkdownDescription: "This resource is used to manage Storage Nodes on PowerFlex Gen2 systems (5.0+). Storage Nodes are the Gen2 replacement for SDS.",
@@ -192,7 +192,7 @@ func (r *storageNodeResource) Schema(_ context.Context, _ resource.SchemaRequest
 	}
 }
 
-func (r *storageNodeResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *storageNodeV2Resource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -218,8 +218,8 @@ func (r *storageNodeResource) Configure(_ context.Context, req resource.Configur
 }
 
 // Create creates the resource and sets the initial Terraform state.
-func (r *storageNodeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan storageNodeResourceModel
+func (r *storageNodeV2Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan storageNodeV2ResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -301,8 +301,8 @@ func (r *storageNodeResource) Create(ctx context.Context, req resource.CreateReq
 }
 
 // Read refreshes the Terraform state with the latest data.
-func (r *storageNodeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state storageNodeResourceModel
+func (r *storageNodeV2Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state storageNodeV2ResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -325,8 +325,8 @@ func (r *storageNodeResource) Read(ctx context.Context, req resource.ReadRequest
 }
 
 // Update updates the resource and sets the updated Terraform state on success.
-func (r *storageNodeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state storageNodeResourceModel
+func (r *storageNodeV2Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state storageNodeV2ResourceModel
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -368,8 +368,8 @@ func (r *storageNodeResource) Update(ctx context.Context, req resource.UpdateReq
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
-func (r *storageNodeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state storageNodeResourceModel
+func (r *storageNodeV2Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state storageNodeV2ResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -389,12 +389,12 @@ func (r *storageNodeResource) Delete(ctx context.Context, req resource.DeleteReq
 	tflog.Debug(ctx, fmt.Sprintf("Deleted Storage Node ID: %s", state.ID.ValueString()))
 }
 
-func (r *storageNodeResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *storageNodeV2Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
 // mapStorageNodeToState maps the API response to the Terraform state model.
-func (r *storageNodeResource) mapStorageNodeToState(_ context.Context, node *clientgen.StorageNode, model *storageNodeResourceModel) {
+func (r *storageNodeV2Resource) mapStorageNodeToState(_ context.Context, node *clientgen.StorageNode, model *storageNodeV2ResourceModel) {
 	if node == nil {
 		return
 	}

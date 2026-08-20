@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-title: "powerflex_volume_action resource"
-linkTitle: "powerflex_volume_action"
-page_title: "powerflex_volume_action Resource - powerflex"
+title: "powerflex_volume_action_v2 resource"
+linkTitle: "powerflex_volume_action_v2"
+page_title: "powerflex_volume_action_v2 Resource - powerflex"
 subcategory: ""
 description: |-
   This resource performs actions on volumes for PowerFlex Gen2 systems (5.0+). Supported actions: refresh, restore, map_to_host, unmap_from_host.
 ---
 
-# powerflex_volume_action (Resource)
+# powerflex_volume_action_v2 (Resource)
 
 This resource performs actions on volumes for PowerFlex Gen2 systems (5.0+). Supported actions: `refresh`, `restore`, `map_to_host`, `unmap_from_host`.
 

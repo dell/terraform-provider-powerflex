@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-title: "powerflex_storage_node resource"
-linkTitle: "powerflex_storage_node"
-page_title: "powerflex_storage_node Resource - powerflex"
+title: "powerflex_storage_node_v2 resource"
+linkTitle: "powerflex_storage_node_v2"
+page_title: "powerflex_storage_node_v2 Resource - powerflex"
 subcategory: ""
 description: |-
   This resource is used to manage Storage Nodes on PowerFlex Gen2 systems (5.0+). Storage Nodes are the Gen2 replacement for SDS.
 ---
 
-# powerflex_storage_node (Resource)
+# powerflex_storage_node_v2 (Resource)
 
 This resource is used to manage Storage Nodes on PowerFlex Gen2 systems (5.0+). Storage Nodes are the Gen2 replacement for SDS.
 

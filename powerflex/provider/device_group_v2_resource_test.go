@@ -28,21 +28,21 @@ import (
 
 // DeviceGroup resource configs for testing
 var DeviceGroupResourceCreate = fmt.Sprintf(`
-resource "powerflex_device_group" "test" {
+resource "powerflex_device_group_v2" "test" {
 	name                 = "terraform-test-device-group"
 	protection_domain_id = "%s"
 }
 `, ProtectionDomainID)
 
 var DeviceGroupResourceCreateMock = fmt.Sprintf(`
-resource "powerflex_device_group" "test" {
+resource "powerflex_device_group_v2" "test" {
 	name                 = "terraform-test-device-group"
 	protection_domain_id = "%s"
 }
 `, ProtectionDomainID)
 
 var DeviceGroupResourceUpdate = fmt.Sprintf(`
-resource "powerflex_device_group" "test" {
+resource "powerflex_device_group_v2" "test" {
 	name                 = "terraform-test-device-group-updated"
 	protection_domain_id = "%s"
 }
@@ -60,14 +60,14 @@ func TestAccResourceDeviceGroupCreateUpdate(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + DeviceGroupResourceCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_device_group.test", "name", "terraform-test-device-group"),
-					resource.TestCheckResourceAttr("powerflex_device_group.test", "protection_domain_id", ProtectionDomainID),
-					resource.TestCheckResourceAttrSet("powerflex_device_group.test", "id"),
+					resource.TestCheckResourceAttr("powerflex_device_group_v2.test", "name", "terraform-test-device-group"),
+					resource.TestCheckResourceAttr("powerflex_device_group_v2.test", "protection_domain_id", ProtectionDomainID),
+					resource.TestCheckResourceAttrSet("powerflex_device_group_v2.test", "id"),
 				),
 			},
 			// Import
 			{
-				ResourceName:      "powerflex_device_group.test",
+				ResourceName:      "powerflex_device_group_v2.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -75,7 +75,7 @@ func TestAccResourceDeviceGroupCreateUpdate(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + DeviceGroupResourceUpdate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_device_group.test", "name", "terraform-test-device-group-updated"),
+					resource.TestCheckResourceAttr("powerflex_device_group_v2.test", "name", "terraform-test-device-group-updated"),
 				),
 			},
 		},
@@ -88,7 +88,7 @@ func TestAccResourceDeviceGroupInvalidConfig(t *testing.T) {
 	}
 
 	var invalidConfig = `
-	resource "powerflex_device_group" "test" {
+	resource "powerflex_device_group_v2" "test" {
 		name                 = "invalid-group"
 		protection_domain_id = "invalid-pd-id"
 	}
@@ -111,14 +111,14 @@ func TestAccResourceDeviceGroupCreateUpdateMock(t *testing.T) {
 	}
 
 	var mockCreate = `
-	resource "powerflex_device_group" "test" {
+	resource "powerflex_device_group_v2" "test" {
 		name                 = "terraform-test-device-group"
 		protection_domain_id = "tfacc_protection_domain_id"
 	}
 	`
 
 	var mockUpdate = `
-	resource "powerflex_device_group" "test" {
+	resource "powerflex_device_group_v2" "test" {
 		name                 = "terraform-test-device-group-updated"
 		protection_domain_id = "tfacc_protection_domain_id"
 	}
@@ -131,14 +131,14 @@ func TestAccResourceDeviceGroupCreateUpdateMock(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + mockCreate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_device_group.test", "name", "terraform-test-device-group"),
-					resource.TestCheckResourceAttr("powerflex_device_group.test", "protection_domain_id", "tfacc_protection_domain_id"),
-					resource.TestCheckResourceAttrSet("powerflex_device_group.test", "id"),
+					resource.TestCheckResourceAttr("powerflex_device_group_v2.test", "name", "terraform-test-device-group"),
+					resource.TestCheckResourceAttr("powerflex_device_group_v2.test", "protection_domain_id", "tfacc_protection_domain_id"),
+					resource.TestCheckResourceAttrSet("powerflex_device_group_v2.test", "id"),
 				),
 			},
 			// Import
 			{
-				ResourceName:      "powerflex_device_group.test",
+				ResourceName:      "powerflex_device_group_v2.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -146,7 +146,7 @@ func TestAccResourceDeviceGroupCreateUpdateMock(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + mockUpdate,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("powerflex_device_group.test", "name", "terraform-test-device-group-updated"),
+					resource.TestCheckResourceAttr("powerflex_device_group_v2.test", "name", "terraform-test-device-group-updated"),
 				),
 			},
 		},

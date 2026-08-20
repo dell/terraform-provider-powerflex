@@ -34,16 +34,16 @@ import (
 )
 
 var (
-	_ resource.Resource              = &volumeActionResource{}
-	_ resource.ResourceWithConfigure = &volumeActionResource{}
+	_ resource.Resource              = &volumeActionV2Resource{}
+	_ resource.ResourceWithConfigure = &volumeActionV2Resource{}
 )
 
-// NewVolumeActionResource returns a new volume action resource.
-func NewVolumeActionResource() resource.Resource {
-	return &volumeActionResource{}
+// NewVolumeActionV2Resource returns a new volume action v2 resource.
+func NewVolumeActionV2Resource() resource.Resource {
+	return &volumeActionV2Resource{}
 }
 
-type volumeActionResource struct {
+type volumeActionV2Resource struct {
 	client *clientgen.APIClient
 }
 
@@ -56,11 +56,11 @@ type volumeActionModel struct {
 	AccessMode       types.String `tfsdk:"access_mode"`
 }
 
-func (r *volumeActionResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *volumeActionV2Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_volume_action"
 }
 
-func (r *volumeActionResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *volumeActionV2Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description:         "This resource performs actions on volumes for PowerFlex Gen2 systems (5.0+). Supported actions: refresh, restore, map_to_host, unmap_from_host.",
 		MarkdownDescription: "This resource performs actions on volumes for PowerFlex Gen2 systems (5.0+). Supported actions: `refresh`, `restore`, `map_to_host`, `unmap_from_host`.",
@@ -108,7 +108,7 @@ func (r *volumeActionResource) Schema(_ context.Context, _ resource.SchemaReques
 	}
 }
 
-func (r *volumeActionResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *volumeActionV2Resource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -133,7 +133,7 @@ func (r *volumeActionResource) Configure(_ context.Context, req resource.Configu
 	r.client = p.genClient
 }
 
-func (r *volumeActionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *volumeActionV2Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan volumeActionModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -229,11 +229,11 @@ func (r *volumeActionResource) Create(ctx context.Context, req resource.CreateRe
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r *volumeActionResource) Read(_ context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
+func (r *volumeActionV2Resource) Read(_ context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
 	// Volume actions are fire-and-forget; state is maintained by the volume resource itself.
 }
 
-func (r *volumeActionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *volumeActionV2Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// Re-execute the action on update
 	var plan volumeActionModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -250,7 +250,7 @@ func (r *volumeActionResource) Update(ctx context.Context, req resource.UpdateRe
 	resp.Diagnostics = createResp.Diagnostics
 }
 
-func (r *volumeActionResource) Delete(_ context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *volumeActionV2Resource) Delete(_ context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
 	// Actions are fire-and-forget; nothing to clean up
 	resp.State.RemoveResource(context.Background())
 }

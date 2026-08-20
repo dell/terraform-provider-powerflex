@@ -353,8 +353,8 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 		PeerMdmDataSource,
 		NvmeTargetDataSource,
 		ResourceCredentialDataSource,
-		StorageNodeDataSource,
-		DeviceGroupDataSource,
+		StorageNodeV2DataSource,
+		DeviceGroupV2DataSource,
 	}
 }
 
@@ -388,10 +388,10 @@ func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resou
 		NewNvmeTargetResource,
 		ResourceCredentialResource,
 		TemplateCloneResource,
-		NewStorageNodeResource,
-		NewDeviceGroupResource,
-		NewDeviceActionResource,
-		NewStoragePoolErasureCodingResource,
-		NewVolumeActionResource,
+		NewStorageNodeV2Resource,
+		NewDeviceGroupV2Resource,
+		NewDeviceActionV2Resource,
+		NewStoragePoolErasureCodingV2Resource,
+		NewVolumeActionV2Resource,
 	}
 }

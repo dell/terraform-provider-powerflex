@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-title: "powerflex_storage_node data source"
-linkTitle: "powerflex_storage_node"
-page_title: "powerflex_storage_node Data Source - powerflex"
+title: "powerflex_storage_node_v2 data source"
+linkTitle: "powerflex_storage_node_v2"
+page_title: "powerflex_storage_node_v2 Data Source - powerflex"
 subcategory: ""
 description: |-
   This datasource is used to query Storage Nodes from a PowerFlex Gen2 system (5.0+). Storage Nodes are the Gen2 replacement for SDS.
 ---
 
-# powerflex_storage_node (Data Source)
+# powerflex_storage_node_v2 (Data Source)
 
 This datasource is used to query Storage Nodes from a PowerFlex Gen2 system (5.0+). Storage Nodes are the Gen2 replacement for SDS.
 

@@ -33,23 +33,23 @@ import (
 )
 
 var (
-	_ resource.Resource                = &deviceGroupResource{}
-	_ resource.ResourceWithConfigure   = &deviceGroupResource{}
-	_ resource.ResourceWithImportState = &deviceGroupResource{}
+	_ resource.Resource                = &deviceGroupV2Resource{}
+	_ resource.ResourceWithConfigure   = &deviceGroupV2Resource{}
+	_ resource.ResourceWithImportState = &deviceGroupV2Resource{}
 )
 
-// NewDeviceGroupResource returns a new device group resource instance.
-func NewDeviceGroupResource() resource.Resource {
-	return &deviceGroupResource{}
+// NewDeviceGroupV2Resource returns a new device group v2 resource instance.
+func NewDeviceGroupV2Resource() resource.Resource {
+	return &deviceGroupV2Resource{}
 }
 
-// deviceGroupResource is the resource implementation.
-type deviceGroupResource struct {
+// deviceGroupV2Resource is the resource implementation.
+type deviceGroupV2Resource struct {
 	client *clientgen.APIClient
 }
 
-// deviceGroupResourceModel maps the resource schema data.
-type deviceGroupResourceModel struct {
+// deviceGroupV2ResourceModel maps the resource schema data.
+type deviceGroupV2ResourceModel struct {
 	ID                 types.String `tfsdk:"id"`
 	Name               types.String `tfsdk:"name"`
 	ProtectionDomainID types.String `tfsdk:"protection_domain_id"`
@@ -59,11 +59,11 @@ type deviceGroupResourceModel struct {
 	Status             types.String `tfsdk:"status"`
 }
 
-func (r *deviceGroupResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *deviceGroupV2Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_device_group"
 }
 
-func (r *deviceGroupResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *deviceGroupV2Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description:         "This resource is used to manage Device Groups on PowerFlex Gen2 systems (5.0+). Device Groups allow logical grouping of devices for management.",
 		MarkdownDescription: "This resource is used to manage Device Groups on PowerFlex Gen2 systems (5.0+). Device Groups allow logical grouping of devices for management.",
@@ -114,7 +114,7 @@ func (r *deviceGroupResource) Schema(_ context.Context, _ resource.SchemaRequest
 	}
 }
 
-func (r *deviceGroupResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *deviceGroupV2Resource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -140,8 +140,8 @@ func (r *deviceGroupResource) Configure(_ context.Context, req resource.Configur
 }
 
 // Create creates the resource and sets the initial Terraform state.
-func (r *deviceGroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan deviceGroupResourceModel
+func (r *deviceGroupV2Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan deviceGroupV2ResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -209,8 +209,8 @@ func (r *deviceGroupResource) Create(ctx context.Context, req resource.CreateReq
 }
 
 // Read refreshes the Terraform state with the latest data.
-func (r *deviceGroupResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state deviceGroupResourceModel
+func (r *deviceGroupV2Resource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state deviceGroupV2ResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -233,8 +233,8 @@ func (r *deviceGroupResource) Read(ctx context.Context, req resource.ReadRequest
 }
 
 // Update updates the resource and sets the updated Terraform state on success.
-func (r *deviceGroupResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan, state deviceGroupResourceModel
+func (r *deviceGroupV2Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan, state deviceGroupV2ResourceModel
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -276,8 +276,8 @@ func (r *deviceGroupResource) Update(ctx context.Context, req resource.UpdateReq
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
-func (r *deviceGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state deviceGroupResourceModel
+func (r *deviceGroupV2Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state deviceGroupV2ResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -297,12 +297,12 @@ func (r *deviceGroupResource) Delete(ctx context.Context, req resource.DeleteReq
 	tflog.Debug(ctx, fmt.Sprintf("Deleted Device Group ID: %s", state.ID.ValueString()))
 }
 
-func (r *deviceGroupResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *deviceGroupV2Resource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
 // mapDeviceGroupToState maps the API response to the Terraform state model.
-func (r *deviceGroupResource) mapDeviceGroupToState(group *clientgen.DeviceGroup, model *deviceGroupResourceModel) {
+func (r *deviceGroupV2Resource) mapDeviceGroupToState(group *clientgen.DeviceGroup, model *deviceGroupV2ResourceModel) {
 	if group == nil {
 		return
 	}

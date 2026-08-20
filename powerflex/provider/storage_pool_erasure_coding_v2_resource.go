@@ -34,17 +34,17 @@ import (
 )
 
 var (
-	_ resource.Resource              = &storagePoolErasureCodingResource{}
-	_ resource.ResourceWithConfigure = &storagePoolErasureCodingResource{}
+	_ resource.Resource              = &storagePoolErasureCodingV2Resource{}
+	_ resource.ResourceWithConfigure = &storagePoolErasureCodingV2Resource{}
 )
 
-// NewStoragePoolErasureCodingResource returns a new storage pool erasure coding resource.
-func NewStoragePoolErasureCodingResource() resource.Resource {
-	return &storagePoolErasureCodingResource{}
+// NewStoragePoolErasureCodingV2Resource returns a new storage pool erasure coding v2 resource.
+func NewStoragePoolErasureCodingV2Resource() resource.Resource {
+	return &storagePoolErasureCodingV2Resource{}
 }
 
-// storagePoolErasureCodingResource is the resource implementation.
-type storagePoolErasureCodingResource struct {
+// storagePoolErasureCodingV2Resource is the resource implementation.
+type storagePoolErasureCodingV2Resource struct {
 	client *clientgen.APIClient
 }
 
@@ -55,11 +55,11 @@ type storagePoolErasureCodingModel struct {
 	ErasureCodingPolicy types.String `tfsdk:"erasure_coding_policy"`
 }
 
-func (r *storagePoolErasureCodingResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *storagePoolErasureCodingV2Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_storage_pool_erasure_coding"
 }
 
-func (r *storagePoolErasureCodingResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *storagePoolErasureCodingV2Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description:         "This resource is used to configure Erasure Coding policy on Storage Pools for PowerFlex Gen2 systems (5.0+).",
 		MarkdownDescription: "This resource is used to configure Erasure Coding policy on Storage Pools for PowerFlex Gen2 systems (5.0+).",
@@ -92,7 +92,7 @@ func (r *storagePoolErasureCodingResource) Schema(_ context.Context, _ resource.
 	}
 }
 
-func (r *storagePoolErasureCodingResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *storagePoolErasureCodingV2Resource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -118,7 +118,7 @@ func (r *storagePoolErasureCodingResource) Configure(_ context.Context, req reso
 }
 
 // Create sets the erasure coding policy on a storage pool.
-func (r *storagePoolErasureCodingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *storagePoolErasureCodingV2Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan storagePoolErasureCodingModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -152,14 +152,14 @@ func (r *storagePoolErasureCodingResource) Create(ctx context.Context, req resou
 }
 
 // Read refreshes the Terraform state.
-func (r *storagePoolErasureCodingResource) Read(_ context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
+func (r *storagePoolErasureCodingV2Resource) Read(_ context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
 	// The erasure coding policy is a setting on the storage pool.
 	// A full read would require fetching the pool and extracting the EC policy.
 	// For now, this is a pass-through since the EC policy is set as an action.
 }
 
 // Update updates the erasure coding policy.
-func (r *storagePoolErasureCodingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *storagePoolErasureCodingV2Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan storagePoolErasureCodingModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -187,7 +187,7 @@ func (r *storagePoolErasureCodingResource) Update(ctx context.Context, req resou
 }
 
 // Delete resets the erasure coding policy to "none".
-func (r *storagePoolErasureCodingResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *storagePoolErasureCodingV2Resource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state storagePoolErasureCodingModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)

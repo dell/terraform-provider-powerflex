@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-title: "powerflex_device_action resource"
-linkTitle: "powerflex_device_action"
-page_title: "powerflex_device_action Resource - powerflex"
+title: "powerflex_device_action_v2 resource"
+linkTitle: "powerflex_device_action_v2"
+page_title: "powerflex_device_action_v2 Resource - powerflex"
 subcategory: ""
 description: |-
   This resource is used to perform Gen2 device actions on PowerFlex systems (5.0+). Supported actions: activate, clear_error, set_capacity_limit.
 ---
 
-# powerflex_device_action (Resource)
+# powerflex_device_action_v2 (Resource)
 
 This resource is used to perform Gen2 device actions on PowerFlex systems (5.0+). Supported actions: `activate`, `clear_error`, `set_capacity_limit`.
 

@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-title: "powerflex_storage_pool_erasure_coding resource"
-linkTitle: "powerflex_storage_pool_erasure_coding"
-page_title: "powerflex_storage_pool_erasure_coding Resource - powerflex"
+title: "powerflex_storage_pool_erasure_coding_v2 resource"
+linkTitle: "powerflex_storage_pool_erasure_coding_v2"
+page_title: "powerflex_storage_pool_erasure_coding_v2 Resource - powerflex"
 subcategory: ""
 description: |-
   This resource is used to configure Erasure Coding policy on Storage Pools for PowerFlex Gen2 systems (5.0+).
 ---
 
-# powerflex_storage_pool_erasure_coding (Resource)
+# powerflex_storage_pool_erasure_coding_v2 (Resource)
 
 This resource is used to configure Erasure Coding policy on Storage Pools for PowerFlex Gen2 systems (5.0+).
 

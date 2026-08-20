@@ -25,15 +25,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccResourceDeviceActionInvalidAction(t *testing.T) {
+func TestAccDataSourceStorageNodeAll(t *testing.T) {
 	if os.Getenv("TF_ACC") == "1" {
 		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 
-	var invalidActionConfig = `
-	resource "powerflex_device_action" "test" {
-		device_id = "invalid-device-id"
-		action    = "activate"
+	var listAllConfig = `
+	data "powerflex_storage_node_v2" "all" {
 	}
 	`
 
@@ -41,22 +39,23 @@ func TestAccResourceDeviceActionInvalidAction(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config:      ProviderConfigForTesting + invalidActionConfig,
-				ExpectError: regexp.MustCompile(`.*Error Activating Device.*`),
+				Config: ProviderConfigForTesting + listAllConfig,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.powerflex_storage_node_v2.all", "id"),
+				),
 			},
 		},
 	})
 }
 
-func TestAccResourceDeviceActionInvalidActionType(t *testing.T) {
+func TestAccDataSourceStorageNodeById(t *testing.T) {
 	if os.Getenv("TF_ACC") == "1" {
 		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 
-	var invalidActionTypeConfig = `
-	resource "powerflex_device_action" "test" {
-		device_id = "some-device-id"
-		action    = "invalid_action"
+	var byIdConfig = `
+	data "powerflex_storage_node_v2" "test" {
+		id = "tfacc_storage_node_id"
 	}
 	`
 
@@ -64,22 +63,25 @@ func TestAccResourceDeviceActionInvalidActionType(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config:      ProviderConfigForTesting + invalidActionTypeConfig,
-				ExpectError: regexp.MustCompile(`.*value must be one of.*`),
+				Config: ProviderConfigForTesting + byIdConfig,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.powerflex_storage_node_v2.test", "id", "tfacc_storage_node_id"),
+					resource.TestCheckResourceAttr("data.powerflex_storage_node_v2.test", "storage_nodes.0.id", "tfacc_storage_node_id"),
+					resource.TestCheckResourceAttr("data.powerflex_storage_node_v2.test", "storage_nodes.0.name", "terraform-test-storage-node"),
+				),
 			},
 		},
 	})
 }
 
-func TestAccResourceDeviceActionSetCapacityMissingParam(t *testing.T) {
+func TestAccDataSourceStorageNodeInvalidID(t *testing.T) {
 	if os.Getenv("TF_ACC") == "1" {
 		t.Skip("Dont run with acceptance tests, this is a Unit test")
 	}
 
-	var missingCapacityConfig = `
-	resource "powerflex_device_action" "test" {
-		device_id = "some-device-id"
-		action    = "set_capacity_limit"
+	var invalidIDConfig = `
+	data "powerflex_storage_node_v2" "test" {
+		id = "invalid-id-12345"
 	}
 	`
 
@@ -87,8 +89,8 @@ func TestAccResourceDeviceActionSetCapacityMissingParam(t *testing.T) {
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config:      ProviderConfigForTesting + missingCapacityConfig,
-				ExpectError: regexp.MustCompile(`.*Missing Required Parameter.*`),
+				Config:      ProviderConfigForTesting + invalidIDConfig,
+				ExpectError: regexp.MustCompile(`.*Error Reading Storage Node.*`),
 			},
 		},
 	})

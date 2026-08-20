@@ -31,7 +31,7 @@ func TestAccResourceStorageNodeInvalidAction(t *testing.T) {
 	}
 
 	var invalidConfig = `
-	resource "powerflex_storage_node" "test" {
+	resource "powerflex_storage_node_v2" "test" {
 		protection_domain_id = "invalid-pd-id"
 	}
 	`
@@ -53,7 +53,7 @@ func TestAccResourceStorageNodeInvalidIPRole(t *testing.T) {
 	}
 
 	var invalidIPRoleConfig = `
-	resource "powerflex_storage_node" "test" {
+	resource "powerflex_storage_node_v2" "test" {
 		protection_domain_id = "pd-123456"
 		ip_list {
 			ip   = "192.168.1.1"

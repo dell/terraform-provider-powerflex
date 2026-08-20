@@ -35,33 +35,33 @@ import (
 )
 
 var (
-	_ resource.Resource              = &deviceActionResource{}
-	_ resource.ResourceWithConfigure = &deviceActionResource{}
+	_ resource.Resource              = &deviceActionV2Resource{}
+	_ resource.ResourceWithConfigure = &deviceActionV2Resource{}
 )
 
-// NewDeviceActionResource returns a new device action resource instance.
-func NewDeviceActionResource() resource.Resource {
-	return &deviceActionResource{}
+// NewDeviceActionV2Resource returns a new device action v2 resource instance.
+func NewDeviceActionV2Resource() resource.Resource {
+	return &deviceActionV2Resource{}
 }
 
-// deviceActionResource is the resource implementation for Gen2 device actions.
-type deviceActionResource struct {
+// deviceActionV2Resource is the resource implementation for Gen2 device actions.
+type deviceActionV2Resource struct {
 	client *clientgen.APIClient
 }
 
-// deviceActionResourceModel maps the resource schema data.
-type deviceActionResourceModel struct {
+// deviceActionV2ResourceModel maps the resource schema data.
+type deviceActionV2ResourceModel struct {
 	ID                types.String `tfsdk:"id"`
 	DeviceID          types.String `tfsdk:"device_id"`
 	Action            types.String `tfsdk:"action"`
 	CapacityLimitInKb types.String `tfsdk:"capacity_limit_in_kb"`
 }
 
-func (r *deviceActionResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+func (r *deviceActionV2Resource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_device_action"
 }
 
-func (r *deviceActionResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *deviceActionV2Resource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description:         "This resource is used to perform Gen2 device actions on PowerFlex systems (5.0+). Supported actions: activate, clear_error, set_capacity_limit.",
 		MarkdownDescription: "This resource is used to perform Gen2 device actions on PowerFlex systems (5.0+). Supported actions: `activate`, `clear_error`, `set_capacity_limit`.",
@@ -102,7 +102,7 @@ func (r *deviceActionResource) Schema(_ context.Context, _ resource.SchemaReques
 	}
 }
 
-func (r *deviceActionResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *deviceActionV2Resource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -128,8 +128,8 @@ func (r *deviceActionResource) Configure(_ context.Context, req resource.Configu
 }
 
 // Create performs the device action.
-func (r *deviceActionResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan deviceActionResourceModel
+func (r *deviceActionV2Resource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan deviceActionV2ResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -211,13 +211,13 @@ func (r *deviceActionResource) Create(ctx context.Context, req resource.CreateRe
 }
 
 // Read is a no-op for action resources.
-func (r *deviceActionResource) Read(_ context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
+func (r *deviceActionV2Resource) Read(_ context.Context, _ resource.ReadRequest, _ *resource.ReadResponse) {
 	// Action resources don't have a persistent state to read
 }
 
 // Update handles updates to the action resource.
-func (r *deviceActionResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan deviceActionResourceModel
+func (r *deviceActionV2Resource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan deviceActionV2ResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -261,6 +261,6 @@ func (r *deviceActionResource) Update(ctx context.Context, req resource.UpdateRe
 }
 
 // Delete is a no-op for action resources.
-func (r *deviceActionResource) Delete(_ context.Context, _ resource.DeleteRequest, _ *resource.DeleteResponse) {
+func (r *deviceActionV2Resource) Delete(_ context.Context, _ resource.DeleteRequest, _ *resource.DeleteResponse) {
 	// Action resources don't need cleanup
 }

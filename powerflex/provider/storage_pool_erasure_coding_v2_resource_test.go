@@ -31,7 +31,7 @@ func TestAccResourceStoragePoolErasureCodingInvalidPool(t *testing.T) {
 	}
 
 	var invalidPoolConfig = `
-	resource "powerflex_storage_pool_erasure_coding" "test" {
+	resource "powerflex_storage_pool_erasure_coding_v2" "test" {
 		storage_pool_id       = "invalid-pool-id"
 		erasure_coding_policy = "rs_2_1"
 	}
@@ -54,7 +54,7 @@ func TestAccResourceStoragePoolErasureCodingInvalidPolicy(t *testing.T) {
 	}
 
 	var invalidPolicyConfig = `
-	resource "powerflex_storage_pool_erasure_coding" "test" {
+	resource "powerflex_storage_pool_erasure_coding_v2" "test" {
 		storage_pool_id       = "some-pool-id"
 		erasure_coding_policy = "invalid_policy"
 	}

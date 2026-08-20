@@ -31,7 +31,7 @@ func TestAccResourceVolumeActionInvalidAction(t *testing.T) {
 	}
 
 	var invalidActionConfig = `
-	resource "powerflex_volume_action" "test" {
+	resource "powerflex_volume_action_v2" "test" {
 		volume_id = "invalid-volume-id"
 		action    = "refresh"
 	}
@@ -54,7 +54,7 @@ func TestAccResourceVolumeActionInvalidActionType(t *testing.T) {
 	}
 
 	var invalidActionTypeConfig = `
-	resource "powerflex_volume_action" "test" {
+	resource "powerflex_volume_action_v2" "test" {
 		volume_id = "some-volume-id"
 		action    = "invalid_action"
 	}
@@ -77,7 +77,7 @@ func TestAccResourceVolumeActionRestoreMissingSnapshot(t *testing.T) {
 	}
 
 	var missingSnapshotConfig = `
-	resource "powerflex_volume_action" "test" {
+	resource "powerflex_volume_action_v2" "test" {
 		volume_id = "some-volume-id"
 		action    = "restore"
 	}
@@ -100,7 +100,7 @@ func TestAccResourceVolumeActionMapMissingHost(t *testing.T) {
 	}
 
 	var missingHostConfig = `
-	resource "powerflex_volume_action" "test" {
+	resource "powerflex_volume_action_v2" "test" {
 		volume_id = "some-volume-id"
 		action    = "map_to_host"
 	}

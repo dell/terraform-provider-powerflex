@@ -31,7 +31,7 @@ func TestAccDataSourceDeviceGroupAll(t *testing.T) {
 	}
 
 	var listAllConfig = `
-	data "powerflex_device_group" "all" {
+	data "powerflex_device_group_v2" "all" {
 	}
 	`
 
@@ -41,7 +41,7 @@ func TestAccDataSourceDeviceGroupAll(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + listAllConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.powerflex_device_group.all", "id"),
+					resource.TestCheckResourceAttrSet("data.powerflex_device_group_v2.all", "id"),
 				),
 			},
 		},
@@ -54,7 +54,7 @@ func TestAccDataSourceDeviceGroupById(t *testing.T) {
 	}
 
 	var byIdConfig = `
-	data "powerflex_device_group" "test" {
+	data "powerflex_device_group_v2" "test" {
 		id = "tfacc_device_group_id"
 	}
 	`
@@ -65,9 +65,9 @@ func TestAccDataSourceDeviceGroupById(t *testing.T) {
 			{
 				Config: ProviderConfigForTesting + byIdConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.powerflex_device_group.test", "id", "tfacc_device_group_id"),
-					resource.TestCheckResourceAttr("data.powerflex_device_group.test", "device_groups.0.id", "tfacc_device_group_id"),
-					resource.TestCheckResourceAttr("data.powerflex_device_group.test", "device_groups.0.name", "terraform-test-device-group"),
+					resource.TestCheckResourceAttr("data.powerflex_device_group_v2.test", "id", "tfacc_device_group_id"),
+					resource.TestCheckResourceAttr("data.powerflex_device_group_v2.test", "device_groups.0.id", "tfacc_device_group_id"),
+					resource.TestCheckResourceAttr("data.powerflex_device_group_v2.test", "device_groups.0.name", "terraform-test-device-group"),
 				),
 			},
 		},
@@ -80,7 +80,7 @@ func TestAccDataSourceDeviceGroupInvalidID(t *testing.T) {
 	}
 
 	var invalidIDConfig = `
-	data "powerflex_device_group" "test" {
+	data "powerflex_device_group_v2" "test" {
 		id = "invalid-id-12345"
 	}
 	`

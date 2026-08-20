@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-title: "powerflex_device_group resource"
-linkTitle: "powerflex_device_group"
-page_title: "powerflex_device_group Resource - powerflex"
+title: "powerflex_device_group_v2 resource"
+linkTitle: "powerflex_device_group_v2"
+page_title: "powerflex_device_group_v2 Resource - powerflex"
 subcategory: ""
 description: |-
   This resource is used to manage Device Groups on PowerFlex Gen2 systems (5.0+). Device Groups allow logical grouping of devices for management.
 ---
 
-# powerflex_device_group (Resource)
+# powerflex_device_group_v2 (Resource)
 
 This resource is used to manage Device Groups on PowerFlex Gen2 systems (5.0+). Device Groups allow logical grouping of devices for management.
 
