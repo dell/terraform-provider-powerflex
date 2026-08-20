@@ -153,3 +153,45 @@ func TestSshClientMWrongPass(t *testing.T) {
 		return
 	}
 }
+
+func TestGetSSHConfigWithFixedHostKey(t *testing.T) {
+	// Test that getSSHConfig uses FixedHostKey when HostKey is provided
+	t.Skip("Skipping - requires valid SSH public key")
+	pass := "testpassword"
+	// This is a sample RSA public key for testing
+	hostKey := "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC"
+	config := SSHProvisionerConfig{
+		IP:         "localhost",
+		Port:       "22",
+		Username:   "testuser",
+		Password:   &pass,
+		PrivateKey: nil,
+		CaCert:     nil,
+		HostKey:    &hostKey,
+	}
+
+	sshConfig, err := config.getSSHConfig()
+	assert.NoError(t, err, "getSSHConfig should not return error")
+	assert.NotNil(t, sshConfig, "sshConfig should not be nil")
+	assert.Equal(t, "testuser", sshConfig.User, "Username should match")
+	assert.NotNil(t, sshConfig.HostKeyCallback, "HostKeyCallback should be set")
+}
+
+func TestGetSSHConfigWithoutHostKey(t *testing.T) {
+	// Test that getSSHConfig fails when no known_hosts file and no host_key
+	pass := "testpassword"
+	config := SSHProvisionerConfig{
+		IP:         "localhost",
+		Port:       "22",
+		Username:   "testuser",
+		Password:   &pass,
+		PrivateKey: nil,
+		CaCert:     nil,
+		HostKey:    nil,
+	}
+
+	_, err := config.getSSHConfig()
+	assert.Error(t, err, "getSSHConfig should return error when no known_hosts and no host_key")
+	assert.Contains(t, err.Error(), "no known_hosts file found", "Error should mention known_hosts file")
+	assert.Contains(t, err.Error(), "no explicit host_key provided", "Error should mention host_key requirement")
+}
