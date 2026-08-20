@@ -44,25 +44,25 @@ This datasource is used to query Storage Nodes from a PowerFlex Gen2 system (5.0
 # limitations under the License.
 
 # List all storage nodes
-data "powerflex_storage_node" "all" {
+data "powerflex_storage_node_v2" "all" {
 }
 
 output "all_storage_nodes" {
-  value = data.powerflex_storage_node.all.storage_nodes
+  value = data.powerflex_storage_node_v2.all.storage_nodes
 }
 
 # Get storage node by ID
-data "powerflex_storage_node" "by_id" {
+data "powerflex_storage_node_v2" "by_id" {
   id = "abc123def456"
 }
 
 # Filter by name
-data "powerflex_storage_node" "by_name" {
+data "powerflex_storage_node_v2" "by_name" {
   name = "storage-node-1"
 }
 
 # Filter by protection domain
-data "powerflex_storage_node" "by_pd" {
+data "powerflex_storage_node_v2" "by_pd" {
   protection_domain_id = "pd-123456"
 }
 ```
@@ -101,4 +101,32 @@ Read-Only:
 - `total_capacity_in_kb` (Number) Total capacity in KB.
 - `used_capacity_in_kb` (Number) Used capacity in KB.
 
+## Argument Reference
+
+The following arguments are supported:
+
+* `id` - (Optional) The ID of the storage node to query. If not specified, all storage nodes are returned.
+* `name` - (Optional) The name of the storage node to query.
+* `protection_domain_id` - (Optional) The protection domain ID to filter storage nodes.
+
+## Attribute Reference
+
+In addition to all arguments above, the following attributes are exported:
+
+* `storage_nodes` - List of storage nodes with the following attributes:
+  * `id` - The ID of the storage node.
+  * `name` - The name of the storage node.
+  * `protection_domain_id` - The protection domain ID.
+  * `media_type` - The media type (SSD, PMEM).
+  * `health` - The health status.
+  * `state` - The state.
+  * `num_of_devices` - The number of devices.
+  * `total_capacity_in_kb` - The total capacity in KB.
+  * `used_capacity_in_kb` - The used capacity in KB.
+  * `maintenance_state` - The maintenance state.
+  * `mdm_connection_state` - The MDM connection state.
+  * `membership_state` - The membership state.
+  * `performance_profile` - The performance profile.
+  * `port` - The port number.
+  * `fault_set_id` - The fault set ID.
 

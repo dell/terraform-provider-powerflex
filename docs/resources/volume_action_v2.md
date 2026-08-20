@@ -45,20 +45,20 @@ This resource performs actions on volumes for PowerFlex Gen2 systems (5.0+). Sup
 # limitations under the License.
 
 # Refresh volume metadata
-resource "powerflex_volume_action" "refresh" {
+resource "powerflex_volume_action_v2" "refresh" {
   volume_id = "vol-abc123"
   action    = "refresh"
 }
 
 # Restore volume from a snapshot
-resource "powerflex_volume_action" "restore" {
+resource "powerflex_volume_action_v2" "restore" {
   volume_id          = "vol-abc123"
   action             = "restore"
   source_snapshot_id = "snap-def456"
 }
 
 # Map a volume to a host with read-write access
-resource "powerflex_volume_action" "map" {
+resource "powerflex_volume_action_v2" "map" {
   volume_id   = "vol-abc123"
   action      = "map_to_host"
   host_id     = "host-ghi789"
@@ -66,7 +66,7 @@ resource "powerflex_volume_action" "map" {
 }
 
 # Unmap a volume from a host
-resource "powerflex_volume_action" "unmap" {
+resource "powerflex_volume_action_v2" "unmap" {
   volume_id = "vol-abc123"
   action    = "unmap_from_host"
   host_id   = "host-ghi789"

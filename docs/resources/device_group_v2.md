@@ -55,13 +55,13 @@ limitations under the License.
 # This resource is for PowerFlex Gen2 systems (5.0+)
 
 # Example for creating a Device Group
-resource "powerflex_device_group" "create" {
+resource "powerflex_device_group_v2" "create" {
   name                 = "demo-device-group-01"
   protection_domain_id = "202a046600000000"
 }
 
 output "device_group" {
-  value = powerflex_device_group.create
+  value = powerflex_device_group_v2.create
 }
 ```
 

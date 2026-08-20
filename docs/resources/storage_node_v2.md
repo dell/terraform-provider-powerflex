@@ -56,7 +56,7 @@ limitations under the License.
 # This resource is for PowerFlex Gen2 systems (5.0+)
 
 # Example for creating a Storage Node (Gen2 replacement for SDS)
-resource "powerflex_storage_node" "create" {
+resource "powerflex_storage_node_v2" "create" {
   name                 = "demo-storage-node-01"
   protection_domain_id = "202a046600000000"
   ip_list = [
@@ -77,7 +77,7 @@ resource "powerflex_fault_set" "test" {
   name                 = "demo_fault_set"
 }
 
-resource "powerflex_storage_node" "create_with_fs" {
+resource "powerflex_storage_node_v2" "create_with_fs" {
   name                 = "demo-storage-node-02"
   protection_domain_id = "202a046600000000"
   fault_set_id         = powerflex_fault_set.test.id
@@ -91,7 +91,7 @@ resource "powerflex_storage_node" "create_with_fs" {
 }
 
 output "storage_node" {
-  value = powerflex_storage_node.create
+  value = powerflex_storage_node_v2.create
 }
 ```
 

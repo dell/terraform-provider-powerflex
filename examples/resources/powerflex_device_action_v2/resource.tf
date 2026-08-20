@@ -22,24 +22,24 @@ limitations under the License.
 # capacity_limit_in_kb is required when action is set_capacity_limit
 
 # Example: Activate a device
-resource "powerflex_device_action" "activate" {
+resource "powerflex_device_action_v2" "activate" {
   device_id = "0123456789abcdef"
   action    = "activate"
 }
 
 # Example: Clear device error
-resource "powerflex_device_action" "clear_error" {
+resource "powerflex_device_action_v2" "clear_error" {
   device_id = "0123456789abcdef"
   action    = "clear_error"
 }
 
 # Example: Set device capacity limit
-resource "powerflex_device_action" "set_capacity" {
+resource "powerflex_device_action_v2" "set_capacity" {
   device_id            = "0123456789abcdef"
   action               = "set_capacity_limit"
   capacity_limit_in_kb = "10737418240" # 10TB in KB
 }
 
 output "device_action" {
-  value = powerflex_device_action.activate
+  value = powerflex_device_action_v2.activate
 }

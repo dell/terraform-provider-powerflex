@@ -53,25 +53,25 @@ limitations under the License.
 # Valid erasure_coding_policy values: none, rs_2_1, rs_4_1
 
 # Example: Set Erasure Coding policy to rs_2_1
-resource "powerflex_storage_pool_erasure_coding" "rs2_1" {
+resource "powerflex_storage_pool_erasure_coding_v2" "rs2_1" {
   storage_pool_id       = "0123456789abcdef"
   erasure_coding_policy = "rs_2_1"
 }
 
 # Example: Set Erasure Coding policy to rs_4_1
-resource "powerflex_storage_pool_erasure_coding" "rs4_1" {
+resource "powerflex_storage_pool_erasure_coding_v2" "rs4_1" {
   storage_pool_id       = "0123456789abcdef"
   erasure_coding_policy = "rs_4_1"
 }
 
 # Example: Disable Erasure Coding (set to none)
-resource "powerflex_storage_pool_erasure_coding" "none" {
+resource "powerflex_storage_pool_erasure_coding_v2" "none" {
   storage_pool_id       = "0123456789abcdef"
   erasure_coding_policy = "none"
 }
 
 output "erasure_coding" {
-  value = powerflex_storage_pool_erasure_coding.rs2_1
+  value = powerflex_storage_pool_erasure_coding_v2.rs2_1
 }
 ```
 

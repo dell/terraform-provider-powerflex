@@ -44,25 +44,25 @@ This datasource is used to query Device Groups from a PowerFlex Gen2 system (5.0
 # limitations under the License.
 
 # List all device groups
-data "powerflex_device_group" "all" {
+data "powerflex_device_group_v2" "all" {
 }
 
 output "all_device_groups" {
-  value = data.powerflex_device_group.all.device_groups
+  value = data.powerflex_device_group_v2.all.device_groups
 }
 
 # Get device group by ID
-data "powerflex_device_group" "by_id" {
+data "powerflex_device_group_v2" "by_id" {
   id = "abc123def456"
 }
 
 # Filter by name
-data "powerflex_device_group" "by_name" {
+data "powerflex_device_group_v2" "by_name" {
   name = "device-group-1"
 }
 
 # Filter by protection domain
-data "powerflex_device_group" "by_pd" {
+data "powerflex_device_group_v2" "by_pd" {
   protection_domain_id = "pd-123456"
 }
 ```
@@ -93,4 +93,28 @@ Read-Only:
 - `usable_capacity_in_kb` (Number) Usable capacity in KB.
 - `used_capacity_in_kb` (Number) Used capacity in KB.
 
+## Argument Reference
+
+The following arguments are supported:
+
+* `id` - (Optional) The ID of the device group to query. If not specified, all device groups are returned.
+* `name` - (Optional) The name of the device group to query.
+* `protection_domain_id` - (Optional) The protection domain ID to filter device groups.
+
+## Attribute Reference
+
+In addition to all arguments above, the following attributes are exported:
+
+* `device_groups` - List of device groups with the following attributes:
+  * `id` - The ID of the device group.
+  * `name` - The name of the device group.
+  * `protection_domain_id` - The protection domain ID.
+  * `media_type` - The media type (SSD, PMEM).
+  * `spare_node_count` - The number of spare nodes.
+  * `spare_device_count` - The number of spare devices.
+  * `health` - The health status.
+  * `state` - The state.
+  * `num_of_devices` - The number of devices.
+  * `usable_capacity_in_kb` - The usable capacity in KB.
+  * `used_capacity_in_kb` - The used capacity in KB.
 
