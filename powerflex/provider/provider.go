@@ -18,9 +18,12 @@ limitations under the License.
 package provider
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
-	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/cookiejar"
 	"os"
@@ -285,6 +288,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 }
 
 // newGen2Client creates a new OpenAPI-generated client for PowerFlex Gen2 REST API endpoints.
+// It authenticates via OAuth2 token obtained from /rest/auth/login.
 func newGen2Client(endpoint string, username string, password string, insecure bool, timeout int64) (*clientgen.APIClient, error) {
 	jar, err := cookiejar.New(nil)
 	if err != nil {
@@ -307,7 +311,12 @@ func newGen2Client(endpoint string, username string, password string, insecure b
 	}
 
 	url := strings.TrimSuffix(endpoint, "/")
-	basicAuthString := base64.StdEncoding.EncodeToString([]byte(username + ":" + password))
+
+	// Authenticate via OAuth2 token from /rest/auth/login
+	token, err := gen2Login(httpclient, url, username, password)
+	if err != nil {
+		return nil, fmt.Errorf("Gen2 OAuth2 login failed: %w", err)
+	}
 
 	cfg := &clientgen.Configuration{
 		HTTPClient:    httpclient,
@@ -322,10 +331,57 @@ func newGen2Client(endpoint string, username string, password string, insecure b
 		},
 		OperationServers: map[string]clientgen.ServerConfigurations{},
 	}
-	cfg.AddDefaultHeader("Authorization", "Basic "+basicAuthString)
+	cfg.AddDefaultHeader("Authorization", "Bearer "+token)
 
 	apiClient := clientgen.NewAPIClient(cfg)
 	return apiClient, nil
+}
+
+// gen2Login authenticates to the PowerFlex Gen2 gateway via /rest/auth/login
+// and returns the OAuth2 access token.
+func gen2Login(client *http.Client, baseURL string, username string, password string) (string, error) {
+	loginPayload := map[string]string{
+		"username": username,
+		"password": password,
+	}
+	body, err := json.Marshal(loginPayload)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal login payload: %w", err)
+	}
+
+	req, err := http.NewRequest("POST", baseURL+"/rest/auth/login", bytes.NewReader(body))
+	if err != nil {
+		return "", fmt.Errorf("failed to create login request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("login request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read login response: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("login returned status %d: %s", resp.StatusCode, string(respBody))
+	}
+
+	var loginResp struct {
+		AccessToken string `json:"access_token"`
+	}
+	if err := json.Unmarshal(respBody, &loginResp); err != nil {
+		return "", fmt.Errorf("failed to parse login response: %w", err)
+	}
+
+	if loginResp.AccessToken == "" {
+		return "", fmt.Errorf("login response missing access_token")
+	}
+
+	return loginResp.AccessToken, nil
 }
 
 // DataSources - returns array of all datasources.
