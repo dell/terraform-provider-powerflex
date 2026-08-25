@@ -107,7 +107,7 @@ func TestAccResourceReplicationPair(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.PauseReplicationPair, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.PauseReplicationPair).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + ReplicationPairCreate,
 				ExpectError: regexp.MustCompile(`.*Error pausing replication pair after create*.`),
@@ -118,7 +118,7 @@ func TestAccResourceReplicationPair(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.GetSpecificReplicationPair, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetSpecificReplicationPair).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + ReplicationPairCreate,
 				ExpectError: regexp.MustCompile(`.*Error reading replication pair*.`),
@@ -149,7 +149,7 @@ func TestAccResourceReplicationPair(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.ResumeReplicationPair, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.ResumeReplicationPair).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + ReplicationPairUpdate,
 				ExpectError: regexp.MustCompile(`.*Error resuming replication pair, only avaiable during initial copy*.`),
@@ -169,7 +169,7 @@ func TestAccResourceReplicationPair(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.PauseReplicationPair, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.PauseReplicationPair).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + ReplicationPairCreate,
 				ExpectError: regexp.MustCompile(`.*Error pausing replication pair, only avaiable during initial copy*.`),
@@ -180,7 +180,7 @@ func TestAccResourceReplicationPair(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.GetSpecificReplicationPair, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetSpecificReplicationPair).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + ReplicationPairCreate,
 				ExpectError: regexp.MustCompile(`.*Error reading replication pair*.`),

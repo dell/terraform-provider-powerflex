@@ -21,6 +21,7 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"regexp"
 	"strings"
@@ -325,6 +326,26 @@ func init() {
 	`, username, password, endpoint, insecure)
 	// Set the specific TF_ACC test environment
 	os.Setenv("TF_ACC", globalEnvMap["TF_ACC"])
+
+	// Reset mock server state machines before test suite starts
+	resetMockServerState()
+}
+
+// resetMockServerState calls the mock server's reset endpoint to clear all state machines.
+// This ensures each test suite run starts with a clean slate.
+func resetMockServerState() {
+	resetURL := endpoint + "/api/test/reset-state"
+	resp, err := http.Post(resetURL, "application/json", nil)
+	if err != nil {
+		log.Printf("Warning: Could not reset mock server state: %v", err)
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == 200 {
+		log.Println("Mock server state reset successfully")
+	} else {
+		log.Printf("Warning: Mock server state reset returned status %d", resp.StatusCode)
+	}
 }
 
 var (
@@ -353,6 +374,8 @@ func testAccPreCheck(t *testing.T) {
 	if FunctionMocker != nil {
 		FunctionMocker.UnPatch()
 	}
+	// Reset mock server state before each test
+	resetMockServerState()
 }
 
 // if there is no os setting set, then use the default value
@@ -435,17 +458,17 @@ func TestAccProvider(t *testing.T) {
 			// Should error if no endpoint set
 			{
 				Config:      noEndpoint + exampleDataForTest,
-				ExpectError: regexp.MustCompile(".*Missing powerflex API Endpoint*"),
+				ExpectError: regexp.MustCompile(".*endpoint is required.*"),
 			},
 			// Should error if no username set
 			{
 				Config:      noUsername + exampleDataForTest,
-				ExpectError: regexp.MustCompile(".*Missing powerflex API Username*"),
+				ExpectError: regexp.MustCompile(".*Missing powerflex API Username.*"),
 			},
 			// Should error if no password is set
 			{
 				Config:      noPassword + exampleDataForTest,
-				ExpectError: regexp.MustCompile(".*Missing powerflex API Password*"),
+				ExpectError: regexp.MustCompile(".*Missing powerflex API Password.*"),
 			},
 			// Should set config successfully
 			{

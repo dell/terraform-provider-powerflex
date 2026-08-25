@@ -59,7 +59,7 @@ func TestAccResourceCompatibilityManagement(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.GetCompatibilityManagement, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetCompatibilityManagement).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + compatibilityManagementResource,
 				ExpectError: regexp.MustCompile(`.*Error in getting compatibility management details*.`),

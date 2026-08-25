@@ -63,6 +63,7 @@ func TestAccResourceDeviceWithSPID(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + AddDeviceWithSPID,
@@ -90,6 +91,7 @@ func TestAccResourceDeviceWithSPName(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + AddDeviceWithSPName,
@@ -119,6 +121,7 @@ func TestAccResourceDeviceWithPDID(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + AddDeviceWithSPName,
@@ -147,6 +150,7 @@ func TestAccResourceDeviceWithSDSName(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			// Get System Error
 			{
@@ -272,6 +276,7 @@ func TestAccResourceDeviceNegative(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config:      ProviderConfigForTesting + InvalidPath,
@@ -363,6 +368,7 @@ func TestAccResourceDeviceUpdate(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + AddDeviceWithSPID,
@@ -427,6 +433,7 @@ func TestAccResourceDeviceUpdate(t *testing.T) {
 func TestAccResourceDeviceImport(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + AddDeviceWithSPID,

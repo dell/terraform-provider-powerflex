@@ -37,6 +37,7 @@ func TestAccResourceSnapshotPolicyA(t *testing.T) {
 	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			// Create snapshot policy test
 			{
@@ -68,9 +69,11 @@ func TestAccResourceSnapshotPolicyUpdateFail(t *testing.T) {
 		SnapshotAccessMode:               "ReadOnly",
 		AutoSnapshotCreationCadenceInMin: 5,
 		NumOfRetainedSnapshotsPerLevel:   []int{1},
+		SnapshotPolicyState:              "Paused",
 	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			// Create snapshot policy
 			{
@@ -79,7 +82,7 @@ func TestAccResourceSnapshotPolicyUpdateFail(t *testing.T) {
 						FunctionMocker.UnPatch()
 					}
 					FunctionMocker = Mock(helper.CreateSnapshotPolicy).Return("sucess-create-mock", nil).Build()
-					localMockerSnapshotPolicyRead = Mock(helper.GetSnapshotPolicy, OptGeneric).Return(sp, nil).Build()
+					localMockerSnapshotPolicyRead = Mock(helper.GetSnapshotPolicy).Return(sp, nil).Build()
 				},
 				Config: ProviderConfigForTesting + SPResourceUpdateWithVolFail,
 			},
@@ -88,7 +91,7 @@ func TestAccResourceSnapshotPolicyUpdateFail(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.AssignVolumeToSnapshotPolicy, OptGeneric).Return(fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.AssignVolumeToSnapshotPolicy).Return(fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + SPResourceUpdateWithVolFail2,
 				ExpectError: regexp.MustCompile(`.*Error assigning volume to snapshot policy*.`),
@@ -98,7 +101,7 @@ func TestAccResourceSnapshotPolicyUpdateFail(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.ModifySnapshotPolicy, OptGeneric).Return(fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.ModifySnapshotPolicy).Return(fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + SPResourceUpdateWithVolFail4,
 				ExpectError: regexp.MustCompile(`.*Error while updating auto snapshot creation cadence *.`),
@@ -108,7 +111,7 @@ func TestAccResourceSnapshotPolicyUpdateFail(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.RenameSnapshotPolicy, OptGeneric).Return(fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.RenameSnapshotPolicy).Return(fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + SPResourceUpdateWithVolFail3,
 				ExpectError: regexp.MustCompile(`.*Error while updating name of snapshot policy*.`),
@@ -127,7 +130,7 @@ func TestAccResourceSnapshotPolicyUpdateFail(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.ModifySnapshotPolicy, OptGeneric).Return(fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.ModifySnapshotPolicy).Return(fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + SPResourceUpdateWithVolFail7,
 				ExpectError: regexp.MustCompile(`.*Error while updating auto snapshot creation cadence or num of retained snapshots*.`),
@@ -143,6 +146,7 @@ func TestAccResourceSnapshotPolicyUpdateFail(t *testing.T) {
 func TestAccResourceSnapshotPolicyCreateFail(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			// Create snapshot policy
 			{
@@ -153,7 +157,7 @@ func TestAccResourceSnapshotPolicyCreateFail(t *testing.T) {
 					if localMockerSnapshotPolicyRead != nil {
 						localMockerSnapshotPolicyRead.UnPatch()
 					}
-					FunctionMocker = Mock(helper.CreateSnapshotPolicy, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.CreateSnapshotPolicy).Return("", fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + SPResourceCreateFail,
 				ExpectError: regexp.MustCompile(`.*Error creating snapshot policy*.`),
@@ -163,7 +167,7 @@ func TestAccResourceSnapshotPolicyCreateFail(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.AssignVolumeToSnapshotPolicy, OptGeneric).Return(fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.AssignVolumeToSnapshotPolicy).Return(fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + SPResourceCreateWithVolFail,
 				ExpectError: regexp.MustCompile(`.*Error assigning volume to snapshot policy*.`),
@@ -215,6 +219,7 @@ func TestAccResourceSnapshotPolicyUpadte(t *testing.T) {
 	}
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			// Create snapshot policy
 			{

@@ -481,6 +481,7 @@ func TestAccResourceMdmCluster(t *testing.T) {
 	var mdmClusterResourceBlock = "powerflex_mdm_cluster.test"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + switchPrimaryMdm1,

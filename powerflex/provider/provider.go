@@ -202,6 +202,23 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 		return
 	}
 
+	// Validate required credentials
+	if config.Username.ValueString() == "" {
+		resp.Diagnostics.AddError(
+			"Missing powerflex API Username",
+			"The provider cannot create the powerflex API client because the username is empty.",
+		)
+	}
+	if config.Password.ValueString() == "" {
+		resp.Diagnostics.AddError(
+			"Missing powerflex API Password",
+			"The provider cannot create the powerflex API client because the password is empty.",
+		)
+	}
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	ctx = tflog.SetField(ctx, "powerflex_endpoint", config.EndPoint.ValueString())
 	ctx = tflog.SetField(ctx, "powerflex_username", config.Username.ValueString())
 	ctx = tflog.SetField(ctx, "insecure", insecure)

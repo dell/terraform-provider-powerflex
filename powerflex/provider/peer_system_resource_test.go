@@ -296,7 +296,7 @@ func TestAccResourcePeerSystemA(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.GetPeerSystem, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetPeerSystem).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + PeerSystemCreate,
 				ExpectError: regexp.MustCompile(`.*Error reading peer system*.`),
@@ -332,7 +332,7 @@ func TestAccResourcePeerSystemA(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.GetPeerSystem, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetPeerSystem).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + PeerSystemUpdateAll,
 				ExpectError: regexp.MustCompile(`.*Error reading peer system*.`),

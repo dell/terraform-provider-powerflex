@@ -76,7 +76,7 @@ func TestAccResourceStoragepoola(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.ModifyStoragePoolName, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.ModifyStoragePoolName).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + CreateInvalidName,
 				ExpectError: regexp.MustCompile(`.*Error while updating name of Storagepool.*`),

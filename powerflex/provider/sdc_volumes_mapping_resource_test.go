@@ -89,6 +89,7 @@ func TestAccSDCVolumeMultiMap(t *testing.T) {
 	`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + CreateSDCVolumesResource,
@@ -157,6 +158,7 @@ func TestAccSDCVolumes(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			// Map SDC to volume test
 			{
@@ -298,6 +300,7 @@ func TestAccSDCVolumesResourceNegative(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config:      ProviderConfigForTesting + NonExistingSDCByID,
@@ -405,6 +408,7 @@ func TestAccSDCVolumesResourceUpdate(t *testing.T) {
 	`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + CreateSDCVolumesResource,
