@@ -54,6 +54,17 @@ func UpdateStoragepoolState(storagepool *scaleiotypes.StoragePool, plan models.S
 	state.RebuildEnabled = types.BoolValue(storagepool.RebuildEnabled)
 	state.RebuildRebalanceParallelism = types.Int64Value(int64(storagepool.NumofParallelRebuildRebalanceJobsPerDevice))
 	state.Fragmentation = types.BoolValue(storagepool.FragmentationEnabled)
+	// Gen2 (5.x) fields - set to Null if not provided in plan (SDK doesn't expose these yet)
+	state.CompressionMethod = types.StringValue(storagepool.CompressionMethod)
+	if state.ErasureCodingPolicy.IsUnknown() {
+		state.ErasureCodingPolicy = types.StringNull()
+	}
+	if state.DeviceGroupID.IsUnknown() {
+		state.DeviceGroupID = types.StringNull()
+	}
+	if state.ProtectionScheme.IsUnknown() {
+		state.ProtectionScheme = types.StringNull()
+	}
 	return state
 }
 
