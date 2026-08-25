@@ -55,6 +55,13 @@ func UpdateDeviceState(deviceResponse *goscaleio_types.Device, plan models.Devic
 	state.DeviceState = types.StringValue(deviceResponse.DeviceState)
 	state.SdsID = types.StringValue(deviceResponse.SdsID)
 	state.StoragePoolID = types.StringValue(deviceResponse.StoragePoolID)
+	// Gen2 (5.x) fields - set to Null if not provided in plan (SDK doesn't expose these yet)
+	if state.StorageNodeID.IsUnknown() {
+		state.StorageNodeID = types.StringNull()
+	}
+	if state.DeviceGroupID.IsUnknown() {
+		state.DeviceGroupID = types.StringNull()
+	}
 	return state, diags
 }
 
