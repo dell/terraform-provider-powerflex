@@ -253,5 +253,43 @@ var StoragepoolReourceSchema schema.Schema = schema.Schema{
 			Optional:            true,
 			Computed:            true,
 		},
+		// Gen2 (5.x) attributes
+		"erasure_coding_policy": schema.StringAttribute{
+			Description:         "Erasure Coding policy for the Storage Pool (Gen2 5.x only). Valid values: none, rs_2_1, rs_4_1.",
+			MarkdownDescription: "Erasure Coding policy for the Storage Pool (Gen2 5.x only). Valid values: `none`, `rs_2_1`, `rs_4_1`.",
+			Optional:            true,
+			Computed:            true,
+			Validators: []validator.String{stringvalidator.OneOf(
+				"none",
+				"rs_2_1",
+				"rs_4_1",
+			)},
+		},
+		"device_group_id": schema.StringAttribute{
+			Description:         "Device Group ID for the Storage Pool (Gen2 5.x only). Replaces direct device assignment.",
+			MarkdownDescription: "Device Group ID for the Storage Pool (Gen2 5.x only). Replaces direct device assignment.",
+			Optional:            true,
+			Computed:            true,
+		},
+		"protection_scheme": schema.StringAttribute{
+			Description:         "Protection scheme for the Storage Pool (Gen2 5.x only). Valid values: TwoPlusTwo, EightPlusTwo.",
+			MarkdownDescription: "Protection scheme for the Storage Pool (Gen2 5.x only). Valid values: `TwoPlusTwo`, `EightPlusTwo`.",
+			Optional:            true,
+			Computed:            true,
+			Validators: []validator.String{stringvalidator.OneOf(
+				"TwoPlusTwo",
+				"EightPlusTwo",
+			)},
+		},
+		"compression_method": schema.StringAttribute{
+			Description:         "Compression method for the Storage Pool (Gen2 5.x only). Valid values: None, Normal.",
+			MarkdownDescription: "Compression method for the Storage Pool (Gen2 5.x only). Valid values: `None`, `Normal`.",
+			Optional:            true,
+			Computed:            true,
+			Validators: []validator.String{stringvalidator.OneOf(
+				"None",
+				"Normal",
+			)},
+		},
 	},
 }

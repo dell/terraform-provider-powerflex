@@ -17,15 +17,15 @@ data "powerflex_sds" "all" {
 
 //Import all sds
 import {
-    for_each = data.powerflex_sds.all.sds_details
-    to = powerflex_sds.import_test_sds[each.key]
-    id = each.value.id
+  for_each = data.powerflex_sds.all.sds_details
+  to       = powerflex_sds.import_test_sds[each.key]
+  id       = each.value.id
 }
 
 //Add them to terraform state
 resource "powerflex_sds" "import_test_sds" {
-    count  = length(data.powerflex_sds.all.sds_details)
-    name = data.powerflex_sds.all.sds_details[count.index].name
-    protection_domain_id = data.powerflex_sds.all.sds_details[count.index].protection_domain_id
-    ip_list = data.powerflex_sds.all.sds_details[count.index].ip_list
+  count                = length(data.powerflex_sds.all.sds_details)
+  name                 = data.powerflex_sds.all.sds_details[count.index].name
+  protection_domain_id = data.powerflex_sds.all.sds_details[count.index].protection_domain_id
+  ip_list              = data.powerflex_sds.all.sds_details[count.index].ip_list
 }

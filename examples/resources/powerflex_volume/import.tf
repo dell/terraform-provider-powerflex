@@ -12,7 +12,7 @@ limitations under the License.
 */
 
 //Gather all existing volumes
-data "powerflex_volume" "all"{
+data "powerflex_volume" "all" {
 }
 
 //Gather all existing protection domains
@@ -21,19 +21,19 @@ data "powerflex_protection_domain" "all" {
 
 //Import all volumes
 import {
-    for_each = data.powerflex_volume.all.volumes
-    to = powerflex_volume.import_test_volume[each.key]
-    id = each.value.id
+  for_each = data.powerflex_volume.all.volumes
+  to       = powerflex_volume.import_test_volume[each.key]
+  id       = each.value.id
 }
 
 //Add them to terraform state
 resource "powerflex_volume" "import_test_volume" {
-    count = length(data.powerflex_volume.all.volumes)
-    name = data.powerflex_volume.all.volumes[count.index].name
-    protection_domain_name = data.powerflex_protection_domain.all.protection_domains[count.index].name # Value is not gathered from volume datasource
-    storage_pool_id = data.powerflex_volume.all.volumes[count.index].storage_pool_id
-    size          = floor(data.powerflex_volume.all.volumes[count.index].size_in_kb / 1000000)
-    capacity_unit = "GB" # GB/TB
-    use_rm_cache = data.powerflex_volume.all.volumes[count.index].use_rm_cache
-    volume_type  = data.powerflex_volume.all.volumes[count.index].volume_type
+  count                  = length(data.powerflex_volume.all.volumes)
+  name                   = data.powerflex_volume.all.volumes[count.index].name
+  protection_domain_name = data.powerflex_protection_domain.all.protection_domains[count.index].name # Value is not gathered from volume datasource
+  storage_pool_id        = data.powerflex_volume.all.volumes[count.index].storage_pool_id
+  size                   = floor(data.powerflex_volume.all.volumes[count.index].size_in_kb / 1000000)
+  capacity_unit          = "GB" # GB/TB
+  use_rm_cache           = data.powerflex_volume.all.volumes[count.index].use_rm_cache
+  volume_type            = data.powerflex_volume.all.volumes[count.index].volume_type
 }

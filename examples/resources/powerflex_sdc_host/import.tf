@@ -12,20 +12,20 @@ limitations under the License.
 */
 
 import {
-    to = powerflex_sdc_host.import_test_sdc_linux
-    id = var.ip
+  to = powerflex_sdc_host.import_test_sdc_linux
+  id = var.ip
 }
 
 # Example for adding an Linux host as SDC.
 resource "powerflex_sdc_host" "import_test_sdc_linux" {
-    ip = var.ip
-    remote = {
-      user = var.user
-      password = var.password
-      port = var.port
-    }
-    os_family       = var.os_family
-    name            = "sdc-host-test-rename"
-    performance_profile = "Compact"
-    package_path = var.package_path
+  ip = var.ip
+  remote = {
+    user     = var.user
+    password = var.password
+    port     = var.port
+  }
+  os_family           = var.os_family
+  name                = "sdc-host-test-rename"
+  performance_profile = "Compact"
+  package_path        = var.package_path
 }

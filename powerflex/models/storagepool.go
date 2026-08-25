@@ -49,6 +49,11 @@ type StoragepoolResourceModel struct {
 	RebuildEnabled                                      types.Bool   `tfsdk:"rebuild_enabled"`
 	RebuildRebalanceParallelism                         types.Int64  `tfsdk:"rebuild_rebalance_parallelism"`
 	Fragmentation                                       types.Bool   `tfsdk:"fragmentation"`
+	// Gen2 (5.x) fields
+	ErasureCodingPolicy types.String `tfsdk:"erasure_coding_policy"`
+	DeviceGroupID       types.String `tfsdk:"device_group_id"`
+	ProtectionScheme    types.String `tfsdk:"protection_scheme"`
+	CompressionMethod   types.String `tfsdk:"compression_method"`
 }
 
 // Volume maps the volume schema data.

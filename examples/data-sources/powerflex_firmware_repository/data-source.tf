@@ -17,7 +17,7 @@ limitations under the License.
 
 # Example for fetching details of the firmware repository using names
 data "powerflex_firmware_repository" "all" {
-  
+
 }
 
 output "powerflex_firmware_repository_all_result" {
@@ -41,32 +41,32 @@ output "powerflex_firmware_repository_all_result" {
 // For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 
 data "powerflex_firmware_repository" "filter" {
   filter {
-      #id = ["ID1", "ID2"]
-      # name = ["Name1", "Name2"]
-      # source_location = ["SourceLocation1", "SourceLocation2"]
-      # source_type = ["SourceType1", "SourceType2"]
-      # disk_location = ["DiskLocation1", "DiskLocation2"]
-      # filename = ["Filename1", "Filename2"]
-      # username = ["Username1", "Username2"]
-      # download_status = ["DownloadStatus1", "DownloadStatus2"]
-      # created_date = ["CreatedDate1", "CreatedDate2"]
-      # created_by = ["CreatedBy1", "CreatedBy2"]
-      # updated_date = ["UpdatedDate1", "UpdatedDate2"]
-      # updated_by = ["UpdatedBy1", "UpdatedBy2"]
-      # default_catalog = false
-      # embedded = false
-      # state = ["state1", "state2"]
-      # bundle_count = [10, 11]
-      # component_count = [1, 2]
-      # user_bundle_count = [1, 2]
-      # minimal = false
-      # download_progress = [1, 2]
-      # extract_progress = [1, 2]
-      # signature = ["Signature1", "Signature2"]
-      # custom = false
-      # needs_attention = false
-      # job_id = ["JobID1", "JobID2"]
-      # rcmapproved = false
+    #id = ["ID1", "ID2"]
+    # name = ["Name1", "Name2"]
+    # source_location = ["SourceLocation1", "SourceLocation2"]
+    # source_type = ["SourceType1", "SourceType2"]
+    # disk_location = ["DiskLocation1", "DiskLocation2"]
+    # filename = ["Filename1", "Filename2"]
+    # username = ["Username1", "Username2"]
+    # download_status = ["DownloadStatus1", "DownloadStatus2"]
+    # created_date = ["CreatedDate1", "CreatedDate2"]
+    # created_by = ["CreatedBy1", "CreatedBy2"]
+    # updated_date = ["UpdatedDate1", "UpdatedDate2"]
+    # updated_by = ["UpdatedBy1", "UpdatedBy2"]
+    # default_catalog = false
+    # embedded = false
+    # state = ["state1", "state2"]
+    # bundle_count = [10, 11]
+    # component_count = [1, 2]
+    # user_bundle_count = [1, 2]
+    # minimal = false
+    # download_progress = [1, 2]
+    # extract_progress = [1, 2]
+    # signature = ["Signature1", "Signature2"]
+    # custom = false
+    # needs_attention = false
+    # job_id = ["JobID1", "JobID2"]
+    # rcmapproved = false
   }
 }
 

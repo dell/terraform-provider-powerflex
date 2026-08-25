@@ -17,14 +17,14 @@ data "powerflex_firmware_repository" "all" {
 
 //Import all firmware repositories
 import {
-    for_each = data.powerflex_firmware_repository.all.firmware_repository_details
-    id = powerflex_firmware_repository.import_test_firmware_repository[each.key]
-    to = each.value.id
+  for_each = data.powerflex_firmware_repository.all.firmware_repository_details
+  id       = powerflex_firmware_repository.import_test_firmware_repository[each.key]
+  to       = each.value.id
 }
 
 //Add them to terraform state
 resource "powerflex_firmware_repository" "import_test_firmware_repository" {
-    count = length(data.powerflex_firmware_repository.all.firmware_repository_details)
-    source_location = data.powerflex_firmware_repository.all.firmware_repository_details[count.index].source_location
-    username        = data.powerflex_firmware_repository.all.firmware_repository_details[count.index].username
+  count           = length(data.powerflex_firmware_repository.all.firmware_repository_details)
+  source_location = data.powerflex_firmware_repository.all.firmware_repository_details[count.index].source_location
+  username        = data.powerflex_firmware_repository.all.firmware_repository_details[count.index].username
 }

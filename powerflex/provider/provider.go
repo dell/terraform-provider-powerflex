@@ -18,10 +18,18 @@ limitations under the License.
 package provider
 
 import (
+	"bytes"
 	"context"
+	"crypto/tls"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"net/http/cookiejar"
 	"os"
 	"strconv"
 	"strings"
+	"terraform-provider-powerflex/clientgen"
 	"time"
 
 	"github.com/dell/goscaleio"
@@ -47,6 +55,7 @@ type powerflexProvider struct {
 	client        *goscaleio.Client
 	clientError   string
 	gatewayClient *goscaleio.GatewayClient
+	genClient     *clientgen.APIClient
 }
 
 // powerflexProviderModel - provider input struct.
@@ -264,10 +273,115 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 		break
 	}
 
+	// Initialize the Gen2 OpenAPI client for new v2 features
+	genClient, err := newGen2Client(config.EndPoint.ValueString(), config.Username.ValueString(), config.Password.ValueString(), insecure, int64(timeout))
+	if err != nil {
+		tflog.Warn(ctx, "Unable to create Gen2 API client, Gen2 resources will not be available: "+err.Error())
+	} else {
+		p.genClient = genClient
+	}
+
 	resp.DataSourceData = p
 	resp.ResourceData = p
 
 	tflog.Info(ctx, "Configured powerflex client", map[string]any{"success": true})
+}
+
+// newGen2Client creates a new OpenAPI-generated client for PowerFlex Gen2 REST API endpoints.
+// It authenticates via OAuth2 token obtained from /rest/auth/login.
+func newGen2Client(endpoint string, username string, password string, insecure bool, timeout int64) (*clientgen.APIClient, error) {
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	httpclient := &http.Client{
+		Timeout: time.Duration(timeout) * time.Second,
+		Jar:     jar,
+	}
+
+	if insecure {
+		/* #nosec */
+		httpclient.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{
+				MinVersion:         tls.VersionTLS12,
+				InsecureSkipVerify: true,
+			},
+		}
+	}
+
+	url := strings.TrimSuffix(endpoint, "/")
+
+	// Authenticate via OAuth2 token from /rest/auth/login
+	token, err := gen2Login(httpclient, url, username, password)
+	if err != nil {
+		return nil, fmt.Errorf("Gen2 OAuth2 login failed: %w", err)
+	}
+
+	cfg := &clientgen.Configuration{
+		HTTPClient:    httpclient,
+		DefaultHeader: make(map[string]string),
+		UserAgent:     "terraform-powerflex-provider/1.0.0",
+		Debug:         false,
+		Servers: clientgen.ServerConfigurations{
+			{
+				URL:         url + "/api",
+				Description: "PowerFlex Gateway Gen2 API",
+			},
+		},
+		OperationServers: map[string]clientgen.ServerConfigurations{},
+	}
+	cfg.AddDefaultHeader("Authorization", "Bearer "+token)
+
+	apiClient := clientgen.NewAPIClient(cfg)
+	return apiClient, nil
+}
+
+// gen2Login authenticates to the PowerFlex Gen2 gateway via /rest/auth/login
+// and returns the OAuth2 access token.
+func gen2Login(client *http.Client, baseURL string, username string, password string) (string, error) {
+	loginPayload := map[string]string{
+		"username": username,
+		"password": password,
+	}
+	body, err := json.Marshal(loginPayload)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal login payload: %w", err)
+	}
+
+	req, err := http.NewRequest("POST", baseURL+"/rest/auth/login", bytes.NewReader(body))
+	if err != nil {
+		return "", fmt.Errorf("failed to create login request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("login request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read login response: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("login returned status %d: %s", resp.StatusCode, string(respBody))
+	}
+
+	var loginResp struct {
+		AccessToken string `json:"access_token"`
+	}
+	if err := json.Unmarshal(respBody, &loginResp); err != nil {
+		return "", fmt.Errorf("failed to parse login response: %w", err)
+	}
+
+	if loginResp.AccessToken == "" {
+		return "", fmt.Errorf("login response missing access_token")
+	}
+
+	return loginResp.AccessToken, nil
 }
 
 // DataSources - returns array of all datasources.
@@ -295,6 +409,8 @@ func (p *powerflexProvider) DataSources(_ context.Context) []func() datasource.D
 		PeerMdmDataSource,
 		NvmeTargetDataSource,
 		ResourceCredentialDataSource,
+		StorageNodeV2DataSource,
+		DeviceGroupV2DataSource,
 	}
 }
 
@@ -328,5 +444,10 @@ func (p *powerflexProvider) Resources(_ context.Context) []func() resource.Resou
 		NewNvmeTargetResource,
 		ResourceCredentialResource,
 		TemplateCloneResource,
+		NewStorageNodeV2Resource,
+		NewDeviceGroupV2Resource,
+		NewDeviceActionV2Resource,
+		NewStoragePoolErasureCodingV2Resource,
+		NewVolumeActionV2Resource,
 	}
 }

@@ -72,29 +72,29 @@ output "volumeResult" {
 // For more information about how we do our datasource filtering check out our guides: https://dell.github.io/terraform-docs/docs/storage/platforms/powerflex/product_guide/examples/ 
 data "powerflex_volume" "volume_filter" {
   filter {
-  #   id                                     = ["id1", "id2"]
-  #   name                                   = ["name1", "name2"]
-  #   creation_time                          = [1, 2]
-  #   size_in_kb                             = [123, 456]
-  #   ancestor_volume_id                     = ["ancestor_volume_id1", "ancestor_volume_id2"]
-  #   vtree_id                               = ["vtree_id1", "vtree_id2"]
-  #   consistency_group_id                   = ["consistency_group_id1", "consistency_group_id2"]
-  #   volume_type                            = ["volume_type1", "volume_type2"]
-  #   use_rm_cache                           = false
-  #   storage_pool_id                        = ["storage_pool_id1", "storage_pool_id2"]
-  #   data_layout                            = ["data_layout1", "data_layout2"]
-  #   not_genuine_snapshot                   = false
-  #   access_mode_limit                      = ["access_mode_limit1", "access_mode_limit2"]
-  #   secure_snapshot_exp_time               = [789, 123]
-  #   managed_by                             = ["managed_by1", "managed_by2"]
-  #   locked_auto_snapshot                    = false
-  #   locked_auto_snapshot_marked_for_removal = false
-  #   compression_method                     = ["compression_method1", "compression_method2"]
-  #   time_stamp_is_accurate                 = true
-  #   original_expiry_time                   = [43, 71]
-  #   volume_replication_state               = ["volume_replication_state1", "volume_replication_state2"]
-  #   replication_journal_volume             = false
-  #   replication_time_stamp                 = [1,2]
+    #   id                                     = ["id1", "id2"]
+    #   name                                   = ["name1", "name2"]
+    #   creation_time                          = [1, 2]
+    #   size_in_kb                             = [123, 456]
+    #   ancestor_volume_id                     = ["ancestor_volume_id1", "ancestor_volume_id2"]
+    #   vtree_id                               = ["vtree_id1", "vtree_id2"]
+    #   consistency_group_id                   = ["consistency_group_id1", "consistency_group_id2"]
+    #   volume_type                            = ["volume_type1", "volume_type2"]
+    #   use_rm_cache                           = false
+    #   storage_pool_id                        = ["storage_pool_id1", "storage_pool_id2"]
+    #   data_layout                            = ["data_layout1", "data_layout2"]
+    #   not_genuine_snapshot                   = false
+    #   access_mode_limit                      = ["access_mode_limit1", "access_mode_limit2"]
+    #   secure_snapshot_exp_time               = [789, 123]
+    #   managed_by                             = ["managed_by1", "managed_by2"]
+    #   locked_auto_snapshot                    = false
+    #   locked_auto_snapshot_marked_for_removal = false
+    #   compression_method                     = ["compression_method1", "compression_method2"]
+    #   time_stamp_is_accurate                 = true
+    #   original_expiry_time                   = [43, 71]
+    #   volume_replication_state               = ["volume_replication_state1", "volume_replication_state2"]
+    #   replication_journal_volume             = false
+    #   replication_time_stamp                 = [1,2]
   }
 }
 

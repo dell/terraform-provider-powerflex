@@ -38,6 +38,9 @@ type DeviceModel struct {
 	DeviceCapacity           types.Int64  `tfsdk:"device_capacity"`
 	DeviceCapacityInKB       types.Int64  `tfsdk:"device_capacity_in_kb"`
 	DeviceState              types.String `tfsdk:"device_state"`
+	// Gen2 (5.x) fields
+	StorageNodeID types.String `tfsdk:"storage_node_id"`
+	DeviceGroupID types.String `tfsdk:"device_group_id"`
 }
 
 // DeviceDataSourceModel defines struct for device datasource
