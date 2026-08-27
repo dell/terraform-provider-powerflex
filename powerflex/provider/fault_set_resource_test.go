@@ -124,7 +124,7 @@ func TestAccResourceFaultSet(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.ModifyFaultSetName, OptGeneric).Return(fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.ModifyFaultSetName).Return(fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + FaultSetResourceUpdateNegative,
 				ExpectError: regexp.MustCompile(`.*Error while updating name of fault set.*`),
@@ -154,7 +154,7 @@ func TestAccResourceFaultSetCreateNegative(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.CreateFaultSet, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.CreateFaultSet).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + FaultSetResourceCreateNegative2,
 				ExpectError: regexp.MustCompile(`.*Error creating fault set.*`),

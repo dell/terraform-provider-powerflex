@@ -91,7 +91,7 @@ func TestAccDatasourceFaultSet(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.GetAllFaultSets, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetAllFaultSets).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + FaultSetDataSourceAll,
 				ExpectError: regexp.MustCompile(`.*Error in getting Fault Set details*.`),

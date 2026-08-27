@@ -93,7 +93,7 @@ func TestAccResourceUser(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.CreateSsoUser, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.CreateSsoUser).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + UserResourceCreate,
 				ExpectError: regexp.MustCompile(`.*Error creating the user*.`),
@@ -228,7 +228,7 @@ func TestAccResourceUserCreateNegative(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.CreateSsoUser, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.CreateSsoUser).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + UserResourceCreate2,
 				ExpectError: regexp.MustCompile(`.*Error creating the user.*`),

@@ -79,7 +79,7 @@ func TestAccDatasourceVTree(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.GetAllVTrees, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetAllVTrees).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + VtreeGetAll,
 				ExpectError: regexp.MustCompile(`.*Error in getting vTree details*.`),

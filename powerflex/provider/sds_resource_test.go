@@ -212,6 +212,7 @@ func TestAccResourceSDSa(t *testing.T) {
 	resourceName := "powerflex_sds.sds"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			// 1 Get System Error
 			{
@@ -522,6 +523,7 @@ func TestAccResourceSDSDuplicateIP(t *testing.T) {
 		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			// create sds test invalid
 			{
@@ -551,6 +553,7 @@ func TestAccResourceSDSRmCache(t *testing.T) {
 	rcSize := "rmcache_size_in_mb = 200"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			// Check that SDS cannot be created with wrong rmcache settings
 			{
@@ -574,6 +577,7 @@ func TestAccResourceSDSCreateWithoutIP(t *testing.T) {
 		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			// create sds test
 			{
@@ -599,6 +603,7 @@ func TestAccResourceSDSCreateWithBadRole(t *testing.T) {
 		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			// create sds test
 			{
@@ -625,6 +630,7 @@ func TestAccResourceSDSCreateWithBadPerformanceProfile(t *testing.T) {
 		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			// create sds test
 			{
@@ -653,6 +659,7 @@ func TestAccResourceSDSCreateWithoutPD(t *testing.T) {
 		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			// create sds test
 			{
@@ -681,6 +688,7 @@ func TestAccResourceSDSCreateWithoutName(t *testing.T) {
 		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			// create sds test
 			{
@@ -794,6 +802,7 @@ func TestResourceSDSCreateNegative(t *testing.T) {
 		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config:      ProviderConfigForTesting + createWOName,
@@ -853,6 +862,7 @@ func TestAccResourceSDSCreateSpecialChar(t *testing.T) {
 		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + createSDSSpecialChar,
@@ -883,6 +893,7 @@ func TestAccResourceSDSCreateMandatoryParams(t *testing.T) {
 		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + createSDSMandatoryParams,
@@ -1001,6 +1012,7 @@ func TestAccResourceSDSModifyRole(t *testing.T) {
 		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + addSDSIP,
@@ -1137,6 +1149,7 @@ func TestAccResourceSDSModifyRoleAddIP(t *testing.T) {
 		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + addSDSSingleIP,
@@ -1312,6 +1325,7 @@ func TestAccResourceSDSAddIP(t *testing.T) {
 		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + createSDSMandatoryParams,
@@ -1448,6 +1462,7 @@ func TestAccResourceSDSRemoveIP(t *testing.T) {
 		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + modifyRolefromalltosdsOnly,
@@ -1557,6 +1572,7 @@ func TestAccResourceSDSRename(t *testing.T) {
 		`
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + createSDSMandatoryParams,
@@ -1650,6 +1666,7 @@ func TestAccResourceSDSUpdateProtectionDomainName(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: ProviderConfigForTesting + createSDSMandatoryParams,

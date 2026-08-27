@@ -99,7 +99,7 @@ func (r *snapshotPolicyResource) Create(ctx context.Context, req resource.Create
 	}
 
 	// create the snapshot policy
-	snapID, err := r.system.CreateSnapshotPolicy(payload)
+	snapID, err := helper.CreateSnapshotPolicy(r.system, payload)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error creating snapshot policy",

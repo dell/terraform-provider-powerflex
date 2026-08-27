@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -42,8 +44,9 @@ type SSHProvisionerConfig struct {
 // getSSHConfig returns ssh config
 func (config *SSHProvisionerConfig) getSSHConfig() (*ssh.ClientConfig, error) {
 	// Use system known_hosts for secure host key validation by default
-	// knownhosts.New("") uses the default known_hosts file locations
-	hostKeyCallback, err := knownhosts.New("")
+	homeDir, _ := os.UserHomeDir()
+	knownHostsPath := filepath.Join(homeDir, ".ssh", "known_hosts")
+	hostKeyCallback, err := knownhosts.New(knownHostsPath)
 
 	// If known_hosts file is not found, we'll handle it below
 	// Don't fail yet - user might provide explicit host_key

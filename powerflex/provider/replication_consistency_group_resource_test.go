@@ -188,7 +188,7 @@ func TestAccResourceReplicationConsistencyGroup(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.GetSpecificReplicationConsistencyGroup, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetSpecificReplicationConsistencyGroup).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + RPCCreate,
 				ExpectError: regexp.MustCompile(`.*Error reading replication consistency group*.`),
@@ -213,7 +213,7 @@ func TestAccResourceReplicationConsistencyGroup(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.GetSpecificReplicationConsistencyGroup, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetSpecificReplicationConsistencyGroup).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + RPCCreate,
 				ExpectError: regexp.MustCompile(`.*Error reading replication consistency group*.`),

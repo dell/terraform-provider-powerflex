@@ -87,7 +87,7 @@ func TestAccDatasourceDevice(t *testing.T) {
 					if FunctionMocker != nil {
 						FunctionMocker.UnPatch()
 					}
-					FunctionMocker = Mock(helper.GetAllDevices, OptGeneric).Return(nil, fmt.Errorf("Mock error")).Build()
+					FunctionMocker = Mock(helper.GetAllDevices).Return(nil, fmt.Errorf("Mock error")).Build()
 				},
 				Config:      ProviderConfigForTesting + devicesData,
 				ExpectError: regexp.MustCompile(`.*Error getting all devices in the system*.`),
