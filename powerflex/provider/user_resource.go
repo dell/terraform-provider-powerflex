@@ -423,7 +423,7 @@ func (r *userResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		}
 	}
 
-	if r.version == "4.0" {
+	if r.version != models.Version3X {
 		if plan.Role.ValueString() != state.Role.ValueString() || plan.Name.ValueString() != state.Name.ValueString() || plan.FirstName.ValueString() != state.FirstName.ValueString() || plan.LastName.ValueString() != state.LastName.ValueString() {
 			payload := &scaleiotypes.SSOUserModifyParam{
 				UserName:  plan.Name.ValueString(),
