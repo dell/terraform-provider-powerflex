@@ -26,6 +26,17 @@ description: |-
 
 {{ .Description | trimspace }}
 
+## Known Limitations
+
+### Certificate Exchange on PFMP 5.1
+
+The `add_certificate = true` parameter is **not supported on PowerFlex Management Platform (PFMP) 5.1**. The certificate exchange functionality requires SSH/scli commands which are incompatible with PFMP 5.1. Additionally, the REST API certificate trust endpoints (`/api/trustHostCertificate/Mdm`) return HTTP 500 errors on PFMP 5.1 and are not functional.
+
+**Workaround**: Set `add_certificate = false` when using PFMP 5.1. The peer system can still be created and managed without certificate exchange. Certificate exchange must be performed manually via the PFMP UI or alternative methods.
+
+**Affected Versions**: PFMP 5.1 (PowerFlex Gen2 with Core 5.1)
+**Working Versions**: PFMP 4.5, PFMP 4.6, PFMP 5.0 (PowerFlex Gen1)
+
 {{ if .HasExample -}}
 ## Example Usage
 
