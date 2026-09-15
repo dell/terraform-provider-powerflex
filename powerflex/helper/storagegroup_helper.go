@@ -65,6 +65,9 @@ func UpdateStoragepoolState(storagepool *scaleiotypes.StoragePool, plan models.S
 	if state.ProtectionScheme.IsUnknown() {
 		state.ProtectionScheme = types.StringNull()
 	}
+	if state.CompressionMethod.IsUnknown() {
+		state.CompressionMethod = types.StringNull()
+	}
 	return state
 }
 

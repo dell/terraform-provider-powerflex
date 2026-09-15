@@ -19,7 +19,11 @@ package provider
 
 import (
 	"context"
+	"crypto/tls"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"terraform-provider-powerflex/powerflex/helper"
 	"terraform-provider-powerflex/powerflex/models"
 
@@ -41,8 +45,9 @@ func NodeDataSource() datasource.DataSource {
 }
 
 type nodeDataSource struct {
-	client        *goscaleio.Client
-	gatewayClient *goscaleio.GatewayClient
+	client          *goscaleio.Client
+	gatewayClient   *goscaleio.GatewayClient
+	gatewayEndpoint string
 }
 
 func (d *nodeDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -66,11 +71,62 @@ func (d *nodeDataSource) Configure(_ context.Context, req datasource.ConfigureRe
 	if req.ProviderData.(*powerflexProvider).gatewayClient != nil {
 
 		d.gatewayClient = req.ProviderData.(*powerflexProvider).gatewayClient
+		d.gatewayEndpoint = req.ProviderData.(*powerflexProvider).gatewayEndpoint
 	} else {
 		resp.Diagnostics.AddError("Unable to Authenticate Goscaleio API Client", req.ProviderData.(*powerflexProvider).clientError)
 
 		return
 	}
+}
+
+// getAllNodesWithBearerAuth fetches all nodes using Bearer token authentication.
+// This works around a bug in goscaleio SDK where GetAllNodes uses Basic auth
+// for gateway versions other than "4.0", which fails on PFMP 5.1+ that requires Bearer tokens.
+func (d *nodeDataSource) getAllNodesWithBearerAuth(ctx context.Context) ([]scaleiotypes.NodeDetails, error) {
+	token, err := d.gatewayClient.NewTokenGeneration()
+	if err != nil {
+		return nil, fmt.Errorf("error generating token for node API: %s", err)
+	}
+
+	path := "/Api/V1/ManagedDevice"
+	req, err := http.NewRequest(http.MethodGet, d.gatewayEndpoint+path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	// #nosec G402
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		},
+	}
+
+	httpResp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer httpResp.Body.Close()
+
+	if httpResp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("node API returned status %d", httpResp.StatusCode)
+	}
+
+	body, err := io.ReadAll(httpResp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading node API response: %s", err)
+	}
+
+	var nodes []scaleiotypes.NodeDetails
+	if err := json.Unmarshal(body, &nodes); err != nil {
+		return nil, fmt.Errorf("error parsing node API response: %s", err)
+	}
+
+	return nodes, nil
 }
 
 // Read refreshes the Terraform state with the latest data.
@@ -89,6 +145,16 @@ func (d *nodeDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 	}
 
 	nodeDetails, err := d.gatewayClient.GetAllNodes()
+
+	// If SDK returns empty results or error and we have the endpoint, retry with Bearer auth.
+	// This works around a goscaleio SDK bug where GetAllNodes uses Basic auth
+	// for gateway versions != "4.0" (e.g., PFMP 5.1 reports version "5.1"),
+	// but PFMP 5.1 requires Bearer token authentication.
+	if (err != nil || len(nodeDetails) == 0) && d.gatewayEndpoint != "" {
+		tflog.Info(ctx, "SDK GetAllNodes returned error or empty results, retrying with Bearer token auth")
+		nodeDetails, err = d.getAllNodesWithBearerAuth(ctx)
+	}
+
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Read node details", err.Error(),

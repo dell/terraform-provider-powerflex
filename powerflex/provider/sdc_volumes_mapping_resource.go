@@ -228,6 +228,12 @@ func (r *sdcVolumeMappingResource) Create(ctx context.Context, req resource.Crea
 		}
 		errLimit := helper.SetMappedSdcLimits(volType, limitType)
 		if errLimit != nil {
+			// Rollback: unmap the volume since limit-setting failed
+			_ = volType.UnmapVolumeSdc(
+				&goscaleio_types.UnmapVolumeSdcParam{
+					SdcID: plan.ID.ValueString(),
+				},
+			)
 			resp.Diagnostics.AddError(
 				"Error setting limits to sdc: "+plan.ID.String(),
 				"unexpected error: "+errLimit.Error(),

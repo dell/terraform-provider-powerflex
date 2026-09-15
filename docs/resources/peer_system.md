@@ -26,6 +26,17 @@ description: |-
 
 This resource is used to manage the Peer System entity of the PowerFlex Array. This feature is only supported for PowerFlex 4.5 and above. We can Create, Update and Delete the PowerFlex Peer Systems using this resource. We can also Import an existing Peer Systems from the PowerFlex array. Peer system refers to the setup where multiple MDM nodes work together as peers to provide redundancy and high availability. This means that if one MDM node fails, other peer MDM nodes can take over its responsibilities, ensuring continuous operation without disruptions
 
+## Known Limitations
+
+### Certificate Exchange on PFMP 5.1
+
+The `add_certificate = true` parameter is **not supported on PowerFlex Management Platform (PFMP) 5.1**. The certificate exchange functionality requires SSH/scli commands which are incompatible with PFMP 5.1. Additionally, the REST API certificate trust endpoints (`/api/trustHostCertificate/Mdm`) return HTTP 500 errors on PFMP 5.1 and are not functional.
+
+**Workaround**: Set `add_certificate = false` when using PFMP 5.1. The peer system can still be created and managed without certificate exchange. Certificate exchange must be performed manually via the PFMP UI or alternative methods.
+
+**Affected Versions**: PFMP 5.1 (PowerFlex Gen2 with Core 5.1)
+**Working Versions**: PFMP 4.5, PFMP 4.6, PFMP 5.0 (PowerFlex Gen1)
+
 ## Example Usage
 
 ```terraform
