@@ -116,9 +116,13 @@ func (d *templateDataSource) getAllTemplatesWithBearerAuth(ctx context.Context) 
 		return nil, fmt.Errorf("template API returned status %d", httpResp.StatusCode)
 	}
 
-	body, err := io.ReadAll(httpResp.Body)
+	const maxTemplateResponseSize = 10 * 1024 * 1024
+	body, err := io.ReadAll(io.LimitReader(httpResp.Body, maxTemplateResponseSize+1))
 	if err != nil {
 		return nil, fmt.Errorf("error reading template API response: %s", err)
+	}
+	if len(body) > maxTemplateResponseSize {
+		return nil, fmt.Errorf("template API response exceeds the maximum allowed size of %d bytes", maxTemplateResponseSize)
 	}
 
 	var templates scaleiotypes.TemplateDetailsFilter

@@ -23,7 +23,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -252,18 +251,38 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 
 	var parseCSVResponse goscaleio_types.GatewayResponse
 
-	//Create a csv file from the input given by the user
-	mydir, err := os.Getwd()
+	// The PowerFlex Gateway ParseCSV API only accepts credentials via a CSV
+	// file on disk, so the SDC credentials supplied by the user must be
+	// written to a temporary file before being handed off to gatewayClient.
+	// This is mitigated by: restricting the containing directory and file to
+	// owner-only access (0700/0600), keeping the file's lifetime as short as
+	// possible, and always removing both the file and its directory once the
+	// gateway call completes.
+	// Checkmarx: ignore
+	tempDir, err := os.MkdirTemp("", ".powerflex-sdc-*")
 	if err != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Reading Current Directory is %s", err.Error())
+		return &parseCSVResponse, fmt.Errorf("Error While Creating Temp Directory is %s", err.Error())
 	}
+	defer func() {
+		_ = os.RemoveAll(tempDir)
+	}()
+	if err := os.Chmod(tempDir, 0o700); err != nil {
+		return &parseCSVResponse, fmt.Errorf("Error While Restricting Temp Directory Permissions is %s", err.Error())
+	}
+
 	// Create a csv writer
-	filePath := filepath.Join(mydir, filepath.Clean("Minimal.csv"))
-	file, err := os.Create(filepath.Clean(filePath))
+	file, err := os.CreateTemp(tempDir, ".powerflex-*.csv")
 	if err != nil {
 		return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV is %s", err.Error())
 	}
-	defer file.Close()
+	filePath := file.Name()
+	defer func() {
+		_ = file.Close()
+		_ = os.Remove(filePath)
+	}()
+	if err := file.Chmod(0o600); err != nil {
+		return &parseCSVResponse, fmt.Errorf("Error While Restricting Temp CSV Permissions is %s", err.Error())
+	}
 	writer := csv.NewWriter(file)
 
 	// Write the header row
@@ -279,6 +298,9 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 		}
 	}
 
+	// The Password column header below is required by the PowerFlex Gateway
+	// ParseCSV API and does not itself carry any credential value.
+	// Checkmarx: ignore
 	if virtualIPFlag {
 		header = []string{"IPs", "Username", "Password", "Operating System", "Is MDM/TB", "Virtual IPs", "Virtual IP NICs", "Is SDC", "perfProfileForSDC"}
 	} else {
@@ -296,6 +318,10 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 		if item.Password.ValueString() != "" {
 			var csvStruct models.CsvRow
 			// Add mapped SDC
+			// The SDC credentials below must be written to the access-restricted
+			// temporary CSV file created above so they can be submitted to the
+			// PowerFlex Gateway ParseCSV API, which only accepts a CSV file path.
+			// Checkmarx: ignore
 			if virtualIPFlag {
 				csvStruct = models.CsvRow{
 					IP:              item.IP.ValueString(),
@@ -327,6 +353,10 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 			}
 
 			//Write the data row
+			// Writing the password to the owner-only (0600), short-lived temp
+			// file created above is required so gatewayClient.ParseCSV can read
+			// the SDC credentials; the file is removed immediately afterwards.
+			// Checkmarx: ignore
 			var data []string
 			if virtualIPFlag {
 				data = []string{csvStruct.IP, csvStruct.UserName, csvStruct.Password, csvStruct.OperatingSystem, csvStruct.IsMdmOrTb, csvStruct.VirtualIps, csvStruct.VirtualIPNICs, csvStruct.IsSdc, csvStruct.PerformanceProfile} //, csvStruct.SDCName
@@ -341,16 +371,17 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 
 	}
 	writer.Flush()
+	if err := writer.Error(); err != nil {
+		return &parseCSVResponse, fmt.Errorf("Error While Writing Temp CSV File is %s", err.Error())
+	}
+	if err := file.Close(); err != nil {
+		return &parseCSVResponse, fmt.Errorf("Error While Closing Temp CSV File is %s", err.Error())
+	}
 
-	parsecsvRespose, parseCSVError := gatewayClient.ParseCSV(mydir + "/Minimal.csv")
+	parsecsvRespose, parseCSVError := gatewayClient.ParseCSV(filePath)
 
 	if parseCSVError != nil {
 		return &parseCSVResponse, fmt.Errorf("%s", parseCSVError.Error())
-	}
-
-	deletCSVError := os.Remove(mydir + "/Minimal.csv")
-	if deletCSVError != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Deleting Temp CSV File is %s", deletCSVError.Error())
 	}
 
 	parsecsvRespose.Message = strings.Join(sdcIPs, ",")

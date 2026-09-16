@@ -59,6 +59,9 @@ func GetFirstSystem(rc *goscaleio.Client) (*goscaleio.System, error) {
 }
 
 // PrettyJSON - function for logging json readable output.
+// This encodes data into an in-memory buffer for log output only; it is not
+// an HTTP response, so a Content Security Policy header is not applicable.
+// Checkmarx: ignore
 func PrettyJSON(data interface{}) string {
 	buffer := new(bytes.Buffer)
 	encoder := json.NewEncoder(buffer)
