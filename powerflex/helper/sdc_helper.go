@@ -23,7 +23,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -258,12 +257,15 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 		return &parseCSVResponse, fmt.Errorf("Error While Reading Current Directory is %s", err.Error())
 	}
 	// Create a csv writer
-	filePath := filepath.Join(mydir, filepath.Clean("Minimal.csv"))
-	file, err := os.Create(filepath.Clean(filePath))
+	file, err := os.CreateTemp(mydir, ".powerflex-*.csv")
 	if err != nil {
 		return &parseCSVResponse, fmt.Errorf("Error While Creating Temp CSV is %s", err.Error())
 	}
-	defer file.Close()
+	filePath := file.Name()
+	defer func() {
+		_ = file.Close()
+		_ = os.Remove(filePath)
+	}()
 	writer := csv.NewWriter(file)
 
 	// Write the header row
@@ -341,16 +343,17 @@ func ParseCSVOperation(ctx context.Context, sdcDetails []models.SDCDetailDataMod
 
 	}
 	writer.Flush()
+	if err := writer.Error(); err != nil {
+		return &parseCSVResponse, fmt.Errorf("Error While Writing Temp CSV File is %s", err.Error())
+	}
+	if err := file.Close(); err != nil {
+		return &parseCSVResponse, fmt.Errorf("Error While Closing Temp CSV File is %s", err.Error())
+	}
 
-	parsecsvRespose, parseCSVError := gatewayClient.ParseCSV(mydir + "/Minimal.csv")
+	parsecsvRespose, parseCSVError := gatewayClient.ParseCSV(filePath)
 
 	if parseCSVError != nil {
 		return &parseCSVResponse, fmt.Errorf("%s", parseCSVError.Error())
-	}
-
-	deletCSVError := os.Remove(mydir + "/Minimal.csv")
-	if deletCSVError != nil {
-		return &parseCSVResponse, fmt.Errorf("Error While Deleting Temp CSV File is %s", deletCSVError.Error())
 	}
 
 	parsecsvRespose.Message = strings.Join(sdcIPs, ",")

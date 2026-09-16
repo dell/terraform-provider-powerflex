@@ -116,9 +116,13 @@ func (d *nodeDataSource) getAllNodesWithBearerAuth(ctx context.Context) ([]scale
 		return nil, fmt.Errorf("node API returned status %d", httpResp.StatusCode)
 	}
 
-	body, err := io.ReadAll(httpResp.Body)
+	const maxNodeResponseSize = 10 * 1024 * 1024
+	body, err := io.ReadAll(io.LimitReader(httpResp.Body, maxNodeResponseSize+1))
 	if err != nil {
 		return nil, fmt.Errorf("error reading node API response: %s", err)
+	}
+	if len(body) > maxNodeResponseSize {
+		return nil, fmt.Errorf("node API response exceeds the maximum allowed size of %d bytes", maxNodeResponseSize)
 	}
 
 	var nodes []scaleiotypes.NodeDetails

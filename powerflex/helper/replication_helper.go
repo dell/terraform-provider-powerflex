@@ -20,7 +20,6 @@ package helper
 import (
 	"context"
 	"fmt"
-	"reflect"
 	"strings"
 	sshClient "terraform-provider-powerflex/client"
 	"terraform-provider-powerflex/powerflex/constants"
@@ -116,12 +115,19 @@ func PeerSystemUpdate(client *goscaleio.Client, state models.PeerMdmResourceMode
 		}
 	}
 
-	sIPs := reflect.ValueOf(state.IPList).Interface()
-	pIPs := reflect.ValueOf(plan.IPList).Interface()
 	// Update IP List
 	// Adding Checkmarx ignore, because this is working as intended and it is reporting a false postive low sev issue
 	// Checkmarx: ignore
-	if !reflect.DeepEqual(sIPs, pIPs) {
+	ipListsEqual := len(state.IPList) == len(plan.IPList)
+	if ipListsEqual {
+		for i := range state.IPList {
+			if state.IPList[i].ValueString() != plan.IPList[i].ValueString() {
+				ipListsEqual = false
+				break
+			}
+		}
+	}
+	if !ipListsEqual {
 		var localIPList []string
 		for _, ip := range plan.IPList {
 			localIPList = append(localIPList, ip.ValueString())
