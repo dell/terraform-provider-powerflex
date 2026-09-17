@@ -111,7 +111,7 @@ func (e *EsxCli) GetModuleByName(name string) (string, error) {
 		return op, fmt.Errorf("error listing vmk modules: %w", err)
 	}
 	mods := GetLinesUnix(op)
-	e.client.logger.Printf("Listed modules: [\n", strings.Join(mods, "\n"), "\n]\n")
+	e.client.logger.Printf("Listed modules: [\n%s\n]\n", strings.Join(mods, "\n"))
 	ind := slices.IndexFunc(mods, func(mod string) bool {
 		return strings.Contains(mod, name)
 	})
