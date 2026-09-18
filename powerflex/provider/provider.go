@@ -59,6 +59,8 @@ type powerflexProvider struct {
 	// gatewayEndpoint stores the PFMP gateway endpoint for direct API calls
 	// when the SDK auth method is incompatible (e.g., PFMP 5.1 where version != "4.0")
 	gatewayEndpoint string
+	// insecure controls whether TLS certificate verification is skipped
+	insecure bool
 }
 
 // powerflexProviderModel - provider input struct.
@@ -269,6 +271,7 @@ func (p *powerflexProvider) Configure(ctx context.Context, req provider.Configur
 
 		p.gatewayClient = gatewayClient
 		p.gatewayEndpoint = goscaleioConf.Endpoint
+		p.insecure = insecure
 		break
 	}
 

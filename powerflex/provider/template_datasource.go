@@ -48,6 +48,7 @@ type templateDataSource struct {
 	client          *goscaleio.Client
 	gatewayClient   *goscaleio.GatewayClient
 	gatewayEndpoint string
+	insecure        bool
 }
 
 func (d *templateDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -72,6 +73,7 @@ func (d *templateDataSource) Configure(_ context.Context, req datasource.Configu
 
 		d.gatewayClient = req.ProviderData.(*powerflexProvider).gatewayClient
 		d.gatewayEndpoint = req.ProviderData.(*powerflexProvider).gatewayEndpoint
+		d.insecure = req.ProviderData.(*powerflexProvider).insecure
 	} else {
 		resp.Diagnostics.AddError("Unable to Authenticate Goscaleio API Client", req.ProviderData.(*powerflexProvider).clientError)
 
@@ -101,7 +103,8 @@ func (d *templateDataSource) getAllTemplatesWithBearerAuth(ctx context.Context) 
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
+				MinVersion:         tls.VersionTLS12,
+				InsecureSkipVerify: d.insecure,
 			},
 		},
 	}
