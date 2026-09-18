@@ -1,5 +1,5 @@
 <!--
-Copyright (c) 2022-2025 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2022-2026 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,6 +13,49 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
+# v1.9.0 (September 2026)
+
+## Release Summary
+
+The release supports resources and data sources mentioned in the Features section for Dell PowerFlex.
+
+## Features
+
+* Added Support for PowerFlex Gen2 (5.x) architecture.
+
+### Resources
+
+* `powerflex_storage_node` for managing Gen2 Storage Nodes in PowerFlex.
+* `powerflex_device_group` for managing Gen2 Device Groups in PowerFlex.
+* `powerflex_device_action` for performing Gen2 device actions (activate, clear_error, set_capacity_limit) in PowerFlex.
+* `powerflex_storage_pool_erasure_coding` for managing Erasure Coding policy on Gen2 Storage Pools in PowerFlex.
+* `powerflex_volume_action` for performing Gen2 volume actions (refresh, restore, map/unmap host) in PowerFlex.
+
+### Data Sources
+
+* `powerflex_storage_node` for reading Gen2 Storage Node details in PowerFlex.
+* `powerflex_device_group` for reading Gen2 Device Group details in PowerFlex.
+
+### Enhancements
+
+* Added support for configuring the PowerFlex provider using environment variables.
+* Added Gen2 5.x attributes (`storage_node_id`, `device_group_id`, `erasure_coding_policy`, `protection_scheme`, `compression_method`) to existing `powerflex_device` and `powerflex_storage_pool` resources, with backward compatible deprecation of `sds_id`/`sds_name`.
+* Added IP address validation for MDM IP list values.
+* Added a migration guide for moving from PowerFlex 4.x to 5.x.
+
+### Bug Fixes
+
+* Fixed an issue where volumes not managed by Terraform were incorrectly unmapped from the SDC during a `terraform destroy` of `powerflex_sdc_volumes_mapping`.
+* Fixed `powerflex_template` and `powerflex_node` data sources to fall back to Bearer authentication on PFMP 5.1.
+* Fixed Gen2 resource attributes remaining unknown after apply.
+
+### Security
+
+* Marked credential fields as sensitive across PowerFlex resource and data source schemas (CWE-532).
+* Replaced insecure SSH host key handling with `known_hosts` based validation (CWE-295).
+* Gated `InsecureSkipVerify` on the provider `insecure` flag for Bearer authentication fallbacks (CWE-295).
+* Upgraded dependencies to address Black Duck reported vulnerabilities.
+
 # v1.8.0 (March 2025)
 
 ## Release Summary

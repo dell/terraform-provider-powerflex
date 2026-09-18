@@ -1,5 +1,5 @@
 <!--
-Copyright (c) 2022-2024 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2022-2026 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ The Terraform Provider for Dell PowerFlex is released and licensed under the MPL
 
 | **Terraform Provider** | **PowerFlex/VxFlex OS Version** | **OS** | **Terraform** | **Golang** |
 |---------------------|-----------------------|-------|--------------------|--------------------------|
-| v1.8.0 | 3.6 <br> 4.5 <br> 4.6 <br> 4.6.1 (Appliance) <br> 5.0 <br> 5.1 (Gen2) | ubuntu22.04 <br> rhel9.x | 1.9.x <br> 1.10.x <br>| 1.26.x
+| v1.9.0 | 3.6 <br> 4.5 <br> 4.6 <br> 4.6.1 (Appliance) <br> 5.0 <br> 5.1 (Gen2) | ubuntu22.04 <br> rhel9.x | 1.9.x <br> 1.10.x <br>| 1.26.x
 
 ## List of DataSources in Terraform Provider for Dell PowerFlex
 
