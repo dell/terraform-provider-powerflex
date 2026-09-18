@@ -33,7 +33,7 @@ The Terraform provider for Dell PowerFlex can be used to interact with a Dell Po
 provider.tf
 ```terraform
 /*
-Copyright (c) 2023-2025 Dell Inc., or its subsidiaries. All Rights Reserved.
+Copyright (c) 2023-2026 Dell Inc., or its subsidiaries. All Rights Reserved.
 
 Licensed under the Mozilla Public License Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ limitations under the License.
 terraform {
   required_providers {
     powerflex = {
-      version = "1.8.0"
+      version = "1.9.0"
       source  = "registry.terraform.io/dell/powerflex"
     }
   }
